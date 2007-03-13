@@ -20,26 +20,28 @@
 
 package org.apache.cxf.ws.rm.soap;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.ws.policy.AssertionInfo;
+import org.apache.cxf.ws.policy.AssertionInfoMap;
+import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.SequenceType;
 import org.apache.cxf.ws.rm.SourceSequence;
 import org.apache.cxf.ws.rm.persistence.RMStore;
+import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 
@@ -64,6 +66,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         new ArrayList<Identifier>();
     private List<Object> mocks =
         new ArrayList<Object>();
+    private RMAssertion rma;
     
     public void setUp() {
         control = EasyMock.createNiceControl();
@@ -72,7 +75,8 @@ public class RetransmissionQueueImplTest extends TestCase {
         resender = new TestResender();
         queue.replaceResender(resender);
         executor = createMock(Executor.class);
-        
+        rma = createMock(RMAssertion.class);
+        assertNotNull(executor);
     }
     
     public void tearDown() {
@@ -85,18 +89,157 @@ public class RetransmissionQueueImplTest extends TestCase {
         control.reset();
     }
     
+    
     public void testCtor() {
-        ready();
+        ready(false);        
         assertNotNull("expected unacked map", queue.getUnacknowledged());
         assertEquals("expected empty unacked map", 
                      0,
                      queue.getUnacknowledged().size());
-        assertEquals("unexpected base retransmission interval",
-                     3000L,
-                     queue.getBaseRetransmissionInterval());
-        assertEquals("unexpected exponential backoff",
-                     2,
-                     queue.getExponentialBackoff());
+        
+        queue = new RetransmissionQueueImpl(null);
+        assertNull(queue.getManager());
+        queue.setManager(manager);
+        assertSame("Unexpected RMManager", manager, queue.getManager());        
+    }
+    
+    public void testGetBaseRetranmissionIntervalFromPolicies() {
+        Message message = createMock(Message.class);
+        AssertionInfoMap aim = createMock(AssertionInfoMap.class);
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
+        AssertionInfo ai1 = createMock(AssertionInfo.class);
+        AssertionInfo ai2 = createMock(AssertionInfo.class);
+        AssertionInfo ai3 = createMock(AssertionInfo.class);
+        AssertionInfo ai4 = createMock(AssertionInfo.class);
+        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
+        ais.add(ai1);
+        ais.add(ai2);
+        ais.add(ai3);
+        ais.add(ai4);
+        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
+        JaxbAssertion ja1 = createMock(JaxbAssertion.class);
+        EasyMock.expect(ai1.getAssertion()).andReturn(ja1);
+        RMAssertion rma1 = createMock(RMAssertion.class);
+        EasyMock.expect(ja1.getData()).andReturn(rma1);
+        EasyMock.expect(rma1.getBaseRetransmissionInterval()).andReturn(null);
+        JaxbAssertion ja2 = createMock(JaxbAssertion.class);
+        EasyMock.expect(ai2.getAssertion()).andReturn(ja2);
+        RMAssertion rma2 = createMock(RMAssertion.class);
+        EasyMock.expect(ja2.getData()).andReturn(rma2);
+        RMAssertion.BaseRetransmissionInterval bri2 = 
+            createMock(RMAssertion.BaseRetransmissionInterval.class);
+        EasyMock.expect(rma2.getBaseRetransmissionInterval()).andReturn(bri2);
+        EasyMock.expect(bri2.getMilliseconds()).andReturn(null);
+        JaxbAssertion ja3 = createMock(JaxbAssertion.class);
+        EasyMock.expect(ai3.getAssertion()).andReturn(ja3);
+        RMAssertion rma3 = createMock(RMAssertion.class);
+        EasyMock.expect(ja3.getData()).andReturn(rma3);
+        RMAssertion.BaseRetransmissionInterval bri3 = 
+            createMock(RMAssertion.BaseRetransmissionInterval.class);
+        EasyMock.expect(rma3.getBaseRetransmissionInterval()).andReturn(bri3);
+        EasyMock.expect(bri3.getMilliseconds()).andReturn(new BigInteger("10000"));
+        JaxbAssertion ja4 = createMock(JaxbAssertion.class);
+        EasyMock.expect(ai4.getAssertion()).andReturn(ja4);
+        RMAssertion rma4 = createMock(RMAssertion.class);
+        EasyMock.expect(ja4.getData()).andReturn(rma4);
+        RMAssertion.BaseRetransmissionInterval bri4 = 
+            createMock(RMAssertion.BaseRetransmissionInterval.class);
+        EasyMock.expect(rma4.getBaseRetransmissionInterval()).andReturn(bri4);
+        EasyMock.expect(bri4.getMilliseconds()).andReturn(new BigInteger("5000"));
+        
+        control.replay();
+        assertEquals("Unexpected value for base retransmission interval", 
+                     5000, queue.getBaseRetransmissionInterval(message));
+    }
+    
+    public void testGetBaseRetransmissionIntervalFromManager() {
+        Message message = createMock(Message.class);
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
+        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(null);
+        control.replay();
+        assertEquals("Unexpected value for base retransmission interval", 
+                     0, queue.getBaseRetransmissionInterval(message));
+        control.verify();
+        control.reset();
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
+        RMAssertion.BaseRetransmissionInterval bri = createMock(RMAssertion.BaseRetransmissionInterval.class);
+        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(bri);
+        EasyMock.expect(bri.getMilliseconds()).andReturn(null);
+        control.replay();
+        assertEquals("Unexpected value for base retransmission interval", 
+                     0, queue.getBaseRetransmissionInterval(message));
+        control.verify();
+        control.reset();
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
+        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(bri);
+        EasyMock.expect(bri.getMilliseconds()).andReturn(new BigInteger("7000"));
+        control.replay();
+        assertEquals("Unexpected value for base retransmission interval", 
+                     7000, queue.getBaseRetransmissionInterval(message));
+    }
+    
+    public void testUseExponentialBackoff() {
+        Message message = createMock(Message.class);
+        AssertionInfoMap aim = createMock(AssertionInfoMap.class);
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
+        AssertionInfo ai = createMock(AssertionInfo.class);
+        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
+        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
+        ais.add(ai);
+        JaxbAssertion ja = createMock(JaxbAssertion.class);
+        EasyMock.expect(ai.getAssertion()).andReturn(ja);
+        EasyMock.expect(ja.getData()).andReturn(rma);
+        EasyMock.expect(rma.getExponentialBackoff()).andReturn(null);
+        control.replay();
+        assertTrue("Should not use exponential backoff", !queue.useExponentialBackoff(message));
+        control.verify();
+        control.reset();
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
+        EasyMock.expect(rma.getExponentialBackoff()).andReturn(null);
+        control.replay();
+        assertTrue("Should not use exponential backoff", !queue.useExponentialBackoff(message));
+        control.verify();
+        control.reset();
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
+        RMAssertion.ExponentialBackoff eb = createMock(RMAssertion.ExponentialBackoff.class);
+        EasyMock.expect(rma.getExponentialBackoff()).andReturn(eb);
+        control.replay();
+        assertTrue("Should use exponential backoff", queue.useExponentialBackoff(message));        
+    }
+    
+    public void testResendCandidateCtor() {
+        Message message = createMock(Message.class);
+        setupMessagePolicies(message);
+        control.replay();
+        long now = System.currentTimeMillis();
+        RetransmissionQueueImpl.ResendCandidate candidate = queue.createResendCandidate(message);
+        assertSame(message, candidate.getMessage());
+        assertEquals(0, candidate.getResends());
+        Date refDate = new Date(now + 5000);
+        assertTrue(!candidate.getNext().before(refDate));
+        refDate = new Date(now + 7000);
+        assertTrue(!candidate.getNext().after(refDate));
+        assertTrue(!candidate.isPending());
+    }
+    
+    public void testResendCandidateAttempted() {
+        Message message = createMock(Message.class);
+        setupMessagePolicies(message);
+        ready(true);
+        long now = System.currentTimeMillis();
+        RetransmissionQueueImpl.ResendCandidate candidate = queue.createResendCandidate(message);
+        candidate.attempted();
+        assertEquals(1, candidate.getResends());
+        Date refDate = new Date(now + 15000);
+        assertTrue(!candidate.getNext().before(refDate));
+        refDate = new Date(now + 17000);
+        assertTrue(!candidate.getNext().after(refDate));
+        assertTrue(!candidate.isPending());        
     }
     
     public void testCacheUnacknowledged() {
@@ -104,7 +247,11 @@ public class RetransmissionQueueImplTest extends TestCase {
         Message message2 = setUpMessage("sequence2");
         Message message3 = setUpMessage("sequence1");
         
-        ready();
+        setupMessagePolicies(message1);
+        setupMessagePolicies(message2);
+        setupMessagePolicies(message3);
+        
+        ready(false);
         
         assertNotNull("expected resend candidate",
                       queue.cacheUnacknowledged(message1));
@@ -153,11 +300,14 @@ public class RetransmissionQueueImplTest extends TestCase {
         queue.getUnacknowledged().put("sequence1", sequenceList);
         Message message1 =
             setUpMessage("sequence1", messageNumbers[0]);
-        sequenceList.add(queue.createResendCandidate(message1));
+        setupMessagePolicies(message1);        
         Message message2 =
             setUpMessage("sequence1", messageNumbers[1]);
+        setupMessagePolicies(message2);
+        ready(false);
+        
+        sequenceList.add(queue.createResendCandidate(message1));
         sequenceList.add(queue.createResendCandidate(message2));
-        ready();
 
         queue.purgeAcknowledged(sequence);
         assertEquals("unexpected unacked map size", 
@@ -178,11 +328,14 @@ public class RetransmissionQueueImplTest extends TestCase {
         queue.getUnacknowledged().put("sequence1", sequenceList);
         Message message1 =
             setUpMessage("sequence1", messageNumbers[0]);
-        sequenceList.add(queue.createResendCandidate(message1));
+        setupMessagePolicies(message1);        
         Message message2 =
             setUpMessage("sequence1", messageNumbers[1]);
+        setupMessagePolicies(message2);        
+        ready(false);
+        
+        sequenceList.add(queue.createResendCandidate(message1));
         sequenceList.add(queue.createResendCandidate(message2));
-        ready();
 
         queue.purgeAcknowledged(sequence);
         assertEquals("unexpected unacked map size", 
@@ -194,7 +347,7 @@ public class RetransmissionQueueImplTest extends TestCase {
     }
     
     public void testIsEmpty() {
-        ready();
+        ready(false);
         assertTrue("queue is not empty" , queue.isEmpty());
     }
 
@@ -209,11 +362,14 @@ public class RetransmissionQueueImplTest extends TestCase {
         queue.getUnacknowledged().put("sequence1", sequenceList);
         Message message1 =
             setUpMessage("sequence1", messageNumbers[0], false);
-        sequenceList.add(queue.createResendCandidate(message1));
+        setupMessagePolicies(message1);        
         Message message2 =
             setUpMessage("sequence1", messageNumbers[1], false);
+        setupMessagePolicies(message1);
+        ready(false);
+        
+        sequenceList.add(queue.createResendCandidate(message1));
         sequenceList.add(queue.createResendCandidate(message2));
-        ready();
 
         assertEquals("unexpected unacked count", 
                      2,
@@ -226,234 +382,19 @@ public class RetransmissionQueueImplTest extends TestCase {
         SourceSequence sequence = setUpSequence("sequence1",
                                           messageNumbers, 
                                           null);
-        ready();
+        ready(false);
 
         assertEquals("unexpected unacked count", 
                      0,
                      queue.countUnacknowledged(sequence));
     }
     
-    public void xtestPopulate() {
-  
-        /*
-        Collection<SourceSequence> sss = new ArrayList<SourceSequence>();
-        Collection<RMMessage> msgs = new ArrayList<RMMessage>();
-        // List<Handler> handlerChain = new ArrayList<Handler>();
-            
-        RMStore store = createMock(RMStore.class);
-        handler.getStore();
-        EasyMock.expectLastCall().andReturn(store);   
-        SourceSequence ss = control.createMock(SourceSequence.class);
-        sss.add(ss);
-        Identifier id = control.createMock(Identifier.class);
-        ss.getIdentifier();
-        EasyMock.expectLastCall().andReturn(id); 
-        RMMessage msg = control.createMock(RMMessage.class);
-        msgs.add(msg);
-        store.getMessages(id, true);
-        EasyMock.expectLastCall().andReturn(msgs); 
-        MessageContext context = control.createMock(MessageContext.class);
-        msg.getContext();
-        EasyMock.expectLastCall().andReturn(context);
-        
-        RMSoapHandler rmh = control.createMock(RMSoapHandler.class);
-        MAPCodec wsah = control.createMock(MAPCodec.class);
-
-        handler.getWsaSOAPHandler();
-        EasyMock.expectLastCall().andReturn(wsah);
-        handler.getRMSoapHandler();
-        EasyMock.expectLastCall().andReturn(rmh);
-        RMProperties rmps = control.createMock(RMProperties.class);
-        rmh.unmarshalRMProperties(null);
-        EasyMock.expectLastCall().andReturn(rmps);
-        AddressingProperties maps = control.createMock(AddressingProperties.class);
-        wsah.unmarshalMAPs(null);
-        EasyMock.expectLastCall().andReturn(maps);
-        SequenceType st = control.createMock(SequenceType.class);
-        rmps.getSequence();
-        EasyMock.expectLastCall().andReturn(st);
-        st.getIdentifier();
-        EasyMock.expectLastCall().andReturn(id);
-        id.getValue();
-        EasyMock.expectLastCall().andReturn("sequence1");
-        ready();
-        
-        queue.populate(sss);
-        
-        assertTrue("queue is empty", !queue.isEmpty()); 
-        */
+    public void testStartStop() {
+        control.replay();
+        queue.start();
+        queue.stop();
     }
     
-    public void testResendInitiatorBackoffLogic() {
-        Message message1 = setUpMessage("sequence1");
-        Message message2 = setUpMessage("sequence2");
-        Message message3 = setUpMessage("sequence1");
-        
-        ready();
-        RetransmissionQueueImpl.ResendCandidate candidate1 =
-            queue.cacheUnacknowledged(message1);
-        RetransmissionQueueImpl.ResendCandidate candidate2 =
-            queue.cacheUnacknowledged(message2);
-        RetransmissionQueueImpl.ResendCandidate candidate3 =
-            queue.cacheUnacknowledged(message3);
-        RetransmissionQueueImpl.ResendCandidate[] allCandidates = 
-        {candidate1, candidate2, candidate3};
-        boolean [] expectAckRequested = {true, true, false};
-
-        // initial run => none due
-        runInitiator();
-
-        // all 3 candidates due
-        runInitiator(allCandidates);
-        runCandidates(allCandidates, expectAckRequested);  
-                        
-        // exponential backoff => none due
-        runInitiator();
-        
-        // all 3 candidates due
-        runInitiator(allCandidates);
-        runCandidates(allCandidates, expectAckRequested);
-
-        for (int i = 0; i < 3; i++) {
-            // exponential backoff => none due
-            runInitiator();
-        }
-
-        // all 3 candidates due
-        runInitiator(allCandidates);
-        runCandidates(allCandidates, expectAckRequested);
-        
-        for (int i = 0; i < 7; i++) {
-            // exponential backoff => none due
-            runInitiator();
-        }
-        
-        // all 3 candidates due
-        runInitiator(allCandidates);
-        runCandidates(allCandidates, expectAckRequested);
-    }
-
-
-    public void testResendInitiatorDueLogic() {
-        Message message1 = setUpMessage("sequence1");
-        Message message2 = setUpMessage("sequence2");
-        Message message3 = setUpMessage("sequence1");
-        ready();
-        RetransmissionQueueImpl.ResendCandidate candidate1 =
-            queue.cacheUnacknowledged(message1);
-        RetransmissionQueueImpl.ResendCandidate candidate2 =
-            queue.cacheUnacknowledged(message2);
-        RetransmissionQueueImpl.ResendCandidate candidate3 =
-            queue.cacheUnacknowledged(message3);
-        RetransmissionQueueImpl.ResendCandidate[] allCandidates = 
-        {candidate1, candidate2, candidate3};
-        boolean [] expectAckRequested = {true, true, false};
-
-        // initial run => none due
-        runInitiator();
-
-        // all 3 candidates due
-        runInitiator(allCandidates);
-                
-        // all still pending => none due
-        runInitiator();
-        
-        candidate1.run();
-        candidate2.run();
-        
-        // exponential backoff => none due
-        runInitiator();
-        
-        // candidates 1 & 2 run => only these due
-        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate1, candidate2});
-
-        runCandidates(allCandidates, expectAckRequested);
-
-        // exponential backoff => none due
-        runInitiator();
-
-        // candidates 3 run belatedly => now due
-        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate3});
-        
-        // exponential backoff => none due
-        runInitiator();
-
-        // candidates 1 & 2 now due
-        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate1, candidate2});
-    }
-    
-    public void testResendInitiatorResolvedLogic() {
-        Message message1 = setUpMessage("sequence1");
-        Message message2 = setUpMessage("sequence2");
-        Message message3 = setUpMessage("sequence1");
-        ready();
-        RetransmissionQueueImpl.ResendCandidate candidate1 =
-            queue.cacheUnacknowledged(message1);
-        RetransmissionQueueImpl.ResendCandidate candidate2 =
-            queue.cacheUnacknowledged(message2);
-        RetransmissionQueueImpl.ResendCandidate candidate3 =
-            queue.cacheUnacknowledged(message3);
-        RetransmissionQueueImpl.ResendCandidate[] allCandidates = 
-        {candidate1, candidate2, candidate3};
-        boolean [] expectAckRequested = {true, true, false};
-        
-        // initial run => none due
-        runInitiator();
-
-        // all 3 candidates due
-        runInitiator(allCandidates);
-        runCandidates(allCandidates, expectAckRequested);
-
-        // exponential backoff => none due
-        runInitiator();
-        
-        candidate1.resolved();
-        candidate3.resolved();
-        
-        // candidates 1 & 3 resolved => only candidate2 due
-        runInitiator(new RetransmissionQueueImpl.ResendCandidate[] {candidate2});
-    }
-    
-    public void testResenderInitiatorReschedule() {
-        ready();
-        
-        runInitiator();
-    }
-
-    public void xtestResenderInitiatorNoRescheduleOnShutdown() {
-        /*
-        ready();
-        
-        queue.shutdown();
-        queue.getResendInitiator().run();
-        */
-    }
-    
-    public void testDefaultResenderClient() throws Exception {
-        doTestDefaultResender(true);
-    }
-    
-    public void xtestDefaultResenderServer() throws Exception {
-        doTestDefaultResender(false);
-    }
-
-    private void doTestDefaultResender(boolean isRequestor) throws Exception {
-        Message message1 = setUpMessage("sequence1");
-        queue.replaceResender(queue.getDefaultResender());
-        ready();
-        RetransmissionQueueImpl.ResendCandidate candidate1 =
-            queue.cacheUnacknowledged(message1);
-        RetransmissionQueueImpl.ResendCandidate[] allCandidates = {candidate1};
-    
-        // initial run => none due
-        runInitiator();
-    
-        // single candidate due
-        runInitiator(allCandidates);
-        setUpDefaultResender(0, isRequestor, message1);
-        allCandidates[0].run();
-    }
-
     private Message setUpMessage(String sid) {
         return setUpMessage(sid, null);
     }
@@ -475,191 +416,23 @@ public class RetransmissionQueueImplTest extends TestCase {
         
         return message;
     }
-   
-    /*
-    private void setupContextMessage(ObjectMessageContext context) throws Exception {
-        SOAPMessage message = createMock(SOAPMessage.class);
-        context.get("org.apache.cxf.bindings.soap.message");
-        EasyMock.expectLastCall().andReturn(message);
-        SOAPPart part = createMock(SOAPPart.class);
-        message.getSOAPPart();
-        EasyMock.expectLastCall().andReturn(part);
-        SOAPEnvelope env = createMock(SOAPEnvelope.class);
-        part.getEnvelope();
-        EasyMock.expectLastCall().andReturn(env);
-        SOAPHeader header = createMock(SOAPHeader.class);
-        env.getHeader();
-        EasyMock.expectLastCall().andReturn(header).times(2);
-        Iterator headerElements = createMock(Iterator.class);
-        header.examineAllHeaderElements();
-        EasyMock.expectLastCall().andReturn(headerElements);
-        
-        // RM header element
-        headerElements.hasNext();
-        EasyMock.expectLastCall().andReturn(true);
-        SOAPHeaderElement headerElement = createMock(SOAPHeaderElement.class);
-        headerElements.next();
-        EasyMock.expectLastCall().andReturn(headerElement);
-        Name headerName = createMock(Name.class);
-        headerElement.getElementName();
-        EasyMock.expectLastCall().andReturn(headerName);
-        headerName.getURI();
-        EasyMock.expectLastCall().andReturn(Names.WSRM_NAMESPACE_NAME);
-        headerElement.detachNode();
-        EasyMock.expectLastCall();
-        
-        // non-RM header element
-        headerElements.hasNext();
-        EasyMock.expectLastCall().andReturn(true);
-        headerElements.next();
-        EasyMock.expectLastCall().andReturn(headerElement);
-        headerElement.getElementName();
-        EasyMock.expectLastCall().andReturn(headerName);
-        headerName.getURI();
-        EasyMock.expectLastCall().andReturn(Names.WSA_NAMESPACE_NAME);
-
-        headerElements.hasNext();
-        EasyMock.expectLastCall().andReturn(false);
-    }
-    */
-
-    private void ready() {
-        control.replay();
-        queue.start();
+    
+    private void setupMessagePolicies(Message message) {
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma).times(2);
+        RMAssertion.BaseRetransmissionInterval bri = 
+            createMock(RMAssertion.BaseRetransmissionInterval.class);
+        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(bri);
+        EasyMock.expect(bri.getMilliseconds()).andReturn(new BigInteger("5000"));
+        RMAssertion.ExponentialBackoff eb = createMock(RMAssertion.ExponentialBackoff.class);
+        EasyMock.expect(rma.getExponentialBackoff()).andReturn(eb);        
     }
     
-    private void setUpDefaultResender(int i,
-                                      boolean isRequestor,
-                                      Message context) 
-        throws Exception {
-        assertTrue("too few contexts", i < messages.size());
-        assertTrue("too few properties", i < properties.size());
-        assertTrue("too few sequences", i < sequences.size());
-        control.verify();
-        control.reset();  
-        
-        messages.get(i).get(RMMessageConstants.RM_PROPERTIES_OUTBOUND);
-        EasyMock.expectLastCall().andReturn(properties.get(i)).times(1);
-        properties.get(i).getSequence();
-        EasyMock.expectLastCall().andReturn(sequences.get(i)).times(1);
-        
-        messages.get(i).get(Message.REQUESTOR_ROLE);
-        EasyMock.expectLastCall().andReturn(Boolean.valueOf(isRequestor));
-        
-        if (isRequestor) {
-            Exchange ex = createMock(Exchange.class);
-            messages.get(i).getExchange();
-            EasyMock.expectLastCall().andReturn(ex);
-            Conduit conduit = createMock(Conduit.class);
-            ex.getConduit();
-            EasyMock.expectLastCall().andReturn(conduit);
-            conduit.send(messages.get(i));
-            EasyMock.expectLastCall();
-            OutputStream os = createMock(OutputStream.class);
-            messages.get(i).getContent(OutputStream.class);
-            EasyMock.expectLastCall().andReturn(os).times(2);
-            ByteArrayOutputStream saved = createMock(ByteArrayOutputStream.class);
-            messages.get(i).get(RMMessageConstants.SAVED_OUTPUT_STREAM);
-            EasyMock.expectLastCall().andReturn(saved);
-            byte[] content = "the saved message".getBytes();
-            saved.toByteArray();
-            EasyMock.expectLastCall().andReturn(content);
-            os.write(EasyMock.isA(byte[].class), EasyMock.eq(0), EasyMock.eq(content.length));
-            EasyMock.expectLastCall();
-            os.flush();
-            EasyMock.expectLastCall();
-            os.close();
-            EasyMock.expectLastCall(); 
-        }
+
+    private void ready(boolean doStart) {
         control.replay();
-    }
-
-    /*
-    private void setUpClientDispatch(
-                              HandlerInvoker handlerInvoker,
-                              AbstractBindingBase binding,
-                              OutputStreamMessageContext outputStreamContext,
-                              AbstractBindingImpl bindingImpl,
-                              Transport transport) throws Exception {
-             
-        InputStreamMessageContext inputStreamContext =
-            createMock(InputStreamMessageContext.class);
-        ((ClientTransport)transport).invoke(outputStreamContext);
-        EasyMock.expectLastCall().andReturn(inputStreamContext);        
-        binding.getBindingImpl();
-        EasyMock.expectLastCall().andReturn(bindingImpl); 
-        bindingImpl.createBindingMessageContext(inputStreamContext);
-        MessageContext bindingContext = 
-            control.createMock(MessageContext.class);
-        EasyMock.expectLastCall().andReturn(bindingContext);        
-        bindingImpl.read(inputStreamContext, bindingContext);
-        EasyMock.expectLastCall();        
-        handlerInvoker.invokeProtocolHandlers(true, bindingContext);
-        EasyMock.expectLastCall().andReturn(Boolean.TRUE);        
-        ObjectMessageContext objectContext = control.createMock(ObjectMessageContext.class);
-        binding.createObjectContext();
-        EasyMock.expectLastCall().andReturn(objectContext);        
-        bindingImpl.hasFault(bindingContext);
-        EasyMock.expectLastCall().andReturn(false);        
-        bindingImpl.unmarshal(bindingContext, objectContext, null);
-        EasyMock.expectLastCall();
-    }
-    */
-
-    /*
-    private void setUpServerDispatch(
-                            MessageContext bindingContext,
-                            OutputStreamMessageContext outputStreamContext) {
-        DataBindingCallback callback =
-            createMock(ServerDataBindingCallback.class);
-        bindingContext.get(DATABINDING_CALLBACK_PROPERTY);
-        EasyMock.expectLastCall().andReturn(callback);
-        OutputStream outputStream = createMock(OutputStream.class);
-        outputStreamContext.getOutputStream();
-        EasyMock.expectLastCall().andReturn(outputStream);
-    }
-    */
-
-    private void runInitiator() {
-        runInitiator(null);
-    }
-    
-    private void runInitiator(
-                       RetransmissionQueueImpl.ResendCandidate[] dueCandidates) {
-        control.verify();
-        control.reset();
-
-        for (int i = 0; 
-             dueCandidates != null && i < dueCandidates.length;
-             i++) {
-            Exchange ex = createMock(Exchange.class);
-            dueCandidates[i].getMessage().getExchange();
-            EasyMock.expectLastCall().andReturn(ex);
-            Endpoint ep = createMock(Endpoint.class);
-            ex.get(Endpoint.class);
-            EasyMock.expectLastCall().andReturn(ep);
-            ep.getExecutor();
-            EasyMock.expectLastCall().andReturn(executor);
-            executor.execute(dueCandidates[i]);
-            EasyMock.expectLastCall();
-        }
-        
-        control.replay();
-        queue.getResendInitiator().run();
-    }
-    
-    private void runCandidates(
-                          RetransmissionQueueImpl.ResendCandidate[] candidates,
-                          boolean[] expectAckRequested) {
-        for (int i = 0; i < candidates.length; i++) {
-            candidates[i].run();
-            assertEquals("unexpected request acknowledge",
-                         expectAckRequested[i],
-                         resender.includeAckRequested);
-            assertSame("unexpected context",
-                       candidates[i].getMessage(),
-                       resender.message);
-            resender.clear();
+        if (doStart) {
+            queue.start();
         }
     }
     

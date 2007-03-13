@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
@@ -83,13 +84,16 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     private boolean doTestOnewayDeferredAnonymousAcks = testAll;
     private boolean doTestOnewayDeferredNonAnonymousAcks = testAll;
     private boolean doTestOnewayAnonymousAcksSequenceLength1 = testAll;
-    private boolean doTestOnewayAnonymousAcksSupressed = testAll;
+    private boolean doTestOnewayAnonymousAcksSuppressed = testAll;
+    private boolean doTestOnewayAnonymousAcksSuppressedAsyncExecutor = testAll;
     private boolean doTestTwowayNonAnonymous = testAll;
     private boolean doTestTwowayNonAnonymousEndpointSpecific = testAll;
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
     private boolean doTestOnewayMessageLoss = testAll;
+    private boolean doTestOnewayMessageLossAsyncExecutor = testAll;
     private boolean doTestTwowayMessageLoss = testAll;
+    private boolean doTestTwowayMessageLossAsyncExecutor = testAll;
     private boolean doTestTwowayNonAnonymousNoOffer = testAll;
     private boolean doTestConcurrency = testAll;
 
@@ -332,15 +336,27 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
     }
-    
+   
     @Test
-    public void testOnewayAnonymousAcksSupressed() throws Exception {
-
-        if (!doTestOnewayAnonymousAcksSupressed) {
+    public void testOnewayAnonymousAcksSuppressed() throws Exception {
+        if (!doTestOnewayAnonymousAcksSuppressed) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/suppressed.xml");
+        testOnewayAnonymousAcksSuppressed(null);
+    }
 
+    @Test
+    public void testOnewayAnonymousAcksSuppressedAsyncExecutor() throws Exception {
+        if (!doTestOnewayAnonymousAcksSuppressedAsyncExecutor) {
+            return;
+        }
+        testOnewayAnonymousAcksSuppressed(Executors.newSingleThreadExecutor());
+    }
+
+    private void testOnewayAnonymousAcksSuppressed(Executor executor) throws Exception {
+
+        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-suppressed.xml", false, executor);
+ 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
         greeter.greetMeOneWay("thrice");
@@ -604,12 +620,26 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         expected[5] = true;
         mf.verifyAcknowledgements(expected, false);
     }
+
     @Test    
     public void testOnewayMessageLoss() throws Exception {
         if (!doTestOnewayMessageLoss) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml");
+        testOnewayMessageLoss(null);
+    }
+    
+    @Test    
+    public void testOnewayMessageLossAsyncExecutor() throws Exception {
+        if (!doTestOnewayMessageLossAsyncExecutor) {
+            return;
+        }
+        testOnewayMessageLoss(Executors.newSingleThreadExecutor());
+    } 
+
+    private void testOnewayMessageLoss(Executor executor) throws Exception {
+
+        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml", false, executor);
         
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
@@ -653,13 +683,26 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true, true}, false);
   
     }
-    
+
     @Test
     public void testTwowayMessageLoss() throws Exception {
         if (!doTestTwowayMessageLoss) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml", true);
+        testTwowayMessageLoss(null);
+    }
+
+    @Test
+    public void testTwowayMessageLossAsyncExecutor() throws Exception {
+        if (!doTestTwowayMessageLossAsyncExecutor) {
+            return;
+        }
+        testTwowayMessageLoss(Executors.newSingleThreadExecutor());
+    }
+    
+    private void testTwowayMessageLoss(Executor executor) throws Exception {
+
+        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml", true, executor);
         
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
