@@ -54,8 +54,8 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/xjc/dv</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/xjc/dv</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/xjc/dv</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/xjc/dv</developerConnection>
     </scm>
 
 </project>

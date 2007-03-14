@@ -55,32 +55,27 @@
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-common</artifactId>
+            <artifactId>cxf-tools2-common</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-validator</artifactId>
+            <artifactId>cxf-tools2-validator</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-wsdl2java</artifactId>
+            <artifactId>cxf-tools2-wsdl2java</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <artifactId>cxf-tools2-java2wsdl</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-misctools</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-xjc-dv</artifactId>
+            <artifactId>cxf-tools2-xjc-dv</artifactId>
             <version>${pom.version}</version>
         </dependency>
 

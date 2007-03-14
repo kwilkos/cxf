@@ -32,7 +32,7 @@
     </parent>
 
     <modules>
-        <module>management</module>
+        <module>core</module>
         <module>transports/local</module>
         <module>databinding/jaxb</module>
         <module>databinding/aegis</module>
@@ -46,6 +46,7 @@
         <module>ws/policy</module>
         <module>ws/addr</module>
         <module>ws/rm</module>
+        <module>management</module>
     </modules>
 
     <scm>

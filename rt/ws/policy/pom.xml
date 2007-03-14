@@ -116,7 +116,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
+                <artifactId>cxf-codegen-plugin2</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>

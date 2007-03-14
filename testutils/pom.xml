@@ -143,41 +143,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-common-xsd</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-                            <xsdOptions>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/wsdl/jaxb/misc_test.xsd</xsd>
-                                </xsdOption>
-                            </xsdOptions>
-                        </configuration>
-                        <goals>
-                            <goal>xsdtojava</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-		                    <dependency>
-		                        <groupId>org.apache.cxf</groupId>
-		                        <artifactId>cxf-tools2-xjc-dv</artifactId>
-		                        <version>${project.version}</version>
-		                    </dependency>
-		                    <dependency>
-		                        <groupId>org.apache.cxf</groupId>
-		                        <artifactId>cxf-common-utilities</artifactId>
-		                        <version>${project.version}</version>
-		                    </dependency>
-                </dependencies>
-                
-            </plugin>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin2</artifactId>
                 <version>${project.version}</version>
                 <executions>
@@ -186,11 +151,6 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-                            <xsdOptions>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/wsdl/jaxb/misc_test.xsd</xsd>
-                                </xsdOption>
-                            </xsdOptions>
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>

@@ -22,7 +22,7 @@
     <artifactId>cxf-tools2-misctools</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>Apache CXF Command Line Misctools</name>
+    <name>Apache CXF Command Line Tools2 WSDLTo Misctools</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>

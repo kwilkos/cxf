@@ -73,9 +73,9 @@
         </dependency>
         
          <dependency>
-	            <groupId>org.apache.cxf</groupId>
-	            <artifactId>cxf-tools2-common</artifactId>
-	            <version>${project.version}</version>
+	     <groupId>org.apache.cxf</groupId>
+	     <artifactId>cxf-tools2-common</artifactId>
+	     <version>${project.version}</version>
         </dependency>
        
         

@@ -67,12 +67,6 @@
         </dependency>
         
         <dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-tools2-xjc-dv</artifactId>
-	    <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
             <scope>test</scope>

@@ -125,13 +125,11 @@
         <module>parent</module>
         <module>common</module>
         <module>api</module>
-        <module>rt/core</module>       
         <module>metacode</module>
         <module>tools2</module>
         <module>codegen-plugin2</module>       
         <module>testutils</module>
         <module>rt</module>
-        <module>tools2/javato</module>
         <module>integration</module>
         <module>systests</module>
     </modules>
