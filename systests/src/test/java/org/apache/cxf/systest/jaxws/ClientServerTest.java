@@ -64,6 +64,9 @@ import org.junit.Test;
 
 public class ClientServerTest extends AbstractBusClientServerTestBase {
 
+    private final QName bogusAddressServiceName = new QName(
+                                                "http://apache.org/hello_world_soap_http",
+                                                "SOAPServiceBogusAddressTest");    
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
@@ -76,6 +79,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
                                                "SoapPort2");
 
+
     @BeforeClass
     public static void startServers() throws Exception {                    
         // set up configuration to enable schema validation
@@ -86,6 +90,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    
     @Test
     public void testBasicConnection() throws Exception {
 
@@ -94,13 +99,12 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
 
         Greeter greeter = service.getPort(portName, Greeter.class);
 
-        String response = new String("Bonjour");
         try {
             greeter.greetMe("test");
             
             String reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
-            assertEquals(response, reply);
+            assertEquals("Bonjour", reply);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
@@ -680,5 +684,22 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     }
+    
+    
+    @Test
+    public void testBogusAddress() throws Exception {
+        Service service = Service.create(bogusAddressServiceName);
+        Greeter greeter = service.getPort(portName, Greeter.class);
+        BindingProvider bp = (BindingProvider)greeter;
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                                   "http://localhost:9015/SoapContext/SoapPort");
+                                   
+        greeter.greetMe("test");
+        String reply = greeter.sayHi();
+        assertNotNull("no response received from service", reply);
+        assertEquals("Bonjour", reply);
+                                   
+    }
+
     
 }

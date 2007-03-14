@@ -390,5 +390,10 @@
             <soap:address location="http://localhost:9009/SoapContext/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
+    <wsdl:service name="SOAPServiceBogusAddressTest">
+        <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="FOO"/>
+        </wsdl:port>
+    </wsdl:service>
 </wsdl:definitions>
 

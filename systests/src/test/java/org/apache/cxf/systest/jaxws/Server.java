@@ -21,6 +21,7 @@ package org.apache.cxf.systest.jaxws;
 
 import java.net.URL;
 
+import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -40,6 +41,11 @@ public class Server extends AbstractBusTestServerBase {
         implementor = new DocLitBareGreeterImpl();
         address = "http://localhost:7600/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
+        
+        
+        implementor = new GreeterImplBogus();
+        address = "http://localhost:9015/SoapContext/SoapPort";
+        Endpoint.publish(address, implementor);
     }
 
     public static void main(String[] args) {
@@ -53,4 +59,13 @@ public class Server extends AbstractBusTestServerBase {
             System.out.println("done!");
         }
     }
+    
+    
+    @WebService(serviceName = "SOAPServiceBogusAddressTest",
+                portName = "SoapPort",
+                endpointInterface = "org.apache.hello_world_soap_http.Greeter",
+                targetNamespace = "http://apache.org/hello_world_soap_http")
+    public class GreeterImplBogus extends GreeterImpl {
+    
+    }    
 }

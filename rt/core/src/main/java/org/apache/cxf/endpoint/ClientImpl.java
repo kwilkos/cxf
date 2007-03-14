@@ -210,6 +210,13 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         
         modifyChain(chain, requestContext);
         chain.setFaultObserver(outFaultObserver);
+        
+        if (requestContext != null 
+            && requestContext.containsKey(Message.ENDPOINT_ADDRESS)) {
+            endpoint.getEndpointInfo().setAddress((String)requestContext.get(Message.ENDPOINT_ADDRESS));
+        }
+        
+        
         // setup conduit
         Conduit conduit = getConduit();
         exchange.setConduit(conduit);
