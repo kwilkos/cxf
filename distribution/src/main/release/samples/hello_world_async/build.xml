@@ -33,13 +33,6 @@
         
     <target name="generate.code">
 	<property name="wsdl.dir" location="${basedir}/wsdl"/>
-        <copy file="${basedir}/wsdl/async_binding.xml.tmpl"
-            tofile="${basedir}/wsdl/async_binding.xml"
-            overwrite="yes">
-            <filterset>
-                <filter token="WSDL_LOCATION" value="${wsdl.dir}"/>
-            </filterset>
-        </copy>
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java file="hello_world_async.wsdl" bindingfile="${basedir}/wsdl/async_binding.xml"/>
     </target>
