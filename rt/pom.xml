@@ -32,7 +32,6 @@
     </parent>
 
     <modules>
-        <module>core</module>
         <module>management</module>
         <module>transports/local</module>
         <module>databinding/jaxb</module>

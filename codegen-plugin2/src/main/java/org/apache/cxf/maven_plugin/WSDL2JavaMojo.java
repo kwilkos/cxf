@@ -39,19 +39,19 @@ public class WSDL2JavaMojo extends AbstractMojo {
      * @parameter
      */
     String testSourceRoot;
-    
+
     /**
      * @parameter  expression="${project.build.directory}/generated/src/main/java"
      * @required
      */
     String sourceRoot;
-    
+
     /**
      * @parameter  expression="${project.build.outputDirectory}"
      * @required
      */
     String classesDirectory;
-    
+
     /**
      * @parameter  expression="${project.compileClasspathElements}"
      * @required
@@ -63,8 +63,8 @@ public class WSDL2JavaMojo extends AbstractMojo {
      * @required
      */
     MavenProject project;
-    
-    
+
+
     /**
      * @parameter
      */
@@ -74,13 +74,13 @@ public class WSDL2JavaMojo extends AbstractMojo {
         String outputDir = testSourceRoot == null ? sourceRoot : testSourceRoot;
         File outputDirFile = new File(outputDir);
         outputDirFile.mkdirs();
-        
+
         File classesDir = new File(classesDirectory);
         classesDir.mkdirs();
 
-        
+
         if (wsdlOptions == null) {
-            throw new MojoExecutionException("Must specify wsdlOptions");           
+            throw new MojoExecutionException("Must specify wsdlOptions");
         }
 
         StringBuffer buf = new StringBuffer();
@@ -90,7 +90,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
             buf.append(File.pathSeparatorChar);
         }
         String newCp = buf.toString();
-        
+
         String cp = System.getProperty("java.class.path");
         SecurityManager oldSm = System.getSecurityManager();
         long timestamp = CodegenUtils.getCodegenTimestamp();
@@ -98,9 +98,6 @@ public class WSDL2JavaMojo extends AbstractMojo {
         try {
             System.setProperty("java.class.path", newCp);
             System.setSecurityManager(new NoExitSecurityManager());
-            
-            System.out.println("----wsdlOptions.length--- " + wsdlOptions.length);
-            
             for (int x = 0; x < wsdlOptions.length; x++) {
                 processWsdl(wsdlOptions[x], outputDirFile, timestamp);
 
@@ -114,15 +111,17 @@ public class WSDL2JavaMojo extends AbstractMojo {
         } finally {
             System.setSecurityManager(oldSm);
             System.setProperty("java.class.path", cp);
-        }        
+        }
         if (project != null && sourceRoot != null) {
             project.addCompileSourceRoot(sourceRoot);
         }
         if (project != null && testSourceRoot != null) {
             project.addTestCompileSourceRoot(testSourceRoot);
-        }        
+        }
+
+        System.gc();
     }
-    
+
     private void processWsdl(WsdlOption wsdlOption,
                              File outputDirFile,
                              long cgtimestamp) throws MojoExecutionException {
@@ -144,13 +143,13 @@ public class WSDL2JavaMojo extends AbstractMojo {
                     }
                 }
             }
-        } 
-        
-        
-        
+        }
+
+
+
         if (doWork) {
-            
-            List list = new ArrayList();
+
+            List<String> list = new ArrayList<String>();
             if (wsdlOption.getPackagenames() != null) {
                 Iterator it = wsdlOption.getPackagenames().iterator();
                 while (it.hasNext()) {
@@ -162,27 +161,23 @@ public class WSDL2JavaMojo extends AbstractMojo {
             //list.add("-verbose");
             list.add("-d");
             list.add(outputDirFile.toString());
-            
+
             if (wsdlOption.getExtraargs() != null) {
                 Iterator it = wsdlOption.getExtraargs().iterator();
                 while (it.hasNext()) {
                     list.add(it.next().toString());
                 }
-            }            
-            list.add(wsdlOption.getWsdl());            
-            
-            
+            }
+            list.add(wsdlOption.getWsdl());
+
+
             try {
                 try {
-                    System.out.println("----------MAVEN CODEGEN PLUGIN--------------");
                     StringBuffer strBuffer = new StringBuffer();
-                    for (int i = 0 ; i < list.size(); i++) {
+                    for (int i = 0; i < list.size(); i++) {
                         strBuffer.append(list.get(i));
                         strBuffer.append(" ");
                     }
-                    System.out.println(strBuffer.toString());
-                    System.out.println("--------------------------------------------");
-                    //System.out.println
                     WSDLToJava.main((String[])list.toArray(new String[list.size()]));
                     doneFile.delete();
                     doneFile.createNewFile();
@@ -208,26 +203,26 @@ public class WSDL2JavaMojo extends AbstractMojo {
                 deleteDir(files[idx]);
             }
         }
-        
+
         if (f.exists()) {
             return f.delete();
         }
-        
+
         return true;
     }
-    
+
     private boolean isDefServiceName(WsdlOption wsdlOption) {
         List args = wsdlOption.extraargs;
         if (args == null) {
             return false;
         }
-        for (int i = 0 ; i < args.size(); i++) {
+        for (int i = 0; i < args.size(); i++) {
             if ("-sn".equalsIgnoreCase((String)args.get(i))) {
                 return true;
             }
         }
         return false;
-        
+
     }
-    
+
 }
