@@ -65,7 +65,22 @@
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-wsdl2java</artifactId>
+            <artifactId>cxf-tools2-wsdlto-core</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools2-misctools</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools2-wsdlto-databinding-jaxb</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools2-wsdlto-frontend-jaxws</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
