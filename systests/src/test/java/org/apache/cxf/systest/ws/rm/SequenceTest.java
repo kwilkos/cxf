@@ -338,7 +338,6 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
    
     @Test
-    @Ignore
     public void testOnewayAnonymousAcksSuppressed() throws Exception {
         if (!doTestOnewayAnonymousAcksSuppressed) {
             return;
@@ -347,7 +346,6 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    @Ignore
     public void testOnewayAnonymousAcksSuppressedAsyncExecutor() throws Exception {
         if (!doTestOnewayAnonymousAcksSuppressedAsyncExecutor) {
             return;
@@ -357,7 +355,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
 
     private void testOnewayAnonymousAcksSuppressed(Executor executor) throws Exception {
 
-        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-suppressed.xml", false, executor);
+        setupGreeter("org/apache/cxf/systest/ws/rm/suppressed.xml", false, executor);
  
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
