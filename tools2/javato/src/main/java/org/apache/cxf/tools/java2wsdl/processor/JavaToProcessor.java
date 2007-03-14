@@ -101,7 +101,7 @@ public class JavaToProcessor implements Processor {
     }
 
     public Bus getBus() {
-        return BusFactory.newInstance().getDefaultBus();
+        return BusFactory.getDefaultBus();
     }
 
     public void setEnvironment(ToolContext env) {

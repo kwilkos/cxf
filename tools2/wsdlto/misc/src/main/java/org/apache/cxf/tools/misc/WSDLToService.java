@@ -38,7 +38,6 @@ import org.apache.cxf.tools.misc.processor.WSDLToServiceProcessor;
 public class WSDLToService extends AbstractCXFToolContainer {
 
     static final String TOOL_NAME = "wsdl2service";
-    private static String[] args;
 
     public WSDLToService(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
@@ -60,7 +59,7 @@ public class WSDLToService extends AbstractCXFToolContainer {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
 
-                env.put(ToolConstants.CFG_CMD_ARG, args);
+                env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
                 validate(env);
 
@@ -70,7 +69,7 @@ public class WSDLToService extends AbstractCXFToolContainer {
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
@@ -101,12 +100,9 @@ public class WSDLToService extends AbstractCXFToolContainer {
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
         try {
             ToolRunner.runTool(WSDLToService.class, WSDLToService.class
-                .getResourceAsStream("wsdl2service.xml"), false, args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
+                .getResourceAsStream("wsdl2service.xml"), false, pargs);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();

@@ -41,7 +41,6 @@ import org.apache.cxf.version.Version;
 
 public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     protected static final Logger LOG = LogUtils.getL7dLogger(AbstractCXFToolContainer.class);
-    private static AbstractCXFToolContainer instance;
     
     private final String name;
     private CommandDocument commandDocument;
@@ -53,12 +52,8 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     public AbstractCXFToolContainer(String nm, ToolSpec toolspec) throws Exception {
         super(toolspec);
         name = nm;
-        instance = this;
     }
 
-    public static AbstractCXFToolContainer getInstance() {
-        return instance;
-    }
     public boolean hasInfoOption() throws ToolException {
         commandDocument = getCommandDocument();
         if (commandDocument == null) {
@@ -165,13 +160,13 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     }
 
     public void printUsageException(String toolName, BadUsageException ex) {
-        if (getInstance().verbose) {
-            getInstance().outputFullCommandLine();
+        if (verbose) {
+            outputFullCommandLine();
         }
         System.err.println(ex.getMessage());
         System.err.println("Usage : " + toolName + " " + ex.getUsage());
-        if (getInstance().verbose) {
-            getInstance().outputVersion();
+        if (verbose) {
+            outputVersion();
         }
         System.err.println();
     }

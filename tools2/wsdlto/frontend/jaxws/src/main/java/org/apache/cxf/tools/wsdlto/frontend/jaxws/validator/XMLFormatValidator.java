@@ -55,10 +55,9 @@ public class XMLFormatValidator extends AbstractValidator {
             for (BindingInfo binding : bindings) {
                 System.err.println(binding.getBindingId());
                 System.err.println(WSDLConstants.XML_BINDING_NS);
-                if (WSDLConstants.XML_BINDING_NS.equalsIgnoreCase(binding.getBindingId())) {
-                    if (!checkXMLFormat(binding)) {
-                        return false;
-                    }
+                if (WSDLConstants.XML_BINDING_NS.equalsIgnoreCase(binding.getBindingId())
+                    && !checkXMLFormat(binding)) {
+                    return false;
                 }
             }
         }

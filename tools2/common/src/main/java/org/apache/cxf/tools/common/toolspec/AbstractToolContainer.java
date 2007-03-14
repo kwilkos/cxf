@@ -34,12 +34,13 @@ import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
 public abstract class AbstractToolContainer implements ToolContainer {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractToolContainer.class);
-    private static boolean isVerbose;
-    private static String arguments[];
+    
 
     protected ToolSpec toolspec;
     protected ToolContext context;
     
+    private String arguments[];
+    private boolean isVerbose;
     private boolean isQuiet;
     private CommandDocument commandDoc;
     private CommandLineParser parser;
@@ -126,11 +127,11 @@ public abstract class AbstractToolContainer implements ToolContainer {
         return isQuiet;
     }
 
-    public static boolean isVerboseMode() {
+    public boolean isVerboseMode() {
         return isVerbose;
     }
 
-    public static String[] getArgument() {
+    public String[] getArgument() {
         return arguments;
     }
 

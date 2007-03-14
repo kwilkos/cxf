@@ -40,8 +40,6 @@ public class XSDToWSDL extends AbstractCXFToolContainer {
 
     static final String TOOL_NAME = "xsd2wsdl";
 
-    private static String[] args;
-
     public XSDToWSDL(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
     }
@@ -60,7 +58,7 @@ public class XSDToWSDL extends AbstractCXFToolContainer {
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
-                env.put(ToolConstants.CFG_CMD_ARG, args);
+                env.put(ToolConstants.CFG_CMD_ARG, getArgument());
                 validate(env);
                 processor.setEnvironment(env);
                 processor.process();
@@ -68,7 +66,7 @@ public class XSDToWSDL extends AbstractCXFToolContainer {
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
@@ -100,12 +98,9 @@ public class XSDToWSDL extends AbstractCXFToolContainer {
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
         try {
             ToolRunner.runTool(XSDToWSDL.class, XSDToWSDL.class
-                .getResourceAsStream("xsd2wsdl.xml"), false, args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
+                .getResourceAsStream("xsd2wsdl.xml"), false, pargs);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();

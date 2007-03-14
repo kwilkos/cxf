@@ -42,8 +42,6 @@ public class WSDLToXML extends AbstractCXFToolContainer {
     static final String SERVICE_NAME_POSFIX = "_XMLService";
     static final String PORT_NAME_POSFIX = "_XMLPort";
     
-    private static String[] args;
-
     public WSDLToXML(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
     }
@@ -62,7 +60,7 @@ public class WSDLToXML extends AbstractCXFToolContainer {
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
-                env.put(ToolConstants.CFG_CMD_ARG, args);
+                env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
                 validate(env);       
                 setEnvParamDefValues(env);
@@ -74,7 +72,7 @@ public class WSDLToXML extends AbstractCXFToolContainer {
             ex.printStackTrace();
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
@@ -118,14 +116,11 @@ public class WSDLToXML extends AbstractCXFToolContainer {
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
         try {
             ToolRunner.runTool(WSDLToXML.class,
                                WSDLToXML.class.getResourceAsStream("wsdl2xml.xml"),
                                false,
-                               args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
+                               pargs);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();

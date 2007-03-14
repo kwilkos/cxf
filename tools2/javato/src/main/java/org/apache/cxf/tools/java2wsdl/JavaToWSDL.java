@@ -39,7 +39,6 @@ import org.apache.cxf.tools.util.AnnotationUtil;
 public class JavaToWSDL extends AbstractCXFToolContainer {
    
     private static final String TOOL_NAME = "java2wsdl";
-    private static String[] args;
 
     public JavaToWSDL(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
@@ -75,10 +74,19 @@ public class JavaToWSDL extends AbstractCXFToolContainer {
             }
         } catch (ToolException ex) {            
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                if (isVerboseOn()) {
+                    ex.printStackTrace();
+                }
             }
             throw ex;
         } catch (Exception ex) {
+            System.err.println("Error : " + ex.getMessage());
+            System.err.println();
+            if (isVerboseOn()) {
+                ex.printStackTrace();
+            }
+            
             throw new ToolException(ex.getMessage(), ex.getCause());
         }
     }
@@ -91,25 +99,16 @@ public class JavaToWSDL extends AbstractCXFToolContainer {
     public static void main(String[] pargs) { 
         try {
             runTool(pargs);
-        } catch (BadUsageException ex) {
-            System.err.println("Error : " + ex.getMessage());
-            getInstance().printUsageException(TOOL_NAME, ex);
-            if (getInstance().isVerboseOn()) {
-                ex.printStackTrace();
-            }
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
-            if (getInstance().isVerboseOn()) {
-                ex.printStackTrace();
-            }
+            ex.printStackTrace();
         }
     }
     
     public static void runTool(String[] pargs) throws Exception {
-        args = pargs;
         ToolRunner.runTool(JavaToWSDL.class, JavaToWSDL.class
-                .getResourceAsStream("java2wsdl.xml"), false, args);
+                .getResourceAsStream("java2wsdl.xml"), false, pargs);
     }
 
     public void checkParams(ErrorVisitor errors) throws ToolException {

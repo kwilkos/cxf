@@ -42,8 +42,6 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
     static final String STYLE_DEF_VALUE = "document";
     static final String USE_DEF_VALUE = "literal";
     
-    private static String[] args;
-
     public WSDLToSoap(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
     }
@@ -62,7 +60,7 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
-                env.put(ToolConstants.CFG_CMD_ARG, args);
+                env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
                 validate(env);       
                 setEnvParamDefValues(env);
@@ -73,7 +71,7 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
@@ -116,14 +114,11 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
         try {
             ToolRunner.runTool(WSDLToSoap.class,
                                WSDLToSoap.class.getResourceAsStream("wsdl2soap.xml"),
                                false,
-                               args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
+                               pargs);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();

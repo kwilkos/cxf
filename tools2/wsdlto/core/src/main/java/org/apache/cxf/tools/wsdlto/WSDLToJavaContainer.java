@@ -84,7 +84,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
 
     public Bus getBus() {
-        return BusFactory.newInstance().getDefaultBus();
+        return BusFactory.getDefaultBus();
     }
     
     @SuppressWarnings("unchecked")
@@ -176,7 +176,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(toolName, (BadUsageException)ex.getCause());
+                printUsageException(toolName, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
@@ -213,8 +213,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             }
         } else {
             for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
-                QName defatultQn = ite.next();
-                return defatultQn;
+                return ite.next();
             }
         }
         if (qname == null) {

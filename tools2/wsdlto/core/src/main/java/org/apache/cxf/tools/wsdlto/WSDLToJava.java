@@ -38,10 +38,17 @@ public class WSDLToJava {
     public static final String DEFAULT_FRONTEND_NAME = "jaxws";
     public static final String DEFAULT_DATABINDING_NAME = "jaxb";
     
-    private static String[] args;
+    private String[] args;
     
     private PluginLoader pluginLoader = PluginLoader.getInstance();
 
+    public WSDLToJava() {
+        args = new String[0];
+    }
+    public WSDLToJava(String pargs[]) {
+        args = pargs;
+    }
+    
     private FrontEndProfile loadFrontEnd(String name) {
         if (StringUtils.isEmpty(name)) {
             name = DEFAULT_FRONTEND_NAME;
@@ -100,11 +107,11 @@ public class WSDLToJava {
                            context);
     }
         
-    protected static boolean isVerbose() {
+    protected boolean isVerbose() {
         return isSet(new String[]{"-V", "-verbose"});
     }
     
-    private static boolean isSet(String[] keys) {
+    private boolean isSet(String[] keys) {
         if (args == null) {
             return false;
         }
@@ -157,22 +164,22 @@ public class WSDLToJava {
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
 
+        WSDLToJava w2j = new WSDLToJava(pargs);
         try {
             
-            new WSDLToJava().run(new ToolContext());
+            w2j.run(new ToolContext());
             
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
-            if (isVerbose()) {
+            if (w2j.isVerbose()) {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
-            if (isVerbose()) {
+            if (w2j.isVerbose()) {
                 ex.printStackTrace();
             }
         }

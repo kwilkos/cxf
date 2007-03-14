@@ -61,7 +61,8 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
-    private static S2JJAXBModel rawJaxbModelGenCode;
+    
+    private S2JJAXBModel rawJaxbModelGenCode;
     private ToolContext env;
     private ServiceInfo serviceInfo;
     private Definition def;

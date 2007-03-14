@@ -37,7 +37,6 @@ import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 public class WSDLValidator extends AbstractCXFToolContainer {
 
     private static final String TOOL_NAME = "wsdlvalidator";
-    private static String[] args;
 
     public WSDLValidator(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
@@ -59,7 +58,7 @@ public class WSDLValidator extends AbstractCXFToolContainer {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
 
-                env.put(ToolConstants.CFG_CMD_ARG, args);
+                env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
               
                 WSDL11Validator wsdlValidator = new WSDL11Validator(null, env);
@@ -70,7 +69,7 @@ public class WSDLValidator extends AbstractCXFToolContainer {
         } catch (ToolException ex) {
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
@@ -86,13 +85,9 @@ public class WSDLValidator extends AbstractCXFToolContainer {
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
-
         try { 
             ToolRunner.runTool(WSDLValidator.class, WSDLValidator.class
-                .getResourceAsStream("wsdlvalidator.xml"), false, args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
+                .getResourceAsStream("wsdlvalidator.xml"), false, pargs);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
