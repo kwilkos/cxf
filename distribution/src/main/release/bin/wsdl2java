@@ -59,7 +59,7 @@ log_config=$cxf_home/etc/logging.properties
 
 cxf_classpath=${cxf_jar}:${CLASSPATH}:${sun_tool_path}
 
-$JAVA_HOME/bin/java -cp ${cxf_classpath} -Djava.util.logging.config.file=$log_config org.apache.cxf.tools.wsdl2java.WSDLToJava "$@"
+$JAVA_HOME/bin/java -cp ${cxf_classpath} -Djava.util.logging.config.file=$log_config org.apache.cxf.tools.wsdlto.WSDLToJava "$@"
 
 
 
