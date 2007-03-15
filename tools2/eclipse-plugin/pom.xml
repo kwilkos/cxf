@@ -39,7 +39,12 @@
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-wsdlto</artifactId>
+            <artifactId>cxf-tools2-wsdlto-databinding-jaxb</artifactId>
+            <version>${project.version}</version>
+	</dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools2-wsdlto-frontend-jaxws</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
