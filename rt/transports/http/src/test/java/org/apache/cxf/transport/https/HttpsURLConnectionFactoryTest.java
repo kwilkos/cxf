@@ -27,8 +27,6 @@ import javax.net.ssl.SSLSocketFactory;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.configuration.security.FiltersType;
-import org.apache.cxf.configuration.security.ObjectFactory;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
 
 
@@ -37,11 +35,6 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
     protected static final String DROP_BACK_SRC_DIR = 
         "../../../../../../../"
         + "src/test/java/org/apache/cxf/transport/https/";
-    
-    private static final String[] EXPORT_CIPHERS =
-    {"SSL_RSA_WITH_NULL_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_DES_CBC_SHA"};
-    private static final String[] NON_EXPORT_CIPHERS =
-    {"SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_3DES_EDE_CBC_SHA"};
 
     private TestHttpsURLConnection connection;
     
@@ -131,7 +124,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
     */
 
     public void testSetAllData() throws Exception {
-        
+
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLClientPolicy sslClientPolicy = new SSLClientPolicy();
         sslClientPolicy.setKeystore(keyStoreStr);
@@ -148,13 +141,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
         sslClientPolicy.setCertValidator("Anything");
         sslClientPolicy.setProxyHost("Anything");
         sslClientPolicy.setProxyPort(new Long(1234));
-        for (int i = 0; i < EXPORT_CIPHERS.length; i++) {
-            sslClientPolicy.getCiphersuites().add(EXPORT_CIPHERS[i]);
-        }
-        for (int i = 0; i < NON_EXPORT_CIPHERS.length; i++) {
-            sslClientPolicy.getCiphersuites().add(NON_EXPORT_CIPHERS[i]);
-        }
-        
+
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslClientPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
@@ -195,16 +182,8 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
                                     + "algorithm has not been set in configuration "
                                     + "so the default value PKIX will be used."));
 
-        assertFalse("Ciphersuites config not picked up", handler
-            .checkLogContainsString("The cipher suites have not been configured, " 
-                                    + "default values will be used."));        
-        assertFalse("Unexpected included ciphersuite filter",
-                   handler.checkLogContainsString("suite is included by the filter."));
-        assertFalse("Unexpected excluded ciphersuite fuilter",
-                   handler.checkLogContainsString("suite is excluded by the filter."));
-        assertFalse("Unexpected ciphersuite filtering",
-                   handler.checkLogContainsString("The enabled cipher suites have been filtered down to"));
-        
+        assertTrue("Ciphersuites is being being read from somewhere unknown", handler
+            .checkLogContainsString("The cipher suite has not been set, default values " + "will be used."));
         assertTrue("Truststore type not being read", handler
             .checkLogContainsString("The key store type has been set in " + "configuration to JKS"));
 
@@ -218,100 +197,6 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
             .checkLogContainsString("Unsupported SSLClientPolicy property : MaxChainLength"));
         assertTrue("CertValidator caching set but no warning about not supported", handler
             .checkLogContainsString("Unsupported SSLClientPolicy property : CertValidator"));
-    }
-    
-    public void testDefaultedCipherSuiteFilters() throws Exception {
-        
-        String keyStoreStr = getPath("resources/defaultkeystore");
-        SSLClientPolicy sslClientPolicy = new SSLClientPolicy();
-        sslClientPolicy.setKeystore(keyStoreStr);
-        sslClientPolicy.setKeystoreType("JKS");
-
-        sslClientPolicy.setKeyPassword("defaultkeypass");
-        sslClientPolicy.setKeystorePassword("defaultkeypass");
-        sslClientPolicy.setTrustStoreType("JKS");
-        sslClientPolicy.setSecureSocketProtocol("TLSv1");
-
-        String trustStoreStr = getPath("resources/defaulttruststore");
-        sslClientPolicy.setTrustStore(trustStoreStr);
-        TestLogHandler handler = new TestLogHandler();
-        HttpsURLConnectionFactory factory = createFactory(sslClientPolicy,
-                                                          "https://dummyurl",
-                                                          handler);
-
-        factory.decorate(connection);
-
-        assertTrue("Ciphersuites is being being read from somewhere unknown", 
-                   handler.checkLogContainsString("The cipher suites have not been configured," 
-                                                  + " falling back to cipher suite filters."));
-        assertTrue("Expected defaulted ciphersuite filters", 
-                   handler.checkLogContainsString("The cipher suite filters have not been configured,"
-                                                  + " falling back to default filters."));
-        for (int i = 0; i < EXPORT_CIPHERS.length; i++) {
-            assertTrue("Expected included ciphersuite not included: " + EXPORT_CIPHERS[i],
-                       handler.checkLogContainsString(EXPORT_CIPHERS[i]
-                                                      + " cipher suite is included by the filter."));
-        }
-        for (int i = 0; i < NON_EXPORT_CIPHERS.length; i++) {
-            assertTrue("Expected excluded ciphersuite not included: " + NON_EXPORT_CIPHERS[i],
-                       handler.checkLogContainsString(NON_EXPORT_CIPHERS[i]
-                                                      + " cipher suite is excluded by the filter."));
-        }
-        assertTrue("Expected excluded ciphersuite not included",
-                   handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
-        
-    }
-    
-    public void testNonDefaultedCipherSuiteFilters() throws Exception {
-        
-        String keyStoreStr = getPath("resources/defaultkeystore");
-        SSLClientPolicy sslClientPolicy = new SSLClientPolicy();
-        sslClientPolicy.setKeystore(keyStoreStr);
-        sslClientPolicy.setKeystoreType("JKS");
-
-        sslClientPolicy.setKeyPassword("defaultkeypass");
-        sslClientPolicy.setKeystorePassword("defaultkeypass");
-        sslClientPolicy.setTrustStoreType("JKS");
-        sslClientPolicy.setSecureSocketProtocol("TLSv1");
-
-        // reverse default sense of include/exlcude
-        FiltersType filters = new ObjectFactory().createFiltersType();
-        for (int i = 0; i < NON_EXPORT_CIPHERS.length; i++) {
-            filters.getInclude().add(NON_EXPORT_CIPHERS[i]);
-        }
-        for (int i = 0; i < EXPORT_CIPHERS.length; i++) {
-            filters.getExclude().add(EXPORT_CIPHERS[i]);
-        }
-        sslClientPolicy.setCiphersuiteFilters(filters);
-        
-        String trustStoreStr = getPath("resources/defaulttruststore");
-        sslClientPolicy.setTrustStore(trustStoreStr);
-        TestLogHandler handler = new TestLogHandler();
-        HttpsURLConnectionFactory factory = createFactory(sslClientPolicy,
-                                                          "https://dummyurl",
-                                                          handler);
-
-        factory.decorate(connection);
-
-        assertTrue("Ciphersuites is being being read from somewhere unknown",
-                   handler.checkLogContainsString("The cipher suites have not been configured," 
-                                                  + " falling back to cipher suite filters."));
-        assertFalse("Unexpected defaulted ciphersuite filters", 
-                     handler.checkLogContainsString("The cipher suite filters have not been configured,"
-                                                    + " falling back to default filters."));
-        for (int i = 0; i < NON_EXPORT_CIPHERS.length; i++) {
-            assertTrue("Expected included ciphersuite not included: " + NON_EXPORT_CIPHERS[i],
-                       handler.checkLogContainsString(NON_EXPORT_CIPHERS[i]
-                                                      + " cipher suite is included by the filter."));
-        }
-        for (int i = 0; i < EXPORT_CIPHERS.length; i++) {
-            assertTrue("Expected excluded ciphersuite not included: " + EXPORT_CIPHERS[i],
-                       handler.checkLogContainsString(EXPORT_CIPHERS[i]
-                                                      + " cipher suite is excluded by the filter."));
-        }
-        assertTrue("Expected excluded ciphersuite not included",
-                   handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
-        
     }
 
     public void testAllValidDataJKS() throws Exception {

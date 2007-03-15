@@ -19,10 +19,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-rt-transports-http</artifactId>
+    <artifactId>cxf-rt-transports-http2</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>Apache CXF Runtime HTTP transport</name>
+    <name>Apache CXF Runtime HTTP transport (version2)</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
@@ -50,13 +50,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-common</artifactId>
+            <artifactId>cxf-rt-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-core</artifactId>
+            <artifactId>cxf-tools2-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -65,13 +69,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty</artifactId>
+            <version>6.1.2rc0</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-sslengine</artifactId>
+            <version>6.1.2rc0</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
@@ -97,7 +104,7 @@
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
                                     </deleteDirs>
-                                </xsdOption>
+                                </xsdOption>                               
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/http-listener.xsd</xsd>
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
@@ -134,9 +141,10 @@
     </build>
 
 
+
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http2</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http2</developerConnection>
     </scm>
 
 </project>

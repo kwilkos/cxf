@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
+
 import junit.framework.TestCase;
 
 import org.apache.cxf.bus.CXFBusImpl;
@@ -63,8 +66,8 @@ public class HTTPConduitTest extends TestCase {
     private Proxy proxy;
     private Message inMessage;
     private MessageObserver observer;
-    private OutputStream os;
-    private InputStream is;
+    private ServletOutputStream os;
+    private ServletInputStream is;
     private IMocksControl control;
     
     public void setUp() throws Exception {
@@ -139,7 +142,8 @@ public class HTTPConduitTest extends TestCase {
         contentTypes.add("text/xml");
         contentTypes.add("charset=utf8");
         headers.put("content-type", contentTypes);
-        message.put(Message.PROTOCOL_HEADERS, headers);        
+        message.put(Message.PROTOCOL_HEADERS, headers);
+        
         
         AuthorizationPolicy authPolicy = new AuthorizationPolicy();
         authPolicy.setUserName("BJ");
@@ -199,9 +203,9 @@ public class HTTPConduitTest extends TestCase {
                     ((HttpURLConnection)connection).setChunkedStreamingMode(2048);
                     EasyMock.expectLastCall();                    
                 }
-            }         
+            }
         }
-
+               
         CXFBusImpl bus = new CXFBusImpl();
         URL decoupledURL = null;
         if (decoupled) {
@@ -222,13 +226,14 @@ public class HTTPConduitTest extends TestCase {
         }
         
         control.replay();
-        
+
         HTTPConduit conduit = new HTTPConduit(bus, 
                                               endpointInfo,
                                               null,
                                               connectionFactory);
         conduit.retrieveConnectionFactory();
 
+        
         if (send) {
             conduit.getClient().setConnectionTimeout(303030);
             conduit.getClient().setReceiveTimeout(404040);
@@ -239,14 +244,14 @@ public class HTTPConduitTest extends TestCase {
                 } 
             }
         }
-
+        
         if (decoupled) {
             conduit.getClient().setDecoupledEndpoint(decoupledURL.toString());
             assertNotNull("expected back channel", conduit.getBackChannel());
         } else {
             assertNull("unexpected back channel", conduit.getBackChannel());
         }
-
+       
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
@@ -284,7 +289,7 @@ public class HTTPConduitTest extends TestCase {
         }
         
         
-        os = EasyMock.createMock(OutputStream.class);
+        os = EasyMock.createMock(ServletOutputStream.class);
         connection.getOutputStream();
         EasyMock.expectLastCall().andReturn(os);
         os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
@@ -298,9 +303,9 @@ public class HTTPConduitTest extends TestCase {
         EasyMock.expectLastCall();
         
         verifyHandleResponse(decoupled);
-
-        control.replay();
         
+        control.replay();
+                
         wrappedOS.flush();
         wrappedOS.flush();
         wrappedOS.close();
@@ -370,7 +375,7 @@ public class HTTPConduitTest extends TestCase {
             String responseString = Integer.toString(responseCode);
             EasyMock.expectLastCall().andReturn(responseString).times(2);
         }
-        is = EasyMock.createMock(InputStream.class);
+        is = EasyMock.createMock(ServletInputStream.class);
         connection.getInputStream();
         EasyMock.expectLastCall().andReturn(is);
     }
@@ -390,10 +395,10 @@ public class HTTPConduitTest extends TestCase {
                      inMessage.get(DECOUPLED_CHANNEL_MESSAGE));
         assertEquals("unexpected HTTP_REQUEST set",
                      false,
-                     inMessage.containsKey(HTTPConduit.HTTP_REQUEST));
+                     inMessage.containsKey(AbstractHTTPDestination.HTTP_REQUEST));
         assertEquals("unexpected HTTP_RESPONSE set",
                      false,
-                     inMessage.containsKey(HTTPConduit.HTTP_RESPONSE));
+                     inMessage.containsKey(AbstractHTTPDestination.HTTP_RESPONSE));
         assertEquals("unexpected Message.ASYNC_POST_RESPONSE_DISPATCH set",
                      false,
                      inMessage.containsKey(Message.ASYNC_POST_RESPONSE_DISPATCH));

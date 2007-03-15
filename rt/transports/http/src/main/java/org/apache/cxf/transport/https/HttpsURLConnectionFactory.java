@@ -95,6 +95,8 @@ public final class HttpsURLConnectionFactory implements URLConnectionFactory {
         String trustStoreMgrFactoryAlgorithm =
             SSLUtils.getTrustStoreAlgorithm(sslPolicy.getTrustStoreAlgorithm(),
                                             LOG);
+        String[] cipherSuites =
+            SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(), LOG);
         String trustStoreLocation =
             SSLUtils.getTrustStore(sslPolicy.getTrustStore(), LOG);
         String trustStoreType =
@@ -104,10 +106,10 @@ public final class HttpsURLConnectionFactory implements URLConnectionFactory {
                                              LOG);
         
         try {
+            SSLContext sslctx = SSLContext.getInstance(secureSocketProtocol);
             boolean pkcs12 =
                 keyStoreType.equalsIgnoreCase(SSLUtils.PKCS12_TYPE);
-            SSLContext ctx = SSLUtils.getSSLContext(
-                secureSocketProtocol,
+            sslctx.init(
                 SSLUtils.getKeyStoreManagers(keyStoreLocation,
                                              keyStoreType,
                                              keyStorePassword,
@@ -119,15 +121,10 @@ public final class HttpsURLConnectionFactory implements URLConnectionFactory {
                                                trustStoreType,
                                                trustStoreLocation,
                                                trustStoreMgrFactoryAlgorithm,
-                                               LOG));
-            
-            String[] cipherSuites =
-                SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
-                                         SSLUtils.getSupportedCipherSuites(ctx),
-                                         sslPolicy.getCiphersuiteFilters(),
-                                         LOG);
+                                               LOG),
+                null);
             secureConnection.setSSLSocketFactory(
-                new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
+                new SSLSocketFactoryWrapper(sslctx.getSocketFactory(),
                                             cipherSuites));
         } catch (Exception e) {
             LogUtils.log(LOG, Level.SEVERE, "SSL_CONTEXT_INIT_FAILURE", e);
