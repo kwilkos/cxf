@@ -19,7 +19,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-tools2-xjc-dv</artifactId>
+    <artifactId>cxf-xjc-dv</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF XJC Default Value Plugin</name>
@@ -54,8 +54,8 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/xjc/dv</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/xjc/dv</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common/xjc/dv</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common/xjc/dv</developerConnection>
     </scm>
 
 </project>

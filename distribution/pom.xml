@@ -90,7 +90,7 @@
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-xjc-dv</artifactId>
+            <artifactId>cxf-xjc-dv</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
