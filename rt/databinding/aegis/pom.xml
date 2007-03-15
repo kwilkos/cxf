@@ -52,7 +52,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-transports-http</artifactId>
+      <artifactId>cxf-rt-transports-http2</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
