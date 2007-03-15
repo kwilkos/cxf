@@ -145,8 +145,8 @@
             <id>everything</id>
             <modules>
                 <module>distribution</module>
-                <module>tools/eclipse-plugin</module>
-                <module>tools/eclipse3.1-plugin</module>
+                <module>tools2/eclipse-plugin</module>
+                <module>tools2/eclipse3.1-plugin</module>
             </modules>
         </profile>
         <profile>
@@ -299,8 +299,8 @@
             <id>deploy</id>
             <modules>
                 <module>distribution</module>
-                <module>tools/eclipse-plugin</module>
-                <module>tools/eclipse3.1-plugin</module>
+                <module>tools2/eclipse-plugin</module>
+                <module>tools2/eclipse3.1-plugin</module>
             </modules>
             <build>
                 <defaultGoal>deploy</defaultGoal>

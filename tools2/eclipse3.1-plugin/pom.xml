@@ -39,7 +39,7 @@
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-wsdl2java</artifactId>
+            <artifactId>cxf-tools2-wsdlto</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -83,7 +83,7 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <artifactId>cxf-tools2-java2wsdl</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
@@ -175,8 +175,8 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse3.1-plugin</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse3.1-plugin</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/eclipse3.1-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/eclipse3.1-plugin</developerConnection>
     </scm>
 
 </project>
