@@ -37,7 +37,7 @@ public class ProcessorTestBase extends TestCase {
 
     public void setUp() throws Exception {
         URL url = ProcessorTestBase.class.getResource(".");
-        output = new File(url.getFile());
+        output = new File(url.toURI());
         output = new File(output, "/resources");
         mkDir(output);
     }

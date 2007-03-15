@@ -20,6 +20,7 @@
 package org.apache.cxf.tools.misc.processor;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import javax.wsdl.Service;
@@ -294,7 +295,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         }
     }
 
-    private String getLocation(String wsdlFile) {
-        return WSDLToServiceProcessorTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return WSDLToServiceProcessorTest.class.getResource(wsdlFile).toURI().toString();
     }
 }

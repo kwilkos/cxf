@@ -22,6 +22,7 @@ package org.apache.cxf.tools.java2wsdl.processor;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -371,8 +372,8 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
-    private String getLocation(String wsdlFile) {
-        return JavaToWSDLProcessorTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return new File(JavaToWSDLProcessorTest.class.getResource(wsdlFile).toURI()).getAbsolutePath();
     }
 
 }

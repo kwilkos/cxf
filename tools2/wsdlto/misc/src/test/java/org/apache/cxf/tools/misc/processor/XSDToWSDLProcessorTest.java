@@ -21,6 +21,7 @@ package org.apache.cxf.tools.misc.processor;
 
 import java.io.File;
 import java.io.FileReader;
+import java.net.URISyntaxException;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -40,7 +41,8 @@ public class XSDToWSDLProcessorTest
         XSDToWSDL.main(args);
 
         File outputFile = new File(output, "Invoice_xsd.wsdl");
-        assertTrue("New wsdl file is not generated", outputFile.exists());
+        assertTrue("New wsdl file is not generated: " + outputFile.getAbsolutePath(),
+                   outputFile.exists());
         FileReader fileReader = new FileReader(outputFile);
         char[] chars = new char[100];
         int size = 0;
@@ -90,8 +92,8 @@ public class XSDToWSDLProcessorTest
     }
 
 
-    private String getLocation(String wsdlFile) {
-        return XSDToWSDLProcessorTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return new File(XSDToWSDLProcessorTest.class.getResource(wsdlFile).toURI()).getAbsolutePath();
     }
 
 }

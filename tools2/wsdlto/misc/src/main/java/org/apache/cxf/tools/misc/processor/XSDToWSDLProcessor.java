@@ -99,7 +99,7 @@ public class XSDToWSDLProcessor implements Processor {
         try {
             in = new FileInputStream(xsdUrl);
         } catch (IOException ioe) {
-            Message msg = new Message("FAIL_TO_OPEN_XSD_FILE", LOG);
+            Message msg = new Message("FAIL_TO_OPEN_XSD_FILE", LOG, xsdUrl);
             throw new ToolException(msg, ioe);
         }
         if (in == null) {
