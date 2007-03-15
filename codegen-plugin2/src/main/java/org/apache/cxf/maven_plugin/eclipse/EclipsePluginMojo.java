@@ -31,7 +31,7 @@ import java.util.Properties;
 
 import org.apache.cxf.common.util.ReflectionUtil;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.tools.wsdl2java.frontend.jaxws.VelocityWriter;
+import org.apache.cxf.tools.wsdlto.core.VelocityWriter;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
