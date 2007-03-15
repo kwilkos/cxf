@@ -58,10 +58,6 @@
         </dependency>
     </dependencies>
 
-    <properties>
-          <compiler.fork>true</compiler.fork>
-      </properties>
-
     <build>
         <plugins>
             <plugin>
