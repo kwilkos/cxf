@@ -62,7 +62,7 @@ public class RMManager extends RMManagerConfigBean {
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
     private Map<String, SourceSequence> sourceSequences;
-    private Timer timer = new Timer();
+    private Timer timer = new Timer(true);
 
     public Bus getBus() {
         return bus;

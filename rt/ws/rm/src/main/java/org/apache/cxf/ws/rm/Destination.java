@@ -26,9 +26,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 
 
@@ -84,11 +85,15 @@ public class Destination extends AbstractEndpoint {
     * @param replyToAddress the replyTo address of the message that carried this sequence information
     * @throws SequenceFault if the sequence specified in <code>sequenceType</code> does not exist
     */
-    public void acknowledge(SequenceType sequenceType, String replyToAddress) 
+    public void acknowledge(Message message) 
         throws SequenceFault {
+        SequenceType sequenceType = RMContextUtils.retrieveRMProperties(message, false).getSequence();
+        if (null == sequenceType) {
+            return;
+        }
         DestinationSequence seq = getSequence(sequenceType.getIdentifier());
         if (null != seq) {
-            seq.acknowledge(sequenceType.getMessageNumber());
+            seq.acknowledge(message);
             
             if (null != sequenceType.getLastMessage()) {
                 
@@ -98,14 +103,18 @@ public class Destination extends AbstractEndpoint {
                 
                 // if we cannot expect an outgoing message to which the acknowledgement
                 // can be added we need to send an out-of-band SequenceAcknowledgement message
-           
+                
+                AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
+                String replyToAddress = null;
+                if (null != maps.getReplyTo()) { 
+                    replyToAddress = maps.getReplyTo().getAddress().getValue();
+                }
                 if (!(seq.getAcksTo().getAddress().getValue().equals(replyToAddress)
                     || seq.canPiggybackAckOnPartialResponse())) {
                     try {
                         getReliableEndpoint().getProxy().acknowledge(seq);
                     } catch (IOException ex) {
-                        Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, seq);
-                        LOG.log(Level.SEVERE, msg.toString(), ex);
+                        LogUtils.log(LOG, Level.SEVERE, "SEQ_ACK_SEND_EXC", ex, seq);
                     }
                 }
             }

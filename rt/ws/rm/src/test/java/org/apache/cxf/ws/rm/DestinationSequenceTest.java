@@ -26,9 +26,9 @@ import java.util.Timer;
 
 import javax.xml.namespace.QName;
 
-
 import junit.framework.TestCase;
-
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.apache.cxf.ws.rm.manager.AcksPolicyType;
@@ -55,8 +55,7 @@ public class DestinationSequenceTest extends TestCase {
     public void setUp() {
         control = EasyMock.createNiceControl();
         factory = new ObjectFactory();
-        
-        ref = control.createMock(EndpointReferenceType.class);                
+        ref = control.createMock(EndpointReferenceType.class); 
         id = factory.createIdentifier();
         id.setValue("seq");
     }
@@ -129,19 +128,21 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgeBasic() throws SequenceFault {
         setUpDestination();
+        Message message1 = setUpMessage("1");
+        Message message2 = setUpMessage("2");
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
         assertEquals(0, ranges.size());
-              
-        seq.acknowledge(new BigInteger("1"));        
+        
+        seq.acknowledge(message1);        
         assertEquals(1, ranges.size());
         AcknowledgementRange r1 = ranges.get(0);
         assertEquals(1, r1.getLower().intValue());
         assertEquals(1, r1.getUpper().intValue());
         
-        seq.acknowledge(new BigInteger("2"));
+        seq.acknowledge(message2);
         assertEquals(1, ranges.size());
         r1 = ranges.get(0);
         assertEquals(1, r1.getLower().intValue());
@@ -152,14 +153,16 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgeLastMessageNumberExceeded() throws SequenceFault {  
         setUpDestination();
+        Message message1 = setUpMessage("1");
+        Message message2 = setUpMessage("2");
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         
-        seq.acknowledge(BigInteger.ONE);
+        seq.acknowledge(message1);
         seq.setLastMessageNumber(BigInteger.ONE);
         try {
-            seq.acknowledge(new BigInteger("2"));
+            seq.acknowledge(message2);
             fail("Expected SequenceFault not thrown.");
         } catch (SequenceFault sf) {
             assertEquals("LastMessageNumberExceeded", sf.getFaultInfo().getFaultCode().getLocalPart());
@@ -170,15 +173,21 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgeAppendRange() throws SequenceFault {
         setUpDestination();
+        Message[] messages = new Message [] {
+            setUpMessage("1"),
+            setUpMessage("2"),
+            setUpMessage("5"),
+            setUpMessage("4"),
+            setUpMessage("6")
+        };
+
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
-        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
-        seq.acknowledge(new BigInteger("1"));
-        seq.acknowledge(new BigInteger("2"));  
-        seq.acknowledge(new BigInteger("5"));
-        seq.acknowledge(new BigInteger("4"));
-        seq.acknowledge(new BigInteger("6"));
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
+        for (int i = 0; i < messages.length; i++) {
+            seq.acknowledge(messages[i]);
+        }
         assertEquals(2, ranges.size());
         AcknowledgementRange r = ranges.get(0);
         assertEquals(1, r.getLower().intValue());
@@ -192,17 +201,22 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgeInsertRange() throws SequenceFault {
         setUpDestination();
+        Message[] messages = new Message [] {
+            setUpMessage("1"),
+            setUpMessage("2"),
+            setUpMessage("9"),
+            setUpMessage("10"),
+            setUpMessage("4"),
+            setUpMessage("9"),
+            setUpMessage("2")
+        };
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
-        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
-        seq.acknowledge(new BigInteger("1"));
-        seq.acknowledge(new BigInteger("2"));
-        seq.acknowledge(new BigInteger("9"));
-        seq.acknowledge(new BigInteger("10"));
-        seq.acknowledge(new BigInteger("4"));
-        seq.acknowledge(new BigInteger("9"));
-        seq.acknowledge(new BigInteger("2"));
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
+        for (int i = 0; i < messages.length; i++) {
+            seq.acknowledge(messages[i]);
+        }
         
         assertEquals(3, ranges.size());
         AcknowledgementRange r = ranges.get(0);
@@ -220,16 +234,21 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testAcknowledgePrependRange() throws SequenceFault { 
         setUpDestination();
+        Message[] messages = new Message [] {
+            setUpMessage("4"),
+            setUpMessage("5"),
+            setUpMessage("6"),
+            setUpMessage("4"),
+            setUpMessage("2"),
+            setUpMessage("2")
+        };
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
-        seq.acknowledge(new BigInteger("4"));
-        seq.acknowledge(new BigInteger("5"));
-        seq.acknowledge(new BigInteger("6"));
-        seq.acknowledge(new BigInteger("4"));
-        seq.acknowledge(new BigInteger("2"));
-        seq.acknowledge(new BigInteger("2"));
+        for (int i = 0; i < messages.length; i++) {
+            seq.acknowledge(messages[i]);
+        }
         assertEquals(2, ranges.size());
         AcknowledgementRange r = ranges.get(0);
         assertEquals(2, r.getLower().intValue());
@@ -286,6 +305,10 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testMonitor() throws SequenceFault {
         setUpDestination();
+        Message[] messages = new Message[15];
+        for (int i = 0; i < messages.length; i++) {
+            messages[i] = setUpMessage(Integer.toString(i + 1));
+        }
         control.replay();
                 
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
@@ -295,11 +318,8 @@ public class DestinationSequenceTest extends TestCase {
         
         assertEquals(0, monitor.getMPM());
         
-        BigInteger mn = BigInteger.ONE;
-        
         for (int i = 0; i < 10; i++) {
-            seq.acknowledge(mn);
-            mn = mn.add(BigInteger.ONE);
+            seq.acknowledge(messages[i]);
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ex) {
@@ -309,9 +329,8 @@ public class DestinationSequenceTest extends TestCase {
         int mpm1 = monitor.getMPM();
         assertTrue(mpm1 > 0);
         
-        for (int i = 0; i < 5; i++) {
-            seq.acknowledge(mn);
-            mn = mn.add(BigInteger.ONE);
+        for (int i = 10; i < messages.length; i++) {
+            seq.acknowledge(messages[i]);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
@@ -325,14 +344,16 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+
     public void testAcknowledgeImmediate() throws SequenceFault {
         setUpDestination();
+        Message message = setUpMessage("1");
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertTrue(!seq.sendAcknowledgement());
               
-        seq.acknowledge(new BigInteger("1")); 
+        seq.acknowledge(message); 
         
         assertTrue(seq.sendAcknowledgement());
         seq.acknowledgmentSent();
@@ -353,6 +374,11 @@ public class DestinationSequenceTest extends TestCase {
         proxy.acknowledge(seq);
         EasyMock.expectLastCall();
         
+        Message[] messages = new Message[] {
+            setUpMessage("1"),
+            setUpMessage("2"),
+            setUpMessage("3")
+        };
         control.replay();
         
         ap.setIntraMessageThreshold(0);
@@ -363,9 +389,9 @@ public class DestinationSequenceTest extends TestCase {
 
         assertTrue(!seq.sendAcknowledgement());   
               
-        seq.acknowledge(new BigInteger("1")); 
-        seq.acknowledge(new BigInteger("2"));
-        seq.acknowledge(new BigInteger("3"));
+        for (int i = 0; i < messages.length; i++) {
+            seq.acknowledge(messages[i]);
+        }
         
         assertFalse(seq.sendAcknowledgement());
         
@@ -453,6 +479,10 @@ public class DestinationSequenceTest extends TestCase {
     
     public void testInOrderWait() {
         setUpDestination();
+        Message[] messages = new Message[5];
+        for (int i = 0; i < messages.length; i++) {
+            messages[i] = setUpMessage(Integer.toString(i + 1));                                           
+        }
         
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
         EasyMock.expect(manager.getDeliveryAssurance()).andReturn(da).anyTimes();
@@ -462,25 +492,27 @@ public class DestinationSequenceTest extends TestCase {
         
         SequenceAcknowledgement ack = factory.createSequenceAcknowledgement();
         List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
-        final int n = 5;
+        
         final AcknowledgementRange r = 
             factory.createSequenceAcknowledgementAcknowledgementRange();
-        r.setUpper(new BigInteger(Integer.toString(n)));
+        r.setUpper(new BigInteger(Integer.toString(messages.length)));
         ranges.add(r);
         final DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
           
         class Acknowledger extends Thread {
-            BigInteger mn;
+            Message message;
+            BigInteger messageNr;
             
-            Acknowledger(String mnStr) {
-                mn = new BigInteger(mnStr);
+            Acknowledger(Message m, BigInteger mn) {
+                message = m;
+                messageNr = mn;
             }
             
             public void run() {
                 try {
-                    ds.acknowledge(mn);
-                    ds.applyDeliveryAssurance(mn);
+                    ds.acknowledge(message);
+                    ds.applyDeliveryAssurance(messageNr);
                 } catch (SequenceFault ex) {
                     // ignore
                 }
@@ -489,9 +521,9 @@ public class DestinationSequenceTest extends TestCase {
  
         control.replay(); 
         
-        Thread[] threads = new Thread[n];
-        for (int i = n - 1; i >= 0; i--) {
-            threads[i] = new Acknowledger(Integer.toString(i + 1));
+        Thread[] threads = new Thread[messages.length];
+        for (int i = messages.length - 1; i >= 0; i--) {
+            threads[i] = new Acknowledger(messages[i], new BigInteger(Integer.toString(i + 1)));
             threads[i].start();
             try {
                 Thread.sleep(100);
@@ -501,7 +533,7 @@ public class DestinationSequenceTest extends TestCase {
         }
         
         boolean timedOut = false;
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < messages.length; i++) {
             try {
                 threads[i].join(1000); 
             } catch (InterruptedException ex) {
@@ -590,6 +622,21 @@ public class DestinationSequenceTest extends TestCase {
             EasyMock.expect(manager.getTimer()).andReturn(timer).anyTimes();
         }
 
+    }
+    
+    private Message setUpMessage(String messageNr) {
+        Message message = control.createMock(Message.class);        
+        Exchange exchange = control.createMock(Exchange.class);
+        EasyMock.expect(message.getExchange()).andReturn(exchange);
+        EasyMock.expect(exchange.getOutMessage()).andReturn(null);
+        EasyMock.expect(exchange.getOutFaultMessage()).andReturn(null);
+        RMProperties rmps = control.createMock(RMProperties.class);
+        EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_INBOUND)).andReturn(rmps);
+        SequenceType st = control.createMock(SequenceType.class);
+        EasyMock.expect(rmps.getSequence()).andReturn(st);
+        BigInteger val = new BigInteger(messageNr);
+        EasyMock.expect(st.getMessageNumber()).andReturn(val);
+        return message;        
     }
 
 

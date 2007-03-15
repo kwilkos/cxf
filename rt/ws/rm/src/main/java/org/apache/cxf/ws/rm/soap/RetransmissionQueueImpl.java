@@ -43,10 +43,8 @@ import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.policy.AssertionInfo;
-import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMContextUtils;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
@@ -56,6 +54,7 @@ import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.SequenceType;
 import org.apache.cxf.ws.rm.SourceSequence;
 import org.apache.cxf.ws.rm.persistence.RMStore;
+import org.apache.cxf.ws.rm.policy.PolicyUtils;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 
 /**
@@ -64,15 +63,15 @@ import org.apache.cxf.ws.rm.policy.RMAssertion;
 public class RetransmissionQueueImpl implements RetransmissionQueue {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueueImpl.class);
-    
+
     private Map<String, List<ResendCandidate>> candidates = new HashMap<String, List<ResendCandidate>>();
     private Resender resender;
     private RMManager manager;
-    
+
     public RetransmissionQueueImpl(RMManager m) {
         manager = m;
     }
-      
+
     public RMManager getManager() {
         return manager;
     }
@@ -80,78 +79,47 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     public void setManager(RMManager m) {
         manager = m;
     }
-    
+
     /**
-     * Returns the base retransmission interval for the specified message.
-     * This is obtained as the minimum base retransmission interval in all RMAssertions pertaining
-     * to the message, or the default configured for the RMManager if there are no such policy
-     * assertions.
+     * Returns the base retransmission interval for the specified message. This
+     * is obtained as the minimum base retransmission interval in all
+     * RMAssertions pertaining to the message, or the default configured for the
+     * RMManager if there are no such policy assertions.
+     * 
      * @param message the message
      * @return the base retransmission interval for the message
      */
     public long getBaseRetransmissionInterval(Message message) {
-        AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
-        boolean initialised = false;
-        long baseRetransmissionInterval = 0;
-        if (null != amap) {
-            Collection<AssertionInfo> ais = amap.get(RMConstants.getRMAssertionQName());
-            if (null != ais) {
-                for (AssertionInfo ai : ais) {
-                    JaxbAssertion<RMAssertion> ja = getAssertion(ai);
-                    RMAssertion rma = ja.getData();
-                    RMAssertion.BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
-                    if (null == bri) {
-                        continue;
-                    }
-                    BigInteger bival = bri.getMilliseconds();
-                    if (null == bival) {
-                        continue;
-                    }
-                    long lval = bival.longValue();
-                    if (initialised && lval < baseRetransmissionInterval) {
-                        baseRetransmissionInterval = lval;
-                    } else {
-                        baseRetransmissionInterval = lval;
-                    }
-                    initialised = true;
+        BigInteger val = PolicyUtils.getBaseRetransmissionInterval(message);
+        if (null != val) {
+            return val.longValue();
+        } else {
 
-                }
-            }
-        }
-        if (!initialised) {
             RMAssertion rma = manager.getRMAssertion();
             RMAssertion.BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
             if (null != bri) {
-                BigInteger bival = bri.getMilliseconds();
-                if (null != bival) {
-                    baseRetransmissionInterval = bival.longValue();
-                }
+                val = bri.getMilliseconds();
             }
         }
-        return baseRetransmissionInterval;
+        if (null != val) {
+            return val.longValue();
+        }
+        return 0;
     }
-    
+
     /**
-     * Determines if exponential backoff should be used in repeated attemprs to resend
-     * the specified message. 
-     * Returns false if there is at least one RMAssertion for this message indicating that no  
-     * exponential backoff algorithm should be used, or true otherwise.
+     * Determines if exponential backoff should be used in repeated attemprs to
+     * resend the specified message. Returns false if there is at least one
+     * RMAssertion for this message indicating that no exponential backoff
+     * algorithm should be used, or true otherwise.
+     * 
      * @param message the message
-     * @return true iff the exponential backoff algorithm should be used for the message
+     * @return true iff the exponential backoff algorithm should be used for the
+     *         message
      */
     public boolean useExponentialBackoff(Message message) {
-        AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
-        if (null != amap) {
-            Collection<AssertionInfo> ais = amap.get(RMConstants.getRMAssertionQName());
-            if (null != ais) {
-                for (AssertionInfo ai : ais) {
-                    JaxbAssertion<RMAssertion> ja = getAssertion(ai);
-                    RMAssertion rma = ja.getData();
-                    if (null == rma.getExponentialBackoff()) {
-                        return false;
-                    }
-                }
-            }
+        if (!PolicyUtils.useExponentialBackoff(message)) {
+            return false;
         }
         RMAssertion rma = manager.getRMAssertion();
         if (null == rma.getExponentialBackoff()) {
@@ -161,7 +129,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     public void addUnacknowledged(Message message) {
-        cacheUnacknowledged(message);        
+        cacheUnacknowledged(message);
     }
 
     /**
@@ -176,7 +144,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     /**
      * @return true if there are no unacknowledged messages in the queue
      */
-    public boolean isEmpty() {  
+    public boolean isEmpty() {
         return 0 == getUnacknowledged().size();
     }
 
@@ -226,26 +194,26 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             return;
         }
         LOG.fine("Starting retransmission queue");
-        
+
         // setup resender
-       
+
         resender = getDefaultResender();
     }
 
     /**
      * Stops retransmission queue.
-     */ 
+     */
     public void stop() {
         // no-op
     }
-    
+
     /**
      * @return the exponential backoff
      */
     protected int getExponentialBackoff() {
         return DEFAULT_EXPONENTIAL_BACKOFF;
     }
-    
+
     /**
      * @param message the message context
      * @return a ResendCandidate
@@ -253,7 +221,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     protected ResendCandidate createResendCandidate(Message message) {
         return new ResendCandidate(message);
     }
-    
+
     /**
      * Accepts a new resend candidate.
      * 
@@ -262,7 +230,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
      */
     protected ResendCandidate cacheUnacknowledged(Message message) {
         ResendCandidate candidate = null;
-        RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);        
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);
         SequenceType st = rmps.getSequence();
         Identifier sid = st.getIdentifier();
         synchronized (this) {
@@ -278,7 +246,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         LOG.fine("Cached unacknowledged message.");
         return candidate;
     }
-    
+
     /**
      * @return a map relating sequence ID to a lists of un-acknowledged messages
      *         for that sequence
@@ -295,7 +263,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     protected List<ResendCandidate> getSequenceCandidates(SourceSequence seq) {
         return getSequenceCandidates(seq.getIdentifier().getValue());
     }
-    
+
     /**
      * @param key the sequence identifier under consideration
      * @return the list of resend candidates for that sequence
@@ -304,22 +272,23 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     protected List<ResendCandidate> getSequenceCandidates(String key) {
         return candidates.get(key);
     }
-    
-    private void clientResend(Message message) {        
+
+    private void clientResend(Message message) {
         Conduit c = message.getExchange().getConduit();
         try {
-            
-            // get registered callbacks, create new output stream and re-register
+
+            // get registered callbacks, create new output stream and
+            // re-register
             // all callbacks except the retransmission callback
-            
+
             OutputStream os = message.getContent(OutputStream.class);
-            List<CachedOutputStreamCallback> callbacks = null;            
+            List<CachedOutputStreamCallback> callbacks = null;
             if (os instanceof AbstractCachedOutputStream) {
                 callbacks = ((AbstractCachedOutputStream)os).getCallbacks();
             }
-            
+
             c.send(message);
-            
+
             os = message.getContent(OutputStream.class);
             if (os instanceof AbstractCachedOutputStream && callbacks.size() > 1) {
                 for (CachedOutputStreamCallback cb : callbacks) {
@@ -328,23 +297,23 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                     }
                 }
             }
-            ByteArrayOutputStream savedOutputStream = 
-                (ByteArrayOutputStream)message.get(RMMessageConstants.SAVED_OUTPUT_STREAM);
+            ByteArrayOutputStream savedOutputStream = (ByteArrayOutputStream)message
+                .get(RMMessageConstants.SAVED_OUTPUT_STREAM);
             ByteArrayInputStream bis = new ByteArrayInputStream(savedOutputStream.toByteArray());
-            
+
             // copy saved output stream to new output stream in chunks of 1024
             AbstractCachedOutputStream.copyStream(bis, os, 1024);
             os.flush();
             os.close();
         } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "RESEND_FAILED_MSG", ex); 
+            LOG.log(Level.SEVERE, "RESEND_FAILED_MSG", ex);
         }
     }
-    
+
     private void serverResend(Message message) {
         // TODO
     }
-    
+
     /**
      * Represents a candidate for resend, i.e. an unacked outgoing message.
      */
@@ -366,14 +335,13 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             resends = 0;
             long baseRetransmissionInterval = getBaseRetransmissionInterval(m);
             backoff = useExponentialBackoff(m) ? RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF : 1;
-            next = new Date(System.currentTimeMillis() + baseRetransmissionInterval);            
-            nextInterval = baseRetransmissionInterval * backoff; 
+            next = new Date(System.currentTimeMillis() + baseRetransmissionInterval);
+            nextInterval = baseRetransmissionInterval * backoff;
             if (null != manager.getTimer()) {
                 schedule();
             }
         }
 
-        
         /**
          * Initiate resend asynchronsly.
          * 
@@ -395,7 +363,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                 LOG.log(Level.SEVERE, "RESEND_INITIATION_FAILED_MSG", ex);
             }
         }
-        
+
         public void run() {
             try {
                 // ensure ACK wasn't received while this task was enqueued
@@ -409,14 +377,13 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             }
         }
 
-        
         /**
          * @return number of resend attempts
          */
         protected int getResends() {
             return resends;
         }
-        
+
         /**
          * @return date of next resend
          */
@@ -461,20 +428,22 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                 schedule();
             }
         }
-        
+
         protected final synchronized void schedule() {
             if (null == manager.getTimer()) {
                 return;
             }
             class ResendTask extends TimerTask {
                 ResendCandidate candidate;
+
                 ResendTask(ResendCandidate c) {
                     candidate = c;
-                }      
+                }
+
                 @Override
                 public void run() {
                     if (!candidate.isPending()) {
-                        candidate.initiate(includeAckRequested);  
+                        candidate.initiate(includeAckRequested);
                     }
                 }
             }
@@ -482,12 +451,11 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             try {
                 manager.getTimer().schedule(nextTask, next);
             } catch (IllegalStateException ex) {
-                LOG.log(Level.WARNING, "SCHEDULE_RESEND_FAILED_MSG", ex); 
+                LOG.log(Level.WARNING, "SCHEDULE_RESEND_FAILED_MSG", ex);
             }
         }
     }
-      
-    
+
     /**
      * Encapsulates actual resend logic (pluggable to facilitate unit testing)
      */
@@ -500,7 +468,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
          */
         void resend(Message message, boolean requestAcknowledge);
     }
-    
+
     /**
      * Create default Resender logic.
      * 
@@ -508,7 +476,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
      */
     protected final Resender getDefaultResender() {
         return new Resender() {
-            public void resend(Message message, boolean requestAcknowledge) {    
+            public void resend(Message message, boolean requestAcknowledge) {
                 RMProperties properties = RMContextUtils.retrieveRMProperties(message, true);
                 SequenceType st = properties.getSequence();
                 if (st != null) {
@@ -517,7 +485,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                 try {
                     // TODO: remove previously added acknowledgments and update
                     // message id (to avoid duplicates)
-                    
+
                     if (RMContextUtils.isRequestor(message)) {
                         clientResend(message);
                     } else {
@@ -529,7 +497,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             }
         };
     }
-    
+
     /**
      * Plug in replacement resend logic (facilitates unit testing).
      * 
@@ -538,7 +506,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     protected void replaceResender(Resender replacement) {
         resender = replacement;
     }
-    
+
     @SuppressWarnings("unchecked")
     protected JaxbAssertion<RMAssertion> getAssertion(AssertionInfo ai) {
         return (JaxbAssertion<RMAssertion>)ai.getAssertion();

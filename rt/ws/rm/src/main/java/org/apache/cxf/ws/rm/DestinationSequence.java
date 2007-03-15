@@ -29,13 +29,15 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.Message;
+// import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.apache.cxf.ws.rm.manager.AcksPolicyType;
 import org.apache.cxf.ws.rm.manager.DeliveryAssuranceType;
 import org.apache.cxf.ws.rm.persistence.RMStore;
+import org.apache.cxf.ws.rm.policy.PolicyUtils;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 
 public class DestinationSequence extends AbstractSequence {
@@ -104,12 +106,15 @@ public class DestinationSequence extends AbstractSequence {
         return destination.getName().toString();
     }
     
-    public void acknowledge(BigInteger messageNumber) throws SequenceFault {
+    public void acknowledge(Message message) throws SequenceFault {
+        SequenceType st = RMContextUtils.retrieveRMProperties(message, false).getSequence();
+        BigInteger messageNumber = st.getMessageNumber();
         LOG.fine("Acknowledging message: " + messageNumber);
         if (null != lastMessageNumber && messageNumber.compareTo(lastMessageNumber) > 0) {
             SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
             sf.setFaultCode(RMConstants.getLastMessageNumberExceededFaultCode());
-            Message msg = new Message("LAST_MESSAGE_NUMBER_EXCEEDED_EXC", LOG, this);
+            org.apache.cxf.common.i18n.Message msg = 
+                new org.apache.cxf.common.i18n.Message("LAST_MESSAGE_NUMBER_EXCEEDED_EXC", LOG, this);
             throw new SequenceFault(msg.toString(), sf);
         }
         
@@ -153,7 +158,7 @@ public class DestinationSequence extends AbstractSequence {
         
         purgeAcknowledged(messageNumber);
         
-        scheduleAcknowledgement();
+        scheduleAcknowledgement(message);
         
     }
     
@@ -212,7 +217,8 @@ public class DestinationSequence extends AbstractSequence {
     boolean applyDeliveryAssurance(BigInteger mn) {
         DeliveryAssuranceType da = destination.getManager().getDeliveryAssurance();
         if (da.isSetAtMostOnce() && isAcknowledged(mn)) {
-            Message msg = new Message("MESSAGE_ALREADY_DELIVERED", LOG, mn, getIdentifier().getValue());
+            org.apache.cxf.common.i18n.Message msg = new org.apache.cxf.common.i18n.Message(
+                "MESSAGE_ALREADY_DELIVERED", LOG, mn, getIdentifier().getValue());
             LOG.log(Level.SEVERE, msg.toString());
             return false;
         } 
@@ -272,11 +278,18 @@ public class DestinationSequence extends AbstractSequence {
         return correlationID;
     }
 
-    void scheduleAcknowledgement() {          
-        RMAssertion rma = destination.getManager().getRMAssertion();
-        int delay = 0;
-        if (null != rma.getAcknowledgementInterval()) {
-            delay = rma.getAcknowledgementInterval().getMilliseconds().intValue();
+    void scheduleAcknowledgement(Message message) {  
+        BigInteger interval = PolicyUtils.getAcknowledgmentInterval(message);
+        if (null == interval) {
+            RMAssertion rma = destination.getManager().getRMAssertion();
+            if (null != rma.getAcknowledgementInterval()) {
+                interval = rma.getAcknowledgementInterval().getMilliseconds();
+            }
+        }
+        
+        long delay = 0;
+        if (null != interval) {
+            delay = interval.longValue();
         }
         AcksPolicyType ap = destination.getManager().getDestinationPolicy().getAcksPolicy();
  
@@ -294,7 +307,7 @@ public class DestinationSequence extends AbstractSequence {
         acknowledgeOnNextOccasion = true;
     }
 
-    synchronized void scheduleDeferredAcknowledgement(int delay) {
+    synchronized void scheduleDeferredAcknowledgement(long delay) {
         
         if (null == deferredAcknowledgments) {
             deferredAcknowledgments = new ArrayList<DeferredAcknowledgment>();
@@ -333,8 +346,7 @@ public class DestinationSequence extends AbstractSequence {
                 Proxy proxy = rme.getProxy();
                 proxy.acknowledge(DestinationSequence.this);
             } catch (IOException ex) {
-                Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, DestinationSequence.this);
-                LOG.log(Level.SEVERE, msg.toString(), ex);
+                LogUtils.log(LOG, Level.SEVERE, "SEQ_ACK_SEND_EXC", ex, DestinationSequence.this);
             } finally {
                 synchronized (DestinationSequence.this) {
                     DestinationSequence.this.deferredAcknowledgments.remove(this);

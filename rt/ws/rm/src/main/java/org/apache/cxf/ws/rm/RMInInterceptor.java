@@ -29,7 +29,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 
@@ -115,7 +114,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
             
             processAcknowledgmentRequests(rmps);  
             
-            processSequence(destination, rmps, maps);
+            processSequence(destination, message);
             
             processDeliveryAssurance(rmps);
         }
@@ -138,18 +137,13 @@ public class RMInInterceptor extends AbstractRMInterceptor {
     }
 
     void processAcknowledgmentRequests(RMProperties rmps) {
-        
+        // TODO
     }
     
-    void processSequence(Destination destination, RMProperties rmps, AddressingProperties maps) 
+    void processSequence(Destination destination, Message message) 
         throws SequenceFault {
-        SequenceType s = rmps.getSequence();
-        if (null == s) {
-            return;
-        }  
 
-        destination.acknowledge(s, 
-            null == maps.getReplyTo() ? null : maps.getReplyTo().getAddress().getValue());
+        destination.acknowledge(message);
     }
     
     void processDeliveryAssurance(RMProperties rmps) {

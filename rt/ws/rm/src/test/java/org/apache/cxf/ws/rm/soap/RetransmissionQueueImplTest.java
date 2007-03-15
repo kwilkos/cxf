@@ -103,55 +103,6 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertSame("Unexpected RMManager", manager, queue.getManager());        
     }
     
-    public void testGetBaseRetranmissionIntervalFromPolicies() {
-        Message message = createMock(Message.class);
-        AssertionInfoMap aim = createMock(AssertionInfoMap.class);
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
-        AssertionInfo ai1 = createMock(AssertionInfo.class);
-        AssertionInfo ai2 = createMock(AssertionInfo.class);
-        AssertionInfo ai3 = createMock(AssertionInfo.class);
-        AssertionInfo ai4 = createMock(AssertionInfo.class);
-        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
-        ais.add(ai1);
-        ais.add(ai2);
-        ais.add(ai3);
-        ais.add(ai4);
-        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
-        JaxbAssertion ja1 = createMock(JaxbAssertion.class);
-        EasyMock.expect(ai1.getAssertion()).andReturn(ja1);
-        RMAssertion rma1 = createMock(RMAssertion.class);
-        EasyMock.expect(ja1.getData()).andReturn(rma1);
-        EasyMock.expect(rma1.getBaseRetransmissionInterval()).andReturn(null);
-        JaxbAssertion ja2 = createMock(JaxbAssertion.class);
-        EasyMock.expect(ai2.getAssertion()).andReturn(ja2);
-        RMAssertion rma2 = createMock(RMAssertion.class);
-        EasyMock.expect(ja2.getData()).andReturn(rma2);
-        RMAssertion.BaseRetransmissionInterval bri2 = 
-            createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma2.getBaseRetransmissionInterval()).andReturn(bri2);
-        EasyMock.expect(bri2.getMilliseconds()).andReturn(null);
-        JaxbAssertion ja3 = createMock(JaxbAssertion.class);
-        EasyMock.expect(ai3.getAssertion()).andReturn(ja3);
-        RMAssertion rma3 = createMock(RMAssertion.class);
-        EasyMock.expect(ja3.getData()).andReturn(rma3);
-        RMAssertion.BaseRetransmissionInterval bri3 = 
-            createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma3.getBaseRetransmissionInterval()).andReturn(bri3);
-        EasyMock.expect(bri3.getMilliseconds()).andReturn(new BigInteger("10000"));
-        JaxbAssertion ja4 = createMock(JaxbAssertion.class);
-        EasyMock.expect(ai4.getAssertion()).andReturn(ja4);
-        RMAssertion rma4 = createMock(RMAssertion.class);
-        EasyMock.expect(ja4.getData()).andReturn(rma4);
-        RMAssertion.BaseRetransmissionInterval bri4 = 
-            createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma4.getBaseRetransmissionInterval()).andReturn(bri4);
-        EasyMock.expect(bri4.getMilliseconds()).andReturn(new BigInteger("5000"));
-        
-        control.replay();
-        assertEquals("Unexpected value for base retransmission interval", 
-                     5000, queue.getBaseRetransmissionInterval(message));
-    }
-    
     public void testGetBaseRetransmissionIntervalFromManager() {
         Message message = createMock(Message.class);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
