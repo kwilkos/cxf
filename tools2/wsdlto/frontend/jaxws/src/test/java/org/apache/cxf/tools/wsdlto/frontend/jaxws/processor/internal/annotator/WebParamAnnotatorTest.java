@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import java.util.Map;
+
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import junit.framework.TestCase;
@@ -53,9 +55,14 @@ public class WebParamAnnotatorTest extends TestCase {
         parameter.annotate(new WebParamAnnotator());
 
         JavaAnnotation annotation = parameter.getAnnotation();
-        assertEquals(2, annotation.getArguments().size());
-        assertEquals("@WebParam(targetNamespace = \"http://apache.org/cxf\", name = \"x\")",
-                     annotation.toString());
+        Map<String, String> args = annotation.getArguments();
+        assertEquals(2, args.size());
+        assertEquals("\"http://apache.org/cxf\"", args.get("targetNamespace"));
+        assertEquals("\"x\"", args.get("name"));
+        // XXX - order that attributes are appended to the string
+        //       differs with the ibmjdk...
+        //assertEquals("@WebParam(targetNamespace = \"http://apache.org/cxf\", name = \"x\")",
+        //             annotation.toString());
     }
 
     public void testAnnotateDOCBare() throws Exception {
@@ -64,9 +71,15 @@ public class WebParamAnnotatorTest extends TestCase {
         parameter.annotate(new WebParamAnnotator());
 
         JavaAnnotation annotation = parameter.getAnnotation();
-        assertEquals(3, annotation.getArguments().size());
-        assertEquals("@WebParam(targetNamespace = \"http://apache.org/cxf\", partName = \"y\", name = \"x\")",
-                     annotation.toString());
+        Map<String, String> args = annotation.getArguments();
+        assertEquals(3, args.size());
+        assertEquals("\"http://apache.org/cxf\"", args.get("targetNamespace"));
+        assertEquals("\"y\"", args.get("partName"));
+        assertEquals("\"x\"", args.get("name"));
+        // XXX - order that attributes are appended to the string
+        //       differs with the ibmjdk...
+        //assertEquals("@WebParam(targetNamespace = \"http://apache.org/cxf\", partName = \"y\", name = \"x\")",
+        //             annotation.toString());
     }
 
     public void testAnnotateRPC() throws Exception {
