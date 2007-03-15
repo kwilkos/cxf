@@ -78,7 +78,8 @@ public class WebParamAnnotatorTest extends TestCase {
         assertEquals("\"x\"", args.get("name"));
         // XXX - order that attributes are appended to the string
         //       differs with the ibmjdk...
-        //assertEquals("@WebParam(targetNamespace = \"http://apache.org/cxf\", partName = \"y\", name = \"x\")",
+        //assertEquals(
+        //"@WebParam(targetNamespace = \"http://apache.org/cxf\", partName = \"y\", name = \"x\")",
         //             annotation.toString());
     }
 
