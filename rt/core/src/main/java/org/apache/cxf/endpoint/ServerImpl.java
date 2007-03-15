@@ -87,9 +87,13 @@ public class ServerImpl implements Server {
 
     public void stop() {
         LOG.fine("Server is stopping.");
-        getDestination().setMessageObserver(null);  
         if (mgr != null) {
             mgr.stopServer(this);
+        }
+        getDestination().setMessageObserver(null);
+        if (null != serverRegistry) {
+            LOG.fine("unregister the server to serverRegistry ");
+            serverRegistry.unregister(this);
         }
     }
 

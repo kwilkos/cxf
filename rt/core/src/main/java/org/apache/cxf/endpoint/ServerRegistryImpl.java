@@ -79,15 +79,18 @@ public class ServerRegistryImpl implements ServerRegistry, BusLifeCycleListener 
 
     @PreDestroy
     public void preShutdown() {
-        // Shutdown the service       
-        for (Server server : serversList) {            
+        // Shutdown the service.
+        // To avoid the CurrentModificationException, do not use serversList directly 
+        Object[] servers = serversList.toArray();
+        for (int i = 0; i < servers.length; i++) {
+            Server server = (Server) servers[i];
             server.stop();
-        }
+        }        
     }
 
     public void postShutdown() {
-        // TODO Auto-generated method stub
-        
+        // Clean the serversList
+        serversList.clear();
     }
 
 }

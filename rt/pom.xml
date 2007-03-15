@@ -40,7 +40,6 @@
         <module>frontend/simple</module>
         <module>frontend/jaxws</module>
         <module>frontend/js</module>
-        <module>transports/http</module>
         <module>transports/http2</module>
         <module>transports/jms</module>
         <module>ws/policy</module>
