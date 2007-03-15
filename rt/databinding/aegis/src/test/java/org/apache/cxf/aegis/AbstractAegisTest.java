@@ -25,6 +25,7 @@ import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -100,8 +101,8 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         return bus;
     }
     
-    protected void invoke(String service, String message) throws Exception {
-        invoke(service, LocalTransportFactory.TRANSPORT_ID, message);
+    protected Node invoke(String service, String message) throws Exception {
+        return invoke("local://" + service, LocalTransportFactory.TRANSPORT_ID, message);
     }
     
     public Server createService(Class serviceClass, QName name) {
@@ -118,7 +119,7 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         ServerFactoryBean sf = new ServerFactoryBean();
         sf.setServiceClass(serviceClass);
         sf.getServiceFactory().setServiceName(name);
-        sf.setAddress(address);
+        sf.setAddress("local://" + address);
         setupAegis(sf);
         return sf;
     }

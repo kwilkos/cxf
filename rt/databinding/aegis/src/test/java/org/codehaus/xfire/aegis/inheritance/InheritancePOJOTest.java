@@ -84,15 +84,14 @@ public class InheritancePOJOTest extends AbstractAegisTest {
 
     @Test
     public void testLocalReceiveEmployee() throws Exception {
-        Node response = invoke("InheritanceService", LocalTransportFactory.TRANSPORT_ID,
-                               "ReceiveEmployee.xml");
+        Node response = invoke("InheritanceService", "ReceiveEmployee.xml");
         addNamespace("w", "urn:xfire:inheritance");
         assertValid("//s:Body/w:receiveUserResponse", response);
     }
 
     @Test
     public void testLocalGetEmployee() throws Exception {
-        Node response = invoke("InheritanceService", LocalTransportFactory.TRANSPORT_ID, "GetEmployee.xml");
+        Node response = invoke("InheritanceService", "GetEmployee.xml");
         addNamespace("xsi", XmlConstants.XSI_NS);
         addNamespace("w", "urn:xfire:inheritance");
         addNamespace("p", "http://inheritance.aegis.xfire.codehaus.org");

@@ -35,7 +35,6 @@ public class BinaryDataTest extends AbstractAegisTest {
     //    
     private void runTests() throws Exception {
         Node res = invoke("BinaryDataService",
-                          LocalTransportFactory.TRANSPORT_ID,
                           "/org/apache/cxf/aegis/services/base64/binary.xml");
 
         addNamespace("b", "http://base64.services.aegis.cxf.apache.org");

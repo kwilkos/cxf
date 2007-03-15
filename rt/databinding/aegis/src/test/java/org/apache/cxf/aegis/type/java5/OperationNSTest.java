@@ -43,7 +43,7 @@ public class OperationNSTest extends AbstractAegisTest {
 
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceClass(NotificationLogImpl.class);
-        sf.setAddress("NotificationLogImpl");
+        sf.setAddress("local://NotificationLogImpl");
         sf.getServiceFactory().setDataBinding(new AegisDatabinding());
 
         sf.create();

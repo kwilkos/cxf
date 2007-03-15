@@ -168,8 +168,7 @@ public class CollectionTest extends AbstractAegisTest {
     @Test
     public void testCollectionDTOService() throws Exception {
         createService(DTOService.class, null);
-        invoke("DTOService", LocalTransportFactory.TRANSPORT_ID,
-               "/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml");
+        invoke("DTOService", "/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml");
     }
 
     @Test

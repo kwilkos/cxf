@@ -148,6 +148,15 @@ public abstract class AbstractEndpointFactory {
     }
 
     public String getAddress() {
+        if (address != null && address.indexOf("://") == -1) {
+            String a2 = "http://localhost";
+            if (address.startsWith("/")) {
+                a2 += "/";
+            }
+            
+            a2 += address;
+            return a2;
+        }
         return address;
     }
 

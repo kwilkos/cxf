@@ -43,7 +43,7 @@ public class WrappedTest extends AbstractAegisTest {
 
     @Test
     public void testBeanService() throws Exception {
-        Node response = invoke("BeanService", LocalTransportFactory.TRANSPORT_ID, "bean11.xml");
+        Node response = invoke("BeanService", "bean11.xml");
 
         addNamespace("sb", "http://services.aegis.cxf.apache.org");
         assertValid("/s:Envelope/s:Body/sb:getSimpleBeanResponse", response);

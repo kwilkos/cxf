@@ -172,7 +172,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             return null;
         }
         
-        return getPartName(op, method, paramNumber, "arg" + paramNumber);
+        return getPartName(op, method, paramNumber, "arg");
     }
 
     @Override
@@ -181,7 +181,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             return null;
         }
         
-        return getParameterName(op, method, paramNumber, "arg" + paramNumber);
+        return getParameterName(op, method, paramNumber, "arg");
     }
 
     private QName getPartName(OperationInfo op, Method method, int paramNumber, String prefix) {
@@ -200,7 +200,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
             return new QName(tns, local);
         } else {
-            return new QName(tns, prefix);
+            return new QName(tns, getDefaultLocalName(op, method, paramNumber, prefix));
         }        
     }
 
@@ -234,8 +234,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
         }
         
-        return DefaultServiceConfiguration.createName(method, paramNumber, op.getInput()
-            .getMessageParts().size(), false, prefix);
+        return DefaultServiceConfiguration.createName(method, paramNumber, paramNumber, false, prefix);
     }
 
     private WebParam getWebParam(Method method, int parameter) {

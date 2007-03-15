@@ -53,7 +53,11 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         QName opName = new QName("http://cxf.com/", "sayHello");
         Method sayHelloMethod = Hello.class.getMethod("sayHello", new Class[]{String.class, String.class});
         ServiceInfo si = getMockedServiceModel("/wsdl/default_partname_test.wsdl");
-        JaxWsServiceConfiguration jwsc = new JaxWsServiceConfiguration();
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setServiceClass(Hello.class);
+        JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
+        jwsc.setServiceFactory(bean);
+        
         QName partName = jwsc.getInPartName(si.getInterface().getOperation(opName), sayHelloMethod, 0);
         assertEquals("get wrong in partName for first param", new QName("http://cxf.com/", "arg0"), partName);
         partName = jwsc.getInPartName(si.getInterface().getOperation(opName), sayHelloMethod, 1);
@@ -109,7 +113,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         @SOAPBinding(parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.BARE, 
                 style = javax.jws.soap.SOAPBinding.Style.RPC, use = javax.jws.soap.SOAPBinding.Use.LITERAL)
         @WebMethod(operationName = "sayHello", exclude = false)
-        String sayHello(String arg0, String arg1);
+        String sayHello(String asdf1, String asdf2);
     }
 
 }

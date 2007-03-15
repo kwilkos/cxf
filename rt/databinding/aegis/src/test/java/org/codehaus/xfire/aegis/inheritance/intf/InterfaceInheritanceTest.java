@@ -48,7 +48,7 @@ public class InterfaceInheritanceTest extends AbstractAegisTest {
     @Test
     public void testClient() throws Exception {
         ClientProxyFactoryBean proxyFac = new ClientProxyFactoryBean();
-        proxyFac.setAddress("IInterfaceService");
+        proxyFac.setAddress("local://IInterfaceService");
         proxyFac.setServiceClass(IInterfaceService.class);
         proxyFac.setBus(getBus());
         setupAegis(proxyFac.getClientFactoryBean());
