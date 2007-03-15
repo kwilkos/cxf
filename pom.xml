@@ -41,6 +41,11 @@
         <maven>2.0.5</maven>
     </prerequisites>
 
+    <properties>
+         <compiler.fork>false</compiler.fork>
+     </properties>
+
+
     <distributionManagement>
         <snapshotRepository>
             <id>apache.snapshots</id>
@@ -361,10 +366,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.0.1</version>
+                    <version>2.0.2</version>
                     <configuration>
                         <source>1.5</source>
                         <target>1.5</target>
+                        <maxmem>256M</maxmem>
+                        <fork>${compiler.fork}</fork>
                     </configuration>
                 </plugin>
                 <plugin>
