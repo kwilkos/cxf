@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package demo.spring.client;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -25,19 +24,19 @@ import demo.spring.HelloWorld;
 
 public final class Client {
 
-	private Client() {
-	}
+    private Client() {
+    }
 
-	public static void main(String args[]) throws Exception {
-		// START SNIPPET: client
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-				new String[] { "demo/spring/client/client-beans.xml" });
+    public static void main(String args[]) throws Exception {
+        // START SNIPPET: client
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                                                                                    new String[] {"demo/spring/client/client-beans.xml"});
 
-		HelloWorld client = (HelloWorld) context.getBean("client");
+        HelloWorld client = (HelloWorld)context.getBean("client");
 
-		String response = client.sayHi("Joe");
-		System.out.println("Response: " + response);
-		System.exit(0);
-		// END SNIPPET: client
-	}
+        String response = client.sayHi("Joe");
+        System.out.println("Response: " + response);
+        System.exit(0);
+        // END SNIPPET: client
+    }
 }

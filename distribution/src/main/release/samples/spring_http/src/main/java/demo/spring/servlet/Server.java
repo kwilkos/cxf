@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package demo.spring.servlet;
 
 import org.mortbay.jetty.Connector;
@@ -28,39 +27,38 @@ import org.mortbay.jetty.webapp.WebAppContext;
 
 public class Server {
 
-	protected Server() throws Exception {
-		System.out.println("Starting Server");
+    protected Server() throws Exception {
+        System.out.println("Starting Server");
 
-		/**
-		 * Important: This code simply starts up a servlet container and adds
-		 * the web application in src/webapp to it. Normally you would be using
-		 * Jetty or Tomcat and have the webapp packaged as a WAR. This is simply
-		 * as a convenience so you do not need to configure your servlet
-		 * container to see CXF in action!
-		 */
-		org.mortbay.jetty.Server server = new org.mortbay.jetty.Server();
+        /**
+         * Important: This code simply starts up a servlet container and adds
+         * the web application in src/webapp to it. Normally you would be using
+         * Jetty or Tomcat and have the webapp packaged as a WAR. This is simply
+         * as a convenience so you do not need to configure your servlet
+         * container to see CXF in action!
+         */
+        org.mortbay.jetty.Server server = new org.mortbay.jetty.Server();
 
-		SelectChannelConnector connector = new SelectChannelConnector();
-		connector.setPort(9002);
-		server.setConnectors(new Connector[] { connector });
+        SelectChannelConnector connector = new SelectChannelConnector();
+        connector.setPort(9002);
+        server.setConnectors(new Connector[] {connector});
 
-		WebAppContext webappcontext = new WebAppContext();
-		webappcontext.setContextPath("/");
+        WebAppContext webappcontext = new WebAppContext();
+        webappcontext.setContextPath("/");
 
-		webappcontext.setWar("src/webapp");
+        webappcontext.setWar("src/webapp");
 
-		HandlerCollection handlers = new HandlerCollection();
-		handlers.setHandlers(new Handler[] { webappcontext,
-				new DefaultHandler() });
+        HandlerCollection handlers = new HandlerCollection();
+        handlers.setHandlers(new Handler[] {webappcontext, new DefaultHandler()});
 
-		server.setHandler(handlers);
-		server.start();
-		server.join();
-	}
+        server.setHandler(handlers);
+        server.start();
+        server.join();
+    }
 
-	public static void main(String args[]) throws Exception {
-		new Server();
-		System.out.println("Server ready...");
-	}
+    public static void main(String args[]) throws Exception {
+        new Server();
+        System.out.println("Server ready...");
+    }
 
 }
