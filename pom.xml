@@ -132,7 +132,7 @@
         <module>api</module>
         <module>metacode</module>
         <module>tools2</module>
-        <module>codegen-plugin2</module>       
+        <module>codegen-plugin</module>
         <module>testutils</module>
         <module>rt</module>
         <module>integration</module>

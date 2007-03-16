@@ -142,7 +142,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin2</artifactId>
+                <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
