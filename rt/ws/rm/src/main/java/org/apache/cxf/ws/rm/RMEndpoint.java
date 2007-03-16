@@ -20,7 +20,6 @@
 package org.apache.cxf.ws.rm;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBException;
@@ -28,7 +27,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxb.JAXBDataBinding;
@@ -48,8 +46,6 @@ import org.apache.cxf.ws.addressing.Names;
 
 public class RMEndpoint {
     
-    private static final Logger LOG = LogUtils.getL7dLogger(RMEndpoint.class);
-    
     private static final QName SERVICE_NAME = 
         new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractService");
     private static final QName INTERFACE_NAME = 
@@ -68,6 +64,7 @@ public class RMEndpoint {
     private final RMManager manager;
     private final Endpoint applicationEndpoint;
     private Conduit conduit;
+    private org.apache.cxf.ws.addressing.EndpointReferenceType replyTo; 
     private Source source;
     private Destination destination;
     private WrappedService service;
@@ -173,11 +170,23 @@ public class RMEndpoint {
     public Conduit getConduit() {
         return conduit;
     }
+
+    /** 
+     * Returns the replyTo address of the first application request, i.e. the target address to which to 
+     * send CreateSequence, CreateSequenceResponse and TerminateSequence messages originating from the
+     * from the server.
+     * @return the replyTo address
+     */
+    org.apache.cxf.ws.addressing.EndpointReferenceType getReplyTo() {
+        return replyTo;
+    }
     
-    void initialise(Conduit c, org.apache.cxf.ws.addressing.EndpointReferenceType replyTo) {  
+    
+    void initialise(Conduit c, org.apache.cxf.ws.addressing.EndpointReferenceType r) {  
         conduit = c;
+        replyTo = r;
         createService();
-        createEndpoint(replyTo);
+        createEndpoint();
     }
     
     void createService() {
@@ -200,18 +209,13 @@ public class RMEndpoint {
         service.setInvoker(servant);
     }
 
-    void createEndpoint(org.apache.cxf.ws.addressing.EndpointReferenceType replyTo) {
+    void createEndpoint() {
         ServiceInfo si = service.getServiceInfo();
         buildBindingInfo(si);
         String transportId = applicationEndpoint.getEndpointInfo().getTransportId();
         EndpointInfo ei = new EndpointInfo(si, transportId);
         
-        if (null == replyTo) {
-            ei.setAddress(applicationEndpoint.getEndpointInfo().getAddress());
-        } else {
-            ei.setAddress(replyTo.getAddress().getValue());
-        }
-        LOG.fine("Created endpoint info with address: " + ei.getAddress());
+        ei.setAddress(applicationEndpoint.getEndpointInfo().getAddress());
         
         ei.setName(PORT_NAME);
         ei.setBinding(si.getBinding(BINDING_NAME));

@@ -219,7 +219,8 @@ public class Proxy {
         Endpoint endpoint = reliableEndpoint.getEndpoint();
         BindingInfo bi = reliableEndpoint.getBindingInfo();
         
-        Client client = new RMClient(bus, endpoint, reliableEndpoint.getConduit());
+        Client client = new RMClient(bus, endpoint, reliableEndpoint.getConduit(),
+            reliableEndpoint.getReplyTo());
         
         BindingOperationInfo boi = bi.getOperation(oi);
         try {
@@ -237,9 +238,13 @@ public class Proxy {
     }
     
     class RMClient extends ClientImpl {
-        
-        RMClient(Bus bus, Endpoint endpoint, Conduit conduit) {
+
+        org.apache.cxf.ws.addressing.EndpointReferenceType address;
+
+        RMClient(Bus bus, Endpoint endpoint, Conduit conduit,
+            org.apache.cxf.ws.addressing.EndpointReferenceType a) {
             super(bus, endpoint, conduit);  
+            address = a;
         }
 
         @Override
@@ -248,6 +253,21 @@ public class Proxy {
             m.getExchange().put(Endpoint.class, Proxy.this.reliableEndpoint.getApplicationEndpoint());
             super.onMessage(m);
         }    
+
+        @Override
+        public Conduit getConduit() {
+            Conduit conduit = null;
+            String originalAddress = endpoint.getEndpointInfo().getAddress();
+            try {
+                if (null != address) {
+                    endpoint.getEndpointInfo().setAddress(address.getAddress().getValue());
+                }
+                conduit = super.getConduit();
+            } finally {
+                endpoint.getEndpointInfo().setAddress(originalAddress);
+            }
+            return conduit;
+        }
     }
     
 
