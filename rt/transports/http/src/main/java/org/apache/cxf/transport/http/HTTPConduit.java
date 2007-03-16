@@ -60,15 +60,16 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 
-
 /**
  * HTTP Conduit implementation.
  */
-public class HTTPConduit extends AbstractConduit implements Configurable {   
+public class HTTPConduit extends AbstractConduit implements Configurable {
+    public static final String HTTP_REQUEST = "org.apache.cxf.transport.http.JettyHTTPDestination.REQUEST";
+    public static final String HTTP_RESPONSE = "org.apache.cxf.transport.http.JettyHTTPDestination.RESPONSE";
     public static final String HTTP_CONNECTION = "http.connection";
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     
-    private final Bus bus;    
+    private final Bus bus;
     private final URLConnectionFactory alternateConnectionFactory;
     private URLConnectionFactory connectionFactory;
     private URL url;
@@ -83,7 +84,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
     private AuthorizationPolicy authorization;
     private AuthorizationPolicy proxyAuthorization;
     private SSLClientPolicy sslClient;
-    
+
 
     /**
      * Constructor
@@ -97,7 +98,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
              ei,
              null);
     }
-
+    
     /**
      * Constructor
      * 
@@ -139,18 +140,21 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
               : new URL(t.getAddress().getValue());
     }
 
-
     protected Logger getLogger() {
         return LOG;
     }
+
     
+    /**
+     * Post-configure retreival of connection factory.
+     */
     protected void retrieveConnectionFactory() {
         connectionFactory = alternateConnectionFactory != null
                             ? alternateConnectionFactory
                             : HTTPTransportFactory.getConnectionFactory(
-                                getSslClient());
+                                  getSslClient());
     }
-   
+        
     /**
      * Send an outbound message.
      * 
@@ -158,7 +162,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
      */
     public void send(Message message) throws IOException {
         Map<String, List<String>> headers = setHeaders(message);
-        URL currentURL = setupURL(message);        
+        URL currentURL = setupURL(message);
         URLConnection connection = 
             connectionFactory.createConnection(getProxy(), currentURL);
         connection.setDoOutput(true);        
@@ -182,7 +186,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
             } else {
                 hc.setInstanceFollowRedirects(false);
                 if (!hc.getRequestMethod().equals("GET")
-                    && getClient().isAllowChunking()) {
+                        && getClient().isAllowChunking()) {
                     hc.setChunkedStreamingMode(2048);
                 }
             }
@@ -216,14 +220,15 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
      * @return the backchannel Destination (or null if the backchannel is
      * built-in)
      */
+    @Override
     public synchronized Destination getBackChannel() {
         if (decoupledDestination == null
-            &&  getClient().getDecoupledEndpoint() != null) {
+            && getClient().getDecoupledEndpoint() != null) {
             setUpDecoupledDestination(); 
         }
         return decoupledDestination;
     }
-
+    
     /**
      * Close the conduit
      */
@@ -397,7 +402,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
     }
 
     private void initConfig() {
-        //Initialize some default values for the configuration
+        // Initialize some default values for the configuration
         client = endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class);
         authorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
                                                           AuthorizationPolicy.class);
@@ -627,7 +632,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
             incomingObserver.onMessage(inMessage);
         }
     }
-    
+       
     /**
      * Used to set appropriate message properties, exchange etc.
      * as required for an incoming decoupled response (as opposed
@@ -650,12 +655,11 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
             inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
 
             // remove server-specific properties
-            inMessage.remove(AbstractHTTPDestination.HTTP_REQUEST);
-            inMessage.remove(AbstractHTTPDestination.HTTP_RESPONSE);
+            inMessage.remove(HTTP_REQUEST);
+            inMessage.remove(HTTP_RESPONSE);
             inMessage.remove(Message.ASYNC_POST_RESPONSE_DISPATCH);
 
             incomingObserver.onMessage(inMessage);
         }
     }
-    
 }

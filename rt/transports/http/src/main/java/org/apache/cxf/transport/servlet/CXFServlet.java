@@ -85,7 +85,7 @@ public class CXFServlet extends HttpServlet {
 
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
-
+        
         String busid = servletConfig.getInitParameter("bus.id");
         if (null != busid) {
             WeakReference<Bus> ref = BUS_MAP.get(busid);
@@ -97,6 +97,7 @@ public class CXFServlet extends HttpServlet {
             // try to pull an existing ApplicationContext out of the
             // ServletContext
             ServletContext svCtx = getServletContext();
+
             
             // Spring 1.x
             ApplicationContext ctx = (ApplicationContext)svCtx

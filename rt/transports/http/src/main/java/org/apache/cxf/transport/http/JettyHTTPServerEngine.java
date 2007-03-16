@@ -25,35 +25,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
-import org.mortbay.jetty.AbstractConnector;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.handler.AbstractHandler;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpHandler;
+import org.mortbay.http.HttpServer;
+import org.mortbay.http.SocketListener;
+import org.mortbay.http.handler.AbstractHttpHandler;
 
 
 
-
-
-public final class JettyHTTPServerEngine extends HTTPListenerConfigBean 
-    implements ServerEngine, Configurable {
+public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implements ServerEngine {
     private static final long serialVersionUID = 1L;
     
     private static Map<Integer, JettyHTTPServerEngine> portMap =
         new HashMap<Integer, JettyHTTPServerEngine>();
    
     private int servantCount;
-    private Server server;
-    private AbstractConnector connector;
-    private JettyConnectorFactory connectorFactory;
-    private ContextHandlerCollection contexts;
+    private HttpServer server;
+    private SocketListener listener;
+    private JettyListenerFactory listenerFactory;
     private final int port;
     
     JettyHTTPServerEngine(Bus bus, String protocol, int p) {
@@ -87,15 +81,14 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean
         JettyHTTPServerEngine ref = portMap.remove(p);
         if (ref != null && ref.server != null) {
             try {
-                //NEED to check again
-                ref.connector.close();
-                ref.server.stop();
+                ref.listener.getServerSocket().close();
+                ref.server.stop(true);
                 ref.server.destroy();
                 ref.server = null;
                 ref.listener = null;
-            } catch (IOException ex) {
+            } catch (InterruptedException ex) {
                 ex.printStackTrace();
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
             
@@ -108,56 +101,62 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean
      * @param url the URL associated with the servant
      * @param handler notified on incoming HTTP requests
      */
-    public synchronized void addServant(URL url, AbstractHandler handler) {
+    public synchronized void addServant(URL url, AbstractHttpHandler handler) {
         if (server == null) {
-            server = new Server();            
-            connector = connectorFactory.createConnector(port);
-            //TODO Get the detail configuration 
-            /* set up the connector's paraments
+            server = new HttpServer();
+            
+            listener = listenerFactory.createListener(port);
+           
             if (getListener().isSetMinThreads()) {
-                connector.getThreadPool()..setMinThreads(getListener().getMinThreads());
+                listener.setMinThreads(getListener().getMinThreads());
             }
             if (getListener().isSetMaxThreads()) {
-                connector.setMaxThreads(getListener().getMaxThreads());            
+                listener.setMaxThreads(getListener().getMaxThreads());            
             }
             if (getListener().isSetMaxIdleTimeMs()) {
-                connector.setMaxIdleTimeMs(getListener().getMaxIdleTimeMs().intValue());
+                listener.setMaxIdleTimeMs(getListener().getMaxIdleTimeMs().intValue());
             }
             if (getListener().isSetLowResourcePersistTimeMs()) {
                 int lowResourcePersistTime = 
                     getListener().getLowResourcePersistTimeMs().intValue();
-                connector.setLowResourcePersistTimeMs(lowResourcePersistTime);
-            }*/
-            server.addConnector(connector);
-            contexts = new ContextHandlerCollection();
-            server.addHandler(contexts);
+                listener.setLowResourcePersistTimeMs(lowResourcePersistTime);
+            }
+
+            server.addListener(listener);
             try {
                 server.start();
             } catch (Exception e) {
                 e.printStackTrace();
                 //problem starting server
                 try {
-                    server.stop();
+                    server.stop(true);
                     server.destroy();
-                } catch (Exception ex) {
+                } catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }    
             }
         }
-        String contextName = HttpUriMapper.getContextName(url.getPath());       
         
-        ContextHandler context = new ContextHandler();
-        context.setContextPath(contextName);
-        context.setHandler(handler);
-        contexts.addHandler(context);
-        if (contexts.isStarted()) {           
-            try {                
-                context.start();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+        String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
+        
+        HttpContext context = server.getContext(contextName);
+        try {
+            context.start();
+        } catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
         }
         
+        handler.setName(smap);        
+        context.addHandler(handler);
+        
+        try {
+            handler.start();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         ++servantCount;
     }
     
@@ -166,27 +165,25 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean
      * 
      * @param url the URL the servant was registered against.
      */
-    public synchronized void removeServant(URL url) {
-        String contextName = HttpUriMapper.getContextName(url.getPath());
+    public synchronized void removeServant(URL url) {        
         
+        String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
+
         boolean found = false;
         // REVISIT: how come server can be null?
-        if (server != null) {            
-            for (Handler handler : contexts.getChildHandlersByClass(ContextHandler.class)) {
-                ContextHandler contextHandler = null;                
-                if (handler instanceof ContextHandler) {
-                    contextHandler = (ContextHandler) handler;
-                    if (contextName.equals(contextHandler.getContextPath())) {
-                        try {
-                            contexts.removeHandler(handler);
-                            handler.stop();
-                            handler.destroy();
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }                                                
-                        found = true;
+        if (server != null) {
+            HttpContext context = server.getContext(contextName);
+            for (HttpHandler handler : context.getHandlers()) {
+                if (smap.equals(handler.getName())) {
+                    try {
+                        handler.stop();
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
+                    context.removeHandler(handler);
+                    found = true;
                 }
             }
         }
@@ -209,20 +206,18 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean
      * @param url the associated URL
      * @return the HttpHandler if registered
      */
-    public synchronized Handler getServant(URL url)  {
+    public synchronized HttpHandler getServant(URL url)  {
         String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
         
-        Handler ret = null;
+        HttpHandler ret = null;
         // REVISIT: how come server can be null?
         if (server != null) {
-            for (Handler handler : server.getChildHandlersByClass(ContextHandler.class)) {
-                ContextHandler contextHandler = null;
-                if (handler instanceof ContextHandler) {
-                    contextHandler = (ContextHandler) handler;
-                    if (contextName.equals(contextHandler.getContextPath())) {           
-                        ret = contextHandler.getHandler();
-                        break;
-                    }    
+            HttpContext context = server.getContext(contextName);
+            for (HttpHandler handler : context.getHandlers()) {
+                if (smap.equals(handler.getName())) {
+                    ret = handler;
+                    break;
                 }
             }
         }
@@ -237,7 +232,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean
     }
 
     private void retrieveListenerFactory() {
-        connectorFactory = HTTPTransportFactory.getConnectorFactory(getSslServer());
+        listenerFactory = HTTPTransportFactory.getListenerFactory(getSslServer());
     }
     
     private void init(SSLServerPolicy sslServerPolicy) {

@@ -21,8 +21,8 @@ package org.apache.cxf.transport.http;
 
 import java.net.URL;
 
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.mortbay.http.HttpHandler;
+import org.mortbay.http.handler.AbstractHttpHandler;
 
 public interface ServerEngine {
     /**
@@ -31,7 +31,7 @@ public interface ServerEngine {
      * @param url the URL associated with the servant
      * @param handler notified on incoming HTTP requests
      */
-    void addServant(URL url, AbstractHandler handler);
+    void addServant(URL url, AbstractHttpHandler handler);
     
     /**
      * Remove a previously registered servant.
@@ -46,5 +46,5 @@ public interface ServerEngine {
      * @param url the associated URL
      * @return the HttpHandler if registered
      */
-    Handler getServant(URL url);
+    HttpHandler getServant(URL url);
 }

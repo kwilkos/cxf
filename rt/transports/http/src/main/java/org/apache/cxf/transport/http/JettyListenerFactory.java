@@ -19,18 +19,17 @@
 
 package org.apache.cxf.transport.http;
 
-import org.mortbay.jetty.AbstractConnector;
-
+import org.mortbay.http.SocketListener;
 
 /**
  * Encapsulates creation of Jetty listener.
  */
-public interface JettyConnectorFactory {
+public interface JettyListenerFactory {
 
     /**
      * Create a Listener.
      * 
      * @param port the listen port
      */
-    AbstractConnector createConnector(int port);
+    SocketListener createListener(int port);
 }
