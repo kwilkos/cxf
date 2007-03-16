@@ -34,7 +34,7 @@ public interface DataBinding {
     /**
      * Initialize the service info (i.e. type & element names, Schemas) with 
      * information from the databinding.
-     * @param serviceInfo
+     * @param service
      */
     void initialize(Service service);
 

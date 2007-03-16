@@ -75,7 +75,7 @@ public interface Client extends InterceptorProvider, MessageObserver {
 
     /**
      * Get the Conduit that messages for this client will be sent on.
-     * @return
+     * @return Conduit
      */
     Conduit getConduit();
 }
