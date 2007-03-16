@@ -55,37 +55,37 @@
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-common</artifactId>
+            <artifactId>cxf-tools-common</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-validator</artifactId>
+            <artifactId>cxf-tools-validator</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-wsdlto-core</artifactId>
+            <artifactId>cxf-tools-wsdlto-core</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-misctools</artifactId>
+            <artifactId>cxf-tools-misctools</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-wsdlto-databinding-jaxb</artifactId>
+            <artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-wsdlto-frontend-jaxws</artifactId>
+            <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools2-java2wsdl</artifactId>
+            <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>

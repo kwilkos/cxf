@@ -50,17 +50,17 @@
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-common</artifactId>
+            <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-java2wsdl</artifactId>
+            <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-validator</artifactId>
+            <artifactId>cxf-tools-validator</artifactId>
             <version>${project.version}</version>
         </dependency>
 

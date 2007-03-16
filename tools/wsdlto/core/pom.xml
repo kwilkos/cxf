@@ -19,10 +19,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-tools2-wsdlto-core</artifactId>
+    <artifactId>cxf-tools-wsdlto-core</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>Apache CXF Command Line Tools2 WSDLTo Core</name>
+    <name>Apache CXF Command Line Tools WSDLTo Core</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-common</artifactId>
+            <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-validator</artifactId>
+            <artifactId>cxf-tools-validator</artifactId>
             <version>${project.version}</version>
 
         </dependency>
@@ -148,8 +148,8 @@
     </build>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/wsdlto/core</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/wsdlto/core</developerConnection>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/wsdlto/core</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/wsdlto/core</developerConnection>
     </scm>
 
 </project>
