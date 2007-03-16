@@ -44,7 +44,7 @@ public abstract class AbstractBusClientServerTestBase extends AbstractClientServ
     protected static Bus staticBus; 
     
     protected String configFileName = defaultConfigFileName;
-    protected Bus bus = staticBus; 
+    protected Bus bus; 
 
     public void createBus(String config) throws Exception {
         configFileName = config;
