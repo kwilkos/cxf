@@ -50,11 +50,12 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
-import org.apache.cxf.transport.https.JettySslListenerFactory;
+import org.apache.cxf.transport.https.JettySslConnectorFactory;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
-import org.mortbay.http.SocketListener;
-import org.mortbay.util.InetAddrPort;
+import org.mortbay.jetty.AbstractConnector;
+//import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class HTTPTransportFactory extends AbstractTransportFactory implements ConduitInitiator,
@@ -99,8 +100,7 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
             for (String ns : activationNamespaces) {
                 dfm.registerDestinationFactory(ns, this);
             }
-        }       
-       
+        }
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo) throws IOException {
@@ -118,7 +118,7 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
     public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
         JettyHTTPDestination destination = new JettyHTTPDestination(bus, this, endpointInfo);
         configure(destination);
-        destination.retrieveEngine();
+        destination.retrieveEngine();        
         return destination;
     }
 
@@ -165,21 +165,24 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
                ? new URLConnectionFactory() {
                        public URLConnection createConnection(Proxy proxy, URL u)
                            throws IOException {
-                           return proxy != null
+                           return proxy != null 
                                   ? u.openConnection(proxy)
                                   : u.openConnection();
                        }
                    }
                : new HttpsURLConnectionFactory(policy);
     }
-
-    protected static JettyListenerFactory getListenerFactory(SSLServerPolicy policy) {
+    
+    protected static JettyConnectorFactory getConnectorFactory(SSLServerPolicy policy) {
         return policy == null
-               ? new JettyListenerFactory() {
-                       public SocketListener createListener(int port) {
-                           return new SocketListener(new InetAddrPort(port));
-                       }
+               ? new JettyConnectorFactory() {                     
+                   public AbstractConnector createConnector(int port) {
+                       SelectChannelConnector result = new SelectChannelConnector();
+                       //SocketConnector result = new SocketConnector();
+                       result.setPort(port);
+                       return result;
                    }
-               : new JettySslListenerFactory(policy);
+               }
+               : new JettySslConnectorFactory(policy);
     }
 }

@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.transport.http;
 
-import org.mortbay.http.SocketListener;
+import org.mortbay.jetty.AbstractConnector;
+
 
 /**
  * Encapsulates creation of Jetty listener.
  */
-public interface JettyListenerFactory {
+public interface JettyConnectorFactory {
 
     /**
      * Create a Listener.
      * 
      * @param port the listen port
      */
-    SocketListener createListener(int port);
+    AbstractConnector createConnector(int port);
 }

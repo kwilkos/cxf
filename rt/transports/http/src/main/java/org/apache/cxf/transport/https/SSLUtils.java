@@ -44,7 +44,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.servlet.http.HttpServletRequest;
@@ -53,8 +52,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.FiltersType;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.security.transport.TLSSessionInfo;
-import org.mortbay.http.HttpConnection;
-import org.mortbay.http.HttpRequest;
+
 
 /**
  * Holder for utility methods related to manipulating SSL settings, common
@@ -68,7 +66,7 @@ public final class SSLUtils {
     private static final String DEFAULT_TRUST_STORE_TYPE = "JKS";
     private static final String DEFAULT_SECURE_SOCKET_PROTOCOL = "TLSv1";
     private static final String CERTIFICATE_FACTORY_TYPE = "X.509";
-    private static final String SERVLET_SSL_SESSION_ATTRIBUTE = "javax.net.ssl.session";
+    private static final String SSL_SESSION_ATTRIBUTE = "javax.net.ssl.session";
     
     private static final boolean DEFAULT_REQUIRE_CLIENT_AUTHENTICATION = false;
     private static final boolean DEFAULT_WANT_CLIENT_AUTHENTICATION = true;
@@ -352,11 +350,11 @@ public final class SSLUtils {
     public static String[] getServerSupportedCipherSuites(SSLContext context) {
         return context.getServerSocketFactory().getSupportedCipherSuites();
     }
-
+        
     public static String[] getCiphersuites(List<String> cipherSuitesList,
                                            String[] supportedCipherSuites,
                                            FiltersType filters,
-                                           Logger log) {
+                                           Logger log, boolean exclude) {
         String[] cipherSuites = null;
         if (!(cipherSuitesList == null || cipherSuitesList.isEmpty())) {
             cipherSuites = getCiphersFromList(cipherSuitesList, log);
@@ -366,6 +364,7 @@ public final class SSLUtils {
                 LogUtils.log(log, Level.INFO, "CIPHERSUITE_FILTERS_NOT_SET");                
             }
             List<String> filteredCipherSuites = new ArrayList<String>();
+            List<String> excludedCipherSuites = new ArrayList<String>();
             List<Pattern> includes =
                 filters != null
                 ? compileRegexPatterns(filters.getInclude(), true, log)
@@ -387,13 +386,22 @@ public final class SSLUtils {
                                  Level.INFO,
                                  "CIPHERSUITE_EXCLUDED",
                                  supportedCipherSuites[i]);
+                    excludedCipherSuites.add(supportedCipherSuites[i]);
                 }
             }
             LogUtils.log(log,
                          Level.INFO,
                          "CIPHERSUITES_FILTERED",
                          filteredCipherSuites);
-            cipherSuites = getCiphersFromList(filteredCipherSuites, log);
+            LogUtils.log(log,
+                         Level.INFO,
+                         "CIPHERSUITES_EXCLUDED",
+                         excludedCipherSuites);
+            if (exclude) {
+                cipherSuites = getCiphersFromList(excludedCipherSuites, log);
+            } else {
+                cipherSuites = getCiphersFromList(filteredCipherSuites, log);
+            }
         } 
         return cipherSuites;
     }         
@@ -539,25 +547,21 @@ public final class SSLUtils {
      * @param req the Jetty request
      * @param message the Message
      */
-    public static void propogateSecureSession(HttpRequest req,
-                                              Message message) {
-        final HttpConnection httpCon = req.getHttpConnection();
-        if (httpCon != null) {
-            final Object connection = httpCon.getConnection();
-            if (connection instanceof SSLSocket) {
-                final SSLSocket socket = (SSLSocket) connection;
-                final SSLSession session = socket.getSession();
-                Certificate[] certs = null;
-                try {
-                    certs = session.getPeerCertificates();
-                } catch (final SSLPeerUnverifiedException e) {
-                    // peer has not been verified
-                }
-                message.put(TLSSessionInfo.class,
-                            new TLSSessionInfo(session.getCipherSuite(),
-                                               session,
-                                               certs));
+    public static void propogateSecureSession(HttpServletRequest request,
+                                              Message message) {    
+        SSLSession session = 
+            (SSLSession) request.getAttribute(SSL_SESSION_ATTRIBUTE);
+        if (session != null) {
+            Certificate[] certs = null;
+            try {
+                certs = session.getPeerCertificates();
+            } catch (final SSLPeerUnverifiedException e) {
+                // peer has not been verified
             }
+            message.put(TLSSessionInfo.class,
+                        new TLSSessionInfo(session.getCipherSuite(),
+                                           session,
+                                           certs));
         }
     }
 
@@ -567,7 +571,7 @@ public final class SSLUtils {
      * 
      * @param req the servlet request
      * @param message the Message
-     */
+     
     public static void propogateSecureServletSession(HttpServletRequest request,
                                                      Message message) {
         SSLSession session = 
@@ -584,7 +588,7 @@ public final class SSLUtils {
                                            session,
                                            certs));
         }
-    }
+    }*/
     
     protected static void logUnSupportedPolicies(Object policy,
                                                  boolean client,

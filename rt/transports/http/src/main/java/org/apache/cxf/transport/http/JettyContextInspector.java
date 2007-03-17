@@ -20,13 +20,13 @@
 package org.apache.cxf.transport.http;
 
 import org.apache.cxf.endpoint.ContextInspector;
-import org.mortbay.http.HttpContext;
+import org.mortbay.jetty.handler.ContextHandler;
 
 public class JettyContextInspector implements ContextInspector {
     
     public String getAddress(Object serverContext) {
-        if (HttpContext.class.isAssignableFrom(serverContext.getClass())) {
-            return ((HttpContext)serverContext).getContextPath();
+        if (ContextHandler.class.isAssignableFrom(serverContext.getClass())) {
+            return ((ContextHandler)serverContext).getContextPath();
         } else {
             return null;
         }

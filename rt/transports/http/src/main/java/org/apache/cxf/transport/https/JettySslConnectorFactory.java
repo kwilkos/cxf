@@ -27,14 +27,14 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
-import org.apache.cxf.transport.http.JettyListenerFactory;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.SslListener;
-import org.mortbay.util.InetAddrPort;
+import org.apache.cxf.transport.http.JettyConnectorFactory;
+import org.mortbay.jetty.AbstractConnector;
+import org.mortbay.jetty.security.SslSocketConnector;
 
-public final class JettySslListenerFactory implements JettyListenerFactory {
+
+public final class JettySslConnectorFactory implements JettyConnectorFactory {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LogUtils.getL7dLogger(JettySslListenerFactory.class);    
+    private static final Logger LOG = LogUtils.getL7dLogger(JettySslConnectorFactory.class);    
     
     private static final String[] UNSUPPORTED =
     {"SessionCaching", "SessionCacheKey", "MaxChainLength",
@@ -49,19 +49,21 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
      * 
      * @param policy the applicable SSLServerPolicy (guaranteed non-null)
      */
-    public JettySslListenerFactory(SSLServerPolicy policy) {
+    public JettySslConnectorFactory(SSLServerPolicy policy) {
         this.sslPolicy = policy;
-    }
+    }    
+    
     
     /**
-     * Create a Listener.
+     * Create a SSL Connector.
      * 
      * @param p the listen port
      */
-    public SocketListener createListener(int port) {
-        SslListener secureListener = new SslListener(new InetAddrPort(port));
-        decorate(secureListener);
-        return secureListener;
+    public AbstractConnector createConnector(int port) {
+        SslSocketConnector secureConnector = new SslSocketConnector();
+        secureConnector.setPort(port);
+        decorate(secureConnector);
+        return secureConnector;
     }
     
     /**
@@ -69,7 +71,7 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
      * 
      * @param listener the secure listener
      */
-    public void decorate(SslListener secureListener) {
+    public void decorate(SslSocketConnector secureListener) {
         String keyStoreLocation =
             SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG);
         secureListener.setKeystore(keyStoreLocation);
@@ -85,7 +87,7 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
         String keyStoreMgrFactoryAlgorithm =
             SSLUtils.getKeystoreAlgorithm(sslPolicy.getKeystoreAlgorithm(),
                                           LOG);
-        secureListener.setAlgorithm(keyStoreMgrFactoryAlgorithm);
+        secureListener.setSslKeyManagerFactoryAlgorithm(keyStoreMgrFactoryAlgorithm);
         
         System.setProperty("javax.net.ssl.trustStore",
                            SSLUtils.getTrustStore(sslPolicy.getTrustStore(),
@@ -94,7 +96,7 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
             SSLUtils.getSecureSocketProtocol(sslPolicy.getSecureSocketProtocol(),
                                              LOG);
         secureListener.setProtocol(secureSocketProtocol);
-        
+        //need to Check it
         secureListener.setWantClientAuth(
             SSLUtils.getWantClientAuthentication(
                                    sslPolicy.isSetWantClientAuthentication(),
@@ -117,11 +119,11 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
                                              secureSocketProtocol,
                                              LOG),
                 null);
-            secureListener.setCipherSuites(
+            secureListener.setExcludeCipherSuites(
                 SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
                                          SSLUtils.getServerSupportedCipherSuites(ctx),
                                          sslPolicy.getCiphersuiteFilters(),
-                                         LOG));
+                                         LOG, true));
         } catch (Exception e) {
             LogUtils.log(LOG, Level.SEVERE, "SSL_CONTEXT_INIT_FAILURE", e);
         }
@@ -146,4 +148,5 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
     protected String[] getDerivative() {
         return DERIVATIVE;
     }
+    
 }

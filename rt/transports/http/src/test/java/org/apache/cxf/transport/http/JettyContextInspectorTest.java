@@ -23,17 +23,18 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.mortbay.http.HttpContext;
+import org.mortbay.jetty.handler.ContextHandler;
+
 
 
 public class JettyContextInspectorTest extends TestCase {
     private static final String CONTEXT_PATH = "/foo/bar";
-    private HttpContext context;
+    private ContextHandler context;
     private IMocksControl control;
     
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
-        context = control.createMock(HttpContext.class);
+        context = control.createMock(ContextHandler.class);
         context.getContextPath();
         EasyMock.expectLastCall().andReturn(CONTEXT_PATH);
         control.replay();

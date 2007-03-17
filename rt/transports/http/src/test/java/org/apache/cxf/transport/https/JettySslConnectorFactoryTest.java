@@ -33,33 +33,34 @@ import org.apache.cxf.configuration.security.FiltersType;
 import org.apache.cxf.configuration.security.ObjectFactory;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 
-import org.mortbay.http.SslListener;
+//import org.mortbay.jetty.security.SslSelectChannelConnector;
+import org.mortbay.jetty.security.SslSocketConnector;
 
 
-public class JettySslListenerFactoryTest extends TestCase {
+public class JettySslConnectorFactoryTest extends TestCase {
     
     private static final String[] EXPORT_CIPHERS =
     {"SSL_RSA_WITH_NULL_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_DES_CBC_SHA"};
     private static final String[] NON_EXPORT_CIPHERS =
     {"SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_3DES_EDE_CBC_SHA"};
 
-    private SslListener sslListener;
+    private SslSocketConnector sslConnector;
     
-    public JettySslListenerFactoryTest(String arg0) {
+    public JettySslConnectorFactoryTest(String arg0) {
         super(arg0);
     }
 
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(JettySslListenerFactoryTest.class);
+        TestSuite suite = new TestSuite(JettySslConnectorFactoryTest.class);
         return new TestSetup(suite);
     }
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(JettySslListenerFactoryTest.class);
+        junit.textui.TestRunner.run(JettySslConnectorFactoryTest.class);
     }
     
     public void setUp() throws Exception {
-        sslListener = new SslListener();
+        sslConnector = new SslSocketConnector();
     }
 
     public void tearDown() throws Exception {
@@ -150,26 +151,32 @@ public class JettySslListenerFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
-                                                        "https://dummyurl",
-                                                        handler);
+        JettySslConnectorFactory factory = null;
+        String oldHome = overrideHome();
+        try {            
+            factory = createFactory(sslServerPolicy, 
+                                    "https://dummyurl",
+                                    handler);
 
-        factory.decorate(sslListener);
+            factory.decorate(sslConnector);
+        } finally {
+            restoreHome(oldHome);
+        }
         
         assertTrue("Keystore not set properly", 
-                   sslListener.getKeystore().contains("resources/defaultkeystore"));
+                   sslConnector.getKeystore().contains("resources/defaultkeystore"));
         String trustStr = System.getProperty("javax.net.ssl.trustStore");
         assertTrue("Trust store loaded success message not present", 
                    trustStr.contains("resources/defaulttruststore"));
         assertTrue("Keystore type not being read", 
-                   sslListener.getKeystoreType().equals("JKS"));
+                   sslConnector.getKeystoreType().equals("JKS"));
         assertTrue("Keystore password not being read", 
                    sslServerPolicy.getKeystorePassword().equals("defaultkeypass"));
         assertTrue("Key password not being read", 
                    sslServerPolicy.getKeyPassword().equals("defaultkeypass"));  
         
-        assertNotNull("Default filtered ciphersuites not set on listener", 
-                      sslListener.getCipherSuites()); 
+        //assertNotNull("Default filtered ciphersuites not set on listener", 
+        //              sslConnector.getExcludeCipherSuites()); 
 
         assertTrue("Truststore type not being read", 
                    handler.checkLogContainsString("Unsupported SSLServerPolicy property : "
@@ -208,32 +215,32 @@ public class JettySslListenerFactoryTest extends TestCase {
         
         sslServerPolicy.setTrustStore(null);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = null;
+        JettySslConnectorFactory factory = null;
         String oldHome = overrideHome();
         try {            
             factory = createFactory(sslServerPolicy, 
                                     "https://dummyurl",
                                     handler);
 
-            factory.decorate(sslListener);
+            factory.decorate(sslConnector);
         } finally {
             restoreHome(oldHome);
         }
         
-        assertTrue("Keystore not set properly, sslListener.getKeystore() = " + sslListener.getKeystore(), 
-                   sslListener.getKeystore().contains(".keystore"));
+        assertTrue("Keystore not set properly, sslListener.getKeystore() = " + sslConnector.getKeystore(), 
+                   sslConnector.getKeystore().contains(".keystore"));
         String trustStr = System.getProperty("javax.net.ssl.trustStore");
         assertTrue("Trust store loaded success message not present", 
                    trustStr.contains("cacerts"));
         assertTrue("Keystore type not being read", 
-                   sslListener.getKeystoreType().equals("JKS"));
+                   sslConnector.getKeystoreType().equals("JKS"));
         assertTrue("Keystore password not being read", 
                    sslServerPolicy.getKeystorePassword().equals("defaultkeypass"));
         assertTrue("Key password not being read", 
                    sslServerPolicy.getKeyPassword().equals("defaultkeypass"));  
         
         assertNull("Ciphersuites is being being read from somewhere unknown", 
-                   sslListener.getCipherSuites());        
+                   sslConnector.getExcludeCipherSuites());        
  
         assertTrue("Truststore type not being read", 
                    handler.checkLogContainsString("Unsupported SSLServerPolicy property : "
@@ -276,14 +283,14 @@ public class JettySslListenerFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
+        JettySslConnectorFactory factory = createFactory(sslServerPolicy, 
                                                         "https://dummyurl",
                                                         handler);
 
-        factory.decorate(sslListener);
+        factory.decorate(sslConnector);
         
         assertNotNull("Configured ciphersuites not set on listener", 
-                      sslListener.getCipherSuites()); 
+                      sslConnector.getExcludeCipherSuites()); 
         assertFalse("Ciphersuites config not picked up", handler
                     .checkLogContainsString("The cipher suites have not been configured, " 
                                             + "default values will be used."));        
@@ -311,14 +318,14 @@ public class JettySslListenerFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
+        JettySslConnectorFactory factory = createFactory(sslServerPolicy, 
                                                         "https://dummyurl",
                                                         handler);
 
-        factory.decorate(sslListener);
+        factory.decorate(sslConnector);
                 
-        assertNotNull("Ciphersuites is being being read from somewhere unknown", 
-                      sslListener.getCipherSuites()); 
+        //assertNotNull("Ciphersuites is being being read from somewhere unknown", 
+        //              sslConnector.getExcludeCipherSuites()); 
         assertTrue("Ciphersuites config not picked up", 
                    handler.checkLogContainsString("The cipher suites have not been configured," 
                                                   + " falling back to cipher suite filters."));
@@ -364,14 +371,14 @@ public class JettySslListenerFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
+        JettySslConnectorFactory factory = createFactory(sslServerPolicy, 
                                                         "https://dummyurl",
                                                         handler);
 
-        factory.decorate(sslListener);
+        factory.decorate(sslConnector);
                 
-        assertNotNull("Ciphersuites is being being read from somewhere unknown", 
-                      sslListener.getCipherSuites()); 
+        //assertNotNull("Ciphersuites is being being read from somewhere unknown", 
+        //              sslConnector.getExcludeCipherSuites()); 
         assertTrue("Ciphersuites config not picked up",
                    handler.checkLogContainsString("The cipher suites have not been configured," 
                                                   + " falling back to cipher suite filters."));
@@ -403,11 +410,11 @@ public class JettySslListenerFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
+        JettySslConnectorFactory factory = createFactory(sslServerPolicy, 
                                                         "https://dummyurl",
                                                         handler);
 
-        factory.decorate(sslListener);
+        factory.decorate(sslConnector);
     }
     
     public void testAllValidDataPKCS12() throws Exception {
@@ -421,17 +428,17 @@ public class JettySslListenerFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/abigcompany_ca.pem");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
+        JettySslConnectorFactory factory = createFactory(sslServerPolicy, 
                                                         "https://dummyurl",
                                                         handler);
 
-        factory.decorate(sslListener);
+        factory.decorate(sslConnector);
     }
 
     public void testAllElementsHaveSetupMethod() throws Exception {
         SSLServerPolicy policy = new SSLServerPolicy();
         TestLogHandler handler = new TestLogHandler(); 
-        JettySslListenerFactory factory = createFactory(policy, 
+        JettySslConnectorFactory factory = createFactory(policy, 
                                                         "https://dummyurl",
                                                          handler);
         assertTrue("A new element has been "
@@ -442,11 +449,11 @@ public class JettySslListenerFactoryTest extends TestCase {
                                                       factory.getDerivative()));
     }
     
-    private JettySslListenerFactory createFactory(SSLServerPolicy policy,
+    private JettySslConnectorFactory createFactory(SSLServerPolicy policy,
                                                   String urlStr, 
                                                   TestLogHandler handler) {
-        JettySslListenerFactory factory =
-            new JettySslListenerFactory(policy);
+        JettySslConnectorFactory factory =
+            new JettySslConnectorFactory(policy);
         factory.addLogHandler(handler);
         return factory;
     }
@@ -467,7 +474,7 @@ public class JettySslListenerFactoryTest extends TestCase {
     }
 
     protected static String getPath(String fileName) throws URISyntaxException {
-        URL keystoreURL = JettySslListenerFactoryTest.class.getResource(".");
+        URL keystoreURL = JettySslConnectorFactoryTest.class.getResource(".");
         String str = keystoreURL.toURI().getPath(); 
         str += HttpsURLConnectionFactoryTest.DROP_BACK_SRC_DIR  + fileName;
         return str;

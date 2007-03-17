@@ -125,7 +125,7 @@ public final class HttpsURLConnectionFactory implements URLConnectionFactory {
                 SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
                                          SSLUtils.getSupportedCipherSuites(ctx),
                                          sslPolicy.getCiphersuiteFilters(),
-                                         LOG);
+                                         LOG, false);
             secureConnection.setSSLSocketFactory(
                 new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
                                             cipherSuites));
