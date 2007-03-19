@@ -19,19 +19,20 @@
 
 package org.apache.cxf.transport.http;
 
-import junit.framework.TestCase;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mortbay.jetty.handler.ContextHandler;
 
-
-
-public class JettyContextInspectorTest extends TestCase {
+public class JettyContextInspectorTest extends Assert {
     private static final String CONTEXT_PATH = "/foo/bar";
     private ContextHandler context;
     private IMocksControl control;
     
+    @Before
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
         context = control.createMock(ContextHandler.class);
@@ -40,12 +41,14 @@ public class JettyContextInspectorTest extends TestCase {
         control.replay();
     }
 
+    @After
     public void tearDown() {
         control.verify();
         control = null;
         context = null;
     }
     
+    @Test
     public void testGetAddress() throws Exception {
         JettyContextInspector inspector = new JettyContextInspector();
         assertEquals("unexpected address",

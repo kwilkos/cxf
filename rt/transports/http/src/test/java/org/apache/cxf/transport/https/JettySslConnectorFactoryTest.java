@@ -24,20 +24,20 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.cxf.configuration.security.FiltersType;
 import org.apache.cxf.configuration.security.ObjectFactory;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 
 //import org.mortbay.jetty.security.SslSelectChannelConnector;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mortbay.jetty.security.SslSocketConnector;
 
 
-public class JettySslConnectorFactoryTest extends TestCase {
+public class JettySslConnectorFactoryTest extends Assert {
     
     private static final String[] EXPORT_CIPHERS =
     {"SSL_RSA_WITH_NULL_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_DES_CBC_SHA"};
@@ -46,23 +46,12 @@ public class JettySslConnectorFactoryTest extends TestCase {
 
     private SslSocketConnector sslConnector;
     
-    public JettySslConnectorFactoryTest(String arg0) {
-        super(arg0);
-    }
-
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(JettySslConnectorFactoryTest.class);
-        return new TestSetup(suite);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JettySslConnectorFactoryTest.class);
-    }
-    
+    @Before
     public void setUp() throws Exception {
         sslConnector = new SslSocketConnector();
     }
 
+    @After
     public void tearDown() throws Exception {
         Properties props = System.getProperties();
         props.remove("javax.net.ssl.trustStore");
@@ -132,6 +121,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
     }
     */
     
+    @Test
     public void testSetAllData() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
@@ -198,6 +188,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
                                                   + "CertValidator"));
     }
     
+    @Test
     public void testSetAllDataExceptKeystoreAndTrustStore() throws Exception {        
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(null);
@@ -261,7 +252,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
                    handler.checkLogContainsString("Unsupported SSLServerPolicy property : "
                                                   + "CertValidator"));
     }
-    
+    @Test
     public void testConfiguredCipherSuites() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
@@ -303,6 +294,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
     }
 
 
+    @Test
     public void testDefaultedCipherSuiteFilters() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
@@ -346,6 +338,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
                    handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
     }
 
+    @Test
     public void testNonDefaultedCipherSuiteFilters() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
@@ -399,6 +392,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
                    handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
     }
 
+    @Test
     public void testAllValidDataJKS() throws Exception {        
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
@@ -417,6 +411,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
         factory.decorate(sslConnector);
     }
     
+    @Test
     public void testAllValidDataPKCS12() throws Exception {
         String keyStoreStr = getPath("resources/celtix.p12");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
@@ -435,6 +430,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
         factory.decorate(sslConnector);
     }
 
+    @Test
     public void testAllElementsHaveSetupMethod() throws Exception {
         SSLServerPolicy policy = new SSLServerPolicy();
         TestLogHandler handler = new TestLogHandler(); 

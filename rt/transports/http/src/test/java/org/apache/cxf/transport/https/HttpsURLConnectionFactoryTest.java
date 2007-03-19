@@ -25,14 +25,16 @@ import java.util.Properties;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.configuration.security.FiltersType;
 import org.apache.cxf.configuration.security.ObjectFactory;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class HttpsURLConnectionFactoryTest extends TestCase {
+public class HttpsURLConnectionFactoryTest extends Assert {
 
     protected static final String DROP_BACK_SRC_DIR = 
         "../../../../../../../"
@@ -45,18 +47,13 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     private TestHttpsURLConnection connection;
     
-    public HttpsURLConnectionFactoryTest(String arg0) {
-        super(arg0);
-    }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(HttpsURLConnectionFactoryTest.class);
-    }
-
+    @Before
     public void setUp() throws Exception {
         connection = new TestHttpsURLConnection(null);
     }
 
+    @After
     public void tearDown() throws Exception {
         Properties props = System.getProperties();
         props.remove("javax.net.ssl.trustStore");
@@ -130,6 +127,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
     }
     */
 
+    @Test
     public void testSetAllData() throws Exception {
         
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -220,6 +218,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
             .checkLogContainsString("Unsupported SSLClientPolicy property : CertValidator"));
     }
     
+    @Test
     public void testDefaultedCipherSuiteFilters() throws Exception {
         
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -262,6 +261,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
         
     }
     
+    @Test
     public void testNonDefaultedCipherSuiteFilters() throws Exception {
         
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -314,6 +314,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
         
     }
 
+    @Test
     public void testAllValidDataJKS() throws Exception {
 
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -342,6 +343,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testAllValidDataPKCS12() throws Exception {
 
         String keyStoreStr = getPath("resources/celtix.p12");
@@ -368,6 +370,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testNonExistentKeystoreJKS() throws Exception {
 
         String keyStoreStr = getPath("resources/defaultkeystoredontexist");
@@ -392,6 +395,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testNonExistentKeystorePKCS12() throws Exception {
 
         String keyStoreStr = getPath("resources/defaultkeystoredontexist");
@@ -415,6 +419,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testWrongKeystorePasswordJKS() throws Exception {
 
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -451,6 +456,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testWrongKeystorePasswordPKCS12() throws Exception {
 
         String keyStoreStr = getPath("resources/celtix.p12");
@@ -487,6 +493,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testWrongKeyPasswordJKS() throws Exception {
 
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -519,6 +526,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testWrongKeyPasswordPKCS12() throws Exception {
 
         String keyStoreStr = getPath("resources/celtix.p12");
@@ -550,6 +558,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
 
     }
 
+    @Test
     public void testAllElementsHaveSetupMethod() throws Exception {
         SSLClientPolicy policy = new SSLClientPolicy();
         TestLogHandler handler = new TestLogHandler();

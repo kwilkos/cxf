@@ -36,8 +36,6 @@ import java.util.Map;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
@@ -52,11 +50,15 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 
 
-public class HTTPConduitTest extends TestCase {
+public class HTTPConduitTest extends Assert {
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
     private static final String PAYLOAD = "message payload";
     private EndpointReferenceType target;
@@ -70,10 +72,12 @@ public class HTTPConduitTest extends TestCase {
     private ServletInputStream is;
     private IMocksControl control;
     
+    @Before
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
     }
-
+    
+    @After
     public void tearDown() {
         // avoid intermittent spurious failures on EasyMock detecting finalize
         // calls by mocking up only class data members (no local variables)
@@ -88,6 +92,7 @@ public class HTTPConduitTest extends TestCase {
         is = null;
     }
 
+    @Test
     public void testGetTarget() throws Exception {
         HTTPConduit conduit = setUpConduit(false);
         EndpointReferenceType ref = conduit.getTarget();
@@ -100,6 +105,7 @@ public class HTTPConduitTest extends TestCase {
                      "/bar/foo");
     }
     
+    @Test
     public void testSend() throws Exception {
         HTTPConduit conduit = setUpConduit(true, false, false);
         Message message = new MessageImpl();
@@ -107,6 +113,7 @@ public class HTTPConduitTest extends TestCase {
         verifySentMessage(conduit, message);
     }
     
+    @Test
     public void testSendWithHeaders() throws Exception {
         HTTPConduit conduit = setUpConduit(true, false, false);
         Message message = new MessageImpl();
@@ -115,6 +122,7 @@ public class HTTPConduitTest extends TestCase {
         verifySentMessage(conduit, message, true);
     }
     
+    @Test
     public void testSendHttpConnection() throws Exception {
         HTTPConduit conduit = setUpConduit(true, true, false);
         Message message = new MessageImpl();
@@ -122,6 +130,7 @@ public class HTTPConduitTest extends TestCase {
         verifySentMessage(conduit, message);
     }
 
+    @Test
     public void testSendHttpConnectionAutoRedirect() throws Exception {
         HTTPConduit conduit = setUpConduit(true, true, true);
         Message message = new MessageImpl();
@@ -129,12 +138,14 @@ public class HTTPConduitTest extends TestCase {
         verifySentMessage(conduit, message);
     }
     
+    @Test
     public void testSendDecoupled() throws Exception {
         HTTPConduit conduit = setUpConduit(true, false, false, true);
         Message message = new MessageImpl();
         conduit.send(message);
         verifySentMessage(conduit, message, false, true);
     }
+    
     
     private void setUpHeaders(Message message) {
         Map<String, List<String>> headers = new HashMap<String, List<String>>();

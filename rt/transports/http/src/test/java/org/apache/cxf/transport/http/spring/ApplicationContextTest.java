@@ -20,7 +20,6 @@ package org.apache.cxf.transport.http.spring;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
@@ -33,9 +32,12 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.JettyHTTPDestination;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ApplicationContextTest extends TestCase {
+public class ApplicationContextTest extends Assert {
+    @Test
     public void testContext() throws Exception {
         String s1 = getClass().getResource("/META-INF/cxf/cxf.xml").toString();
         String s2 = getClass().getResource("/META-INF/cxf/cxf-extension-http.xml").toString();
@@ -63,7 +65,7 @@ public class ApplicationContextTest extends TestCase {
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
         ConduitInitiator ci = cim.getConduitInitiator("http://schemas.xmlsoap.org/soap/http");
         HTTPConduit conduit = (HTTPConduit) ci.getConduit(info);
-        assertEquals(97, conduit.getClient().getConnectionTimeout());
+        assertEquals(97, conduit.getClient().getConnectionTimeout(), 0);
         
     }
 }

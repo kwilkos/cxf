@@ -31,8 +31,6 @@ import java.util.Map;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.common.util.Base64Utility;
@@ -56,11 +54,14 @@ import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 import org.mortbay.jetty.HttpFields;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 
-public class JettyHTTPDestinationTest extends TestCase {
+public class JettyHTTPDestinationTest extends Assert {
     protected static final String AUTH_HEADER = "Authorization";
     protected static final String USER = "copernicus";
     protected static final String PASSWD = "epicycles";
@@ -93,11 +94,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     private QueryHandlerRegistry  queryHandlerRegistry;
     private List<QueryHandler> queryHandlerList; 
 
-    
-    public void setUp() throws Exception {
-        
-    }
-
+    @After
     public void tearDown() {
        
         bus = null;
@@ -114,6 +111,8 @@ public class JettyHTTPDestinationTest extends TestCase {
         os = null;
         destination = null;
     }
+    
+    @Test
     public void testGetAddress() throws Exception {
         destination = setUpDestination();
         EndpointReferenceType ref = destination.getAddress();
@@ -122,12 +121,15 @@ public class JettyHTTPDestinationTest extends TestCase {
                      EndpointReferenceUtils.getAddress(ref),
                      StringUtils.addDefaultPortIfMissing(EndpointReferenceUtils.getAddress(address)));
     }
+    
+    @Test
     public void testRemoveServant() throws Exception {
         destination = setUpDestination();
         setUpRemoveServant();
         destination.setMessageObserver(null);
     }
 
+    @Test
     public void testDoServiceRedirectURL() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(true);
@@ -135,6 +137,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         
     }
 
+    @Test
     public void testDoService() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(false);
@@ -142,6 +145,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         verifyDoService();
     }
     
+    @Test
     public void testDoServiceWithHttpGET() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(false,
@@ -165,6 +169,7 @@ public class JettyHTTPDestinationTest extends TestCase {
 
     }
     
+    @Test
     public void testDoServiceWithHttpGETandQueryWSDL() throws Exception {
         destination = setUpDestination(false, true);
         setUpDoService(false,
@@ -180,6 +185,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         
     }
 
+    @Test
     public void testGetAnonBackChannel() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(false);
@@ -195,6 +201,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                      backChannel.getTarget().getAddress().getValue());
     }
     
+    @Test
     public void testGetBackChannelSend() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(false, true);
@@ -207,6 +214,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         verifyBackChannelSend(backChannel, outMessage, 200);
     }
 
+    @Test
     public void testGetBackChannelSendFault() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(false, true, 500);
@@ -219,6 +227,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         verifyBackChannelSend(backChannel, outMessage, 500);
     }
     
+    @Test
     public void testGetBackChannelSendOneway() throws Exception {
         destination = setUpDestination(false, false);
         setUpDoService(false, true, 500);
@@ -231,6 +240,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         verifyBackChannelSend(backChannel, outMessage, 500, true);
     }
 
+    @Test
     public void testGetBackChannelSendDecoupled() throws Exception {
         destination = setUpDestination(false, false);
         replyTo = getEPR(NOWHERE + "response/foo");
@@ -256,6 +266,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         fullBackChannel.send(outMessage);
     }
     
+    @Test
     public void testServerPolicyInServiceModel()
         throws Exception {
         policy = new HTTPServerPolicy();

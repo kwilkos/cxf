@@ -20,15 +20,16 @@ package org.apache.cxf.transport.http.spring;
 
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
-public class BeanDefinitionParsersTest extends TestCase {
+public class BeanDefinitionParsersTest extends Assert {
+    @Test
     public void testDest()throws Exception {
         BeanDefinitionBuilder bd = BeanDefinitionBuilder.childBeanDefinition("child");
         
@@ -43,6 +44,7 @@ public class BeanDefinitionParsersTest extends TestCase {
         assertEquals("exact", pvs[1].getValue());
     }
     
+    @Test
     public void testConduit()throws Exception {
         BeanDefinitionBuilder bd = BeanDefinitionBuilder.childBeanDefinition("child");
         
@@ -53,6 +55,6 @@ public class BeanDefinitionParsersTest extends TestCase {
         
         PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
         assertEquals(1, pvs.length);
-        assertEquals(97, ((HTTPClientPolicy) pvs[0].getValue()).getConnectionTimeout());
+        assertEquals(97, ((HTTPClientPolicy) pvs[0].getValue()).getConnectionTimeout(), 0);
     }
 }

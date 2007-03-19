@@ -19,7 +19,6 @@
 
 package org.apache.cxf.transport.http;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
@@ -27,17 +26,22 @@ import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JettyHTTPServerEngineTest extends TestCase {
+public class JettyHTTPServerEngineTest extends Assert {
 
     private Bus bus;
     private IMocksControl control;
     
+    @Before
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
     }
     
+    @Test
     public void testEngineEquality() {
 
         setUpConfigurer(null);
@@ -51,6 +55,7 @@ public class JettyHTTPServerEngineTest extends TestCase {
         JettyHTTPServerEngine.destroyForPort(1235);
     }
     
+    @Test
     public void testNoSSLServerPolicySet() {
         
         setUpConfigurer(null);
@@ -67,6 +72,7 @@ public class JettyHTTPServerEngineTest extends TestCase {
         JettyHTTPServerEngine.destroyForPort(1235);
     }
     
+    @Test
     public void testDestinationSSLServerPolicy() {
         
         setUpConfigurer(null);
@@ -85,6 +91,7 @@ public class JettyHTTPServerEngineTest extends TestCase {
         JettyHTTPServerEngine.destroyForPort(1234);
     }
     
+    @Test
     public void testSSLServerPolicySetFromConfig() {
         
         setUpConfigurer("/org/apache/cxf/transport/http/cxfcfg.xml");
