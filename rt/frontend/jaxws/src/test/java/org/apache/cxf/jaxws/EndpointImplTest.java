@@ -28,6 +28,7 @@ import javax.xml.ws.WebServiceContext;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.BeanInvoker;
@@ -125,6 +126,25 @@ public class EndpointImplTest extends AbstractJaxWsTest {
             String expeced = "Method [sayHi] processing error: SOAPBinding can not on method with RPC style";
             assertEquals(expeced, e.getMessage());
         }
+    }
+
+    @Test
+    public void testPublishEndpointPermission() throws Exception {
+        Hello service = new Hello();
+        EndpointImpl ep = new EndpointImpl(getBus(), service, (String) null);
+
+        System.setProperty(EndpointImpl.CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY, "true");
+
+        try {
+            ep.publish("local://localhost:9090/hello");
+            fail("Did not throw exception as expected");
+        } catch (SecurityException e) {
+            // that's expected
+        } finally {
+            System.setProperty(EndpointImpl.CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY, "false");
+        }
+        
+        ep.publish("local://localhost:9090/hello");
     }
 
     static class EchoObserver implements MessageObserver {

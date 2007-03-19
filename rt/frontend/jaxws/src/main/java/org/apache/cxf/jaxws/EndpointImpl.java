@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws;
 
 import java.net.URL;
+import java.security.AccessController;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -31,8 +32,8 @@ import javax.xml.ws.Binding;
 //TODO JAX-WS 2.1
 //import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServicePermission;
 import javax.xml.ws.handler.Handler;
-
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.injection.ResourceInjector;
@@ -52,8 +53,19 @@ import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
+    /*
+     * This property controls whether the 'publishEndpoint' permission is checked 
+     * using only the AccessController (i.e. when SecurityManager is not installed).
+     * By default this check is not done as the system property is not set.
+     */
+    public static final String CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY =
+        "org.apache.cxf.jaxws.checkPublishEndpointPermission";
+
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
+    private static final WebServicePermission PUBLISH_PERMISSION =
+        new WebServicePermission("publishEndpoint");
+    
     protected boolean doInit;
 
     private Bus bus;
@@ -145,8 +157,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     @Override
     public void publish(Object arg0) {
-        // TODO Auto-generated method stub
-
+        // Since this does not do anything now, just check the permission
+        checkPublishPermission();
     }
 
     @Override
@@ -200,6 +212,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
     protected void doPublish(String address) {
+        checkPublishPermission();
 
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
         svrFactory.setBus(bus);
@@ -270,6 +283,15 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         getBinding().setHandlerChain(chain);
     }
     
+    protected void checkPublishPermission() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(PUBLISH_PERMISSION);
+        } else if (Boolean.getBoolean(CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY)) {
+            AccessController.checkPermission(PUBLISH_PERMISSION);
+        }
+    }
+
     /*
     //TODO JAX-WS 2.1
     public EndpointReference getEndpointReference(Element... referenceParameters) {
