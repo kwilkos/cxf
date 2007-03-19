@@ -86,8 +86,14 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         for (Interceptor interceptorInstance : soapMessage.getInterceptorChain()) {
             if (interceptorInstance instanceof SoapInterceptor) {
                 SoapInterceptor si = (SoapInterceptor) interceptorInstance;
-                serviceRoles.addAll(si.getRoles());
-                mustUnderstandQNames.addAll(si.getUnderstoodHeaders());
+                Set<URI> roles = si.getRoles();
+                if (roles != null) {
+                    serviceRoles.addAll(roles);
+                }
+                Set<QName> understoodHeaders = si.getUnderstoodHeaders();
+                if (understoodHeaders != null) {
+                    mustUnderstandQNames.addAll(understoodHeaders);
+                }
             }
         }
     }

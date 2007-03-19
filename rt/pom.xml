@@ -45,6 +45,7 @@
         <module>ws/policy</module>
         <module>ws/addr</module>
         <module>ws/rm</module>
+        <module>ws/security</module>
         <module>management</module>
     </modules>
 

@@ -26,6 +26,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.ws.AbstractWSFeature;
 
 public class ClientFactoryBean extends AbstractEndpointFactory {
     private Client client;
@@ -47,9 +48,19 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
             throw new ServiceConstructionException(e);
         }
         
+        applyFeatures();
+        
         return client;
     }
 
+    protected void applyFeatures() {
+        if (getFeatures() != null) {
+            for (AbstractWSFeature feature : getFeatures()) {
+                feature.initialize(client);
+            }
+        }
+    }
+    
     public Client getClient() {
         return client;
     }

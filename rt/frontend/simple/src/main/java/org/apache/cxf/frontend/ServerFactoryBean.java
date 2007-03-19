@@ -31,6 +31,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.transport.ChainInitiationObserver;
+import org.apache.cxf.ws.AbstractWSFeature;
 
 /**
  * This class helps take a {@link org.apache.cxf.service.Service} and 
@@ -104,7 +105,17 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
             throw new ServiceConstructionException(e);
         }
         
+        applyFeatures();
+        
         return server;
+    }
+
+    protected void applyFeatures() {
+        if (getFeatures() != null) {
+            for (AbstractWSFeature feature : getFeatures()) {
+                feature.initialize(server);
+            }
+        }
     }
 
     protected Invoker createInvoker() {

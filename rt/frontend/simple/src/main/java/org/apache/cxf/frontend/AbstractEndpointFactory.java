@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.frontend;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -25,7 +26,6 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -36,6 +36,7 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.ws.AbstractWSFeature;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
 public abstract class AbstractEndpointFactory {
@@ -49,6 +50,7 @@ public abstract class AbstractEndpointFactory {
     private ReflectionServiceFactoryBean serviceFactory;
     private QName endpointName;
     private Map<String, Object> properties;
+    private List<AbstractWSFeature> features;
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         Service service = serviceFactory.getService();
@@ -110,15 +112,16 @@ public abstract class AbstractEndpointFactory {
         
         // Get the Service from the ServiceFactory if specified
         Service service = serviceFactory.getService();
-        BindingInfo bindingInfo = createBindingInfo();
-        service.getServiceInfo().addBinding(bindingInfo);
         
         // SOAP nonsense
+        BindingInfo bindingInfo = createBindingInfo();
         if (bindingInfo instanceof SoapBindingInfo) {
-            ((SoapBindingInfoFactoryBean) getBindingFactory()).setTransportURI(transportId);
+            ((SoapBindingInfo) bindingInfo).setTransportURI(transportId);
             transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
         
+        service.getServiceInfo().addBinding(bindingInfo);
+
         setTransportId(transportId);
         
         if (destinationFactory == null) {
@@ -130,7 +133,7 @@ public abstract class AbstractEndpointFactory {
         ei.setName(endpointName);
         ei.setAddress(getAddress());
         ei.setBinding(bindingInfo);
-        
+
         if (destinationFactory instanceof WSDLEndpointFactory) {
             WSDLEndpointFactory we = (WSDLEndpointFactory) destinationFactory;
             
@@ -236,4 +239,13 @@ public abstract class AbstractEndpointFactory {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
+
+    public List<AbstractWSFeature> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<AbstractWSFeature> features) {
+        this.features = features;
+    }
+    
 }
