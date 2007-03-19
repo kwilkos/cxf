@@ -30,7 +30,6 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;

@@ -24,7 +24,6 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.message.AbstractWrappedMessage;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;

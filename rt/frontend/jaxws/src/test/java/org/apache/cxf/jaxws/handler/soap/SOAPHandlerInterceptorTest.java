@@ -54,7 +54,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
@@ -66,12 +65,13 @@ import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManagerImpl;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
-
 import org.easymock.classextension.IMocksControl;
+
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
@@ -93,8 +93,6 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                 Boolean outboundProperty = (Boolean)smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
                 if (outboundProperty.booleanValue()) {
                     try {
-                        //SOAPMessage message = smc.getMessage();
-                        //message.getSOAPBody();                                               
                         smc.setMessage(preparemSOAPMessage("resources/greetMeRpcLitRespChanged.xml"));
                     } catch (Exception e) {
                         throw new Fault(e);
@@ -130,9 +128,15 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
         //Interceptors after SOAPHandlerInterceptor DOMXMLStreamWriter to write
         chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
+            
+            @Override
+            public String getPhase() {
+                return Phase.MARSHAL;
+            }
+
             public void handleMessage(SoapMessage message) throws Fault {
                 try {
-                    XMLStreamWriter writer = message.getContent(XMLStreamWriter.class); 
+                    XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
                     SoapVersion soapVersion = Soap11.getInstance();
                     writer.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
                     writer.writeStartElement(soapVersion.getPrefix(), 
@@ -142,21 +146,24 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                     writer.writeEndElement();
                     
                     writer.flush();
+                    message.getInterceptorChain().finishSubChain();
                 } catch (Exception e) {
                     // do nothing
                 }
             }
 
         });
+        chain.add(new SOAPHandlerInterceptor(binding));
         message.setInterceptorChain(chain);
         control.replay();
 
-        SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
-        li.handleMessage(message);
+        chain.doIntercept(message);
+        
         control.verify();
 
         // Verify outputStream
         CachedStream expectedOs = prepareOutputStreamFromResource("resources/greetMeRpcLitRespChanged.xml");
+
         assertTrue("The content of outputStream should remain unchanged", compareInputStream(expectedOs
             .getInputStream(), originalEmptyOs.getInputStream()));
 
@@ -219,14 +226,14 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
         // This is to set direction to inbound
         expect(exchange.getOutMessage()).andReturn(null);
+        
         SoapMessage message = new SoapMessage(new MessageImpl());
         message.setExchange(exchange);
         XMLStreamReader reader = preparemXMLStreamReader("resources/greetMeRpcLitReq.xml");
         message.setContent(XMLStreamReader.class, reader);
-        Element headerElement = preparemSOAPHeader();
-        message.setHeaders(Element.class, headerElement);
-        message.put(Element.class, headerElement);
-
+        Object[] headerInfo = preparemSOAPHeader();
+        message.setHeaders(Element.class, (Element) headerInfo[1]);
+        message.setContent(Node.class, (Document) headerInfo[0]);
         control.replay();
 
         SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
@@ -306,6 +313,12 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
         //Interceptors after SOAPHandlerInterceptor DOMXMLStreamWriter to write
         chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
+
+            @Override
+            public String getPhase() {
+                return Phase.MARSHAL;
+            }
+
             public void handleMessage(SoapMessage message) throws Fault {
                 try {
                     XMLStreamWriter writer = message.getContent(XMLStreamWriter.class); 
@@ -316,23 +329,25 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                                           soapVersion.getNamespace());
                     writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
                     
-                    Element headerElement = preparemSOAPHeader();
-                    StaxUtils.writeElement(headerElement, writer, true, false);
+                    Object[] headerInfo = preparemSOAPHeader();
+                    StaxUtils.writeElement((Element) headerInfo[1], writer, true, false);
                     
                     writer.writeEndElement();
                     
                     writer.flush();
+                    message.getInterceptorChain().finishSubChain();
                 } catch (Exception e) {
                     // do nothing
                 }
             }
 
         });
+        chain.add(new SOAPHandlerInterceptor(binding));
         message.setInterceptorChain(chain);
         control.replay();
 
-        SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
-        li.handleMessage(message);
+        chain.doIntercept(message);
+        
         control.verify();
 
         // Verify SOAPMessage header
@@ -482,17 +497,28 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         return xmlReader;
     }
 
-    private Element preparemSOAPHeader() throws Exception {
+    private Object[] preparemSOAPHeader() throws Exception {
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         SoapVersion soapVersion = Soap11.getInstance();
-        Element headerElement = doc.createElementNS(soapVersion.getNamespace(), "SOAP-ENV:"
-                                                                                + soapVersion.getHeader()
-                                                                                    .getLocalPart());
+        Element envElement = doc.createElementNS(soapVersion.getEnvelope().getNamespaceURI(),
+                                                 soapVersion.getEnvelope().getLocalPart());
+        
+        Element headerElement = doc.createElementNS(soapVersion.getNamespace(), 
+                                                    soapVersion.getHeader().getLocalPart());
+        
+        Element bodyElement = doc.createElementNS(soapVersion.getBody().getNamespaceURI(),
+                                                  soapVersion.getBody().getLocalPart());
+        
         Element childElement = doc.createElementNS("http://apache.org/hello_world_rpclit/types",
                                                    "ns2:header1");
+        
         childElement.setAttributeNS(soapVersion.getNamespace(), "SOAP-ENV:mustUnderstand", "true");
         headerElement.appendChild(childElement);
-        return headerElement;
+        envElement.appendChild(headerElement);
+        envElement.appendChild(bodyElement);
+        doc.appendChild(envElement);
+        
+        return new Object[] {doc, headerElement};
     }
 
     private SOAPMessage preparemSOAPMessage(String resouceName) throws Exception {

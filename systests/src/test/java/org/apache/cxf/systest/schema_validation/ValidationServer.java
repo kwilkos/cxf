@@ -44,7 +44,9 @@ public class ValidationServer extends AbstractBusTestServerBase {
     }
 
     public boolean stopInProcess() throws Exception {
-        System.setProperty("cxf.config.file.url", oldConfig);
+        if (oldConfig != null) {
+            System.setProperty("cxf.config.file.url", oldConfig);
+        }
         return super.stopInProcess();
     }
 

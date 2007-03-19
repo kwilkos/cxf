@@ -29,7 +29,6 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.javaee.FullyQualifiedClassType;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;

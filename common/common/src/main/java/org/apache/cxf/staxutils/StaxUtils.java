@@ -539,7 +539,7 @@ public final class StaxUtils {
      * @param reader
      * @throws XMLStreamException
      */
-    private static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing)
+    public static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing)
         throws XMLStreamException {
         Document doc = getDocument(parent);
 

@@ -30,6 +30,8 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
@@ -60,7 +62,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
             return;
         }
         XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
-        
+
         if (xmlReader == null) {
             InputStream in = (InputStream)message.getContent(InputStream.class);
             if (in == null) {
@@ -72,36 +74,33 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         try {
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
+                
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
                 if (soapVersion == null) {
-                    throw new SoapFault(new Message("INVALID_VERSION", LOG, ns), 
-                                        Soap11.getInstance().getSender());
+                    throw new SoapFault(new Message("INVALID_VERSION", LOG, ns), Soap11.getInstance()
+                        .getSender());
                 }
                 message.setVersion(soapVersion);
-                
-                QName qn = xmlReader.getName();
-                while (!qn.equals(message.getVersion().getBody())
-                    && !qn.equals(message.getVersion().getHeader())) {
-                    while (xmlReader.nextTag() != XMLStreamConstants.START_ELEMENT) {
-                        //nothing to do
-                    }
-                    qn = xmlReader.getName();
-                }
-                if (qn.equals(message.getVersion().getHeader())) {
-                    XMLStreamReader filteredReader = 
-                        new PartialXMLStreamReader(xmlReader, message.getVersion().getBody());
-                
-                    Document doc = StaxUtils.read(filteredReader);
 
-                    Element element = doc.getDocumentElement();
-                    message.setHeaders(Element.class, element);
-                    message.put(Element.class, element);                    
+                XMLStreamReader filteredReader = new PartialXMLStreamReader(xmlReader, message.getVersion()
+                    .getBody());
+
+                Document doc = StaxUtils.read(filteredReader);
+
+                message.setContent(Node.class, doc);
+
+                // Find header
+                Element element = doc.getDocumentElement();
+                QName header = soapVersion.getHeader();
+                NodeList headerEls = element.getElementsByTagNameNS(header.getNamespaceURI(), header
+                    .getLocalPart());
+                for (int i = 0; i < headerEls.getLength(); i++) {
+                    Node node = headerEls.item(i);
+                    message.setHeaders(Element.class, (Element)node);
                 }
+
                 // advance just past body.
                 xmlReader.nextTag();
-                if (xmlReader.getName().equals(message.getVersion().getBody())) {
-                    xmlReader.nextTag();
-                }                    
                 if (message.getVersion().getFault().equals(xmlReader.getName())) {
                     Endpoint ep = message.getExchange().get(Endpoint.class);
                     if (!isDecoupled(message)) {
@@ -115,13 +114,12 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 }
             }
         } catch (XMLStreamException e) {
-            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, 
-                                message.getVersion().getSender());
+            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, message.getVersion().getSender());
         }
     }
 
     private boolean isDecoupled(SoapMessage message) {
         Boolean decoupled = (Boolean)message.get(DECOUPLED_CHANNEL_MESSAGE);
-        return decoupled != null && decoupled.booleanValue(); 
+        return decoupled != null && decoupled.booleanValue();
     }
 }

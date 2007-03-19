@@ -25,7 +25,6 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.handlers.types.AddNumbers;

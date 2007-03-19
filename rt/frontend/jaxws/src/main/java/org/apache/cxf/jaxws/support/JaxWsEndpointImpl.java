@@ -68,8 +68,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         } else {
              // TODO: what for non soap bindings?
         }
-//        handlerInterceptors.add(new StreamHandlerInterceptor(binding));
-        
+
         List<Interceptor> fault = super.getOutFaultInterceptors();
         fault.addAll(handlerInterceptors);
         List<Interceptor> in = super.getInInterceptors();

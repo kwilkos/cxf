@@ -24,7 +24,6 @@ package org.apache.cxf.jaxws.context;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.message.MessageImpl;
 
 

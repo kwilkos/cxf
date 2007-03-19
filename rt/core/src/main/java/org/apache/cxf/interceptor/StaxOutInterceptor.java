@@ -44,7 +44,8 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public StaxOutInterceptor() {
         super();
-        setPhase(Phase.PRE_PROTOCOL);
+        setPhase(Phase.PRE_STREAM);
+        getAfter().add(AttachmentOutInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) {

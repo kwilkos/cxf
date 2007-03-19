@@ -35,6 +35,8 @@ import javax.xml.ws.Service;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
+import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -112,7 +114,8 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                 out.addBefore(SOAPHandlerInterceptor.class.getName());
                 getService().getOutInterceptors().add(out);
                 
-                getService().put(SOAPHandlerInterceptor.SAAJ_ENABLED, Boolean.TRUE);
+                getService().getInInterceptors().add(new SAAJInInterceptor());
+                getService().getOutInterceptors().add(new SAAJOutInterceptor());
             } else {
                 getService().getInInterceptors().add(new ProviderInDatabindingInterceptor(type));
                 getService().getOutInterceptors().add(new ProviderOutDatabindingInterceptor());

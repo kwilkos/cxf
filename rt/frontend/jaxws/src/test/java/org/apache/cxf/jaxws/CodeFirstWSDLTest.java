@@ -24,7 +24,6 @@ import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello2;
 import org.apache.cxf.jaxws.service.Hello3;

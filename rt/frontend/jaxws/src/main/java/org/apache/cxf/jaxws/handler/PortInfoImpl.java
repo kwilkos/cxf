@@ -20,7 +20,6 @@
 package org.apache.cxf.jaxws.handler;
 
 import javax.xml.namespace.QName;
-
 import javax.xml.ws.handler.PortInfo;
 
 public class PortInfoImpl implements PortInfo {

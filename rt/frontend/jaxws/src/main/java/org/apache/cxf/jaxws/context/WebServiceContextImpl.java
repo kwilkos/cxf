@@ -21,8 +21,6 @@ package org.apache.cxf.jaxws.context;
 
 import java.security.Principal;
 
-//  TODO JAX-WS 2.1
-//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 

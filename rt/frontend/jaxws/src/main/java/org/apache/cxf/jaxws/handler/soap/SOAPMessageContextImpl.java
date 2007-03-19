@@ -19,49 +19,29 @@
 
 package org.apache.cxf.jaxws.handler.soap;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.soap.SOAPPart;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.binding.soap.SoapVersion;
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
-import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SOAPMessageContextImpl.class);
-
+    private static final SAAJInInterceptor SAAJ_IN = new SAAJInInterceptor();
+    
     SOAPMessageContextImpl(Message m) {
         super(m);
     }
@@ -73,107 +53,26 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
     public SOAPMessage getMessage() {
         SOAPMessage message = getWrappedMessage().getContent(SOAPMessage.class);
         if (null == message) {
+            Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-            try {
-                Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-
-                if (outboundProperty) {
-                    SoapVersion soapVersion = ((SoapMessage)getWrappedMessage()).getVersion();
-                    
-                    if (soapVersion == null) {
-                        soapVersion = Soap11.getInstance();
+            // No SOAPMessage exists yet, so lets create one
+            if (!outboundProperty) {
+                if (getWrappedMessage().getContent(Object.class) != null) {
+                    //The Dispatch/Provider case:
+                    Object obj = getWrappedMessage().getContent(Object.class);
+                    if (obj instanceof SOAPMessage) {
+                        message = (SOAPMessage)obj;
+                    } else if (obj instanceof SOAPBody) {
+                        // what to do
+                    } else if (obj instanceof XMLMessage) {
+                        // what to do
                     }
-                    soapVersion = ((SoapMessage)getWrappedMessage()).getVersion();
-                 
-                    XMLStreamWriter xtw = getWrappedMessage().getContent(XMLStreamWriter.class);
-                    Document doc = ((W3CDOMStreamWriter)xtw).getDocument();
-                                  
-                    MessageFactory factory = null;
-                    if (soapVersion.getVersion() == 1.1) {
-                        factory = MessageFactory.newInstance();
-                    } else {
-                        factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
-                    }
-                    message = factory.createMessage();
-
-                    SOAPPart soapPart = message.getSOAPPart();
-                    DOMSource preppedMsgSrc = new DOMSource(doc.getDocumentElement());
-                    soapPart.setContent(preppedMsgSrc);
-                    message.saveChanges();
-
                 } else {
-                    
-                    if (getWrappedMessage().getContent(Object.class) != null) {
-                        //The Dispatch/Provider case:
-                        Object obj = getWrappedMessage().getContent(Object.class);
-                        if (obj instanceof SOAPMessage) {
-                            message = (SOAPMessage)obj;
-                        } else if (obj instanceof SOAPBody) {
-                            // what to do
-                        } else if (obj instanceof XMLMessage) {
-                            // what to do
-                        }
-
-                    } else {
-                        CachedStream cs = new CachedStream();
-                        XMLStreamWriter writer = StaxUtils.getXMLOutputFactory().createXMLStreamWriter(cs);
-                        XMLStreamReader xmlReader = getWrappedMessage().getContent(XMLStreamReader.class);
-
-                        // Create a mocked inputStream to feed SAAJ,
-                        // only SOAPBody is from real data
-                        // REVISIT: soap version here is not important, we just
-                        // use soap11.
-                        SoapVersion soapVersion = Soap11.getInstance();
-                        writer.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
-                        writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope()
-                            .getLocalPart(), soapVersion.getNamespace());
-                        writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
-
-                        // Write headers
-                        if (getWrappedSoapMessage().hasHeaders(Element.class)) {
-                            Element headerElements = getWrappedSoapMessage().getHeaders(Element.class);
-                            StaxUtils.writeElement(headerElements, writer, true);
-                        }
-
-                        writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getBody()
-                            .getLocalPart(), soapVersion.getNamespace());
-
-                        // Write soap body
-                        StaxUtils.copy(xmlReader, writer);
-
-                        xmlReader.close();
-                        writer.close();
-                        cs.doFlush();
-
-                        InputStream newIs = cs.getInputStream();
-                        MessageFactory factory = MessageFactory.newInstance();
-                        MimeHeaders mhs = null;
-                        message = factory.createMessage(mhs, newIs);
-                        
-                        getWrappedMessage().setContent(SOAPMessage.class, message);
-                    }
+                    SAAJ_IN.handleMessage(getWrappedSoapMessage());
+                    message = getWrappedSoapMessage().getContent(SOAPMessage.class);
                 }
-
-                
-/*                System.out.println("11111------------------");
-                PrintStream out = System.out;
-                message.writeTo(out);
-                out.println();
-                System.out.println("11111------------------");
-*/
-                getWrappedMessage().setContent(SOAPMessage.class, message);
-
-            } catch (IOException ioe) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("SOAPHANDLERINTERCEPTOR_EXCEPTION",
-                                                                       BUNDLE), ioe);
-            } catch (SOAPException soape) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("SOAPHANDLERINTERCEPTOR_EXCEPTION",
-                                                                       BUNDLE), soape);
-            } catch (XMLStreamException e) {
-                e.printStackTrace();
-                throw new Fault(new org.apache.cxf.common.i18n.Message("SOAPHANDLERINTERCEPTOR_EXCEPTION",
-                                                                       BUNDLE), e);
             }
+           
         }
 
         return message;
@@ -203,24 +102,10 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
     }
 
     public Set<String> getRoles() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     private SoapMessage getWrappedSoapMessage() {
         return (SoapMessage)getWrappedMessage();
-    }
-
-    private class CachedStream extends AbstractCachedOutputStream {
-        protected void doFlush() throws IOException {
-            currentStream.flush();
-        }
-
-        protected void doClose() throws IOException {
-            currentStream.close();
-        }
-
-        protected void onWrite() throws IOException {
-        }
     }
 }
