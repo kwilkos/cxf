@@ -171,18 +171,28 @@ public class WSDLToJava {
             w2j.run(new ToolContext());
             
         } catch (ToolException ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println();
+            System.err.println("WSDLToJava Error : " + ex.getMessage());
             System.err.println();
             if (w2j.isVerbose()) {
                 ex.printStackTrace();
+            }
+            if (w2j.isExitOnFinish()) {
+                System.exit(1);
             }
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("WSDLToJava Error : " + ex.getMessage());
             System.err.println();
             if (w2j.isVerbose()) {
                 ex.printStackTrace();
             }
+            if (w2j.isExitOnFinish()) {
+                System.exit(1);
+            }
         }
+        if (w2j.isExitOnFinish()) {
+            System.exit(0);
+        }        
     }
 
     private static InputStream getResourceAsStream(Class clz, String file) {

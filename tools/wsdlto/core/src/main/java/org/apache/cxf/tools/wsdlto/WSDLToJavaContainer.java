@@ -178,26 +178,10 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(toolName, (BadUsageException)ex.getCause());
             }
-            System.err.println();
-            if (isVerboseOn()) {
-                ex.printStackTrace();
-            }
-            if (exitOnFinish) {
-                System.exit(1);
-            }            
+            throw ex;
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
-            System.err.println();
-            if (isVerboseOn()) {
-                ex.printStackTrace();
-            }
-            if (exitOnFinish) {
-                System.exit(1);
-            }      
+            throw new ToolException(ex);
         }
-        if (exitOnFinish) {
-            System.exit(0);
-        }        
     }
 
     @SuppressWarnings("unchecked")

@@ -34,10 +34,9 @@ public class PluginLoaderTest extends TestCase {
     public void testLoadPlugins() throws Exception {
         PluginLoader loader = PluginLoader.getInstance();
         assertEquals(2, loader.getPlugins().size());
-        assertEquals("default", getPlugin(loader, 0).getName());
 
         Plugin plugin = getPlugin(loader, 0);
-        assertEquals("default", plugin.getName());
+        assertNotNull(plugin.getName());
         
         Map<String, FrontEnd> frontends = loader.getFrontEnds();
         assertNotNull(frontends);

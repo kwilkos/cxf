@@ -172,12 +172,15 @@ public class WSDL2JavaMojo extends AbstractMojo {
 
 
             try {
+                String exitOnFinish = System.getProperty("exitOnFinish", "");
+
                 try {
                     StringBuffer strBuffer = new StringBuffer();
                     for (int i = 0; i < list.size(); i++) {
                         strBuffer.append(list.get(i));
                         strBuffer.append(" ");
                     }
+                    System.setProperty("exitOnFinish", "YES");
                     WSDLToJava.main((String[])list.toArray(new String[list.size()]));
                     doneFile.delete();
                     doneFile.createNewFile();
@@ -188,9 +191,11 @@ public class WSDL2JavaMojo extends AbstractMojo {
                     } else {
                         throw e;
                     }
+                } finally {
+                    System.setProperty("exitOnFinish", exitOnFinish);
                 }
             } catch (Throwable e) {
-                e.printStackTrace();
+                getLog().debug(e);
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }

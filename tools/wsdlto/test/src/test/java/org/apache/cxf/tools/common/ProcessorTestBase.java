@@ -30,9 +30,6 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
-/*import org.apache.cxf.tools.common.ProcessorEnvironment;
-import org.apache.cxf.tools.common.ToolException;*/
-
 public class ProcessorTestBase extends TestCase {
 
     private static final int RETRY_SLEEP_MILLIS = 10;

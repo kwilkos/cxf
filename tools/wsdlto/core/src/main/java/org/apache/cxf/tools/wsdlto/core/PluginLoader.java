@@ -127,7 +127,11 @@ public final class PluginLoader {
     }
     
     protected void loadPlugin(Plugin plugin) {
-        LOG.log(Level.INFO, "FOUND_FRONTENDS", new Object[]{plugin.getName(), plugin.getFrontend().size()});
+        if (plugin.getFrontend().size() > 0) {
+            LOG.log(Level.INFO, "FOUND_FRONTENDS", new Object[]{plugin.getName(),
+                                                                plugin.getFrontend().size()});
+        }
+        
         for (FrontEnd frontend : plugin.getFrontend()) {
             LOG.log(Level.INFO, "LOADING_FRONTEND", new Object[]{frontend.getName(), plugin.getName()});
             if (StringUtils.isEmpty(frontend.getName())) {
@@ -136,9 +140,12 @@ public final class PluginLoader {
             }
             frontends.put(frontend.getName(), frontend);
         }
-        
-        LOG.log(Level.INFO, "FOUND_DATABINDINGS", new Object[]{plugin.getName(),
-                                                               plugin.getDatabinding().size()});
+
+        if (plugin.getDatabinding().size() > 0) {
+            LOG.log(Level.INFO, "FOUND_DATABINDINGS", new Object[]{plugin.getName(),
+                                                                   plugin.getDatabinding().size()});
+        }
+
         for (DataBinding databinding : plugin.getDatabinding()) {
             LOG.log(Level.INFO, "LOADING_DATABINDING", new Object[]{databinding.getName(), plugin.getName()});
             if (StringUtils.isEmpty(databinding.getName())) {

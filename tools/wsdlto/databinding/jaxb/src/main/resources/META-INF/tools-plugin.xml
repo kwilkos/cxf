@@ -18,6 +18,6 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<plugin name="default" version="" provider="" xmlns="http://cxf.apache.org/tools/plugin">
+<plugin name="jaxb" version="" provider="" xmlns="http://cxf.apache.org/tools/plugin">
     <databinding name="jaxb" package="org.apache.cxf.tools.wsdlto.databinding.jaxb" profile="JAXBDataBinding"/>
 </plugin>
