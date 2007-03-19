@@ -28,6 +28,8 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
+
+
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -50,6 +52,8 @@ import org.apache.header_test.types.TestHeader5;
 import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
+import org.apache.tests.type_test.all.SimpleAll;
+import org.apache.tests.type_test.choice.SimpleChoice;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -198,7 +202,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         TestHeader6 in = new TestHeader6();
         String val = new String(TestHeader6.class.getSimpleName());
         Holder<TestHeader3> inoutHeader = new Holder<TestHeader3>();
-        for (int idx = 0; idx < 2; idx++) {
+        for (int idx = 0; idx < 1; idx++) {
             val += idx;                
             in.setRequestType(val);
             inoutHeader.value = new TestHeader3();
@@ -284,4 +288,18 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
             throw (Exception)ex.getCause();
         }
     } 
+    
+    @Test
+    public void testHolderNotTheFirstMessagePart() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
+        assertNotNull(service);
+        TestHeader proxy = service.getPort(portName, TestHeader.class);
+        Holder<SimpleAll> simpleAll = new Holder<SimpleAll>();
+        simpleAll.value = new SimpleAll();
+        proxy.sendReceiveAnyType(simpleAll, new SimpleChoice());    
+        
+    }
 }

@@ -142,6 +142,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                     outIdx++;
                 }
             }
+            message.setContent(List.class, outObjects);
         }
     }
 
