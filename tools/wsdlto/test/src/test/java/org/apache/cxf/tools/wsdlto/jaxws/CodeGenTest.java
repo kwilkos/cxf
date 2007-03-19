@@ -56,8 +56,8 @@ public class CodeGenTest extends ProcessorTestBase {
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        
-        processor = new JAXWSContainer(null); 
+
+        processor = new JAXWSContainer(null);
 
 
     }
@@ -67,7 +67,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
-    
+
 
     public void testRPCLit() throws Exception {
 
@@ -704,7 +704,7 @@ public class CodeGenTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.ActionType");
         assertNotNull("Enum class could not be found", clz);
     }
-    
+
     public void testSWAMime() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/swa-mime.wsdl"));
@@ -774,27 +774,30 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(locator.exists());
         File locatorService = new File(locator, "LocatorService.java");
         assertTrue(locatorService.exists());
-        
+
 
         Class<?> clz = classLoader.loadClass("org.apache.locator.LocatorService");
 
         javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
         assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
                    .startsWith("file"));
-        
+
         Class<?> paraClass = classLoader.loadClass("org.apache.locator.query.QuerySelectType");
         Method method = clz.getMethod("queryEndpoints", new Class[] {paraClass});
+        WebResult webRes = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
+        assertEquals("http://www.w3.org/2005/08/addressing", webRes.targetNamespace());
+        assertEquals("EndpointReference", webRes.name());
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "select");
         assertEquals("http://apache.org/locator/query", webParamAnn.targetNamespace());
-        
+
         method = clz.getMethod("deregisterPeerManager", new Class[] {String.class});
         webParamAnn = AnnotationUtil.getWebParam(method, "node_id");
         assertEquals("http://apache.org/locator/types", webParamAnn.targetNamespace());
-        
-        
-        
+
+
+
     }
-    
+
     public void testWebFaultAnnotaion() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/jms_test_rpc_fault.wsdl"));
         env.put(ToolConstants.CFG_SERVICENAME, "HelloWorldService");
@@ -803,9 +806,9 @@ public class CodeGenTest extends ProcessorTestBase {
         Class cls = classLoader.loadClass("org.apache.cxf.hello_world_jms.BadRecordLitFault");
         WebFault webFault = AnnotationUtil.getPrivClassAnnotation(cls, WebFault.class);
         assertEquals("http://www.w3.org/2001/XMLSchema", webFault.targetNamespace());
-        
+
     }
-    
+
 
     private String getLocation(String wsdlFile) throws URISyntaxException {
         return this.getClass().getResource(wsdlFile).toURI().getPath();

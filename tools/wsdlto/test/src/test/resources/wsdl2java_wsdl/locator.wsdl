@@ -312,22 +312,10 @@
                 </xs:complexType>
             </xs:element>
             <xs:element name="queryEndpointsResponse">
-                <xs:annotation>
-                    <xs:documentation>Output message element for &quot;queryEndpoints&quot; operation.</xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="endpoint">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element name="endpoint_id" 
-                                        type="tns:EndpointIdentity"/>
-                                    <xs:element name="endpoint_reference" 
-                                        type="wsa:EndpointReferenceType"/>
-                                </xs:sequence>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
+               <xs:complexType>
+	                           <xs:sequence>
+	                               <xs:element ref="wsa:EndpointReference"/>
+	                           </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:complexType name="EndpointNotExistFaultException">

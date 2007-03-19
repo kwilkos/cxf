@@ -332,10 +332,12 @@ public class ParameterProcessor extends AbstractProcessor {
             simpleJavaName = fullJavaName.substring(index);    
         }
         
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
-        if (targetNamespace == null) {
-            targetNamespace = element.getNamespaceURI();
+        String targetNamespace = element.getNamespaceURI();
+         
+        if ("".equals(targetNamespace)) {
+            targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
+        
         String jpname = ProcessorUtil.mangleNameToVariableName(simpleJavaName);
         JavaReturn returnType = new JavaReturn(jpname, fullJavaName , targetNamespace);
         returnType.setQName(element);
