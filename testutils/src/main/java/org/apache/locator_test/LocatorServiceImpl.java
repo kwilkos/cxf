@@ -29,9 +29,10 @@ import java.util.logging.Logger;
 
 import org.apache.locator.EndpointNotExistFault;
 import org.apache.locator.LocatorService;
-import org.apache.locator.query.QuerySelectType;
 import org.apache.locator.types.EndpointIdentity;
 import org.apache.locator.types.ListEndpointsResponse.Endpoint;
+import org.apache.locator.types.QueryEndpoints;
+import org.apache.locator.types.QueryEndpointsResponse;
 
 
 /**
@@ -87,8 +88,8 @@ public class LocatorServiceImpl implements LocatorService {
     }
 
     
-    public List<org.apache.locator.types.QueryEndpointsResponse.Endpoint> queryEndpoints(
-        QuerySelectType select) {
+    
+    public QueryEndpointsResponse queryEndpoints(QueryEndpoints parameters) {
         LOG.info("Executing operation queryEndpoints");
         return null;
     }

@@ -31,7 +31,7 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 import org.apache.locator.LocatorService;
 import org.apache.locator.LocatorService_Service;
-import org.apache.locator.query.QuerySelectType;
+import org.apache.locator.types.QueryEndpoints;
 import org.apache.locator_test.LocatorServiceImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -95,7 +95,7 @@ public class LocatorClientServerTest extends AbstractBusClientServerTestBase {
             
         port.listEndpoints();
 
-        port.queryEndpoints(new QuerySelectType());
+        port.queryEndpoints(new QueryEndpoints());
 
     }
 }

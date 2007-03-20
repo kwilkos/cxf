@@ -782,13 +782,13 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
                    .startsWith("file"));
 
-        Class<?> paraClass = classLoader.loadClass("org.apache.locator.query.QuerySelectType");
+        Class<?> paraClass = classLoader.loadClass("org.apache.locator.types.QueryEndpoints");
         Method method = clz.getMethod("queryEndpoints", new Class[] {paraClass});
         WebResult webRes = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
-        assertEquals("http://www.w3.org/2005/08/addressing", webRes.targetNamespace());
-        assertEquals("EndpointReference", webRes.name());
-        WebParam webParamAnn = AnnotationUtil.getWebParam(method, "select");
-        assertEquals("http://apache.org/locator/query", webParamAnn.targetNamespace());
+        assertEquals("http://apache.org/locator/types", webRes.targetNamespace());
+        assertEquals("queryEndpointsResponse", webRes.name());
+        WebParam webParamAnn = AnnotationUtil.getWebParam(method, "queryEndpoints");
+        assertEquals("http://apache.org/locator/types", webParamAnn.targetNamespace());
 
         method = clz.getMethod("deregisterPeerManager", new Class[] {String.class});
         webParamAnn = AnnotationUtil.getWebParam(method, "node_id");

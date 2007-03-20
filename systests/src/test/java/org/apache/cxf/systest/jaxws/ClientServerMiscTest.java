@@ -26,8 +26,9 @@ import javax.xml.ws.Holder;
 
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexType;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeService;
+import org.apache.cxf.anonymous_complex_type.RefSplitName;
+import org.apache.cxf.anonymous_complex_type.RefSplitNameResponse;
 import org.apache.cxf.anonymous_complex_type.SplitName;
-import org.apache.cxf.anonymous_complex_type.SplitNameResponse;
 import org.apache.cxf.anonymous_complex_type.SplitNameResponse.Names;
 import org.apache.cxf.jaxb_element_test.JaxbElementTest;
 import org.apache.cxf.jaxb_element_test.JaxbElementTest_Service;
@@ -75,10 +76,12 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         try {
             SplitName name = new SplitName();
             name.setName("Tom Li");
-            SplitNameResponse reply = act.refSplitName(name);
+            RefSplitName refName = new RefSplitName();
+            refName.setSplitName(name);
+            RefSplitNameResponse reply = act.refSplitName(refName);
             assertNotNull("no response received from service", reply);
-            assertEquals("Tom", reply.getNames().getFirst());
-            assertEquals("Li", reply.getNames().getSecond());
+            assertEquals("Tom", reply.getSplitNameResponse().getNames().getFirst());
+            assertEquals("Li", reply.getSplitNameResponse().getNames().getSecond());
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }

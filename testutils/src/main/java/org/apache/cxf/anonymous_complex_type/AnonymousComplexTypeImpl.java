@@ -46,9 +46,11 @@ public class AnonymousComplexTypeImpl implements AnonymousComplexType {
         return null;
     }
 
-    public SplitNameResponse refSplitName(SplitName splitName) {
-        if (splitName.getName() != null) {
-            String name = splitName.getName();
+            
+
+    public RefSplitNameResponse refSplitName(RefSplitName refSplitName) {
+        if (refSplitName.getSplitName().getName() != null) {
+            String name = refSplitName.getSplitName().getName();
             SplitNameResponse.Names names = new SplitNameResponse.Names();
             int pos = name.indexOf(" ");
             SplitNameResponse response = null;
@@ -63,7 +65,9 @@ public class AnonymousComplexTypeImpl implements AnonymousComplexType {
             }
             response = new SplitNameResponse();
             response.setNames(names);
-            return response;
+            RefSplitNameResponse refResponse = new RefSplitNameResponse();
+            refResponse.setSplitNameResponse(response);
+            return refResponse;
         }
         return null;
     }

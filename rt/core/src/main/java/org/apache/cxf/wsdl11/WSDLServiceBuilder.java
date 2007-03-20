@@ -625,7 +625,7 @@ public class WSDLServiceBuilder {
         if (type.getParticle() instanceof XmlSchemaSequence) {
             XmlSchemaSequence seq = (XmlSchemaSequence)type.getParticle();
             XmlSchemaObjectCollection items = seq.getItems();
-
+            boolean ret = true;
             for (int x = 0; x < items.getCount(); x++) {
                 XmlSchemaObject o = items.getItem(x);
                 if (!(o instanceof XmlSchemaElement)) {
@@ -641,6 +641,8 @@ public class WSDLServiceBuilder {
                     MessagePartInfo mpi = wrapper.addMessagePart(el.getRefName());
                     mpi.setTypeQName(el.getRefName());
                     mpi.setXmlSchema(el);
+                    //element reference is not permitted for wrapper element
+                    ret = false;
                 } else {
                     // anonymous type
                     MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
@@ -650,7 +652,7 @@ public class WSDLServiceBuilder {
                 }
             }
 
-            return true;
+            return ret;
         } else if (type.getParticle() == null) {
             return true;
         }
