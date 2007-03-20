@@ -225,6 +225,10 @@ public final class URIParserUtil {
     }
 
     public static String getAbsoluteURI(String arg) {
+        if (arg.startsWith("jar")) {
+            return arg;
+        }
+
         File tmpFile = null;
         URI uri = null;
         try {

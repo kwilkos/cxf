@@ -49,9 +49,9 @@ public class URIParserUtilTest extends TestCase {
         assertTrue(uri2.contains(uri));
 
         uri = getClass().getResource("/schemas/wsdl/xml-binding.xsd").toString();
+        System.err.println(uri);
         uri2 = URIParserUtil.getAbsoluteURI(uri);
         assertNotNull(uri2);
-        assertTrue(uri2.startsWith("file"));
-        assertTrue(uri2.contains(uri));        
+        assertTrue(uri2.contains(uri));
     }
 }
