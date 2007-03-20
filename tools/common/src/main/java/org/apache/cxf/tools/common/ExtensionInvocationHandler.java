@@ -38,7 +38,7 @@ public class ExtensionInvocationHandler implements InvocationHandler {
             }
         }
         
-        Method m = obj.getClass().getDeclaredMethod(method.getName(), clzs);
+        Method m = obj.getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
         return m.invoke(obj, args);
     }
 }

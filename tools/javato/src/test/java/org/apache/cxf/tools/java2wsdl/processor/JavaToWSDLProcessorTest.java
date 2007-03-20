@@ -372,6 +372,47 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
+    public void testSoapHeader() throws Exception {
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("wsdl", "http://schemas.xmlsoap.org/wsdl/");
+        ns.put("soap", "http://schemas.xmlsoap.org/wsdl/soap/");
+        ns.put("tns", "http://apache.org/samples/headers");
+        
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/soap_header.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME,
+                "org.apache.samples.headers.HeaderTester");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        j2wProcessor.setEnvironment(env);
+        try {        
+            j2wProcessor.process();
+            File file = new File(output, "soap_header.wsdl");
+            assertTrue(file.exists());
+            Document root = XMLUtils.parse(new BufferedInputStream(new FileInputStream(file)));
+            XPathUtils xpather = new XPathUtils(ns);
+            assertNotNull(xpather.getValue("//wsdl:input[@name='inHeader']//soap:header[@message='inHeader']",
+                                        root,
+                                        XPathConstants.NODE));
+
+            assertNotNull(xpather.getValue("//wsdl:input[@name='inoutHeader']"
+                                           + "//soap:header[@message='inoutHeader']",
+                                        root,
+                                        XPathConstants.NODE));
+
+            assertNotNull(xpather.getValue("//wsdl:output[@name='inoutHeaderResponse']"
+                                           + "//soap:header[@message='tns:inoutHeaderResponse']",
+                                        root,
+                                        XPathConstants.NODE));
+            assertNotNull(xpather.getValue("//wsdl:output[@name='outHeaderResponse']"
+                                           + "//soap:header[@message='tns:outHeaderResponse']",
+                                        root,
+                                        XPathConstants.NODE));
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Should not happen other exception " + e.getMessage());
+        }
+    }
+
     private String getLocation(String wsdlFile) throws URISyntaxException {
         return JavaToWSDLProcessorTest.class.getResource(wsdlFile).toString();
     }

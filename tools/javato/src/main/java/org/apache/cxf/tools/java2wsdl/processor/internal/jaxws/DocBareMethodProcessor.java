@@ -228,14 +228,14 @@ public class DocBareMethodProcessor {
             }   
             
             if (!criteria1) {
-                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA1", LOG));
+                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA1", LOG, method.getName()));
             }
             if (!criteria2) {
-                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA2", LOG));
+                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA2", LOG, method.getName()));
             }
             criteria3 = nonHeaderParamCount <= 1 ? true : false;
             if (!criteria3) {
-                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA3", LOG));
+                throw new ToolException(new Message("DOC_BARE_METHOD_CRITERIA3", LOG, method.getName()));
             }
             paras.add(jp);
             i++;
