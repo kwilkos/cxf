@@ -82,6 +82,24 @@ public class OutPolicyInfoTest extends Assert {
     }
     
     @Test
+    public void testInitialiseFromEndpointPolicyInfo() throws NoSuchMethodException {
+        Method m = OutPolicyInfo.class.getDeclaredMethod("initialiseInterceptors",
+                                                          new Class[] {PolicyEngine.class});
+        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class, new Method[] {m});
+        EndpointPolicyInfo epi = control.createMock(EndpointPolicyInfo.class);
+        Policy p = control.createMock(Policy.class);
+        EasyMock.expect(epi.getPolicy()).andReturn(p);
+        Collection<Assertion> chosenAlternative = new ArrayList<Assertion>();
+        EasyMock.expect(epi.getChosenAlternative()).andReturn(chosenAlternative);
+        PolicyEngine pe = control.createMock(PolicyEngine.class);
+        opi.initialiseInterceptors(pe);
+        EasyMock.expectLastCall();
+        control.replay();
+        opi.initialise(epi, pe);
+        control.verify();    
+    }
+    
+    @Test
     public void testInitialise() throws NoSuchMethodException {
         Method m1 = OutPolicyInfo.class.getDeclaredMethod("initialisePolicy",
             new Class[] {Endpoint.class, BindingOperationInfo.class, PolicyEngine.class, boolean.class});

@@ -75,8 +75,22 @@ public class PolicyBuilderTest extends Assert {
         is = PolicyBuilderTest.class.getResourceAsStream(name);        
         
         pr = builder.getPolicyReference(is);
-        assertEquals("http://sample.org/test.wsdl#PolicyA", pr.getURI()); 
+        assertEquals("http://sample.org/test.wsdl#PolicyA", pr.getURI());   
+    }
+    
+    @Test
+    public void testGetPolicyWithAttributes() throws Exception {
+        String name = "/samples/test28.xml";
+        InputStream is = PolicyBuilderTest.class.getResourceAsStream(name);        
         
-        
+        Policy p = builder.getPolicy(is);
+        assertNotNull(p);
+        assertTrue(p.getAttributes().size() >= 2);
+        QName n1 = new QName("nonsattr");
+        Object v1 = p.getAttribute(n1);
+        assertNotNull(v1);
+        QName n2 = new QName("http://x.y.z", "nsattr");
+        Object v2 = p.getAttribute(n2);
+        assertNotNull(v2);
     }
 }

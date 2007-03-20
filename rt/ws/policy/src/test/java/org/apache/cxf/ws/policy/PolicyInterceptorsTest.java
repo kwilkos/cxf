@@ -258,8 +258,12 @@ public class PolicyInterceptorsTest extends Assert {
         boi = control.createMock(BindingOperationInfo.class);
         EasyMock.expect(message.get(BindingFaultInfo.class)).andReturn(null);
         BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
-        Collection<BindingFaultInfo> bfis = CastUtils.cast(Collections.singletonList(bfi));
+        Collection<BindingFaultInfo> bfis = CastUtils.cast(Collections.EMPTY_LIST);
         EasyMock.expect(boi.getFaults()).andReturn(bfis);
+        BindingOperationInfo wrappedBoi = control.createMock(BindingOperationInfo.class);
+        EasyMock.expect(boi.getWrappedOperation()).andReturn(wrappedBoi).times(2);
+        Collection<BindingFaultInfo> wrappedBfis = CastUtils.cast(Collections.singletonList(bfi));
+        EasyMock.expect(wrappedBoi.getFaults()).andReturn(wrappedBfis);
         FaultInfo fi = control.createMock(FaultInfo.class);
         EasyMock.expect(bfi.getFaultInfo()).andReturn(fi);
         EasyMock.expect(fi.getProperty(Class.class.getName(), Class.class))
