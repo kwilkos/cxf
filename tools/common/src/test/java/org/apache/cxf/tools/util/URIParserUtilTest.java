@@ -34,8 +34,8 @@ public class URIParserUtilTest extends TestCase {
         String uri = "wsdl/hello_world.wsdl";
         assertEquals(uri, URIParserUtil.normalize(uri));
 
-        uri = "C:\\src\\wsdl/hello_world.wsdl";
-        assertEquals("file:/C:/src/wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
+        uri = "\\src\\wsdl/hello_world.wsdl";
+        assertEquals("/src/wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
 
         uri = "wsdl\\hello_world.wsdl";
         assertEquals("wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));        
