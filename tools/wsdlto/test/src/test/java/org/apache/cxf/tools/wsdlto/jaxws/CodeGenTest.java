@@ -224,7 +224,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(6, files.length);
+        assertEquals(7, files.length);
         files = types.listFiles();
         assertEquals(17, files.length);
 

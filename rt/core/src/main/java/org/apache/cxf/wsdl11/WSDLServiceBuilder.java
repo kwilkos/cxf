@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
@@ -154,7 +155,7 @@ public class WSDLServiceBuilder {
     public ServiceInfo buildService(Definition def, Service serv) {
         return buildService(def, serv, null);
     }
-
+ 
     private ServiceInfo buildService(Definition def, Service serv, DescriptionInfo d) {
         DescriptionInfo description = d;
         if (null == description) {
@@ -286,8 +287,12 @@ public class WSDLServiceBuilder {
     }
 
     private void addSchema(Schema schema) {
-        if (schemaList.get(schema.getDocumentBaseURI()) == null) {
-            schemaList.put(schema.getDocumentBaseURI(), schema.getElement());
+        String docBaseURI = schema.getDocumentBaseURI();
+        Element schemaEle = schema.getElement();
+        if (schemaList.get(docBaseURI) == null) {
+            schemaList.put(docBaseURI, schemaEle);
+        } else if (schemaList.get(docBaseURI) != null && schemaList.containsValue(schemaEle))  {
+            //do nothing
         } else {
             String tns = schema.getDocumentBaseURI() + "#"
                          + schema.getElement().getAttribute("targetNamespace");

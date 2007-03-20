@@ -170,592 +170,188 @@
 		<version>${project.version}</version>
 		<executions>
 		    <execution>
-			<id>generate-sources</id>
-			<phase>generate-sources</phase>
-			<configuration>
-			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-			    <wsdlOptions>
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>
-					    ${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService</extraarg>                                      
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPProviderService</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPDispatchService</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption> 
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService_DocLitBare</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption>     
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceAddressingDocLitBare</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption>                               
-				
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService_Test1</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceAddressing</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption>                                
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>${basedir}/src/main/resources/wsdl/async_binding.xml
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceConcurrencyTest</extraarg>                                                                 
-				    </extraargs>
-				</wsdlOption>                                
-				
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_soap12.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPService</extraarg>                                                                 
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureDontRequireClientAuthSOAPService</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>TargetSecureSOAPService</extraarg>                                                                 
-				    </extraargs>                                    
-				</wsdlOption>                                
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>InterSecureSOAPService</extraarg>                                                                 
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>TargetSecureDontRequireClientAuthSOAPService</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>InterSecureDontRequireClientAuthSOAPService</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPServiceServerConfiguredByGoodProvider</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPServiceServerConfiguredByBadProvider</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPServiceP12</extraarg>                                                                 
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPServiceDifferentCipherSuites</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPServiceClientPropertiesSet</extraarg>
-				    </extraargs>
-				</wsdlOption>    
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SecureSOAPServiceClientPropertiesNotSet</extraarg>                                                               
-				    </extraargs>                                    
-				</wsdlOption>                                    
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/greeter_control.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>
-					    ${basedir}/src/main/resources/wsdl/greeter_control.xjb
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>BasicGreeterService</extraarg>                                                                 
-					
-				    </extraargs>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/greeter_control.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>
-					    ${basedir}/src/main/resources/wsdl/greeter_control.xjb
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>ControlService</extraarg>                                                                 
-					
-				    </extraargs>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/greeter_control.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-b</extraarg>
-					<extraarg>
-					    ${basedir}/src/main/resources/wsdl/greeter_control.xjb
-					</extraarg>
-					<extraarg>-sn</extraarg>
-					<extraarg>GreeterService</extraarg>                                                                 
-					
-				    </extraargs>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/mtom_xop.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/swa-mime.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_mixed.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_bare.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>
-					${basedir}/src/main/resources/wsdl/hello_world_xml_wrapped.wsdl
-				    </wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>                                
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceProviderRPCLit</extraarg>
-				    </extraargs>
-				</wsdlOption>                               
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit1</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit2</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit3</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit4</extraarg>
-				    </extraargs>    
-				</wsdlOption>                                
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit5</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>                                    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPServiceRPCLit6</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_mixedstyle.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService2</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService3</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService4</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService5</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>XMLService1</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>XMLService2</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>XMLService3</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>XMLService4</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/doc_lit_bare.wsdl</wsdl>
-				</wsdlOption>
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/jms_test.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>HelloWorldOneWayQueueService</extraarg>
-				    </extraargs>                                    
-				</wsdlOption>
-				
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/jms_test.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>HelloWorldPubSubService</extraarg>
-				    </extraargs> 
-				    
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/jms_test.wsdl</wsdl>
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>HelloWorldService</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/handler_test.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/soapheader.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/soapheader2.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/soapheader_rpc.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/locator.wsdl</wsdl>
-				</wsdlOption>
-				
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/schema_validation.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>
-					${basedir}/src/main/resources/wsdl/anonymous_complex_type.wsdl
-				    </wsdl>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/basic_callback_test.wsdl</wsdl>
-				    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>SOAPService</extraarg>
-				    </extraargs>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/basic_callback_test.wsdl</wsdl>
-				    
-				    <extraargs>
-					<extraarg>-sn</extraarg>
-					<extraarg>CallbackService</extraarg>
-				    </extraargs>
-				</wsdlOption>                                
-
-				<wsdlOption>
-				    <wsdl>
-					${basedir}/src/main/resources/wsdl/hello_world_underscore.wsdl
-				    </wsdl>
-				</wsdlOption>
-
-				<wsdlOption>
-				    <wsdl>
-					${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml.wsdl
-				    </wsdl>
-				    <dependencies>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml_inc.wsdl
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd
-					</dependency>
-				    </dependencies>
-				</wsdlOption>
-				<wsdlOption>
-				    <wsdl>
-					${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit_soap.wsdl
-				    </wsdl>
-				    <dependencies>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit.wsdl
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd
-					</dependency>
-				    </dependencies>
-				</wsdlOption>
-				<wsdlOption>
-				    <wsdl>
-					${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_rpclit_soap.wsdl
-				    </wsdl>
-				    <dependencies>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_rpclit.wsdl
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd
-					</dependency>
-					<dependency>
-					    ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd
-					</dependency>
-				    </dependencies>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/addNumbers.wsdl</wsdl>
-				</wsdlOption>
-				
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/calculator.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/jaxb_element_test.wsdl</wsdl>
-				</wsdlOption>
-				
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/ordered_param_holder.wsdl</wsdl>
-				</wsdlOption>
-
-				<wsdlOption>
-				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_services.wsdl</wsdl>
-				</wsdlOption>
-
-			    </wsdlOptions>
-			</configuration>
-			<goals>
-			    <goal>wsdl2java</goal>
-			</goals>
-		    </execution>
+		                            <id>generate-sources</id>
+		                            <phase>generate-sources</phase>
+		                            <configuration>
+		                                <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+		                                <!--xsdOptions>
+		                                    <xsdOption>
+		                                        <xsd>${basedir}/src/main/resources/wsdl/jaxb/misc_test.xsd</xsd>
+		                                    </xsdOption>
+		                                </xsdOptions-->
+		                                <wsdlOptions>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>
+		                                        <extraargs>
+		                                            <extraarg>-b</extraarg>
+		                                            <extraarg>
+		                                                ${basedir}/src/main/resources/wsdl/async_binding.xml
+		                                            </extraarg>
+		                                        </extraargs>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_soap12.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/greeter_control.wsdl</wsdl>
+		                                        <extraargs>
+		                                            <extraarg>-b</extraarg>
+		                                            <extraarg>
+		                                                ${basedir}/src/main/resources/wsdl/greeter_control.xjb
+		                                            </extraarg>
+		                                        </extraargs>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/mtom_xop.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/swa-mime.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_mixed.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_bare.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>
+		                                            ${basedir}/src/main/resources/wsdl/hello_world_xml_wrapped.wsdl
+		                                        </wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_rpc_lit.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_mixedstyle.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/doc_lit_bare.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/jms_test.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/handler_test.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/soapheader.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/soapheader2.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/soapheader_rpc.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/locator.wsdl</wsdl>
+		                                        <!--extraargs>
+		                                            <extraarg>-p</extraarg>
+		                                            <extraarg>org.apache.cxf.testutils.locator</extraarg>
+		                                        </extraargs-->
+		                                    </wsdlOption>
+		    
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/schema_validation.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>
+		                                            ${basedir}/src/main/resources/wsdl/anonymous_complex_type.wsdl
+		                                        </wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/basic_callback_test.wsdl</wsdl>
+		                                    </wsdlOption>
+		    
+		                                    <wsdlOption>
+		                                        <wsdl>
+		                                            ${basedir}/src/main/resources/wsdl/hello_world_underscore.wsdl
+		                                        </wsdl>
+		                                    </wsdlOption>
+		    
+		                                    <wsdlOption>
+		                                        <wsdl>
+		                                            ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml.wsdl
+		                                        </wsdl>
+		                                        <dependencies>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_xml_inc.wsdl
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd
+		                                            </dependency>
+		                                        </dependencies>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>
+		                                            ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit_soap.wsdl
+		                                        </wsdl>
+		                                        <dependencies>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_doclit.wsdl
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd
+		                                            </dependency>
+		                                        </dependencies>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>
+		                                            ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_rpclit_soap.wsdl
+		                                        </wsdl>
+		                                        <dependencies>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_rpclit.wsdl
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_1.xsd
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_2.xsd
+		                                            </dependency>
+		                                            <dependency>
+		                                                ${basedir}/target/generated/src/main/resources/wsdl/type_test/type_test_3.xsd
+		                                            </dependency>
+		                                        </dependencies>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/addNumbers.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/calculator.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/jaxb_element_test.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/ordered_param_holder.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                    <wsdlOption>
+		                                        <wsdl>${basedir}/src/main/resources/wsdl/hello_world_services.wsdl</wsdl>
+		                                    </wsdlOption>
+		                                </wsdlOptions>
+		                            </configuration>
+		                            <goals>
+		                                <goal>wsdl2java</goal>
+		                            </goals>
+                    </execution>
 		</executions>
 	    </plugin>
 	</plugins>

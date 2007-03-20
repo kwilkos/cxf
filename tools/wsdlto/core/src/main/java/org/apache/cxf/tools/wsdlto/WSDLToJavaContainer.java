@@ -23,19 +23,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Element;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.ClassUtils;
@@ -90,64 +95,86 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (!hasInfoOption()) {
             buildToolContext();
             validate(context);
-            
+
             FrontEndProfile frontend = context.get(FrontEndProfile.class);
-            
+
             if (frontend == null) {
                 Message msg = new Message("FOUND_NO_FRONTEND", LOG);
                 throw new ToolException(msg);
             }
-            
+
             DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
             if (dataBindingProfile == null) {
                 Message msg = new Message("FOUND_NO_DATABINDING", LOG);
                 throw new ToolException(msg);
             }
-            
+
             WSDLConstants.WSDLVersion version = getWSDLVersion();
 
-            ServiceInfo service = null;
             String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
-            
+            List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
+
             // Build the ServiceModel from the WSDLModel
             if (version == WSDLConstants.WSDLVersion.WSDL11) {
-                AbstractWSDLBuilder<Definition> builder =
-                    (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
+                AbstractWSDLBuilder<Definition> builder = (AbstractWSDLBuilder<Definition>)frontend
+                    .getWSDLBuilder();
                 builder.setContext(context);
-                
-                //TODO: Modify builder api, let customized definition make sense.
+
+                // TODO: Modify builder api, let customized definition make
+                // sense.
                 builder.build(URIParserUtil.getAbsoluteURI(wsdlURL));
                 builder.customize();
                 Definition definition = builder.getWSDLModel();
-                
+
                 context.put(Definition.class, definition);
                 if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
                     builder.validate(definition);
                 }
-                                
+
                 WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-                service = serviceBuilder.buildService(definition, getServiceQName(definition));
+
+                String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
+
+                if (serviceName != null) {
+                    ServiceInfo service = serviceBuilder
+                        .buildService(definition, getServiceQName(definition));
+                    serviceList.add(service);
+                } else {
+                    serviceList = serviceBuilder.buildService(definition);
+                }
+
                 context.put(ClassCollector.class, new ClassCollector());
             } else {
                 // TODO: wsdl2.0 support
             }
-            context.put(ServiceInfo.class, service);
-            if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
-                validate(service);
+            Map<String, InterfaceInfo> interfaces = new HashMap<String, InterfaceInfo>();
+            for (ServiceInfo service : serviceList) {
+                if (!interfaces.containsKey(service.getInterface().getName().toString())) {
+                    interfaces.put(service.getInterface().getName().toString(), service.getInterface());
+                }
             }
-            // Generate types
-            
-            generateTypes();                
+            Map<String, Element> schemas = (Map<String, Element>)serviceList.get(0)
+                .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST);
+            context.put(ToolConstants.SCHEMA_MAP, schemas);
+            context.put(ToolConstants.PORTTYPE_MAP, interfaces);
+            generateTypes();
 
-            // Build the JavaModel from the ServiceModel
-            context.put(ServiceInfo.class, service);
-            Processor processor = frontend.getProcessor();
-            processor.setEnvironment(context);
-            processor.process();
+            for (ServiceInfo service : serviceList) {
 
-            // Generate artifacts                
-            for (FrontEndGenerator generator : frontend.getGenerators()) {
-                generator.generate(context);
+                context.put(ServiceInfo.class, service);
+                if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+                    validate(service);
+                }
+
+                // Build the JavaModel from the ServiceModel
+                Processor processor = frontend.getProcessor();
+                processor.setEnvironment(context);
+                processor.process();
+
+                // Generate artifacts
+                for (FrontEndGenerator generator : frontend.getGenerators()) {
+                    generator.generate(context);
+                }
             }
 
             // Build projects: compile classes and copy resources etc.
@@ -162,7 +189,8 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     throw new ToolException(e);
                 }
             }
-        } 
+        }
+
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {

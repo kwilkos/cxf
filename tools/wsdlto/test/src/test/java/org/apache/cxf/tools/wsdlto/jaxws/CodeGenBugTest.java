@@ -21,7 +21,6 @@ package org.apache.cxf.tools.wsdlto.jaxws;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 
@@ -86,12 +85,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     }
 
-    /*
-     * public void testHangingBug() throws Exception {
-     * env.put(ToolConstants.CFG_WSDLURL,
-     * getLocation("/wsdl2java_wsdl/bughanging/wsdl/wsrf.wsdl"));
-     * processor.setContext(env); processor.execute(); }
-     */
+
     public void testBug305700() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -156,7 +150,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
         File cxf = new File(org, "cxf");
         File[] files = cxf.listFiles();
-        assertEquals(22, files.length);
+        assertEquals(23, files.length);
 
         Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
@@ -180,72 +174,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue("wsdl location should be url style in build.xml", content.indexOf("param1=\"file:") > -1);
 
     }
-
-    public void testBug305728HelloWorld() {
-        try {
-            String[] args = new String[] {"-compile", "-classdir", 
-                                          output.getCanonicalPath() + "/classes",
-                                          "-d",
-                                          output.getCanonicalPath(),
-                                          "-nexclude",
-                                          "http://www.w3.org/2005/08/addressing"
-                                              + "=org.apache.cxf.ws.addressing",
-                                          getLocation("/wsdl2java_wsdl/bug305728/hello_world.wsdl")};
-            WSDLToJava.main(args);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
-
-        try {
-            File file = new File(output.getCanonicalPath(),
-                                 "org/apache/cxf/ws/addressing/EndpointReferenceType.java");
-
-            assertFalse("Exclude java file should not be generated : " + file.getCanonicalPath(), file
-                .exists());
-
-            file = new File(output.getCanonicalPath() + File.separator + "classes",
-                            "org/apache/cxf/ws/addressing/EndpointReferenceType.class");
-            assertFalse("Exclude class should not be generated : " + file.getCanonicalPath(), file.exists());
-
-            file = new File(output.getCanonicalPath(),
-                            "org/w3/_2005/_08/addressing/EndpointReferenceType.java");
-            assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
-
-            file = new File(output.getCanonicalPath() + File.separator + "classes",
-                            "org/w3/_2005/_08/addressing/EndpointReferenceType.class");
-            assertFalse("Exclude class should not be generated : " + file.getCanonicalPath(), file.exists());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void testBug305728HelloWorld2() {
-        try {
-            String[] args = new String[] {"-compile", "-classdir", output.getCanonicalPath() + "/classes",
-                                          "-d", output.getCanonicalPath(), "-nexclude",
-                                          "http://apache.org/hello_world/types",
-                                          getLocation("/wsdl2java_wsdl/bug305728/hello_world2.wsdl")};
-            WSDLToJava.main(args);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            File file = new File(output.getCanonicalPath(), "org/apache/hello_world/types");
-            assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
-
-            file = new File(output.getCanonicalPath() + File.separator + "classes",
-                            "org/apache/hello_world/types");
-
-            assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
+    
     public void testExcludeNSWithPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",

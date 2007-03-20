@@ -19,10 +19,13 @@
 
 package org.apache.cxf.tools.common;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
 
 import org.xml.sax.InputSource;
@@ -203,11 +206,6 @@ public class ToolContext {
 
     public boolean isExcludeNamespaceEnabled() {
         return excludeNamespacePackageMap.size() > 0;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Schema> getSchemaList() {
-        return (List<Schema>)this.get(ToolConstants.SCHEMA_LIST);
     }
 
     public List<String> getExcludePkgList() {

@@ -174,7 +174,7 @@ public final class ToolConstants {
     
     
     
-    public static final String SCHEMA_LIST = "schemaList";
+    public static final String SCHEMA_MAP = "schemaMap";
     public static final String PORTTYPE_MAP = "portTypeMap";
     public static final String SCHEMA_TARGET_NAMESPACES = "schemaTargetNameSpaces";
     public static final String WSDL_DEFINITION = "wsdlDefinition";

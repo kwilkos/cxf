@@ -49,7 +49,7 @@ import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -57,35 +57,38 @@ import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
-import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
-    
+
     private S2JJAXBModel rawJaxbModelGenCode;
     private ToolContext env;
-    private ServiceInfo serviceInfo;
     private Definition def;
 
     @SuppressWarnings("unchecked")
     private void initialize(ToolContext penv) throws ToolException {
         env = penv;
-        serviceInfo = env.get(ServiceInfo.class);
         def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
 
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
-        allocator.setInterface(serviceInfo.getInterface(), env.mapPackageName(def.getTargetNamespace()));
+
+        Map<String, InterfaceInfo> interfaces = (Map<String, InterfaceInfo>)env
+            .get(ToolConstants.PORTTYPE_MAP);
+        for (String str : interfaces.keySet()) {
+            InterfaceInfo inf = interfaces.get(str);
+            allocator.setInterface(inf, env.mapPackageName(def.getTargetNamespace()));
+        }
         schemaCompiler.setClassNameAllocator(allocator);
 
         JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
         schemaCompiler.setErrorListener(listener);
         // Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
         List<InputSource> jaxbBindings = env.getJaxbBindingFile();
-        Map<String, Element> schemaLists = (Map<String, Element>)serviceInfo
-            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST);
+        Map<String, Element> schemaLists = (Map<String, Element>)env.get(ToolConstants.SCHEMA_MAP);
+
         Set<String> keys = schemaLists.keySet();
         for (String key : keys) {
             Element ele = schemaLists.get(key);
@@ -120,7 +123,6 @@ public class JAXBDataBinding implements DataBindingProfile {
                     ele.appendChild(pkgNode);
                 }
             }
-
             schemaCompiler.parseSchema(key, ele);
 
         }
@@ -164,8 +166,8 @@ public class JAXBDataBinding implements DataBindingProfile {
     // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
     // class is an enum. We need to use this method to add the missed file
     // to classCollector.
-    private void addedEnumClassToCollector(Map<String, Element> schemaList,
-        ClassNameAllocatorImpl allocator) {
+    private void addedEnumClassToCollector(Map<String, Element> schemaList, 
+                                           ClassNameAllocatorImpl allocator) {
         for (Element schemaElement : schemaList.values()) {
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (StringUtils.isEmpty(targetNamespace)) {
