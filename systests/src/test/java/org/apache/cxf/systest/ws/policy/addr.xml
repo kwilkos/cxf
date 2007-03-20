@@ -18,19 +18,15 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
-       xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
        xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!--  
     <http:conduit id="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
-      <http:client DecoupledEndpoint="http://localhost:9995/decoupled_endpoint"/>
+      <http:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
     </http:conduit>
-    -->
 
     <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
         <property name="bus" ref="cxf"/>
@@ -39,7 +35,34 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 
     <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
         <constructor-arg ref="cxf"/>
-        <property name="location" value="org/apache/cxf/systest/ws/policy/addr-only-external.xml"/>
+        <property name="location" value="org/apache/cxf/systest/ws/policy/addr-external.xml"/>
     </bean>
+
+    <!--
+    <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
+    <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
+
+    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
+        <property name="inInterceptors">
+            <list>
+                <ref bean="mapAggregator"/>
+                <ref bean="mapCodec"/>
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="mapAggregator"/>
+                <ref bean="mapCodec"/>
+            </list>
+        </property>
+        <property name="outFaultInterceptors">
+            <list>
+                <ref bean="mapAggregator"/>
+                <ref bean="mapCodec"/>
+            </list>
+        </property>
+    </bean>
+    -->
+
 
 </beans>

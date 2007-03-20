@@ -26,13 +26,19 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
+import org.apache.cxf.greeter_control.ReliableGreeterService;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.systest.ws.util.InMessageRecorder;
+import org.apache.cxf.systest.ws.util.MessageFlow;
+import org.apache.cxf.systest.ws.util.MessageRecorder;
+import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.rm.RMConstants;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -41,24 +47,28 @@ import org.junit.Test;
  * Tests the use of the WS-Policy Framework to automatically engage WS-Addressing and
  * WS-RM in response to Policies defined for the endpoint via an external policy attachment.
  */
-public class PolicyClientServerTest extends AbstractBusClientServerTestBase {
+public class RMWsdlPolicyClientServerTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(PolicyClientServerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMWsdlPolicyClientServerTest.class.getName());
+    private static final String GREETMEONEWAY_ACTION = null;
+    private static final String GREETME_ACTION = null;
+    private static final String GREETME_RESPONSE_ACTION = null;
+    private static final String PINGME_ACTION = null;
+    private static final String PINGME_RESPONSE_ACTION = null;
 
     public static class Server extends AbstractBusTestServerBase {
     
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
-            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-only.xml");
+            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             bus.getInInterceptors().add(in);
-            bus.getInFaultInterceptors().add(in);
             LoggingOutInterceptor out = new LoggingOutInterceptor();
             bus.getOutInterceptors().add(out);
             bus.getOutFaultInterceptors().add(out);
             
-            GreeterImpl implementor = new GreeterImpl();
+            ReliableGreeterImpl implementor = new ReliableGreeterImpl();
             String address = "http://localhost:9020/SoapContext/GreeterPort";
             Endpoint.publish(address, implementor);
             LOG.info("Published greeter endpoint.");
@@ -84,18 +94,16 @@ public class PolicyClientServerTest extends AbstractBusClientServerTestBase {
     }
          
     @Test
-    public void testUsingAddressing() throws Exception {
+    public void testUsingRM() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
-        bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-only.xml");
+        bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
         BusFactory.setDefaultBus(bus);
-        LoggingInInterceptor in = new LoggingInInterceptor();
-        bus.getInInterceptors().add(in);
-        bus.getInFaultInterceptors().add(in);
-        LoggingOutInterceptor out = new LoggingOutInterceptor();
-        bus.getOutInterceptors().add(out);
-        bus.getOutFaultInterceptors().add(out);
+        OutMessageRecorder outRecorder = new OutMessageRecorder();
+        bus.getOutInterceptors().add(outRecorder);
+        InMessageRecorder inRecorder = new InMessageRecorder();
+        bus.getInInterceptors().add(inRecorder);
         
-        BasicGreeterService gs = new BasicGreeterService();
+        ReliableGreeterService gs = new ReliableGreeterService();
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 
@@ -122,5 +130,38 @@ public class PolicyClientServerTest extends AbstractBusClientServerTestBase {
             assertEquals(2, (int)ex.getFaultInfo().getMajor());
             assertEquals(1, (int)ex.getFaultInfo().getMinor());
         } 
+
+        MessageRecorder mr = new MessageRecorder(outRecorder, inRecorder);
+        mr.awaitMessages(5, 9, 5000);
+
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        
+        mf.verifyMessages(5, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETME_ACTION, 
+                                                 PINGME_ACTION,
+                                                 PINGME_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, true);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false, false}, true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, true, true}, true);
+
+        mf.verifyMessages(9, false);
+        mf.verifyPartialResponses(5);        
+        mf.purgePartialResponses();
+
+        expectedActions = new String[] {
+            RMConstants.getCreateSequenceResponseAction(),
+            GREETME_RESPONSE_ACTION,
+            PINGME_RESPONSE_ACTION,
+            PINGME_RESPONSE_ACTION
+        };
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
+         
     }
 }

@@ -34,6 +34,8 @@ import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.types.StartGreeterResponse;
 import org.apache.cxf.greeter_control.types.StopGreeterResponse;
+import org.apache.cxf.systest.ws.util.InMessageRecorder;
+import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.ws.rm.RMManager;
 
 

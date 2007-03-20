@@ -21,6 +21,8 @@ package org.apache.cxf.ws.policy;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
@@ -99,13 +101,25 @@ public final class PolicyUtils {
         return true;
     }
     
+    public static void logPolicy(Logger log, Level level, String msg, PolicyComponent pc) {
+        if (null == pc) {
+            log.log(level, msg);
+            return;
+        }
+        StringBuffer buf = new StringBuffer();
+        buf.append(msg);
+        nl(buf);
+        printPolicyComponent(pc, buf, 0);
+        log.log(level, buf.toString());
+    }
+    
     public static void printPolicyComponent(PolicyComponent pc) {
         StringBuffer buf = new StringBuffer();
         printPolicyComponent(pc, buf, 0);
         System.out.println(buf.toString());
     }
     
-    private static void printPolicyComponent(PolicyComponent pc, StringBuffer buf, int level) {
+    public static void printPolicyComponent(PolicyComponent pc, StringBuffer buf, int level) {
         indent(buf, level);
         buf.append("type: ");
         buf.append(typeToString(pc.getType()));

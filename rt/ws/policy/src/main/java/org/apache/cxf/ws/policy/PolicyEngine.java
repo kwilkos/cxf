@@ -53,7 +53,7 @@ import org.apache.neethi.PolicyRegistry;
  * 
  */
 public class PolicyEngine implements BusExtension {
-    
+     
     private Bus bus;
     private PolicyRegistry registry;
     private Collection<PolicyProvider> policyProviders;
@@ -349,7 +349,7 @@ public class PolicyEngine implements BusExtension {
         return true;
     }
     
-    OutPolicyInfo getClientRequestPolicyInfo(Endpoint e, BindingOperationInfo boi, Conduit c) {
+    public OutPolicyInfo getClientRequestPolicyInfo(Endpoint e, BindingOperationInfo boi, Conduit c) {
         BindingOperation bo = new BindingOperation(e, boi);
         OutPolicyInfo opi = clientRequestInfo.get(bo);
         if (null == opi) {
@@ -364,7 +364,12 @@ public class PolicyEngine implements BusExtension {
         return opi;
     }
     
-    OutPolicyInfo getServerRequestPolicyInfo(Endpoint e, BindingOperationInfo boi) {
+    public void setClientRequestPolicyInfo(Endpoint e, BindingOperationInfo boi, OutPolicyInfo opi) {
+        BindingOperation bo = new BindingOperation(e, boi);
+        clientRequestInfo.put(bo, opi);
+    }
+    
+    public OutPolicyInfo getServerRequestPolicyInfo(Endpoint e, BindingOperationInfo boi) {
         BindingOperation bo = new BindingOperation(e, boi);
         OutPolicyInfo opi = serverRequestInfo.get(bo);
         if (null == opi) {
@@ -375,7 +380,12 @@ public class PolicyEngine implements BusExtension {
         return opi;
     }
     
-    OutPolicyInfo getClientResponsePolicyInfo(Endpoint e, BindingOperationInfo boi) {
+    public void setServerRequestPolicyInfo(Endpoint e, BindingOperationInfo boi, OutPolicyInfo opi) {
+        BindingOperation bo = new BindingOperation(e, boi);
+        serverRequestInfo.put(bo, opi);
+    }
+    
+    public OutPolicyInfo getClientResponsePolicyInfo(Endpoint e, BindingOperationInfo boi) {
         BindingOperation bo = new BindingOperation(e, boi);
         OutPolicyInfo opi = clientResponseInfo.get(bo);
         if (null == opi) {
@@ -386,7 +396,12 @@ public class PolicyEngine implements BusExtension {
         return opi;
     }
     
-    OutPolicyInfo getClientFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi) {
+    public void setClientResponsePolicyInfo(Endpoint e, BindingOperationInfo boi, OutPolicyInfo opi) {
+        BindingOperation bo = new BindingOperation(e, boi);
+        clientResponseInfo.put(bo, opi);
+    }
+    
+    public OutPolicyInfo getClientFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi) {
         BindingFault bf = new BindingFault(e, bfi);
         OutPolicyInfo opi = clientFaultInfo.get(bf);
         if (null == opi) {
@@ -397,7 +412,12 @@ public class PolicyEngine implements BusExtension {
         return opi;
     }
     
-    EndpointPolicyInfo getEndpointPolicyInfo(Endpoint e, Conduit conduit) {
+    public void setClientFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi, OutPolicyInfo opi) {
+        BindingFault bf = new BindingFault(e, bfi);
+        clientFaultInfo.put(bf, opi);
+    }
+    
+    public EndpointPolicyInfo getEndpointPolicyInfo(Endpoint e, Conduit conduit) {
         EndpointPolicyInfo epi = endpointInfo.get(e);
         if (null != epi) {
             return epi;
@@ -405,8 +425,8 @@ public class PolicyEngine implements BusExtension {
         Assertor assertor = conduit instanceof Assertor ? (Assertor)conduit : null;
         return createEndpointPolicyInfo(e, false, assertor);
     }
-    
-    EndpointPolicyInfo getEndpointPolicyInfo(Endpoint e, Destination destination) {
+   
+    public EndpointPolicyInfo getEndpointPolicyInfo(Endpoint e, Destination destination) {
         EndpointPolicyInfo epi = endpointInfo.get(e);
         if (null != epi) {
             return epi;
@@ -423,7 +443,12 @@ public class PolicyEngine implements BusExtension {
         return epi;
     }
     
-    OutPolicyInfo getServerResponsePolicyInfo(Endpoint e, BindingOperationInfo boi, 
+    public void setEndpointPolicyInfo(Endpoint e, EndpointPolicyInfo epi) {
+        endpointInfo.put(e, epi);
+    }
+    
+    
+    public OutPolicyInfo getServerResponsePolicyInfo(Endpoint e, BindingOperationInfo boi, 
                                                          Destination d) {
         BindingOperation bo = new BindingOperation(e, boi);
         OutPolicyInfo opi = serverResponseInfo.get(bo);
@@ -439,7 +464,12 @@ public class PolicyEngine implements BusExtension {
         return opi;
     }
     
-    OutPolicyInfo getServerFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi, 
+    public void setServerResponsePolicyInfo(Endpoint e, BindingOperationInfo boi, OutPolicyInfo opi) {
+        BindingOperation bo = new BindingOperation(e, boi);
+        serverResponseInfo.put(bo, opi);
+    }
+    
+    public OutPolicyInfo getServerFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi, 
                                                          Destination d) {
         BindingFault bf = new BindingFault(e, bfi);
         OutPolicyInfo opi = serverFaultInfo.get(bf);
@@ -455,6 +485,11 @@ public class PolicyEngine implements BusExtension {
         return opi;
     }
     
+    public void setServerFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi, OutPolicyInfo opi) {
+        BindingFault bf = new BindingFault(e, bfi);
+        serverFaultInfo.put(bf, opi);
+    }
+    
     
     /**
      * Class used as key in the client request policy and server response policy maps.
@@ -467,6 +502,20 @@ public class PolicyEngine implements BusExtension {
             endpoint = e;
             boi = b;
         }
+
+        @Override
+        public int hashCode() {
+            return boi.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            BindingOperation other = (BindingOperation)obj;
+            return boi.equals(other.boi) && endpoint.equals(other.endpoint);
+        }
+        
+        
+        
     }
     
     /**
@@ -474,11 +523,22 @@ public class PolicyEngine implements BusExtension {
      */
     class BindingFault {
         Endpoint endpoint;
-        BindingFaultInfo boi;
+        BindingFaultInfo bfi;
         
         BindingFault(Endpoint e, BindingFaultInfo b) {
             endpoint = e;
-            boi = b;
+            bfi = b;
+        }
+        
+        @Override
+        public int hashCode() {
+            return bfi.hashCode();
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            BindingFault other = (BindingFault)obj;
+            return bfi.equals(other.bfi) && endpoint.equals(other.endpoint);
         }
     }
 

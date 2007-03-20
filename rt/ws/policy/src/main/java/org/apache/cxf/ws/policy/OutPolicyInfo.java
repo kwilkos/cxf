@@ -43,13 +43,19 @@ import org.apache.neethi.Policy;
 /**
  * 
  */
-public class OutPolicyInfo  {
+public class OutPolicyInfo {
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(OutPolicyInfo.class);
     
     protected Policy policy;     
     protected Collection<Assertion> chosenAlternative;
     protected List<Interceptor> interceptors;
+    
+    public void initialise(EndpointPolicyInfo epi, PolicyEngine engine) {
+        policy = epi.getPolicy();
+        chosenAlternative = epi.getChosenAlternative();
+        initialiseInterceptors(engine);  
+    }
     
     void initialise(Endpoint e, 
                     BindingOperationInfo boi, 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.ws.rm;
+package org.apache.cxf.systest.ws.util;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;

@@ -254,6 +254,20 @@
         </wsdl:port>
     </wsdl:service>
    
+    <wsdl:service name="ReliableGreeterService">
+        <wsdl:port binding="tns:GreeterSOAPBinding" name="GreeterPort">
+            <soap:address location="http://localhost:9020/SoapContext/GreeterPort"/>
+            <wsp:Policy xmlns:wsp="http://www.w3.org/2006/07/ws-policy">
+                <wsam:Addressing xmlns:wsam="http://www.w3.org/2007/01/addressing/metadata">
+                    <wsp:Policy/>
+                </wsam:Addressing>
+                <wsrmp:RMAssertion xmlns:wsrmp="http://schemas.xmlsoap.org/ws/2005/02/rm/policy">
+                    <wsrmp:BaseRetransmissionInterval Milliseconds="30000"/>
+                </wsrmp:RMAssertion>
+            </wsp:Policy>
+        </wsdl:port>
+    </wsdl:service>
+   
     <wsdl:service name="BasicGreeterService">
         <wsdl:port binding="tns:GreeterSOAPBinding" name="GreeterPort">
             <soap:address location="http://localhost:9020/SoapContext/GreeterPort"/>

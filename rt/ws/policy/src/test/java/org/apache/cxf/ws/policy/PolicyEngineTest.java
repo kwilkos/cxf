@@ -571,13 +571,23 @@ public class PolicyEngineTest extends Assert {
     public void testKeys() {
         engine = new PolicyEngine();
         Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        PolicyEngine.BindingOperation bo = engine.new BindingOperation(endpoint, boi);
-        assertNotNull(bo);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);      
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);  
+        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
+        control.replay();
         
-        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
+        PolicyEngine.BindingOperation bo = engine.new BindingOperation(endpoint, boi); 
+        assertNotNull(bo);
+        PolicyEngine.BindingOperation bo2 = engine.new BindingOperation(endpoint, boi);
+        assertEquals(bo, bo2);
+        assertEquals(bo.hashCode(), bo2.hashCode());
+        
+        engine.setClientRequestPolicyInfo(endpoint, boi, opi);
+        assertSame(opi, engine.getClientRequestPolicyInfo(endpoint, boi, null));
+             
         PolicyEngine.BindingFault bf = engine.new BindingFault(endpoint, bfi);
-        assertNotNull(bf);      
+        assertNotNull(bf); 
+        control.verify();
     }
      
     private void doTestGetInterceptors(boolean isServer, boolean fault) throws NoSuchMethodException {

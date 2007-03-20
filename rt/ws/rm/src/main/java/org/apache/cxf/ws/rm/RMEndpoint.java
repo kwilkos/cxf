@@ -19,6 +19,7 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -43,6 +44,9 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.Names;
+import org.apache.cxf.ws.policy.EndpointPolicyInfo;
+import org.apache.cxf.ws.policy.OutPolicyInfo;
+import org.apache.cxf.ws.policy.PolicyEngine;
 
 public class RMEndpoint {
     
@@ -187,6 +191,7 @@ public class RMEndpoint {
         replyTo = r;
         createService();
         createEndpoint();
+        setPolicies();
     }
     
     void createService() {
@@ -231,6 +236,41 @@ public class RMEndpoint {
         endpoint = new WrappedEndpoint(applicationEndpoint, ei, service);
         service.setEndpoint(endpoint);
     }
+    
+    void setPolicies() {
+        
+        // if addressing was enabled on the application endpoint by means 
+        // of the UsingAddressing element extensor, use this for the 
+        // RM endpoint also
+
+        Object ua = getUsingAddressing(applicationEndpoint.getEndpointInfo());
+        if (null != ua) {
+            endpoint.getEndpointInfo().addExtensor(ua);
+        } 
+        
+        // use same WS-policies as for application endpoint
+        
+        PolicyEngine engine = manager.getBus().getExtension(PolicyEngine.class);
+        
+        EndpointPolicyInfo epi = engine.getEndpointPolicyInfo(applicationEndpoint, conduit);
+        OutPolicyInfo opi = new OutPolicyInfo();
+        opi.initialise(epi, engine);
+        
+        engine.setEndpointPolicyInfo(endpoint, epi);
+       
+        BindingInfo bi = endpoint.getEndpointInfo().getBinding();
+        Collection<BindingOperationInfo> bois = bi.getOperations();
+        
+        for (BindingOperationInfo boi : bois) {
+            engine.setServerRequestPolicyInfo(endpoint, boi, opi);
+            engine.setServerResponsePolicyInfo(endpoint, boi, opi);
+
+            engine.setClientRequestPolicyInfo(endpoint, boi, opi);
+            engine.setClientResponsePolicyInfo(endpoint, boi, opi);            
+        }
+        
+        // TODO: FaultPolicy (SequenceFault)
+    }
 
     void buildInterfaceInfo(ServiceInfo si) {
         InterfaceInfo ii = new InterfaceInfo(si, INTERFACE_NAME);
@@ -241,6 +281,8 @@ public class RMEndpoint {
         buildCreateSequenceOperationInfo(ii);
         buildTerminateSequenceOperationInfo(ii);
         buildSequenceAckOperationInfo(ii);
+        
+        // TODO: FaultInfo (SequenceFault)
     }
 
     void buildCreateSequenceOperationInfo(InterfaceInfo ii) {
@@ -415,6 +457,8 @@ public class RMEndpoint {
 
             si.addBinding(bi);
         }
+        
+        // TODO: BindingFaultInfo (SequenceFault)
     }
     
     Object getUsingAddressing(EndpointInfo endpointInfo) {

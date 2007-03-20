@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.ws.rm;
+package org.apache.cxf.systest.ws.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -67,7 +67,7 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     }
 
 
-    protected List<byte[]> getOutboundMessages() {
+    public List<byte[]> getOutboundMessages() {
         return outbound;
     } 
     

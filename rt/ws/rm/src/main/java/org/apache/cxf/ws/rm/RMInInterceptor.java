@@ -83,7 +83,10 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         
         boolean isServer = RMContextUtils.isServerSide(message);
         LOG.fine("isServerSide: " + isServer);
+        boolean isApplicationMessage = RMContextUtils.isAplicationMessage(action);       
+        LOG.fine("isApplicationMessage: " + isApplicationMessage);
         
+        /*
         if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
             LOG.fine("Processing inbound CreateSequence on client side.");
             RMEndpoint rme = getManager().getReliableEndpoint(message);
@@ -103,21 +106,31 @@ public class RMInInterceptor extends AbstractRMInterceptor {
             processAcknowledgments(rmps);
             return;
         }
+        */
         
         // for application AND out of band messages
         
-        Destination destination = getManager().getDestination(message);
-
-        if (null != rmps) {            
-
+        if (isApplicationMessage) {
+            Destination destination = getManager().getDestination(message);
+            if (null != rmps) {
+                processAcknowledgments(rmps);
+                processAcknowledgmentRequests(rmps);
+                processSequence(destination, message);
+                processDeliveryAssurance(rmps);
+            }
+        } else if (RMConstants.getSequenceAckAction().equals(action)) {
             processAcknowledgments(rmps);
-            
-            processAcknowledgmentRequests(rmps);  
-            
-            processSequence(destination, message);
-            
-            processDeliveryAssurance(rmps);
+        } else if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
+            LOG.fine("Processing inbound CreateSequence on client side.");
+            RMEndpoint rme = getManager().getReliableEndpoint(message);
+            Servant servant = rme.getServant();
+            CreateSequenceResponseType csr = servant.createSequence(message);
+            Proxy proxy = rme.getProxy();
+            proxy.createSequenceResponse(csr);
+            return;
         }
+        
+        assertReliability(message);
     }
     
     void processAcknowledgments(RMProperties rmps) throws SequenceFault {

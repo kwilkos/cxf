@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.systest.ws.rm;
+package org.apache.cxf.systest.ws.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -65,7 +65,7 @@ public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
         }
     }
 
-    protected List<byte[]> getInboundMessages() {
+    public List<byte[]> getInboundMessages() {
         return inbound;
     } 
 }

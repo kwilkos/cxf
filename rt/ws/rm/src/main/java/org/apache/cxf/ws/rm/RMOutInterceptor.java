@@ -155,6 +155,8 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             || RMConstants.getTerminateSequenceAction().equals(action)) {
             maps.setReplyTo(RMUtils.createNoneReference());
         }
+        
+        assertReliability(message);
     }
     
     void addAcknowledgements(Destination destination, 

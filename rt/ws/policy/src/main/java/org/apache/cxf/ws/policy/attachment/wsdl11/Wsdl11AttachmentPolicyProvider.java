@@ -120,7 +120,6 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
     public Policy getEffectivePolicy(BindingMessageInfo bmi) {
         ServiceInfo si = bmi.getBindingOperation().getBinding().getService();
         DescriptionInfo di = si.getDescription();
-
         Policy p = getElementPolicy(bmi, false, di);
         MessageInfo mi = bmi.getMessageInfo();
         p = p.merge(getElementPolicy(mi, true, di));
@@ -157,7 +156,7 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
         
         Policy elementPolicy = new Policy();
         
-        if (null == ex) {
+        if (null == ex || null == di) {
             return elementPolicy;
         }
         
@@ -237,6 +236,9 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
     
      
     private Extensible getMessageTypeInfo(QName name, DescriptionInfo di) {
+        if (null == di) {
+            return null;
+        }
         Definition def = (Definition)di.getProperty(WSDLServiceBuilder.WSDL_DEFINITION);
         if (null == def) {
             return null;

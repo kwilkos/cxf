@@ -19,6 +19,7 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +29,8 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
+import org.apache.cxf.ws.policy.AssertionInfo;
+import org.apache.cxf.ws.policy.AssertionInfoMap;
 
 /**
  * Interceptor responsible for implementing exchange of RM protocol messages,
@@ -90,6 +93,28 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
     } 
     
     public void postHandleMessage(Message msg) throws Fault {
+    }
+    
+    /**
+     * Asserts all RMAssertion assertions for the current message, regardless their attributes
+     * (if there is more thsn one we have ensured that they are all supported by considering
+     * e.g. the minimum acknowledgment interval).
+     * @param message the current message
+     */
+    void assertReliability(Message message) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return;
+            
+        }
+        Collection<AssertionInfo> ais = aim.get(RMConstants.getRMAssertionQName());
+        if (null == ais || ais.size() == 0) {
+            return;
+        }
+        
+        for (AssertionInfo ai : ais) {
+            ai.setAsserted(true);
+        }
     }
     
     // rm logic

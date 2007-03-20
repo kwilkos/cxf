@@ -254,7 +254,7 @@ public class PolicyInterceptorsTest extends Assert {
     public void testServerPolicyOutFaultInterceptorGetBindingFaultInfo() {
         ServerPolicyOutFaultInterceptor interceptor = new ServerPolicyOutFaultInterceptor();
         message = control.createMock(Message.class);
-        Exception ex = new UnsupportedOperationException();
+        Exception ex = new UnsupportedOperationException(new RuntimeException());
         boi = control.createMock(BindingOperationInfo.class);
         EasyMock.expect(message.get(BindingFaultInfo.class)).andReturn(null);
         BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);

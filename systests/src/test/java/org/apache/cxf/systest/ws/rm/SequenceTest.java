@@ -36,6 +36,10 @@ import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.systest.ws.util.InMessageRecorder;
+import org.apache.cxf.systest.ws.util.MessageFlow;
+import org.apache.cxf.systest.ws.util.MessageRecorder;
+import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -879,28 +883,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
     
     private void awaitMessages(int nExpectedOut, int nExpectedIn, int timeout) {
-        int waited = 0;
-        int nOut = 0;
-        int nIn = 0;
-        while (waited <= timeout) {                
-            synchronized (outRecorder) {
-                nOut = outRecorder.getOutboundMessages().size();
-            }
-            synchronized (inRecorder) {
-                nIn = inRecorder.getInboundMessages().size();
-            }
-            if (nIn >= nExpectedIn && nOut >= nExpectedOut) {
-                return;
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-            waited += 100;
-        }
-        assertEquals("Did not receive expected number of inbound messages", nExpectedIn, nIn);
-        assertEquals("Did not send expected number of outbound messages", nExpectedOut, nOut);        
+        MessageRecorder mr = new MessageRecorder(outRecorder, inRecorder);
+        mr.awaitMessages(nExpectedOut, nExpectedIn, timeout);
     }
 
     private void removeRMInterceptors(List<Interceptor> interceptors) {
