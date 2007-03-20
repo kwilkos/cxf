@@ -373,7 +373,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     private String getLocation(String wsdlFile) throws URISyntaxException {
-        return new File(JavaToWSDLProcessorTest.class.getResource(wsdlFile).toURI()).getAbsolutePath();
+        return JavaToWSDLProcessorTest.class.getResource(wsdlFile).toString();
     }
 
 }

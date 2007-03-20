@@ -29,4 +29,29 @@ public class URIParserUtilTest extends TestCase {
         packageName = URIParserUtil.getPackageName("urn://www.class.iona.com");
         assertEquals(packageName, "com.iona._class");
     }
+
+    public void testNormalize() throws Exception {
+        String uri = "wsdl/hello_world.wsdl";
+        assertEquals(uri, URIParserUtil.normalize(uri));
+
+        uri = "C:\\src\\wsdl/hello_world.wsdl";
+        assertEquals("file:/C:/src/wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
+
+        uri = "wsdl\\hello_world.wsdl";
+        assertEquals("wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));        
+    }
+
+    public void testGetAbsoluteURI() throws Exception {
+        String uri = "wsdl/hello_world.wsdl";
+        String uri2 = URIParserUtil.getAbsoluteURI(uri);
+        assertNotNull(uri2);
+        assertTrue(uri2.startsWith("file"));
+        assertTrue(uri2.contains(uri));
+
+        uri = getClass().getResource("/schemas/wsdl/xml-binding.xsd").toString();
+        uri2 = URIParserUtil.getAbsoluteURI(uri);
+        assertNotNull(uri2);
+        assertTrue(uri2.startsWith("file"));
+        assertTrue(uri2.contains(uri));        
+    }
 }

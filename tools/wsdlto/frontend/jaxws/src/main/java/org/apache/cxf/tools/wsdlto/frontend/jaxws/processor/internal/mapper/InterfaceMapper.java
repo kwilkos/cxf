@@ -27,7 +27,6 @@ import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public final class InterfaceMapper {
-    //private static final Logger LOG = LogUtils.getL7dLogger(InterfaceMapper.class);
     private ToolContext context;
 
     public InterfaceMapper(ToolContext c) {

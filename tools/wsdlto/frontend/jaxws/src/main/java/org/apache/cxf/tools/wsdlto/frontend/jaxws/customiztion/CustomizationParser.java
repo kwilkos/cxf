@@ -52,6 +52,7 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.StAXUtil;
+import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public final class CustomizationParser {
@@ -82,8 +83,8 @@ public final class CustomizationParser {
         this.env = pe;
         String[] bindingFiles;
         try {
-            this.wsdlURL = (String)env.get(ToolConstants.CFG_WSDLURL);
-            this.wsdlNode = this.getTargetNode(wsdlURL);
+            this.wsdlURL = URIParserUtil.getAbsoluteURI((String)env.get(ToolConstants.CFG_WSDLURL));
+            this.wsdlNode = this.getTargetNode(this.wsdlURL);
             bindingFiles = (String[])env.get(ToolConstants.CFG_BINDING);
             if (bindingFiles == null) {
                 return;

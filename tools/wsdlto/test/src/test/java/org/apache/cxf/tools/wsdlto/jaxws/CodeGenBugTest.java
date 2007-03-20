@@ -377,6 +377,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
 
     private String getLocation(String wsdlFile) throws URISyntaxException {
-        return this.getClass().getResource(wsdlFile).toURI().getPath();
+        return this.getClass().getResource(wsdlFile).toString();
     }
 }

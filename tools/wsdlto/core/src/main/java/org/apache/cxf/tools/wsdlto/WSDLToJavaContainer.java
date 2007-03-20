@@ -22,8 +22,6 @@ package org.apache.cxf.tools.wsdlto;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,7 +29,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Logger;
-
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
@@ -53,6 +50,7 @@ import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.util.ClassCollector;
+import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.validator.internal.AbstractValidator;
 import org.apache.cxf.tools.validator.internal.ServiceValidator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
@@ -118,7 +116,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 builder.setContext(context);
                 
                 //TODO: Modify builder api, let customized definition make sense.
-                builder.build(wsdlURL);
+                builder.build(URIParserUtil.getAbsoluteURI(wsdlURL));
                 builder.customize();
                 Definition definition = builder.getWSDLModel();
                 
@@ -288,10 +286,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
 
         String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
-        
-        URI wsdlURI = getURI(wsdl);
-        env.put(ToolConstants.CFG_WSDLURL, wsdlURI.toString());
-        
+        env.put(ToolConstants.CFG_WSDLURL, URIParserUtil.normalize(wsdl));
         
         String[] bindingFiles;
         try {
@@ -305,9 +300,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
         
         for (int i = 0; i < bindingFiles.length; i++) {
-            
-            URI bindingURI = getURI(bindingFiles[i]);
-            bindingFiles[i] = bindingURI.toString();
+            bindingFiles[i] = URIParserUtil.getAbsoluteURI(bindingFiles[i]);
         }
         
         env.put(ToolConstants.CFG_BINDING,  bindingFiles);        
@@ -420,29 +413,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             return true;
         }
         return false;
-    }
-    
-    private URI getURI(String arg) {
-        File tmpFile = null;
-        URI uri = null;
-        try {
-            uri = new URI(arg);
-            if (!uri.isAbsolute()) {
-                File tmpfile = new File("");
-                uri = tmpfile.toURI().resolve(uri);
-            }
-            tmpFile = new File(uri);
-        } catch (URISyntaxException e) {
-            tmpFile = new File(arg);
-        }
-        if (!tmpFile.exists()) {
-            Message msg = new Message("FILE_NOT_EXIST", LOG, tmpFile.toURI());
-            throw new ToolException(msg);
-        } else if (tmpFile.isDirectory()) {
-            Message msg = new Message("NOT_A_FILE", LOG, tmpFile.toURI());
-            throw new ToolException(msg);
-        }
-        return tmpFile.toURI();
     }
     
     public void generateTypes() throws ToolException {

@@ -21,6 +21,8 @@ package org.apache.cxf.tools.util;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -213,4 +215,28 @@ public final class URIParserUtil {
     private static boolean contiansReservedKeywords(String token) {
         return KEYWORDS.contains(token);
     }
+
+    public static String normalize(String uri) {
+        File file = new File(uri);
+        if (file.isAbsolute()) {
+            return getAbsoluteURI(uri);
+        }
+        return uri.replace("\\", "/");
+    }
+
+    public static String getAbsoluteURI(String arg) {
+        File tmpFile = null;
+        URI uri = null;
+        try {
+            uri = new URI(arg);
+            if (!uri.isAbsolute()) {
+                File tmpfile = new File("");
+                uri = tmpfile.toURI().resolve(uri);
+            }
+            tmpFile = new File(uri);
+        } catch (URISyntaxException e) {
+            tmpFile = new File(arg);
+        }
+        return tmpFile.toURI().toString();
+    }    
 }
