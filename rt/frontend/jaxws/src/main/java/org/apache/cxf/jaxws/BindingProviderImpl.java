@@ -22,8 +22,6 @@ package org.apache.cxf.jaxws;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -33,9 +31,10 @@ import javax.xml.ws.handler.MessageContext;
 
 public class BindingProviderImpl implements BindingProvider {
    
-    protected AtomicReference<Map<String, Object>> requestContext =
-            new AtomicReference<Map<String, Object>>();
-    protected Map<String, Object> responseContext;
+    protected ThreadLocal <Map<String, Object>> requestContext = 
+        new ThreadLocal<Map<String, Object>>();
+    protected ThreadLocal <Map<String, Object>> responseContext =
+        new ThreadLocal<Map<String, Object>>();
     private final Binding binding;
        
     public BindingProviderImpl() {
@@ -48,16 +47,20 @@ public class BindingProviderImpl implements BindingProvider {
     
     public Map<String, Object> getRequestContext() {
         if (null == requestContext.get()) {
-            requestContext.compareAndSet(null, new ConcurrentHashMap<String, Object>(4));
-        }      
-        return (Map<String, Object>)requestContext.get();
+            requestContext.set(new HashMap<String, Object>());
+        }
+        return requestContext.get();
+    }
+
+    public Map<String, Object> getResponseContext() {
+        if (null == responseContext.get()) {
+            responseContext.set(new HashMap<String, Object>());
+        }
+        return responseContext.get();
     }
     
-    public Map<String, Object> getResponseContext() {
-        if (responseContext == null) {
-            responseContext = new HashMap<String, Object>();
-        }
-        return responseContext;
+    protected void clearContext(ThreadLocal<Map<String, Object>> context) {
+        context.set(null);
     }
 
     public Binding getBinding() {

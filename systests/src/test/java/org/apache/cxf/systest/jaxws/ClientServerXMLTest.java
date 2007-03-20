@@ -228,16 +228,18 @@ public class ClientServerXMLTest extends AbstractBusClientServerTestBase {
             reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
             assertEquals(response2, reply);
+            
+            BindingProvider bp = (BindingProvider) greeter;
+            Map<String, Object> responseContext = bp.getResponseContext();
+            Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
+            assertEquals(200, responseCode.intValue());
 
             greeter.greetMeOneWay(System.getProperty("user.name"));
 
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
-        BindingProvider bp = (BindingProvider) greeter;
-        Map<String, Object> responseContext = bp.getResponseContext();
-        Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
-        assertEquals(200, responseCode.intValue());
+       
     }
 
     @Test

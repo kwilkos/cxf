@@ -114,9 +114,16 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             message.setContent(JAXBContext.class, context);
         }
         
-        Map<String, Object> requestContext = this.getRequestContext();
-        Map<String, Object> responseContext = this.getResponseContext();
-        message.putAll(requestContext);
+        
+        Map<String, Object> reqContext = this.getRequestContext();
+        Map<String, Object> respContext = this.getResponseContext();
+        // cleanup the requestContext threadlocal variable
+        clearContext(requestContext);
+        // clear the response context's hold information
+        // Not call the clear Context is to avoid the error 
+        // that getResponseContext() would be called by Client code first
+        respContext.clear();
+        message.putAll(reqContext);
         //need to do context mapping from jax-ws to cxf message
         ContextPropertiesMapping.mapRequestfromJaxws2Cxf(message);
         
@@ -140,7 +147,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
         // execute chain
         chain.doIntercept(message);
-
+                
         if (message.getContent(Exception.class) != null) {
             throw new RuntimeException(message.get(Exception.class));
         }
@@ -156,9 +163,9 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (!isOneWay) {
             synchronized (exchange) {
                 Message inMsg = waitResponse(exchange);
-                responseContext.putAll(inMsg);
+                respContext.putAll(inMsg);
                 //need to do context mapping from cxf message to jax-ws 
-                ContextPropertiesMapping.mapResponsefromCxf2Jaxws(responseContext);
+                ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
                 return cl.cast(inMsg.getContent(Object.class));
             }
         }

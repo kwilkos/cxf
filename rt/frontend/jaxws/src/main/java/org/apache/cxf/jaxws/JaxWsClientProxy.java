@@ -24,9 +24,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import javax.xml.ws.AsyncHandler;
@@ -52,9 +50,10 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsClientProxy.class);
 
-    protected AtomicReference<Map<String, Object>> requestContext = 
-            new AtomicReference<Map<String, Object>>();
-    protected Map<String, Object> responseContext;
+    protected ThreadLocal <Map<String, Object>> requestContext = 
+            new ThreadLocal<Map<String, Object>>();
+    protected ThreadLocal <Map<String, Object>> responseContext =
+            new ThreadLocal<Map<String, Object>>();
 
     private Endpoint endpoint;
     private final Binding binding;
@@ -96,16 +95,22 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         if (null == params) {
             params = new Object[0];
         }
-
-        Map<String, Object> reqContext = this.getRequestContext();
-        Map<String, Object> resContext = this.getResponseContext();
+        Map<String, Object> reqContext = this.getRequestContext();        
+        Map<String, Object> respContext = this.getResponseContext();
+        // Clear the request ThreadLocal variable        
+        clearContext(requestContext);
+        // Clear the response context's hold information
+        // Not call the clear Context is to avoid the error 
+        // that getResponseContext() could be called by Client code first
+        respContext.clear();
+        
         Map<String, Object> context = new HashMap<String, Object>();
 
         // need to do context mapping from jax-ws to cxf message
         ContextPropertiesMapping.mapRequestfromJaxws2Cxf(reqContext);
 
         context.put(Client.REQUEST_CONTEXT, reqContext);
-        context.put(Client.RESPONSE_CONTEXT, resContext);
+        context.put(Client.RESPONSE_CONTEXT, respContext);
 
         reqContext.put(Method.class.getName(), method);
 
@@ -118,7 +123,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             result = invokeSync(method, oi, params, context);
         }
         // need to do context mapping from cxf message to jax-ws
-        ContextPropertiesMapping.mapResponsefromCxf2Jaxws(resContext);
+        ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
         return result;
 
     }
@@ -142,19 +147,25 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             return r;
         }
     }
+    
+    private void clearContext(ThreadLocal<Map<String, Object>> context) {
+        if (null != context.get()) {
+            context.set(null);
+        }
+    }
 
     public Map<String, Object> getRequestContext() {
         if (null == requestContext.get()) {
-            requestContext.compareAndSet(null, new ConcurrentHashMap<String, Object>(4));
+            requestContext.set(new HashMap<String, Object>());
         }
-        return (Map<String, Object>)requestContext.get();
+        return requestContext.get();
     }
 
     public Map<String, Object> getResponseContext() {
-        if (responseContext == null) {
-            responseContext = new HashMap<String, Object>();
-        }
-        return responseContext;
+        if (null == responseContext.get()) {
+            responseContext.set(new HashMap<String, Object>());
+        }        
+        return responseContext.get();
     }
 
     public Binding getBinding() {
