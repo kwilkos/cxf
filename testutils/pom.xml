@@ -174,11 +174,6 @@
 			<phase>generate-sources</phase>
 			<configuration>
 			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-			    <!--xsdOptions>
-				<xsdOption>
-				<xsd>${basedir}/src/main/resources/wsdl/jaxb/misc_test.xsd</xsd>
-				</xsdOption>
-				</xsdOptions-->
 			    <wsdlOptions>
 				<wsdlOption>
 				    <wsdl>${basedir}/src/main/resources/wsdl/hello_world.wsdl</wsdl>

@@ -130,7 +130,6 @@
         <module>parent</module>
         <module>common</module>
         <module>api</module>
-        <module>metacode</module>
         <module>tools</module>
         <module>codegen-plugin</module>
         <module>testutils</module>
