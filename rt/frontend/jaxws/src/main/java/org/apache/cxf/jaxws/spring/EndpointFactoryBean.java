@@ -28,6 +28,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -40,7 +41,8 @@ import org.springframework.context.ApplicationContextAware;
  * Creates a JAX-WS Endpoint. Implements InitializingBean to make it easier for Spring
  * users to use.
  */
-public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware {
+public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
+    implements FactoryBean, ApplicationContextAware {
     private String address;
     private Bus bus;
     private Executor executor;
@@ -96,6 +98,21 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
         if (publish) {
             endpoint.publish(address);
         }
+        
+        org.apache.cxf.endpoint.Endpoint cxfEp = endpoint.getServer().getEndpoint();
+        if (getInInterceptors() != null) {
+            cxfEp.getInInterceptors().addAll(getInInterceptors());
+        }
+        if (getOutInterceptors() != null) {
+            cxfEp.getOutInterceptors().addAll(getOutInterceptors());
+        }
+        if (getInFaultInterceptors() != null) {
+            cxfEp.getInFaultInterceptors().addAll(getInFaultInterceptors());
+        }
+        if (getOutFaultInterceptors() != null) {
+            cxfEp.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
+        }
+        
         return endpoint;
     }
 

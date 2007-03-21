@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxws.spring;
 
+import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Attr;
@@ -56,6 +57,7 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
         for (int i = 0; i < children.getLength(); i++) {
             Node n = children.item(i);
             if (n.getNodeType() == Node.ELEMENT_NODE) {
+                String name = n.getLocalName();
                 if ("properties".equals(n.getLocalName())) {
                     Map map = ctx.getDelegate().parseMapElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue("properties", map);
@@ -65,6 +67,10 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
                     setFirstChildAsProperty((Element) n, ctx, bean, "serviceFactory.invoker");
                 } else if ("binding".equals(n.getLocalName())) {
                     setFirstChildAsProperty((Element) n, ctx, bean, "bindingFactory");
+                }  else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
+                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)) {
+                    List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
+                    bean.addPropertyValue(n.getLocalName(), list);
                 } else {
                     setFirstChildAsProperty((Element) n, ctx, bean, n.getLocalName());
                 }

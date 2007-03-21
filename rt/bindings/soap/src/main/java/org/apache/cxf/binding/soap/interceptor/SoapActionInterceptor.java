@@ -55,12 +55,19 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
         if (boi == null) {
             value.add("\"\"");
         } else {
-            SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);            
-            value.add(soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction());
+            SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
+            String action = soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction();
+            if (!action.startsWith("\"")) {
+                action = new StringBuffer().append("\"").append(action).append("\"").toString();
+            }
+            
+            value.add(action);
         }
         Map<String, List<String>> reqHeaders = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
         if (reqHeaders == null) {
             reqHeaders = new HashMap<String, List<String>>();
+        }
+        if (reqHeaders.size() == 0) {
             message.put(Message.PROTOCOL_HEADERS, reqHeaders);
         }
         if (message.getVersion() instanceof Soap11 && !reqHeaders.containsKey("SOAPAction")) {            

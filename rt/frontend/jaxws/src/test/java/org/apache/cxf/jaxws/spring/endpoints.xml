@@ -67,4 +67,19 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
   <jaxws:endpoint id="wsdlLocation" 
     implementor="#greeter" address="http://localhost:8080/simpleWithAddress"
     wsdlLocation="wsdl/hello_world.wsdl"/>
+    
+      
+  <jaxws:endpoint id="epWithInterceptors" 
+    implementor="org.apache.cxf.jaxws.service.Hello"
+    address="http://localhost:8080/test">
+	<jaxws:inInterceptors>
+	  <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+	  <bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/>
+	</jaxws:inInterceptors>
+	<jaxws:outInterceptors>
+	  <bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+	  <bean class="org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor"/>
+	</jaxws:outInterceptors>
+  </jaxws:endpoint>
+    
 </beans>

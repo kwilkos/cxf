@@ -217,11 +217,11 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
 
         } catch (WSSecurityException e) {
             LOG.log(Level.WARNING, "", e);
-            // TODO: what should we be doing?
+            throw new SoapFault(new Message("WSSECURITY_EX", LOG), e, version.getSender());
         } catch (XMLStreamException e) {
-            throw new SoapFault(new Message("STAX_EX", LOG), version.getSender());
+            throw new SoapFault(new Message("STAX_EX", LOG), e, version.getSender());
         } catch (SOAPException e) {
-            throw new SoapFault(new Message("SAAJ_EX", LOG), version.getSender());
+            throw new SoapFault(new Message("SAAJ_EX", LOG), e, version.getSender());
         } finally {
             reqData.clear();
             reqData = null;

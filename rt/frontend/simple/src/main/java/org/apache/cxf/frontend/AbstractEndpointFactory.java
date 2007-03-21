@@ -29,6 +29,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -39,7 +40,7 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.AbstractWSFeature;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
-public abstract class AbstractEndpointFactory {
+public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorProvider {
 
     private Bus bus;
     private String address;
@@ -51,7 +52,7 @@ public abstract class AbstractEndpointFactory {
     private QName endpointName;
     private Map<String, Object> properties;
     private List<AbstractWSFeature> features;
-    
+
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         Service service = serviceFactory.getService();
         
@@ -85,6 +86,19 @@ public abstract class AbstractEndpointFactory {
         }
         
         service.getEndpoints().put(ep.getEndpointInfo().getName(), ep);
+        
+        if (getInInterceptors() != null) {
+            ep.getInInterceptors().addAll(getInInterceptors());
+        }
+        if (getOutInterceptors() != null) {
+            ep.getOutInterceptors().addAll(getOutInterceptors());
+        }
+        if (getInFaultInterceptors() != null) {
+            ep.getInFaultInterceptors().addAll(getInFaultInterceptors());
+        }
+        if (getOutFaultInterceptors() != null) {
+            ep.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
+        }
         return ep;
     }
 

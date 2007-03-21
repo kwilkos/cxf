@@ -18,9 +18,16 @@
  */
 package org.apache.cxf.jaxws.spring;
 
-import junit.framework.TestCase;
+import java.util.List;
 
+import junit.framework.TestCase;
 import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
+import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello;
@@ -67,6 +74,32 @@ public class SpringBeansTest extends TestCase {
         
         bean = ctx.getBean("wsdlLocation");
         assertNotNull(bean);
+        
+        ep = (EndpointImpl) ctx.getBean("epWithInterceptors");
+        assertNotNull(ep);
+        Endpoint cxfEP = ep.getServer().getEndpoint();
+        List<Interceptor> inInterceptors = cxfEP.getInInterceptors();
+        boolean saaj = false;
+        boolean logging = false;
+        for (Interceptor<?> i : inInterceptors) {
+            if (i instanceof SAAJInInterceptor) {
+                saaj = true;
+            } else if (i instanceof LoggingInInterceptor) {
+                logging = true;
+            }
+        }
+        assertTrue(saaj);
+        assertTrue(logging);
+        
+        saaj = false;
+        logging = false;
+        for (Interceptor<?> i : cxfEP.getOutInterceptors()) {
+            if (i instanceof SAAJOutInterceptor) {
+                saaj = true;
+            } else if (i instanceof LoggingOutInterceptor) {
+                logging = true;
+            }
+        }
     }
     
     public void testServers() throws Exception {
