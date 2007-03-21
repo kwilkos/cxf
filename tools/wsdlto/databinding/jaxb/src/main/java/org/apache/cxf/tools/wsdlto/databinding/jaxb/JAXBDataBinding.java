@@ -126,33 +126,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             schemaCompiler.parseSchema(key, ele);
 
         }
-        // After XmlSchema can be fixed , these codes will be used to
-        // get schema elements
-        /*
-         * for (SchemaInfo schema : schemas) { Document[] docs =
-         * schema.getSchema().getAllSchemas(); for (int i = 0; i < docs.length;
-         * i++) { Element ele = docs[i].getDocumentElement();
-         * this.removeImportElement(ele); String systemId =
-         * schema.getElement().getBaseURI(); if (systemId == null) { systemId =
-         * def.getDocumentBaseURI(); } String tns =
-         * ele.getAttribute("targetNamespace"); if (StringUtils.isEmpty(tns)) {
-         * continue; } if
-         * (sysIdSchemeMap.containsKey(schema.getElement().getBaseURI())) {
-         * systemId = schema.getElement().getBaseURI() + "#" + tns; int index =
-         * 0; while (sysIdSchemeMap.containsKey(systemId)) { systemId = systemId +
-         * index++; } } sysIdSchemeMap.put(systemId, ele); String excludePkg =
-         * null; if (env.hasExcludeNamespace(tns)) { excludePkg =
-         * env.getExcludePackageName(tns); if (excludePkg != null) {
-         * env.getExcludePkgList().add(excludePkg); } else {
-         * env.getExcludePkgList().add(URIParserUtil.getPackageName(tns)); } }
-         * String pkgName = null; if (env.hasNamespace(tns) ||
-         * env.get(ToolConstants.CFG_PACKAGENAME) != null) { pkgName =
-         * env.mapPackageName(tns); } pkgName = pkgName != null ? pkgName :
-         * excludePkg; if (pkgName != null) { Node pkgNode =
-         * JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
-         * ele.appendChild(pkgNode); } schemaCompiler.parseSchema(systemId,
-         * ele); } }
-         */
+        
 
         for (InputSource binding : jaxbBindings) {
             schemaCompiler.parseSchema(binding);

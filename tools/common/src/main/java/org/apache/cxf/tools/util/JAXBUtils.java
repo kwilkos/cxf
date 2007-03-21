@@ -29,15 +29,12 @@ public final class JAXBUtils {
 
     private static Node innerJaxbBinding(Element schema) {
         String schemaNamespace = schema.getNamespaceURI();
-
-        Document doc = schema.getOwnerDocument();
-
-        NodeList annoList = doc.getElementsByTagNameNS(schemaNamespace, "annotation");
+        NodeList annoList = schema.getElementsByTagNameNS(schemaNamespace, "annotation");
         Element annotation = null;
         if (annoList.getLength() > 0) {
             annotation = (Element)annoList.item(0);
         } else {
-            annotation = doc.createElementNS(schemaNamespace, "annotation");
+            annotation = schema.getOwnerDocument().createElementNS(schemaNamespace, "annotation");
         }
 
         NodeList appList = annotation.getElementsByTagNameNS(schemaNamespace, "appinfo");
@@ -45,16 +42,17 @@ public final class JAXBUtils {
         if (appList.getLength() > 0) {
             appInfo = (Element)appList.item(0);
         } else {
-            appInfo = doc.createElementNS(schemaNamespace, "appinfo");
+            appInfo = schema.getOwnerDocument().createElementNS(schemaNamespace, "appinfo");
             annotation.appendChild(appInfo);
         }
 
         Element jaxbBindings = null;
-        NodeList jaxbList = doc.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
+        NodeList jaxbList = schema.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
         if (jaxbList.getLength() > 0) {
             jaxbBindings = (Element)jaxbList.item(0);
         } else {
-            jaxbBindings = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
+            jaxbBindings = schema.getOwnerDocument().createElementNS(ToolConstants.NS_JAXB_BINDINGS, 
+                                                                     "schemaBindings");
             appInfo.appendChild(jaxbBindings);
         }
         return jaxbBindings;

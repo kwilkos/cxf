@@ -304,6 +304,14 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
+    
+    
+    public void testLocatorWithJaxbBinding() throws Exception {      
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/locator_with_jaxbbinding.wsdl"));
+        processor.setContext(env);
+        processor.execute();      
+    }
+    
 
     private String getLocation(String wsdlFile) throws URISyntaxException {
         return this.getClass().getResource(wsdlFile).toString();
