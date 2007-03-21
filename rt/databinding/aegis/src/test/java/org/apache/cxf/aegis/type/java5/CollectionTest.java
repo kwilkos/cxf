@@ -36,7 +36,6 @@ import org.apache.cxf.aegis.type.collection.CollectionType;
 import org.apache.cxf.aegis.type.java5.dto.CollectionDTO;
 import org.apache.cxf.aegis.type.java5.dto.DTOService;
 import org.apache.cxf.aegis.type.java5.dto.ObjectDTO;
-import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.junit.Before;
 import org.junit.Test;
 

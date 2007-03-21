@@ -19,17 +19,17 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class AbstractAttributedInterceptorProvider extends HashMap<String, Object>
     implements InterceptorProvider {
 
-    private List<Interceptor> in = new ArrayList<Interceptor>();
-    private List<Interceptor> out = new ArrayList<Interceptor>();
-    private List<Interceptor> outFault  = new ArrayList<Interceptor>();
-    private List<Interceptor> inFault  = new ArrayList<Interceptor>();
+    private List<Interceptor> in = new CopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> out = new CopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> outFault  = new CopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> inFault  = new CopyOnWriteArrayList<Interceptor>();
     
     public List<Interceptor> getOutFaultInterceptors() {
         return outFault;

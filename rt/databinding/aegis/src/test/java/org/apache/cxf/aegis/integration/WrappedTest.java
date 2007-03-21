@@ -25,7 +25,6 @@ import org.w3c.dom.Node;
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.services.ArrayService;
 import org.apache.cxf.aegis.services.BeanService;
-import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.junit.Before;
 import org.junit.Test;
 

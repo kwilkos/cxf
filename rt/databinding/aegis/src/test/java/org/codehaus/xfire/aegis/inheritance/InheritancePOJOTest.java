@@ -32,7 +32,6 @@ import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.junit.Before;
 import org.junit.Test;
 
