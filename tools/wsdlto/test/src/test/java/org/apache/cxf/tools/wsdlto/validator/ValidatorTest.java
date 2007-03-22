@@ -34,6 +34,7 @@ public class ValidatorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
         env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
         env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());        
         //env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
     }
     
