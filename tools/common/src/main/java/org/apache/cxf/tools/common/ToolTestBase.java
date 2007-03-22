@@ -20,42 +20,50 @@
 package org.apache.cxf.tools.common;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
-import java.net.URL;
-
 import junit.framework.TestCase;
+
+import org.apache.cxf.helpers.FileUtils;
 
 public abstract class ToolTestBase extends TestCase {
 
-    protected PrintStream oldStdErr;
-    protected PrintStream oldStdOut;
-    protected URL wsdlLocation;
+    protected PrintStream oldStdErr; 
+    protected PrintStream oldStdOut; 
+    
+    protected ByteArrayOutputStream errOut = new ByteArrayOutputStream(); 
+    protected ByteArrayOutputStream stdOut = new ByteArrayOutputStream(); 
 
-    protected ByteArrayOutputStream errOut = new ByteArrayOutputStream();
-    protected ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-
-    public void setUp() {
-
-        oldStdErr = System.err;
+    public void setUp() { 
+        oldStdErr = System.err; 
         oldStdOut = System.out;
-
+        
         System.setErr(new PrintStream(errOut));
         System.setOut(new PrintStream(stdOut));
-
-        wsdlLocation = ToolTestBase.class.getResource("/validator_wsdl/hello_world.wsdl");
     }
-
-    public void tearDown() {
+    
+    public void tearDown() { 
+        
         System.setErr(oldStdErr);
         System.setOut(oldStdOut);
     }
-
+    
     protected String getStdOut() {
         return new String(stdOut.toByteArray());
     }
-
     protected String getStdErr() {
         return new String(errOut.toByteArray());
     }
 
+    protected String getLocation(String wsdlFile) throws Exception {
+        File output = new File(getClass().getResource(".").toURI());
+        output = new File(output, "resources");
+        
+        if (!output.exists()) {
+            FileUtils.mkDir(output);            
+        }
+        
+        return new File(output, wsdlFile).toString();
+    }    
 }
+

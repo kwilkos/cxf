@@ -19,8 +19,6 @@
 package org.apache.cxf.tools.validator;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 
@@ -142,7 +140,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
     }
 
-    private String getLocation(String wsdlFile) throws IOException, URISyntaxException {
+    protected String getLocation(String wsdlFile) throws Exception {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);
         while (e.hasMoreElements()) {
             URL u = e.nextElement();
