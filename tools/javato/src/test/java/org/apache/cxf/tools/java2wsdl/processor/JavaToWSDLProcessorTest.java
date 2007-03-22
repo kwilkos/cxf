@@ -22,7 +22,6 @@ package org.apache.cxf.tools.java2wsdl.processor;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,13 +41,16 @@ import org.w3c.dom.Document;
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
+import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
-
 
 public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
@@ -60,7 +62,6 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     private File classFile;
     
     public void setUp() throws Exception {
-
         super.setUp();
         j2wProcessor = new JavaToWSDLProcessor();
         classFile = new java.io.File(output.getCanonicalPath() + "/classes");
@@ -68,6 +69,8 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
                                               + File.separatorChar);
         wj2Processor = new JAXWSContainer(null);
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));        
     }
 
     public void tearDown() {
@@ -412,9 +415,4 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
             fail("Should not happen other exception " + e.getMessage());
         }
     }
-
-    private String getLocation(String wsdlFile) throws URISyntaxException {
-        return JavaToWSDLProcessorTest.class.getResource(wsdlFile).toString();
-    }
-
 }

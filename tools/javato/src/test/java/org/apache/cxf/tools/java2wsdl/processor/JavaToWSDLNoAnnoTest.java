@@ -19,8 +19,7 @@
 
 package org.apache.cxf.tools.java2wsdl.processor;
 
-//import java.io.File;
-
+import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 
 public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {

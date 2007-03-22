@@ -26,6 +26,7 @@ import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.helpers.WSDLHelper;
+import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.WSDLConstants;
@@ -33,6 +34,10 @@ import org.apache.cxf.tools.common.WSDLConstants;
 public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
     private WSDLHelper wsdlHelper = new WSDLHelper();
+    
+    public void setUp() throws Exception {
+        super.setUp();
+    }
     
     public void tearDown() {
         super.tearDown();

@@ -22,7 +22,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Modifier;
-import java.net.URISyntaxException;
 
 import javax.jws.WebService;
 
@@ -30,6 +29,9 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.WSDLToJava;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
 public class CodeGenBugTest extends ProcessorTestBase {
@@ -46,6 +48,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
+        env.put(ToolConstants.CFG_IMPL, "impl");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
 
         processor = new JAXWSContainer(null);
 
@@ -311,15 +317,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();      
     }
-    
-    public void testWsdlNoService() throws Exception {      
+
+	public void testWsdlNoService() throws Exception {      
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_withnoservice.wsdl"));
         processor.setContext(env);
-        processor.execute();      
-    }
-    
-    
-    private String getLocation(String wsdlFile) throws URISyntaxException {
-        return this.getClass().getResource(wsdlFile).toString();
+        processor.execute();
     }
 }

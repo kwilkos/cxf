@@ -21,6 +21,9 @@ package org.apache.cxf.tools.wsdlto.validator;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.wsdlto.WSDLToJavaContainer;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
     
 public class ValidatorTest extends ProcessorTestBase {
@@ -29,6 +32,8 @@ public class ValidatorTest extends ProcessorTestBase {
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
         //env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
     }
     
@@ -47,9 +52,4 @@ public class ValidatorTest extends ProcessorTestBase {
 
         // TODO 3: change the jaxwscontainer to jaxws_wsdl_to_java_processor, so we can catch the exception
     }
-    
-    private String getLocation(String wsdlFile) {
-        return this.getClass().getResource(wsdlFile).getFile();
-    }
-
 }

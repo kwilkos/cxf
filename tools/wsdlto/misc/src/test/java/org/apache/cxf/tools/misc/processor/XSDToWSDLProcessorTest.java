@@ -92,7 +92,7 @@ public class XSDToWSDLProcessorTest
     }
 
 
-    private String getLocation(String wsdlFile) throws URISyntaxException {
+    protected String getLocation(String wsdlFile) throws URISyntaxException {
         return new File(XSDToWSDLProcessorTest.class.getResource(wsdlFile).toURI()).getAbsolutePath();
     }
 

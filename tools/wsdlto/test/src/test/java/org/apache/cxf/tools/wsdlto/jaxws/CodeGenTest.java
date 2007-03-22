@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
 
 import javax.jws.HandlerChain;
 import javax.jws.Oneway;
@@ -41,6 +40,9 @@ import javax.xml.ws.WebFault;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
 public class CodeGenTest extends ProcessorTestBase {
@@ -56,10 +58,12 @@ public class CodeGenTest extends ProcessorTestBase {
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
+        env.put(ToolConstants.CFG_IMPL, "impl");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
 
         processor = new JAXWSContainer(null);
-
-
     }
 
     public void tearDown() {
@@ -807,10 +811,5 @@ public class CodeGenTest extends ProcessorTestBase {
         WebFault webFault = AnnotationUtil.getPrivClassAnnotation(cls, WebFault.class);
         assertEquals("http://www.w3.org/2001/XMLSchema", webFault.targetNamespace());
 
-    }
-
-
-    private String getLocation(String wsdlFile) throws URISyntaxException {
-        return this.getClass().getResource(wsdlFile).toString();
     }
 }

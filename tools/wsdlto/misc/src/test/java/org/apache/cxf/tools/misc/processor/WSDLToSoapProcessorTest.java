@@ -486,9 +486,4 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             }
         }
     }
-
-    private String getLocation(String wsdlFile) throws Exception {
-        return WSDLToSoapProcessorTest.class.getResource(wsdlFile).toURI().toString();
-    }
-
 }

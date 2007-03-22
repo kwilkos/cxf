@@ -19,11 +19,13 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.File;
-import java.net.URISyntaxException;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
 public class CodeGenOptionTest extends ProcessorTestBase {
@@ -39,6 +41,10 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
+        env.put(ToolConstants.CFG_IMPL, "impl");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
 
         processor = new JAXWSContainer(null); 
 
@@ -98,10 +104,4 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         assertEquals(3, clz.getMethods().length);
 
     }
-    
-    private String getLocation(String wsdlFile) throws URISyntaxException {
-        return this.getClass().getResource(wsdlFile).toURI().getPath();
-    }
-    
-    
 }
