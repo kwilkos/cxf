@@ -24,6 +24,7 @@ import java.util.Stack;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.jdom.Attribute;
@@ -34,7 +35,7 @@ import org.jdom.Element;
 import org.jdom.EntityRef;
 import org.jdom.Namespace;
 
-public class JDOMStreamWriter extends DOMStreamWriter {
+public class JDOMStreamWriter implements XMLStreamWriter {
     private Stack<Element> stack = new Stack<Element>();
 
     private Document document;
@@ -51,6 +52,12 @@ public class JDOMStreamWriter extends DOMStreamWriter {
     public JDOMStreamWriter(Element e) {
         newChild(e);
     }
+
+    public void close() throws XMLStreamException {
+    }
+
+    public void flush() throws XMLStreamException {
+    }    
 
     public void writeStartElement(String local) throws XMLStreamException {
         newChild(new Element(local));

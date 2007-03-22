@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.util.stax;
+package org.apache.cxf.staxutils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +27,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.aegis.util.FastStack;
-
 /**
  * Abstract logic for creating XMLStreamReader from DOM documents. Its works
  * using adapters for Element, Node and Attribute (
@@ -36,7 +34,7 @@ import org.apache.cxf.aegis.util.FastStack;
  * @see ElementAdapter }
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
-public abstract class DOMStreamReader implements XMLStreamReader {
+public abstract class AbstractDOMStreamReader implements XMLStreamReader {
     private Map properties = new HashMap();
 
     private FastStack<ElementFrame> frames = new FastStack<ElementFrame>();
@@ -73,6 +71,10 @@ public abstract class DOMStreamReader implements XMLStreamReader {
             this.element = element;
             this.parent = parent;
         }
+        
+        public Object getElement() {
+            return element;
+        }
 
 
     }
@@ -80,7 +82,7 @@ public abstract class DOMStreamReader implements XMLStreamReader {
     /**
      * @param element
      */
-    public DOMStreamReader(ElementFrame frame) {
+    public AbstractDOMStreamReader(ElementFrame frame) {
         this.frame = frame;
         frames.push(this.frame);
     }

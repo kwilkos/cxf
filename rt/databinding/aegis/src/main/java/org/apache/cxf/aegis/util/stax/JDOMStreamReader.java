@@ -28,7 +28,8 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.cxf.aegis.util.FastStack;
+import org.apache.cxf.staxutils.AbstractDOMStreamReader;
+import org.apache.cxf.staxutils.FastStack;
 import org.jdom.Attribute;
 import org.jdom.CDATA;
 import org.jdom.Comment;
@@ -44,7 +45,7 @@ import org.jdom.Text;
  * 
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
-public class JDOMStreamReader extends DOMStreamReader {
+public class JDOMStreamReader extends AbstractDOMStreamReader {
 
     private Content content;
 
@@ -182,7 +183,7 @@ public class JDOMStreamReader extends DOMStreamReader {
     }
 
     public Element getCurrentElement() {
-        return (Element)getCurrentFrame().element;
+        return (Element)getCurrentFrame().getElement();
     }
 
     @Override

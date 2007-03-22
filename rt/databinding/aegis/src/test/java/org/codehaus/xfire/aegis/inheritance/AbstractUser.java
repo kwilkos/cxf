@@ -16,16 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.util.stax;
+/**
+ * 
+ */
+package org.codehaus.xfire.aegis.inheritance;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+// @XmlType(namespace="urn:xfire:inheritance")
+public abstract class AbstractUser {
+    private String name;
 
-public abstract class DOMStreamWriter implements XMLStreamWriter {
-
-    public void close() throws XMLStreamException {
+    public String getName() {
+        return name;
     }
 
-    public void flush() throws XMLStreamException {
+    public void setName(String name) {
+        this.name = name;
     }
 }

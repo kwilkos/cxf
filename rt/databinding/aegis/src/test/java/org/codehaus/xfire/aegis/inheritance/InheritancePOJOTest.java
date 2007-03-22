@@ -68,14 +68,14 @@ public class InheritancePOJOTest extends AbstractAegisTest {
         // check for Employee as extension
         String employeeType = types + "xsd:complexType[@name='Employee']";
         assertValid(employeeType, d);
-        String extension = "/xsd:complexContent/xsd:extension[@base='ns1:BaseUser']";
+        String extension = "/xsd:complexContent/xsd:extension[@base='ns1:AbstractUser']";
         assertValid(employeeType + extension, d);
         assertValid(employeeType + extension + "/xsd:sequence/xsd:element[@name='division']", d);
         // assertValid("count(" + employeeType + extension +
         // "/xsd:sequence/*)=1", d);
 
         // check for BaseUser as abstract
-        String baseUserType = types + "xsd:complexType[(@name='BaseUser') and (@abstract='true')]";
+        String baseUserType = types + "xsd:complexType[(@name='AbstractUser') and (@abstract='true')]";
         assertValid(baseUserType, d);
         assertValid(baseUserType + "/xsd:sequence/xsd:element[@name='name']", d);
         // assertValid("count(" + baseUserType + "/xsd:sequence/*)=1", d);

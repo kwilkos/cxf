@@ -33,6 +33,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.*;
 
@@ -43,22 +44,39 @@ public final class StaxUtils {
 
     private static final Logger LOG = Logger.getLogger(StaxUtils.class.getName());
     
+    private static final XMLInputFactory XML_NS_AWARE_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
     
     private static final String XML_NS = "http://www.w3.org/2000/xmlns/";
     
+    static {
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
+        XML_NS_AWARE_INPUT_FACTORY.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+    }
+    
     private StaxUtils() {
     }
 
     public static XMLInputFactory getXMLInputFactory() {
-        return XML_INPUT_FACTORY;
+        return getXMLInputFactory(true);
+    }
+    public static XMLInputFactory getXMLInputFactory(boolean nsAware) {
+        return nsAware ? XML_NS_AWARE_INPUT_FACTORY : XML_INPUT_FACTORY;
     }
 
     public static XMLOutputFactory getXMLOutputFactory() {
         return XML_OUTPUT_FACTORY;
     }
 
+    public static XMLStreamWriter createXMLStreamWriter(Writer out) {
+        try {
+            return getXMLOutputFactory().createXMLStreamWriter(out);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Cant' create XMLStreamWriter", e);
+        }
+    } 
+    
     public static XMLStreamWriter createXMLStreamWriter(OutputStream out) {
         return createXMLStreamWriter(out, null);
     }
@@ -639,6 +657,21 @@ public final class StaxUtils {
     
     public static XMLStreamReader createXMLStreamReader(Source source) {
         try {
+            if (source instanceof DOMSource) {
+                DOMSource ds = (DOMSource)source;
+                Node nd = ds.getNode();
+                Element el = null;
+                if (nd instanceof Document) {
+                    el = ((Document)nd).getDocumentElement();
+                } else if (nd instanceof Element) {
+                    el = (Element)nd;
+                }
+                
+                if (null != el) {
+                    return new W3CDOMStreamReader(el);
+                }
+            }
+            
             return getXMLInputFactory().createXMLStreamReader(source);
         } catch (XMLStreamException e) {
             throw new RuntimeException("Couldn't parse stream.", e);

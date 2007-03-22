@@ -21,8 +21,15 @@ package org.apache.cxf.staxutils;
 
 import java.io.*;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+
+import org.w3c.dom.Document;
+
+import org.xml.sax.InputSource;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -86,5 +93,72 @@ public class StaxUtilsTest extends Assert {
         input = input.replaceAll("\r\n", "\n");
         // compare the input and output string
         assertEquals(input, output);
+    }
+    
+    
+    @Test
+    public void testNonNamespaceAwareParser() throws Exception {
+        String xml = "<blah xmlns=\"http://blah.org/\" xmlns:snarf=\"http://snarf.org\">"
+            + "<foo snarf:blop=\"blop\">foo</foo></blah>";
+
+        
+        StringReader reader = new StringReader(xml);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(false);
+        dbf.setValidating(false);
+        Document doc = dbf.newDocumentBuilder().parse(new InputSource(reader));
+        Source source = new DOMSource(doc);
+        
+        dbf.setNamespaceAware(true);
+        reader = new StringReader(xml);
+        Document docNs = dbf.newDocumentBuilder().parse(new InputSource(reader));
+        Source sourceNs = new DOMSource(docNs);
+        
+        
+        XMLStreamReader sreader = StaxUtils.createXMLStreamReader(source);
+        
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter swriter = StaxUtils.createXMLStreamWriter(sw);
+
+        //should not throw an exception
+        StaxUtils.copy(sreader, swriter);
+        swriter.flush();
+        swriter.close();
+        
+        String output = sw.toString();
+        assertTrue(output.contains("blah"));        
+        assertTrue(output.contains("foo"));        
+        assertTrue(output.contains("snarf"));        
+        assertTrue(output.contains("blop"));        
+       
+        
+        sreader = StaxUtils.createXMLStreamReader(sourceNs);
+        sw = new StringWriter();
+        swriter = StaxUtils.createXMLStreamWriter(sw);
+        //should not throw an exception
+        StaxUtils.copy(sreader, swriter);
+        swriter.flush();
+        swriter.close();
+        
+        output = sw.toString();
+        assertTrue(output.contains("blah"));        
+        assertTrue(output.contains("foo"));        
+        assertTrue(output.contains("snarf"));        
+        assertTrue(output.contains("blop"));        
+
+        
+        sreader = StaxUtils.createXMLStreamReader(source);
+        
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        swriter = StaxUtils.createXMLStreamWriter(bout);
+        StaxUtils.copy(sreader, swriter); 
+        swriter.flush();
+        swriter.close();
+        
+        output = bout.toString();
+        assertTrue(output.contains("blah"));        
+        assertTrue(output.contains("foo"));        
+        assertTrue(output.contains("snarf"));        
+        assertTrue(output.contains("blop"));        
     }
 }

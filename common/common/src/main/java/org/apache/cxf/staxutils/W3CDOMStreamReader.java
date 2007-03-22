@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.util.stax;
+package org.apache.cxf.staxutils;
 
 import java.util.ArrayList;
 
@@ -36,7 +36,7 @@ import org.w3c.dom.Text;
 
 import org.apache.cxf.helpers.DOMUtils;
 
-public class W3CDOMStreamReader extends DOMStreamReader {
+public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     private Node content;
 
     private Document document;
@@ -304,7 +304,11 @@ public class W3CDOMStreamReader extends DOMStreamReader {
     }
 
     public String getLocalName() {
-        return getCurrentElement().getLocalName();
+        String ln = getCurrentElement().getLocalName();
+        if (ln == null) {
+            ln = getCurrentElement().getNodeName();
+        }
+        return ln;
     }
 
     public String getNamespaceURI() {

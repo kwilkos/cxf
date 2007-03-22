@@ -22,7 +22,7 @@
 package org.codehaus.xfire.aegis.inheritance;
 
 // @XmlType(namespace="urn:xfire:inheritance")
-public class Employee extends BaseUser {
+public class Employee extends AbstractUser {
     private String division;
 
     public String getDivision() {
