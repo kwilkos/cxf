@@ -142,8 +142,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 } else  if (definition.getServices().size() > 0) {
                     serviceList = serviceBuilder.buildService(definition);
                 } else  {
-                    ServiceInfo service = serviceBuilder.buildMockService(definition);
-                    serviceList.add(service);
+                    serviceList = serviceBuilder.buildMockServices(definition);
                 }
 
                 context.put(ClassCollector.class, new ClassCollector());
@@ -152,7 +151,8 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             }
             Map<String, InterfaceInfo> interfaces = new HashMap<String, InterfaceInfo>();
             for (ServiceInfo service : serviceList) {
-                if (!interfaces.containsKey(service.getInterface().getName().toString())) {
+                if (service.getInterface() != null
+                    && !interfaces.containsKey(service.getInterface().getName().toString())) {
                     interfaces.put(service.getInterface().getName().toString(), service.getInterface());
                 }
             }

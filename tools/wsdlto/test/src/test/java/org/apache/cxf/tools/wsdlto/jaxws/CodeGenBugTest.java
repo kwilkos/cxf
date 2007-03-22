@@ -323,4 +323,14 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
     }
+    
+    public void testNoServiceImport() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_noservice_import.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class cls = classLoader.loadClass("org.apache.hello_world1.Greeter");
+        assertNotNull(cls);
+        cls = classLoader.loadClass("org.apache.hello_world2.Greeter2");
+    }
+    
 }

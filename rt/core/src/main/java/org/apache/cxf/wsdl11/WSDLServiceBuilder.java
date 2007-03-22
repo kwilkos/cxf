@@ -88,7 +88,7 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import static org.apache.cxf.helpers.CastUtils.cast;
 
 public class WSDLServiceBuilder {
-
+  
     public static final String WSDL_SCHEMA_LIST = WSDLServiceBuilder.class.getName() + ".SCHEMA";
     public static final String WSDL_DEFINITION = WSDLServiceBuilder.class.getName() + ".DEFINITION";
     public static final String WSDL_SERVICE = WSDLServiceBuilder.class.getName() + ".SERVICE";
@@ -158,7 +158,25 @@ public class WSDLServiceBuilder {
         return buildService(def, serv, null);
     }
     
-    public ServiceInfo buildMockService(Definition def) {
+    
+    public List<ServiceInfo> buildMockServices(Definition d) {
+        List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
+        List<Definition> defList = new ArrayList<Definition>();
+        defList.add(d);
+        parseImports(d, defList);        
+        for (Definition def : defList) {
+            for (Iterator ite = def.getPortTypes().entrySet().iterator(); ite.hasNext();) {
+                Entry entry = (Entry)ite.next();
+                PortType portType = def.getPortType((QName)entry.getKey());
+                ServiceInfo serviceInfo = this.buildMockService(def, portType);
+                serviceList.add(serviceInfo);
+            }     
+        }
+        return serviceList;
+    }
+    
+    
+    public ServiceInfo buildMockService(Definition def, PortType p) {
         DescriptionInfo description = new DescriptionInfo();
         description.setProperty(WSDL_DEFINITION, def);
         description.setName(def.getQName());
@@ -170,17 +188,13 @@ public class WSDLServiceBuilder {
         service.setDescription(description);
         service.setProperty(WSDL_DEFINITION, def);
         XmlSchemaCollection schemas = getSchemas(def, service);
-        
-        
+                
         service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);       
        
         service.setProperty(WSDL_SCHEMA_LIST, schemas);
+
+        buildInterface(service, p);
         
-        for (Iterator ite = def.getPortTypes().entrySet().iterator(); ite.hasNext();) {
-            Entry entry = (Entry)ite.next();
-            PortType portType = def.getPortType((QName)entry.getKey());
-            buildInterface(service, portType);
-        }
         return service;
     }
     
@@ -533,7 +547,6 @@ public class WSDLServiceBuilder {
     private void checkForWrapped(OperationInfo opInfo) {
         MessageInfo inputMessage = opInfo.getInput();
         MessageInfo outputMessage = opInfo.getOutput();
-
         boolean passedRule = true;
         // RULE No.1:
         // The operation's input and output message (if present) each contain
@@ -547,7 +560,6 @@ public class WSDLServiceBuilder {
         if (!passedRule) {
             return;
         }
-
         XmlSchemaCollection schemas = (XmlSchemaCollection)opInfo.getInterface().getService()
             .getProperty(WSDL_SCHEMA_LIST);
         XmlSchemaElement inputEl = null;
@@ -571,7 +583,6 @@ public class WSDLServiceBuilder {
         if (!passedRule) {
             return;
         }
-
         // RULE No.3:
         // The output message part refers to a global element declaration
         MessagePartInfo outputPart = null;
@@ -590,7 +601,6 @@ public class WSDLServiceBuilder {
         if (!passedRule) {
             return;
         }
-
         // RULE No.4 and No5:
         // wrapper element should be pure complex type
 
@@ -632,7 +642,6 @@ public class WSDLServiceBuilder {
         if (!passedRule) {
             return;
         }
-
         // we are wrappable!!
         opInfo.setUnwrappedOperation(unwrapped);
         unwrapped.setInput(opInfo.getInputName(), unwrappedInput);
@@ -691,7 +700,6 @@ public class WSDLServiceBuilder {
     private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
         XmlSchemaCollection schemas = (XmlSchemaCollection)minfo.getOperation().getInterface().getService()
             .getProperty(WSDL_SCHEMA_LIST);
-
         List orderedParam = msg.getOrderedParts(paramOrder);
         for (Part part : cast(orderedParam, Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
