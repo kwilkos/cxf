@@ -143,6 +143,8 @@ public class WSDLServiceBuilder {
         return serviceList;
     }
 
+    
+    
     public ServiceInfo buildService(Definition d, QName name) {
         return buildService(d, name, null);
     }
@@ -155,6 +157,33 @@ public class WSDLServiceBuilder {
     public ServiceInfo buildService(Definition def, Service serv) {
         return buildService(def, serv, null);
     }
+    
+    public ServiceInfo buildMockService(Definition def) {
+        DescriptionInfo description = new DescriptionInfo();
+        description.setProperty(WSDL_DEFINITION, def);
+        description.setName(def.getQName());
+        description.setBaseURI(def.getDocumentBaseURI());
+        copyExtensors(description, def.getExtensibilityElements());
+        copyExtensionAttributes(description, def);
+        
+        ServiceInfo service = new ServiceInfo();
+        service.setDescription(description);
+        service.setProperty(WSDL_DEFINITION, def);
+        XmlSchemaCollection schemas = getSchemas(def, service);
+        
+        
+        service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);       
+       
+        service.setProperty(WSDL_SCHEMA_LIST, schemas);
+        
+        for (Iterator ite = def.getPortTypes().entrySet().iterator(); ite.hasNext();) {
+            Entry entry = (Entry)ite.next();
+            PortType portType = def.getPortType((QName)entry.getKey());
+            buildInterface(service, portType);
+        }
+        return service;
+    }
+    
  
     private ServiceInfo buildService(Definition def, Service serv, DescriptionInfo d) {
         DescriptionInfo description = d;

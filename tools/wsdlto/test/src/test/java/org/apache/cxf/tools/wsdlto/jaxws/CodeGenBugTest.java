@@ -312,7 +312,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();      
     }
     
-
+    public void testWsdlNoService() throws Exception {      
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_withnoservice.wsdl"));
+        processor.setContext(env);
+        processor.execute();      
+    }
+    
+    
     private String getLocation(String wsdlFile) throws URISyntaxException {
         return this.getClass().getResource(wsdlFile).toString();
     }

@@ -86,6 +86,9 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     public void process(ServiceInfo si) throws ToolException {
+        if (si.getName() == null) {
+            return;
+        }
         this.service = si;
         processService(context.get(JavaModel.class));
         

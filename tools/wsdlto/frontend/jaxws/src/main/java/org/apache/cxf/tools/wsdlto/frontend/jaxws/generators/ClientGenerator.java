@@ -60,8 +60,12 @@ public class ClientGenerator extends AbstractJAXWSGenerator {
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
         JavaModel javaModel = env.get(JavaModel.class);
-
         if (passthrough()) {
+            return;
+        }
+        if (javaModel.getServiceClasses().size() == 0) {
+            System.out.println("WSDL2Java Warning : can not generate " 
+                               + "client for an WSDL has no service");
             return;
         }
 

@@ -63,13 +63,13 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
-    
+
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     String toolName;
- 
-    public WSDLToJavaContainer(String name, ToolSpec toolspec) throws Exception {        
+
+    public WSDLToJavaContainer(String name, ToolSpec toolspec) throws Exception {
         super(name, toolspec);
         this.toolName = name;
     }
@@ -89,7 +89,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     public Bus getBus() {
         return BusFactory.getDefaultBus();
     }
-    
+
     @SuppressWarnings("unchecked")
     public void execute() throws ToolException {
         if (!hasInfoOption()) {
@@ -139,8 +139,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     ServiceInfo service = serviceBuilder
                         .buildService(definition, getServiceQName(definition));
                     serviceList.add(service);
-                } else {
+                } else  if (definition.getServices().size() > 0) {
                     serviceList = serviceBuilder.buildService(definition);
+                } else  {
+                    ServiceInfo service = serviceBuilder.buildMockService(definition);
+                    serviceList.add(service);
                 }
 
                 context.put(ClassCollector.class, new ClassCollector());
@@ -199,7 +202,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 super.execute(exitOnFinish);
             }
             execute();
-            
+
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(toolName, (BadUsageException)ex.getCause());
@@ -232,9 +235,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
         return qname;
     }
-    
+
     public void loadDefaultNSPackageMapping(ToolContext env) {
-        if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE) 
+        if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE)
             && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
             env.loadDefaultNS2Pck(getResourceAsStream("namespace2package.cfg"));
         }
@@ -260,7 +263,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             }
         }
     }
-    
+
     public void setPackageAndNamespaces(ToolContext env) {
         if (env.get(ToolConstants.CFG_PACKAGENAME) != null) {
             String[] pns = null;
@@ -301,7 +304,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (!env.optionSet(ToolConstants.CFG_EXTRA_SOAPHEADER)) {
             env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "false");
         }
-        
+
         if (env.optionSet(ToolConstants.CFG_COMPILE)) {
             String clsdir = (String)env.get(ToolConstants.CFG_CLASSDIR);
             if (clsdir != null) {
@@ -315,7 +318,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
         String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
         env.put(ToolConstants.CFG_WSDLURL, URIParserUtil.normalize(wsdl));
-        
+
         String[] bindingFiles;
         try {
             bindingFiles = (String[])env.get(ToolConstants.CFG_BINDING);
@@ -326,12 +329,12 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             bindingFiles = new String[1];
             bindingFiles[0] = (String)env.get(ToolConstants.CFG_BINDING);
         }
-        
+
         for (int i = 0; i < bindingFiles.length; i++) {
             bindingFiles[i] = URIParserUtil.getAbsoluteURI(bindingFiles[i]);
         }
-        
-        env.put(ToolConstants.CFG_BINDING,  bindingFiles);        
+
+        env.put(ToolConstants.CFG_BINDING,  bindingFiles);
     }
 
     public void setAntProperties(ToolContext env) {
@@ -361,16 +364,16 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (context.get(ToolConstants.CFG_OUTPUTDIR) == null) {
             context.put(ToolConstants.CFG_OUTPUTDIR, ".");
         }
-        
+
         if (context.containsKey(ToolConstants.CFG_ANT)) {
             setAntProperties(context);
             setLibraryReferences(context);
         }
-        
+
         if (!context.containsKey(ToolConstants.CFG_WSDL_VERSION)) {
             context.put(ToolConstants.CFG_WSDL_VERSION, WSDLConstants.WSDL11);
         }
-       
+
         setExcludePackageAndNamespaces(context);
         loadDefaultNSPackageMapping(context);
         setPackageAndNamespaces(context);
@@ -442,7 +445,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
         return false;
     }
-    
+
     public void generateTypes() throws ToolException {
         if (passthrough()) {
             return;
