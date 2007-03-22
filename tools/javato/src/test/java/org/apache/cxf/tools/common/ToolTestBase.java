@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
