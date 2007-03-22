@@ -20,10 +20,15 @@
 package org.apache.cxf.tools.common;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
+
+import org.apache.cxf.helpers.FileUtils;
 
 public abstract class ToolTestBase extends TestCase {
 
@@ -58,5 +63,15 @@ public abstract class ToolTestBase extends TestCase {
         return new String(errOut.toByteArray());
     }
 
+    protected String getLocation(String wsdlFile) throws URISyntaxException {
+        File output = new File(getClass().getResource(".").toURI());
+        output = new File(output, "resources");
+        
+        if (!output.exists()) {
+            FileUtils.mkDir(output);            
+        }
+        
+        return new File(output, wsdlFile).toString();
+    }    
 }
 

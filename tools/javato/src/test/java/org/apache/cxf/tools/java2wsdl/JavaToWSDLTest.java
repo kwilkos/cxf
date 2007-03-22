@@ -23,6 +23,10 @@ import org.apache.cxf.tools.common.ToolTestBase;
 
 public class JavaToWSDLTest extends ToolTestBase {
 
+    public void tearDown() {
+        super.tearDown();
+    }
+
     public void testVersionOutput() throws Exception {
         String[] args = new String[] {"-v"};
         JavaToWSDL.main(args);
@@ -35,8 +39,9 @@ public class JavaToWSDLTest extends ToolTestBase {
         assertNotNull(getStdOut());
     }
 
-    public void testNormalArgs() {
-        String[] args = new String[] {"-o", "./test.wsdl", "org.apache.hello_world_soap_http.Greeter"};
+    public void testNormalArgs() throws Exception {
+        System.err.println(getLocation("test.wsdl"));
+        String[] args = new String[] {"-o", getLocation("normal.wsdl"), "org.apache.hello_world_soap_http.Greeter"};
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
@@ -55,8 +60,8 @@ public class JavaToWSDLTest extends ToolTestBase {
 
     }
 
-    public void testNoOutPutFile() {
-        String[] args = new String[] {"org.apache.hello_world_soap_http.Greeter"};
+    public void testNoOutPutFile() throws Exception {
+        String[] args = new String[] {"-o", getLocation("nooutput.wsdl"), "org.apache.hello_world_soap_http.Greeter"};
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
