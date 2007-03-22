@@ -318,7 +318,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();      
     }
 
-	public void testWsdlNoService() throws Exception {      
+    public void testWsdlNoService() throws Exception {      
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_withnoservice.wsdl"));
         processor.setContext(env);
         processor.execute();
