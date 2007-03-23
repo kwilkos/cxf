@@ -288,18 +288,19 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
             throw (Exception)ex.getCause();
         }
     } 
-    
-    @Test
-    public void testHolderNotTheFirstMessagePart() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
-        assertNotNull(wsdl);
-        
-        SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
-        assertNotNull(service);
-        TestHeader proxy = service.getPort(portName, TestHeader.class);
-        Holder<SimpleAll> simpleAll = new Holder<SimpleAll>();
-        simpleAll.value = new SimpleAll();
-        proxy.sendReceiveAnyType(simpleAll, new SimpleChoice());    
-        
-    }
+
+  // REVIST: This is not a valid WSDL according to WSI-BP V1.0
+  //     @Test
+  //     public void testHolderNotTheFirstMessagePart() throws Exception {
+  //         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
+  //         assertNotNull(wsdl);
+  
+  //         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
+  //         assertNotNull(service);
+  //         TestHeader proxy = service.getPort(portName, TestHeader.class);
+  //         Holder<SimpleAll> simpleAll = new Holder<SimpleAll>();
+  //         simpleAll.value = new SimpleAll();
+  //         proxy.sendReceiveAnyType(simpleAll, new SimpleChoice());    
+  
+  //     }
 }

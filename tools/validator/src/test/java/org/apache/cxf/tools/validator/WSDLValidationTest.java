@@ -140,6 +140,18 @@ public class WSDLValidationTest extends ToolTestBase {
 
     }
 
+    public void testWSIBP2210() throws Exception {
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/soapheader.wsdl")};
+            WSDLValidator.main(args);
+            assertTrue(getStdErr().indexOf("WSI-BP-1.0 R2210") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     protected String getLocation(String wsdlFile) throws Exception {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);
         while (e.hasMoreElements()) {

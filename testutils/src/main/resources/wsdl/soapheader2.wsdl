@@ -104,41 +104,6 @@
         </operation>
     </portType>
 
-    <binding name="headerTesterSOAPBinding" type="tns:headerTester">
-        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
-        <operation name="inHeader">
-            <soap:operation soapAction="" style="document" />
-            <input name="inHeaderRequest">
-                <soap:body parts="me" use="literal" />
-                <soap:header message="tns:inHeaderRequest" part="header_info" use="literal" />
-            </input>
-            <output name="inHeaderResponse">
-                <soap:body use="literal" />
-            </output>
-        </operation>
-        <operation name="outHeader">
-            <soap:operation soapAction="" style="document" />
-            <input name="outHeaderRequest">
-                <soap:body use="literal" />
-            </input>
-            <output name="outHeaderResponse">
-                <soap:body parts="the_response" use="literal" />
-                <soap:header message="tns:outHeaderResponse" part="header_info" use="literal" />
-            </output>
-        </operation>
-        <operation name="inoutHeader">
-            <soap:operation soapAction="" style="document" />
-            <input name="inoutHeaderRequest">
-                <soap:body parts="me" use="literal" />
-                <soap:header message="tns:inoutHeaderRequest" part="header_info" use="literal" />
-            </input>
-            <output name="inoutHeaderResponse">
-                <soap:body parts="the_response" use="literal" />
-                <soap:header message="tns:inoutHeaderResponse" part="header_info" use="literal" />
-            </output>
-        </operation>
-    </binding>
-
     <wsdl:binding name="headerTesterXMLBinding" type="tns:headerTester">
         <xformat:binding />
         <wsdl:operation name="inHeader">

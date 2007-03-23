@@ -67,6 +67,108 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
     }
 
+    private boolean checkR2201Input(final Operation operation,
+                                    final BindingOperation bop,
+                                    final Binding binding) {
+        List<Part> partsList = wsdlHelper.getInMessageParts(operation);
+        int inmessagePartsCount = partsList.size();
+        SoapBody soapBody = SOAPBindingUtil.getBindingInputSOAPBody(bop);
+        if (soapBody != null) {
+            List parts = soapBody.getParts();
+            int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
+            SoapHeader soapHeader = SOAPBindingUtil.getBindingInputSOAPHeader(bop);
+            boundPartSize = soapHeader != null 
+                && soapHeader.getMessage().equals(
+                    operation.getInput().getMessage()
+                    .getQName())
+                ? boundPartSize - 1 : boundPartSize;
+            
+            if (parts != null) {
+                Iterator partsIte = parts.iterator();
+                while (partsIte.hasNext()) {
+                    String partName = (String)partsIte.next();
+                    boolean isDefined = false;
+                    for (Part part : partsList) {
+                        if (partName.equalsIgnoreCase(part.getName())) {
+                            isDefined = true;
+                            break;
+                        }
+                    }
+                    if (!isDefined) {
+                        addErrorMessage("Violate WSI-BP-1.0 R2201 operation '"
+                                        + operation.getName() + "' soapBody parts : "
+                                        + partName + " not found in the message, wrong WSDL");
+                        return false;
+                    }
+                }
+            } else {
+                if (partsList.size() > 1) {
+                    addErrorMessage("Violate WSI-BP-1.0 R2210:  operation '" + operation.getName()
+                                    + "' more than one part bound to body");
+                    return false;
+                }
+            }
+            
+            
+            if (boundPartSize > 1) {
+                addErrorMessage("Violate WSI-BP-1.0  R2201 operation '" + operation.getName()
+                                + "' more than one part bound to body");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean checkR2201Output(final Operation operation,
+                                     final BindingOperation bop,
+                                     final Binding binding) {
+        int outmessagePartsCount = wsdlHelper.getOutMessageParts(operation).size();
+        SoapBody soapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
+        if (soapBody != null) {
+            List parts = soapBody.getParts();
+            int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
+            SoapHeader soapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
+            boundPartSize = soapHeader != null 
+                && soapHeader.getMessage().equals(
+                    operation.getOutput().getMessage()
+                    .getQName())
+                ? boundPartSize - 1 : boundPartSize;
+            if (parts != null) {
+                Iterator partsIte = parts.iterator();
+                while (partsIte.hasNext()) {
+                    String partName = (String)partsIte.next();
+                    boolean isDefined = false;
+                    for (Part part : wsdlHelper.getOutMessageParts(operation)) {
+                        if (partName.equalsIgnoreCase(part.getName())) {
+                            isDefined = true;
+                            break;
+                        }
+                    }
+                    if (!isDefined) {
+                        addErrorMessage("Violate WSI-BP-1.0 R2201 operation '"
+                                        + operation.getName() + "' soapBody parts : "
+                                        + partName + " not found in the message, wrong WSDL");
+                        return false;
+                    }
+
+                }
+            } else {
+                if (wsdlHelper.getOutMessageParts(operation).size() > 1) {
+                    addErrorMessage("Violate WSI-BP-1.0 R2210:  operation '" + operation.getName()
+                                    + "' more than one part bound to body");
+                    return false;
+                }
+            }
+
+            if (boundPartSize > 1) {
+                addErrorMessage("Violate WSI-BP-1.0 R2201 operation '" + operation.getName()
+                                + "' more than one part bound to body");
+                return false;
+            }
+        }
+        return true;
+    }
+    
     public boolean checkR2201() {
         for (PortType portType : wsdlHelper.getPortTypes(def)) {
             Iterator ite = portType.getOperations().iterator();
@@ -83,82 +185,11 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                     ? bindingStyle : SOAPBindingUtil.getSOAPOperationStyle(bop);
 
                 if ("DOCUMENT".equalsIgnoreCase(style)) {
-                    List<Part> partsList = wsdlHelper.getInMessageParts(operation);
-                    int inmessagePartsCount = partsList.size();
-                    SoapBody soapBody = SOAPBindingUtil.getBindingInputSOAPBody(bop);
-                    if (soapBody != null) {
-                        List parts = soapBody.getParts();
-                        int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
-                        SoapHeader soapHeader = SOAPBindingUtil.getBindingInputSOAPHeader(bop);
-                        boundPartSize = soapHeader != null 
-                                        && soapHeader.getMessage().equals(
-                                                                          operation.getInput().getMessage()
-                                                                              .getQName())
-                            ? boundPartSize - 1 : boundPartSize;
-
-                        if (parts != null) {
-                            Iterator partsIte = parts.iterator();
-                            while (partsIte.hasNext()) {
-                                String partName = (String)partsIte.next();
-                                boolean isDefined = false;
-                                for (Part part : partsList) {
-                                    if (partName.equalsIgnoreCase(part.getName())) {
-                                        isDefined = true;
-                                        break;
-                                    }
-                                }
-                                if (!isDefined) {
-                                    addErrorMessage("operation: " + operation.getName() + " soapBody parts : "
-                                                    + partName + " not found in the message, wrong WSDL");
-                                    return false;
-                                }
-
-                            }
-                        }
-
-                        if (boundPartSize > 1) {
-                            addErrorMessage("operation:" + operation.getName()
-                                            + " more than one part bound to body");
-                            return false;
-                        }
+                    if (!checkR2201Input(operation, bop, binding)) {
+                        return false;
                     }
-
-                    int outmessagePartsCount = wsdlHelper.getOutMessageParts(operation).size();
-                    soapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
-                    if (soapBody != null) {
-                        List parts = soapBody.getParts();
-                        int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
-                        SoapHeader soapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
-                        boundPartSize = soapHeader != null 
-                                        && soapHeader.getMessage().equals(
-                                                                          operation.getOutput().getMessage()
-                                                                              .getQName())
-                            ? boundPartSize - 1 : boundPartSize;
-                        if (parts != null) {
-                            Iterator partsIte = parts.iterator();
-                            while (partsIte.hasNext()) {
-                                String partName = (String)partsIte.next();
-                                boolean isDefined = false;
-                                for (Part part : wsdlHelper.getOutMessageParts(operation)) {
-                                    if (partName.equalsIgnoreCase(part.getName())) {
-                                        isDefined = true;
-                                        break;
-                                    }
-                                }
-                                if (!isDefined) {
-                                    addErrorMessage("operation: " + operation.getName() + " soapBody parts : "
-                                                    + partName + " not found in the message, wrong WSDL");
-                                    return false;
-                                }
-
-                            }
-                        }
-
-                        if (boundPartSize > 1) {
-                            addErrorMessage("operation:" + operation.getName()
-                                            + " more than one part bound to body");
-                            return false;
-                        }
+                    if (!checkR2201Output(operation, bop, binding)) {
+                        return false;
                     }
                 }
             }
