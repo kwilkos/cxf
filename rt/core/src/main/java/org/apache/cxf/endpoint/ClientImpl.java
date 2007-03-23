@@ -89,18 +89,18 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     public ClientImpl(URL wsdlUrl) {
-        this(BusFactory.getDefaultBus(), wsdlUrl, null);
+        this(BusFactory.getDefaultBus(), wsdlUrl, null, null);
     }
     
     public ClientImpl(URL wsdlUrl, QName port) {
-        this(BusFactory.getDefaultBus(), wsdlUrl, port);
+        this(BusFactory.getDefaultBus(), wsdlUrl, null, port);
     }
     
-    public ClientImpl(Bus bus, URL wsdlUrl, QName port) {
+    public ClientImpl(Bus bus, URL wsdlUrl, QName service, QName port) {
         this.bus = bus;
         
-        WSDLServiceFactory sf = (port == null)
-            ? (new WSDLServiceFactory(bus, wsdlUrl)) : (new WSDLServiceFactory(bus, wsdlUrl, port));
+        WSDLServiceFactory sf = (service == null)
+            ? (new WSDLServiceFactory(bus, wsdlUrl)) : (new WSDLServiceFactory(bus, wsdlUrl, service));
         Service svc = sf.create();
     
         EndpointInfo epfo = findEndpoint(svc.getServiceInfo(), port);

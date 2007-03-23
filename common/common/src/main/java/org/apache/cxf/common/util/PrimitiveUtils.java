@@ -24,6 +24,35 @@ public final class PrimitiveUtils {
     private PrimitiveUtils() {
         
     }
+    
+    public static Class getClass(String value) {
+        Class clz = null;        
+        if ("int".equals(value)) {
+            clz = int.class;
+        }
+        if ("byte".equals(value)) {
+            clz = byte.class;
+        }
+        if ("short".equals(value)) {
+            clz = short.class;
+        }
+        if ("long".equals(value)) {
+            clz = long.class;
+        }
+        if ("float".equals(value)) {
+            clz = float.class;
+        }
+        if ("double".equals(value)) {
+            clz = double.class;
+        }
+        if ("boolean".equals(value)) {
+            clz = boolean.class;
+        }
+        if ("char".equals(value)) {
+            clz = char.class;
+        }
+        return clz;
+    }
 
     public static Object read(String value, Class type) {
         Object ret = value;

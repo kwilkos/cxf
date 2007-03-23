@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -52,6 +53,7 @@ import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.Service;
@@ -61,6 +63,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.DirSet;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 /**
@@ -129,18 +132,18 @@ public final class DynamicClientFactory {
         return createClient(wsdlUrl, null, classLoader, null);
     }
 
-    public Client createClient(String wsdlUrl, QName wsdlEndpoint) {
-        return createClient(wsdlUrl, wsdlEndpoint, null);
+    public Client createClient(String wsdlUrl, QName service) {
+        return createClient(wsdlUrl, service, null);
     }
 
-    public Client createClient(String wsdlUrl, QName wsdlEndpoint, QName port) {
-        return createClient(wsdlUrl, wsdlEndpoint, Thread.currentThread().getContextClassLoader(), port);
+    public Client createClient(String wsdlUrl, QName service, QName port) {
+        return createClient(wsdlUrl, service, Thread.currentThread().getContextClassLoader(), port);
     }
 
-    public Client createClient(String wsdlUrl, QName wsdlEndpoint, ClassLoader classLoader, QName port) {
+    public Client createClient(String wsdlUrl, QName service, ClassLoader classLoader, QName port) {
         URL u = composeUrl(wsdlUrl);
 
-        ClientImpl client = new ClientImpl(bus, u, port);
+        ClientImpl client = new ClientImpl(bus, u, service, port);
 
         Service svc = client.getEndpoint().getService();
         Collection<SchemaInfo> schemas = svc.getServiceInfo().getSchemas();
@@ -194,7 +197,7 @@ public final class DynamicClientFactory {
         if (!classes.mkdir()) {
             throw new IllegalStateException("Unable to create working directory " + src.getPath());
         }
-        src.deleteOnExit();
+              
 
         Project project = new Project();
         project.setBaseDir(new File(tmpdir));
@@ -202,6 +205,12 @@ public final class DynamicClientFactory {
         Javac javac = new Javac();
         javac.setProject(project);
 
+        Path classPath = new Path(project);
+        
+        setupClasspath(classPath, classLoader);
+        //TODO need to check the tools.jar in the ClassPath and Check for IBM JDK        
+        javac.setClasspath(classPath);
+        
         Path srcPath = new Path(project);
         DirSet dirSet = new DirSet();
         dirSet.setFile(src);
@@ -209,8 +218,11 @@ public final class DynamicClientFactory {
         javac.setSrcdir(srcPath);
         javac.setDestdir(classes);
         javac.setTarget("1.5");
+        //javac.setVerbose(true);        
         javac.execute();
-
+        
+        //delete the src dir
+        FileUtils.removeDir(src);
         URLClassLoader cl;
         try {
             cl = new URLClassLoader(new URL[] {classes.toURI().toURL()}, classLoader);
@@ -239,8 +251,42 @@ public final class DynamicClientFactory {
 
         TypeClassInitializer visitor = new TypeClassInitializer(svcfo, intermediateModel);
         visitor.walk();
-
+        // delete the classes files
+        FileUtils.removeDir(classes);
         return client;
+    }
+
+    static void setupClasspath(Path classPath, ClassLoader classLoader) {
+        ClassLoader scl = ClassLoader.getSystemClassLoader();        
+        ClassLoader tcl = classLoader;
+        do {
+            if (tcl instanceof URLClassLoader) {
+                URL[] urls = ((URLClassLoader)tcl).getURLs();
+                for (URL url : urls) {
+                    if (url.getProtocol().startsWith("file")) {
+                        try {
+                            File file = new File(url.toURI().getPath());
+                            if (file.isDirectory()) {
+                                DirSet ds = new DirSet();
+                                ds.setFile(file);
+                                classPath.addDirset(ds);
+                            } else {
+                                FileSet fs = new FileSet();
+                                fs.setFile(file);
+                                classPath.addFileset(fs);
+                            }
+                        } catch (URISyntaxException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } 
+                    }
+                }
+            }
+            tcl = tcl.getParent();
+            if (null == tcl) {
+                break;
+            }
+        } while(!tcl.equals(scl));
     }
 
     private URL composeUrl(String s) {

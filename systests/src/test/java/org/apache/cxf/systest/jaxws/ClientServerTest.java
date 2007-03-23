@@ -23,6 +23,7 @@ package org.apache.cxf.systest.jaxws;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -44,6 +45,8 @@ import org.w3c.dom.Node;
 
 //import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
 //import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
@@ -699,6 +702,32 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         assertNotNull("no response received from service", reply);
         assertEquals("Bonjour", reply);
                                    
+    }
+    
+    @Test
+    public void testDynamicClientFactory()  {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        String wsdlUrl = null;
+        try {
+            wsdlUrl = wsdl.toURI().toString();
+        } catch (URISyntaxException e) {
+            fail("Can't get the hello_world.wsdl url");
+            e.printStackTrace();
+        }
+        try {
+            //TODO test fault exceptions 
+            DynamicClientFactory dcf = DynamicClientFactory.newInstance();
+            Client client = dcf.createClient(wsdlUrl, serviceName, portName);
+            client.invoke("greetMe", "test");        
+            Object[] result = client.invoke("sayHi");
+            assertNotNull("no response received from service", result);
+            assertEquals("Bonjour", result[0]);
+        } catch (Exception e) {
+            fail("There is some excpetion happened ");
+            e.printStackTrace();
+        }    
+        
     }
 
     

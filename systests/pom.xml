@@ -195,6 +195,20 @@
         </dependency>
 
         <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    	<dependency>
+      	   <groupId>sun.jdk</groupId>
+      	   <artifactId>tools</artifactId>
+      	   <version>1.5.0</version>
+           <scope>system</scope>
+           <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency>
+
+        <dependency>
             <groupId>rhino</groupId>
             <artifactId>js</artifactId>
             <version>1.6R5</version>

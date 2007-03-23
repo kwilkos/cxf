@@ -22,12 +22,14 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Mapping;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.TypeAndAnnotation;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -59,26 +61,34 @@ public class TypeClassInitializer extends ServiceModelVisitor {
         }
         Mapping mapping = model.get(name);
         
-        String clsName = null;
+        //String clsName = null;
+        JType jType = null;
         if (mapping != null) {
-            clsName = mapping.getType().getTypeClass().fullName();
+            
+            jType = mapping.getType().getTypeClass();              
+            
         }
         
-        if (clsName == null) {
-            TypeAndAnnotation javaType = model.getJavaType(part.getTypeQName());
-            
-            if (javaType != null) {
-                clsName = javaType.getTypeClass().fullName();
+        if (jType == null) {
+            TypeAndAnnotation typeAndAnnotation = model.getJavaType(part.getTypeQName());           
+            if (typeAndAnnotation != null) {                
+                jType = typeAndAnnotation.getTypeClass();
             }
         }
         
-        if (clsName == null) {
+        if (jType == null) {
             throw new ServiceConstructionException(new Message("NO_JAXB_CLASS", LOG, name));
         }
             
         Class cls;
+        
+        //JClass jclass;
         try {
-            cls = ClassLoaderUtils.loadClass(clsName, getClass());
+            if (!jType.isPrimitive()) {
+                cls = ClassLoaderUtils.loadClass(jType.fullName(), getClass());
+            } else {
+                cls = PrimitiveUtils.getClass(jType.fullName());
+            }
         } catch (ClassNotFoundException e) {
             throw new ServiceConstructionException(e);
         }
