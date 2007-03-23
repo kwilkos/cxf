@@ -137,6 +137,23 @@ public final class StaxUtils {
         }
     }
 
+    public static boolean toNextTag(DepthXMLStreamReader reader, QName endTag) {
+        try {
+            int depth = reader.getDepth();
+            int event = reader.getEventType();
+            while (reader.getDepth() >= depth && reader.hasNext()) {
+                if (event == XMLStreamReader.START_ELEMENT && reader.getName().equals(endTag) 
+                    && reader.getDepth() == depth + 1) {
+                    return true;
+                }
+                event = reader.next();
+            }
+            return false;
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Couldn't parse stream.", e);
+        }
+    }    
+    
     public static void writeStartElement(XMLStreamWriter writer, String prefix, String name, String namespace)
         throws XMLStreamException {
         if (prefix == null) {

@@ -19,6 +19,7 @@
 package org.apache.cxf.endpoint;
 
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.MessageObserver;
 
 public class DummyServer implements Server {
     private ServerRegistryImpl serverRegistry;
@@ -45,5 +46,8 @@ public class DummyServer implements Server {
         serverRegistry.unregister(this);
         
     }
-
+    
+    public MessageObserver getMessageObserver() {
+        return null;
+    }
 }

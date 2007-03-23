@@ -21,6 +21,7 @@ package org.apache.cxf.staxutils;
 
 import java.io.*;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -59,6 +60,16 @@ public class StaxUtilsTest extends Assert {
         assertTrue(StaxUtils.toNextElement(reader));
         assertEquals("Body", reader.getLocalName());
     }
+    
+    @Test
+    public void testToNextTag() throws Exception {
+        String soapMessage = "./resources/headerSoapReq.xml";
+        XMLStreamReader r = StaxUtils.createXMLStreamReader(getTestStream(soapMessage));
+        DepthXMLStreamReader reader = new DepthXMLStreamReader(r);
+        reader.nextTag();
+        StaxUtils.toNextTag(reader, new QName("http://schemas.xmlsoap.org/soap/envelope/", "Body"));
+        assertEquals("Body", reader.getLocalName());
+    }   
     
     @Test
     public void testCopy() throws Exception {

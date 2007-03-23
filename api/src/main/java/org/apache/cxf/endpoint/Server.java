@@ -20,6 +20,7 @@
 package org.apache.cxf.endpoint;
 
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.MessageObserver;
 
 public interface Server  {
 
@@ -30,5 +31,7 @@ public interface Server  {
     Destination getDestination();
     
     Endpoint getEndpoint();
+    
+    MessageObserver getMessageObserver();
         
 }
