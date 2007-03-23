@@ -46,4 +46,24 @@ public class InterfaceMapperTest extends TestCase {
         assertEquals("org.apache.hello_world_soap_http", intf.getPackageName());
         assertEquals("http://localhost/?wsdl", intf.getLocation());
     }
+    
+    public void testMapWithUniqueWsdlLoc() throws Exception {
+        InterfaceInfo interfaceInfo = new InterfaceInfo(new ServiceInfo(),
+                                                        new QName("http://apache.org/hello_world_soap_http",
+                                                                  "interfaceTest"));
+
+        ToolContext context = new ToolContext();
+        context.put(ToolConstants.CFG_WSDLURL, "http://localhost/?wsdl");
+        context.put(ToolConstants.CFG_WSDLLOCATION, "/foo/blah.wsdl");
+        
+        JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
+        assertNotNull(intf);
+
+        assertEquals("interfaceTest", intf.getWebServiceName());
+        assertEquals("InterfaceTest", intf.getName());
+        assertEquals("http://apache.org/hello_world_soap_http", intf.getNamespace());
+        assertEquals("org.apache.hello_world_soap_http", intf.getPackageName());
+        assertEquals("/foo/blah.wsdl", intf.getLocation());
+    }
+
 }

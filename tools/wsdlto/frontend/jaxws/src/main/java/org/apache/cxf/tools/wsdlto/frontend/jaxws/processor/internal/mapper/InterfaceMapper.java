@@ -38,7 +38,11 @@ public final class InterfaceMapper {
         String namespace = interfaceInfo.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
         
-        String loc = (String)context.get(ToolConstants.CFG_WSDLURL);
+        String loc = (String)context.get(ToolConstants.CFG_WSDLLOCATION);
+        if (loc == null) {
+            loc = (String)context.get(ToolConstants.CFG_WSDLURL);
+        }
+        
         String webServiceName = interfaceInfo.getName().getLocalPart();
 
         intf.setWebServiceName(webServiceName);
