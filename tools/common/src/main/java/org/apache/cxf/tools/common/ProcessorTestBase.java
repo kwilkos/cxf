@@ -46,13 +46,14 @@ public class ProcessorTestBase extends TestCase {
         env = null;
     }
 
-    protected String getClassPath() {
+    protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlLoader = (URLClassLoader)loader;
             for (URL url : urlLoader.getURLs()) {               
-                File file = new File(url.getFile());
+                File file;
+                file = new File(url.toURI());
                 String filename = file.getAbsolutePath();                
                 if (filename.indexOf("junit") == -1) {
                     classPath.append(filename);
