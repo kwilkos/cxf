@@ -415,4 +415,21 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
             fail("Should not happen other exception " + e.getMessage());
         }
     }
+    
+    public void testCXF188() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/cxf188.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf188.Demo");
+        j2wProcessor.setEnvironment(env);
+        j2wProcessor.process();
+
+        File wsdlFile = new File(output, "cxf188.wsdl");
+        assertTrue("Fail to generate wsdl file", wsdlFile.exists());
+
+        env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_WSDLURL, output.getCanonicalPath() + "/cxf188.wsdl");
+        wj2Processor.setContext(env);
+        wj2Processor.execute();
+    }
 }
