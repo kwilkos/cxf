@@ -35,9 +35,7 @@ public class ServiceValidator extends AbstractValidator {
     }
     
     public boolean isValid() throws ToolException {
-        System.err.println("==== servicevalidator");
         for (AbstractValidator validator : validators) {
-            System.err.println("validator: " + validator.getClass());
             if (!validator.isValid()) {
                 addErrorMessage(validator.getErrorMessage());
                 throw new ToolException(this.getErrorMessage());

@@ -52,8 +52,6 @@ import org.apache.header_test.types.TestHeader5;
 import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
-import org.apache.tests.type_test.all.SimpleAll;
-import org.apache.tests.type_test.choice.SimpleChoice;
 import org.junit.Before;
 import org.junit.Test;
 
