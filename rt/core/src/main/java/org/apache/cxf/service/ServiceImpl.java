@@ -31,6 +31,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.workqueue.SynchronousExecutor;
 
 public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service, Configurable {
     private ServiceInfo serviceInfo;
@@ -41,11 +42,12 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     private boolean enableSchemaValidationForAllPort;
     
     public ServiceImpl() {
-        
+        this(null);
     }
     
     public ServiceImpl(ServiceInfo si) {
         serviceInfo = si;
+        executor = SynchronousExecutor.getInstance();    
     }
     
     public String getBeanName() {

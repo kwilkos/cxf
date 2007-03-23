@@ -35,6 +35,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
@@ -71,42 +72,13 @@ public class Proxy {
         
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getSequenceAckOperationName());
-
-        /*
-        Map<String, Object> requestContext = new HashMap<String, Object>();
-        AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-        maps.setTo(VersionTransformer.convert(ds.getAcksTo()).getAddress()); 
-        
-        if (null != reliableEndpoint.getTransportDestination()) {
-            maps.setReplyTo(reliableEndpoint.getTransportDestination().getAddress());
-        } else {
-            maps.setReplyTo(RMUtils.createNoneReference());
-        }
-        requestContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, maps);
-        Map<String, Object> context = CastUtils.cast(
-            Collections.singletonMap(Client.REQUEST_CONTEXT, requestContext),
-            String.class,  Object.class);
-        */
         invoke(oi, new Object[] {}, null);
     }
     
     void terminate(SourceSequence ss) throws IOException {
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getTerminateSequenceOperationName());
-        /*
-        Map<String, Object> requestContext = new HashMap<String, Object>();
-        AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-        maps.setTo(ss.getTarget().getAddress());
-        if (null != reliableEndpoint.getTransportDestination()) {
-            maps.setReplyTo(reliableEndpoint.getTransportDestination().getAddress());
-        } else {
-            maps.setReplyTo(RMUtils.createNoneReference());
-        }
-        requestContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, maps);
-        Map<String, Object> context = CastUtils.cast(
-            Collections.singletonMap(Client.REQUEST_CONTEXT, requestContext),
-            String.class,  Object.class);
-        */
+        
         TerminateSequenceType ts = RMUtils.getWSRMFactory().createTerminateSequenceType();
         ts.setIdentifier(ss.getIdentifier());
         invoke(oi, new Object[] {ts}, null);
@@ -118,21 +90,12 @@ public class Proxy {
             .getOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
         
         // TODO: need to set relatesTo
-        
-        Runnable r = new Runnable() {
-            public void run() {
-                Proxy.this.invoke(oi, new Object[] {createResponse}, null);
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
-        
-        // invoke(oi, new Object[] {createResponse}, null);
+
+        invoke(oi, new Object[] {createResponse}, null);
        
     }
 
     public CreateSequenceResponseType createSequence(
-                        org.apache.cxf.ws.addressing.EndpointReferenceType to, 
                         EndpointReferenceType defaultAcksTo,
                         RelatesToType relatesTo,
                         boolean isServer) throws IOException {
@@ -178,14 +141,13 @@ public class Proxy {
         // tried using separate thread - did not help either
         
         if (isServer) {
+            LOG.fine("sending CreateSequenceRequest from server side");
             Runnable r = new Runnable() {
                 public void run() {
                     invoke(oi, new Object[] {create}, null);
                 }
             };
-            // reliableEndpoint.getApplicationEndpoint().getService().getExecutor().execute(r);
-            Thread t = new Thread(r);
-            t.start();
+            reliableEndpoint.getApplicationEndpoint().getExecutor().execute(r);
             return null;
         }
         
@@ -208,25 +170,24 @@ public class Proxy {
     }
        
     Object invoke(OperationInfo oi, Object[] params, Map<String, Object> context) {
-        LOG.log(Level.INFO, "Invoking out-of-band RM protocol message {0} on thread "
-                + Thread.currentThread(), 
-                oi == null ? null : oi.getName());
         
-        // assuming we are on the client side
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(Level.INFO, "Invoking out-of-band RM protocol message {0} on thread "
+                    + Thread.currentThread(), 
+                    oi == null ? null : oi.getName());
+        }
         
         RMManager manager = reliableEndpoint.getManager();
         Bus bus = manager.getBus();
         Endpoint endpoint = reliableEndpoint.getEndpoint();
         BindingInfo bi = reliableEndpoint.getBindingInfo();
-        
-        Client client = new RMClient(bus, endpoint, reliableEndpoint.getConduit(),
-            reliableEndpoint.getReplyTo());
+        Conduit c = reliableEndpoint.getConduit();
+        org.apache.cxf.ws.addressing.EndpointReferenceType replyTo = reliableEndpoint.getReplyTo();
+        Client client = createClient(bus, endpoint, c, replyTo);
         
         BindingOperationInfo boi = bi.getOperation(oi);
         try {
-            LOG.fine("invoking on client");
             Object[] result = client.invoke(boi, params, context);
-            LOG.fine("Returned from client invocation");
             if (result != null && result.length > 0) {
                 return result[0];
             }
@@ -235,6 +196,11 @@ public class Proxy {
             ex.printStackTrace();
         }
         return null;
+    }
+    
+    protected Client createClient(Bus bus, Endpoint endpoint, Conduit conduit,
+                                  org.apache.cxf.ws.addressing.EndpointReferenceType address) {
+        return new RMClient(bus, endpoint, conduit, address);
     }
     
     class RMClient extends ClientImpl {
@@ -257,17 +223,24 @@ public class Proxy {
         @Override
         public Conduit getConduit() {
             Conduit conduit = null;
-            String originalAddress = endpoint.getEndpointInfo().getAddress();
+            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+            String originalAddress = endpointInfo.getAddress();
             try {
                 if (null != address) {
-                    endpoint.getEndpointInfo().setAddress(address.getAddress().getValue());
+                    endpointInfo.setAddress(address.getAddress().getValue());
                 }
                 conduit = super.getConduit();
             } finally {
-                endpoint.getEndpointInfo().setAddress(originalAddress);
+                endpointInfo.setAddress(originalAddress);
             }
             return conduit;
         }
+    }
+    
+    // for test
+    
+    void setReliableEndpoint(RMEndpoint rme) {
+        reliableEndpoint = rme;
     }
     
 

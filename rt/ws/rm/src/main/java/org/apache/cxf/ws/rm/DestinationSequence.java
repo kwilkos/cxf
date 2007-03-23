@@ -54,7 +54,7 @@ public class DestinationSequence extends AbstractSequence {
     
     public DestinationSequence(Identifier i, EndpointReferenceType a, Destination d) {
         this(i, a, null, null);
-        setDestination(d);
+        destination = d;
     }
     
     public DestinationSequence(Identifier i, EndpointReferenceType a,
@@ -177,7 +177,7 @@ public class DestinationSequence extends AbstractSequence {
         }
     }
     
-    final void setDestination(Destination d) {
+    void setDestination(Destination d) {
         destination = d;
     }
     

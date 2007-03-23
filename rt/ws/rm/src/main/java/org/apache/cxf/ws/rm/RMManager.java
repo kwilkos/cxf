@@ -101,7 +101,7 @@ public class RMManager extends RMManagerConfigBean {
     }
     
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
-        Endpoint endpoint = RMContextUtils.getEndpoint(message);
+        Endpoint endpoint = message.getExchange().get(Endpoint.class);
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Getting RMEndpoint for endpoint with info: " + endpoint.getEndpointInfo().getName());
         }
@@ -186,7 +186,7 @@ public class RMManager extends RMManagerConfigBean {
 
                 Proxy proxy = source.getReliableEndpoint().getProxy();
                 CreateSequenceResponseType createResponse = 
-                    proxy.createSequence(to, acksTo, relatesTo, isServer);
+                    proxy.createSequence(acksTo, relatesTo, isServer);
                 if (!isServer) {
                     Servant servant = source.getReliableEndpoint().getServant();
                     servant.createSequenceResponse(createResponse);

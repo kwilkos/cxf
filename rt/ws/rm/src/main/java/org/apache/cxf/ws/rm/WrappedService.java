@@ -53,6 +53,10 @@ public class WrappedService implements Service {
         serviceInfo = info;
     }
     
+    public Service getWrappedService() {
+        return wrappedService;
+    }
+    
     public DataBinding getDataBinding() {
         return dataBinding;
     }

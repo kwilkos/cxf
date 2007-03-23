@@ -32,6 +32,9 @@ import org.apache.cxf.ws.rm.manager.SequenceTerminationPolicyType;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SourceSequenceTest extends TestCase {
 
@@ -45,6 +48,7 @@ public class SourceSequenceTest extends TestCase {
     private SequenceTerminationPolicyType stp;
     private RetransmissionQueue rq;
   
+    @Before
     public void setUp() {        
         factory = new ObjectFactory();
         id = factory.createIdentifier();
@@ -53,6 +57,7 @@ public class SourceSequenceTest extends TestCase {
         control = EasyMock.createNiceControl();
     }
     
+    @After
     public void tearDown() {
         source = null;
         manager = null;
@@ -79,7 +84,7 @@ public class SourceSequenceTest extends TestCase {
         EasyMock.expect(manager.getSourcePolicy()).andReturn(sp).anyTimes();
     }
     
-
+    @Test
     public void testConstructors() {
 
         Identifier otherId = factory.createIdentifier();
@@ -114,6 +119,7 @@ public class SourceSequenceTest extends TestCase {
         assertFalse(seq.offeredBy(id));
     }
     
+    @Test
     public void testSetExpires() {
         SourceSequence seq = new SourceSequence(id);
         
@@ -142,6 +148,7 @@ public class SourceSequenceTest extends TestCase {
         assertTrue(seq.isExpired());   
     }
 
+    @Test
     public void testEqualsAndHashCode() {
         SourceSequence seq = new SourceSequence(id);
         SourceSequence otherSeq = null;
@@ -157,7 +164,7 @@ public class SourceSequenceTest extends TestCase {
         assertTrue(!seq.equals(this));
     }
     
-
+    @Test
     public void testSetAcknowledged() {
         SourceSequence seq = new SourceSequence(id);
         setUpSource();
@@ -190,6 +197,7 @@ public class SourceSequenceTest extends TestCase {
         control.verify();
     } 
 
+    @Test
     public void testAllAcknowledged() throws SequenceFault {
         
         SourceSequence seq = new SourceSequence(id, null, null, new BigInteger("4"), false);        
@@ -216,6 +224,7 @@ public class SourceSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testNextMessageNumber() {     
         SourceSequence seq = null;        
         setUpSource();
@@ -270,6 +279,7 @@ public class SourceSequenceTest extends TestCase {
         // termination policy max unacknowledged 
     }
     
+    @Test
     public void testGetEndpointIdentfier() {
         setUpSource();
         QName qn = new QName("abc", "xyz");
@@ -282,6 +292,7 @@ public class SourceSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testCheckOfferingSequenceClosed() {
         SourceSequence seq = null;
         

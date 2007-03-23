@@ -19,9 +19,11 @@
 package org.apache.cxf.ws.rm;
 
 import junit.framework.TestCase;
+import org.junit.Test;
 
 public class AbstractSequenceTest extends TestCase {
 
+    @Test
     public void testIdentifierEquals() {
         Identifier id1 = null;
         Identifier id2 = null;   

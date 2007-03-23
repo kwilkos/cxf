@@ -115,6 +115,7 @@ public class Destination extends AbstractEndpoint {
                         getReliableEndpoint().getProxy().acknowledge(seq);
                     } catch (IOException ex) {
                         LogUtils.log(LOG, Level.SEVERE, "SEQ_ACK_SEND_EXC", ex, seq);
+                        // TODO
                     }
                 }
             }

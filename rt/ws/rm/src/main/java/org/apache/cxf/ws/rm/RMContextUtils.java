@@ -21,7 +21,6 @@ package org.apache.cxf.ws.rm;
 
 import java.util.List;
 
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -173,9 +172,9 @@ public final class RMContextUtils {
      *            requestor
      * @param handler true if HANDLER scope, APPLICATION scope otherwise
      */
-    public static void storeMAPs(AddressingProperties maps, Message message, boolean isProviderContext,
-                                 boolean isOutbound) {
-        org.apache.cxf.ws.addressing.ContextUtils.storeMAPs(maps, message, isProviderContext, isOutbound);
+    public static void storeMAPs(AddressingProperties maps, Message message, boolean isOutbound,
+                                 boolean isRequestor) {
+        org.apache.cxf.ws.addressing.ContextUtils.storeMAPs(maps, message, isOutbound, isRequestor);
     }
 
     /**
@@ -185,18 +184,6 @@ public final class RMContextUtils {
      */
     public static void ensureExposedVersion(AddressingProperties maps) {
         ((AddressingPropertiesImpl)maps).exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
-    }
-
-    /**
-     * Returns the endpoint of this message, i.e. the client endpoint if the
-     * current messaging role is that of requestor, or the server endpoint
-     * otherwise.
-     * 
-     * @param message the current Message
-     * @return the endpoint
-     */
-    public static Endpoint getEndpoint(Message message) {
-        return message.getExchange().get(Endpoint.class);
     }
 
     private static String getRMPropertiesKey(boolean outbound) {

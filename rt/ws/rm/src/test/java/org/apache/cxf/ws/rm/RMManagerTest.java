@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.TimerTask;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -43,15 +42,20 @@ import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class RMManagerTest extends TestCase {
     
     private IMocksControl control;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
     }
    
+    @Test
     public void testAccessors() {
         RMManager manager = new RMManager();
         assertNull(manager.getStore());
@@ -70,6 +74,7 @@ public class RMManagerTest extends TestCase {
         
     }
     
+    @Test
     public void testInitialisation() {
         RMManager manager = new RMManager();
         assertTrue("RMAssertion is set.", !manager.isSetRMAssertion());
@@ -103,6 +108,8 @@ public class RMManagerTest extends TestCase {
    
     }   
     
+    @Ignore
+    @Test
     public void xtestGetReliableEndpoint() {
         
         RMManager manager = new RMManager();
@@ -122,6 +129,7 @@ public class RMManagerTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testGetDestination() throws NoSuchMethodException {
         Method  m = RMManager.class
             .getDeclaredMethod("getReliableEndpoint", new Class[] {Message.class});        
@@ -142,7 +150,8 @@ public class RMManagerTest extends TestCase {
         assertNull(manager.getDestination(message));
         control.verify();        
     }
-        
+    
+    @Test
     public void testGetSource() throws NoSuchMethodException {
         Method m = RMManager.class
             .getDeclaredMethod("getReliableEndpoint", new Class[] {Message.class});
@@ -163,7 +172,8 @@ public class RMManagerTest extends TestCase {
         assertNull(manager.getSource(message));
         control.verify();
     }
-        
+     
+    @Test
     public void testGetExistingSequence() throws NoSuchMethodException, SequenceFault {
         Method m = RMManager.class
            .getDeclaredMethod("getSource", new Class[] {Message.class});
@@ -180,6 +190,7 @@ public class RMManagerTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testGetNewSequence() throws NoSuchMethodException, SequenceFault, IOException {
         Method m = RMManager.class.getDeclaredMethod("getSource", new Class[] {Message.class});
         RMManager manager = control.createMock(RMManager.class, new Method[] {m});
@@ -207,8 +218,7 @@ public class RMManagerTest extends TestCase {
         Proxy proxy = control.createMock(Proxy.class);
         EasyMock.expect(rme.getProxy()).andReturn(proxy);
         CreateSequenceResponseType createResponse = control.createMock(CreateSequenceResponseType.class);
-        proxy.createSequence(EasyMock.isA(EndpointReferenceType.class),
-                             EasyMock.isA(org.apache.cxf.ws.addressing.v200408.EndpointReferenceType.class),
+        proxy.createSequence(EasyMock.isA(org.apache.cxf.ws.addressing.v200408.EndpointReferenceType.class),
                              (RelatesToType)EasyMock.isNull(),
                              EasyMock.eq(false));
         EasyMock.expectLastCall().andReturn(createResponse);
@@ -226,6 +236,7 @@ public class RMManagerTest extends TestCase {
         control.verify();
     }
 
+    @Test
     public void testShutdown() {
 
         Bus bus = new SpringBusFactory().createBus("org/apache/cxf/ws/rm/rmmanager.xml", false);

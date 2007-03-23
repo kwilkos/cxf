@@ -21,13 +21,10 @@ package org.apache.cxf.ws.rm;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.MAPAggregator;
@@ -40,21 +37,12 @@ import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 public class RMOutInterceptor extends AbstractRMInterceptor {
     
     private static final Logger LOG = LogUtils.getL7dLogger(RMOutInterceptor.class);
-    private Set<String> after = Collections.singleton(MAPAggregator.class.getName());
-    
-    public Set<String> getAfter() {
-        return after;
+ 
+    public RMOutInterceptor() {
+        addAfter(MAPAggregator.class.getName());
     }
     
-    public Set<String> getBefore() {
-        return CastUtils.cast(Collections.EMPTY_SET);
-    }
-
-    public String getId() {
-        return RMOutInterceptor.class.getName();
-    }
-    
-    void handleMessage(Message message, boolean isFault) throws SequenceFault {
+    protected void handle(Message message) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleMessage");
        
         AddressingProperties maps =

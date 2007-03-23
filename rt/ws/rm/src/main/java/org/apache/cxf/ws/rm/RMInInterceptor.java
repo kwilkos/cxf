@@ -20,14 +20,10 @@
 package org.apache.cxf.ws.rm;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.MAPAggregator;
@@ -38,26 +34,17 @@ import org.apache.cxf.ws.addressing.MAPAggregator;
 public class RMInInterceptor extends AbstractRMInterceptor {
     
     private static final Logger LOG = LogUtils.getL7dLogger(RMInInterceptor.class);
-    private Set<String> before = Collections.singleton(MAPAggregator.class.getName());
-    
-    public Set<String> getBefore() {
-        return before;
+  
+    public RMInInterceptor() {
+        addBefore(MAPAggregator.class.getName());
     }
-
-    public Set<String> getAfter() {
-        return CastUtils.cast(Collections.EMPTY_SET);
-    }
-
-    public String getId() {
-        return RMInInterceptor.class.getName();
-    }
-    
-    void handleMessage(Message message, boolean isFault) throws SequenceFault {
+   
+    protected void handle(Message message) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleMessage");
         
         RMProperties rmps = RMContextUtils.retrieveRMProperties(message, false);
         
-        message.getExchange().put(Bus.class, getBus());
+        // message.getExchange().put(Bus.class, getBus());
         
         final AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
         assert null != maps;
@@ -85,28 +72,6 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         LOG.fine("isServerSide: " + isServer);
         boolean isApplicationMessage = RMContextUtils.isAplicationMessage(action);       
         LOG.fine("isApplicationMessage: " + isApplicationMessage);
-        
-        /*
-        if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
-            LOG.fine("Processing inbound CreateSequence on client side.");
-            RMEndpoint rme = getManager().getReliableEndpoint(message);
-            Servant servant = rme.getServant();
-            CreateSequenceResponseType csr = servant.createSequence(message);
-            Proxy proxy = rme.getProxy();
-            proxy.createSequenceResponse(csr);
-            return;
-        }
-
-
-        if (RMConstants.getCreateSequenceAction().equals(action)
-            || RMConstants.getCreateSequenceResponseAction().equals(action)
-            || RMConstants.getTerminateSequenceAction().equals(action)) {
-            return;
-        } else if (RMConstants.getSequenceAckAction().equals(action)) {
-            processAcknowledgments(rmps);
-            return;
-        }
-        */
         
         // for application AND out of band messages
         

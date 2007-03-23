@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -40,15 +39,19 @@ import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RMOutInterceptorTest extends TestCase {
     
     private IMocksControl control;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
     }
     
+    @Test
     public void testOrdering() {
         Phase p = new Phase(Phase.PRE_LOGICAL, 1);
         PhaseInterceptorChain chain = 
@@ -62,6 +65,7 @@ public class RMOutInterceptorTest extends TestCase {
         assertSame("Unexpected order.", rmi, it.next());                      
     } 
     
+    @Test
     public void testHandleApplicationMessage() throws NoSuchMethodException, SequenceFault {
         AddressingPropertiesImpl maps = createMAPs("greetMe", "localhost:9000/GreeterPort", 
             org.apache.cxf.ws.addressing.Names.WSA_NONE_ADDRESS);
@@ -114,7 +118,7 @@ public class RMOutInterceptorTest extends TestCase {
 
         
         control.replay();
-        interceptor.handleMessage(message, false);
+        interceptor.handle(message);
         assertSame(sid, rmpsOut.getSequence().getIdentifier());        
         assertEquals(BigInteger.TEN, rmpsOut.getSequence().getMessageNumber());
         assertNull(rmpsOut.getSequence().getLastMessage());

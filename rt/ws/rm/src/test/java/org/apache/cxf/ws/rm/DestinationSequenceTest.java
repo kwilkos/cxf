@@ -39,6 +39,9 @@ import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DestinationSequenceTest extends TestCase {
 
@@ -52,6 +55,7 @@ public class DestinationSequenceTest extends TestCase {
     private AcksPolicyType ap;
     private DestinationPolicyType dp;
  
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
         factory = new ObjectFactory();
@@ -60,6 +64,7 @@ public class DestinationSequenceTest extends TestCase {
         id.setValue("seq");
     }
     
+    @After
     public void tearDown() {
         ref = null;
         destination = null;
@@ -70,6 +75,7 @@ public class DestinationSequenceTest extends TestCase {
         
     }
 
+    @Test
     public void testConstructors() {
   
         Identifier otherId = factory.createIdentifier();
@@ -92,6 +98,7 @@ public class DestinationSequenceTest extends TestCase {
 
     }
     
+    @Test
     public void testEqualsAndHashCode() {     
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
@@ -108,6 +115,7 @@ public class DestinationSequenceTest extends TestCase {
         assertTrue(!seq.equals(this));
     }
     
+    @Test
     public void testGetSetDestination() {
         control.replay();
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
@@ -115,6 +123,7 @@ public class DestinationSequenceTest extends TestCase {
         assertSame(destination, seq.getDestination());
     }
     
+    @Test
     public void testGetEndpointIdentifier() {
         setUpDestination();
         QName qn = new QName("abc", "xyz");
@@ -126,6 +135,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAcknowledgeBasic() throws SequenceFault {
         setUpDestination();
         Message message1 = setUpMessage("1");
@@ -151,6 +161,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAcknowledgeLastMessageNumberExceeded() throws SequenceFault {  
         setUpDestination();
         Message message1 = setUpMessage("1");
@@ -171,6 +182,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAcknowledgeAppendRange() throws SequenceFault {
         setUpDestination();
         Message[] messages = new Message [] {
@@ -199,6 +211,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAcknowledgeInsertRange() throws SequenceFault {
         setUpDestination();
         Message[] messages = new Message [] {
@@ -232,6 +245,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAcknowledgePrependRange() throws SequenceFault { 
         setUpDestination();
         Message[] messages = new Message [] {
@@ -260,6 +274,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testMerge() {
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
@@ -303,6 +318,7 @@ public class DestinationSequenceTest extends TestCase {
         assertEquals(new BigInteger("15"), r.getUpper());        
     }
     
+    @Test
     public void testMonitor() throws SequenceFault {
         setUpDestination();
         Message[] messages = new Message[15];
@@ -344,7 +360,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
-
+    @Test
     public void testAcknowledgeImmediate() throws SequenceFault {
         setUpDestination();
         Message message = setUpMessage("1");
@@ -362,6 +378,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAcknowledgeDeferred() throws SequenceFault, IOException {
         Timer timer = new Timer();
         setUpDestination(timer);
@@ -407,6 +424,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testCorrelationID() {
         setUpDestination();
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
@@ -418,6 +436,7 @@ public class DestinationSequenceTest extends TestCase {
                      seq.getCorrelationID());
     }
     
+    @Test
     public void testApplyDeliveryAssuranceAtMostOnce() {
         setUpDestination();
         
@@ -450,6 +469,7 @@ public class DestinationSequenceTest extends TestCase {
 
     }
     
+    @Test
     public void testInOrderNoWait() {
         setUpDestination();
 
@@ -477,6 +497,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testInOrderWait() {
         setUpDestination();
         Message[] messages = new Message[5];
@@ -545,6 +566,7 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testAllPredecessorsAcknowledged() {
 
         SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);

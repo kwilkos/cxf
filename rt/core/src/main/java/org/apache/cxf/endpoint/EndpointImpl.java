@@ -97,7 +97,7 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     }
 
     public Executor getExecutor() {
-        return executor;
+        return executor == null ? service.getExecutor() : executor;
     }
 
     public void setExecutor(Executor e) {

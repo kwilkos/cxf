@@ -27,8 +27,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 
@@ -39,11 +39,15 @@ import org.apache.cxf.ws.policy.AssertionInfoMap;
  * The same interceptor can be used on multiple endpoints.
  *
  */
-public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message> {
+public abstract class AbstractRMInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractRMInterceptor.class);      
     private RMManager manager;
     private Bus bus;
+    
+    protected AbstractRMInterceptor() {
+        setPhase(Phase.PRE_LOGICAL);
+    }
      
     public RMManager getManager() {
         if (null == manager) {
@@ -63,36 +67,17 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
     public void setBus(Bus bus) {
         this.bus = bus;
     }
-    
-    // PhaseInterceptor interface
-    
-   
-
-    public String getPhase() {
-        return Phase.PRE_LOGICAL;
-    }
 
     // Interceptor interface 
     
     public void handleMessage(Message msg) throws Fault {
         
         try {
-            handleMessage(msg, false);
+            handle(msg);
         } catch (SequenceFault ex) {
             LOG.log(Level.SEVERE, "SequenceFault", ex);
             throw new Fault(ex);
         }
-    }
-    
-    public void handleFault(Message msg) {
-        try {
-            handleMessage(msg, true);
-        } catch (SequenceFault ex) {
-            LOG.log(Level.SEVERE, "SequenceFault", ex);
-        }
-    } 
-    
-    public void postHandleMessage(Message msg) throws Fault {
     }
     
     /**
@@ -117,8 +102,6 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
         }
     }
     
-    // rm logic
-    
-    abstract void handleMessage(Message msg, boolean isFault) throws SequenceFault;
-   
+    protected abstract void handle(Message message) throws SequenceFault;
+
 }
