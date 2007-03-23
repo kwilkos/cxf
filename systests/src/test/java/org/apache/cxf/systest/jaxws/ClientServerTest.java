@@ -705,6 +705,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @Ignore
     public void testDynamicClientFactory()  {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
