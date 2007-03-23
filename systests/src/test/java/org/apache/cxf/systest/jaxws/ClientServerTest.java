@@ -704,8 +704,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
                                    
     }
     
-    @Test
-    @Ignore
+    @Test   
     public void testDynamicClientFactory()  {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -713,8 +712,8 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         try {
             wsdlUrl = wsdl.toURI().toString();
         } catch (URISyntaxException e) {
-            fail("Can't get the hello_world.wsdl url");
             e.printStackTrace();
+            fail("Can't get the hello_world.wsdl url");            
         }
         try {
             //TODO test fault exceptions 
@@ -723,10 +722,11 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
             client.invoke("greetMe", "test");        
             Object[] result = client.invoke("sayHi");
             assertNotNull("no response received from service", result);
+            System.out.println(result[0]);
             assertEquals("Bonjour", result[0]);
-        } catch (Exception e) {
-            fail("There is some excpetion happened ");
+        } catch (Exception e) {            
             e.printStackTrace();
+            fail("There is some excpetion happened ");
         }    
         
     }

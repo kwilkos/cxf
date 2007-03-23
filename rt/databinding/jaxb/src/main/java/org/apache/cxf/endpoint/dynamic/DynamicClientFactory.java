@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
@@ -61,7 +62,6 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
@@ -142,7 +142,6 @@ public final class DynamicClientFactory {
 
     public Client createClient(String wsdlUrl, QName service, ClassLoader classLoader, QName port) {
         URL u = composeUrl(wsdlUrl);
-
         ClientImpl client = new ClientImpl(bus, u, service, port);
 
         Service svc = client.getEndpoint().getService();
@@ -184,7 +183,6 @@ public final class DynamicClientFactory {
         if (!src.mkdir()) {
             throw new IllegalStateException("Unable to create working directory " + src.getPath());
         }
-
         try {
             FileCodeWriter writer = new FileCodeWriter(src);
             codeModel.build(writer);
@@ -192,36 +190,22 @@ public final class DynamicClientFactory {
             throw new IllegalStateException("Unable to write generated Java files for schemas: "
                                             + e.getMessage(), e);
         }
-
         File classes = new File(tmpdir, stem + "-classes");
         if (!classes.mkdir()) {
             throw new IllegalStateException("Unable to create working directory " + src.getPath());
         }
-              
-
         Project project = new Project();
         project.setBaseDir(new File(tmpdir));
-
-        Javac javac = new Javac();
-        javac.setProject(project);
-
         Path classPath = new Path(project);
-        
         setupClasspath(classPath, classLoader);
-        //TODO need to check the tools.jar in the ClassPath and Check for IBM JDK        
-        javac.setClasspath(classPath);
-        
         Path srcPath = new Path(project);
-        DirSet dirSet = new DirSet();
-        dirSet.setFile(src);
-        srcPath.addDirset(dirSet);
-        javac.setSrcdir(srcPath);
-        javac.setDestdir(classes);
-        javac.setTarget("1.5");
-        //javac.setVerbose(true);        
-        javac.execute();
+        FileSet fileSet = new FileSet();
+        fileSet.setDir(src);
+        srcPath.addFileset(fileSet);
         
-        //delete the src dir
+        if (!compileJavaSrc(classPath, srcPath, classes.toString())) {
+            LOG.log(Level.SEVERE , new Message("COULD_NOT_COMIPLE_SRC", LOG, wsdlUrl).toString());
+        }
         FileUtils.removeDir(src);
         URLClassLoader cl;
         try {
@@ -239,7 +223,7 @@ public final class DynamicClientFactory {
             throw new IllegalStateException("Unable to create JAXBContext for generated packages: "
                                             + jbe.getMessage(), jbe);
         }
-
+         
         JAXBDataBinding databinding = new JAXBDataBinding();
         databinding.setContext(context);
         svc.setDataBinding(databinding);
@@ -254,6 +238,27 @@ public final class DynamicClientFactory {
         // delete the classes files
         FileUtils.removeDir(classes);
         return client;
+    }
+    
+    static boolean compileJavaSrc(Path classPath, Path srcPath, String dest) {
+        String[] srcList = srcPath.list();        
+        String[] javacCommand = new String[srcList.length + 7];
+        
+        javacCommand[0] = "javac";
+        javacCommand[1] = "-classpath";
+        javacCommand[2] = classPath.toString();        
+        javacCommand[3] = "-d";
+        javacCommand[4] = dest.toString();
+        javacCommand[5] = "-target";
+        javacCommand[6] = "1.5";
+        
+        for (int i = 0; i < srcList.length; i++) {
+            javacCommand[7 + i] = srcList[i];            
+        }
+        org.apache.cxf.tools.util.Compiler javaCompiler 
+            = new org.apache.cxf.tools.util.Compiler();
+        
+        return javaCompiler.internalCompile(javacCommand, 7); 
     }
 
     static void setupClasspath(Path classPath, ClassLoader classLoader) {
