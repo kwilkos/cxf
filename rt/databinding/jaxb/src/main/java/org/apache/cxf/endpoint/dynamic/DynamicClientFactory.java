@@ -151,9 +151,11 @@ public final class DynamicClientFactory {
         ErrorListener elForRun = new InnerErrorListener(wsdlUrl);
         compiler.setErrorListener(elForRun);
 
+        int num = 1;
         for (SchemaInfo schema : schemas) {
             Element el = schema.getElement();
-            compiler.parseSchema(wsdlUrl, el);
+            compiler.parseSchema(wsdlUrl + "#types" + num, el);
+            num++;
         }
 
         S2JJAXBModel intermediateModel = compiler.bind();

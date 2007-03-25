@@ -280,6 +280,7 @@ public class WSDLServiceBuilder {
     private void extractSchema(Definition def, XmlSchemaCollection schemaCol, ServiceInfo serviceInfo) {
         Types typesElement = def.getTypes();
         if (typesElement != null) {
+            int schemaCount = 1;
             for (Object obj : typesElement.getExtensibilityElements()) {
                 org.w3c.dom.Element schemaElem = null;
                 if (obj instanceof Schema) {
@@ -299,16 +300,20 @@ public class WSDLServiceBuilder {
                                                       "xmlns:" + prefix, ns);
                         }
                     }
+                    String systemId = def.getDocumentBaseURI() + "#types" + schemaCount;
+                    
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
                     CatalogXmlSchemaURIResolver schemaResolver = 
                         new CatalogXmlSchemaURIResolver(OASISCatalogManager.getCatalog(bus));
                     schemaCol.setSchemaResolver(schemaResolver);
-                    XmlSchema xmlSchema = schemaCol.read(schemaElem);
+                    XmlSchema xmlSchema = schemaCol.read(schemaElem, systemId);
 
                     SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, xmlSchema.getTargetNamespace());
                     schemaInfo.setElement(schemaElem);
                     schemaInfo.setSchema(xmlSchema);
+                    schemaInfo.setSystemId(systemId);
                     serviceInfo.addSchema(schemaInfo);
+                    schemaCount++;
                 }
             }
         }
