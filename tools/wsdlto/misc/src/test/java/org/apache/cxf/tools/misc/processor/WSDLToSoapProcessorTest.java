@@ -40,6 +40,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapFault;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.misc.WSDLToSoap;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -119,6 +120,9 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             if (!found) {
                 fail("Element soap:fault Missed!");
             }
+            List<SoapFault> faults = SOAPBindingUtil.getBindingOperationSoapFaults(bo);
+            assertEquals(1, faults.size());
+            assertEquals("pingMeFault", faults.get(0).getName());
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }

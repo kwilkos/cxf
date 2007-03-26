@@ -47,6 +47,7 @@ import javax.wsdl.extensions.soap12.SOAP12Header;
 import javax.wsdl.extensions.soap12.SOAP12Operation;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ExtensionInvocationHandler;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
@@ -81,6 +82,17 @@ public final class SOAPBindingUtil {
         return cls.cast(proxy);
     }
 
+    public static boolean isSOAPBinding(Binding binding) {
+        Iterator ite = binding.getExtensibilityElements().iterator();
+        while (ite.hasNext()) {
+            Object obj = ite.next();
+            if (isSOAPBinding(obj)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static String getBindingStyle(Binding binding) {
         Iterator ite = binding.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
@@ -257,6 +269,26 @@ public final class SOAPBindingUtil {
         return obj instanceof SOAPBinding || obj instanceof SOAP12Binding;
     }
 
+    @SuppressWarnings("unchecked")
+    public static List<SoapFault> getBindingOperationSoapFaults(BindingOperation bop) {
+        List<SoapFault> faults = new ArrayList<SoapFault>();
+        Map bindingFaults = bop.getBindingFaults();
+        for (Object obj : bindingFaults.values()) {
+            if (!(obj instanceof BindingFault)) {
+                continue;
+            }
+            BindingFault faultElement = (BindingFault) obj;
+            Iterator ite = faultElement.getExtensibilityElements().iterator();
+            while (ite.hasNext()) {
+                SoapFault fault = getSoapFault(ite.next());
+                if (fault != null) {
+                    faults.add(fault);
+                }
+            }
+        }
+        return faults;
+    }
+
     public static SoapFault getSoapFault(Object obj) {
         if (isSOAPFault(obj)) {
             return getProxy(SoapFault.class, obj);
@@ -319,7 +351,7 @@ public final class SOAPBindingUtil {
 
     public static String getCanonicalBindingStyle(Binding binding) {
         String bindingStyle = getBindingStyle(binding);
-        if (bindingStyle != null && !("".equals(bindingStyle))) {
+        if (!StringUtils.isEmpty(bindingStyle)) {
             return bindingStyle;
         }
         for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {

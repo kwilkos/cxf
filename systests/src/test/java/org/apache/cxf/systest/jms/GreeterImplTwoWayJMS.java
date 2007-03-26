@@ -26,6 +26,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.apache.cxf.hello_world_jms.BadRecordLitFault;
 import org.apache.cxf.hello_world_jms.HelloWorldPortType;
 import org.apache.cxf.hello_world_jms.NoSuchCodeLitFault;
+import org.apache.cxf.hello_world_jms.types.BadRecordLit;
 import org.apache.cxf.hello_world_jms.types.ErrorCode;
 import org.apache.cxf.hello_world_jms.types.NoSuchCodeLit;
 import org.apache.cxf.hello_world_jms.types.TestRpcLitFaultResponse;
@@ -74,8 +75,10 @@ public class GreeterImplTwoWayJMS implements HelloWorldPortType {
     
     public TestRpcLitFaultResponse testRpcLitFault(String faultType) 
         throws BadRecordLitFault, NoSuchCodeLitFault {
+        BadRecordLit badRecord = new BadRecordLit();
+        badRecord.setReason("BadRecordLitFault");
         if (faultType.equals(BadRecordLitFault.class.getSimpleName())) {
-            throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");
+            throw new BadRecordLitFault("TestBadRecordLit", badRecord);
         }
         if (faultType.equals(NoSuchCodeLitFault.class.getSimpleName())) {
             ErrorCode ec = new ErrorCode();

@@ -27,33 +27,36 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
         <schema targetNamespace="http://cxf.apache.org/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://cxf.apache.org/hello_world_jms/types" elementFormDefault="qualified">
-            <complexType name="ErrorCode">
-                 <sequence>
-                    <element name="minor" type="short"/>
-                    <element name="major" type="short"/>
-                </sequence>
-            </complexType>
-                <complexType name="testRpcLitFault">
-                    <sequence>
-                        <element name="faultType" type="string"/>
-                    </sequence>
-                </complexType>
-                <complexType name="testRpcLitFaultResponse">
-                    <sequence/>
-                </complexType>
+	    <complexType name="ErrorCode">
+		<sequence>
+		    <element name="minor" type="short"/>
+		    <element name="major" type="short"/>
+		</sequence>
+	    </complexType>
+	    <complexType name="testRpcLitFault">
+		<sequence>
+		    <element name="faultType" type="string"/>
+		</sequence>
+	    </complexType>
+	    <complexType name="testRpcLitFaultResponse">
+		<sequence/>
+	    </complexType>
+	    
+	    <element name="NoSuchCodeLit" type="x1:NoSuchCodeLit"/>
+	    <complexType name="NoSuchCodeLit">
+		<sequence>
+		    <element name="code" type="x1:ErrorCode"/>
+		</sequence>
+	    </complexType>
 
-                <complexType name="NoSuchCodeLit">
-                    <sequence>
-                        <element name="code" type="x1:ErrorCode"/>
-                    </sequence>
-                </complexType>
-            <complexType name="BadRecord">
-                <sequence>
-                    <element name="reason" type="string"/>
-                    <element name="code" type="short"/>
-                </sequence>
-            </complexType>
-        </schema>
+	    <element name="BadRecordLit" type="x1:BadRecordLit"/>
+	    <complexType name="BadRecordLit">
+		<sequence>
+		    <element name="reason" type="string"/>
+		    <element name="code" type="short"/>
+		</sequence>
+	    </complexType>
+	</schema>
     </types>
 
     <message name="greetMe">
@@ -77,10 +80,10 @@
         <part name="out" type="x1:testRpcLitFaultResponse"/>
     </message>
     <message name="NoSuchCodeLitFault">
-        <part name="NoSuchCodeLit" type="x1:NoSuchCodeLit"/>
+        <part name="NoSuchCodeLit" element="x1:NoSuchCodeLit"/>
     </message>
     <message name="BadRecordLitFault">
-        <part name="BadRecordLit" type="xsd:string"/>
+        <part name="BadRecordLit" element="x1:BadRecordLit"/>
     </message>
     
     <portType name="HelloWorldPortType">
@@ -156,10 +159,10 @@
                 <soap:body namespace="http://cxf.apache.org/hello_world_jms"  use="literal"/>
             </output>
             <fault name="NoSuchCodeLitFault">
-                <soap:fault name="NoSuchCodeLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                <soap:fault name="NoSuchCodeLitFault" use="literal"/>
             </fault>
             <fault name="BadRecordLitFault">
-                <soap:fault name="BadRecordLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                <soap:fault name="BadRecordLitFault" use="literal"/>
             </fault>
         </operation>
     </binding>

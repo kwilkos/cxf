@@ -54,7 +54,7 @@ public class WSDLValidationTest extends ToolTestBase {
             e.printStackTrace();
         }
     }
-
+    
     public void testValidateTypeElement() {
         try {
 
@@ -149,7 +149,28 @@ public class WSDLValidationTest extends ToolTestBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    public void testWSIBPR2726() throws Exception {
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/jms_test.wsdl")};
+            WSDLValidator.main(args);
+            assertTrue(getStdErr().indexOf("WSI-BP-1.0 R2726") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testWSIBPR2205() throws Exception {
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/jms_test2.wsdl")};
+            WSDLValidator.main(args);
+            assertTrue(getStdErr().indexOf("WSI-BP-1.0 R2205") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected String getLocation(String wsdlFile) throws Exception {
