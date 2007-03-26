@@ -22,6 +22,7 @@ package org.apache.cxf.wsdl11;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collection;
@@ -40,8 +41,6 @@ import javax.xml.validation.Schema;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -66,13 +65,17 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class WSDLServiceBuilderTest extends TestCase {
+public class WSDLServiceBuilderTest extends Assert {
     // TODO: reuse the wsdl in testutils and add the parameter order into one of the wsdl
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
     private static final String WSDL_PATH = "hello_world.wsdl";
     private static final String BARE_WSDL_PATH = "hello_world_bare.wsdl";
     private static final String IMPORT_WSDL_PATH = "hello_world_schema_import.wsdl";
+    private static final String MULTIPORT_WSDL_PATH = "hello_world_multiporttype.wsdl";
     
     private static final String EXTENSION_NAMESPACE = "http://cxf.apache.org/extension/ns";
     private static final QName EXTENSION_ATTR_BOOLEAN = new QName(EXTENSION_NAMESPACE, "booleanAttr");
@@ -84,6 +87,7 @@ public class WSDLServiceBuilderTest extends TestCase {
     private Service service;
 
     private ServiceInfo serviceInfo;
+    private List<ServiceInfo> serviceInfos;
 
     private IMocksControl control;
 
@@ -93,14 +97,15 @@ public class WSDLServiceBuilderTest extends TestCase {
 
     private DestinationFactoryManager destinationFactoryManager;
 
+    @Before
     public void setUp() throws Exception {
         setUpWSDL(WSDL_PATH, 0);
     }
 
-
-    
     private void setUpWSDL(String wsdl, int serviceSeq) throws Exception {
-        String wsdlUrl = getClass().getResource(wsdl).toString();
+        URL url = getClass().getResource(wsdl);
+        assertNotNull("could not find wsdl " + wsdl, url);
+        String wsdlUrl = url.toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
@@ -108,7 +113,6 @@ public class WSDLServiceBuilderTest extends TestCase {
         
         def = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlUrl));
 
-        WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
         int seq = 0;
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
@@ -125,22 +129,28 @@ public class WSDLServiceBuilderTest extends TestCase {
         bus = control.createMock(Bus.class);
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
         destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
-        wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+        WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class))
             .andReturn(bindingFactoryManager).anyTimes();
-        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andReturn(
-                destinationFactoryManager);
+        
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
+            .andReturn(destinationFactoryManager).atLeastOnce();
 
         control.replay();
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfos = wsdlServiceBuilder.buildServices(def, service);
+        serviceInfo = serviceInfos.get(0);
 
     }
 
-    public void tearDown() throws Exception {
+    @Test
+    public void testMultiPorttype() throws Exception {
+        setUpWSDL(MULTIPORT_WSDL_PATH, 0);
+        assertEquals(2, serviceInfos.size());
         control.verify();
     }
 
+    @Test
     public void testServiceInfo() throws Exception {
         assertEquals("SOAPService", serviceInfo.getName().getLocalPart());
         assertEquals("http://apache.org/hello_world_soap_http", serviceInfo.getName().getNamespaceURI());
@@ -154,12 +164,16 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(ei);
         assertEquals("http://schemas.xmlsoap.org/wsdl/soap/", ei.getTransportId());
         assertNotNull(ei.getBinding());
+        control.verify();
     }
 
+    @Test
     public void testInterfaceInfo() throws Exception {
         assertEquals("Greeter", serviceInfo.getInterface().getName().getLocalPart());
+        control.verify();
     }
 
+    @Test
     public void testOperationInfo() throws Exception {
         QName name = new QName(serviceInfo.getName().getNamespaceURI(), "sayHi");
         assertEquals(serviceInfo.getInterface().getOperations().size(), 4);
@@ -233,8 +247,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertTrue(pingMe.hasOutput());
 
         assertNull(serviceInfo.getInterface().getOperation(new QName("what ever")));
+        control.verify();
     }
 
+    @Test
     public void testBindingInfo() throws Exception {
         BindingInfo bindingInfo = null;
         assertEquals(1, serviceInfo.getBindings().size());
@@ -243,8 +259,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(bindingInfo.getInterface().getName().getLocalPart(), "Greeter");
         assertEquals(bindingInfo.getName().getLocalPart(), "Greeter_SOAPBinding");
         assertEquals(bindingInfo.getName().getNamespaceURI(), "http://apache.org/hello_world_soap_http");
+        control.verify();
     }
 
+    @Test
     public void testBindingOperationInfo() throws Exception {
         BindingInfo bindingInfo = null;
         bindingInfo = serviceInfo.getBindings().iterator().next();
@@ -272,8 +290,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         BindingOperationInfo pingMe = bindingInfo.getOperation(name);
         assertNotNull(pingMe);
         assertEquals(pingMe.getName(), name);
+        control.verify();
     }
 
+    @Test
     public void testBindingMessageInfo() throws Exception {
         BindingInfo bindingInfo = null;
         bindingInfo = serviceInfo.getBindings().iterator().next();
@@ -328,8 +348,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         elementName = fault.getFaultInfo().getMessageParts().get(0).getElementQName();
         assertEquals(elementName.getLocalPart(), "faultDetail");
         assertEquals(elementName.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types");
+        control.verify();
     }
 
+    @Test
     public void testSchema() {
         XmlSchemaCollection schemas = serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST,
                 XmlSchemaCollection.class);
@@ -344,8 +366,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         // with schema in serviceInfo
         Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);
         assertNotNull(schema);
+        control.verify();
     }
 
+    @Test
     public void testBare() throws Exception {
         setUpWSDL(BARE_WSDL_PATH, 0);
         BindingInfo bindingInfo = null;
@@ -361,8 +385,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertFalse("greetMe should be a Unwrapped operation ", greetMe.isUnwrappedCapable());
         
         assertNotNull(serviceInfo.getXmlSchemaCollection());
+        control.verify();
     }
 
+    @Test
     public void testImport() throws Exception {
         // rewrite the schema1.xsd to import schema2.xsd with absolute path.
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -404,14 +430,17 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(ele);
         Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);        
         assertNotNull(schema);        
+        control.verify();
     }
 
     
+    @Test
     public void testDiffPortTypeNsImport() throws Exception {
         setUpWSDL("/DiffPortTypeNs.wsdl", 0);        
         doDiffPortTypeNsImport();
         setUpWSDL("/DiffPortTypeNs.wsdl", 1);
         doDiffPortTypeNsImport();
+        control.verify();
     }
     
     private void doDiffPortTypeNsImport() {
@@ -432,6 +461,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         }
     }
     
+    @Test
     public void testParameterOrder() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         setUpWSDL("hello_world_xml_bare.wsdl", 0);
@@ -468,9 +498,11 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(3, parts.size());
         assertEquals("in3", parts.get(0).getName().getLocalPart());
         assertEquals("in1", parts.get(1).getName().getLocalPart());
-        assertEquals("in2", parts.get(2).getName().getLocalPart());        
+        assertEquals("in2", parts.get(2).getName().getLocalPart());
+        control.verify();
     }
     
+    @Test
     public void testParameterOrder2() throws Exception {
         setUpWSDL("header2.wsdl", 0);
         String ns = "http://apache.org/header2";
@@ -481,8 +513,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(2, parts.size());
         assertEquals("header_info", parts.get(0).getName().getLocalPart());
         assertEquals("the_request", parts.get(1).getName().getLocalPart());
+        control.verify();        
     }
 
+    @Test
     public void testExtensions() throws Exception {
         setUpWSDL("hello_world_ext.wsdl", 0);
 
@@ -547,6 +581,8 @@ public class WSDLServiceBuilderTest extends TestCase {
   
         assertBindingOperationMessageExtensions(boi, true, true, faultName);
         assertBindingOperationMessageExtensions(bi.getOperation(greetMeOpName), false, true, null);
+        control.verify();
+        
     }
 
     private void assertPortTypeOperationExtensions(OperationInfo oi, boolean expectExtensions) {

@@ -97,7 +97,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
         control.replay();
 
-        ServiceInfo serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        ServiceInfo serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         return serviceInfo;

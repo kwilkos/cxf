@@ -96,7 +96,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
 
         control.replay();
         
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         newDef = new ServiceWSDLBuilder(serviceInfo).build();

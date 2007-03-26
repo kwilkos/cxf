@@ -88,7 +88,8 @@ public class SoapBindingFactoryTest extends TestCase {
 
         WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);
         ServiceInfo serviceInfo = builder
-            .buildService(d, new QName("http://apache.org/hello_world_soap_http", "SOAPService"));
+            .buildServices(d, new QName("http://apache.org/hello_world_soap_http", "SOAPService"))
+            .get(0);
 
         BindingInfo bi = serviceInfo.getBindings().iterator().next();
 
@@ -132,7 +133,8 @@ public class SoapBindingFactoryTest extends TestCase {
 
         WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);
         ServiceInfo serviceInfo = builder
-            .buildService(d, new QName("http://apache.org/hello_world_soap12_http", "SOAPService"));
+            .buildServices(d, new QName("http://apache.org/hello_world_soap12_http", "SOAPService"))
+            .get(0);
 
         BindingInfo bi = serviceInfo.getBindings().iterator().next();
 

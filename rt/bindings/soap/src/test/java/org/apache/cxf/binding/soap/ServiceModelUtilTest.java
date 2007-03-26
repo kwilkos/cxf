@@ -81,7 +81,7 @@ public class ServiceModelUtilTest extends TestCase {
         expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
 
         control.replay();
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
     }
     
     public void tearDown() throws Exception {

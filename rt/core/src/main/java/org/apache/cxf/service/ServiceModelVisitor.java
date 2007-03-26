@@ -31,7 +31,7 @@ import org.apache.cxf.service.model.UnwrappedOperationInfo;
  *
  */
 public class ServiceModelVisitor {
-    private ServiceInfo serviceInfo;
+    protected ServiceInfo serviceInfo;
     
     public ServiceModelVisitor(ServiceInfo serviceInfo) {
         super();

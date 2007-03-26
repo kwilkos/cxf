@@ -94,8 +94,8 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
             if (target != null) {
                 serviceName = EndpointReferenceUtils.getServiceName(target);
             } else {
-                serviceName = message.getExchange().get(org.apache.cxf.service.Service.class).
-                getServiceInfo().getName();
+                serviceName = message.getExchange().get(org.apache.cxf.service.Service.class)
+                    .getName();
             }
 
             

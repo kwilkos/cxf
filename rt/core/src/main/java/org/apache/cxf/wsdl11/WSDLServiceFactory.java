@@ -76,10 +76,11 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     public Service create() {
         ServiceInfo serviceInfo;
         if (serviceName == null) {
-            List<ServiceInfo> services = new WSDLServiceBuilder(getBus()).buildService(definition);
+            List<ServiceInfo> services = new WSDLServiceBuilder(getBus()).buildServices(definition);
             if (services.size() == 0) {
                 throw new ServiceConstructionException(new Message("NO_SERVICE_EXC", LOG));
             } else {
+                //@@TODO  - this isn't good, need to return all the services
                 serviceInfo = services.get(0);
                 serviceName = serviceInfo.getName();
             }
@@ -88,7 +89,7 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
             if (wsdlService == null) {
                 throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE_EXC", LOG, serviceName));
             }
-            serviceInfo = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
+            serviceInfo = new WSDLServiceBuilder(getBus()).buildServices(definition, wsdlService).get(0);
         }
         ServiceImpl service = new ServiceImpl(serviceInfo);
         setService(service);

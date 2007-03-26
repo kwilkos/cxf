@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -126,7 +127,7 @@ public class WSDLServiceBuilder {
     }
 
 
-    public List<ServiceInfo> buildService(Definition d) {
+    public List<ServiceInfo> buildServices(Definition d) {
         DescriptionInfo description = new DescriptionInfo();
         description.setProperty(WSDL_DEFINITION, d);
         description.setName(d.getQName());
@@ -138,24 +139,24 @@ public class WSDLServiceBuilder {
         for (java.util.Iterator<QName> ite =
                 CastUtils.cast(d.getServices().keySet().iterator()); ite.hasNext();) {
             QName qn = ite.next();
-            serviceList.add(buildService(d, qn, description));
+            serviceList.addAll(buildServices(d, qn, description));
         }
         return serviceList;
     }
 
     
     
-    public ServiceInfo buildService(Definition d, QName name) {
-        return buildService(d, name, null);
+    public List<ServiceInfo> buildServices(Definition d, QName name) {
+        return buildServices(d, name, null);
     }
 
-    private ServiceInfo buildService(Definition d, QName name, DescriptionInfo description) {
+    private List<ServiceInfo> buildServices(Definition d, QName name, DescriptionInfo description) {
         Service service = d.getService(name);
-        return buildService(d, service, description);
+        return buildServices(d, service, description);
     }
 
-    public ServiceInfo buildService(Definition def, Service serv) {
-        return buildService(def, serv, null);
+    public List<ServiceInfo> buildServices(Definition def, Service serv) {
+        return buildServices(def, serv, null);
     }
     
     
@@ -199,7 +200,9 @@ public class WSDLServiceBuilder {
     }
     
  
-    private ServiceInfo buildService(Definition def, Service serv, DescriptionInfo d) {
+    private List<ServiceInfo> buildServices(Definition def, Service serv, DescriptionInfo d) {
+        Map<QName, ServiceInfo> services = new LinkedHashMap<QName, ServiceInfo>();
+        
         DescriptionInfo description = d;
         if (null == description) {
             description = new DescriptionInfo();
@@ -209,32 +212,30 @@ public class WSDLServiceBuilder {
             copyExtensors(description, def.getExtensibilityElements());
             copyExtensionAttributes(description, def);
         }
-        ServiceInfo service = new ServiceInfo();
-        service.setDescription(description);
-        description.getDescribed().add(service);
-        service.setProperty(WSDL_DEFINITION, def);
-        service.setProperty(WSDL_SERVICE, serv);
-
-        XmlSchemaCollection schemas = getSchemas(def, service);
-        service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
-        service.setProperty(WSDL_SCHEMA_LIST, schemas);
-        service.setTargetNamespace(def.getTargetNamespace());
-        service.setName(serv.getQName());
-        copyExtensors(service, serv.getExtensibilityElements());
-        copyExtensionAttributes(service, serv);
-
-        PortType portType = null;
-        for (Port port : cast(serv.getPorts().values(), Port.class)) {
-            if (portType == null) {
-                portType = port.getBinding().getPortType();
-            } else if (port.getBinding().getPortType() != portType) {
-                throw new IllegalStateException("All endpoints must share the same portType");
-            }
-        }
-
-        buildInterface(service, portType);
+        
         for (Port port : cast(serv.getPorts().values(), Port.class)) {
             Binding binding = port.getBinding();
+            PortType pt = binding.getPortType();
+            ServiceInfo service = services.get(pt.getQName());
+            if (service == null) {
+                service = new ServiceInfo();
+                service.setDescription(description);
+                description.getDescribed().add(service);
+                service.setProperty(WSDL_DEFINITION, def);
+                service.setProperty(WSDL_SERVICE, serv);
+
+                XmlSchemaCollection schemas = getSchemas(def, service);
+                service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
+                service.setProperty(WSDL_SCHEMA_LIST, schemas);
+                service.setTargetNamespace(def.getTargetNamespace());
+                service.setName(serv.getQName());
+                copyExtensors(service, serv.getExtensibilityElements());
+                copyExtensionAttributes(service, serv);
+                
+                buildInterface(service, pt);
+                
+                services.put(pt.getQName(), service);
+            }
 
             BindingInfo bi = service.getBinding(binding.getQName());
             if (bi == null) {
@@ -243,7 +244,7 @@ public class WSDLServiceBuilder {
             buildEndpoint(service, bi, port);
         }
 
-        return service;
+        return new ArrayList<ServiceInfo>(services.values());
     }
 
     private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {

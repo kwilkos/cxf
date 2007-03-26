@@ -104,7 +104,7 @@ public class JAXBDataBindingTest extends TestCase {
             }
         }
         
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
         List<String> schemas = new ArrayList<String>();
 
         String schema1 = getClass().getResource(SCHEMA1).toString();

@@ -136,11 +136,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
 
                 if (serviceName != null) {
-                    ServiceInfo service = serviceBuilder
-                        .buildService(definition, getServiceQName(definition));
-                    serviceList.add(service);
+                    List<ServiceInfo> services = serviceBuilder
+                        .buildServices(definition, getServiceQName(definition));
+                    serviceList.addAll(services);
                 } else  if (definition.getServices().size() > 0) {
-                    serviceList = serviceBuilder.buildService(definition);
+                    serviceList = serviceBuilder.buildServices(definition);
                 } else  {
                     serviceList = serviceBuilder.buildMockServices(definition);
                 }
