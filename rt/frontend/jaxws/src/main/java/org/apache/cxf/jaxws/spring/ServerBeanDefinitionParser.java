@@ -78,6 +78,9 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
         }
         
         bean.setInitMethodName("create");
+        
+        // We don't really want to delay the registration of our Server
+        bean.setLazyInit(false);
     }
 
     private void loadImplementor(BeanDefinitionBuilder bean, String val) {

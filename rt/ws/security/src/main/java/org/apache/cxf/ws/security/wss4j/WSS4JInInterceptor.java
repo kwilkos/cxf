@@ -56,9 +56,13 @@ import org.apache.ws.security.util.WSSecurityUtil;
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
 public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
+
+    public static final String TIMESTAMP_RESULT = "wss4j.timestamp.result";
+    public static final String SIGNATURE_RESULT = "wss4j.signature.result";
+
     private static final Logger LOG = Logger.getLogger(WSS4JInInterceptor.class.getName());
     private static final Logger TIME_LOG = Logger.getLogger(WSS4JInInterceptor.class.getName() + "-Time");
-
+    
     public WSS4JInInterceptor() {
         super();
 
@@ -170,6 +174,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
                     LOG.warning("WThe certificate used for the signature is not trusted");
                     throw new SoapFault(new Message("UNTRUSTED_CERT", LOG), version.getSender());
                 }
+                msg.put(SIGNATURE_RESULT, actionResult);
             }
 
             /*
@@ -191,6 +196,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
                     LOG.warning("The timestamp could not be validated");
                     throw new SoapFault(new Message("INVALID_TIMESTAMP", LOG), version.getSender());
                 }
+                msg.put(TIMESTAMP_RESULT, actionResult);
             }
 
             /*

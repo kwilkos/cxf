@@ -20,6 +20,7 @@ package org.apache.cxf.ws.security.wss4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.security.cert.X509Certificate;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,6 +40,7 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.security.WSConstants;
+import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.junit.Test;
 
@@ -104,6 +106,12 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
         inHandler.setProperty(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/insecurity.properties");
 
         inHandler.handleMessage(inmsg);
+        
+        WSSecurityEngineResult result = 
+            (WSSecurityEngineResult) inmsg.get(WSS4JInInterceptor.SIGNATURE_RESULT);
+        assertNotNull(result);
+        X509Certificate certificate = result.getCertificate();
+        assertNotNull(certificate);
     }
 
     private byte[] getMessageBytes(Document doc) throws Exception {

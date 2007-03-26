@@ -69,6 +69,14 @@ public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionP
                 }
             }
         }
+        
+        // We don't really want to delay the registration of our Server
+        bean.setLazyInit(false);
+        
+//        PropertyValue idValue = bean.getBeanDefinition().getPropertyValues().getPropertyValue("id");
+//        if (idValue == null) {
+//            bean.addPropertyReference("id", arg1);
+//        }
     }
 
     private void loadImplementor(BeanDefinitionBuilder bean, String val) {
