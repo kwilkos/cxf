@@ -25,8 +25,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.NamespaceContext;
@@ -161,8 +163,17 @@ public final class CustomizationParser {
         }
 
         if (isGlobaleBindings(bindings)) {
-            Node node = queryXPathNode(wsdlNode, "//wsdl:definitions");
-            copyBindingsToWsdl(node, bindings);
+            String pfx = wsdlNode.getPrefix();
+            if (pfx == null) {
+                pfx = "";
+            } else {
+                pfx += ":";
+            }
+            ContextImpl ctx = new ContextImpl(wsdlNode);
+            Node node = queryXPathNode(wsdlNode, 
+                                       ctx,
+                                       "//" + pfx + "definitions");
+            copyBindingsToWsdl(node, bindings, ctx);
         }
 
         if (isJAXWSBindings(bindings) && bindings.getAttributeNode("node") != null) {
@@ -171,9 +182,10 @@ public final class CustomizationParser {
             Node node = null;
             NodeList nestedJaxbNodes = getNestedJaxbBinding(bindings);
 
-            node = queryXPathNode(wsdlNode, expression);
+            ContextImpl ctx = new ContextImpl(bindings);
+            node = queryXPathNode(wsdlNode, ctx, expression);
             if (node != null && nestedJaxbNodes.getLength() == 0) {
-                copyBindingsToWsdl(node, bindings);
+                copyBindingsToWsdl(node, bindings, ctx);
             }
 
             if (node != null && nestedJaxbNodes.getLength() != 0) {
@@ -184,7 +196,10 @@ public final class CustomizationParser {
                     String xpathExpress = DOMUtils.getAttribute(jaxbNode, "node");
 
                     Node schemaNode = getSchemaNode(node);
-                    Node targetNode = queryXPathNode(schemaNode, xpathExpress);
+
+                    ctx = new ContextImpl(bindings);
+                    Node targetNode = queryXPathNode(schemaNode, ctx, xpathExpress);
+                    //@@TODO - copy namespaces
                     Element schemaElement = (Element)schemaNode;
                     // Element targetElement = (Element)targetNode;
 
@@ -227,9 +242,17 @@ public final class CustomizationParser {
         }
     }
 
-    private void copyBindingsToWsdl(Node node, Node bindings) {
+    private void copyBindingsToWsdl(Node node, Node bindings, ContextImpl ctx) {
         if (bindings.getNamespaceURI().equals(ToolConstants.JAXWS_BINDINGS.getNamespaceURI())) {
             bindings.setPrefix("jaxws");
+        }
+        
+        for (Map.Entry<String, String> ent : ctx.getUsedNamespaces().entrySet()) {
+            if (node.lookupNamespaceURI(ent.getKey()) == null) {
+                node.getOwnerDocument().getDocumentElement()
+                    .setAttribute("xmlns:" + ent.getKey(), ent.getValue());
+            }
+            
         }
 
         for (int i = 0; i < bindings.getChildNodes().getLength(); i++) {
@@ -393,13 +416,18 @@ public final class CustomizationParser {
 
     class ContextImpl implements NamespaceContext {
         private Node targetNode;
-
+        private Map<String, String> pfxMap = new HashMap<String, String>();
+        
         public ContextImpl(Node node) {
             targetNode = node;
         }
 
         public String getNamespaceURI(String prefix) {
-            return targetNode.getOwnerDocument().lookupNamespaceURI(prefix);
+            String s = targetNode.lookupNamespaceURI(prefix);
+            if (prefix != null) { 
+                pfxMap.put(prefix, s);
+            }
+            return s;
         }
 
         public String getPrefix(String nsURI) {
@@ -409,12 +437,16 @@ public final class CustomizationParser {
         public Iterator getPrefixes(String namespaceURI) {
             throw new UnsupportedOperationException();
         }
+        
+        public Map<String, String> getUsedNamespaces() {
+            return pfxMap;
+        }
     }
 
-    private Node queryXPathNode(Node target, String expression) {
+    private Node queryXPathNode(Node target, ContextImpl nsCtx, String expression) {
         NodeList nlst;
         try {
-            xpath.setNamespaceContext(new ContextImpl(target));
+            xpath.setNamespaceContext(nsCtx);
             nlst = (NodeList)xpath.evaluate(expression, target, XPathConstants.NODESET);
         } catch (XPathExpressionException e) {
             Message msg = new Message("XPATH_ERROR", LOG, new Object[] {expression});

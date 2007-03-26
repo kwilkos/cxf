@@ -50,6 +50,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         env = new ToolContext();
     }
 
+    
     public void testBuildDefinitionWithXMLBinding() {
         String qname = "http://apache.org/hello_world_xml_http/bare";
         String wsdlUrl = getClass().getResource("hello_world_xml_bare.wsdl").toString();
@@ -154,4 +155,51 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
             .getJaxwsPara().getMessageName());
         assertEquals("customized parameter name does not parsered", "num1", binding.getJaxwsPara().getName());
     }
+    
+    
+    
+    
+    public void testCustomizationWithDifferentNS() {
+        env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("./hello_world.wsdl").toString());
+        env.put(ToolConstants.CFG_BINDING, getClass().getResource("./binding3.xml").toString());
+        JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
+        builder.setContext(env);
+        builder.build();
+        builder.customize();
+
+        Definition customizedDef = builder.getWSDLModel();
+        List defExtensionList = customizedDef.getExtensibilityElements();
+        Iterator ite = defExtensionList.iterator();
+
+        while (ite.hasNext()) {
+            ExtensibilityElement extElement = (ExtensibilityElement)ite.next();
+            JAXWSBinding binding = (JAXWSBinding)extElement;
+            assertEquals("Customized package name does not been parsered", "com.foo", binding.getPackage());
+            assertEquals("Customized enableAsync does not parsered", true, binding.isEnableAsyncMapping());
+        }
+
+        PortType portType = customizedDef.getPortType(new QName("http://apache.org/hello_world_soap_http",
+                                                                "Greeter"));
+
+        List portTypeList = portType.getExtensibilityElements();
+        JAXWSBinding binding = (JAXWSBinding)portTypeList.get(0);
+
+        assertEquals("Customized enable EnableWrapperStyle name does not been parsered", true, binding
+            .isEnableWrapperStyle());
+       
+        List opList = portType.getOperations();
+        Operation operation = (Operation)opList.get(0);
+        List extList = operation.getExtensibilityElements();
+        binding = (JAXWSBinding)extList.get(0);
+
+        assertEquals("Customized method name does not parsered", "echoMeOneWay", binding.getMethodName());
+        
+        
+        assertEquals("Customized parameter element name does not parsered", "tns:number1", binding
+            .getJaxwsPara().getElementName());
+        assertEquals("Customized parameter message name does not parsered", "greetMeOneWayRequest", binding
+            .getJaxwsPara().getMessageName());
+        assertEquals("customized parameter name does not parsered", "num1", binding.getJaxwsPara().getName());
+    }
+    
 }
