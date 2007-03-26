@@ -340,8 +340,6 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                 continue;
             }
 
-            String style = SOAPBindingUtil.getCanonicalBindingStyle(binding);
-
             for (Iterator ite2 = binding.getPortType().getOperations().iterator(); ite2.hasNext();) {
                 Operation operation = (Operation)ite2.next();
                 Collection<Fault> faults = operation.getFaults().values();
