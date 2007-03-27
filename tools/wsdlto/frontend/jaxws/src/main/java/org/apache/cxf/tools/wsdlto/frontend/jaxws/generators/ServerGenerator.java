@@ -62,13 +62,11 @@ public class ServerGenerator extends AbstractJAXWSGenerator {
         if (passthrough()) {
             return;
         }
-
+        String address = "";
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
-            String address = "";
-
             Iterator it = javaModel.getServiceClasses().values().iterator();
             while (it.hasNext()) {
                 JavaServiceClass js = (JavaServiceClass)it.next();

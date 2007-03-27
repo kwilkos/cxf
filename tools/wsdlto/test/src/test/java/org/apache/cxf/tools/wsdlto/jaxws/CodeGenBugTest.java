@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.lang.reflect.Modifier;
 
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceClient;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -332,5 +333,19 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull(cls);
         cls = classLoader.loadClass("org.apache.hello_world2.Greeter2");
     }
+    public void testServiceNS() throws Exception {
+        env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/bug321/hello_world_different_ns_service.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.service.SOAPServiceTest1");
+        WebServiceClient webServiceClient = 
+            AnnotationUtil.getPrivClassAnnotation(clz, WebServiceClient.class);
+        assertEquals("http://apache.org/hello_world_soap_http/service", webServiceClient.targetNamespace());
+      
+    }
+    
     
 }
