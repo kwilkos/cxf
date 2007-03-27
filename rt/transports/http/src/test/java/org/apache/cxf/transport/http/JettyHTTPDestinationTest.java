@@ -445,7 +445,11 @@ public class JettyHTTPDestinationTest extends Assert {
                     response.flushBuffer();
                     EasyMock.expectLastCall();                
                 }
+                request.getAttribute("javax.servlet.request.cipher_suite");
+                EasyMock.expectLastCall().andReturn("anythingwilldoreally");
                 request.getAttribute("javax.net.ssl.session");
+                EasyMock.expectLastCall().andReturn(null);
+                request.getAttribute("javax.servlet.request.X509Certificate");
                 EasyMock.expectLastCall().andReturn(null);
             }
         }
@@ -537,7 +541,7 @@ public class JettyHTTPDestinationTest extends Assert {
         assertEquals("unexpected query",
                      inMessage.get(Message.QUERY_STRING),
                      "?name");        
-        assertNull("unexpected query",
+        assertNotNull("unexpected query",
                    inMessage.get(TLSSessionInfo.class));
         verifyRequestHeaders();
                 
