@@ -50,7 +50,6 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         env = new ToolContext();
     }
 
-    
     public void testBuildDefinitionWithXMLBinding() {
         String qname = "http://apache.org/hello_world_xml_http/bare";
         String wsdlUrl = getClass().getResource("hello_world_xml_bare.wsdl").toString();
@@ -201,5 +200,4 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
             .getJaxwsPara().getMessageName());
         assertEquals("customized parameter name does not parsered", "num1", binding.getJaxwsPara().getName());
     }
-    
 }

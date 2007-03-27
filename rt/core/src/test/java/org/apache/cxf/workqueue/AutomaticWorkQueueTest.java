@@ -214,7 +214,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         DeadLockThread dead = new DeadLockThread(workqueue, 200,
                                                  10L);
 
-        assertTrue(checkDeadLock(dead));
+        checkDeadLock(dead);
     }
 
     public void testNonDeadLockEnqueueLoads() {
@@ -225,7 +225,7 @@ public class AutomaticWorkQueueTest extends TestCase {
                                                DEFAULT_DEQUEUE_TIMEOUT);
         DeadLockThread dead = new DeadLockThread(workqueue, 200);
 
-        assertTrue(checkDeadLock(dead));
+        checkDeadLock(dead);
     }
     
     public void testSchedule() throws Exception {
@@ -265,7 +265,7 @@ public class AutomaticWorkQueueTest extends TestCase {
 
         DeadLockThread dead = new DeadLockThread(workqueue, 1000, 5L);
 
-        assertTrue("Should be finished, probably deadlocked", checkDeadLock(dead));
+        checkDeadLock(dead);
 
         // Give threads a chance to dequeue (5sec max)
         int i = 0;
@@ -293,7 +293,7 @@ public class AutomaticWorkQueueTest extends TestCase {
                                                DEFAULT_LOW_WATER_MARK, 100L);
 
         DeadLockThread dead = new DeadLockThread(workqueue, 1000, 5L);
-        assertTrue("Should be finished, probably deadlocked", checkDeadLock(dead));
+        checkDeadLock(dead);
 
         // Give threads a chance to dequeue (5sec max)
         int i = 0;
@@ -319,7 +319,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         assertEquals(0, workqueue.getSize());
         DeadLockThread dead = new DeadLockThread(workqueue, 100, 5L);
         dead.start();
-        assertTrue(checkCompleted(dead));
+        checkCompleted(dead);
 
         workqueue.shutdown(true);
 
@@ -338,7 +338,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         workqueue = null;
     }
 
-    private boolean checkCompleted(DeadLockThread dead) {
+    private void checkCompleted(DeadLockThread dead) {
         int oldCompleted = 0;
         int newCompleted = 0;
         int noProgressCount = 0;
@@ -354,7 +354,10 @@ public class AutomaticWorkQueueTest extends TestCase {
                 //  
                 if (oldCompleted != 0
                     && ++noProgressCount > 5) {
-                    return false;
+                    
+                    fail("No reduction in threads in 1.25 secs: \n" 
+                         + "oldCompleted: " + oldCompleted 
+                         + "\nof " + dead.getWorkItemCount()); 
                 }
             }
             try {
@@ -363,12 +366,11 @@ public class AutomaticWorkQueueTest extends TestCase {
                 // ignore
             }
         }
-        return true;
     }
 
-    private boolean checkDeadLock(DeadLockThread dead) {
+    private void checkDeadLock(DeadLockThread dead) {
         dead.start();
-        return checkCompleted(dead);
+        checkCompleted(dead);
     }
 
     public class TestWorkItem implements Runnable {

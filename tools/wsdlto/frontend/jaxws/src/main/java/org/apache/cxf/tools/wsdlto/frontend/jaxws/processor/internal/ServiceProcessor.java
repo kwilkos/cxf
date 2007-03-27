@@ -173,12 +173,22 @@ public class ServiceProcessor extends AbstractProcessor {
         
         JAXWSBinding infBinding = infInfo.getExtensor(JAXWSBinding.class);
         
-        if (infBinding != null && !infBinding.isEnableAsyncMapping()) {
-            jaxwsBinding.setEnableAsyncMapping(false);
-        }
+        if (infBinding != null) {
+            if (!infBinding.isEnableAsyncMapping()) {
+                jaxwsBinding.setEnableAsyncMapping(false);
+            }
         
-        if (infBinding != null && !infBinding.isEnableWrapperStyle()) {
-            jaxwsBinding.setEnableWrapperStyle(false);
+            if (!infBinding.isEnableWrapperStyle()) {
+                jaxwsBinding.setEnableWrapperStyle(false);
+            }
+
+            if (infBinding.getPackage() != null) {
+                jaxwsBinding.setPackage(infBinding.getPackage());
+            }
+        }
+
+        if (jaxwsBinding.getPackage() != null) {
+            jport.setPackageName(jaxwsBinding.getPackage());
         }
         
         if (infBinding != null && infBinding.getJaxwsClass() != null 

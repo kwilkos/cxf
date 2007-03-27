@@ -84,21 +84,22 @@ public class MIMEProcessor extends AbstractProcessor {
                             jp.setClassName(mimeJavaType);
                         }
                     } else if (JavaType.Style.OUT.equals(style)) {
-                        if (jm.getReturn().getClassName().equals("void")) {
-                            // this is actually an in/out param...
-                            String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
-                            JavaParameter jp = jm.getParameter(paramName);
-                            if (jp == null) {
-                                Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent
-                                    .getPart());
-                                throw new ToolException(message);
-                            } 
-                            jp.setClassName(mimeJavaType);
-                            jp.setHolderClass(mimeJavaType);
-                        } else if (!jm.getReturn().getClassName().equals(mimeJavaType)) {
-                            // jm.getReturn().setType(mimeJavaType);
-                            jm.getReturn().setClassName(mimeJavaType);
+                        String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
+                        JavaType jp = jm.getParameter(paramName);
+                        if (jp == null) {
+                            //check return
+                            if (paramName.equals(jm.getReturn().getName())) {
+                                jp = jm.getReturn();
+                            }
+                        } else {
+                            ((JavaParameter)jp).setHolderClass(mimeJavaType);
                         }
+                        if (jp == null) {
+                            Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent
+                                .getPart());
+                            throw new ToolException(message);
+                        } 
+                        jp.setClassName(mimeJavaType);
                     }
                 }
             }

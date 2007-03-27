@@ -72,7 +72,6 @@ public class CodeGenTest extends ProcessorTestBase {
         env = null;
     }
 
-
     public void testRPCLit() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_rpc_lit.wsdl"));

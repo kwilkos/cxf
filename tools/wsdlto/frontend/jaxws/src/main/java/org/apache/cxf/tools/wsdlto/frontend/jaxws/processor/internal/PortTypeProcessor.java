@@ -36,6 +36,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.InterfaceMapper;
 
 public class PortTypeProcessor extends AbstractProcessor {
@@ -49,14 +50,21 @@ public class PortTypeProcessor extends AbstractProcessor {
         operationMap.clear();
         JavaModel jmodel = context.get(JavaModel.class);
 
-        // TODO: add cusomizing
-        //intf.setJAXWSBinding(customizing(jmodel, portType));
-        //intf.setHandlerChains(CustomizationParser.getInstance().getHandlerChains());
 
         InterfaceInfo interfaceInfo = serviceInfo.getInterface();
+        
 
         JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
         intf.setJavaModel(jmodel);
+
+        JAXWSBinding jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        JAXWSBinding infBinding = interfaceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        if (infBinding != null && infBinding.getPackage() != null) { 
+            intf.setPackageName(infBinding.getPackage());
+        } else if (jaxwsBinding != null && jaxwsBinding.getPackage() != null) {
+            intf.setPackageName(jaxwsBinding.getPackage());            
+        }
+        
         Element handler = (Element)context.get(ToolConstants.HANDLER_CHAIN);
         intf.setHandlerChains(handler);
         
@@ -71,7 +79,7 @@ public class PortTypeProcessor extends AbstractProcessor {
             OperationProcessor operationProcessor = new OperationProcessor(context);
             operationProcessor.process(intf, operation);
         }
-        //Fixed issue 305772
+        
         jmodel.setLocation(intf.getLocation());
         jmodel.addInterface(intf.getName(), intf);
     }

@@ -181,55 +181,80 @@ public final class CustomizationParser {
 
             Node node = null;
             NodeList nestedJaxbNodes = getNestedJaxbBinding(bindings);
+            NodeList nestedJaxbSchemaBindingNodes = getNestedJaxbSchemaBinding(bindings);
 
             ContextImpl ctx = new ContextImpl(bindings);
             node = queryXPathNode(wsdlNode, ctx, expression);
-            if (node != null && nestedJaxbNodes.getLength() == 0) {
+            if (node != null 
+                && nestedJaxbNodes.getLength() == 0
+                && nestedJaxbSchemaBindingNodes.getLength() == 0) {
                 copyBindingsToWsdl(node, bindings, ctx);
             }
 
             if (node != null && nestedJaxbNodes.getLength() != 0) {
                 // append xmlns:jaxb and jaxb:version attribute for schema
-                for (int i = 0; i < nestedJaxbNodes.getLength(); i++) {
-                    Node jaxbNode = nestedJaxbNodes.item(0);
+                Node jaxbNode = nestedJaxbNodes.item(0);
 
-                    String xpathExpress = DOMUtils.getAttribute(jaxbNode, "node");
+                String xpathExpress = DOMUtils.getAttribute(jaxbNode, "node");
 
-                    Node schemaNode = getSchemaNode(node);
+                Node schemaNode = getSchemaNode(node);
 
-                    ctx = new ContextImpl(bindings);
-                    Node targetNode = queryXPathNode(schemaNode, ctx, xpathExpress);
-                    //@@TODO - copy namespaces
-                    Element schemaElement = (Element)schemaNode;
-                    // Element targetElement = (Element)targetNode;
+                ctx = new ContextImpl(bindings);
+                Node targetNode = queryXPathNode(schemaNode, ctx, xpathExpress);
+                //@@TODO - copy namespaces
+                Element schemaElement = (Element)schemaNode;
+                // Element targetElement = (Element)targetNode;
 
-                    String jaxbPrefix = schemaElement.lookupPrefix(ToolConstants.NS_JAXB_BINDINGS);
-                    if (jaxbPrefix == null) {
-                        schemaElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
-                        schemaElement.setAttribute("jaxb:version", "2.0");
-                    }
-
-                    // append jaxb appinfo for value node
-                    Element annoElement = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
-                                                                                  "annotation");
-                    Element appinfoEle = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
-                                                                                 "appinfo");
-
-                    annoElement.appendChild(appinfoEle);
-
-                    for (int j = 0; j < jaxbNode.getChildNodes().getLength(); j++) {
-                        Node cloneNode = ProcessorUtil.cloneNode(node.getOwnerDocument(), jaxbNode
-                            .getChildNodes().item(j), true);
-                        appinfoEle.appendChild(cloneNode);
-                    }
-
-                    if (targetNode.getChildNodes().getLength() > 0) {
-                        targetNode.insertBefore(annoElement, targetNode.getChildNodes().item(0));
-                    } else {                        
-                        targetNode.appendChild(annoElement);
-                    }                    
+                String jaxbPrefix = schemaElement.lookupPrefix(ToolConstants.NS_JAXB_BINDINGS);
+                if (jaxbPrefix == null) {
+                    schemaElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+                    schemaElement.setAttribute("jaxb:version", "2.0");
                 }
+
+                // append jaxb appinfo for value node
+                Element annoElement = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
+                                                                              "annotation");
+                Element appinfoEle = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
+                                                                             "appinfo");
+
+                annoElement.appendChild(appinfoEle);
+
+                for (int j = 0; j < jaxbNode.getChildNodes().getLength(); j++) {
+                    Node cloneNode = ProcessorUtil.cloneNode(node.getOwnerDocument(), jaxbNode
+                        .getChildNodes().item(j), true);
+                    appinfoEle.appendChild(cloneNode);
+                }
+
+                if (targetNode.getChildNodes().getLength() > 0) {
+                    targetNode.insertBefore(annoElement, targetNode.getChildNodes().item(0));
+                } else {                        
+                    targetNode.appendChild(annoElement);
+                }                    
+            } else if (node != null && nestedJaxbSchemaBindingNodes.getLength() != 0) {
+                Element schemaElement = (Element)node;
+                Node jaxbNode = nestedJaxbSchemaBindingNodes.item(0);
+                String jaxbPrefix = schemaElement.lookupPrefix(ToolConstants.NS_JAXB_BINDINGS);
+                if (jaxbPrefix == null) {
+                    schemaElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+                    schemaElement.setAttribute("jaxb:version", "2.0");
+                }
+                // append jaxb appinfo for value node
+                Element annoElement = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
+                                                                              "annotation");
+                Element appinfoEle = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
+                                                                             "appinfo");
+                annoElement.appendChild(appinfoEle);
+                Node cloneNode = ProcessorUtil.cloneNode(node.getOwnerDocument(), jaxbNode, true);
+
+                appinfoEle.appendChild(cloneNode);
+
+                if (schemaElement.getChildNodes().getLength() > 0) {
+                    schemaElement.insertBefore(annoElement, schemaElement.getChildNodes().item(0));
+                } else {                        
+                    schemaElement.appendChild(annoElement);
+                }                
             }
+
         }
 
         Element[] children = getChildElements(bindings, ToolConstants.NS_JAXWS_BINDINGS);
@@ -477,6 +502,9 @@ public final class CustomizationParser {
 
     private NodeList getNestedJaxbBinding(Element bindings) {
         return bindings.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "bindings");
+    }
+    private NodeList getNestedJaxbSchemaBinding(Element bindings) {
+        return bindings.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
     }
 
     public Element getCustomizedWSDLElement() {

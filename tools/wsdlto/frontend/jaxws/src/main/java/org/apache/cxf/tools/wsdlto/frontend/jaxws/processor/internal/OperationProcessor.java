@@ -63,7 +63,7 @@ public class OperationProcessor  extends AbstractProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    public void processMethod(JavaMethod method, OperationInfo operation, 
+    void processMethod(JavaMethod method, OperationInfo operation, 
                               JAXWSBinding globalBinding) throws ToolException {
         if (isAsynCMethod(method)) {
             return;
@@ -114,9 +114,6 @@ public class OperationProcessor  extends AbstractProcessor {
             || opBinding != null && opBinding.isEnableMime()) {
             method.setMimeEnable(true);
         }
-        
-        
-       
     }
 
 
