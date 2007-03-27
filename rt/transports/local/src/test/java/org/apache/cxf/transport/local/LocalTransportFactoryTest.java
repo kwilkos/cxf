@@ -19,6 +19,7 @@
 
 package org.apache.cxf.transport.local;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +33,11 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.junit.Test;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class LocalTransportFactoryTest extends TestCase {
+    @Test
     public void testTransportFactory() throws Exception {
         LocalTransportFactory factory = new LocalTransportFactory();
         
@@ -62,12 +65,39 @@ public class LocalTransportFactoryTest extends TestCase {
         assertEquals("hello", obs.getResponseStream().toString());
     }
 
+    @Test
+    public void testDirectInvocation() throws Exception {
+        LocalTransportFactory factory = new LocalTransportFactory();
+        
+        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
+        AddressType a = new AddressType();
+        a.setLocation("http://localhost/test");
+        ei.addExtensor(a);
+
+        LocalDestination d = (LocalDestination) factory.getDestination(ei);
+        d.setMessageObserver(new EchoObserver());
+        
+        // Set up a listener for the response
+        Conduit conduit = factory.getConduit(ei);
+        TestMessageObserver obs = new TestMessageObserver();
+        conduit.setMessageObserver(obs);
+        
+        MessageImpl m = new MessageImpl();
+        m.put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
+        m.setDestination(d);
+        m.setContent(InputStream.class, new ByteArrayInputStream("hello".getBytes()));
+        conduit.send(m);
+
+        assertEquals("hello", obs.getResponseStream().toString());
+
+    }
     static class EchoObserver implements MessageObserver {
 
         public void onMessage(Message message) {
             try {
                 Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
-
+                message.remove(LocalConduit.DIRECT_DISPATCH);
+                
                 backChannel.send(message);
 
                 OutputStream out = message.getContent(OutputStream.class);
@@ -116,6 +146,7 @@ public class LocalTransportFactoryTest extends TestCase {
 
         public synchronized void onMessage(Message message) {
             try {
+                message.remove(LocalConduit.DIRECT_DISPATCH);
                 copy(message.getContent(InputStream.class), response, 1024);
             } catch (IOException e) {
                 e.printStackTrace();

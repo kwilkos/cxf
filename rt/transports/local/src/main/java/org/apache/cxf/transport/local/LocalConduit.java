@@ -37,7 +37,9 @@ import org.apache.cxf.transport.AbstractConduit;
 public class LocalConduit extends AbstractConduit {
 
     public static final String IN_CONDUIT = LocalConduit.class.getName() + ".inConduit";
+    public static final String RESPONSE_CONDUIT = LocalConduit.class.getName() + ".inConduit";
     public static final String IN_EXCHANGE = LocalConduit.class.getName() + ".inExchange";
+    public static final String DIRECT_DISPATCH = LocalConduit.class.getName() + ".directDispatch";
 
     private static final Logger LOG = LogUtils.getL7dLogger(LocalConduit.class);
     
@@ -49,6 +51,30 @@ public class LocalConduit extends AbstractConduit {
     }
     
     public void send(final Message message) throws IOException {
+        if (Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
+            dispatchDirect(message);
+        } else {
+            dispatchViaPipe(message);
+        }
+    }
+
+    private void dispatchDirect(Message message) {
+        if (destination.getMessageObserver() == null) {
+            throw new IllegalStateException("Local destination does not have a MessageObserver on address " 
+                                            + destination.getAddress().getAddress().getValue());
+        }
+        
+        message.put(IN_CONDUIT, this);
+        Exchange exchange = message.getExchange();
+        if (exchange == null) {
+            exchange = new ExchangeImpl();
+            exchange.setInMessage(message);
+        }
+        exchange.setDestination(destination);
+        destination.getMessageObserver().onMessage(message);
+    }
+
+    private void dispatchViaPipe(final Message message) throws IOException {
         final PipedInputStream stream = new PipedInputStream();
         final LocalConduit conduit = this;
         final Exchange exchange = message.getExchange();
@@ -60,15 +86,15 @@ public class LocalConduit extends AbstractConduit {
         
         final Runnable receiver = new Runnable() {
             public void run() {
-                MessageImpl m = new MessageImpl();
-                m.setContent(InputStream.class, stream);
-                m.setDestination(destination);
-                m.put(IN_CONDUIT, conduit);
+                MessageImpl inMsg = new MessageImpl();
+                inMsg.setContent(InputStream.class, stream);
+                inMsg.setDestination(destination);
+                inMsg.put(IN_CONDUIT, conduit);
                 
                 ExchangeImpl ex = new ExchangeImpl();
-                ex.setInMessage(m);
+                ex.setInMessage(inMsg);
                 ex.put(IN_EXCHANGE, exchange);
-                destination.getMessageObserver().onMessage(m);
+                destination.getMessageObserver().onMessage(inMsg);
             }
         };
 
