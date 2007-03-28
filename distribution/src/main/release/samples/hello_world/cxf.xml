@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="{http://apache.org/hello_world_soap_http}SOAPService" abstract="true">
+        <property name="enableSchemaValidationForAllPort">
+            <value>true</value>
+        </property>
+    </bean>
+
+    <bean id="{http://apache.org/hello_world_soap_http}SoapPort" abstract="true">
+        <property name="enableSchemaValidation">
+            <value>true</value>
+        </property>
+    </bean>
+
+</beans>
+
