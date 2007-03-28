@@ -47,7 +47,8 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
             ? message.getConduit()
             : exchange.getConduit() != null
               ? exchange.getConduit()
-              : exchange.getOutMessage() != null
+              : (exchange.getOutMessage() != null
+                  || exchange.getOutFaultMessage() != null)
                 ? OutgoingChainInterceptor.getBackChannelConduit(exchange)
                 : null;
 

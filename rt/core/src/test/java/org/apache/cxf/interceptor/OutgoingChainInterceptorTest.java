@@ -32,6 +32,7 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.phase.PhaseManagerImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -64,9 +65,8 @@ public class OutgoingChainInterceptorTest extends TestCase {
         empty = new ArrayList<Interceptor>();
 
         bus = control.createMock(Bus.class);
-        PhaseManager pm = control.createMock(PhaseManager.class);
-        EasyMock.expect(bus.getExtension(PhaseManager.class)).andReturn(pm);
-        EasyMock.expect(pm.getOutPhases()).andReturn(phases);
+        PhaseManager pm = new PhaseManagerImpl();
+        EasyMock.expect(bus.getExtension(PhaseManager.class)).andReturn(pm).anyTimes();
 
         service = control.createMock(Service.class);
         endpoint = control.createMock(Endpoint.class);
@@ -75,9 +75,10 @@ public class OutgoingChainInterceptorTest extends TestCase {
         MessageImpl m = new MessageImpl();
         EasyMock.expect(binding.createMessage()).andStubReturn(m);
         
-        EasyMock.expect(endpoint.getService()).andReturn(service);
+        EasyMock.expect(endpoint.getService()).andReturn(service).anyTimes();
         EasyMock.expect(endpoint.getOutInterceptors()).andReturn(empty);
         EasyMock.expect(service.getOutInterceptors()).andReturn(empty);
+        EasyMock.expect(bus.getOutInterceptors()).andReturn(empty);
 
         bopInfo = control.createMock(BindingOperationInfo.class);
         opInfo = control.createMock(OperationInfo.class);

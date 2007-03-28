@@ -31,6 +31,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
@@ -135,26 +136,29 @@ public final class ContextPropertiesMapping {
     public static MessageContext createWebServiceContext(Exchange exchange) {
         MessageContext ctx = new WrappedMessageContext(exchange.getInMessage());
         mapCxf2Jaxws(ctx);        
+        addMessageAttachments(ctx, 
+                              exchange.getInMessage(), 
+                              MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
+
         Object requestHeaders = 
             exchange.getInMessage().get(Message.PROTOCOL_HEADERS);
         if (null != requestHeaders) {
             ctx.put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
-        }       
-
-        addMessageAttachments(ctx, 
-                              exchange.getInMessage(), 
-                              MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
         
-        Message outMessage = exchange.getOutMessage();
-        if (null != outMessage) {
+            Message outMessage = exchange.getOutMessage();
+            if (outMessage == null) {
+                Endpoint ep = exchange.get(Endpoint.class);
+                outMessage = ep.getBinding().createMessage();
+                exchange.setOutMessage(outMessage);
+            }
             Object responseHeaders =
                 outMessage.get(Message.PROTOCOL_HEADERS);
             if (responseHeaders == null) {
                 responseHeaders = new HashMap<String, List<String>>();
-                outMessage.put(Message.PROTOCOL_HEADERS, responseHeaders);         
+                outMessage.put(Message.PROTOCOL_HEADERS, responseHeaders);
             }
             ctx.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeaders);
-        }   
+        }
         return ctx;
     }
     

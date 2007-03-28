@@ -55,15 +55,24 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
             public void run() {
 
                 Object result = invoker.invoke(message.getExchange(), getInvokee(message));
-
-                if (result != null) {
-                    if (result instanceof List) {
-                        exchange.getOutMessage().setContent(List.class, result);
-                    } else if (result.getClass().isArray()) {
-                        result = Arrays.asList((Object[])result);
-                        exchange.getOutMessage().setContent(List.class, result);
-                    } else {
-                        exchange.getOutMessage().setContent(Object.class, result);
+                if (!exchange.isOneWay()) {
+                    Endpoint ep = exchange.get(Endpoint.class);
+                    
+                    Message outMessage = message.getExchange().getOutMessage();
+                    if (outMessage == null) {
+                        outMessage = ep.getBinding().createMessage();
+                        exchange.setOutMessage(outMessage);
+                    }
+                    copyJaxwsProperties(message, outMessage);
+                    if (result != null) {
+                        if (result instanceof List) {
+                            outMessage.setContent(List.class, result);
+                        } else if (result.getClass().isArray()) {
+                            result = Arrays.asList((Object[])result);
+                            outMessage.setContent(List.class, result);
+                        } else {
+                            outMessage.setContent(Object.class, result);
+                        }                    
                     }                    
                 }
             }
@@ -96,4 +105,12 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
     private Executor getExecutor(final Endpoint endpoint) {
         return endpoint.getService().getExecutor();
     }
+    
+    private void copyJaxwsProperties(Message inMsg, Message outMsg) {       
+        outMsg.put(Message.WSDL_OPERATION, inMsg.get(Message.WSDL_OPERATION));
+        outMsg.put(Message.WSDL_SERVICE, inMsg.get(Message.WSDL_SERVICE));
+        outMsg.put(Message.WSDL_INTERFACE, inMsg.get(Message.WSDL_INTERFACE));
+        outMsg.put(Message.WSDL_PORT, inMsg.get(Message.WSDL_PORT));
+        outMsg.put(Message.WSDL_DESCRIPTION, inMsg.get(Message.WSDL_DESCRIPTION));
+    }    
 }

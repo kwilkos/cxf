@@ -20,11 +20,18 @@
 package org.apache.cxf.interceptor;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -32,7 +39,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> {
-
+    private static final Logger LOG = Logger.getLogger(OutgoingChainInterceptor.class.getName());
     public OutgoingChainInterceptor() {
         super();
         setPhase(Phase.POST_INVOKE);
@@ -51,14 +58,19 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
                 out.put(MessageInfo.class, bin.getOperationInfo().getOutput());
                 out.put(BindingMessageInfo.class, bin.getOutput());
             }
-            out.getInterceptorChain().doIntercept(out);
+            
+            InterceptorChain outChain = out.getInterceptorChain();
+            if (outChain == null) {
+                outChain = getOutInterceptorChain(ex);
+                out.setInterceptorChain(outChain);
+            }
+            outChain.doIntercept(out);
         }
     }
     
     protected static Conduit getBackChannelConduit(Exchange ex) {
         Conduit conduit = null;
-        if (ex.getOutMessage().getConduit() == null
-            && ex.getConduit() == null
+        if (ex.getConduit() == null
             && ex.getDestination() != null) {
             try {
                 EndpointReferenceType target =
@@ -72,4 +84,37 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
         }
         return conduit;
     }
+    
+    public static InterceptorChain getOutInterceptorChain(Exchange ex) {
+        Bus bus = ex.get(Bus.class);
+        PhaseManager pm = bus.getExtension(PhaseManager.class);
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
+        
+        Endpoint ep = ex.get(Endpoint.class);
+        List<Interceptor> il = ep.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + il);
+        }
+        chain.add(il);
+        il = ep.getService().getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by service: " + il);
+        }
+        chain.add(il);
+        il = bus.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + il);
+        }
+        chain.add(il);        
+        if (ep.getBinding() != null) {
+            il = ep.getBinding().getOutInterceptors();
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Interceptors contributed by binding: " + il);
+            }
+            chain.add(il);
+        }
+        chain.setFaultObserver(ep.getOutFaultObserver());
+        return chain;
+    }
 }
+

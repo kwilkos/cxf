@@ -41,7 +41,7 @@ import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
+import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -346,7 +346,7 @@ public final class ContextUtils {
                     InterceptorChain chain =
                         fullResponse != null
                         ? fullResponse.getInterceptorChain()
-                        : OutgoingChainSetupInterceptor.getOutInterceptorChain(exchange);
+                        : OutgoingChainInterceptor.getOutInterceptorChain(exchange);
                     partialResponse.setInterceptorChain(chain);
                     exchange.setConduit(backChannel);
                     
@@ -362,6 +362,9 @@ public final class ContextUtils {
                     partialResponse.getInterceptorChain().reset();
                     exchange.setConduit(null);
                     if (fullResponse != null) {
+                        exchange.setOutMessage(fullResponse);
+                    } else {
+                        fullResponse = endpoint.getBinding().createMessage();
                         exchange.setOutMessage(fullResponse);
                     }
                     
@@ -396,7 +399,13 @@ public final class ContextUtils {
      */
     public static void propogateReceivedMAPs(AddressingProperties inMAPs,
                                               Exchange exchange) {
+        if (exchange.getOutMessage() == null) {
+            exchange.setOutMessage(createMessage(exchange));
+        }
         propogateReceivedMAPs(inMAPs, exchange.getOutMessage());
+        if (exchange.getOutFaultMessage() == null) {
+            exchange.setOutFaultMessage(createMessage(exchange));
+        }
         propogateReceivedMAPs(inMAPs, exchange.getOutFaultMessage());
     }
 
@@ -717,15 +726,20 @@ public final class ContextUtils {
         }
         return method;
     }
+    
+    /**
+     * Create a Binding specific Message.
+     * 
+     * @param message the current message
+     * @return the Method from the BindingOperationInfo
+     */
+    private static Message createMessage(Exchange exchange) {
+        Endpoint ep = exchange.get(Endpoint.class);
+        Message msg = null;
+        if (ep != null) {
+            msg = ep.getBinding().createMessage();
+        }
+        return msg;
+    }
+    
 }
-
-
-
-
-
-
-
-
-
-
-

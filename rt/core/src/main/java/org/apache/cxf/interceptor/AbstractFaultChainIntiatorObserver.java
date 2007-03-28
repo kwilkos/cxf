@@ -24,8 +24,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -45,11 +45,12 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
 
     public void onMessage(Message m) {
         Message faultMessage = getFaultMessage(m);
+        Exchange ex = m.getExchange();
         if (faultMessage == null) {
-            faultMessage = new MessageImpl();
+            Endpoint ep = ex.get(Endpoint.class);
+            faultMessage = ep.getBinding().createMessage();
         }
         
-        faultMessage = m.getExchange().get(Binding.class).createMessage(faultMessage);
         setFaultMessage(m, faultMessage);
         MessageImpl.copyContent(m, faultMessage);
 
@@ -60,7 +61,7 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         faultMessage.setInterceptorChain(chain);
         try {
             chain.doIntercept(faultMessage);
-        } catch (Exception ex) {
+        } catch (Exception exc) {
             LogUtils.log(LOG, Level.INFO, "Error occured during error handling, give up!", ex);
         }
     }

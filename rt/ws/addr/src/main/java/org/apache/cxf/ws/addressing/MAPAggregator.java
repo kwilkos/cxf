@@ -35,7 +35,6 @@ import javax.wsdl.extensions.ExtensibilityElement;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -83,8 +82,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     public MAPAggregator() {
         super();
         setPhase(Phase.PRE_LOGICAL);
-        // this is necessary so that MAPs can be propagated 
-        addAfter(OutgoingChainSetupInterceptor.class.getName());
     }
 
     /**
