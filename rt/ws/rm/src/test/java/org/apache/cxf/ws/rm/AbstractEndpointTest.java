@@ -21,18 +21,18 @@ package org.apache.cxf.ws.rm;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.endpoint.Endpoint;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * 
  */
-public class AbstractEndpointTest extends TestCase {
+public class AbstractEndpointTest extends Assert {
 
     private IMocksControl control;    
     private RMEndpoint rme;

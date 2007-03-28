@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -39,10 +38,11 @@ import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RMOutInterceptorTest extends TestCase {
+public class RMOutInterceptorTest extends Assert {
     
     private IMocksControl control;
     

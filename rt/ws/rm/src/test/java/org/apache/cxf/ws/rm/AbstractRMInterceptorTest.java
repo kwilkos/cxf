@@ -22,7 +22,6 @@ package org.apache.cxf.ws.rm;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -33,13 +32,14 @@ import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * 
  */
-public class AbstractRMInterceptorTest extends TestCase {
+public class AbstractRMInterceptorTest extends Assert {
 
     private IMocksControl control;
 

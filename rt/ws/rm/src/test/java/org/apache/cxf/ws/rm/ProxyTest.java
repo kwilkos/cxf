@@ -26,7 +26,6 @@ import java.util.Map;
 
 import javax.xml.datatype.Duration;
 
-import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
@@ -48,13 +47,14 @@ import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * 
  */
-public class ProxyTest extends TestCase {
+public class ProxyTest extends Assert {
 
     private IMocksControl control;
     private RMEndpoint rme;

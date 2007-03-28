@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
@@ -44,12 +42,16 @@ import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
  * Test resend logic.
  */
-public class RetransmissionQueueImplTest extends TestCase {
+public class RetransmissionQueueImplTest extends Assert {
 
     private IMocksControl control;
     private RMManager manager;
@@ -68,6 +70,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         new ArrayList<Object>();
     private RMAssertion rma;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
         manager = createMock(RMManager.class);
@@ -79,6 +82,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertNotNull(executor);
     }
     
+    @After
     public void tearDown() {
         control.verify();
         queue.stop();
@@ -89,7 +93,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         control.reset();
     }
     
-    
+    @Test
     public void testCtor() {
         ready(false);        
         assertNotNull("expected unacked map", queue.getUnacknowledged());
@@ -103,6 +107,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertSame("Unexpected RMManager", manager, queue.getManager());        
     }
     
+    @Test
     public void testGetBaseRetransmissionIntervalFromManager() {
         Message message = createMock(Message.class);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
@@ -110,7 +115,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(null);
         control.replay();
         assertEquals("Unexpected value for base retransmission interval", 
-                     0, queue.getBaseRetransmissionInterval(message));
+                     0L, queue.getBaseRetransmissionInterval(message));
         control.verify();
         control.reset();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
@@ -120,7 +125,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         EasyMock.expect(bri.getMilliseconds()).andReturn(null);
         control.replay();
         assertEquals("Unexpected value for base retransmission interval", 
-                     0, queue.getBaseRetransmissionInterval(message));
+                     0L, queue.getBaseRetransmissionInterval(message));
         control.verify();
         control.reset();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
@@ -129,9 +134,10 @@ public class RetransmissionQueueImplTest extends TestCase {
         EasyMock.expect(bri.getMilliseconds()).andReturn(new BigInteger("7000"));
         control.replay();
         assertEquals("Unexpected value for base retransmission interval", 
-                     7000, queue.getBaseRetransmissionInterval(message));
+                     7000L, queue.getBaseRetransmissionInterval(message));
     }
     
+    @Test
     public void testUseExponentialBackoff() {
         Message message = createMock(Message.class);
         AssertionInfoMap aim = createMock(AssertionInfoMap.class);
@@ -163,6 +169,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertTrue("Should use exponential backoff", queue.useExponentialBackoff(message));        
     }
     
+    @Test
     public void testResendCandidateCtor() {
         Message message = createMock(Message.class);
         setupMessagePolicies(message);
@@ -178,6 +185,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertTrue(!candidate.isPending());
     }
     
+    @Test
     public void testResendCandidateAttempted() {
         Message message = createMock(Message.class);
         setupMessagePolicies(message);
@@ -193,6 +201,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertTrue(!candidate.isPending());        
     }
     
+    @Test
     public void testCacheUnacknowledged() {
         Message message1 = setUpMessage("sequence1");
         Message message2 = setUpMessage("sequence2");
@@ -241,6 +250,7 @@ public class RetransmissionQueueImplTest extends TestCase {
                    sequence1List.get(1).getMessage());
     }
     
+    @Test
     public void testPurgeAcknowledgedSome() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
         SourceSequence sequence = setUpSequence("sequence1",
@@ -269,6 +279,7 @@ public class RetransmissionQueueImplTest extends TestCase {
                      sequenceList.size());
     }
     
+    @Test
     public void testPurgeAcknowledgedNone() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
         SourceSequence sequence = setUpSequence("sequence1",
@@ -297,11 +308,13 @@ public class RetransmissionQueueImplTest extends TestCase {
                      sequenceList.size());
     }
     
+    @Test
     public void testIsEmpty() {
         ready(false);
         assertTrue("queue is not empty" , queue.isEmpty());
     }
 
+    @Test
     public void testCountUnacknowledged() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
         SourceSequence sequence = setUpSequence("sequence1",
@@ -328,6 +341,7 @@ public class RetransmissionQueueImplTest extends TestCase {
         assertTrue("queue is empty", !queue.isEmpty());
     }
     
+    @Test
     public void testCountUnacknowledgedUnknownSequence() {
         BigInteger[] messageNumbers = {BigInteger.TEN, BigInteger.ONE};
         SourceSequence sequence = setUpSequence("sequence1",
@@ -340,6 +354,7 @@ public class RetransmissionQueueImplTest extends TestCase {
                      queue.countUnacknowledged(sequence));
     }
     
+    @Test
     public void testStartStop() {
         control.replay();
         queue.start();

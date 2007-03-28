@@ -21,7 +21,6 @@ package org.apache.cxf.ws.rm;
 
 import java.util.List;
 
-import junit.framework.TestCase;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -30,13 +29,14 @@ import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * 
  */
-public class RMContextUtilsTest extends TestCase {
+public class RMContextUtilsTest extends Assert {
     
     private IMocksControl control;
     

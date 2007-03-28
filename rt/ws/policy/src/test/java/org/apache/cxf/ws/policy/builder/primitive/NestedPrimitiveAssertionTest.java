@@ -151,9 +151,4 @@ public class NestedPrimitiveAssertionTest extends Assert {
                        PolicyComparator.compare(expectedNormalisedPolicy, normalisedPolicy));
         }
     }
-    
-    @Test
-    public void testCompatible() {
-        
-    }
 }

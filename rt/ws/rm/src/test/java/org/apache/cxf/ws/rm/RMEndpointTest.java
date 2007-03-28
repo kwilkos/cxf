@@ -25,7 +25,6 @@ import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.service.Service;
@@ -45,10 +44,11 @@ import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RMEndpointTest extends TestCase {
+public class RMEndpointTest extends Assert {
     
     private IMocksControl control;
     private RMManager manager;

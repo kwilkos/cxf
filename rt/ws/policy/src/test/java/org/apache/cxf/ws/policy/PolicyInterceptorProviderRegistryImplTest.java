@@ -19,13 +19,13 @@
 
 package org.apache.cxf.ws.policy;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyInterceptorProviderRegistryImplTest extends TestCase {
+public class PolicyInterceptorProviderRegistryImplTest extends Assert {
 
     @Test
     public void testConstructors() {

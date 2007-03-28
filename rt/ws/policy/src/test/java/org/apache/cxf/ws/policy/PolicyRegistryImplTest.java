@@ -19,16 +19,16 @@
 
 package org.apache.cxf.ws.policy;
 
-import junit.framework.TestCase;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyRegistryImplTest extends TestCase {
+public class PolicyRegistryImplTest extends Assert {
 
     @Test
     public void testAll() {

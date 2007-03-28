@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
-import junit.framework.TestCase;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
@@ -35,13 +34,14 @@ import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * 
  */
-public class DestinationTest extends TestCase {
+public class DestinationTest extends Assert {
 
     private IMocksControl control;
     private RMEndpoint rme;

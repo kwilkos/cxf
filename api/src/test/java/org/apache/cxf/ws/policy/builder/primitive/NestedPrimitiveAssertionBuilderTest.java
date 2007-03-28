@@ -24,9 +24,9 @@ import java.io.InputStream;
 import java.util.Collections;
 
 import javax.xml.namespace.QName;
+
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.PolicyBuilder;
@@ -35,12 +35,15 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
  * 
  */
-public class NestedPrimitiveAssertionBuilderTest extends TestCase {
+public class NestedPrimitiveAssertionBuilderTest extends Assert {
 
     private static final String TEST_NAMESPACE = "http://www.w3.org/2007/01/addressing/metadata";
     private static final QName TEST_NAME1 = new QName(TEST_NAMESPACE, "Addressing");
@@ -52,6 +55,7 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
     private PolicyBuilder builder;
     private AssertionBuilderRegistry reg;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
         npab = new NestedPrimitiveAssertionBuilder();
@@ -62,9 +66,7 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
         npab.setAssertionBuilderRegistry(reg);
     }
     
-    public void tearDown() {        
-    }
-    
+    @Test
     public void testBuildFail() throws Exception {
         String data = 
             "<wsam:Addressing wsp:Optional=\"true\""
@@ -79,6 +81,7 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
         }
     }
     
+    @Test
     public void testBuild() throws Exception {
         String data = 
             "<wsam:Addressing wsp:Optional=\"true\""
@@ -96,6 +99,7 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testBuildCompatibleNoRegistry() {
         npab.setAssertionBuilderRegistry(null);
         Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies(); 
@@ -103,6 +107,7 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
         assertNull("Should not have been able to build compatible policy.", npab.buildCompatible(a, a));
     }
     
+    @Test
     public void testCompatibleWithSelf() {
         Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies();
         EasyMock.expect(reg.get(TEST_NAME1)).andReturn(npab).anyTimes();
@@ -120,7 +125,7 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
         control.verify();
     }
         
-    
+    @Test
     public void testBuildCompatible() {
         Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies();
         EasyMock.expect(reg.get(TEST_NAME1)).andReturn(npab).anyTimes();

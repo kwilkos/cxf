@@ -25,7 +25,6 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.TimerTask;
 
-import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -42,11 +41,12 @@ import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class RMManagerTest extends TestCase {
+public class RMManagerTest extends Assert {
     
     private IMocksControl control;
     
@@ -96,8 +96,8 @@ public class RMManagerTest extends TestCase {
         assertTrue(!rma.isSetInactivityTimeout());   
         
         SourcePolicyType sp = manager.getSourcePolicy();
-        assertEquals(0, sp.getSequenceExpiration().getTimeInMillis(new Date()));
-        assertEquals(0, sp.getOfferedSequenceExpiration().getTimeInMillis(new Date()));
+        assertEquals(0L, sp.getSequenceExpiration().getTimeInMillis(new Date()));
+        assertEquals(0L, sp.getOfferedSequenceExpiration().getTimeInMillis(new Date()));
         assertNull(sp.getAcksTo());
         assertTrue(sp.isIncludeOffer());
         SequenceTerminationPolicyType stp = sp.getSequenceTerminationPolicy();
@@ -110,8 +110,7 @@ public class RMManagerTest extends TestCase {
     
     @Ignore
     @Test
-    public void xtestGetReliableEndpoint() {
-        
+    public void testGetReliableEndpoint() {    
         RMManager manager = new RMManager();
         Bus bus = control.createMock(Bus.class);
         manager.setBus(bus);

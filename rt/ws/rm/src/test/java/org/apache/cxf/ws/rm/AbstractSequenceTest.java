@@ -18,10 +18,10 @@
  */
 package org.apache.cxf.ws.rm;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class AbstractSequenceTest extends TestCase {
+public class AbstractSequenceTest extends Assert {
 
     @Test
     public void testIdentifierEquals() {

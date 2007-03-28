@@ -26,17 +26,18 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.test.assertions.foo.FooType;
 import org.apache.neethi.Assertion;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 
  */
-public class JaxbAssertionBuilderTest extends TestCase {
+public class JaxbAssertionBuilderTest extends Assert {
     
+    @Test
     public void testConstructors() throws Exception {        
         QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
         try {
@@ -50,7 +51,7 @@ public class JaxbAssertionBuilderTest extends TestCase {
         assertNotNull(new JaxbAssertionBuilder<FooType>(FooType.class, qn));
     }
     
-    
+    @Test
     public void testGetKnownElements() throws Exception {
         QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
         JaxbAssertionBuilder<FooType> ab = new JaxbAssertionBuilder<FooType>(FooType.class, qn);
@@ -58,8 +59,8 @@ public class JaxbAssertionBuilderTest extends TestCase {
         assertEquals(1, ab.getKnownElements().size());
         assertSame(qn, ab.getKnownElements().iterator().next());
     }
-
-    @SuppressWarnings(value = "unchecked")
+    
+    @Test
     public void testBuild() throws Exception {
         QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
         JaxbAssertionBuilder<FooType> ab = new JaxbAssertionBuilder<FooType>(FooType.class, qn);

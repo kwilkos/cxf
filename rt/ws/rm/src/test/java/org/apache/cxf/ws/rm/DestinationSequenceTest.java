@@ -26,7 +26,6 @@ import java.util.Timer;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
@@ -40,10 +39,11 @@ import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DestinationSequenceTest extends TestCase {
+public class DestinationSequenceTest extends Assert {
 
     private IMocksControl control;
     private ObjectFactory factory;

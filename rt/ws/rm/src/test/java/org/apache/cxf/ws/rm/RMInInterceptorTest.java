@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -38,10 +37,11 @@ import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RMInInterceptorTest extends TestCase {
+public class RMInInterceptorTest extends Assert {
     
     private IMocksControl control;
     private RMProperties rmps;

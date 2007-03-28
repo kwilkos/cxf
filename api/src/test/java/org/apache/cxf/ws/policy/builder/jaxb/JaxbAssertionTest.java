@@ -24,8 +24,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.test.assertions.foo.FooType;
 import org.apache.cxf.ws.policy.builder.xml.XmlPrimitiveAssertion;
@@ -36,12 +34,15 @@ import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 
  */
-public class JaxbAssertionTest extends TestCase {
+public class JaxbAssertionTest extends Assert {
 
+    @Test
     public void testBasic() {
         JaxbAssertion<FooType> assertion = new JaxbAssertion<FooType>();
         assertNull(assertion.getName());
@@ -61,6 +62,7 @@ public class JaxbAssertionTest extends TestCase {
         assertEquals(Constants.TYPE_ASSERTION, assertion.getType());
     }
     
+    @Test
     public void testEqual() {
         JaxbAssertion<FooType> assertion = new JaxbAssertion<FooType>();
         FooType data = new FooType();
@@ -101,6 +103,7 @@ public class JaxbAssertionTest extends TestCase {
         assertTrue(assertion.equal(assertion));          
     }
     
+    @Test
     public void testNormalise() {
         JaxbAssertion<FooType> assertion = new JaxbAssertion<FooType>();
         FooType data = new FooType();

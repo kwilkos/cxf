@@ -34,8 +34,6 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.message.Exchange;
@@ -50,8 +48,12 @@ import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceType;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class RMSoapInterceptorTest extends TestCase {
+
+public class RMSoapInterceptorTest extends Assert {
 
     private static final String SEQ_IDENTIFIER = "http://Business456.com/RM/ABC";
     private static final BigInteger MSG1_MESSAGE_NUMBER = BigInteger.ONE;
@@ -66,10 +68,12 @@ public class RMSoapInterceptorTest extends TestCase {
     private AckRequestedType ar1;
     private AckRequestedType ar2;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl(); 
     }
 
+    @Test
     public void testGetUnderstoodHeaders() throws Exception {
         RMSoapInterceptor codec = new RMSoapInterceptor();
         Set<QName> headers = codec.getUnderstoodHeaders();
@@ -81,6 +85,7 @@ public class RMSoapInterceptorTest extends TestCase {
                    headers.contains(RMConstants.getAckRequestedQName()));
     }
     
+    @Test
     public void testHandleMessage() throws NoSuchMethodException {
         Method m = RMSoapInterceptor.class.getDeclaredMethod("mediate", 
             new Class[] {SoapMessage.class});
@@ -94,6 +99,7 @@ public class RMSoapInterceptorTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testHandleFault() throws NoSuchMethodException {
         Method m = RMSoapInterceptor.class.getDeclaredMethod("mediate", 
             new Class[] {SoapMessage.class});
@@ -107,6 +113,7 @@ public class RMSoapInterceptorTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testMediate() throws NoSuchMethodException {
         Method m1 = RMSoapInterceptor.class.getDeclaredMethod("encode", 
                                                              new Class[] {SoapMessage.class});
@@ -136,6 +143,7 @@ public class RMSoapInterceptorTest extends TestCase {
         
     }
 
+    @Test
     public void testEncode() throws Exception {
         RMSoapInterceptor codec = new RMSoapInterceptor();
         setUpOutbound();
@@ -195,6 +203,7 @@ public class RMSoapInterceptorTest extends TestCase {
                                              RMConstants.getAckRequestedName()});
     }
 
+    @Test
     public void testDecodeSequence() throws XMLStreamException {
         SoapMessage message = setUpInboundMessage("resources/Message1.xml");
         RMSoapInterceptor codec = new RMSoapInterceptor();
@@ -210,6 +219,7 @@ public class RMSoapInterceptorTest extends TestCase {
 
     }
 
+    @Test
     public void testDecodeAcknowledgements() throws XMLStreamException {
         SoapMessage message = setUpInboundMessage("resources/Acknowledgment.xml");
         RMSoapInterceptor codec = new RMSoapInterceptor();
@@ -226,6 +236,7 @@ public class RMSoapInterceptorTest extends TestCase {
         assertNull(rmps.getAcksRequested());
     }
 
+    @Test
     public void testDecodeAcksRequested() throws XMLStreamException {
         SoapMessage message = setUpInboundMessage("resources/Retransmission.xml");
         RMSoapInterceptor codec = new RMSoapInterceptor();

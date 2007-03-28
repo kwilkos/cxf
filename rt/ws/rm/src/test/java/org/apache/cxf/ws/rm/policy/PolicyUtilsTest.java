@@ -23,8 +23,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
@@ -32,22 +30,29 @@ import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyUtilsTest extends TestCase {
+public class PolicyUtilsTest extends Assert {
 
     private IMocksControl control;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
     }
     
+    @After
     public void tearDown() {
         control.verify();
     }
     
+    @Test
     public void testGetBaseRetranmissionInterval() {
         Message message = control.createMock(Message.class);
         AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
@@ -97,6 +102,7 @@ public class PolicyUtilsTest extends TestCase {
                      5000, PolicyUtils.getBaseRetransmissionInterval(message).intValue());
     }
     
+    @Test
     public void testUseExponentialBackoff() {
         Message message = control.createMock(Message.class);
         AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
@@ -118,7 +124,8 @@ public class PolicyUtilsTest extends TestCase {
         control.replay();
         assertTrue("Should use exponential backoff", PolicyUtils.useExponentialBackoff(message));    
     }
-    
+   
+    @Test
     public void testGetAcknowledgmentInterval() {
         Message message = control.createMock(Message.class);
         AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
