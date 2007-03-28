@@ -19,12 +19,14 @@
 
 package org.apache.cxf.jaxws.interceptors;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
@@ -78,6 +80,8 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             for (int i = 0; i < size; i++) {
                 newObjects.add(null);
             }
+            
+            handleNullHolder(message, outObjects);
             int[] argsOffset = removeOutHolderFromParaList(outObjects, parts, holders, size, newObjects);
             
             if (holders.size() == 0) {
@@ -117,33 +121,54 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             message.setContent(List.class, newObjects);
             message.getExchange().put(HolderInInterceptor.CLIENT_HOLDERS, holders);
         } else {
-            // Add necessary holders so we match the method signature of the service class
-            List<Object> reqObjects =
-                CastUtils.cast(message.getExchange().getInMessage().getContent(List.class));
-    
-            int outIdx = 0;
-            for (MessagePartInfo part : parts) {
-                if (part.getIndex() == -1) {
-                    outIdx++;
-                    break;
-                }
-            }
-            
-            for (MessagePartInfo part : parts) {
-                int methodIdx = part.getIndex();
-                if (methodIdx >= 0) {
-                    Holder holder = (Holder) reqObjects.get(methodIdx);
-                    Object o = holder.value;
-                    if (outIdx >= outObjects.size()) {
-                        outObjects.add(o);
-                    } else {
-                        outObjects.add(outIdx, o);
-                    }
-                    outIdx++;
-                }
-            }
-            message.setContent(List.class, outObjects);
+            handleResponse(message, outObjects, parts);
         }
+    }
+
+    private void handleResponse(Message message, List<Object> outObjects, List<MessagePartInfo> parts) {
+        // Add necessary holders so we match the method signature of the service class
+        List<Object> reqObjects =
+            CastUtils.cast(message.getExchange().getInMessage().getContent(List.class));
+   
+        int outIdx = 0;
+        for (MessagePartInfo part : parts) {
+            if (part.getIndex() == -1) {
+                outIdx++;
+                break;
+            }
+        }
+        
+        for (MessagePartInfo part : parts) {
+            int methodIdx = part.getIndex();
+            if (methodIdx >= 0) {
+                Holder holder = (Holder) reqObjects.get(methodIdx);
+                Object o = holder.value;
+                if (outIdx >= outObjects.size()) {
+                    outObjects.add(o);
+                } else {
+                    outObjects.add(outIdx, o);
+                }
+                outIdx++;
+            }
+        }
+        message.setContent(List.class, outObjects);
+    }
+
+    private void handleNullHolder(Message message, List<Object> outObjects) {
+        //process outObjects if Holder itself is null
+        Method method = (Method)message.get(Client.REQUEST_METHOD);
+        if (method == null) {
+            return;
+        }
+        Class<?>[] paramTypes = method.getParameterTypes();
+        int idx = 0;
+        for (Class rawClass : paramTypes) {
+            if (rawClass.equals(Holder.class) && outObjects.get(idx) == null) {
+                outObjects.set(idx, new Holder());
+            }
+            idx++;
+        }
+        
     }
 
     private int[] removeOutHolderFromParaList(List<Object> outObjects, 

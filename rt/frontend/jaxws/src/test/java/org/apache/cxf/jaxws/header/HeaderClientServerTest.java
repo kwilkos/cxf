@@ -286,6 +286,20 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
             throw (Exception)ex.getCause();
         }
     } 
+    
+    @Test
+    public void testHolderNull() {
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
+        assertNotNull(service);
+        TestHeader proxy = service.getPort(portName, TestHeader.class);
+        proxy.testHeader2(null, null, null);
+        proxy.testHeader3(null, null);
+        proxy.testHeader5(null, null, null);
+        proxy.testHeaderPartBeforeBodyPart(null, null);
+    }
 
   // REVIST: This is not a valid WSDL according to WSI-BP V1.0
   //     @Test

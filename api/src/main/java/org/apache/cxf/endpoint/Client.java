@@ -31,7 +31,7 @@ import org.apache.cxf.transport.MessageObserver;
 public interface Client extends InterceptorProvider, MessageObserver {
     String REQUEST_CONTEXT = "RequestContext";
     String RESPONSE_CONTEXT = "ResponseContext";
-    
+    String REQUEST_METHOD = "RequestMethod";
     /**
      * Invokes an operation syncronously
      * @param operationName The name of the operation to be invoked. The service namespace will be used

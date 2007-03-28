@@ -111,9 +111,9 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
         context.put(Client.REQUEST_CONTEXT, reqContext);
         context.put(Client.RESPONSE_CONTEXT, respContext);
-
+       
         reqContext.put(Method.class.getName(), method);
-
+        reqContext.put(Client.REQUEST_METHOD, method);
         boolean isAsync = method.getName().endsWith("Async");
 
         Object result = null;
