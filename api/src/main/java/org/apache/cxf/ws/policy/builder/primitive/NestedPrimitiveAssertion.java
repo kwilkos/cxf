@@ -93,11 +93,15 @@ public class NestedPrimitiveAssertion extends PrimitiveAssertion {
         Iterator alternatives = normalisedNested.getAlternatives();
         while (alternatives.hasNext()) {
             All all = new All();
-            all.addPolicyComponent(super.cloneMandatory());
             List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
             NestedPrimitiveAssertion a = new NestedPrimitiveAssertion(getName(), false);
             a.nested = new Policy();
-            a.nested.addPolicyComponents(alternative);
+            ExactlyOne nea = new ExactlyOne();
+            a.nested.addPolicyComponent(nea);
+            All na = new All();
+            nea.addPolicyComponent(na);
+            na.addPolicyComponents(alternative);
+            all.addPolicyComponent(a);
             ea.addPolicyComponent(all);            
         } 
         return p;      
@@ -106,4 +110,19 @@ public class NestedPrimitiveAssertion extends PrimitiveAssertion {
     public Policy getNested() {
         return nested;
     }
+
+    @Override
+    public boolean equal(PolicyComponent policyComponent) {
+        if (!super.equal(policyComponent)) {
+            return false;
+        }
+        NestedPrimitiveAssertion other = (NestedPrimitiveAssertion)policyComponent;
+        return getNested().equal(other.getNested());
+    }
+    
+    protected void setNested(Policy n) {
+        nested = n;
+    }
+    
+    
 }

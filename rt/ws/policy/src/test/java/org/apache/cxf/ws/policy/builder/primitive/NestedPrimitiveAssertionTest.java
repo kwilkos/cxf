@@ -149,7 +149,11 @@ public class NestedPrimitiveAssertionTest extends Assert {
             assertTrue("Normalised version of policy defined in compact" + i
                        + ".xml does not match expected version defined in normalised" + i + ".xml",
                        PolicyComparator.compare(expectedNormalisedPolicy, normalisedPolicy));
-            
-        }       
+        }
+    }
+    
+    @Test
+    public void testCompatible() {
+        
     }
 }

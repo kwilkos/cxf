@@ -24,14 +24,14 @@ import java.io.InputStream;
 import java.util.Collections;
 
 import javax.xml.namespace.QName;
-
 import org.w3c.dom.Element;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -44,17 +44,22 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
 
     private static final String TEST_NAMESPACE = "http://www.w3.org/2007/01/addressing/metadata";
     private static final QName TEST_NAME1 = new QName(TEST_NAMESPACE, "Addressing");
+    private static final QName TEST_NAME2 = new QName(TEST_NAMESPACE, "AnonymousResponses");
+    private static final QName TEST_NAME3 = new QName(TEST_NAMESPACE, "NonAnonymousResponses");
 
     private NestedPrimitiveAssertionBuilder npab;
     private IMocksControl control;
     private PolicyBuilder builder;
+    private AssertionBuilderRegistry reg;
     
     public void setUp() {
         control = EasyMock.createNiceControl();
         npab = new NestedPrimitiveAssertionBuilder();
         npab.setKnownElements(Collections.singletonList(TEST_NAME1));
         builder = control.createMock(PolicyBuilder.class);
-        npab.setPolicyBuilder(builder);        
+        npab.setPolicyBuilder(builder);  
+        reg = control.createMock(AssertionBuilderRegistry.class);
+        npab.setAssertionBuilderRegistry(reg);
     }
     
     public void tearDown() {        
@@ -89,6 +94,67 @@ public class NestedPrimitiveAssertionBuilderTest extends TestCase {
         assertSame(nested, npc.getNested());
         assertTrue(npc.isOptional());
         control.verify();
+    }
+    
+    public void testBuildCompatibleNoRegistry() {
+        npab.setAssertionBuilderRegistry(null);
+        Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies(); 
+        Assertion a = (Assertion)policies[4].getFirstPolicyComponent();   
+        assertNull("Should not have been able to build compatible policy.", npab.buildCompatible(a, a));
+    }
+    
+    public void testCompatibleWithSelf() {
+        Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies();
+        EasyMock.expect(reg.get(TEST_NAME1)).andReturn(npab).anyTimes();
+        PrimitiveAssertionBuilder ab1 = new PrimitiveAssertionBuilder();
+        ab1.setKnownElements(Collections.singleton(TEST_NAME2));
+        PrimitiveAssertionBuilder ab2 = new PrimitiveAssertionBuilder();
+        ab2.setKnownElements(Collections.singleton(TEST_NAME3));
+        EasyMock.expect(reg.get(TEST_NAME2)).andReturn(ab1).anyTimes();
+        EasyMock.expect(reg.get(TEST_NAME3)).andReturn(ab2).anyTimes();
+        
+        control.replay();
+        Assertion a = (Assertion)policies[2].getFirstPolicyComponent();          
+        Assertion compatible = npab.buildCompatible(a, a);
+        assertNotNull("assertion in policy 2 should be compatible with itself.", compatible);
+        control.verify();
+    }
+        
+    
+    public void testBuildCompatible() {
+        Policy[] policies = NestedPrimitiveAssertionTest.buildTestPolicies();
+        EasyMock.expect(reg.get(TEST_NAME1)).andReturn(npab).anyTimes();
+        PrimitiveAssertionBuilder ab1 = new PrimitiveAssertionBuilder();
+        ab1.setKnownElements(Collections.singleton(TEST_NAME2));
+        PrimitiveAssertionBuilder ab2 = new PrimitiveAssertionBuilder();
+        ab2.setKnownElements(Collections.singleton(TEST_NAME3));
+        EasyMock.expect(reg.get(TEST_NAME2)).andReturn(ab1).anyTimes();
+        EasyMock.expect(reg.get(TEST_NAME3)).andReturn(ab2).anyTimes();
+        
+        control.replay();
+        for (int i = 0; i < policies.length; i++) {
+            Assertion a = (Assertion)policies[i].getFirstPolicyComponent();          
+            Assertion compatible = npab.buildCompatible(a, a);
+            assertNotNull("assertion in policy " + i + " should be compatible with itself.", compatible);
+        }
+        
+        for (int i = 1; i < 5; i++) {
+            Assertion a = (Assertion)policies[0].getFirstPolicyComponent();
+            Assertion b = (Assertion)policies[i].getFirstPolicyComponent();
+            Assertion compatible = npab.buildCompatible(a, b);
+            assertNotNull("assertion in policy 0 should be compatible with assertion in policy " + i + ".",
+                          compatible);
+        }
+        
+        for (int i = 2; i < 5; i++) {
+            Assertion a = (Assertion)policies[1].getFirstPolicyComponent();
+            Assertion b = (Assertion)policies[i].getFirstPolicyComponent();
+            Assertion compatible = npab.buildCompatible(a, b);
+            assertNotNull("assertion in policy " + 1 + " should be compatible with assertion in policy i.",
+                          compatible);
+        }
+        control.verify();
+        
     }
     
     Element getElement(String data) throws Exception {

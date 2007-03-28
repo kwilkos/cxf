@@ -21,6 +21,7 @@ package org.apache.cxf.ws.addressing.policy;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
@@ -29,10 +30,13 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.builder.primitive.NestedPrimitiveAssertion;
+import org.apache.cxf.ws.policy.builder.primitive.NestedPrimitiveAssertionBuilder;
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
+import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertionBuilder;
 import org.apache.neethi.Assertion;
 
 /**
@@ -82,6 +86,21 @@ public class AddressingAssertionBuilder implements AssertionBuilder {
         return KNOWN;
     }
 
-    
+    public Assertion buildCompatible(Assertion a, Assertion b) {
+        QName qn = a.getName();
+        if (MetadataConstants.ADDRESSING_ASSERTION_QNAME.equals(qn)) {
+            NestedPrimitiveAssertionBuilder npab = new NestedPrimitiveAssertionBuilder();
+            npab.setKnownElements(Collections.singleton(MetadataConstants.ADDRESSING_ASSERTION_QNAME));
+            npab.setAssertionBuilderRegistry(bus.getExtension(AssertionBuilderRegistry.class));
+            return npab.buildCompatible(a, b);
+        } else if (MetadataConstants.ANON_RESPONSES_ASSERTION_QNAME.equals(qn)
+            || MetadataConstants.NON_ANON_RESPONSES_ASSERTION_QNAME.equals(qn)) {
+              
+            PrimitiveAssertionBuilder pab = new PrimitiveAssertionBuilder();
+            pab.setKnownElements(Collections.singleton(qn));
+            return pab.buildCompatible(a, b); 
+        }
+        return null;
+    }   
     
 }

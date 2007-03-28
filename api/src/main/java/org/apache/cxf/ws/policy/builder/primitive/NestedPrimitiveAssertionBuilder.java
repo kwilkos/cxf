@@ -21,22 +21,62 @@ package org.apache.cxf.ws.policy.builder.primitive;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
+import org.apache.cxf.ws.policy.Intersector;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.Policy;
 
 public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
 
     private PolicyBuilder builder;
+    private AssertionBuilderRegistry assertionBuilderRegistry;
     
     public void setPolicyBuilder(PolicyBuilder b) {
         builder = b;
+    }
+    
+    public void setAssertionBuilderRegistry(AssertionBuilderRegistry abr) {
+        assertionBuilderRegistry = abr;
     }
     
     @Override
     public Assertion build(Element elem) {
         return new NestedPrimitiveAssertion(elem, builder); 
     }
-    
-    
 
+    @Override
+    /**
+     * If the nested policies in both assertions are empty, the compatible policy
+     * . 
+     * The compatible policy is optional iff both assertions are optional.
+     */
+    public Assertion buildCompatible(Assertion a, Assertion b) {
+        if (!getKnownElements().contains(a.getName()) || !a.getName().equals(b.getName())) {
+            return null;
+        }
+        
+        if (null == assertionBuilderRegistry) {
+            return null;
+        }
+                
+       
+        NestedPrimitiveAssertion na = (NestedPrimitiveAssertion)a;
+        NestedPrimitiveAssertion nb = (NestedPrimitiveAssertion)b;        
+        
+        Intersector intersector = new Intersector(assertionBuilderRegistry);
+        
+        Policy nested = intersector.intersect(na.getNested(), nb.getNested());        
+        if (null == nested) {
+            return  null;
+        }
+        
+        NestedPrimitiveAssertion compatible = 
+            new NestedPrimitiveAssertion(a.getName(), a.isOptional() && b.isOptional());
+        compatible.setNested(nested);
+        
+        return compatible;
+    }
+    
+    
 }

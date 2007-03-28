@@ -44,4 +44,15 @@ public class PrimitiveAssertionBuilder implements AssertionBuilder {
     public void setKnownElements(Collection<QName> k) {
         knownElements = k;
     }
+
+    /**
+     * If the two assertions are equal, they are also compatible. 
+     * The compatible policy is optional iff both assertions are optional.
+     */
+    public Assertion buildCompatible(Assertion a, Assertion b) {
+        if (knownElements.contains(a.getName()) && a.getName().equals(b.getName())) {
+            return new PrimitiveAssertion(a.getName(), a.isOptional() && b.isOptional());
+        }
+        return  null;
+    }   
 }

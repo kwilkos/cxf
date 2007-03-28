@@ -33,10 +33,10 @@ import org.apache.neethi.Assertion;
  * given xml element. 
  * Domain Policy authors write custom AssertionBuilders to build Assertions for 
  * domain specific assertions. 
- * Note that assertions can include nested policy expressions. To do so, they can
- * obtain other AssertionBuilders by accessing the AssertionBuilderRegistry as a
- * Bus extension, hence the registry is not passes as an argument here.
- * 
+ * Note that assertions can include nested policy expressions. To build these,
+ * it may be necessary to obtain other AssertionBuilders.
+ * Concrete implementations should access the AssertionBuilderRegistry as a
+ * Bus extension, so the registry need not passed as an argument here.
  */
 public interface AssertionBuilder {
 
@@ -56,4 +56,11 @@ public interface AssertionBuilder {
      * @return collection of QNames of known schema types
      */
     Collection<QName> getKnownElements();
+
+
+    /**
+     * Returns a new assertion that is compatible with the two specified
+     * assertions or null if no compatible assertion can be built.
+     */ 
+    Assertion buildCompatible(Assertion a, Assertion b);
 }

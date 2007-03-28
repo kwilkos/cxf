@@ -121,7 +121,10 @@ public class PolicyExtensionsTest extends Assert {
 
         public Collection<QName> getKnownElements() {
             return knownElements;
-        }        
+        }
+        public Assertion buildCompatible(Assertion a, Assertion b) {
+            return null;
+        }       
     }
     
     public static class TestPolicyInterceptorProvider extends AbstractAttributedInterceptorProvider 

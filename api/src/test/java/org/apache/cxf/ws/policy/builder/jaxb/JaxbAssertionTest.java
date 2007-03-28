@@ -93,7 +93,7 @@ public class JaxbAssertionTest extends TestCase {
         JaxbAssertion<FooType> oassertion = new JaxbAssertion<FooType>();
         oassertion.setData(odata);
         oassertion.setName(qn);
-        assertTrue(!assertion.equal(xpa));
+        assertTrue(!assertion.equal(oassertion));
         
         oassertion.setData(data);
         assertTrue(assertion.equal(assertion));  

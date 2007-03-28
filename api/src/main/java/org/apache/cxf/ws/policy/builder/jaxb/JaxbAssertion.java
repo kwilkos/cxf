@@ -22,8 +22,8 @@ package org.apache.cxf.ws.policy.builder.jaxb;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
-
 import org.apache.neethi.Assertion;
+import org.apache.neethi.PolicyComponent;
 
 
 /**
@@ -48,6 +48,15 @@ public class JaxbAssertion<T> extends PrimitiveAssertion {
         return data;
     }
     
+    @Override
+    public boolean equal(PolicyComponent policyComponent) {
+        if (!super.equal(policyComponent)) {
+            return false;
+        }
+        JaxbAssertion<T> other = (JaxbAssertion<T>)policyComponent;
+        return data.equals(other.data);        
+    }
+
     protected Assertion cloneMandatory() {
         JaxbAssertion<T> a = new JaxbAssertion<T>(getName(), false);
         a.setData(data);

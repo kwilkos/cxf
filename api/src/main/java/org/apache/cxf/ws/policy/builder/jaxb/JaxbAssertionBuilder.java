@@ -119,4 +119,10 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
         return supportedTypes;
     }
 
+    public Assertion buildCompatible(Assertion a, Assertion b) {
+        return null;
+    }
+    
+    
+
 }
