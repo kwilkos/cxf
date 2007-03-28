@@ -30,6 +30,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.neethi.Assertion;
 
@@ -58,7 +59,8 @@ public class ServerPolicyInInterceptor extends AbstractPolicyInterceptor {
         if (null == e) {
             LOG.fine("No endpoint.");
             return;
-        }        
+        }
+        EndpointInfo ei = e.getEndpointInfo();
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
@@ -68,19 +70,19 @@ public class ServerPolicyInInterceptor extends AbstractPolicyInterceptor {
         Destination destination = msg.getDestination();
         
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
-        // that can deal with any requests on the underlying endpoint
+        // that can deal with any messages to this endpoint
         
-        EndpointPolicyInfo epi = pe.getEndpointPolicyInfo(e, destination);
+        EndpointPolicy ep = pe.getServerEndpointPolicy(ei, destination);
         
-        List<Interceptor> policyInInterceptors = epi.getInInterceptors();
-        for (Interceptor poi : policyInInterceptors) {
-            msg.getInterceptorChain().add(poi);
-            LOG.log(Level.INFO, "Added interceptor of type {0}", poi.getClass().getSimpleName());
+        List<Interceptor> interceptors = ep.getInterceptors();
+        for (Interceptor i : interceptors) {
+            msg.getInterceptorChain().add(i);
+            LOG.log(Level.INFO, "Added interceptor of type {0}", i.getClass().getSimpleName());
         }
         
         // insert assertions of endpoint's vocabulary into message
         
-        Collection<Assertion> assertions = epi.getVocabulary();
+        Collection<Assertion> assertions = ep.getVocabulary();
         if (null != assertions) {
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }

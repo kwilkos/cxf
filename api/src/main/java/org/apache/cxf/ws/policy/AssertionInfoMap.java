@@ -22,15 +22,25 @@ package org.apache.cxf.ws.policy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.Policy;
 
 /**
  * 
  */
 public class AssertionInfoMap extends HashMap<QName, Collection<AssertionInfo>> {
+    
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AssertionInfoMap.class, "APIMessages");
+    
     public AssertionInfoMap(Collection<Assertion> assertions) {
         super(assertions.size());
         for (Assertion a : assertions) {
@@ -42,5 +52,38 @@ public class AssertionInfoMap extends HashMap<QName, Collection<AssertionInfo>> 
             }
             ais.add(ai);
         }
+    }
+    
+    public boolean supportsAlternative(Collection<Assertion> alternative) {
+        
+        for (Assertion a : alternative) {
+            boolean asserted = false;
+            Collection<AssertionInfo> ais = get(a.getName());
+            if (null != ais) {
+                for (AssertionInfo ai : ais) {
+                    // if (ai.getAssertion() == a && ai.isAsserted()) {
+                    if (ai.getAssertion().equal(a) && ai.isAsserted()) {
+                        asserted = true;
+                        break;
+                    }
+                }
+            }
+            if (!asserted) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public void checkEffectivePolicy(Policy policy) {
+        Iterator alternatives = policy.getAlternatives();
+        while (alternatives.hasNext()) {      
+            List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
+            if (supportsAlternative(alternative)) {
+                return;
+            }
+        }
+        throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
     }
 }

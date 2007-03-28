@@ -42,24 +42,17 @@ import org.apache.neethi.Policy;
 /**
  * 
  */
-public class EndpointPolicyInfo {
+public class EndpointPolicyImpl implements EndpointPolicy {
     
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EndpointPolicyInfo.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EndpointPolicyImpl.class);
     
     private Policy policy;
     private Collection<Assertion> chosenAlternative;
     private Collection<Assertion> vocabulary;
     private Collection<Assertion> faultVocabulary;
-    private List<Interceptor> inInterceptors;
-    private List<Interceptor> inFaultInterceptors;
+    private List<Interceptor> interceptors;
+    private List<Interceptor> faultInterceptors;
     
-    void initialise(EndpointInfo ei, boolean isServer, PolicyEngine engine, Assertor assertor) {
-        initialisePolicy(ei, engine);
-        chooseAlternative(engine, assertor);
-        initialiseVocabulary(ei, isServer, engine);
-        initialiseInterceptors(ei, isServer, engine); 
-    }
-   
     public Policy getPolicy() {
         return policy;        
     }
@@ -76,21 +69,29 @@ public class EndpointPolicyInfo {
         return faultVocabulary;
     }    
     
-    public List<Interceptor> getInInterceptors() {
-        return inInterceptors;
+    public List<Interceptor> getInterceptors() {
+        return interceptors;
     }
     
-    public List<Interceptor> getInFaultInterceptors() {
-        return inFaultInterceptors;
+    public List<Interceptor> getFaultInterceptors() {
+        return faultInterceptors;
     }
-      
-    void initialisePolicy(EndpointInfo ei, PolicyEngine engine) {
+    
+    
+    void initialise(EndpointInfo ei, boolean isServer, PolicyEngineImpl engine, Assertor assertor) {
+        initialisePolicy(ei, engine);
+        chooseAlternative(engine, assertor);
+        initialiseVocabulary(ei, isServer, engine);
+        initialiseInterceptors(ei, isServer, engine); 
+    }
+   
+    void initialisePolicy(EndpointInfo ei, PolicyEngineImpl engine) {
         policy = engine.getAggregatedServicePolicy(ei.getService());
         policy = policy.merge(engine.getAggregatedEndpointPolicy(ei));
         policy = (Policy)policy.normalize(true);
     }
 
-    void chooseAlternative(PolicyEngine engine, Assertor assertor) {
+    void chooseAlternative(PolicyEngineImpl engine, Assertor assertor) {
         Iterator alternatives = policy.getAlternatives();
         while (alternatives.hasNext()) {
             List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
@@ -102,7 +103,7 @@ public class EndpointPolicyInfo {
         throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
     }
     
-    void initialiseVocabulary(EndpointInfo ei, boolean requestor, PolicyEngine engine) {
+    void initialiseVocabulary(EndpointInfo ei, boolean requestor, PolicyEngineImpl engine) {
         vocabulary = new ArrayList<Assertion>();
         if (requestor) {
             faultVocabulary = new ArrayList<Assertion>();
@@ -146,12 +147,12 @@ public class EndpointPolicyInfo {
         }
     }
 
-    void initialiseInterceptors(EndpointInfo ei, boolean requestor, PolicyEngine engine) {
+    void initialiseInterceptors(EndpointInfo ei, boolean requestor, PolicyEngineImpl engine) {
         PolicyInterceptorProviderRegistry reg 
             = engine.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
-        inInterceptors = new ArrayList<Interceptor>();
+        interceptors = new ArrayList<Interceptor>();
         if (requestor) {
-            inFaultInterceptors = new ArrayList<Interceptor>();
+            faultInterceptors = new ArrayList<Interceptor>();
         }
         
         Set<QName> v = new HashSet<QName>();
@@ -162,7 +163,7 @@ public class EndpointPolicyInfo {
         for (QName qn : v) {
             PolicyInterceptorProvider pp = reg.get(qn);
             if (null != pp) {
-                inInterceptors.addAll(pp.getInInterceptors());
+                interceptors.addAll(pp.getInInterceptors());
             }
         }
         
@@ -178,7 +179,7 @@ public class EndpointPolicyInfo {
         for (QName qn : faultV) {
             PolicyInterceptorProvider pp = reg.get(qn);
             if (null != pp) {
-                inFaultInterceptors.addAll(pp.getInFaultInterceptors());
+                faultInterceptors.addAll(pp.getInFaultInterceptors());
             }
         }        
     }
@@ -201,12 +202,12 @@ public class EndpointPolicyInfo {
         faultVocabulary = v;
     }
     
-    void setInInterceptors(List<Interceptor> in) {
-        inInterceptors = in;
+    void setInterceptors(List<Interceptor> in) {
+        interceptors = in;
     }
     
-    void setInFaultInterceptors(List<Interceptor> inFault) {
-        inFaultInterceptors = inFault;
+    void setFaultInterceptors(List<Interceptor> inFault) {
+        faultInterceptors = inFault;
     }
     
     

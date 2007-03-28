@@ -19,12 +19,17 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.extension.RegistryImpl;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.neethi.Assertion;
 
 /**
  * 
@@ -43,5 +48,22 @@ public class PolicyInterceptorProviderRegistryImpl
 
     public Class<?> getRegistrationType() {
         return PolicyInterceptorProviderRegistry.class;
+    }
+    
+    public List<Interceptor> getInterceptors(Collection<Assertion> alternative, boolean out, boolean fault) {
+        List<Interceptor> interceptors = new ArrayList<Interceptor>();
+        for (Assertion a : alternative) {
+            if (a.isOptional()) {
+                continue;
+            }
+            QName qn = a.getName();
+            PolicyInterceptorProvider pp = get(qn);
+            if (null != pp) {
+                interceptors.addAll(out                
+                    ? (fault ? pp.getOutFaultInterceptors() : pp.getOutInterceptors())       
+                    : (fault ? pp.getInFaultInterceptors() : pp.getInInterceptors())); 
+            }
+        }
+        return interceptors;
     }
 }

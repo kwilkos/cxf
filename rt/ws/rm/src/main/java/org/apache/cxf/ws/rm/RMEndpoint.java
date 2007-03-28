@@ -30,6 +30,7 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -43,9 +44,12 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.Names;
-import org.apache.cxf.ws.policy.EndpointPolicyInfo;
-import org.apache.cxf.ws.policy.OutPolicyInfo;
+import org.apache.cxf.ws.policy.EffectivePolicy;
+import org.apache.cxf.ws.policy.EndpointPolicy;
 import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry;
+import org.apache.neethi.Assertion;
+import org.apache.neethi.Policy;
 
 public class RMEndpoint {
     
@@ -240,27 +244,31 @@ public class RMEndpoint {
     
     void setPolicies() {
         
-        Endpoint e = getEndpoint();
+        EndpointInfo ei = getEndpoint().getEndpointInfo();
         
         // use same WS-policies as for application endpoint
         
         PolicyEngine engine = manager.getBus().getExtension(PolicyEngine.class);
+        PolicyInterceptorProviderRegistry reg = 
+            manager.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
+        EndpointPolicy ep = null == conduit
+            ? engine.getServerEndpointPolicy(applicationEndpoint.getEndpointInfo(), null)
+            : engine.getClientEndpointPolicy(applicationEndpoint.getEndpointInfo(), conduit);
         
-        EndpointPolicyInfo epi = engine.getEndpointPolicyInfo(applicationEndpoint, conduit);
-        OutPolicyInfo opi = new OutPolicyInfo();
-        opi.initialise(epi, engine);
+        engine.setEndpointPolicy(ei, ep);
         
-        engine.setEndpointPolicyInfo(e, epi);
-       
-        BindingInfo bi = e.getEndpointInfo().getBinding();
+        EffectivePolicy effectiveOutbound = new EffectivePolicyImpl(ep, reg, true, false);
+        EffectivePolicy effectiveInbound = new EffectivePolicyImpl(ep, reg, false, false);
+        
+        BindingInfo bi = ei.getBinding();
         Collection<BindingOperationInfo> bois = bi.getOperations();
         
         for (BindingOperationInfo boi : bois) {
-            engine.setServerRequestPolicyInfo(e, boi, opi);
-            engine.setServerResponsePolicyInfo(e, boi, opi);
+            engine.setEffectiveServerRequestPolicy(ei, boi, effectiveInbound);
+            engine.setEffectiveServerResponsePolicy(ei, boi, effectiveOutbound);
 
-            engine.setClientRequestPolicyInfo(e, boi, opi);
-            engine.setClientResponsePolicyInfo(e, boi, opi);            
+            engine.setEffectiveClientRequestPolicy(ei, boi, effectiveOutbound);
+            engine.setEffectiveClientResponsePolicy(ei, boi, effectiveInbound);            
         }
         
         // TODO: FaultPolicy (SequenceFault)
@@ -437,5 +445,29 @@ public class RMEndpoint {
     
     void setManager(RMManager m) {
         manager = m;
+    }
+    
+    class EffectivePolicyImpl implements EffectivePolicy {
+        
+        private EndpointPolicy endpointPolicy;
+        private List<Interceptor> interceptors;
+
+        EffectivePolicyImpl(EndpointPolicy ep, PolicyInterceptorProviderRegistry reg, 
+                            boolean outbound, boolean fault) {
+            endpointPolicy = ep;
+            interceptors = reg.getInterceptors(endpointPolicy.getChosenAlternative(), outbound, fault);
+        }
+        
+        public Collection<Assertion> getChosenAlternative() {
+            return endpointPolicy.getChosenAlternative();
+        }
+
+        public List<Interceptor> getInterceptors() {
+            return interceptors;
+        }
+
+        public Policy getPolicy() {
+            return endpointPolicy.getPolicy();
+        }
     }
 }

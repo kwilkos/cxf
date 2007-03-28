@@ -77,8 +77,9 @@ public class PolicyExtensionsTest extends Assert {
             deb = debr.get(UNKNOWN);
             assertNull(deb);
             
-            PolicyEngine engine = bus.getExtension(PolicyEngine.class);
-            assertNotNull(engine);            
+            PolicyEngine pe = bus.getExtension(PolicyEngine.class);
+            assertNotNull(pe);
+            PolicyEngineImpl engine = (PolicyEngineImpl)pe; 
             assertNotNull(engine.getPolicyProviders());
             assertNotNull(engine.getRegistry());
             

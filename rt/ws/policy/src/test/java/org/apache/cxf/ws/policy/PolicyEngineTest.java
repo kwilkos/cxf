@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.phase.PhaseInterceptor;
@@ -60,7 +59,7 @@ import org.junit.Test;
 public class PolicyEngineTest extends Assert {
 
     private IMocksControl control;
-    private PolicyEngine engine;
+    private PolicyEngineImpl engine;
     
     @Before
     public void setUp() {
@@ -69,7 +68,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testAccessors() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         assertNotNull(engine.getRegistry());
         assertNull(engine.getBus());
         assertNull(engine.getPolicyProviders()); 
@@ -84,12 +83,235 @@ public class PolicyEngineTest extends Assert {
         assertSame(bus, engine.getBus());
         assertSame(providers, engine.getPolicyProviders());
         assertSame(reg, engine.getRegistry());
-        assertTrue(engine.getRegisterInterceptors());
-        
+        assertTrue(engine.getRegisterInterceptors());        
         assertNotNull(engine.createOutPolicyInfo());
         assertNotNull(engine.createEndpointPolicyInfo());
         
     }
+    
+    @Test
+    public void testGetEffectiveClientRequestPolicy() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
+        AssertingConduit conduit = control.createMock(AssertingConduit.class);
+        EffectivePolicyImpl epi = control.createMock(EffectivePolicyImpl.class);
+        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(epi);
+        epi.initialise(ei, boi, engine, conduit, true);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.getEffectiveClientRequestPolicy(ei, boi, conduit));
+        assertSame(epi, engine.getEffectiveClientRequestPolicy(ei, boi, conduit));
+        control.verify();
+    }
+    
+    @Test 
+    public void testSetEffectiveClientRequestPolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EffectivePolicy effectivePolicy = control.createMock(EffectivePolicy.class);
+        engine.setEffectiveClientRequestPolicy(ei, boi, effectivePolicy);
+        assertSame(effectivePolicy, 
+                   engine.getEffectiveClientRequestPolicy(ei, boi, (Conduit)null));        
+    }
+    
+    @Test
+    public void testGetEffectiveServerResponsePolicy() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
+        AssertingDestination destination = control.createMock(AssertingDestination.class);
+        EffectivePolicyImpl epi = control.createMock(EffectivePolicyImpl.class);
+        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(epi);
+        epi.initialise(ei, boi, engine, destination, false);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.getEffectiveServerResponsePolicy(ei, boi, destination));
+        assertSame(epi, engine.getEffectiveServerResponsePolicy(ei, boi, destination));
+        control.verify();
+    }
+    
+    @Test
+    public void testSetEffectiveServerResponsePolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EffectivePolicy effectivePolicy = control.createMock(EffectivePolicy.class);
+        engine.setEffectiveServerResponsePolicy(ei, boi, effectivePolicy);
+        assertSame(effectivePolicy, 
+                   engine.getEffectiveServerResponsePolicy(ei, boi, (Destination)null));   
+    }
+   
+    @Test
+    public void testGetEffectiveServerFaultPolicy() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class); 
+        AssertingDestination destination = control.createMock(AssertingDestination.class);
+        EffectivePolicyImpl epi = control.createMock(EffectivePolicyImpl.class);
+        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(epi);
+        epi.initialise(ei, bfi, engine, destination);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.getEffectiveServerFaultPolicy(ei, bfi, destination));
+        assertSame(epi, engine.getEffectiveServerFaultPolicy(ei, bfi, destination));
+        control.verify();
+    }
+    
+    @Test
+    public void testSetEffectiveServerFaultPolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
+        EffectivePolicy epi = control.createMock(EffectivePolicy.class);
+        engine.setEffectiveServerFaultPolicy(ei, bfi, epi);
+        assertSame(epi, engine.getEffectiveServerFaultPolicy(ei, bfi, (Destination)null));   
+    }
+       
+    @Test
+    public void testGetEffectiveServerRequestPolicyInfo() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
+        EffectivePolicyImpl epi = control.createMock(EffectivePolicyImpl.class);
+        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(epi);
+        epi.initialisePolicy(ei, boi, engine, false);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.getEffectiveServerRequestPolicy(ei, boi));
+        assertSame(epi, engine.getEffectiveServerRequestPolicy(ei, boi));
+        control.verify();
+    }
+    
+    @Test 
+    public void testSetEffectiveServerRequestPolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EffectivePolicy effectivePolicy = control.createMock(EffectivePolicy.class);
+        engine.setEffectiveServerRequestPolicy(ei, boi, effectivePolicy);
+        assertSame(effectivePolicy, engine.getEffectiveServerRequestPolicy(ei, boi));        
+    }
+    
+    @Test
+    public void testGetEffectiveClientResponsePolicy() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
+        EffectivePolicyImpl epi = control.createMock(EffectivePolicyImpl.class);
+        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(epi);
+        epi.initialisePolicy(ei, boi, engine, true);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.getEffectiveClientResponsePolicy(ei, boi));
+        assertSame(epi, engine.getEffectiveClientResponsePolicy(ei, boi));
+        control.verify();
+    }
+    
+    @Test 
+    public void testSetEffectiveClientResponsePolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EffectivePolicy epi = control.createMock(EffectivePolicy.class);
+        engine.setEffectiveClientResponsePolicy(ei, boi, epi);
+        assertSame(epi, engine.getEffectiveClientResponsePolicy(ei, boi));        
+    }
+    
+    @Test
+    public void testGetEffectiveClientFaultPolicy() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class); 
+        EffectivePolicyImpl epi = control.createMock(EffectivePolicyImpl.class);
+        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(epi);
+        epi.initialisePolicy(ei, bfi, engine);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.getEffectiveClientFaultPolicy(ei, bfi));
+        assertSame(epi, engine.getEffectiveClientFaultPolicy(ei, bfi));
+        control.verify();
+    }
+    
+    @Test 
+    public void testSetEffectiveClientFaultPolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
+        EffectivePolicy epi = control.createMock(EffectivePolicy.class);
+        engine.setEffectiveClientFaultPolicy(ei, bfi, epi);
+        assertSame(epi, engine.getEffectiveClientFaultPolicy(ei, bfi));        
+    }
+    
+    @Test
+    public void testGetEndpointPolicyClientSide() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createEndpointPolicyInfo", 
+            new Class[] {EndpointInfo.class, boolean.class, Assertor.class});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        AssertingConduit conduit = control.createMock(AssertingConduit.class);
+        EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
+        EasyMock.expect(engine.createEndpointPolicyInfo(ei, false, conduit)).andReturn(epi);
+        control.replay();
+        assertSame(epi, engine.getClientEndpointPolicy(ei, conduit));
+        control.verify();        
+    }
+    
+    @Test
+    public void testGetEndpointPolicyServerSide() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createEndpointPolicyInfo", 
+            new Class[] {EndpointInfo.class, boolean.class, Assertor.class});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        AssertingDestination destination = control.createMock(AssertingDestination.class);
+        EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
+        EasyMock.expect(engine.createEndpointPolicyInfo(ei, true, destination)).andReturn(epi);
+        control.replay();
+        assertSame(epi, engine.getServerEndpointPolicy(ei, destination));
+        control.verify();        
+    }
+    
+    @Test
+    public void testCreateEndpointPolicyInfo() throws NoSuchMethodException {
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("createEndpointPolicyInfo", new Class[] {});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
+        engine.init();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        Assertor assertor = control.createMock(Assertor.class);
+        EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
+        EasyMock.expect(engine.createEndpointPolicyInfo()).andReturn(epi);
+        epi.initialise(ei, false, engine, assertor);
+        EasyMock.expectLastCall();
+        control.replay();
+        assertSame(epi, engine.createEndpointPolicyInfo(ei, false, assertor));
+        control.verify();
+    }
+    
+    @Test
+    public void testSetEndpointPolicy() {
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
+        engine.setEndpointPolicy(ei, epi);
+        assertSame(epi, engine.getClientEndpointPolicy(ei, (Conduit)null));
+        assertSame(epi, engine.getServerEndpointPolicy(ei, (Destination)null)); 
+    }
+    
     
     @Test
     public void testDontAddBusInterceptors() {        
@@ -102,7 +324,7 @@ public class PolicyEngineTest extends Assert {
     }
     
     private void doTestAddBusInterceptors(boolean add) {        
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         engine.setRegisterInterceptors(add);
     
         Bus bus = control.createMock(Bus.class);
@@ -152,7 +374,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testGetAggregatedServicePolicy() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         List<PolicyProvider> providers = new ArrayList<PolicyProvider>();
         engine.setPolicyProviders(providers);
         ServiceInfo si = control.createMock(ServiceInfo.class);
@@ -188,7 +410,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testGetAggregatedEndpointPolicy() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         List<PolicyProvider> providers = new ArrayList<PolicyProvider>();
         engine.setPolicyProviders(providers);
         EndpointInfo ei = control.createMock(EndpointInfo.class);
@@ -224,7 +446,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testGetAggregatedOperationPolicy() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         List<PolicyProvider> providers = new ArrayList<PolicyProvider>();
         engine.setPolicyProviders(providers);
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
@@ -260,7 +482,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testGetAggregatedMessagePolicy() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         List<PolicyProvider> providers = new ArrayList<PolicyProvider>();
         engine.setPolicyProviders(providers);
         BindingMessageInfo bmi = control.createMock(BindingMessageInfo.class);
@@ -296,7 +518,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testGetAggregatedFaultPolicy() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         List<PolicyProvider> providers = new ArrayList<PolicyProvider>();
         engine.setPolicyProviders(providers);
         BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
@@ -332,9 +554,9 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testGetAssertions() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("addAssertions",
+        Method m = PolicyEngineImpl.class.getDeclaredMethod("addAssertions",
             new Class[] {PolicyComponent.class, boolean.class, Collection.class});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        engine = control.createMock(PolicyEngineImpl.class, new Method[] {m});
         Assertion a = control.createMock(Assertion.class);
         EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
         EasyMock.expect(a.isOptional()).andReturn(true);
@@ -367,7 +589,7 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testAddAssertions() {
-        engine = new PolicyEngine();
+        engine = new PolicyEngineImpl();
         Collection<Assertion> assertions = new ArrayList<Assertion>();
         
         Assertion a = control.createMock(Assertion.class);
@@ -402,249 +624,28 @@ public class PolicyEngineTest extends Assert {
     
     @Test
     public void testKeys() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
+        engine = new PolicyEngineImpl();
+        EndpointInfo ei = control.createMock(EndpointInfo.class);
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);      
         BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);  
         control.replay();
         
-        PolicyEngine.BindingOperation bo = engine.new BindingOperation(endpoint, boi); 
+        PolicyEngineImpl.BindingOperation bo = engine.new BindingOperation(ei, boi); 
         assertNotNull(bo);
-        PolicyEngine.BindingOperation bo2 = engine.new BindingOperation(endpoint, boi);
+        PolicyEngineImpl.BindingOperation bo2 = engine.new BindingOperation(ei, boi);
         assertEquals(bo, bo2);
         assertEquals(bo.hashCode(), bo2.hashCode());
                   
-        PolicyEngine.BindingFault bf = engine.new BindingFault(endpoint, bfi);
+        PolicyEngineImpl.BindingFault bf = engine.new BindingFault(ei, bfi);
         assertNotNull(bf);
-        PolicyEngine.BindingFault bf2 = engine.new BindingFault(endpoint, bfi);
+        PolicyEngineImpl.BindingFault bf2 = engine.new BindingFault(ei, bfi);
         assertEquals(bf, bf2);
         assertEquals(bf.hashCode(), bf2.hashCode());
               
         control.verify();
     }
     
-    @Test
-    public void testGetClientRequestPolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
-        AssertingConduit conduit = control.createMock(AssertingConduit.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(opi);
-        opi.initialise(endpoint, boi, engine, conduit, true);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(opi, engine.getClientRequestPolicyInfo(endpoint, boi, conduit));
-        assertSame(opi, engine.getClientRequestPolicyInfo(endpoint, boi, conduit));
-        control.verify();
-    }
     
-    @Test 
-    public void testSetClientRequestPolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        engine.setClientRequestPolicyInfo(endpoint, boi, opi);
-        assertSame(opi, engine.getClientRequestPolicyInfo(endpoint, boi, (Conduit)null));        
-    }
-    
-    @Test
-    public void testGetServerRequestPolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(opi);
-        opi.initialisePolicy(endpoint, boi, engine, false);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(opi, engine.getServerRequestPolicyInfo(endpoint, boi));
-        assertSame(opi, engine.getServerRequestPolicyInfo(endpoint, boi));
-        control.verify();
-    }
-    
-    @Test 
-    public void testSetServerRequestPolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        engine.setServerRequestPolicyInfo(endpoint, boi, opi);
-        assertSame(opi, engine.getServerRequestPolicyInfo(endpoint, boi));        
-    }
-    
-    @Test
-    public void testGetClientResponsePolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(opi);
-        opi.initialisePolicy(endpoint, boi, engine, true);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(opi, engine.getClientResponsePolicyInfo(endpoint, boi));
-        assertSame(opi, engine.getClientResponsePolicyInfo(endpoint, boi));
-        control.verify();
-    }
-    
-    @Test 
-    public void testSetClientResponsePolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        engine.setClientResponsePolicyInfo(endpoint, boi, opi);
-        assertSame(opi, engine.getClientResponsePolicyInfo(endpoint, boi));        
-    }
-    
-    @Test
-    public void testGetClientFaultPolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class); 
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(opi);
-        opi.initialisePolicy(endpoint, bfi, engine);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(opi, engine.getClientFaultPolicyInfo(endpoint, bfi));
-        assertSame(opi, engine.getClientFaultPolicyInfo(endpoint, bfi));
-        control.verify();
-    }
-    
-    @Test 
-    public void testSetClientFaultPolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        engine.setClientFaultPolicyInfo(endpoint, bfi, opi);
-        assertSame(opi, engine.getClientFaultPolicyInfo(endpoint, bfi));        
-    }
-    
-    @Test
-    public void testGetEndpointPolicyInfoClientSide() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createEndpointPolicyInfo", 
-            new Class[] {Endpoint.class, boolean.class, Assertor.class});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        AssertingConduit conduit = control.createMock(AssertingConduit.class);
-        EndpointPolicyInfo epi = control.createMock(EndpointPolicyInfo.class);
-        EasyMock.expect(engine.createEndpointPolicyInfo(endpoint, false, conduit)).andReturn(epi);
-        control.replay();
-        assertSame(epi, engine.getEndpointPolicyInfo(endpoint, conduit));
-        control.verify();        
-    }
-    
-    @Test
-    public void testGetEndpointPolicyInfoServerSide() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createEndpointPolicyInfo", 
-            new Class[] {Endpoint.class, boolean.class, Assertor.class});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        AssertingDestination destination = control.createMock(AssertingDestination.class);
-        EndpointPolicyInfo epi = control.createMock(EndpointPolicyInfo.class);
-        EasyMock.expect(engine.createEndpointPolicyInfo(endpoint, true, destination)).andReturn(epi);
-        control.replay();
-        assertSame(epi, engine.getEndpointPolicyInfo(endpoint, destination));
-        control.verify();        
-    }
-    
-    @Test
-    public void testCreateEndpointPolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createEndpointPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        EndpointInfo ei = control.createMock(EndpointInfo.class);
-        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(ei);
-        Assertor assertor = control.createMock(Assertor.class);
-        EndpointPolicyInfo epi = control.createMock(EndpointPolicyInfo.class);
-        EasyMock.expect(engine.createEndpointPolicyInfo()).andReturn(epi);
-        epi.initialise(ei, false, engine, assertor);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(epi, engine.createEndpointPolicyInfo(endpoint, false, assertor));
-        control.verify();
-    }
-    
-    @Test
-    public void testSetEndpointPolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        EndpointPolicyInfo epi = control.createMock(EndpointPolicyInfo.class);
-        engine.setEndpointPolicyInfo(endpoint, epi);
-        assertSame(epi, engine.getEndpointPolicyInfo(endpoint, (Conduit)null));
-        assertSame(epi, engine.getEndpointPolicyInfo(endpoint, (Destination)null)); 
-    }
-    
-    @Test
-    public void testGetServerResponsePolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class); 
-        AssertingDestination destination = control.createMock(AssertingDestination.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(opi);
-        opi.initialise(endpoint, boi, engine, destination, false);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(opi, engine.getServerResponsePolicyInfo(endpoint, boi, destination));
-        assertSame(opi, engine.getServerResponsePolicyInfo(endpoint, boi, destination));
-        control.verify();
-    }
-    
-    @Test
-    public void testSetServerResponsePolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        engine.setServerResponsePolicyInfo(endpoint, boi, opi);
-        assertSame(opi, engine.getServerResponsePolicyInfo(endpoint, boi, (Destination)null));   
-    }
-   
-    @Test
-    public void testGetServerFaultPolicyInfo() throws NoSuchMethodException {
-        Method m = PolicyEngine.class.getDeclaredMethod("createOutPolicyInfo", new Class[] {});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        engine.init();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class); 
-        AssertingDestination destination = control.createMock(AssertingDestination.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        EasyMock.expect(engine.createOutPolicyInfo()).andReturn(opi);
-        opi.initialise(endpoint, bfi, engine, destination);
-        EasyMock.expectLastCall();
-        control.replay();
-        assertSame(opi, engine.getServerFaultPolicyInfo(endpoint, bfi, destination));
-        assertSame(opi, engine.getServerFaultPolicyInfo(endpoint, bfi, destination));
-        control.verify();
-    }
-    
-    @Test
-    public void testSetServerFaultPolicyInfo() {
-        engine = new PolicyEngine();
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
-        engine.setServerFaultPolicyInfo(endpoint, bfi, opi);
-        assertSame(opi, engine.getServerFaultPolicyInfo(endpoint, bfi, (Destination)null));   
-    }
     
     private Set<String> getInterceptorIds(List<Interceptor> interceptors) {
         Set<String> ids = new HashSet<String>();

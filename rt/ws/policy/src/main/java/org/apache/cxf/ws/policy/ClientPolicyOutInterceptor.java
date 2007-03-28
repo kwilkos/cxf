@@ -31,6 +31,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.neethi.Assertion;
 
@@ -65,7 +66,8 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         if (null == e) {
             LOG.fine("No endpoint.");
             return;
-        }        
+        } 
+        EndpointInfo ei = e.getEndpointInfo();
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
@@ -76,17 +78,18 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         
         // add the required interceptors
         
-        OutPolicyInfo opi = pe.getClientRequestPolicyInfo(e, boi, conduit);
+        EffectivePolicy effectivePolicy = pe.getEffectiveClientRequestPolicy(ei, boi, conduit);
+        PolicyUtils.logPolicy(LOG, Level.FINEST, "Using effective policy: ", effectivePolicy.getPolicy());
         
-        List<Interceptor> policyOutInterceptors = opi.getInterceptors();
-        for (Interceptor poi : policyOutInterceptors) {            
-            msg.getInterceptorChain().add(poi);
-            LOG.log(Level.INFO, "Added interceptor of type {0}", poi.getClass().getSimpleName());
+        List<Interceptor> interceptors = effectivePolicy.getInterceptors();
+        for (Interceptor i : interceptors) {            
+            msg.getInterceptorChain().add(i);
+            LOG.log(Level.INFO, "Added interceptor of type {0}", i.getClass().getSimpleName());
         }
         
         // insert assertions of the chosen alternative into the message
         
-        Collection<Assertion> assertions = opi.getChosenAlternative();
+        Collection<Assertion> assertions = effectivePolicy.getChosenAlternative();
         if (null != assertions) {
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }

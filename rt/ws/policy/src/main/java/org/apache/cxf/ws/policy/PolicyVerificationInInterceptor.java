@@ -28,6 +28,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 
 /**
  * 
@@ -60,7 +61,8 @@ public class PolicyVerificationInInterceptor extends AbstractPolicyInterceptor {
         if (null == e) {
             LOG.fine("No endpoint.");
             return;
-        }        
+        } 
+        EndpointInfo ei = e.getEndpointInfo();
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
@@ -77,14 +79,14 @@ public class PolicyVerificationInInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        OutPolicyInfo opi = null;
+        EffectivePolicy effectivePolicy = null;
         if (PolicyUtils.isRequestor(message)) {
-            opi = pe.getClientResponsePolicyInfo(e, boi);
+            effectivePolicy = pe.getEffectiveClientResponsePolicy(ei, boi);
         } else {
-            opi = pe.getServerRequestPolicyInfo(e, boi);
+            effectivePolicy = pe.getEffectiveServerRequestPolicy(ei, boi);
         }
                 
-        opi.checkEffectivePolicy(aim);
+        aim.checkEffectivePolicy(effectivePolicy.getPolicy());
         LOG.fine("Verified policies for inbound message.");
     }
 

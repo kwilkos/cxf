@@ -22,20 +22,18 @@ package org.apache.cxf.ws.policy;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.extension.Registry;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.neethi.Assertion;
-
+import org.apache.neethi.Policy;
 
 /**
- * InterceptorProviderRegistry is used to manage InterceptorProviders that provide
- * assertion domain specific interceptors.
+ * Describes the effective policy of an outbound message. 
  */
-public interface PolicyInterceptorProviderRegistry 
-    extends Registry<QName, PolicyInterceptorProvider> {
+public interface EffectivePolicy {
     
-    List<Interceptor> getInterceptors(Collection<Assertion> alterative, boolean out, boolean fault);
-
+    Policy getPolicy();
+    
+    Collection<Assertion> getChosenAlternative();
+    
+    List<Interceptor> getInterceptors();
 }

@@ -24,6 +24,8 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingFaultInfo;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
@@ -41,6 +43,7 @@ public class PolicyVerificationInFaultInterceptorTest extends Assert {
     private Exchange exchange;
     private BindingFaultInfo bfi;
     private Endpoint endpoint;
+    private EndpointInfo ei;
     private PolicyEngine engine;
     private AssertionInfoMap aim;
     
@@ -87,9 +90,11 @@ public class PolicyVerificationInFaultInterceptorTest extends Assert {
         
         control.reset();
         setupMessage(true, true, true, true, true);
-        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);        
-        EasyMock.expect(engine.getClientFaultPolicyInfo(endpoint, bfi)).andReturn(opi);
-        opi.checkEffectivePolicy(aim);
+        EffectivePolicyImpl effectivePolicy = control.createMock(EffectivePolicyImpl.class);        
+        EasyMock.expect(engine.getEffectiveClientFaultPolicy(ei, bfi)).andReturn(effectivePolicy);
+        Policy policy = control.createMock(Policy.class);
+        EasyMock.expect(effectivePolicy.getPolicy()).andReturn(policy);
+        aim.checkEffectivePolicy(policy);
         EasyMock.expectLastCall();
         control.replay();
         interceptor.handleMessage(message);
@@ -128,6 +133,10 @@ public class PolicyVerificationInFaultInterceptorTest extends Assert {
         if (!setupEndpoint) {
             return;
         }
+        if (null == ei) {
+            ei = control.createMock(EndpointInfo.class);
+        }
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(ei);
         
         if (setupPolicyEngine && null == engine) {
             engine = control.createMock(PolicyEngine.class);

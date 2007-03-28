@@ -22,14 +22,14 @@ package org.apache.cxf.ws.policy.spring;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.ws.policy.PolicyEngineImpl;
 import org.apache.cxf.ws.policy.PolicyProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-public class InitializingPolicyEngine extends PolicyEngine implements InitializingBean, 
+public class InitializingPolicyEngine extends PolicyEngineImpl implements InitializingBean, 
     ApplicationContextAware  {
 
     private ApplicationContext context;

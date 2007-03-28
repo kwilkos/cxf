@@ -62,5 +62,15 @@ public class JaxbAssertion<T> extends PrimitiveAssertion {
         a.setData(data);
         return a;        
     } 
+    
+    @SuppressWarnings("unchecked")
+    public static <T> JaxbAssertion<T> cast(Assertion a) {
+        return (JaxbAssertion<T>)a;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static <T> JaxbAssertion<T> cast(Assertion a, Class<T> type) {
+        return (JaxbAssertion<T>)a;
+    }
 
 }

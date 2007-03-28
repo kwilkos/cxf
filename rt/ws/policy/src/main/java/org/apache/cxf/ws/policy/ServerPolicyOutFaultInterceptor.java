@@ -32,6 +32,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.neethi.Assertion;
 
@@ -67,6 +68,7 @@ public class ServerPolicyOutFaultInterceptor extends AbstractPolicyInterceptor {
             LOG.fine("No endpoint.");
             return;
         }
+        EndpointInfo ei = e.getEndpointInfo();
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
@@ -84,17 +86,17 @@ public class ServerPolicyOutFaultInterceptor extends AbstractPolicyInterceptor {
             return;
         }  
         
-        OutPolicyInfo opi = pe.getServerFaultPolicyInfo(e, bfi, destination);
+        EffectivePolicy effectivePolicy = pe.getEffectiveServerFaultPolicy(ei, bfi, destination);
         
-        List<Interceptor> outInterceptors = opi.getInterceptors();
-        for (Interceptor oi : outInterceptors) {
+        List<Interceptor> interceptors = effectivePolicy.getInterceptors();
+        for (Interceptor oi : interceptors) {
             msg.getInterceptorChain().add(oi);
             LOG.log(Level.INFO, "Added interceptor of type {0}", oi.getClass().getSimpleName());
         }
         
         // insert assertions of the chosen alternative into the message
         
-        Collection<Assertion> assertions = opi.getChosenAlternative();
+        Collection<Assertion> assertions = effectivePolicy.getChosenAlternative();
         if (null != assertions) {
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }

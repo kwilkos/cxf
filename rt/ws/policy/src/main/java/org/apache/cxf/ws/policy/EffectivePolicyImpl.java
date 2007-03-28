@@ -29,12 +29,12 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.neethi.Assertion;
@@ -43,39 +43,14 @@ import org.apache.neethi.Policy;
 /**
  * 
  */
-public class OutPolicyInfo {
+public class EffectivePolicyImpl implements EffectivePolicy {
     
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(OutPolicyInfo.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EffectivePolicyImpl.class);    
     
     protected Policy policy;     
     protected Collection<Assertion> chosenAlternative;
     protected List<Interceptor> interceptors;
     
-    public void initialise(EndpointPolicyInfo epi, PolicyEngine engine) {
-        policy = epi.getPolicy();
-        chosenAlternative = epi.getChosenAlternative();
-        initialiseInterceptors(engine);  
-    }
-    
-    void initialise(Endpoint e, 
-                    BindingOperationInfo boi, 
-                    PolicyEngine engine, 
-                    Assertor assertor,
-                    boolean requestor) {
-        initialisePolicy(e, boi, engine, requestor);
-        chooseAlternative(engine, assertor);
-        initialiseInterceptors(engine);  
-    }
-    
-    void initialise(Endpoint e, 
-                    BindingFaultInfo bfi, 
-                    PolicyEngine engine, 
-                    Assertor assertor) {
-        initialisePolicy(e, bfi, engine);
-        chooseAlternative(engine, assertor);
-        initialiseInterceptors(engine);  
-    }
-   
     public Policy getPolicy() {
         return policy;        
     }
@@ -89,16 +64,40 @@ public class OutPolicyInfo {
     }
     
     
+    void initialise(EndpointPolicyImpl epi, PolicyEngineImpl engine) {
+        policy = epi.getPolicy();
+        chosenAlternative = epi.getChosenAlternative();
+        initialiseInterceptors(engine);  
+    }
     
-    void initialisePolicy(Endpoint e,
+    void initialise(EndpointInfo ei, 
+                    BindingOperationInfo boi, 
+                    PolicyEngineImpl engine, 
+                    Assertor assertor,
+                    boolean requestor) {
+        initialisePolicy(ei, boi, engine, requestor);
+        chooseAlternative(engine, assertor);
+        initialiseInterceptors(engine);  
+    }
+    
+    void initialise(EndpointInfo ei, 
+                    BindingFaultInfo bfi, 
+                    PolicyEngineImpl engine, 
+                    Assertor assertor) {
+        initialisePolicy(ei, bfi, engine);
+        chooseAlternative(engine, assertor);
+        initialiseInterceptors(engine);  
+    }
+     
+    void initialisePolicy(EndpointInfo ei,
                           BindingOperationInfo boi,  
-                          PolicyEngine engine, 
+                          PolicyEngineImpl engine, 
                           boolean requestor) {
         BindingMessageInfo bmi = requestor ? boi.getInput() : boi.getOutput();
         if (requestor) {
-            policy = engine.getEndpointPolicyInfo(e, (Conduit)null).getPolicy();
+            policy = engine.getClientEndpointPolicy(ei, (Conduit)null).getPolicy();
         } else {
-            policy = engine.getEndpointPolicyInfo(e, (Destination)null).getPolicy();
+            policy = engine.getServerEndpointPolicy(ei, (Destination)null).getPolicy();
         }
         
         policy = policy.merge(engine.getAggregatedOperationPolicy(boi));
@@ -108,15 +107,15 @@ public class OutPolicyInfo {
         policy = (Policy)policy.normalize(true);
     }
     
-    void initialisePolicy(Endpoint e, BindingFaultInfo bfi, PolicyEngine engine) {
+    void initialisePolicy(EndpointInfo ei, BindingFaultInfo bfi, PolicyEngineImpl engine) {
         BindingOperationInfo boi = bfi.getBindingOperation();
-        policy = engine.getEndpointPolicyInfo(e, (Destination)null).getPolicy();         
+        policy = engine.getServerEndpointPolicy(ei, (Destination)null).getPolicy();         
         policy = policy.merge(engine.getAggregatedOperationPolicy(boi));
         policy = policy.merge(engine.getAggregatedFaultPolicy(bfi));
         policy = (Policy)policy.normalize(true);
     }
 
-    void chooseAlternative(PolicyEngine engine, Assertor assertor) {
+    void chooseAlternative(PolicyEngineImpl engine, Assertor assertor) {
         Iterator alternatives = policy.getAlternatives();
         while (alternatives.hasNext()) {
             List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
@@ -129,7 +128,7 @@ public class OutPolicyInfo {
 
     }
 
-    void initialiseInterceptors(PolicyEngine engine) {
+    void initialiseInterceptors(PolicyEngineImpl engine) {
         PolicyInterceptorProviderRegistry reg 
             = engine.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
         List<Interceptor> out = new ArrayList<Interceptor>();
@@ -144,40 +143,6 @@ public class OutPolicyInfo {
             }
         }
         setInterceptors(out);
-    }
-    
-    void checkEffectivePolicy(AssertionInfoMap aim) {
-        Iterator alternatives = policy.getAlternatives();
-        while (alternatives.hasNext()) {      
-            List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
-            if (alternativeSupported(alternative, aim)) {
-                return;
-            }
-        }
-        
-        throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
-    }
-    
-    boolean alternativeSupported(List<Assertion> alternative, AssertionInfoMap aim) {
-        
-        for (Assertion a : alternative) {
-            boolean asserted = false;
-            Collection<AssertionInfo> ais = aim.get(a.getName());
-            if (null != ais) {
-                for (AssertionInfo ai : ais) {
-                    // if (ai.getAssertion() == a && ai.isAsserted()) {
-                    if (ai.getAssertion().equal(a) && ai.isAsserted()) {
-                        asserted = true;
-                        break;
-                    }
-                }
-            }
-            if (!asserted) {
-                return false;
-            }
-        }
-        
-        return true;
     }
     
     // for tests
