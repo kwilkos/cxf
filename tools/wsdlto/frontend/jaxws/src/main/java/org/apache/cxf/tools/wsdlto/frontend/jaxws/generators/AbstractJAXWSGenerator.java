@@ -19,11 +19,15 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
+import java.util.logging.Logger;
+
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.wsdlto.core.AbstractGenerator;
 
 public abstract class AbstractJAXWSGenerator extends AbstractGenerator {
+    protected static final Logger LOG = LogUtils.getL7dLogger(AbstractJAXWSGenerator.class);
     protected static final String TEMPLATE_BASE = "org/apache/cxf/tools/wsdlto/frontend/jaxws/template";
 
     public abstract boolean passthrough();

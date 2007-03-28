@@ -53,7 +53,10 @@ public class PortTypeProcessor extends AbstractProcessor {
 
         InterfaceInfo interfaceInfo = serviceInfo.getInterface();
         
-
+        if (interfaceInfo == null) {
+            return;
+        }
+ 
         JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
         intf.setJavaModel(jmodel);
 

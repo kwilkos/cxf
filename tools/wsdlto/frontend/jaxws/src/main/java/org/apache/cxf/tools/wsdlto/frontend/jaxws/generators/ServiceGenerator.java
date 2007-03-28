@@ -22,6 +22,8 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -62,6 +64,16 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
 
         Map<String, JavaServiceClass> serviceClasses = javaModel.getServiceClasses();
 
+        if (serviceClasses.size() == 0) {
+            ServiceInfo serviceInfo = (ServiceInfo)env.get(ServiceInfo.class);
+            String wsdl = serviceInfo.getDescription().getBaseURI();
+            Message msg = new Message("CAN_NOT_GEN_SERVICE", LOG, wsdl);
+            if (penv.isVerbose()) {
+                System.out.println(msg.toString());
+            }
+            return;
+        }
+        
         Iterator ite = serviceClasses.values().iterator();
 
         while (ite.hasNext()) {

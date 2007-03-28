@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="no_port_or_service" 
+    targetNamespace="http://cxf.apache.org/no_port_or_service" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:tns="http://cxf.apache.org/no_port_or_service" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://cxf.apache.org/no_port_or_service/types">
+    <types>
+        <schema targetNamespace="http://cxf.apache.org/no_port_or_service/types"
+            xmlns="http://www.w3.org/2001/XMLSchema" 
+            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+            <complexType name="theComplexType">
+                <sequence>
+                    <element name="element_one" type="string"/>
+                    <element name="element_two" type="string"/>
+                </sequence>
+            </complexType>
+        </schema>
+    </types>
+</definitions>

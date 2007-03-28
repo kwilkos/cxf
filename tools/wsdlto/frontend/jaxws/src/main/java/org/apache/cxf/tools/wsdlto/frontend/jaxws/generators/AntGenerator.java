@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -46,6 +48,16 @@ public class AntGenerator extends AbstractJAXWSGenerator {
         JavaModel javaModel = env.get(JavaModel.class);
         
         if (passthrough()) {
+            return;
+        }
+        
+        if (javaModel.getServiceClasses().size() == 0) {
+            ServiceInfo serviceInfo = (ServiceInfo)env.get(ServiceInfo.class);
+            String wsdl = serviceInfo.getDescription().getBaseURI();
+            Message msg = new Message("CAN_NOT_GEN_ANT", LOG, wsdl);
+            if (penv.isVerbose()) {
+                System.out.println(msg.toString());
+            }
             return;
         }
 

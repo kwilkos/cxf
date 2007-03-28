@@ -333,6 +333,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull(cls);
         cls = classLoader.loadClass("org.apache.hello_world2.Greeter2");
     }
+    
     public void testServiceNS() throws Exception {
         env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
         env.put(ToolConstants.CFG_WSDLURL, 
@@ -347,5 +348,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
       
     }
     
+    public void testNoServiceNOPortType() throws Exception {
+        env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/no_port_or_service.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader.loadClass("org.apache.cxf.no_port_or_service.types.TheComplexType");
+        assertNotNull(clz);
+    }
     
 }

@@ -22,6 +22,8 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -36,28 +38,24 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
         this.name = ToolConstants.SEI_GENERATOR;
     }
 
-    public boolean passthrough() {      
-        if (env.optionSet(ToolConstants.CFG_GEN_SEI)
-            || env.optionSet(ToolConstants.CFG_ALL)) {
+    public boolean passthrough() {
+        if (env.optionSet(ToolConstants.CFG_GEN_SEI) || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
-        } 
-        if (env.optionSet(ToolConstants.CFG_GEN_ANT)
-            || env.optionSet(ToolConstants.CFG_GEN_TYPES)
-            || env.optionSet(ToolConstants.CFG_GEN_CLIENT)
-            || env.optionSet(ToolConstants.CFG_GEN_IMPL)
-            || env.optionSet(ToolConstants.CFG_GEN_SERVER)
-            || env.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
+        }
+        if (env.optionSet(ToolConstants.CFG_GEN_ANT) || env.optionSet(ToolConstants.CFG_GEN_TYPES)
+            || env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_IMPL)
+            || env.optionSet(ToolConstants.CFG_GEN_SERVER) || env.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
             return true;
         }
-        
+
         return false;
-        
+
     }
 
     private boolean hasHandlerConfig(JavaInterface intf) {
-        //TODO : enbale handler chain
+        // TODO : enbale handler chain
         return intf.getHandlerChains() != null;
-        
+
     }
 
     public void generate(ToolContext penv) throws ToolException {
@@ -69,13 +67,24 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
         }
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
+
+        if (interfaces.size() == 0) {
+            ServiceInfo serviceInfo = (ServiceInfo)env.get(ServiceInfo.class);
+            String wsdl = serviceInfo.getDescription().getBaseURI();
+            Message msg = new Message("CAN_NOT_GEN_SEI", LOG, wsdl);
+            if (penv.isVerbose()) {
+                System.out.println(msg.toString());
+            }
+            return;
+        }
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
 
             if (hasHandlerConfig(intf)) {
                 HandlerConfigGenerator handlerGen = new HandlerConfigGenerator();
-                //REVISIT: find a better way to handle Handler gen, should not pass JavaInterface around.
+                // REVISIT: find a better way to handle Handler gen, should not
+                // pass JavaInterface around.
                 handlerGen.setJavaInterface(intf);
                 handlerGen.generate(getEnvironment());
 
