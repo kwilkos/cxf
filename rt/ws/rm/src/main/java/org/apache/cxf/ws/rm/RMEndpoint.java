@@ -243,12 +243,14 @@ public class RMEndpoint {
     }
     
     void setPolicies() {
+        // use same WS-policies as for application endpoint
+        PolicyEngine engine = manager.getBus().getExtension(PolicyEngine.class);  
+        if (null == engine) {
+            return;
+        }
         
         EndpointInfo ei = getEndpoint().getEndpointInfo();
-        
-        // use same WS-policies as for application endpoint
-        
-        PolicyEngine engine = manager.getBus().getExtension(PolicyEngine.class);
+                
         PolicyInterceptorProviderRegistry reg = 
             manager.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
         EndpointPolicy ep = null == conduit

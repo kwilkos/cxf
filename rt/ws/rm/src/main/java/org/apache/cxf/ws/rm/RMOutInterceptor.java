@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.VersionTransformer;
@@ -62,7 +63,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         }
 
         boolean isApplicationMessage = RMContextUtils.isAplicationMessage(action);
-        boolean isPartialResponse = RMContextUtils.isPartialResponse(message);
+        boolean isPartialResponse = MessageUtils.isPartialResponse(message);
         LOG.fine("isApplicationMessage: " + isApplicationMessage);
         LOG.fine("isPartialResponse: " + isPartialResponse);
         
@@ -123,7 +124,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
                 }
             }
         } else {
-            if (!RMContextUtils.isRequestor(message)
+            if (!MessageUtils.isRequestor(message)
                 && RMConstants.getCreateSequenceAction().equals(action)) {
                 maps.getAction().setValue(RMConstants.getCreateSequenceResponseAction());
             }

@@ -36,6 +36,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -54,6 +55,7 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.service.Service;
@@ -147,7 +149,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
      */ 
 
     void mediate(SoapMessage message) {
-        if (RMContextUtils.isOutbound(message)) {
+        if (MessageUtils.isOutbound(message)) {
             encode(message);
         } else {
             decode(message);
@@ -396,8 +398,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
      * @param message the message
      */
     private void updateServiceModelInfo(SoapMessage message) {
-        
-        assert !RMContextUtils.isOutbound(message);
+
         AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
         AttributedURIType actionURI = null == maps ? null : maps.getAction();
         String action = null == actionURI ? null : actionURI.getValue().trim();

@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
@@ -81,15 +80,13 @@ public class RMOutInterceptorTest extends Assert {
         
         Message message = control.createMock(Message.class);
         Exchange ex = control.createMock(Exchange.class);
-        EasyMock.expect(message.getExchange()).andReturn(ex).times(2);
-        EasyMock.expect(ex.getOutMessage()).andReturn(message);
-        EasyMock.expect(message.getContent(List.class)).andReturn(Collections.singletonList("CXF"));        
+        EasyMock.expect(message.getExchange()).andReturn(ex).times(3);
+        EasyMock.expect(ex.getOutMessage()).andReturn(message).times(1);       
         EasyMock.expect(message.get(Message.REQUESTOR_ROLE)).andReturn(Boolean.TRUE).anyTimes();        
         EasyMock.expect(message.get(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND))
             .andReturn(maps).anyTimes();
         RMProperties rmpsOut = new RMProperties();
         EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_OUTBOUND)).andReturn(rmpsOut);
-        EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_INBOUND)).andReturn(null);
         InterceptorChain chain = control.createMock(InterceptorChain.class);
         EasyMock.expect(message.getInterceptorChain()).andReturn(chain);
         chain.add(EasyMock.isA(RetransmissionInterceptor.class));

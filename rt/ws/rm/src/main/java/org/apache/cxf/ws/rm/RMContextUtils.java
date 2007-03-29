@@ -19,10 +19,8 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.util.List;
-
-import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.VersionTransformer;
@@ -47,26 +45,6 @@ public final class RMContextUtils {
     }
 
     /**
-     * Determine if message is outbound.
-     * 
-     * @param message the current Message
-     * @return true iff the message direction is outbound
-     */
-    public static boolean isOutbound(Message message) {
-        return org.apache.cxf.ws.addressing.ContextUtils.isOutbound(message);
-    }
-
-    /**
-     * Determine if current messaging role is that of requestor.
-     * 
-     * @param message the current Message
-     * @return true iff the current messaging role is that of requestor
-     */
-    public static boolean isRequestor(Message message) {
-        return org.apache.cxf.ws.addressing.ContextUtils.isRequestor(message);
-    }
-
-    /**
      * Determine if message is currently being processed on server side.
      * 
      * @param message the current Message
@@ -74,18 +52,6 @@ public final class RMContextUtils {
      */
     public static boolean isServerSide(Message message) {
         return message.getExchange().getDestination() != null;
-    }
-
-    /**
-     * Checks if the message is a partial response to a oneway request.
-     * 
-     * @param message the message
-     * @return true iff the message is a partial response to a oneway request
-     */
-    public static boolean isPartialResponse(Message message) {
-        return RMContextUtils.isOutbound(message) 
-            && message.getContent(List.class) == null
-            && getException(message.getExchange()) == null; 
     }
 
     /**
@@ -118,7 +84,7 @@ public final class RMContextUtils {
             return (RMProperties)message.get(getRMPropertiesKey(true));
         } else {
             Message m = null;
-            if (isOutbound(message)) {
+            if (MessageUtils.isOutbound(message)) {
                 // the in properties are only available on the in message
                 m = message.getExchange().getInMessage();
                 if (null == m) {
@@ -189,14 +155,5 @@ public final class RMContextUtils {
     private static String getRMPropertiesKey(boolean outbound) {
         return outbound
             ? RMMessageConstants.RM_PROPERTIES_OUTBOUND : RMMessageConstants.RM_PROPERTIES_INBOUND;
-    }
-    
-    private static Exception getException(Exchange exchange) {
-        if (exchange.getOutFaultMessage() != null) {
-            return exchange.getOutFaultMessage().getContent(Exception.class);
-        } else if (exchange.getInFaultMessage() != null) {
-            return exchange.getInFaultMessage().getContent(Exception.class);
-        }
-        return null;
     }
 }

@@ -36,4 +36,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </list>
         </property>
     </bean>
+    
+    <bean class="org.apache.cxf.transport.http.policy.HTTPClientAssertionBuilder"/>
+    <bean class="org.apache.cxf.transport.http.policy.HTTPServerAssertionBuilder"/>
+
 </beans>

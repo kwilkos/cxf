@@ -25,7 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.policy.builder.primitive.NestedPrimitiveAssertion;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
@@ -40,28 +39,7 @@ public final class PolicyUtils {
     private static final String INDENT = "  ";
     
     private PolicyUtils() {
-    }
-
-    /**
-     * Determine if current messaging role is that of requestor.
-     * 
-     * @param message the current Message
-     * @return true iff the current messaging role is that of requestor
-     */
-    public static boolean isRequestor(Message message) {
-        Boolean requestor = (Boolean)message.get(Message.REQUESTOR_ROLE);
-        return requestor != null && requestor.booleanValue();
-    }
-    
-    /**
-     * Determine if the current message is a partial response.
-     * 
-     * @param message the current message
-     * @return true iff the current messags is a partial response
-     */
-    public static boolean isPartialResponse(Message message) {
-        return Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE));
-    }
+    }  
     
     /**
      * Determine if a collection of assertions contains a given assertion, using

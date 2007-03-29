@@ -27,6 +27,7 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 
 /**
@@ -52,7 +53,7 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
      */
     public void handleMessage(Message message) throws Fault {
         
-        if (PolicyUtils.isPartialResponse(message)) {
+        if (MessageUtils.isPartialResponse(message)) {
             LOG.fine("Not verifying policies on outbound partial response.");
             return;
         } 

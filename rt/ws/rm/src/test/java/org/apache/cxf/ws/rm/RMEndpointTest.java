@@ -197,6 +197,15 @@ public class RMEndpointTest extends Assert {
     }
     
     @Test
+    public void testSetPoliciesNoEngine() {
+        Bus bus = control.createMock(Bus.class);
+        EasyMock.expect(manager.getBus()).andReturn(bus);
+        EasyMock.expect(bus.getExtension(PolicyEngine.class)).andReturn(null);
+        control.replay();
+        rme.setPolicies();   
+    }
+    
+    @Test
     public void testSetPolicies() throws NoSuchMethodException {
         Method m = RMEndpoint.class.getDeclaredMethod("getEndpoint", new Class[] {});
         rme = control.createMock(RMEndpoint.class, new Method[] {m});

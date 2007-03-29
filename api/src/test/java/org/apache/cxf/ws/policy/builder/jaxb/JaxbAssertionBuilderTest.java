@@ -71,7 +71,7 @@ public class JaxbAssertionBuilderTest extends Assert {
         Element elem = (Element)doc.getDocumentElement()
             .getElementsByTagNameNS("http://cxf.apache.org/test/assertions/foo", "foo").item(0);
         Assertion a = ab.build(elem);
-        JaxbAssertion<FooType> jba = (JaxbAssertion<FooType>)a;
+        JaxbAssertion<FooType> jba = JaxbAssertion.cast(a, FooType.class);
         FooType foo = jba.getData();
         assertEquals("CXF", foo.getName());
         assertEquals(2, foo.getNumber().intValue());         

@@ -26,6 +26,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -74,13 +75,13 @@ public class PolicyVerificationInInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        if (PolicyUtils.isPartialResponse(message)) {
+        if (MessageUtils.isPartialResponse(message)) {
             LOG.fine("Not verifying policies on inbound partial response.");
             return;
         }
         
         EffectivePolicy effectivePolicy = null;
-        if (PolicyUtils.isRequestor(message)) {
+        if (MessageUtils.isRequestor(message)) {
             effectivePolicy = pe.getEffectiveClientResponsePolicy(ei, boi);
         } else {
             effectivePolicy = pe.getEffectiveServerRequestPolicy(ei, boi);

@@ -29,6 +29,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
@@ -47,7 +48,7 @@ public class ServerPolicyInInterceptor extends AbstractPolicyInterceptor {
     }
     
     public void handleMessage(Message msg) {        
-        if (PolicyUtils.isRequestor(msg)) {
+        if (MessageUtils.isRequestor(msg)) {
             LOG.fine("Is a requestor.");
             return;
         }

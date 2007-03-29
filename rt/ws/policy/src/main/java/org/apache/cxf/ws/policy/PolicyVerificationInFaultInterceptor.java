@@ -26,6 +26,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -50,7 +51,7 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
      */
     public void handleMessage(Message message) throws Fault {
         
-        if (!PolicyUtils.isRequestor(message)) {
+        if (!MessageUtils.isRequestor(message)) {
             return; 
         }
         

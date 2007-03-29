@@ -19,8 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.util.List;
-
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -63,25 +61,6 @@ public class RMContextUtilsTest extends Assert {
     }
     
     @Test
-    public void testIsOutbound() {
-        Message msg = control.createMock(Message.class); 
-        Exchange ex = control.createMock(Exchange.class);
-        EasyMock.expect(msg.getExchange()).andReturn(ex);
-        EasyMock.expect(ex.getOutMessage()).andReturn(null);
-        EasyMock.expect(ex.getOutFaultMessage()).andReturn(null);
-        control.replay();
-        assertTrue(!RMContextUtils.isOutbound(msg));
-    }
-    
-    @Test
-    public void testIsRequestor() {
-        Message msg = control.createMock(Message.class); 
-        EasyMock.expect(msg.get(Message.REQUESTOR_ROLE)).andReturn(Boolean.TRUE);
-        control.replay();
-        assertTrue(RMContextUtils.isRequestor(msg));
-    }
-    
-    @Test
     public void testIsServerSide() {
         Message msg = control.createMock(Message.class); 
         Exchange ex = control.createMock(Exchange.class);
@@ -89,19 +68,6 @@ public class RMContextUtilsTest extends Assert {
         EasyMock.expect(ex.getDestination()).andReturn(null);
         control.replay();
         assertTrue(!RMContextUtils.isServerSide(msg));
-    }
-    
-    @Test
-    public void testIsPartialResponse() {
-        Message msg = control.createMock(Message.class); 
-        Exchange ex = control.createMock(Exchange.class);
-        EasyMock.expect(msg.getExchange()).andReturn(ex).times(2);
-        EasyMock.expect(ex.getOutMessage()).andReturn(msg);
-        EasyMock.expect(msg.getContent(List.class)).andReturn(null);
-        EasyMock.expect(ex.getOutFaultMessage()).andReturn(null);
-        EasyMock.expect(ex.getInFaultMessage()).andReturn(null);
-        control.replay();
-        assertTrue(RMContextUtils.isPartialResponse(msg));
     }
     
     @Test

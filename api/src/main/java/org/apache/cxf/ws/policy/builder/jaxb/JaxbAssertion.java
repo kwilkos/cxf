@@ -54,7 +54,7 @@ public class JaxbAssertion<T> extends PrimitiveAssertion {
         if (!super.equal(policyComponent)) {
             return false;
         }
-        JaxbAssertion<T> other = (JaxbAssertion<T>)policyComponent;
+        JaxbAssertion<T> other = JaxbAssertion.cast((Assertion)policyComponent);
         return data.equals(other.data);        
     }
 

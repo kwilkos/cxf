@@ -41,6 +41,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
@@ -486,7 +487,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                     // TODO: remove previously added acknowledgments and update
                     // message id (to avoid duplicates)
 
-                    if (RMContextUtils.isRequestor(message)) {
+                    if (MessageUtils.isRequestor(message)) {
                         clientResend(message);
                     } else {
                         serverResend(message);
