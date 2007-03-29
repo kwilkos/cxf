@@ -219,7 +219,7 @@ public final class URIParserUtil {
         URL url = null;
         try {
             url = new URL(uri);
-            return url.toString();
+            return url.toString().replace("\\", "/");
         } catch (MalformedURLException e1) {
             try {
                 String f = null;
@@ -230,7 +230,7 @@ public final class URIParserUtil {
                 }
 
                 url = new URL(f);
-                return url.toString();
+                return url.toString().replace("\\", "/");
             } catch (MalformedURLException e2) {
                 return uri.replace("\\", "/");
             }
@@ -249,7 +249,7 @@ public final class URIParserUtil {
         } catch (MalformedURLException e1) {
             return normalize(arg);
         } catch (URISyntaxException e2) {
-            return getAbsoluteURI(normalize(arg));
+            return normalize(arg);
         }
     }    
 }
