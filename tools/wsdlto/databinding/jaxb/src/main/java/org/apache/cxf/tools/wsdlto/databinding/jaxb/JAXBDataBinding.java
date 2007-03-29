@@ -19,6 +19,7 @@
 package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +50,13 @@ import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 
@@ -71,7 +73,6 @@ public class JAXBDataBinding implements DataBindingProfile {
         def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
 
@@ -94,13 +95,10 @@ public class JAXBDataBinding implements DataBindingProfile {
             Element ele = schemaLists.get(key);
             this.removeImportElement(ele);
             String tns = ele.getAttribute("targetNamespace");
-
             if (StringUtils.isEmpty(tns)) {
                 continue;
             }
-
             String excludePkg = null;
-
             if (env.hasExcludeNamespace(tns)) {
                 excludePkg = env.getExcludePackageName(tns);
                 if (excludePkg != null) {
@@ -109,28 +107,28 @@ public class JAXBDataBinding implements DataBindingProfile {
                     env.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
                 }
             }
-
-            String pkgName = null;
-            if (env.hasNamespace(tns) || env.get(ToolConstants.CFG_PACKAGENAME) != null) {
-                pkgName = env.mapPackageName(tns);
-            }
-
-            pkgName = pkgName != null ? pkgName : excludePkg;
-
-            if (pkgName != null) {
-                Node pkgNode = JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
-                if (pkgNode != null) {
-                    ele.appendChild(pkgNode);
-                }
-            }
             schemaCompiler.parseSchema(key, ele);
 
         }
+       
         
-
         for (InputSource binding : jaxbBindings) {
             schemaCompiler.parseSchema(binding);
         }
+        
+        
+        if (env.getPackageName() != null) {
+            schemaCompiler.forcePackageName(env.getPackageName());
+        } else {
+            Map<String, String> nsPkgMap = env.getNamespacePackageMap();
+            for (String ns : nsPkgMap.keySet()) {
+                File file = getCustomizedSchemaElement(ns, nsPkgMap.get(ns));
+                InputSource ins = new InputSource(file.toURI().toString());
+                schemaCompiler.parseSchema(ins);
+                FileUtils.delete(file);
+            }
+        }
+        
 
         rawJaxbModelGenCode = schemaCompiler.bind();
 
@@ -140,7 +138,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
     // class is an enum. We need to use this method to add the missed file
     // to classCollector.
-    private void addedEnumClassToCollector(Map<String, Element> schemaList, 
+    private void addedEnumClassToCollector(Map<String, Element> schemaList,
                                            ClassNameAllocatorImpl allocator) {
         for (Element schemaElement : schemaList.values()) {
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
@@ -287,4 +285,42 @@ public class JAXBDataBinding implements DataBindingProfile {
         }
         return clone;
     }
+
+    /**
+     * Create the jaxb binding file to customize namespace to package mapping
+     * 
+     * @param namespace
+     * @param pkgName
+     * @return file
+     *         
+     */
+    public File getCustomizedSchemaElement(String namespace, String pkgName) {
+        Document doc = DOMUtils.createDocument();
+        Element rootElement = doc.createElement("schema");
+        rootElement.setAttribute("xmlns", ToolConstants.SCHEMA_URI);
+        rootElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+        rootElement.setAttribute("jaxb:version", "1.0");
+        rootElement.setAttribute("targetNamespace", namespace);
+        Element annoElement = doc.createElement("annotation");
+        Element appInfo = doc.createElement("appinfo");
+        Element schemaBindings = doc.createElement("jaxb:schemaBindings");
+        Element pkgElement = doc.createElement("jaxb:package");
+        pkgElement.setAttribute("name", pkgName);
+        annoElement.appendChild(appInfo);
+        appInfo.appendChild(schemaBindings);
+        schemaBindings.appendChild(pkgElement);
+        rootElement.appendChild(annoElement);
+        File tmpFile = null;
+        try {
+            tmpFile = File.createTempFile("customzied", ".xsd");
+            FileOutputStream fout = new FileOutputStream(tmpFile);
+            DOMUtils.writeXml(rootElement, fout);
+            fout.close();
+        } catch (Exception e) {
+            Message msg = new Message("FAIL_TO_CREATE_JAXBBINIDNG_FILE", LOG);
+            throw new ToolException(msg, e);
+        } 
+        return tmpFile;
+    }
+
 }

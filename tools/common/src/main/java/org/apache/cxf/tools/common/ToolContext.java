@@ -235,4 +235,9 @@ public class ToolContext {
         }
         return null;
     }
+    
+    
+    public Map<String, String> getNamespacePackageMap() {
+        return namespacePackageMap;
+    }
 }
