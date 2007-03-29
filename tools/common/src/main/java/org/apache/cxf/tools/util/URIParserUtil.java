@@ -21,7 +21,6 @@ package org.apache.cxf.tools.util;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -216,31 +215,41 @@ public final class URIParserUtil {
         return KEYWORDS.contains(token);
     }
 
-    public static String normalize(String uri) {
-        File file = new File(uri);
-        if (file.isAbsolute()) {
-            return getAbsoluteURI(uri);
-        }
-        return uri.replace("\\", "/");
+    public static String normalize(final String uri) {
+        URL url = null;
+        try {
+            url = new URL(uri);
+            return url.toString();
+        } catch (MalformedURLException e1) {
+            try {
+                String f = null;
+                if (uri.indexOf(":") != -1) {
+                    f = "file:/" + uri;
+                } else {
+                    f = "file:" + uri;
+                }
+
+                url = new URL(f);
+                return url.toString();
+            } catch (MalformedURLException e2) {
+                return uri.replace("\\", "/");
+            }
+        }        
     }
 
-    public static String getAbsoluteURI(String arg) {
-        if (arg.startsWith("jar")) {
-            return arg;
-        }
-
-        File tmpFile = null;
-        URI uri = null;
+    public static String getAbsoluteURI(final String arg) {
         try {
-            uri = new URI(arg);
-            if (!uri.isAbsolute()) {
-                File tmpfile = new File("");
-                uri = tmpfile.toURI().resolve(uri);
+            URL url = new URL(normalize(arg));
+            if (url.toURI().isOpaque()
+                && "file".equalsIgnoreCase(url.getProtocol())) {
+                return new File("").toURI().resolve(url.getPath()).toString();
+            } else {
+                return normalize(arg);
             }
-            tmpFile = new File(uri);
-        } catch (URISyntaxException e) {
-            tmpFile = new File(arg);
+        } catch (MalformedURLException e1) {
+            return normalize(arg);
+        } catch (URISyntaxException e2) {
+            return getAbsoluteURI(normalize(arg));
         }
-        return tmpFile.toURI().toString();
     }    
 }

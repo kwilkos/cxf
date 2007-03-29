@@ -32,13 +32,22 @@ public class URIParserUtilTest extends TestCase {
 
     public void testNormalize() throws Exception {
         String uri = "wsdl/hello_world.wsdl";
-        assertEquals(uri, URIParserUtil.normalize(uri));
+        assertEquals("file:wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
 
         uri = "\\src\\wsdl/hello_world.wsdl";
-        assertEquals("/src/wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
+        assertEquals("file:/src/wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
 
         uri = "wsdl\\hello_world.wsdl";
-        assertEquals("wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));        
+        assertEquals("file:wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
+
+        uri = "http://hello.com";
+        assertEquals("http://hello.com", URIParserUtil.normalize(uri));
+
+        uri = "file:///c:\\hello.wsdl";
+        assertEquals("file:/c:/hello.wsdl", URIParserUtil.normalize(uri));
+
+        uri = "c:\\hello.wsdl";
+        assertEquals("file:/c:/hello.wsdl", URIParserUtil.normalize(uri));
     }
 
     public void testGetAbsoluteURI() throws Exception {
@@ -47,11 +56,21 @@ public class URIParserUtilTest extends TestCase {
         assertNotNull(uri2);
         assertTrue(uri2.startsWith("file"));
         assertTrue(uri2.contains(uri));
+        assertTrue(uri2.contains(new java.io.File("").toString()));
 
         uri = getClass().getResource("/schemas/wsdl/xml-binding.xsd").toString();
-        System.err.println(uri);
         uri2 = URIParserUtil.getAbsoluteURI(uri);
         assertNotNull(uri2);
+        assertTrue(uri2.startsWith("file"));
         assertTrue(uri2.contains(uri));
+        assertTrue(uri2.contains(new java.io.File("").toString()));
+
+        uri = "c:\\wsdl\\hello_world.wsdl";
+        uri2 = URIParserUtil.getAbsoluteURI(uri);
+        assertNotNull(uri2);
+        assertEquals("file:/c:/wsdl/hello_world.wsdl", uri2);
+
+        uri = "http://hello/world.wsdl";
+        assertEquals(uri, URIParserUtil.getAbsoluteURI(uri));
     }
 }

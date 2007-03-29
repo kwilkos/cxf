@@ -57,7 +57,7 @@ public class VelocityWriter extends BufferedWriter {
             super.write(str.replaceAll("\r\n", newLine));
             return;
         } else if (str.indexOf("\n") >= 0  && newLine != null) {
-            super.write(str.replaceAll("\r\n", newLine));
+            super.write(str.replaceAll("\n", newLine));
             return;
         } else {
             super.write(str);

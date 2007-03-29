@@ -49,6 +49,7 @@ public class JaxbAssertion<T> extends PrimitiveAssertion {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equal(PolicyComponent policyComponent) {
         if (!super.equal(policyComponent)) {
             return false;

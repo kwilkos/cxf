@@ -48,7 +48,8 @@ public class ${service.Name} extends Service {
         try {
             url = new URL("$wsdlLocation");
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            System.err.println("Can not initialize the default wsdl from $wsdlLocation");
+            // e.printStackTrace();
         }
         WSDL_LOCATION = url;
     }

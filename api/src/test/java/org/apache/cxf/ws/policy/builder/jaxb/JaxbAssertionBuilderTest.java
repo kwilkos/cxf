@@ -61,6 +61,7 @@ public class JaxbAssertionBuilderTest extends Assert {
     }
     
     @Test
+    @SuppressWarnings("unchecked")
     public void testBuild() throws Exception {
         QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
         JaxbAssertionBuilder<FooType> ab = new JaxbAssertionBuilder<FooType>(FooType.class, qn);
