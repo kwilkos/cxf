@@ -37,7 +37,7 @@
 		xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
 		jaxb:version="2.0">
 
-	    <xsd:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="ws-addr.xsd"/>
+	    <xsd:import namespace="http://www.w3.org/2005/08/addressing" schemaLocation="/schemas/wsdl/ws-addr.xsd"/>
 	    <element name="callback_message" type="xsd:string"/>
 	    <element name="RegisterCallback" type="references:EndpointReferenceType"/>
 	    <element name="returnType" type="xsd:string"/>

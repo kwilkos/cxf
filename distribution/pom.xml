@@ -262,6 +262,7 @@
                                 <descriptor>src/main/assembly/bin.xml</descriptor>
                                 <descriptor>src/main/assembly/src.xml</descriptor>
                             </descriptors>
+                            <tarLongFileMode>gnu</tarLongFileMode>
                             <finalName>cxf-${pom.version}</finalName>
                         </configuration>
                     </execution>
@@ -313,6 +314,7 @@
                                         <filter token="CXF_VERSION" value="${pom.version}" />
                                     </filterset>
                                 </copy>
+                                <delete file="build.xml" />
                             </tasks>
                         </configuration>
                         <goals>

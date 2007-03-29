@@ -34,11 +34,17 @@
 	         <include>DISCLAIMER</include>
 		 <include>LICENSE</include>
 		 <include>licenses/*.*</include>
-		 <include>NOTICE</include>
 		 <include>README</include>
 		 <include>BUILDING.txt</include>
              </includes>
 	 </fileSet>
+         <fileSet>
+             <directory>target/maven-shared-archive-resources/META-INF</directory>
+             <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
+             <includes>
+                 <include>NOTICE</include>
+             </includes>
+         </fileSet>
 	 <fileSet>
 	     <directory>..</directory>
 	     <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
