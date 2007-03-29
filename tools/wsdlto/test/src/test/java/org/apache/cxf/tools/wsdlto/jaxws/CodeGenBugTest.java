@@ -124,6 +124,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         //Class clz = classLoader.loadClass("org.cxf.Greeter");
         //assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
         Class clz = classLoader.loadClass("org.apache.types.GreetMe");
+        assertNotNull(clz);
     }
 
     public void testNamespacePackageMapping2() throws Exception {
