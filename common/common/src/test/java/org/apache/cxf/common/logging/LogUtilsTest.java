@@ -62,6 +62,36 @@ public class LogUtilsTest extends Assert {
         EasyMock.verify(handler);
         LOG.removeHandler(handler);
     }
+    
+    @Test
+    public void testLogNoParamsOrThrowable() {
+        Handler handler = EasyMock.createNiceMock(Handler.class);
+        LOG.addHandler(handler);
+        // handler called *after* localization of message
+        LogRecord record = new LogRecord(Level.SEVERE, "subbed in {0} only");
+        EasyMock.reportMatcher(new LogRecordMatcher(record));
+        handler.publish(record);
+        EasyMock.replay(handler);
+        LogUtils.log(LOG, Level.SEVERE, "SUB1_MSG");
+        EasyMock.verify(handler);
+        LOG.removeHandler(handler);
+    }
+    
+    @Test
+    public void testLogNoParamsWithThrowable() {
+        Handler handler = EasyMock.createNiceMock(Handler.class);
+        LOG.addHandler(handler);
+        // handler called *after* localization of message
+        Exception ex = new Exception("x");
+        LogRecord record = new LogRecord(Level.SEVERE, "subbed in {0} only");
+        record.setThrown(ex);
+        EasyMock.reportMatcher(new LogRecordMatcher(record));
+        handler.publish(record);
+        EasyMock.replay(handler);
+        LogUtils.log(LOG, Level.SEVERE, "SUB1_MSG", ex);
+        EasyMock.verify(handler);
+        LOG.removeHandler(handler);
+    }
 
     @Test
     public void testLogParamSubstitutionWithThrowable() throws Exception {

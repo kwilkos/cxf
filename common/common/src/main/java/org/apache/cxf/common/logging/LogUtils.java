@@ -120,7 +120,22 @@ public final class LogUtils {
             doLog(logger, level, formattedMessage, null);
         }
         
-    }    
+    }  
+    
+    /**
+     * Checks log level and logs
+     *
+     * @param logger the Logger the log to
+     * @param level the severity level
+     * @param message the log message
+     * @param throwable the Throwable to log
+     */      
+    public static void log(Logger logger, 
+                           Level level, 
+                           String message, 
+                           Throwable throwable) {
+        log(logger, level, message, throwable, NO_PARAMETERS);
+    }
   
     /**
      * Checks log level and logs
