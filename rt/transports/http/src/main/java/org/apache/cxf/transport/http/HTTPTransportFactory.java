@@ -90,13 +90,15 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
             return;
         }
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
-        if (null != cim) {
+
+        //Note, activationNamespaces can be null
+        if (null != cim && null != activationNamespaces) {
             for (String ns : activationNamespaces) {
                 cim.registerConduitInitiator(ns, this);
             }
         }
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        if (null != dfm) {
+        if (null != dfm && null != activationNamespaces) {
             for (String ns : activationNamespaces) {
                 dfm.registerDestinationFactory(ns, this);
             }

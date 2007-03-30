@@ -54,9 +54,20 @@ public class ServerImpl implements Server {
         this.bus = bus;
 
         EndpointInfo ei = endpoint.getEndpointInfo();
+        
+        //Treat local transport as a special case, transports loaded by transportId can be replaced
+        //by local transport when the publishing address is a local transport protocol. 
+        //Of course its not an ideal situation here to use a hard-coded prefix. To be refactored.
         if (destinationFactory == null) {
-            destinationFactory = bus.getExtension(DestinationFactoryManager.class)
-                .getDestinationFactory(ei.getTransportId());
+            if (ei.getAddress() != null && ei.getAddress().indexOf("local://") != -1) {
+                destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactoryForUri(ei.getAddress());
+            }
+
+            if (destinationFactory == null) {
+                destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactory(ei.getTransportId());
+            }
         }
             
         destination = destinationFactory.getDestination(ei);

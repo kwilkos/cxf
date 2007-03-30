@@ -80,13 +80,13 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
             return;
         }
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
-        if (null != cim) {
+        if (null != cim && null != activationNamespaces) {
             for (String ns : activationNamespaces) {
                 cim.registerConduitInitiator(ns, this);
             }
         }
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        if (null != dfm) {
+        if (null != dfm && null != activationNamespaces) {
             for (String ns : activationNamespaces) {
                 dfm.registerDestinationFactory(ns, this);
             }

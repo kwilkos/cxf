@@ -23,7 +23,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -48,7 +47,6 @@ import org.apache.cxf.transport.MessageObserver;
 
 
 public class MediatorInInterceptor extends AbstractPhaseInterceptor<SoapMessage> {
-    private static final Logger LOG = Logger.getLogger(MediatorInInterceptor.class.getName());
 
     public MediatorInInterceptor() {
         super();
@@ -57,25 +55,19 @@ public class MediatorInInterceptor extends AbstractPhaseInterceptor<SoapMessage>
     }
 
     public void handleMessage(SoapMessage message) {
-        if (isGET(message)) {
-            LOG.info("StaxInInterceptor skipped in HTTP GET method");
-            return;
-        }
-
         String schemaNamespace = "";
         InterceptorChain chain = message.getInterceptorChain();
 
+        //scan the incoming message for its schema namespace
         try {
-            //create a buffered stream so that we can roll back to original stream after finishing scaning
+            //create a buffered stream so that we get back the original stream after scaning
             InputStream is = message.getContent(InputStream.class);
             BufferedInputStream pis = new BufferedInputStream(is);
             pis.mark(pis.available());
             message.setContent(InputStream.class, pis);
 
-            //TODO: need to process attachements
+            //TODO: process attachements
 
-            
-            //Scan the schema namespace, which is used to indicate the service version
             String encoding = (String)message.get(Message.ENCODING);
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(pis, encoding);
             DepthXMLStreamReader xmlReader = new DepthXMLStreamReader(reader);
@@ -83,15 +75,14 @@ public class MediatorInInterceptor extends AbstractPhaseInterceptor<SoapMessage>
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
+                //advance just past header
                 StaxUtils.toNextTag(xmlReader, soapVersion.getBody());
-
-                // advance just past body.
+                //past body.
                 xmlReader.nextTag();
             }
 
             schemaNamespace = xmlReader.getName().getNamespaceURI();
 
-            //Roll back to the original inputStream
             pis.reset();
         } catch (IOException e) {
             e.printStackTrace();
@@ -99,27 +90,31 @@ public class MediatorInInterceptor extends AbstractPhaseInterceptor<SoapMessage>
             e.printStackTrace();
         }
 
+        //Look up for all available endpoints registered on the bus
         Bus bus = CXFBusFactory.getDefaultBus();
         ServerRegistry serverRegistry = bus.getExtension(ServerRegistry.class);
         List<Server> servers = serverRegistry.getServers();
 
+        //if the incoming message has a namespace contained "2007/03/21", we redirect the message
+        //to the new version of service on endpoint "local://localhost:9027/SoapContext/version2/SoapPort"
         Server targetServer = null;
         for (Server server : servers) {
             targetServer = server;
             String address = server.getEndpoint().getEndpointInfo().getAddress();
             if (schemaNamespace.indexOf("2007/03/21") != -1) {
-                if (address.indexOf("SoapContext2") != -1) {
+                if (address.indexOf("version2") != -1) {
                     break;
                 }
-            } else if (address.indexOf("SoapContext1") != -1) {
+            } else if (address.indexOf("version1") != -1) {
                 break;
             }
         }
 
         //Redirect the request
-        MessageObserver ob = targetServer.getMessageObserver();
-        ob.onMessage(message);
+        MessageObserver mo = targetServer.getMessageObserver();
+        mo.onMessage(message);
 
+        //Now the response has been put in the message, abort the chain 
         chain.abort();
     }
 

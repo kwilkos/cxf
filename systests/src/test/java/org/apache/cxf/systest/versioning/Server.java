@@ -29,12 +29,13 @@ import org.apache.hello_world_mixedstyle.GreeterImplMixedStyle;
 public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
+        //implementor1 and implementor2 are published using local transport
         Object implementor1 = new GreeterImplMixedStyle();
-        String address1 = "http://localhost:9027/SoapContext1/SoapPort";
+        String address1 = "local://SoapContext/version1/SoapPort";
         Endpoint.publish(address1, implementor1);
 
         Object implementor2 = new GreeterImplMixedStyle();
-        String address2 = "http://localhost:9027/SoapContext2/SoapPort";
+        String address2 = "local://SoapContext/version2/SoapPort";
         Endpoint.publish(address2, implementor2);
         
         //A dummy service that acts as a routing mediator

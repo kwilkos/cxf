@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
@@ -52,15 +55,24 @@ public class LocalTransportFactory extends AbstractTransportFactory
     }
     
     private Map<String, Destination> destinations = new HashMap<String, Destination>();
-
-    
+    private Bus bus;
+     
     public LocalTransportFactory() {
         super();
         List<String> ids = new ArrayList<String>();
         ids.add(TRANSPORT_ID);
         setTransportIds(ids);
     }
+    
+    @Resource(name = "bus")
+    public void setBus(Bus b) {
+        bus = b;
+    }
 
+    public Bus getBus() {
+        return bus;
+    }
+    
     public Destination getDestination(EndpointInfo ei) throws IOException {
         return getDestination(ei, createReference(ei));
     }
