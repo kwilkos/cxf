@@ -239,7 +239,7 @@ public class JaxWsImplementorInfo {
     }
 
     public Class<?> getProviderParameterType() {
-        //The Provider Implementor inherits out of Provier<T>
+        // The Provider Implementor inherits out of Provider<T>
         Type intfTypes[] = implementorClass.getGenericInterfaces();
         for (Type t : intfTypes) {
             Class<?> clazz = JAXBEncoderDecoder.getClassFromType(t);

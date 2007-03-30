@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -66,7 +67,11 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
             throw new NullPointerException("EndpointInfo can not be null!");
         }
         
-        this.bus = bus;
+        if (bus == null) {
+            this.bus = BusFactory.getDefaultBus();
+        } else {
+            this.bus = bus;
+        }
         service = s;
         endpointInfo = ei;
 

@@ -29,6 +29,7 @@ import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.XMLTypeCreator;
 import org.apache.cxf.aegis.type.basic.BeanType;
+import org.apache.cxf.aegis.type.basic.StringType;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.service.Service;
@@ -63,12 +64,27 @@ public class AnnotatedTypeTest extends AbstractAegisTest {
         QName element = (QName)elements.next();
         assertTrue(elements.hasNext());
 
+        Type custom = info.getType(element);
+
+        if ("bogusProperty".equals(element.getLocalPart())) {
+            assertTrue(custom instanceof StringType);
+        } else if ("elementProperty".equals(element.getLocalPart())) {
+            assertTrue(custom instanceof CustomStringType);
+        } else {
+            fail("Unexpected element name: " + element.getLocalPart());
+        }
         element = (QName)elements.next();
         assertFalse(elements.hasNext());
 
-        Type custom = info.getType(element);
+        custom = info.getType(element);
 
-        assertTrue(custom instanceof CustomStringType);
+        if ("bogusProperty".equals(element.getLocalPart())) {
+            assertTrue(custom instanceof StringType);
+        } else if ("elementProperty".equals(element.getLocalPart())) {
+            assertTrue(custom instanceof CustomStringType);
+        } else {
+            fail("Unexpected element name: " + element.getLocalPart());
+        }
 
         Iterator atts = info.getAttributes();
         assertTrue(atts.hasNext());

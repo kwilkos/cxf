@@ -401,15 +401,33 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
                                         root,
                                         XPathConstants.NODE));
 
-            assertNotNull(xpather.getValue("//wsdl:output[@name='inoutHeaderResponse']"
-                                           + "//soap:header[@message='tns:inoutHeaderResponse']",
+            // The generated namespace prefix of the message attribute
+            // can differ between the ibm and sun jdks, so only check
+            // the local name part.
+            Object obj = xpather.getValue("//wsdl:output[@name='inoutHeaderResponse']"
+                                           + "//soap:header[@message]",
                                         root,
-                                        XPathConstants.NODE));
-            assertNotNull(xpather.getValue("//wsdl:output[@name='outHeaderResponse']"
-                                           + "//soap:header[@message='tns:outHeaderResponse']",
+                                        XPathConstants.NODE);
+            assertNotNull(obj);
+            if (obj instanceof org.w3c.dom.Element) {
+                org.w3c.dom.Attr attr = ((org.w3c.dom.Element)obj).getAttributeNode("message");
+                assertNotNull(attr);
+                assertTrue("Failed to find output message", attr.getValue().endsWith(":inoutHeaderResponse"));
+            } else {
+                fail("Expected Element type");
+            }
+            obj = xpather.getValue("//wsdl:output[@name='outHeaderResponse']"
+                                           + "//soap:header[@message]",
                                         root,
-                                        XPathConstants.NODE));
-            
+                                        XPathConstants.NODE);
+            assertNotNull(obj);
+            if (obj instanceof org.w3c.dom.Element) {
+                org.w3c.dom.Attr attr = ((org.w3c.dom.Element)obj).getAttributeNode("message");
+                assertNotNull(attr);
+                assertTrue("Failed to find output message", attr.getValue().endsWith(":outHeaderResponse"));
+            } else {
+                fail("Expected Element type");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             fail("Should not happen other exception " + e.getMessage());

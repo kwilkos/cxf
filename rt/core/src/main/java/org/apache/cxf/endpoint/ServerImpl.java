@@ -102,7 +102,7 @@ public class ServerImpl implements Server {
     public void start() {     
         
         getDestination().setMessageObserver(messageObserver);
-        //regist the active server to run
+        // register the active server to run
         if (null != serverRegistry) {
             LOG.fine("register the server to serverRegistry ");
             serverRegistry.register(this);

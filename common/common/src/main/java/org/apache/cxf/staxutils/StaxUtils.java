@@ -374,7 +374,7 @@ public final class StaxUtils {
 
     /**
      * Writes an Element to an XMLStreamWriter. The writer must already have
-     * started the doucment (via writeStartDocument()). Also, this probably
+     * started the document (via writeStartDocument()). Also, this probably
      * won't work with just a fragment of a document. The Element should be the
      * root element of the document.
      * 

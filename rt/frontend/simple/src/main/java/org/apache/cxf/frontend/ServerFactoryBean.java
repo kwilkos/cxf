@@ -148,7 +148,7 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
 
     /**
      * Set the backing service bean. If this is set a BeanInvoker is created for
-     * the provide bean.
+     * the provided bean.
      * 
      * @return
      */
