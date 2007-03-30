@@ -21,7 +21,6 @@ package org.apache.cxf.frontend;
 import java.io.IOException;
 
 import org.apache.cxf.BusException;
-import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.Server;
@@ -70,7 +69,6 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
     
     public ServerFactoryBean() {
         super();
-        setBindingFactory(new SoapBindingInfoFactoryBean());
         setServiceFactory(new ReflectionServiceFactoryBean());
     }
     

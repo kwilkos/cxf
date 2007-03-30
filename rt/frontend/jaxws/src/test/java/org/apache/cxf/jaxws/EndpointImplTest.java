@@ -51,7 +51,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
     @Test
     public void testEndpoint() throws Exception {   
         GreeterImpl greeter = new GreeterImpl();
-        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, "anyuri");
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
  
         WebServiceContext ctx = greeter.getContext();
         assertNull(ctx);

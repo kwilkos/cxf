@@ -46,13 +46,11 @@ import javax.xml.ws.WebServiceException;
 //import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
-import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
-import org.apache.cxf.binding.xml.XMLConstants;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.databinding.DataBinding;
@@ -62,7 +60,7 @@ import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
-import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoConfigBean;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.support.DummyImpl;
@@ -70,7 +68,6 @@ import org.apache.cxf.jaxws.support.JaxWsClientEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
@@ -231,7 +228,7 @@ public class ServiceImpl extends ServiceDelegate {
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
 
-        ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
         serviceFactory.setBus(bus);
         serviceFactory.setServiceName(serviceName);
         serviceFactory.setServiceClass(serviceEndpointInterface);
@@ -334,20 +331,15 @@ public class ServiceImpl extends ServiceDelegate {
         String transportId = df.getTransportIds().get(0);
         String bindingID = portInfo.getBindingID();
 
-        // TODO: Replace with discovery mechanism, now it just the hardcode        
-        AbstractBindingInfoFactoryBean bindingFactory = null;
-        if (bindingID.equals(XMLConstants.NS_XML_FORMAT) 
-            || bindingID.equals(HTTPBinding.HTTP_BINDING)) {
-            bindingFactory = new XMLBindingInfoFactoryBean();
-        } else { // we set the default binding to be soap binding
-            JaxWsSoapBindingInfoFactoryBean soapBindingFactory = new JaxWsSoapBindingInfoFactoryBean();
-            soapBindingFactory.setTransportURI(transportId);
-            bindingFactory = soapBindingFactory;
-        } 
+        
+        Object config = null;
+        if (serviceFactory instanceof JaxWsServiceFactoryBean) {
+            config = new JaxWsSoapBindingInfoConfigBean((JaxWsServiceFactoryBean)serviceFactory);
+        }
+        BindingInfo bindingInfo = bus.getExtension(BindingFactoryManager.class).getBindingFactory(bindingID)
+                .createBindingInfo(serviceFactory.getService(), bindingID, config);
 
-        bindingFactory.setServiceFactory(serviceFactory);
 
-        BindingInfo bindingInfo = bindingFactory.create();
         Service service = serviceFactory.getService();
         service.getServiceInfo().addBinding(bindingInfo);
 

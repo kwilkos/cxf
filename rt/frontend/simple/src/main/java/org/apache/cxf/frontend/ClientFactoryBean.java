@@ -19,7 +19,6 @@
 package org.apache.cxf.frontend;
 
 import org.apache.cxf.BusException;
-import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
@@ -33,7 +32,6 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
     
     public ClientFactoryBean() {
         super();
-        setBindingFactory(new SoapBindingInfoFactoryBean());
         setServiceFactory(new ReflectionServiceFactoryBean());
     }
 

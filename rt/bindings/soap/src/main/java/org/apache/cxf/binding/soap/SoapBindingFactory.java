@@ -58,11 +58,13 @@ import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
@@ -87,6 +89,89 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         activationNamespaces = ans;
     }
 
+    public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object conf) {
+        SoapBindingInfoConfigBean config;
+        if (conf instanceof SoapBindingInfoConfigBean) {
+            config = (SoapBindingInfoConfigBean)conf;
+        } else {
+            config = new SoapBindingInfoConfigBean();
+        }
+        
+        SoapBindingInfo info = new SoapBindingInfo(si,
+                                                   "http://schemas.xmlsoap.org/wsdl/soap/",
+                                                   config.getSoapVersion());
+        
+        info.setName(new QName(si.getName().getNamespaceURI(), 
+                               si.getName().getLocalPart() + "SoapBinding"));
+        info.setStyle(config.getStyle());
+        info.setTransportURI(config.getTransportURI());
+        
+        if (config.isMtomEnabled()) {
+            info.setProperty(Message.MTOM_ENABLED, Boolean.TRUE);
+        }
+        
+        for (OperationInfo op : si.getInterface().getOperations()) {
+            SoapOperationInfo sop = new SoapOperationInfo();
+            sop.setAction(config.getSoapAction(op));
+            sop.setStyle(config.getStyle(op));
+            
+            BindingOperationInfo bop = 
+                info.buildOperation(op.getName(), op.getInputName(), op.getOutputName());
+            
+            bop.addExtensor(sop);
+            
+            info.addOperation(bop);
+            
+            
+            BindingMessageInfo bInput = bop.getInput();
+            if (bInput != null) {
+                MessageInfo input = null;
+                BindingMessageInfo unwrappedMsg = bInput;
+                if (bop.isUnwrappedCapable()) {
+                    input = bop.getOperationInfo().getUnwrappedOperation().getInput();
+                    unwrappedMsg = bop.getUnwrappedOperation().getInput();
+                } else {
+                    input = bop.getOperationInfo().getInput();
+                }
+                setupHeaders(bop, bInput, unwrappedMsg, input, config);
+            }
+            
+            BindingMessageInfo bOutput = bop.getOutput();
+            if (bOutput != null) {
+                MessageInfo output = null;
+                BindingMessageInfo unwrappedMsg = bOutput;
+                if (bop.isUnwrappedCapable()) {
+                    output = bop.getOperationInfo().getUnwrappedOperation().getOutput();
+                    unwrappedMsg = bop.getUnwrappedOperation().getOutput();
+                } else {
+                    output = bop.getOperationInfo().getOutput();
+                }
+                setupHeaders(bop, bOutput, unwrappedMsg, output, config);
+            }
+        }
+        
+        return info;
+    }
+    private void setupHeaders(BindingOperationInfo op, 
+                              BindingMessageInfo bMsg, 
+                              BindingMessageInfo unwrappedBMsg, 
+                              MessageInfo msg,
+                              SoapBindingInfoConfigBean config) {
+        List<MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
+        for (MessagePartInfo part : msg.getMessageParts()) {
+            if (config.isHeader(op, part)) {
+                SoapHeaderInfo headerInfo = new SoapHeaderInfo();
+                headerInfo.setPart(part);
+                headerInfo.setUse(config.getUse());
+
+                bMsg.addExtensor(headerInfo);
+            } else {
+                parts.add(part);
+            }
+        }
+        unwrappedBMsg.setMessageParts(parts);
+    }
+    
     public Binding createBinding(BindingInfo binding) {
         // TODO what about the mix style/use?
 

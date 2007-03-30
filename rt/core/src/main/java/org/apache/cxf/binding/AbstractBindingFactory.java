@@ -31,6 +31,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -65,8 +66,12 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
      * @param service
      * @return
      */
-    public BindingInfo createBindingInfo(ServiceInfo service, String namespace) {
+    public BindingInfo createBindingInfo(ServiceInfo service, String namespace, Object config) {
         return new BindingInfo(service, namespace);
+    }
+    
+    public BindingInfo createBindingInfo(Service service, String namespace, Object config) {
+        return createBindingInfo(service.getServiceInfo(), namespace, config);
     }
     
     
@@ -78,7 +83,7 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
      */
     public BindingInfo createBindingInfo(ServiceInfo service, Binding binding, String ns) {
 
-        BindingInfo bi = createBindingInfo(service, ns);
+        BindingInfo bi = createBindingInfo(service, ns, null);
         
         return initializeBindingInfo(service, binding, bi);
     }
@@ -97,12 +102,17 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
                 outName = bop.getBindingOutput().getName();
             }
             String portTypeNs = binding.getPortType().getQName().getNamespaceURI();
-            BindingOperationInfo bop2 = bi.buildOperation(new QName(portTypeNs,
-                                                                    bop.getName()), inName, outName);
+            QName opName = new QName(portTypeNs,
+                                     bop.getName());
+            BindingOperationInfo bop2 = bi.getOperation(opName);
+            if (bop2 == null) {
+                bop2 = bi.buildOperation(opName, inName, outName);
+                if (bop2 != null) {
+                    bi.addOperation(bop2);
+                }
+            }
             if (bop2 != null) {
-
                 copyExtensors(bop2, bop.getExtensibilityElements());
-                bi.addOperation(bop2);
                 if (bop.getBindingInput() != null) {
                     copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
                 }

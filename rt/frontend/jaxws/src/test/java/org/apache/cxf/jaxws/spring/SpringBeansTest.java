@@ -21,7 +21,6 @@ package org.apache.cxf.jaxws.spring;
 import java.util.List;
 
 import junit.framework.TestCase;
-import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
@@ -111,6 +110,5 @@ public class SpringBeansTest extends TestCase {
 
         bean = (JaxWsServerFactoryBean) ctx.getBean("inlineSoapBinding");
         assertNotNull(bean);
-        assertTrue(((SoapBindingInfoFactoryBean) bean.getBindingFactory()).isMtomEnabled());
     }
 }

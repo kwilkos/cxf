@@ -53,6 +53,7 @@ import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -288,6 +289,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     } 
     
     @Test
+    @Ignore("test takes forever for what it does. Why?")
     public void testHolderNull() {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.binding;
 
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 
 /**
@@ -33,4 +34,12 @@ public interface BindingFactory {
      */
     Binding createBinding(BindingInfo binding);
 
+    /**
+     * Creates a "default" BindingInfo object for the service. Can return a subclass. 
+     * @param service
+     * @param namespace
+     * @param configObject - binding specific configuration object
+     * @return
+     */
+    BindingInfo createBindingInfo(Service service, String namespace, Object configObject);
 }

@@ -22,7 +22,6 @@ package org.apache.cxf.tools.java2wsdl.processor.internal;
 import java.io.File;
 
 import org.apache.cxf.BusException;
-import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.frontend.AbstractEndpointFactory;
@@ -33,7 +32,6 @@ public class ServiceBuilder extends AbstractEndpointFactory {
 
     public ServiceBuilder() {
         super();
-        setBindingFactory(new SoapBindingInfoFactoryBean());
     }
     
     public ServiceInfo build() {

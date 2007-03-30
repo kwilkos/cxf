@@ -28,7 +28,6 @@ import org.w3c.dom.Document;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.http.AbstractRestTest;
 import org.apache.cxf.binding.http.HttpBindingFactory;
-import org.apache.cxf.binding.http.HttpBindingInfoFactoryBean;
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
@@ -40,13 +39,14 @@ public class BareServiceTest extends AbstractRestTest {
     @Test
     public void testCreation() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
-        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
+        HttpBindingFactory factory = new HttpBindingFactory();
+        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setBus(getBus());
+        sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
-        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
         sf.setAddress("http://localhost:9001/foo/");
 
         Map<String, Object> props = new HashMap<String, Object>();
@@ -121,13 +121,14 @@ public class BareServiceTest extends AbstractRestTest {
     @Test
     public void testSetContentType() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
-        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
+        HttpBindingFactory factory = new HttpBindingFactory();
+        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setBus(getBus());
+        sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
-        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
         sf.setAddress("http://localhost:9001/foo/");
 
         Map<String, Object> props = new HashMap<String, Object>();

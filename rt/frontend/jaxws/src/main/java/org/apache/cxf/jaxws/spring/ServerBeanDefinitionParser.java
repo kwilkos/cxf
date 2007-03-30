@@ -66,7 +66,7 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
                 } else if ("invoker".equals(n.getLocalName())) {
                     setFirstChildAsProperty((Element) n, ctx, bean, "serviceFactory.invoker");
                 } else if ("binding".equals(n.getLocalName())) {
-                    setFirstChildAsProperty((Element) n, ctx, bean, "bindingFactory");
+                    setFirstChildAsProperty((Element) n, ctx, bean, "bindingConfig");
                 }  else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
                     || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());

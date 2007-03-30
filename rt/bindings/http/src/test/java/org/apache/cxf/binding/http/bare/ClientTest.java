@@ -28,7 +28,6 @@ import org.apache.cxf.binding.http.AbstractRestTest;
 import org.apache.cxf.binding.http.Customer;
 import org.apache.cxf.binding.http.Customers;
 import org.apache.cxf.binding.http.HttpBindingFactory;
-import org.apache.cxf.binding.http.HttpBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -45,7 +44,6 @@ public class ClientTest extends AbstractRestTest {
         sf.setBus(getBus());
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
-        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
         sf.setAddress("http://localhost:9001/foo/");
 
         Map<String, Object> props = new HashMap<String, Object>();

@@ -72,6 +72,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Object implementor;
     private Server server;
     private Service service;
+    private String bindingId;
     private JaxWsImplementorInfo implInfo;
     private JaxWsServiceFactoryBean serviceFactory;
     private Map<String, Object> properties;
@@ -93,6 +94,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public EndpointImpl(Bus b, Object i, String uri, URL wsdl) {
         bus = b;
         implementor = i;
+        bindingId = uri;
         // build up the Service model
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);
@@ -214,10 +216,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     protected void doPublish(String address) {
         checkPublishPermission();
 
-        JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
+        JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean(serviceFactory);
+        
         svrFactory.setBus(bus);
+        svrFactory.setBindingId(bindingId);
         svrFactory.setAddress(address);
-        svrFactory.setServiceFactory(serviceFactory);
         svrFactory.setStart(false);
         svrFactory.setServiceBean(implementor);
         configureObject(svrFactory);

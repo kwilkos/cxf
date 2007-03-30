@@ -20,19 +20,23 @@ package org.apache.cxf.frontend;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.DestinationFactory;
@@ -41,17 +45,19 @@ import org.apache.cxf.ws.AbstractWSFeature;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
 public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorProvider {
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractEndpointFactory.class);
 
     private Bus bus;
     private String address;
     private String transportId;
-    private AbstractBindingInfoFactoryBean bindingFactory;
+    private String bindingId;
     private Class serviceClass;
     private DestinationFactory destinationFactory;
     private ReflectionServiceFactoryBean serviceFactory;
     private QName endpointName;
     private Map<String, Object> properties;
     private List<AbstractWSFeature> features;
+    private Object bindingConfig;
 
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         Service service = serviceFactory.getService();
@@ -69,6 +75,12 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         }
 
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
+        if (ei != null
+            && transportId != null
+            && !ei.getTransportId().equals(transportId)) {
+            ei = null;
+        }
+        
         Endpoint ep = null;
         if (ei == null) {
             ei = createEndpointInfo();
@@ -77,6 +89,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         }                        
 
         ep = service.getEndpoints().get(ei.getName());
+        
         if (ep == null) {
             ep = serviceFactory.createEndpoint(ei);
         }
@@ -126,7 +139,8 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         
         // Get the Service from the ServiceFactory if specified
         Service service = serviceFactory.getService();
-        
+
+
         // SOAP nonsense
         BindingInfo bindingInfo = createBindingInfo();
         if (bindingInfo instanceof SoapBindingInfo) {
@@ -144,6 +158,12 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         }
         
         EndpointInfo ei = new EndpointInfo(service.getServiceInfo(), transportId);
+        int count = 1;
+        while (service.getServiceInfo().getEndpoint(endpointName) != null) {
+            endpointName = new QName(endpointName.getNamespaceURI(), 
+                                     endpointName.getLocalPart() + count);
+            count++;
+        }
         ei.setName(endpointName);
         ei.setAddress(getAddress());
         ei.setBinding(bindingInfo);
@@ -160,8 +180,19 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     }
 
     protected BindingInfo createBindingInfo() {
-        getBindingFactory().setServiceFactory(serviceFactory);
-        return getBindingFactory().create();
+        BindingFactoryManager mgr = bus.getExtension(BindingFactoryManager.class);
+        String binding = bindingId;
+        if (binding == null) {
+            //default to soap binding
+            binding = "http://schemas.xmlsoap.org/soap/";
+        }
+        try {
+            return mgr.getBindingFactory(binding).createBindingInfo(serviceFactory.getService(),
+                                                                    binding, bindingConfig);
+        } catch (BusException ex) {
+            throw new ServiceConstructionException(
+                   new Message("COULD.NOT.RESOLVE.BINDING", LOG, bindingId), ex);
+        }
     }
 
     public String getAddress() {
@@ -199,15 +230,20 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     public void setTransportId(String transportId) {
         this.transportId = transportId;
     }
-
-    public AbstractBindingInfoFactoryBean getBindingFactory() {
-        return bindingFactory;
+    public void setBindingId(String bind) {
+        bindingId = bind;
+    }
+    public String getBindingId() {
+        return bindingId;
     }
 
-    public void setBindingFactory(AbstractBindingInfoFactoryBean bindingFactory) {
-        this.bindingFactory = bindingFactory;
+    public void setBindingConfig(Object obj) {
+        bindingConfig = obj;
     }
-
+    public Object getBindingConfig() {
+        return bindingConfig;
+    }
+    
     public Class getServiceClass() {
         return serviceClass;
     }

@@ -21,6 +21,7 @@ package org.apache.cxf.binding.xml;
 import java.util.Collection;
 
 import javax.annotation.Resource;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
@@ -34,6 +35,9 @@ import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
 
@@ -69,6 +73,20 @@ public class XMLBindingFactory extends AbstractBindingFactory {
         xb.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
         
         return xb;
+    } 
+    
+    public BindingInfo createBindingInfo(ServiceInfo service, String namespace, Object config) {
+        BindingInfo info = new BindingInfo(service, "http://cxf.apache.org/bindings/xformat");        
+        info.setName(new QName(service.getName().getNamespaceURI(), 
+                               service.getName().getLocalPart() + "XMLBinding"));
+
+        for (OperationInfo op : service.getInterface().getOperations()) {                       
+            BindingOperationInfo bop = 
+                info.buildOperation(op.getName(), op.getInputName(), op.getOutputName());
+            info.addOperation(bop);
+        }
+        
+        return info;
     }
 
 }

@@ -27,7 +27,6 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.http.AbstractRestTest;
 import org.apache.cxf.binding.http.HttpBindingFactory;
-import org.apache.cxf.binding.http.HttpBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.person.Person;
@@ -39,16 +38,17 @@ public class MtomTest extends AbstractRestTest {
     @Test
     public void testService() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
-        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
+        HttpBindingFactory factory = new HttpBindingFactory();
+        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
 
         PeopleServiceImpl impl = new PeopleServiceImpl();
 
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setBus(getBus());
+        sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);        
         sf.setServiceBean(impl);
         sf.getServiceFactory().setInvoker(new BeanInvoker(impl));
         sf.getServiceFactory().setWrapped(true);
-        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
         sf.setAddress("http://localhost:9001/");
 
         Map<String, Object> props = new HashMap<String, Object>();

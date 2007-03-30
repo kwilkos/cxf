@@ -22,12 +22,12 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
+import org.apache.cxf.binding.soap.SoapBindingInfoConfigBean;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
-public class SoapBindingInfoFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class SoapBindingInfoConfigBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
@@ -41,7 +41,7 @@ public class SoapBindingInfoFactoryBeanDefinitionParser extends AbstractBeanDefi
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return SoapBindingInfoFactoryBean.class;
+        return SoapBindingInfoConfigBean.class;
     }
 
 }

@@ -64,7 +64,7 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         
     }
 
-    private Element getFirstChild(Element element) {
+    protected Element getFirstChild(Element element) {
         Element first = null;
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
