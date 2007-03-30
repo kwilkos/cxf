@@ -42,6 +42,7 @@ import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.ManagedBus;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.logging.LogUtils;
@@ -64,8 +65,10 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
     private MBeanServer mbs;
     private Set<ObjectName> busMBeans = new HashSet<ObjectName>();
     private ModelMBeanAssembler assembler;
+    private boolean connectFailed;
     
-    public InstrumentationManagerImpl() {        
+    public InstrumentationManagerImpl() {
+        super();
         assembler = new ModelMBeanAssembler();
     }
     
@@ -92,11 +95,7 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
     
     @PostConstruct     
     public void init() {    
-        if (isEnabled()) {        
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Setting up MBeanServer ");
-            }
-
+        if (isEnabled()) {            
             List servers = MBeanServerFactory.findMBeanServer(ManagementConstants.DEFAULT_DOMAIN_NAME);
             if (servers.size() <= 1) {
                 mbs = MBeanServerFactory.createMBeanServer(ManagementConstants.DEFAULT_DOMAIN_NAME);
@@ -109,10 +108,22 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
             mcf.setDaemon(isDaemon());
             mcf.setServiceUrl(getJMXServiceURL());
             try {            
-                mcf.createConnector();
+                mcf.createConnector();                
             } catch (IOException ex) {
+                connectFailed = true;
                 LOG.log(Level.SEVERE, "START_CONNECTOR_FAILURE_MSG", new Object[]{ex});
-            }                
+            }              
+
+            if (!connectFailed && null != bus) {            
+                try {
+                    //Register Bus here since we can guarantee that Instrumentation 
+                    //infrastructure has been initialized.
+                    ManagedBus mbus = new ManagedBus(bus);
+                    register(mbus);
+                } catch (JMException jmex) {
+                    LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{bus, jmex});
+                }
+            }
         }
     }
 
@@ -121,7 +132,7 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
     }
     
     public void register(Object obj, ObjectName name, boolean forceRegistration) throws JMException {
-        if (!isEnabled()) {
+        if (!isEnabled() || connectFailed) {
             return;           
         }
         //Try to register as a Standard MBean
@@ -155,7 +166,7 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
     }
     
     public void unregister(ObjectName name) throws JMException {  
-        if (!isEnabled()) {
+        if (!isEnabled() || connectFailed) {
             return;           
         }
         
@@ -191,7 +202,7 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
         Iterator<ObjectName> it = busMBeans.iterator();
         while (it.hasNext()) {
             ObjectName name = it.next();
-            busMBeans.remove(name);
+            it.remove();
             try {
                 unregister(name);
             } catch (JMException jmex) {

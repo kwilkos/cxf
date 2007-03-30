@@ -19,6 +19,7 @@
 
 package org.apache.cxf.endpoint;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -28,7 +29,7 @@ import org.apache.cxf.Bus;
 
 public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager {
     
-    private List<ServerLifeCycleListener> listeners;
+    private List<ServerLifeCycleListener> listeners = new ArrayList<ServerLifeCycleListener>();
     private Bus bus;
 
     public void registerListener(ServerLifeCycleListener listener) {

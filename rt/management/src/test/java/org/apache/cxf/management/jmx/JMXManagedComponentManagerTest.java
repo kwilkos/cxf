@@ -47,10 +47,10 @@ public class JMXManagedComponentManagerTest extends TestCase {
     }
     
     public void testRegisterInstrumentation() throws Exception {
-        manager.setDaemon(false);
-        manager.setThreaded(false);
-        manager.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
-        manager.init();
+        //manager.setDaemon(false);
+        //manager.setThreaded(false);
+        //manager.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
+        //manager.init();
 
         AnnotationTestInstrumentation im = new AnnotationTestInstrumentation();
         ObjectName name = new ObjectName("org.apache.cxf:type=foo,name=bar");        

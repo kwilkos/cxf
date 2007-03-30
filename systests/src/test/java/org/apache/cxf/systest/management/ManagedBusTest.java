@@ -81,6 +81,18 @@ public class ManagedBusTest extends Assert {
             assertEquals(result, Long.valueOf(250));
         }
 
-        bus.shutdown(true);
+        name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+                                         + ":type=Bus,*");
+        s = mbs.queryNames(name, null);
+        assertTrue(s.size() == 1);
+        it = s.iterator();
+        while (it.hasNext()) {
+            ObjectName n = (ObjectName)it.next();
+            Object[] params = {Boolean.FALSE};
+            String[] sig = {"boolean"};
+            mbs.invoke(n, "shutdown", params, sig);            
+        }        
+        
+        //bus.shutdown(true);
     }
 }

@@ -20,10 +20,15 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.management.JMException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
@@ -31,8 +36,7 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
 
 public class ServerImpl implements Server {
-    
-    private static final Logger LOG = Logger.getLogger(ServerImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ServerImpl.class);    
     private Destination destination;
     private MessageObserver messageObserver;
     private Endpoint endpoint;
@@ -72,6 +76,19 @@ public class ServerImpl implements Server {
             
         destination = destinationFactory.getDestination(ei);
         serverRegistry = bus.getExtension(ServerRegistry.class);
+        InstrumentationManager manager = bus.getExtension(InstrumentationManager.class);
+        if (manager != null) {            
+            ManagedEndpoint mep = new ManagedEndpoint(bus, endpoint, this);
+            mgr = bus.getExtension(ServerLifeCycleManager.class);
+            if (mgr != null) {
+                mgr.registerListener(mep);
+            }            
+            try {
+                manager.register(mep);
+            } catch (JMException jmex) {
+                LOG.log(Level.WARNING, "Registering ManagedEndpoint failed.", jmex);
+            }
+        }
     }
 
     public Destination getDestination() {
