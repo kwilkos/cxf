@@ -37,13 +37,12 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class LocalDestination extends AbstractDestination {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(LocalDestination.class);
-    
+
     private LocalTransportFactory localDestinationFactory;
 
-    public LocalDestination(LocalTransportFactory localDestinationFactory,
-                            EndpointReferenceType epr,
+    public LocalDestination(LocalTransportFactory localDestinationFactory, EndpointReferenceType epr,
                             EndpointInfo ei) {
         super(epr, ei);
         this.localDestinationFactory = localDestinationFactory;
@@ -52,11 +51,11 @@ public class LocalDestination extends AbstractDestination {
     public void shutdown() {
         localDestinationFactory.remove(this);
     }
-    
+
     protected Logger getLogger() {
         return LOG;
     }
-    
+
     @Override
     protected Conduit getInbuiltBackChannel(Message inMessage) {
         Conduit conduit = (Conduit)inMessage.get(LocalConduit.IN_CONDUIT);
@@ -75,9 +74,22 @@ public class LocalDestination extends AbstractDestination {
         }
 
         public void send(final Message message) throws IOException {
+            final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
+            
+            if (Boolean.TRUE.equals(message.get(LocalConduit.DIRECT_DISPATCH))) {
+                MessageImpl copy = new MessageImpl();
+                copy.putAll(message);
+                MessageImpl.copyContent(message, copy);
+                
+                if (exchange.getInMessage() == null) {
+                    exchange.setInMessage(copy);
+                }
+                
+                conduit.getMessageObserver().onMessage(copy);
+                return;
+            }
 
             final PipedInputStream stream = new PipedInputStream();
-            final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
             final Runnable receiver = new Runnable() {
                 public void run() {
                     MessageImpl m = new MessageImpl();
@@ -94,9 +106,10 @@ public class LocalDestination extends AbstractDestination {
 
             new Thread(receiver).start();
         }
-        
+
         protected Logger getLogger() {
             return LOG;
         }
     }
+    
 }

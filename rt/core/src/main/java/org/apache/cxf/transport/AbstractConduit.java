@@ -60,7 +60,10 @@ public abstract class AbstractConduit
      * @param message for which content shoul dbe closed.
      */    
     public void close(Message msg) throws IOException {
-        msg.getContent(OutputStream.class).close();        
+        OutputStream os = msg.getContent(OutputStream.class);
+        if (os != null) {
+            os.close();
+        }
     }
     
     /**

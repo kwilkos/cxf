@@ -147,11 +147,7 @@ public class MessageImpl extends StringMapImpl implements Message {
     
     public static void copyContent(Message m1, Message m2) {
         for (Class<?> c : m1.getContentFormats()) {
-            if (c == Exception.class) {
-                m2.setContent(c, m1.getContent(c));
-            } else if (c ==  javax.xml.stream.XMLStreamReader.class) {
-                m2.setContent(c, m1.getContent(c));
-            }
+            m2.setContent(c, m1.getContent(c));
         }
     }
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+  targetNamespace="http://cxf.apache.org/bindings/object" 
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"  >
+
+  <xsd:import namespace="http://www.springframework.org/schema/beans" />
+
+  <xsd:element name="objectBinding">
+    <xsd:complexType>
+      <xsd:complexContent>
+        <xsd:extension base="beans:identifiedType">
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

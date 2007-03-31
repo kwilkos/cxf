@@ -63,15 +63,23 @@ public class LocalConduit extends AbstractConduit {
             throw new IllegalStateException("Local destination does not have a MessageObserver on address " 
                                             + destination.getAddress().getAddress().getValue());
         }
+
+        MessageImpl copy = new MessageImpl();
+        copy.put(IN_CONDUIT, this);
+        copy.setDestination(destination);
         
-        message.put(IN_CONDUIT, this);
-        Exchange exchange = message.getExchange();
-        if (exchange == null) {
-            exchange = new ExchangeImpl();
-            exchange.setInMessage(message);
-        }
-        exchange.setDestination(destination);
-        destination.getMessageObserver().onMessage(message);
+        // copy all the contents
+        copy.putAll(message);
+        MessageImpl.copyContent(message, copy);
+        copy.remove(Message.REQUESTOR_ROLE);
+        
+        // Create a new incoming exchange and store the original exchange for the response
+        ExchangeImpl ex = new ExchangeImpl();
+        ex.setInMessage(copy);
+        ex.put(IN_EXCHANGE, message.getExchange());
+        ex.setDestination(destination);
+        
+        destination.getMessageObserver().onMessage(copy);
     }
 
     private void dispatchViaPipe(final Message message) throws IOException {
