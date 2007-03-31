@@ -22,8 +22,6 @@ package org.apache.cxf.transport.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -34,25 +32,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.endpoint.EndpointPublisher;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.InputStreamResource;
 
 /**
  * A Servlet which supports loading of JAX-WS endpoints from an
@@ -65,11 +58,11 @@ public class CXFServlet extends HttpServlet {
     static final String ADDRESS_PERFIX = "http://localhost/services";
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
     static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
-    static final String JAXWS_ENDPOINT_FACTORY_BEAN = "org.apache.cxf.jaxws.spring.EndpointFactoryBean";
     
     private Bus bus;
     private ServletTransportFactory servletTransportFactory;
     private ServletController controller;
+    private GenericApplicationContext childCtx;
 
     public ServletController createServletController() {
         return new ServletController(servletTransportFactory, this.getServletContext(), this);
@@ -93,114 +86,95 @@ public class CXFServlet extends HttpServlet {
                 bus = ref.get();
             }
         }
-        if (null == bus) {
-            // try to pull an existing ApplicationContext out of the
-            // ServletContext
-            ServletContext svCtx = getServletContext();
-
-            
-            // Spring 1.x
-            ApplicationContext ctx = (ApplicationContext)svCtx
-                .getAttribute("interface org.springframework.web.context.WebApplicationContext.ROOT");
-
-            // Spring 2.0
-            if (ctx == null) {
-                ctx = (ApplicationContext)svCtx
-                    .getAttribute("org.springframework.web.context.WebApplicationContext.ROOT");
-            }
-            
-            // This constructor works whether there is a context or not
-            // If the ctx is null, we need to load the cxf-servlet as default
-            if (ctx == null) {
-                bus = new SpringBusFactory().createBus("/META-INF/cxf/cxf-servlet.xml");
-                
-            } else {
-                bus = new SpringBusFactory(ctx).createBus();
-            }
-            
-            SpringBusFactory.setDefaultBus(bus);
-            
-            initEndpointsFromContext(ctx);
-             
+        
+        String springCls = "org.springframework.context.ApplicationContext";
+        try {
+            ClassLoaderUtils.loadClass(springCls, getClass());
+            loadSpringBus(servletConfig);
+        } catch (ClassNotFoundException e) {
+            loadBusNoConfig(servletConfig);
         }
+            
+            
         if (null != busid) {
             BUS_MAP.put(busid, new WeakReference<Bus>(bus));
         }
-                
-        replaceDestionFactory();
-
-        // Set up the servlet as the default server side destination factory
-        controller = createServletController();
-
-        // build endpoints from the web.xml or a config file
-        buildEndpoints(servletConfig);
-        
         ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
         resourceManager.addResourceResolver(new ServletContextResourceResolver());
     }
     
-    // Need to get to know all frontend's endpoint information
-    private void initEndpointsFromContext(ApplicationContext ctx) throws ServletException {
-        Class factoryClass;        
-        if (null != ctx) {                   
-            try {
-                factoryClass = Class.forName(JAXWS_ENDPOINT_FACTORY_BEAN);
-            } catch (ClassNotFoundException ex) {
-                throw new ServletException(ex);
-            }
-            String[] beans = ctx.getBeanNamesForType(factoryClass);
-            if (null != beans) {
-                for (String bean : beans) {
-                    // just remove the & from the bean's name
-                    ctx.getBean(bean.substring(1));
-                }
-            }
-        }    
+    private void loadBusNoConfig(ServletConfig servletConfig) throws ServletException {
+        if (bus == null) {
+            bus = BusFactory.getDefaultBus();
+        }
+        // Set up the ServletController
+        controller = createServletController();
+
+        replaceDestionFactory();
+        
     }
 
-    protected void buildEndpoints(ServletConfig servletConfig) throws ServletException {
+    private void loadSpringBus(ServletConfig servletConfig) throws ServletException {
+        // try to pull an existing ApplicationContext out of the
+        // ServletContext
+        ServletContext svCtx = getServletContext();
+
+        // Spring 1.x
+        ApplicationContext ctx = (ApplicationContext)svCtx
+            .getAttribute("interface org.springframework.web.context.WebApplicationContext.ROOT");
+
+        // Spring 2.0
+        if (ctx == null) {
+            ctx = (ApplicationContext)svCtx
+                .getAttribute("org.springframework.web.context.WebApplicationContext.ROOT");
+        }
+        
+        // This constructor works whether there is a context or not
+        // If the ctx is null, we need to load the cxf-servlet as default
+        if (ctx == null) {
+            bus = new SpringBusFactory().createBus("/META-INF/cxf/cxf-servlet.xml");
+        } else {
+            bus = new SpringBusFactory(ctx).createBus();
+        }
+        
+        replaceDestionFactory();
+
+        // Set up the ServletController
+        controller = createServletController();
+        
+        // build endpoints from the web.xml or a config file
+        loadAdditionalConfig(ctx, servletConfig);
+    }
+
+    protected void loadAdditionalConfig(ApplicationContext ctx, 
+                                        ServletConfig servletConfig) throws ServletException {
         String location = servletConfig.getInitParameter("config-location");
         if (location == null) {
             location = "/WEB-INF/cxf-servlet.xml";
         }
-                 
-        InputStream ins = servletConfig.getServletContext().getResourceAsStream(location);
-
-        if (ins == null) {
-            try {
+        InputStream is = null;
+        try {
+            is = servletConfig.getServletContext().getResourceAsStream(location);
+            
+            if (is == null || is.available() == -1) {
                 URIResolver resolver = new URIResolver(location);
 
                 if (resolver.isResolved()) {
-                    ins = resolver.getInputStream();
+                    is = resolver.getInputStream();
                 }
-            } catch (IOException e) {
-                // ignore
             }
-
+        } catch (IOException e) {
+            //throw new ServletException(e);
         }
-
-        if (ins != null) {
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            builderFactory.setNamespaceAware(true);
-            builderFactory.setValidating(false);
-
-            try {
-                Document doc = builderFactory.newDocumentBuilder().parse(ins);
-                Node nd = doc.getDocumentElement().getFirstChild();
-                while (nd != null) {
-                    if ("endpoint".equals(nd.getLocalName())) {
-                        buildEndpoint(servletConfig, nd);
-                    }
-                    nd = nd.getNextSibling();
-                }
-            } catch (SAXException ex) {
-                throw new ServletException(ex);
-            } catch (IOException ex) {
-                throw new ServletException(ex);
-            } catch (ParserConfigurationException ex) {
-                throw new ServletException(ex);
-            }
-        }
+        
+        if (is != null) {
+            childCtx = new GenericApplicationContext(ctx);
+            XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(childCtx);
+            reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
+            reader.loadBeanDefinitions(new InputStreamResource(is, location));
+            
+            childCtx.refresh();
+        } 
     }
 
     /**
@@ -215,81 +189,6 @@ public class CXFServlet extends HttpServlet {
 
     private void registerTransport(DestinationFactory factory, String namespace) {
         bus.getExtension(DestinationFactoryManager.class).registerDestinationFactory(namespace, factory);
-    }
-
-    public void buildEndpoint(ServletConfig servletConfig, Node node) throws ServletException {
-        Element el = (Element)node;
-        String publisherName = el.getAttribute("publisher");
-        String implName = el.getAttribute("implementation");
-        String serviceName = el.getAttribute("service");
-        String wsdlName = el.getAttribute("wsdl");
-        String portName = el.getAttribute("port");
-        String urlPat = el.getAttribute("url-pattern");
-
-        buildEndpoint(publisherName, implName, serviceName, wsdlName, portName, urlPat);
-    }
-
-    public void buildEndpoint(String publisherName,
-                              String implName, 
-                              String serviceName, 
-                              String wsdlName, 
-                              String portName,
-                              String urlPat) throws ServletException {
-
-        try {
-            URL url = null;
-            
-            if (!"".equals(wsdlName)) {
-                try {
-                    URIResolver resolver = new URIResolver(wsdlName);
-                    if (resolver.isResolved()) {
-                        url = resolver.getURI().toURL();
-                    }
-                } catch (IOException e) {
-                    // ignore
-                }
-                if (url == null) {
-                    try {
-                        url = getServletConfig().getServletContext().getResource("/" + wsdlName);
-                    } catch (MalformedURLException e) {
-                        // ignore
-                    }
-                }
-                if (url == null) {
-                    try {
-                        url = getServletConfig().getServletContext().getResource(wsdlName);
-                    } catch (MalformedURLException e) {
-                        // ignore
-                    }
-                }
-            }
-            
-            // this wsdl url is used to locate imported schemas whose path is
-            // relative to wsdl.
-            controller.setWsdlLocation(url);
-            
-            if (null == publisherName || publisherName.length() == 0) {
-                publisherName = "org.apache.cxf.jaxws.EndpointPublisherImpl";
-            }
-            
-            EndpointPublisher publisher = (EndpointPublisher)Class.forName(publisherName).newInstance();
-            
-            publisher.buildEndpoint(bus, implName, serviceName, url, portName);
-
-            LOG.info("publish the servcie to {context}/ " + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
-            
-            // TODO we may need to get the url-pattern from servlet context
-            publisher.publish(ADDRESS_PERFIX + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
-            
-        } catch (BusException ex) {
-            throw new ServletException(ex.getCause());        
-        } catch (ClassNotFoundException ex) {
-            throw new ServletException(ex);
-        } catch (InstantiationException ex) {
-            throw new ServletException(ex);
-        } catch (IllegalAccessException ex) {
-            throw new ServletException(ex);
-        }
     }
 
     private void replaceDestionFactory() throws ServletException {
@@ -316,6 +215,8 @@ public class CXFServlet extends HttpServlet {
     }
 
     public void destroy() {
+        childCtx.destroy();
+        
         String s = bus.getId();
         BUS_MAP.remove(s);
         bus.shutdown(true);

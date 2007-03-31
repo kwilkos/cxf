@@ -122,6 +122,7 @@ public abstract class BusFactory {
             instance = busFactoryClass.newInstance();
         } catch (Exception ex) {
             LogUtils.log(LOG, Level.SEVERE, "BUS_FACTORY_INSTANTIATION_EXC", ex);
+            throw new RuntimeException(ex);
         }
         return instance;
     }
@@ -129,6 +130,7 @@ public abstract class BusFactory {
     private static String getBusFactoryClass(ClassLoader classLoader) {
         
         String busFactoryClass = null;
+        String busFactoryCondition = null;
         
         // next check system properties
         busFactoryClass = System.getProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);
@@ -148,15 +150,25 @@ public abstract class BusFactory {
             if (classLoader == null) {
                 is = ClassLoader.getSystemResourceAsStream(serviceId);
             } else {
-                is = classLoader.getResourceAsStream(serviceId);
+                is = classLoader.getResourceAsStream(serviceId);        
             }
             if (is != null) {
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 busFactoryClass = rd.readLine();
+                busFactoryCondition = rd.readLine();
                 rd.close();
             }
             if (isValidBusFactoryClass(busFactoryClass)) {
-                return busFactoryClass;
+                if (busFactoryCondition != null) {
+                    try { 
+                        classLoader.loadClass(busFactoryCondition);
+                        return busFactoryClass;
+                    } catch (ClassNotFoundException e) {
+                        return DEFAULT_BUS_FACTORY;
+                    }
+                } else {
+                    return busFactoryClass;
+                }
             }
 
             // otherwise use default  

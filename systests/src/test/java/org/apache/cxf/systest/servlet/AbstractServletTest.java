@@ -54,6 +54,11 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
         HttpUnitOptions.setExceptionsThrownOnErrorStatus(true);        
     } 
     
+    @Override
+    public void setUpBus() throws Exception {
+        // don't set anything up, let the servlet do it
+    }
+
     @After
     public void tearDown() {
         BusFactory.getDefaultBus().shutdown(false);

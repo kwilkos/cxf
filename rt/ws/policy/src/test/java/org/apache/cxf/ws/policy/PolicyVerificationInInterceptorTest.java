@@ -19,6 +19,9 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -28,6 +31,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,12 +50,19 @@ public class PolicyVerificationInInterceptorTest extends Assert {
     private EndpointInfo ei;
     private PolicyEngine engine;
     private AssertionInfoMap aim;
+    private List<Object> mocks = new ArrayList<Object>();
     
     @Before
     public void setUp() {
         control = EasyMock.createNiceControl(); 
         bus = control.createMock(Bus.class);  
+        mocks.add(bus);
     } 
+    
+    @After
+    public void clearMocks() {
+        mocks.clear();
+    }
     
     @Test
     public void testHandleMessage() {
@@ -83,9 +94,11 @@ public class PolicyVerificationInInterceptorTest extends Assert {
         control.reset();
         setupMessage(true, true, true, true);
         EasyMock.expect(message.get(Message.REQUESTOR_ROLE)).andReturn(Boolean.FALSE);
-        EffectivePolicyImpl effectivePolicy = control.createMock(EffectivePolicyImpl.class);        
+        EffectivePolicyImpl effectivePolicy = control.createMock(EffectivePolicyImpl.class);  
+        mocks.add(effectivePolicy);
         EasyMock.expect(engine.getEffectiveServerRequestPolicy(ei, boi)).andReturn(effectivePolicy);
         Policy policy = control.createMock(Policy.class);
+        mocks.add(policy);
         EasyMock.expect(effectivePolicy.getPolicy()).andReturn(policy);
         aim.checkEffectivePolicy(policy);
         EasyMock.expectLastCall();
@@ -141,6 +154,7 @@ public class PolicyVerificationInInterceptorTest extends Assert {
             return;
         }
         ei = control.createMock(EndpointInfo.class);
+        mocks.add(ei);
         EasyMock.expect(endpoint.getEndpointInfo()).andReturn(ei);
         
         if (setupPolicyEngine && null == engine) {

@@ -34,6 +34,7 @@ import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -42,7 +43,7 @@ import org.springframework.context.ApplicationContextAware;
  * users to use.
  */
 public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
-    implements FactoryBean, ApplicationContextAware {
+    implements FactoryBean, ApplicationContextAware, InitializingBean {
     private String address;
     private Bus bus;
     private Executor executor;
@@ -60,6 +61,10 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
         this.context = c;
     }
    
+    public void afterPropertiesSet() throws Exception {
+        getObject();
+    }
+
     public Object getObject() throws Exception {
         if (endpoint != null) {
             return endpoint;
@@ -68,9 +73,9 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
         // Construct Endpoint...
         
         if (bus == null) {
-            bus = (Bus) context.getBean("cxf");
-            
-            if (bus == null) {
+            if (context.containsBean("cxf")) {
+                bus = (Bus) context.getBean("cxf");
+            } else {
                 bus = BusFactory.getDefaultBus();
             }
         }

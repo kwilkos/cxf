@@ -69,7 +69,9 @@ public class ChainInitiationObserver implements MessageObserver {
         exchange.put(Service.class, endpoint.getService());
         exchange.put(Binding.class, endpoint.getBinding());
         exchange.put(Bus.class, bus);
-        exchange.setDestination(m.getDestination());
+        if (exchange.getDestination() == null) {
+            exchange.setDestination(m.getDestination());
+        }
     }
     
 }

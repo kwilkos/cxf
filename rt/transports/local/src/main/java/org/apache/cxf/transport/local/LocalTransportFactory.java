@@ -45,8 +45,6 @@ public class LocalTransportFactory extends AbstractTransportFactory
    
     public static final String TRANSPORT_ID = "http://cxf.apache.org/transports/local";
 
-    public static final String DISPATCH_DIRECT = "dispatch.direct";
-        
     private static final Logger LOG = Logger.getLogger(LocalTransportFactory.class.getName());
     private static final Set<String> URI_PREFIXES = new HashSet<String>();
 

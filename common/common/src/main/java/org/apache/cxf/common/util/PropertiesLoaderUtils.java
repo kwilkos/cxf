@@ -19,11 +19,14 @@
 
 package org.apache.cxf.common.util;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
-
-import org.springframework.core.io.UrlResource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  * Replace by org.springframework.core.io.support.PropertiesLoaderUtils
@@ -64,8 +67,7 @@ public final class PropertiesLoaderUtils {
             // TODO: May need a log here, instead of the system.out
             InputStream is = null;
             try {
-                UrlResource ur = new UrlResource(url);
-                is = ur.getInputStream();
+                is = url.openStream();
                 properties.loadFromXML(new BufferedInputStream(is));
             } finally {
                 if (is != null) {

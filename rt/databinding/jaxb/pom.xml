@@ -62,12 +62,12 @@
                 <executions>
                     <execution>
                         <id>generate-sources</id>
-                        <phase>generate-sources</phase>
+                        <phase>generate-test-sources</phase>
                         <configuration>
-                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
                             <xsdOptions>
                                 <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/wsdl/jaxb/misc_test.xsd</xsd>
+                                    <xsd>${basedir}/src/test/resources/wsdl/jaxb/misc_test.xsd</xsd>
                                 </xsdOption>
                             </xsdOptions>
                         </configuration>
@@ -151,7 +151,11 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-xjc</artifactId>
         </dependency>
-
+	    <dependency>
+	        <groupId>javax.xml.ws</groupId>
+	        <artifactId>jaxws-api</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Optional dependency so we can dynamically compile the JAXB beans for the Dynamic Client -->
         <dependency>

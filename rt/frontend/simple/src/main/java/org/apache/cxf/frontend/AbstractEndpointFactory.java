@@ -133,7 +133,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
                 // TODO: we shouldn't have to do this, but the DF is null because the
                 // LocalTransport doesn't return for the http:// uris
                 // People also seem to be supplying a null JMS getAddress(), which is worrying
-                transportId = "http://schemas.xmlsoap.org/wsdl/soap/http";
+                transportId = "http://schemas.xmlsoap.org/soap/http";
             }
         }
         
@@ -183,7 +183,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         BindingFactoryManager mgr = bus.getExtension(BindingFactoryManager.class);
         String binding = bindingId;
         if (binding == null) {
-            //default to soap binding
+            // default to soap binding
             binding = "http://schemas.xmlsoap.org/soap/";
         }
         try {
@@ -198,7 +198,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     public String getAddress() {
         if (address != null && address.indexOf("://") == -1) {
             String a2 = "http://localhost";
-            if (address.startsWith("/")) {
+            if (!address.startsWith("/")) {
                 a2 += "/";
             }
             

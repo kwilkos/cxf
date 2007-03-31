@@ -35,7 +35,6 @@ import org.apache.cxf.resource.ObjectTypeResolver;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;
-import org.springframework.core.io.UrlResource;
 
 public class ExtensionManagerImpl implements ExtensionManager {
 
@@ -92,8 +91,8 @@ public class ExtensionManagerImpl implements ExtensionManager {
         Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(resource);
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
-            UrlResource urlRes = new UrlResource(url);
-            InputStream is = urlRes.getInputStream();
+            
+            InputStream is = url.openStream();
             loadFragment(is);       
         }
         

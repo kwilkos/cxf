@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +45,7 @@ import org.xml.sax.SAXParseException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.writer.FileCodeWriter;
+import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.api.ErrorListener;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.SchemaCompiler;
@@ -65,7 +67,6 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
-
 /**
  * 
  *
@@ -78,6 +79,8 @@ public final class DynamicClientFactory {
 
     private String tmpdir = System.getProperty("java.io.tmpdir");
 
+    private boolean simpleBindingEnabled = true;
+    
     private DynamicClientFactory(Bus bus) {
         this.bus = bus;
     }
@@ -151,13 +154,8 @@ public final class DynamicClientFactory {
         ErrorListener elForRun = new InnerErrorListener(wsdlUrl);
         compiler.setErrorListener(elForRun);
 
-        int num = 1;
-        for (SchemaInfo schema : schemas) {
-            Element el = schema.getElement();
-            compiler.parseSchema(wsdlUrl + "#types" + num, el);
-            num++;
-        }
-
+        addSchemas(wsdlUrl, schemas, compiler);
+        
         S2JJAXBModel intermediateModel = compiler.bind();
         JCodeModel codeModel = intermediateModel.generateCode(null, elForRun);
         StringBuilder sb = new StringBuilder();
@@ -241,7 +239,60 @@ public final class DynamicClientFactory {
         FileUtils.removeDir(classes);
         return client;
     }
+
+    private void addSchemas(String wsdlUrl, Collection<SchemaInfo> schemas, SchemaCompiler compiler) {
+        int num = 1;
+        for (SchemaInfo schema : schemas) {
+            Element el = schema.getElement();
+            
+            compiler.parseSchema(wsdlUrl + "#types" + num, el);
+            num++;
+        }
+        
+        if (simpleBindingEnabled && isJaxb21()) {
+            String id = "/org/apache/cxf/endpoint/dynamic/simple-binding.xjb";
+            LOG.info("Loading the JAXB 2.1 simple binding for client.");
+            InputSource source = new InputSource(getClass().getResourceAsStream(id));
+            source.setSystemId(id);
+            compiler.parseSchema(source);
+        }
+    }
     
+    private boolean isJaxb21() {
+        String id = Options.getBuildID();
+        StringTokenizer st = new StringTokenizer(id, ".");
+        String minor = null;
+        
+        // major version
+        if (st.hasMoreTokens()) {
+            st.nextToken();
+        }
+        
+        if (st.hasMoreTokens()) {
+            minor = st.nextToken();
+        }
+        
+        try {
+            int i = Integer.valueOf(minor);
+            if (i >= 1) {
+                System.out.println("Found JAXB 2.1");
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            // do nothing;
+        }
+        
+        return false;
+    }
+
+    public boolean isSimpleBindingEnabled() {
+        return simpleBindingEnabled;
+    }
+
+    public void setSimpleBindingEnabled(boolean simpleBindingEnabled) {
+        this.simpleBindingEnabled = simpleBindingEnabled;
+    }
+
     static boolean compileJavaSrc(Path classPath, Path srcPath, String dest) {
         String[] srcList = srcPath.list();        
         String[] javacCommand = new String[srcList.length + 7];

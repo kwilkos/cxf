@@ -43,6 +43,7 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 public class URIResolver {
     private File file;
     private URI uri;
+    private URL url;
     private InputStream is;
     private Class calling;
 
@@ -104,7 +105,8 @@ public class URIResolver {
             
             if (relative.isAbsolute()) {
                 uri = relative;
-                is = relative.toURL().openStream();
+                url = relative.toURL();
+                is = url.openStream();
             } else if (baseUriStr != null) {
                 URI base;
                 File baseFile = new File(baseUriStr);
@@ -158,6 +160,7 @@ public class URIResolver {
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("File was deleted! " + uriStr, e);
             }
+            url = file.toURL();
         } else if (is == null) {
             tryClasspath(uriStr);
         }
@@ -173,6 +176,9 @@ public class URIResolver {
             URI u = new URI(baseStr).resolve(uriStr);
             tryClasspath(u.toString());
             if (is != null) {
+                if (u.isAbsolute()) {
+                    url = u.toURL();
+                }
                 return;
             }
         } catch (URISyntaxException e) {
@@ -188,7 +194,7 @@ public class URIResolver {
             return;
         }
 
-        URL url = new URL(uriStr);
+        url = new URL(uriStr);
         is = url.openStream();
         if (is != null) {
             try {
@@ -206,7 +212,7 @@ public class URIResolver {
         if (uriStr.startsWith("classpath:")) {
             uriStr = uriStr.substring(10);
         }
-        URL url = ClassLoaderUtils.getResource(uriStr, calling);
+        url = ClassLoaderUtils.getResource(uriStr, calling);
         if (url == null) {
             tryRemote(uriStr);
         } else {
@@ -232,7 +238,6 @@ public class URIResolver {
     }
 
     private void tryRemote(String uriStr) throws IOException {
-        URL url;
         try {
             url = new URL(uriStr);
             uri = new URI(url.toString());
@@ -246,6 +251,10 @@ public class URIResolver {
 
     public URI getURI() {
         return uri;
+    }
+
+    public URL getURL() {
+        return url;
     }
 
     public InputStream getInputStream() {
