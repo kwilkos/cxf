@@ -574,18 +574,6 @@ public final class EndpointReferenceUtils {
         setAddress(reference, ANONYMOUS_ADDRESS);
         return reference;
     }
-
-    /**
-     * Gets an endpoint reference for the provided implementor object.
-     * @param manager - the wsdl manager.
-     * @param implementor - the service implementor.
-     * @return EndpointReferenceType - the endpoint reference
-     * @throws WSDLException
-     */
-    public static EndpointReferenceType getEndpointReference(WSDLManager manager,
-                                                                 Object implementor) {
-        return getEndpointReference(manager, implementor.getClass());
-    }
     
     /**
      * Resolve logical endpoint reference via the Bus EndpointResolverRegistry.
