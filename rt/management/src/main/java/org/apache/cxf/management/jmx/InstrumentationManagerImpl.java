@@ -21,7 +21,6 @@ package org.apache.cxf.management.jmx;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -197,14 +196,15 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
     public void preShutdown() {
                 
     }
-
+    
+   
     public void postShutdown() {
-        Iterator<ObjectName> it = busMBeans.iterator();
-        while (it.hasNext()) {
-            ObjectName name = it.next();
-            it.remove();
+        //Using the array to hold the busMBeans to avoid the CurrentModification exception
+        Object[] mBeans = busMBeans.toArray();
+        for (Object name : mBeans) {
+            busMBeans.remove((ObjectName)name);
             try {
-                unregister(name);
+                unregister((ObjectName)name);
             } catch (JMException jmex) {
                 LOG.log(Level.SEVERE, "UNREGISTER_FAILURE_MSG", new Object[]{name, jmex});
             }
