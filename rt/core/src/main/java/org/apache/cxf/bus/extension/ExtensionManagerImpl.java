@@ -165,7 +165,9 @@ public class ExtensionManagerImpl implements ExtensionManager {
                 Collection<Object> intf2Obj = namespaced.get(ns);
                 if (intf2Obj == null) {
                     intf2Obj = new ArrayList<Object>();
-                    namespaced.put(ns, intf2Obj);
+                    if (!namespaced.containsKey(ns)) {
+                        namespaced.put(ns, intf2Obj);
+                    }
                 }
                 intf2Obj.add(obj);
             }
