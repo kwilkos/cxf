@@ -19,6 +19,7 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Modifier;
@@ -92,7 +93,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     }
 
-
     public void testBug305700() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -121,8 +121,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        //Class clz = classLoader.loadClass("org.cxf.Greeter");
-        //assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
         Class clz = classLoader.loadClass("org.apache.types.GreetMe");
         assertNotNull(clz);
     }
@@ -181,7 +179,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue("wsdl location should be url style in build.xml", content.indexOf("param1=\"file:") > -1);
 
     }
-    
+
     public void testExcludeNSWithPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
@@ -310,20 +308,19 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-    
-    
-    public void testLocatorWithJaxbBinding() throws Exception {      
+
+    public void testLocatorWithJaxbBinding() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/locator_with_jaxbbinding.wsdl"));
         processor.setContext(env);
-        processor.execute();      
+        processor.execute();
     }
 
-    public void testWsdlNoService() throws Exception {      
+    public void testWsdlNoService() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_withnoservice.wsdl"));
         processor.setContext(env);
         processor.execute();
     }
-    
+
     public void testNoServiceImport() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld_noservice_import.wsdl"));
         processor.setContext(env);
@@ -332,21 +329,37 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull(cls);
         cls = classLoader.loadClass("org.apache.hello_world2.Greeter2");
     }
-    
+
     public void testServiceNS() throws Exception {
         env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
-        env.put(ToolConstants.CFG_WSDLURL, 
+        env.put(ToolConstants.CFG_WSDLURL,
                 getLocation("/wsdl2java_wsdl/bug321/hello_world_different_ns_service.wsdl"));
         processor.setContext(env);
         processor.execute();
-        
+
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.service.SOAPServiceTest1");
-        WebServiceClient webServiceClient = 
-            AnnotationUtil.getPrivClassAnnotation(clz, WebServiceClient.class);
+        WebServiceClient webServiceClient = AnnotationUtil
+            .getPrivClassAnnotation(clz, WebServiceClient.class);
         assertEquals("http://apache.org/hello_world_soap_http/service", webServiceClient.targetNamespace());
-      
+        File file = new File(output, "org/apache/hello_world_soap_http/GreeterClient.java");
+        FileInputStream fin = new FileInputStream(file);
+        byte[] buffer = new byte[30000];
+        int index = -1;
+        int size = fin.read(buffer);
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        while (size != -1) {
+            bout.write(buffer, 0, size);
+            index = bout.toString()
+                .indexOf("new QName(\"http://apache.org/hello_world_soap_http/service\"," 
+                        + " \"SOAPService_Test1\")");
+            if (index > 0) {
+                break;
+            }
+            size = fin.read(buffer);
+        }
+        assertTrue("Service QName in client is not correct", index > -1);
     }
-    
+
     public void testNoServiceNOPortType() throws Exception {
         env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/no_port_or_service.wsdl"));
@@ -355,11 +368,11 @@ public class CodeGenBugTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("org.apache.cxf.no_port_or_service.types.TheComplexType");
         assertNotNull(clz);
     }
-    //CXF-492
+
+    // CXF-492
     public void testDefatultNsMap() throws Exception {
         env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
-        env.put(ToolConstants.CFG_WSDLURL, 
-                getLocation("/wsdl2java_wsdl/cxf492/locator.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf492/locator.wsdl"));
         processor.setContext(env);
         processor.execute();
         File org = new File(output, "org");
@@ -373,6 +386,5 @@ public class CodeGenBugTest extends ProcessorTestBase {
         File address = new File(ws, "addressing");
         assertTrue(address.exists());
     }
-    
-    
+
 }

@@ -41,7 +41,7 @@ import ${service.PackageName}.${service.Name};
 
 public final class ${clientClassName} {
 
-    private static final QName SERVICE_NAME = new QName("$intf.Namespace", "$service.ServiceName");
+    private static final QName SERVICE_NAME = new QName("$service.Namespace", "$service.ServiceName");
 
     private ${clientClassName}() {
     }
