@@ -55,11 +55,13 @@ public class JAXWSBindingParser {
         jaxwsBinding.setElementType(ToolConstants.JAXWS_BINDINGS);
         jaxwsBinding.setElement(element);
         jaxwsBinding.setDocumentBaseURI(namespace);
+
         parseElement(jaxwsBinding, element);
+        
         return jaxwsBinding;
     }
 
-    public void parseElement(JAXWSBinding jaxwsBinding, Element element) {
+    void parseElement(JAXWSBinding jaxwsBinding, Element element) {
         NodeList children = element.getChildNodes();
         if (children != null && children.getLength() == 0) {
             // global binding
@@ -126,7 +128,8 @@ public class JAXWSBindingParser {
                     String clzName = childElement.getAttribute("name");
                     String javadoc = "";
                     Node docChild = DOMUtils.getChild(child, Element.ELEMENT_NODE);
-                    if (this.isJAXWSClassDoc(docChild)) {
+                    
+                    if (docChild != null && this.isJAXWSClassDoc(docChild)) {
                         javadoc  = DOMUtils.getContent(docChild);
                     }
 
@@ -182,7 +185,6 @@ public class JAXWSBindingParser {
     private Boolean isAsyncElement(Node node) {
         return "enableAsyncMapping".equals(node.getLocalName())
                && ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI());
-
     }
     
     private Boolean isWrapperStyle(Node node) {

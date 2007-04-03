@@ -36,6 +36,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.InterfaceMapper;
 
@@ -44,6 +45,36 @@ public class PortTypeProcessor extends AbstractProcessor {
 
     public PortTypeProcessor(ToolContext c) {
         super(c);
+    }
+    
+    public void processClassNames(ServiceInfo serviceInfo) throws ToolException {
+        InterfaceInfo interfaceInfo = serviceInfo.getInterface();
+        if (interfaceInfo == null) {
+            return;
+        }
+        
+        JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
+
+        JAXWSBinding jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        JAXWSBinding infBinding = interfaceInfo.getExtensor(JAXWSBinding.class);
+        if (infBinding != null && infBinding.getPackage() != null) { 
+            intf.setPackageName(infBinding.getPackage());
+        } else if (jaxwsBinding != null && jaxwsBinding.getPackage() != null) {
+            intf.setPackageName(jaxwsBinding.getPackage());            
+        }
+        
+        String name = intf.getName();
+        if (infBinding != null 
+            && infBinding.getJaxwsClass() != null
+            && infBinding.getJaxwsClass().getClassName() != null) {
+            name = infBinding.getJaxwsClass().getClassName();
+        }
+        intf.setName(name);
+
+        ClassCollector collector = context.get(ClassCollector.class);
+        collector.addSeiClassName(intf.getPackageName(), 
+                                  intf.getName(),
+                                  intf.getPackageName() + "." + intf.getName());
     }
     
     public void process(ServiceInfo serviceInfo) throws ToolException {
@@ -61,12 +92,20 @@ public class PortTypeProcessor extends AbstractProcessor {
         intf.setJavaModel(jmodel);
 
         JAXWSBinding jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
-        JAXWSBinding infBinding = interfaceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        JAXWSBinding infBinding = interfaceInfo.getExtensor(JAXWSBinding.class);
         if (infBinding != null && infBinding.getPackage() != null) { 
             intf.setPackageName(infBinding.getPackage());
         } else if (jaxwsBinding != null && jaxwsBinding.getPackage() != null) {
             intf.setPackageName(jaxwsBinding.getPackage());            
         }
+        
+        String name = intf.getName();
+        if (infBinding != null 
+            && infBinding.getJaxwsClass() != null
+            && infBinding.getJaxwsClass().getClassName() != null) {
+            name = infBinding.getJaxwsClass().getClassName();
+        }
+        intf.setName(name);
         
         Element handler = (Element)context.get(ToolConstants.HANDLER_CHAIN);
         intf.setHandlerChains(handler);

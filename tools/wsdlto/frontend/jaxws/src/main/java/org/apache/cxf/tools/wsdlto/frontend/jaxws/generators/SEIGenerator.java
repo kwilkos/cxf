@@ -19,7 +19,6 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.cxf.common.i18n.Message;
@@ -77,9 +76,7 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
             }
             return;
         }
-        for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
-            String interfaceName = (String)iter.next();
-            JavaInterface intf = interfaces.get(interfaceName);
+        for (JavaInterface intf : interfaces.values()) {
 
             if (hasHandlerConfig(intf)) {
                 HandlerConfigGenerator handlerGen = new HandlerConfigGenerator();
@@ -88,8 +85,10 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
                 handlerGen.setJavaInterface(intf);
                 handlerGen.generate(getEnvironment());
 
-                if (handlerGen.getHandlerAnnotation() != null) {
-                    intf.addAnnotation(handlerGen.getHandlerAnnotation().toString());
+                String annot = handlerGen.getHandlerAnnotation().toString();
+                if (handlerGen.getHandlerAnnotation() != null
+                    && !intf.getAnnotations().contains(annot)) {
+                    intf.addAnnotation(annot);
                     intf.addImport("javax.jws.HandlerChain");
                 }
             }

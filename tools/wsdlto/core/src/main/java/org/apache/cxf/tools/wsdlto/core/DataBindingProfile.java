@@ -28,6 +28,6 @@ import org.apache.cxf.tools.common.ToolException;
 public interface DataBindingProfile {
     
     void generate(ToolContext context) throws ToolException;
-    String getType(QName qn);
+    String getType(QName qn, boolean element);
     String getWrappedElementType(QName wrapperElement, QName item);
 }

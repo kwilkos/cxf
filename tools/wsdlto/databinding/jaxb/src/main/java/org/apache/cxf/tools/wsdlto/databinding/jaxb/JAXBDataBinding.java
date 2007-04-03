@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.DOMException;
@@ -52,7 +51,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.FileUtils;
-import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -65,23 +63,15 @@ public class JAXBDataBinding implements DataBindingProfile {
 
     private S2JJAXBModel rawJaxbModelGenCode;
     private ToolContext env;
-    private Definition def;
 
     @SuppressWarnings("unchecked")
     private void initialize(ToolContext penv) throws ToolException {
         env = penv;
-        def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
 
-        Map<String, InterfaceInfo> interfaces = (Map<String, InterfaceInfo>)env
-            .get(ToolConstants.PORTTYPE_MAP);
-        for (String str : interfaces.keySet()) {
-            InterfaceInfo inf = interfaces.get(str);
-            allocator.setInterface(inf, env.mapPackageName(def.getTargetNamespace()));
-        }
         schemaCompiler.setClassNameAllocator(allocator);
 
         JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
@@ -194,17 +184,15 @@ public class JAXBDataBinding implements DataBindingProfile {
         }
     }
 
-    public String getType(QName qname) {
-        Mapping mapping = rawJaxbModelGenCode.get(qname);
-
-        TypeAndAnnotation typeAnno = null;
-
-        if (mapping != null) {
-            typeAnno = mapping.getType();
-        } else {
-            typeAnno = rawJaxbModelGenCode.getJavaType(qname);
+    public String getType(QName qname, boolean element) {
+        TypeAndAnnotation typeAnno = rawJaxbModelGenCode.getJavaType(qname);
+        if (element) {
+            Mapping mapping = rawJaxbModelGenCode.get(qname);
+            if (mapping != null) {
+                typeAnno = mapping.getType();
+            }
         }
-
+                
         if (typeAnno != null && typeAnno.getTypeClass() != null) {
             return typeAnno.getTypeClass().fullName();
         }

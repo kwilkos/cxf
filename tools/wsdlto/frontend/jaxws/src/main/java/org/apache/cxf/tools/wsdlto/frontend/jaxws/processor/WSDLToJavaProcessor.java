@@ -20,8 +20,17 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.ClassNameProcessor;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
@@ -31,8 +40,19 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ServiceProc
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.BindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebServiceAnnotator;
 
-public class WSDLToJavaProcessor extends WSDLToProcessor {
+public class WSDLToJavaProcessor extends WSDLToProcessor implements ClassNameProcessor {
+    private static final String MODEL_MAP = WSDLToProcessor.class.getName() 
+        + ".MODEL_MAP";
+    
+    
+    public void processClassNames() {
+        ServiceInfo serviceInfo = context.get(ServiceInfo.class);
 
+        PortTypeProcessor portTypeProcessor = new PortTypeProcessor(context);
+        portTypeProcessor.processClassNames(serviceInfo);
+    }
+
+    
     public void process() throws ToolException {
         super.process();
 
@@ -46,21 +66,38 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     private JavaModel wsdlDefinitionToJavaModel(ServiceInfo serviceInfo) throws ToolException {
-        JavaModel javaModel = new JavaModel();
+        JavaModel javaModel = null;
+        Map<QName, JavaModel> map = CastUtils.cast((Map)context.get(MODEL_MAP));
+        if (map == null) {
+            map = new HashMap<QName, JavaModel>();
+            context.put(MODEL_MAP, map);
+        }
+        if (map.containsKey(serviceInfo.getName())) {
+            javaModel = map.get(serviceInfo.getName());
+        } else {
+            javaModel = new JavaModel();
+            map.put(serviceInfo.getName(), javaModel);
+        }
         context.put(JavaModel.class, javaModel);
 
+        List<JavaInterface> interfaces = new ArrayList<JavaInterface>();
+        interfaces.addAll(javaModel.getInterfaces().values());
+        
         PortTypeProcessor portTypeProcessor = new PortTypeProcessor(context);
         portTypeProcessor.process(serviceInfo);
 
         ServiceProcessor serviceProcessor = new ServiceProcessor(context);
         serviceProcessor.process(serviceInfo);
-        if (javaModel.getInterfaces().values().iterator().hasNext()) {
-            JavaInterface intf = javaModel.getInterfaces().values().iterator().next();
-            intf.annotate(new WebServiceAnnotator());
-            if (serviceInfo.getBindings().size() > 0) {
-                intf.annotate(new BindingAnnotator());
+        
+        for (JavaInterface intf : javaModel.getInterfaces().values()) {
+            if (!interfaces.contains(intf)) {
+                intf.annotate(new WebServiceAnnotator());
+                if (serviceInfo.getBindings().size() > 0) {
+                    intf.annotate(new BindingAnnotator());
+                }
             }
         }
         return javaModel;
     }
+
 }

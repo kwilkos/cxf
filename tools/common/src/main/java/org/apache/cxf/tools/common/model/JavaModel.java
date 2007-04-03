@@ -30,9 +30,9 @@ public class JavaModel {
     private String location;
 
     public JavaModel() {
-        interfaces = new HashMap<String, JavaInterface>();
-        exceptionClasses = new HashMap<String, JavaExceptionClass>();
-        serviceClasses = new HashMap<String, JavaServiceClass>();
+        interfaces = new LinkedHashMap<String, JavaInterface>();
+        exceptionClasses = new LinkedHashMap<String, JavaExceptionClass>();
+        serviceClasses = new LinkedHashMap<String, JavaServiceClass>();
     }
 
     public void addInterface(String name, JavaInterface i) {

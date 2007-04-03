@@ -30,6 +30,10 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.*;
 
 public class JAXWSBindingDeserializer implements ExtensionDeserializer, Serializable {
+    
+    public JAXWSBindingDeserializer() {
+        
+    }
 
     public ExtensibilityElement unmarshall(Class parentType,
                                            QName elementType,

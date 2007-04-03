@@ -19,14 +19,9 @@
 
 package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 
-import javax.xml.namespace.QName;
-
 import com.sun.tools.xjc.api.ClassNameAllocator;
 
-import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.NameUtil;
-import org.apache.cxf.tools.util.URIParserUtil;
 
 public class ClassNameAllocatorImpl implements ClassNameAllocator {
     private static final String TYPE_SUFFIX = "_Type";
@@ -49,20 +44,5 @@ public class ClassNameAllocatorImpl implements ClassNameAllocator {
         collector.addTypesClassName(packageName, className, packageName + "." + fullClzName);
         return fullClzName;
     }
-
-    public void setInterface(InterfaceInfo seiInfo, String packageName) {
-        QName portType = seiInfo.getName();
-        String ns = portType.getNamespaceURI();
-        String type = portType.getLocalPart();
-        String pkgName = URIParserUtil.parsePackageName(ns, packageName);
-        String className = NameUtil.mangleNameToClassName(type);
-        String fullClassName = pkgName + "." + className;
-        if (packageName == null) {
-            packageName = pkgName;
-        }
-        collector.addSeiClassName(packageName, className, fullClassName);
-        
-    }
-
    
 }

@@ -55,8 +55,8 @@
   </wsdl:message>
 
   <wsdl:message name="echoDataResponse">
-    <wsdl:part name="text" type="types:DataStruct" />
-    <wsdl:part name="data" element="xsd:base64Binary" />
+    <wsdl:part name="text" element="types:DataStruct" />
+    <wsdl:part name="data" type="xsd:base64Binary" />
   </wsdl:message>
 
   <wsdl:portType name="SwAServiceInterface">
@@ -75,20 +75,20 @@
       <soap:operation soapAction="" style="literal" />
       <wsdl:input>
         <mime:multipartRelated>
-          <mime:part name="body">
+          <mime:part>
             <soap:body parts="text" use="literal" />
           </mime:part>
-          <mime:part name="data">
+          <mime:part>
             <mime:content part="data" type="application/octet-stream" />
           </mime:part>
         </mime:multipartRelated>
       </wsdl:input>
       <wsdl:output>
         <mime:multipartRelated>
-          <mime:part name="body">
+          <mime:part>
             <soap:body parts="text" use="literal" />
           </mime:part>
-          <mime:part name="data">
+          <mime:part>
             <mime:content part="data" type="application/octet-stream" />
           </mime:part>
         </mime:multipartRelated>

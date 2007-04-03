@@ -73,9 +73,9 @@ public final class ProcessorUtil {
         String type = "";
         DataBindingProfile dataBinding = context.get(DataBindingProfile.class);
         if (part.isElement()) {
-            type = dataBinding.getType(getElementName(part));
+            type = dataBinding.getType(getElementName(part), true);
         } else {
-            type = dataBinding.getType(part.getTypeQName());
+            type = dataBinding.getType(part.getTypeQName(), false);
         }
         if (type == null) {
             type = resolvePartType(part);
@@ -122,9 +122,9 @@ public final class ProcessorUtil {
         }
         String name = "";
         if (part.isElement()) {
-            name = dataBinding.getType(getElementName(part));
+            name = dataBinding.getType(getElementName(part), true);
         } else {
-            name = dataBinding.getType(part.getTypeQName());
+            name = dataBinding.getType(part.getTypeQName(), false);
         }
         return name;       
     }
@@ -197,7 +197,7 @@ public final class ProcessorUtil {
        
             
         if (!primitiveType && dataBinding != null) {
-            jtype = dataBinding.getType(xmlTypeName);
+            jtype = dataBinding.getType(xmlTypeName, true);
         } 
         
         if (!primitiveType && dataBinding == null) {

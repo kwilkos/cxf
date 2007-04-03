@@ -55,7 +55,7 @@ public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
     }
 
     public void setJavaInterface(JavaInterface javaInterface) {
-        this.intf = javaInterface;
+        this.intf = javaInterface; 
     }
 
     public void generate(ToolContext penv) throws ToolException {

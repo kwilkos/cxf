@@ -23,6 +23,7 @@ import javax.wsdl.OperationType;
 
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaMethod;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public final class MethodMapper {
@@ -36,6 +37,13 @@ public final class MethodMapper {
 
         method.setName(ProcessorUtil.mangleNameToVariableName(operationName));
         method.setOperationName(operationName);
+        
+        JAXWSBinding opBinding = operation.getExtensor(JAXWSBinding.class);
+        if (opBinding != null
+            && opBinding.getMethodName() != null) {
+            method.setName(opBinding.getMethodName());
+        }
+
 
         if (operation.isOneWay()) {
             method.setStyle(OperationType.ONE_WAY);

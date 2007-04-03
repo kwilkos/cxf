@@ -43,6 +43,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
+import org.apache.cxf.tools.common.ClassNameProcessor;
 import org.apache.cxf.tools.common.ClassUtils;
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
@@ -65,6 +66,7 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
+    
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     String toolName;
@@ -144,22 +146,28 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 } else  {
                     serviceList = serviceBuilder.buildMockServices(definition);
                 }
-
                 context.put(ClassCollector.class, new ClassCollector());
             } else {
                 // TODO: wsdl2.0 support
             }
             Map<String, InterfaceInfo> interfaces = new HashMap<String, InterfaceInfo>();
-            for (ServiceInfo service : serviceList) {
-                if (service.getInterface() != null
-                    && !interfaces.containsKey(service.getInterface().getName().toString())) {
-                    interfaces.put(service.getInterface().getName().toString(), service.getInterface());
-                }
-            }
+
             Map<String, Element> schemas = (Map<String, Element>)serviceList.get(0)
                 .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST);
             context.put(ToolConstants.SCHEMA_MAP, schemas);
             context.put(ToolConstants.PORTTYPE_MAP, interfaces);
+            Processor processor = frontend.getProcessor();
+            if (processor instanceof ClassNameProcessor) {
+                processor.setEnvironment(context);
+                for (ServiceInfo service : serviceList) {
+
+                    context.put(ServiceInfo.class, service);
+                    
+                    ((ClassNameProcessor)processor).processClassNames();
+                    
+                    context.put(ServiceInfo.class, null);
+                }
+            }
             generateTypes();
 
             for (ServiceInfo service : serviceList) {
@@ -170,7 +178,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 }
 
                 // Build the JavaModel from the ServiceModel
-                Processor processor = frontend.getProcessor();
                 processor.setEnvironment(context);
                 processor.process();
 

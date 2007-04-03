@@ -19,7 +19,6 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.cxf.common.i18n.Message;
@@ -63,7 +62,7 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
         }
 
         Map<String, JavaServiceClass> serviceClasses = javaModel.getServiceClasses();
-
+        
         if (serviceClasses.size() == 0) {
             ServiceInfo serviceInfo = (ServiceInfo)env.get(ServiceInfo.class);
             String wsdl = serviceInfo.getDescription().getBaseURI();
@@ -74,12 +73,7 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
             return;
         }
         
-        Iterator ite = serviceClasses.values().iterator();
-
-        while (ite.hasNext()) {
-
-            JavaServiceClass js = (JavaServiceClass)ite.next();
-
+        for (JavaServiceClass js : serviceClasses.values()) {
             String location = (String)env.get(ToolConstants.CFG_WSDLURL);
             
             clearAttributes();
@@ -88,7 +82,8 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
             setAttributes("wsdlLocation", location);
             setCommonAttributes();
 
-            doWrite(SERVICE_TEMPLATE, parseOutputName(js.getPackageName(), js.getName()));
+            doWrite(SERVICE_TEMPLATE, parseOutputName(js.getPackageName(), 
+                                                      js.getName()));
         }
     }
 }

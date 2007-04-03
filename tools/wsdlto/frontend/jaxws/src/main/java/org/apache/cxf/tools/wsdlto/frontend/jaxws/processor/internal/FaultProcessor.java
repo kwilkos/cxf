@@ -35,6 +35,7 @@ import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 
 public class FaultProcessor extends AbstractProcessor {
     private ClassCollector  collector;
@@ -66,11 +67,25 @@ public class FaultProcessor extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     private void processFault(JavaMethod method, FaultInfo faultMessage) throws ToolException {
         JavaModel model = method.getInterface().getJavaModel();
-        String name = NameUtil.mangleNameToClassName(faultMessage.getName().getLocalPart());
-        //Fix issue 305770
 
+        String name = NameUtil.mangleNameToClassName(faultMessage.getName().getLocalPart());
         String namespace = faultMessage.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
+        if (namespace.equals(method.getInterface().getNamespace())) {
+            packageName = method.getInterface().getPackageName();
+        }
+        
+        
+        JAXWSBinding jaxwsBinding = faultMessage.getExtensor(JAXWSBinding.class);
+        if (jaxwsBinding != null) {
+            if (jaxwsBinding.getPackage() != null) {
+                packageName = jaxwsBinding.getPackage();
+            }
+            if (jaxwsBinding.getJaxwsClass() != null
+                && jaxwsBinding.getJaxwsClass().getClassName() != null) {
+                name = jaxwsBinding.getJaxwsClass().getClassName();
+            }
+        }
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Exception";
@@ -107,9 +122,9 @@ public class FaultProcessor extends AbstractProcessor {
             }
 
             String fType = ProcessorUtil.getType(part, context, false);
-            String fPackageName = ProcessorUtil.parsePackageName(fNamespace,
-                                                                 context.mapPackageName(fNamespace));
-
+            
+            //REVISIT - custom JAXB package names
+            String fPackageName = method.getInterface().getPackageName();
 
 
             JavaField fField = new JavaField(fName, fType, fNamespace);

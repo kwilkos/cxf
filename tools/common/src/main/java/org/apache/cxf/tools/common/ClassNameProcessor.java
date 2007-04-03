@@ -17,22 +17,9 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws;
+package org.apache.cxf.tools.common;
 
-import javax.xml.namespace.QName;
+public interface ClassNameProcessor extends Processor {
 
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
-
-public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBindingProfile {
-    public void generate(ToolContext context) throws ToolException {
-    }
-    
-    public String getType(QName qn, boolean element) {
-        return null;
-    }
-    
-    public String getWrappedElementType(QName parent, QName qn) {
-        return null;
-    }
+    void processClassNames();
 }
