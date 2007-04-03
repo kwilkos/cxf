@@ -33,7 +33,6 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.hello_world_soap_http.GreeterImpl;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -90,26 +89,22 @@ public class CXFServletTest extends AbstractServletTest {
     @Test
     public void testGetServiceList() throws Exception {
         ServletUnitClient client = newClient();
-        setupJaxwsService();
         client.setExceptionsThrownOnErrorStatus(false);
 
         WebResponse res = client.getResponse("http://localhost/services");    
         
         WebLink[] links = res.getLinks();
-        //REVISIT: there are two services, one is created by cxf-servlet.xml
-        //we will remove the service created by setupJaxwsService() later.
-        assertEquals("There should get one link for service", links.length, 2);
-        assertEquals(links[0].getURLString(), "http://localhost/services/Greeter?wsdl");       
+        assertEquals("There should get one link for service", links.length, 1);
+        assertEquals(links[0].getURLString(), "http://localhost/services/greeter?wsdl");       
         assertEquals("text/html", res.getContentType());
     }
     
     @Test
     public void testGetWSDL() throws Exception {
         ServletUnitClient client = newClient();
-        setupJaxwsService();
         client.setExceptionsThrownOnErrorStatus(true);
         
-        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/Greeter?wsdl");
+        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/greeter?wsdl");
         
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
@@ -136,16 +131,14 @@ public class CXFServletTest extends AbstractServletTest {
     }
     
     @Test
-    @Ignore
     public void testGetImportedXSD() throws Exception {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(true);
 
-        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/test_import.xsd");
+        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/greeter/test_import.xsd");
         
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
-        System.out.println(res.getText());
         //assertEquals("text/xml", res.getContentType());
         assertTrue("the xsd should contain the completType SimpleStruct",
                    res.getText().contains("<complexType name=\"SimpleStruct\">"));

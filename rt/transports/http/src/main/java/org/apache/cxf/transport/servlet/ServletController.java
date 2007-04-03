@@ -21,7 +21,6 @@ package org.apache.cxf.transport.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,8 +64,7 @@ public class ServletController {
     private ServletTransportFactory transport;
     private ServletContext servletContext;
     private CXFServlet cxfServlet;
-    private URL wsdlLocation;
-
+ 
     public ServletController(ServletTransportFactory df, ServletContext servCont, CXFServlet servlet) {
         this.transport = df;
         this.servletContext = servCont;
@@ -87,35 +85,39 @@ public class ServletController {
         }
         try {
             EndpointInfo ei = new EndpointInfo();
-            ei.setAddress("http://localhost" + request.getServletPath() + request.getPathInfo());
+            String address = "";
             
+            if (xsd) {
+                address = "http://localhost"
+                          + request.getServletPath()
+                          + request.getPathInfo()
+                              .substring(0, request.getPathInfo().lastIndexOf(xsdName) - 1);
+            } else {
+                address = "http://localhost" + request.getServletPath() + request.getPathInfo();
+            }
+            ei.setAddress(address);
+           
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
-                if (xsd) {
-                    generateXSD(request, res, xsdName);
+                if (request.getRequestURI().endsWith("services")) {
+                    generateServiceList(request, res);
                 } else {
-                    if (request.getRequestURI().endsWith("services")) {
-                        generateServiceList(request, res);
-                    } else {
-                        LOG.warning("Can't find the the request for" 
-                                    + "http://localhost" + request.getServletPath() 
-                                    + request.getPathInfo() + " 's Observer ");
-                        generateNotFound(request, res);
-                    }    
+                    LOG.warning("Can't find the the request for" + "http://localhost"
+                                + request.getServletPath() + request.getPathInfo() + " 's Observer ");
+                    generateNotFound(request, res);
                 }
+
+            } else if (xsd) {
+                generateXSD(request, res, d, xsdName);
             } else if (wsdl) {
                 generateWSDL(request, res, d);
-            } else {                
+            } else {
                 invokeDestination(request, res, d);
             }
         } catch (IOException e) {
             throw new ServletException(e);
         }
-    }
-    
-    public void setWsdlLocation(URL location) {
-        this.wsdlLocation = location;
     }
     
     private void generateServiceList(HttpServletRequest request, HttpServletResponse response)
@@ -140,15 +142,18 @@ public class ServletController {
         response.getWriter().write("</body></html>");
     }
 
-    private void generateXSD(HttpServletRequest request, HttpServletResponse response, String xsdName) 
-        throws ServletException {
+    private void generateXSD(HttpServletRequest request, HttpServletResponse response, ServletDestination d,
+                             String xsdName) throws ServletException {
         response.setHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
         try {
             OutputStream os = response.getOutputStream();
             ExtendedURIResolver resolver = new ExtendedURIResolver();
             Source source = null;
-            if (wsdlLocation != null) {
-                InputSource inputSource = resolver.resolve(xsdName, wsdlLocation.toString());
+
+            EndpointInfo ei = d.getEndpointInfo();
+            String wsdlBaseURI = ei.getService().getDescription().getBaseURI();
+            if (wsdlBaseURI != null) {
+                InputSource inputSource = resolver.resolve(xsdName, wsdlBaseURI);
                 source = new SAXSource(inputSource);
 
             } else {

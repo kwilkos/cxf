@@ -86,8 +86,9 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
                 //if wsdl can't be found, we will try to init Endpoint without wsdl
                 URL wsdl = ClassLoaderUtils.getResource(wsdlLocation, this.getClass());                
                 endpoint = new EndpointImpl(bus, implementor, binding, wsdl);
+            } else {
+                endpoint = new EndpointImpl(bus, implementor, binding);
             }
-            endpoint = new EndpointImpl(bus, implementor, binding);            
         } else {
             endpoint = new EndpointImpl(bus, implementor, serviceFactory);
         }
