@@ -52,7 +52,7 @@ public class ExtensionManagerBus extends CXFBusImpl {
     
     public static final String BUS_PROPERTY_NAME = "bus";
     private static final String BUS_ID_PROPERTY_NAME = "org.apache.cxf.bus.id";
-    private static final String DEFAULT_BUS_ID = "cxf";
+    
     
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
 

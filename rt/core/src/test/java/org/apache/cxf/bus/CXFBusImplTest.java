@@ -92,6 +92,14 @@ public class CXFBusImplTest extends TestCase {
         assertSame(extension, bus.getExtension(String.class));
     }
     
+    public void testBusID() {
+        CXFBusImpl bus = new CXFBusImpl();
+        String id = bus.getId();
+        assertEquals("The bus id should be cxf", id, CXFBusImpl.DEFAULT_BUS_ID);
+        bus.setId("test");
+        assertEquals("The bus id should be changed", bus.getId(), "test");
+    }
+    
     public void testRun() {
         final CXFBusImpl bus = new CXFBusImpl();
         Thread t = new Thread() {
