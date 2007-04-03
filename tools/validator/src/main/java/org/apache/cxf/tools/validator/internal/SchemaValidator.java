@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
@@ -53,7 +53,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
-
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -65,9 +64,9 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.util.URIParserUtil;
 
 public class SchemaValidator extends AbstractDefinitionValidator {
-    
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
     
     protected String[] defaultSchemas;
@@ -118,11 +117,7 @@ public class SchemaValidator extends AbstractDefinitionValidator {
         }
 
         String systemId = null;
-        try {
-            systemId = getWsdlUrl(wsdlsource);
-        } catch (IOException ioe) {
-            throw new ToolException(ioe);
-        }
+        systemId = URIParserUtil.getAbsoluteURI(wsdlsource);
         InputSource is = new InputSource(systemId);
 
         return validate(is, schemas);
@@ -140,6 +135,8 @@ public class SchemaValidator extends AbstractDefinitionValidator {
         List<Source> sources = new ArrayList<Source>();
 
         for (InputSource is : xsdsInJar) {
+            Message msg = new Message("CREATE_SCHEMA_LOADED_FROM_JAR", LOG, is.getSystemId());
+            LOG.log(Level.INFO, msg.toString());
             Document doc = docBuilder.parse(is.getByteStream());
             DOMSource stream = new DOMSource(doc, is.getSystemId());
             stream.setSystemId(is.getSystemId());
@@ -186,12 +183,13 @@ public class SchemaValidator extends AbstractDefinitionValidator {
         boolean isValid = false;
         Schema schema;
         try {
-
+            Message msg = new Message("VALIDATE_WSDL", LOG, wsdlsource.getSystemId());
+            LOG.log(Level.INFO, msg.toString());
             Document document = docBuilder.parse(wsdlsource.getSystemId());
 
             Node node = DOMUtils.getChild(document, null);
             if (node != null && !"definitions".equals(node.getLocalName())) {
-                Message msg = new Message("NOT_A_WSDLFILE", LOG, wsdlsource.getSystemId());
+                msg = new Message("NOT_A_WSDLFILE", LOG, wsdlsource.getSystemId());
                 throw new ToolException(msg);
             }
 
@@ -301,16 +299,6 @@ public class SchemaValidator extends AbstractDefinitionValidator {
         }
         return null;
     }
-
-    private String getWsdlUrl(String path) throws IOException {
-        File file = new File(path);
-        if (file != null && file.exists()) {
-            return file.toURL().toString();
-        }
-
-        return null;
-    }
-
 }
 
 class NewStackTraceErrorHandler implements ErrorHandler {
@@ -386,6 +374,7 @@ class NewStackTraceErrorHandler implements ErrorHandler {
 }
 
 class SchemaResourceResolver implements LSResourceResolver {
+    private static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
     private static final Map<String, String> NSFILEMAP = new HashMap<String, String>();   
     static {
         NSFILEMAP.put(ToolConstants.XML_NAMESPACE_URI, "xml.xsd");
@@ -408,6 +397,8 @@ class SchemaResourceResolver implements LSResourceResolver {
     
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
             String baseURI) {
+        Message msg = new Message("RESOLVE_SCHEMA", LOG, namespaceURI, systemId, baseURI);
+        LOG.log(Level.INFO, msg.toString());
         if (NSFILEMAP.containsKey(namespaceURI)) {
             return loadLSInput(namespaceURI);
         }
@@ -428,24 +419,28 @@ class SchemaResourceResolver implements LSResourceResolver {
         } else if (namespaceURI != null) {
             resURL = namespaceURI;
         }
-        
+
         if (resURL != null && resURL.startsWith("http://")) {
             String filename = NSFILEMAP.get(resURL);
             if (filename != null) {
                 localFile = ToolConstants.CXF_SCHEMAS_DIR_INJAR + filename;
             } else {
                 URL url;
+                URLConnection urlCon = null;
                 try {
                     url = new URL(resURL);
-                    URLConnection urlCon = url.openConnection();
+                    urlCon = url.openConnection();
                     urlCon.setUseCaches(false);
                     lsin = new LSInputImpl();
                     lsin.setSystemId(resURL);
                     lsin.setByteStream(urlCon.getInputStream());
+                    msg = new Message("RESOLVE_FROM_REMOTE", LOG, url);
+                    LOG.log(Level.INFO, msg.toString());
+                    return lsin;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     return null;
                 }
-               
             }
         } else if (resURL != null && !resURL.startsWith("http:")) {
             localFile = resURL;
@@ -455,7 +450,10 @@ class SchemaResourceResolver implements LSResourceResolver {
         
         
         URIResolver resolver;
-        try {           
+        try {
+            msg = new Message("RESOLVE_FROM_LOCAL", LOG, localFile);
+            LOG.log(Level.INFO, msg.toString());
+            
             resolver = new URIResolver(localFile);
             if (resolver.isResolved()) {
                 lsin = new LSInputImpl();
@@ -464,7 +462,7 @@ class SchemaResourceResolver implements LSResourceResolver {
             }
         } catch (IOException e) {
             return null;
-        }       
+        }
         return lsin;
     }
 }
@@ -561,3 +559,4 @@ class LSInputImpl implements LSInput {
     }
 
 }
+

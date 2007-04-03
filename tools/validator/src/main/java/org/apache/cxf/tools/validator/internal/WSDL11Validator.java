@@ -33,7 +33,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import javax.wsdl.Definition;
 
 import org.xml.sax.InputSource;
@@ -65,7 +64,6 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
         // 1.ToolConstants.CFG_SCHEMA_DIR from ToolContext
         // 2.ToolConstants.CXF_SCHEMA_DIR from System property
         // 3.If 1 and 2 is null , then load these schema files from jar file
-
         if (!StringUtils.isEmpty(schemaDir)) {
             schemaValidator = new SchemaValidator(schemaDir, (String)env.get(ToolConstants.CFG_WSDLURL),
                                                   schemas);
@@ -113,63 +111,66 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
     protected List<InputSource> getDefaultSchemas() throws IOException {
         List<InputSource> xsdList = new ArrayList<InputSource>();
         ClassLoader clzLoader = Thread.currentThread().getContextClassLoader();
-        URL url = clzLoader.getResource(ToolConstants.CXF_SCHEMAS_DIR_INJAR);
-        //from jar files 
-        if (url.toString().startsWith("jar")) {
-
-            JarURLConnection jarConnection = (JarURLConnection)url.openConnection();
-
-            JarFile jarFile = jarConnection.getJarFile();
-
-            Enumeration<JarEntry> entry = jarFile.entries();
-
-            while (entry.hasMoreElements()) {
-                JarEntry ele = (JarEntry)entry.nextElement();
-                if (ele.getName().endsWith(".xsd")
-                    && ele.getName().indexOf(ToolConstants.CXF_SCHEMAS_DIR_INJAR) > -1) {
-
-                    URIResolver resolver = new URIResolver(ele.getName());
-                    if (resolver.isResolved()) {
-                        InputSource is = new InputSource(resolver.getInputStream());
-                        // Use the resolved URI of the schema if available.
-                        // The ibm jdk won't resolve the schema if we set
-                        // the id to the relative path.
-                        if (resolver.getURI() != null) {
-                            is.setSystemId(resolver.getURI().toString());
-                        } else {
-                            is.setSystemId(ele.getName());
+        Enumeration<URL> urls = clzLoader.getResources(ToolConstants.CXF_SCHEMAS_DIR_INJAR);
+        while (urls.hasMoreElements()) {
+            URL url = urls.nextElement();
+            //from jar files 
+            if (url.toString().startsWith("jar")) {
+                
+                JarURLConnection jarConnection = (JarURLConnection)url.openConnection();
+                
+                JarFile jarFile = jarConnection.getJarFile();
+                
+                Enumeration<JarEntry> entry = jarFile.entries();
+                
+                while (entry.hasMoreElements()) {
+                    JarEntry ele = (JarEntry)entry.nextElement();
+                    if (ele.getName().endsWith(".xsd")
+                        && ele.getName().indexOf(ToolConstants.CXF_SCHEMAS_DIR_INJAR) > -1) {
+                        
+                        URIResolver resolver = new URIResolver(ele.getName());
+                        if (resolver.isResolved()) {
+                            InputSource is = new InputSource(resolver.getInputStream());
+                            // Use the resolved URI of the schema if available.
+                            // The ibm jdk won't resolve the schema if we set
+                            // the id to the relative path.
+                            if (resolver.getURI() != null) {
+                                is.setSystemId(resolver.getURI().toString());
+                            } else {
+                                is.setSystemId(ele.getName());
+                            }
+                            xsdList.add(is);
                         }
+                    }
+                }
+                //from class path direcotry
+            } else if (url.toString().startsWith("file")) {
+                URI loc = null;
+                try {
+                    loc = url.toURI();
+                } catch (URISyntaxException e) {
+                    //
+                }
+                java.io.File file = new java.io.File(loc);
+                if (file.exists()) {
+                    File[] files = file.listFiles(new FileFilter() {
+                            public boolean accept(File pathname) {
+                                if (pathname.getAbsolutePath().endsWith(".xsd")) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+                    for (int i = 0; i < files.length; i++) {
+                        InputSource is = new InputSource(files[i].toURL().openStream());
+                        is.setSystemId(files[i].toURL().toString());
                         xsdList.add(is);
                     }
                 }
+                
             }
-         //from class path direcotry
-        } else if (url.toString().startsWith("file")) {
-            URI loc = null;
-            try {
-                loc = url.toURI();
-            } catch (URISyntaxException e) {
-                //
-            }
-            java.io.File file = new java.io.File(loc);
-            if (file.exists()) {
-                File[] files = file.listFiles(new FileFilter() {
-                    public boolean accept(File pathname) {
-                        if (pathname.getAbsolutePath().endsWith(".xsd")) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-                for (int i = 0; i < files.length; i++) {
-                    InputSource is = new InputSource(files[i].toURL().openStream());
-                    is.setSystemId(files[i].toURL().toString());
-                    xsdList.add(is);
-                }
-            }
-
         }
-
+        
         sort(xsdList);
         return xsdList;
     }

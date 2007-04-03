@@ -48,6 +48,9 @@ public class URIParserUtilTest extends TestCase {
 
         uri = "c:\\hello.wsdl";
         assertEquals("file:/c:/hello.wsdl", URIParserUtil.normalize(uri));
+
+        uri = "/c:\\hello.wsdl";
+        assertEquals("file:/c:/hello.wsdl", URIParserUtil.normalize(uri));
     }
 
     public void testGetAbsoluteURI() throws Exception {
@@ -66,6 +69,11 @@ public class URIParserUtilTest extends TestCase {
         assertTrue(uri2.contains(new java.io.File("").toString()));
 
         uri = "c:\\wsdl\\hello_world.wsdl";
+        uri2 = URIParserUtil.getAbsoluteURI(uri);
+        assertNotNull(uri2);
+        assertEquals("file:/c:/wsdl/hello_world.wsdl", uri2);
+
+        uri = "/c:\\wsdl\\hello_world.wsdl";
         uri2 = URIParserUtil.getAbsoluteURI(uri);
         assertNotNull(uri2);
         assertEquals("file:/c:/wsdl/hello_world.wsdl", uri2);

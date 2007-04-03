@@ -223,7 +223,7 @@ public final class URIParserUtil {
         } catch (MalformedURLException e1) {
             try {
                 String f = null;
-                if (uri.indexOf(":") != -1) {
+                if (uri.indexOf(":") != -1 && !uri.startsWith("/")) {
                     f = "file:/" + uri;
                 } else {
                     f = "file:" + uri;
