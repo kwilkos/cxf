@@ -146,7 +146,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
     protected void retrieveConnectionFactory() {
         connectionFactory = alternateConnectionFactory != null
                             ? alternateConnectionFactory
-                            : HTTPTransportFactory.getConnectionFactory(
+                            : AbstractHTTPTransportFactory.getConnectionFactory(
                                 getSslClient());
     }
    

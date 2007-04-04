@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.transport.http.spring;
+package org.apache.cxf.transport.http_jetty.spring;
 
 import javax.xml.namespace.QName;
 
@@ -31,7 +31,7 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transport.http.JettyHTTPDestination;
+import org.apache.cxf.transport.http_jetty.JettyHTTPDestination;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -41,10 +41,12 @@ public class ApplicationContextTest extends Assert {
     public void testContext() throws Exception {
         String s1 = getClass().getResource("/META-INF/cxf/cxf.xml").toString();
         String s2 = getClass().getResource("/META-INF/cxf/cxf-extension-http.xml").toString();
-        String s3 = getClass().getResource("/org/apache/cxf/transport/http/spring/beans.xml").toString();
+        String s3 = getClass().getResource("/META-INF/cxf/cxf-extension-http-jetty.xml").toString();
+        String s4 = getClass()
+            .getResource("/org/apache/cxf/transport/http_jetty/spring/beans.xml").toString();
         
         ClassPathXmlApplicationContext ctx = new JaxbClassPathXmlApplicationContext(
-            new String[] {s1, s2, s3});
+            new String[] {s1, s2, s3, s4});
         
         ConfigurerImpl cfg = new ConfigurerImpl(ctx);
         

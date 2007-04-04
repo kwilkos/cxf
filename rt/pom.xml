@@ -41,6 +41,7 @@
         <module>frontend/jaxws</module>
         <module>frontend/js</module>
         <module>transports/http</module>
+        <module>transports/http-jetty</module>
         <module>transports/jms</module>
         <module>ws/policy</module>
         <module>ws/addr</module>

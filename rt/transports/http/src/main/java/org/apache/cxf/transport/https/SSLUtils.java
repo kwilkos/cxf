@@ -83,7 +83,7 @@ public final class SSLUtils {
     private SSLUtils() {
     }    
     
-    protected static KeyManager[] getKeyStoreManagers(
+    public static KeyManager[] getKeyStoreManagers(
                                           String keyStoreLocation,
                                           String keyStoreType,
                                           String keyStorePassword,
@@ -142,7 +142,7 @@ public final class SSLUtils {
         return keystoreManagers;
     }
 
-    protected static KeyManager[] loadKeyStore(KeyManagerFactory kmf,
+    public static KeyManager[] loadKeyStore(KeyManagerFactory kmf,
                                                KeyStore ks,
                                                ByteArrayInputStream bin,
                                                String keyStoreLocation,
@@ -560,7 +560,7 @@ public final class SSLUtils {
         }
     }
     
-    protected static void logUnSupportedPolicies(Object policy,
+    public static void logUnSupportedPolicies(Object policy,
                                                  boolean client,
                                                  String[] unsupported,
                                                  Logger log) {
@@ -590,7 +590,7 @@ public final class SSLUtils {
         }    
     }
     
-    protected static boolean testAllDataHasSetupMethod(Object policy,
+    public static boolean testAllDataHasSetupMethod(Object policy,
                                                        String[] unsupported,
                                                        String[] derivative) {
         Method[] sslPolicyMethods = policy.getClass().getDeclaredMethods();

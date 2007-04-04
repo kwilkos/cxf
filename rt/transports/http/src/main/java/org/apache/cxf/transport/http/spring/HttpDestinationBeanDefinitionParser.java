@@ -31,7 +31,7 @@ public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionP
     private static final String HTTP_NS = "http://cxf.apache.org/transports/http/configuration";
 
     @Override
-    protected void doParse(Element element, BeanDefinitionBuilder bean) {
+    public void doParse(Element element, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "server"), "server");
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "sslServer"), "sslServer");

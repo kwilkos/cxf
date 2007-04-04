@@ -18,12 +18,18 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:sec="http://cxf.apache.org/configuration/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:foo="http://cxf.apache.org/configuration/foo"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <bean class="org.apache.cxf.transport.http.policy.HTTPClientAssertionBuilder"/>
-    <bean class="org.apache.cxf.transport.http.policy.HTTPServerAssertionBuilder"/>
+    <bean name="org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine.1234" abstract="true">
+ 
+       <property name="sslServer">
+           <value>
+              <sec:sslServer/>
+           </value>
+       </property>
+    </bean>
 
 </beans>

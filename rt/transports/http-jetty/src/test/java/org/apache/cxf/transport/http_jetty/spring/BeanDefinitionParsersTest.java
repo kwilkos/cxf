@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.transport.http.spring;
+package org.apache.cxf.transport.http_jetty.spring;
 
 import org.w3c.dom.Document;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.transport.http.spring.HttpConduitBeanDefinitionParser;
+import org.apache.cxf.transport.http.spring.HttpDestinationBeanDefinitionParser;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.junit.Assert;

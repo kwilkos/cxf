@@ -37,7 +37,6 @@ import javax.wsdl.extensions.http.HTTPAddress;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
-import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -50,16 +49,13 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
-import org.apache.cxf.transport.https.JettySslConnectorFactory;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
-import org.mortbay.jetty.AbstractConnector;
-//import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
-public class HTTPTransportFactory extends AbstractTransportFactory implements ConduitInitiator,
-    DestinationFactory, WSDLEndpointFactory {
+public abstract class AbstractHTTPTransportFactory 
+    extends AbstractTransportFactory 
+    implements ConduitInitiator, DestinationFactory, WSDLEndpointFactory {
 
     private static final Set<String> URI_PREFIXES = new HashSet<String>();
     static {
@@ -117,12 +113,7 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
         return conduit;
     }
 
-    public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
-        JettyHTTPDestination destination = new JettyHTTPDestination(bus, this, endpointInfo);
-        configure(destination);
-        destination.retrieveEngine();        
-        return destination;
-    }
+    public abstract Destination getDestination(EndpointInfo endpointInfo) throws IOException;
 
     public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {
         List ees = port.getExtensibilityElements();
@@ -175,16 +166,5 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
                : new HttpsURLConnectionFactory(policy);
     }
     
-    protected static JettyConnectorFactory getConnectorFactory(SSLServerPolicy policy) {
-        return policy == null
-               ? new JettyConnectorFactory() {                     
-                   public AbstractConnector createConnector(int port) {
-                       SelectChannelConnector result = new SelectChannelConnector();
-                       //SocketConnector result = new SocketConnector();
-                       result.setPort(port);
-                       return result;
-                   }
-               }
-               : new JettySslConnectorFactory(policy);
-    }
+
 }

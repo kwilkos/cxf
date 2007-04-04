@@ -64,7 +64,8 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.transport.http.HTTPTransportFactory;
+import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
+import org.apache.cxf.transport.http_jetty.JettyHTTPTransportFactory;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
@@ -122,7 +123,7 @@ public class JCABusFactory {
             dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
             dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
             
-            HTTPTransportFactory httpTransport = new HTTPTransportFactory();
+            AbstractHTTPTransportFactory httpTransport = new JettyHTTPTransportFactory();
             dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/http", httpTransport);
             //dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", httpTransport);
             //dfm.registerDestinationFactory("http://cxf.apache.org/bindings/xformat", httpTransport);

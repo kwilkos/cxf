@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.http;
+package org.apache.cxf.transport.http_jetty;
 
 
 import java.io.ByteArrayOutputStream;
@@ -48,6 +48,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.http.WSDLQueryHandler;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;

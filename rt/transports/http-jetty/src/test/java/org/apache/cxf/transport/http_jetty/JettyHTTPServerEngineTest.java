@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.http;
+package org.apache.cxf.transport.http_jetty;
 
 
 import org.apache.cxf.Bus;
@@ -94,7 +94,7 @@ public class JettyHTTPServerEngineTest extends Assert {
     @Test
     public void testSSLServerPolicySetFromConfig() {
         
-        setUpConfigurer("/org/apache/cxf/transport/http/cxfcfg.xml");
+        setUpConfigurer("/org/apache/cxf/transport/http_jetty/cxfcfg.xml");
         
         JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234);
         assertTrue("SSLServerPolicy must be set", engine.isSetSslServer());

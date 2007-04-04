@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.https;
+package org.apache.cxf.transport.https_jetty;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -27,7 +27,8 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
-import org.apache.cxf.transport.http.JettyConnectorFactory;
+import org.apache.cxf.transport.http_jetty.JettyConnectorFactory;
+import org.apache.cxf.transport.https.SSLUtils;
 import org.mortbay.jetty.AbstractConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 

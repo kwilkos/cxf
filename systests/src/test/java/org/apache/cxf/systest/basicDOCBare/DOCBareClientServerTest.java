@@ -34,7 +34,6 @@ import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.apache.hello_world_doc_lit_bare.SOAPService;
 import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -43,15 +42,11 @@ public class DOCBareClientServerTest extends AbstractBusClientServerTestBase {
     private final QName serviceName = new QName("http://apache.org/hello_world_doc_lit_bare",
                                                 "SOAPService");
     private final QName portName = new QName("http://apache.org/hello_world_doc_lit_bare", "SoapPort");
-
-    @Before
-    public void setUp() {
-        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.CXFBusFactory");
-    }
     
     
     @BeforeClass
     public static void startServers() throws Exception {
+        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.CXFBusFactory");
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 

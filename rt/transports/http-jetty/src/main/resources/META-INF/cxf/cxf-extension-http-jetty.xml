@@ -18,18 +18,22 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:sec="http://cxf.apache.org/configuration/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:foo="http://cxf.apache.org/configuration/foo"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <bean name="org.apache.cxf.transport.http.JettyHTTPServerEngine.1234" abstract="true">
- 
-       <property name="sslServer">
-           <value>
-              <sec:sslServer/>
-           </value>
-       </property>
+    <bean class="org.apache.cxf.transport.http_jetty.JettyHTTPTransportFactory" lazy-init="true">
+        <property name="bus" ref="cxf"/>
+        <property name="transportIds">
+            <list>
+                <value>http://schemas.xmlsoap.org/soap/http</value>
+                <value>http://schemas.xmlsoap.org/wsdl/http/</value>
+                <value>http://schemas.xmlsoap.org/wsdl/soap/http</value>
+ 	            <value>http://www.w3.org/2003/05/soap/bindings/HTTP/</value>
+                <value>http://cxf.apache.org/transports/http/configuration</value>
+                <value>http://cxf.apache.org/bindings/xformat</value>
+            </list>
+        </property>
     </bean>
-
 </beans>

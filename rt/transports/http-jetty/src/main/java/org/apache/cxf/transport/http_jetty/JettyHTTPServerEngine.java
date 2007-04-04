@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.http;
+package org.apache.cxf.transport.http_jetty;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -250,7 +250,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
     }
 
     private void retrieveListenerFactory() {
-        connectorFactory = HTTPTransportFactory.getConnectorFactory(getSslServer());
+        connectorFactory = JettyHTTPTransportFactory.getConnectorFactory(getSslServer());
     }
     
     private void init(SSLServerPolicy sslServerPolicy) {

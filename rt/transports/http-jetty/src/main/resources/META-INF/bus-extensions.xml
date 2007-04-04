@@ -19,7 +19,7 @@
 -->
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.cxf.transport.http.HTTPTransportFactory"  deferred="true">
+    <extension class="org.apache.cxf.transport.http_jetty.JettyHTTPTransportFactory"  deferred="true">
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://schemas.xmlsoap.org/soap/http</namespace>
         <namespace>http://www.w3.org/2003/05/soap/bindings/HTTP/</namespace>

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.http;
+package org.apache.cxf.transport.http_jetty;
 
 import java.net.URL;
 

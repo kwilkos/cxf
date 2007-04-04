@@ -17,17 +17,20 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.https;
+package org.apache.cxf.transport.https_jetty;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 
 import org.apache.cxf.configuration.security.FiltersType;
 import org.apache.cxf.configuration.security.ObjectFactory;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.transport.https.SSLUtils;
 
 //import org.mortbay.jetty.security.SslSelectChannelConnector;
 import org.junit.After;
@@ -38,7 +41,10 @@ import org.mortbay.jetty.security.SslSocketConnector;
 
 
 public class JettySslConnectorFactoryTest extends Assert {
-    
+    protected static final String DROP_BACK_SRC_DIR = 
+        "../../../../../../../../"
+        + "http/src/test/java/org/apache/cxf/transport/https/";
+
     private static final String[] EXPORT_CIPHERS =
     {"SSL_RSA_WITH_NULL_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_DES_CBC_SHA"};
     private static final String[] NON_EXPORT_CIPHERS =
@@ -469,12 +475,42 @@ public class JettySslConnectorFactoryTest extends Assert {
         System.setProperty("user.home", oldHome);
     }
 
+    
     protected static String getPath(String fileName) throws URISyntaxException {
         URL keystoreURL = JettySslConnectorFactoryTest.class.getResource(".");
         String str = keystoreURL.toURI().getPath(); 
-        str += HttpsURLConnectionFactoryTest.DROP_BACK_SRC_DIR  + fileName;
+        str += DROP_BACK_SRC_DIR  + fileName;
         return str;
     }
+    
+    
+    static class TestLogHandler extends Handler {
+        String log;
+        
+        public TestLogHandler() {
+            log = "";
+        }
+        
+        public void publish(LogRecord record) {
+            log += record.getMessage();
+            
+        }
+
+        public void flush() {
+            
+        }
+
+        public void close() throws SecurityException {
+            
+        }
+        
+        boolean checkLogContainsString(String str) {
+            if (log.indexOf(str) == -1) {
+                return false;
+            }
+            return true;
+        }    
+    }    
 }
 
 

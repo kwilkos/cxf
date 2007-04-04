@@ -63,7 +63,7 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
     public static final String HTTP_REQUEST = "HTTP.REQUEST";
     public static final String HTTP_RESPONSE = "HTTP.RESPONSE";
     
-    private static final Logger LOG = LogUtils.getL7dLogger(JettyHTTPDestination.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
     
     private static final long serialVersionUID = 1L;
 
@@ -327,7 +327,7 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
     /**
      * Backchannel conduit.
      */
-    protected class BackChannelConduit
+    public class BackChannelConduit
         extends AbstractDestination.AbstractBackChannelConduit {
 
         protected HttpServletResponse response;
@@ -391,7 +391,7 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
         }
     }
 
-    boolean contextMatchOnExact() {
+    protected boolean contextMatchOnExact() {
         return "exact".equals(contextMatchStrategy);
     }    
 
