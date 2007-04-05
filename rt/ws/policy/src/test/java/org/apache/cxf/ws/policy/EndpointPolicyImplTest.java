@@ -103,7 +103,7 @@ public class EndpointPolicyImplTest extends Assert {
         EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class, 
                                                     new Method[] {m1, m2, m3, m4});
         EndpointInfo ei = control.createMock(EndpointInfo.class);
-        boolean isServer = true;
+        boolean isRequestor = false;
         PolicyEngineImpl pe = control.createMock(PolicyEngineImpl.class);
         Assertor a = control.createMock(Assertor.class);
          
@@ -111,11 +111,11 @@ public class EndpointPolicyImplTest extends Assert {
         EasyMock.expectLastCall();
         epi.chooseAlternative(pe, a);
         EasyMock.expectLastCall();
-        epi.initialiseInterceptors(ei, isServer, pe); 
+        epi.initialiseInterceptors(ei, isRequestor, pe); 
         EasyMock.expectLastCall();
         
         control.replay();
-        epi.initialise(ei, isServer, pe, a);
+        epi.initialise(ei, isRequestor, pe, a);
         control.verify();        
     }
     

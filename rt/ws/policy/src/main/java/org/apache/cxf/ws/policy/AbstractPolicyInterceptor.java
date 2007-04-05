@@ -22,6 +22,8 @@ package org.apache.cxf.ws.policy;
 import org.apache.cxf.Bus;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.service.model.BindingFaultInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 
 /**
  * 
@@ -36,5 +38,34 @@ public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor
     
     public Bus getBus() {
         return bus;
+    }
+    
+    protected BindingFaultInfo getBindingFaultInfo(Message msg, Exception ex, BindingOperationInfo boi) {
+        BindingFaultInfo bfi = msg.get(BindingFaultInfo.class);        
+        if (null == bfi) {
+            Throwable cause = ex.getCause();
+            if (null == cause) {
+                return null;
+            }
+            for (BindingFaultInfo b : boi.getFaults()) {
+                Class<?> faultClass = b.getFaultInfo().getProperty(Class.class.getName(), Class.class);
+                if (faultClass.isAssignableFrom(cause.getClass())) {
+                    bfi = b;
+                    msg.put(BindingFaultInfo.class, bfi);
+                    break;
+                }
+            }  
+            if (null == bfi && null != boi.getWrappedOperation()) {
+                for (BindingFaultInfo b : boi.getWrappedOperation().getFaults()) {
+                    Class<?> faultClass = b.getFaultInfo().getProperty(Class.class.getName(), Class.class);
+                    if (faultClass.isAssignableFrom(cause.getClass())) {
+                        bfi = b;
+                        msg.put(BindingFaultInfo.class, bfi);
+                        break;
+                    }
+                }  
+            }
+        }
+        return bfi;
     }
 }

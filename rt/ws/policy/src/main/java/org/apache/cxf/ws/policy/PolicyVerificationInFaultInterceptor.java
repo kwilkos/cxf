@@ -29,6 +29,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingFaultInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 
 /**
@@ -58,11 +59,11 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
         Exchange exchange = message.getExchange();
         assert null != exchange;
         
-        BindingFaultInfo bfi = message.get(BindingFaultInfo.class);
-        if (null == bfi) {
-            LOG.fine("No binding fault info.");
+        BindingOperationInfo boi = exchange.get(BindingOperationInfo.class);
+        if (null == boi) {
+            LOG.fine("No binding operation info.");
             return;
-        }
+        }        
         
         Endpoint e = exchange.get(Endpoint.class);
         if (null == e) {
@@ -78,6 +79,18 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
         
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
         if (null == aim) {
+            return;
+        }
+        
+        Exception ex = message.getContent(Exception.class);
+        if (null == ex) {
+            ex = exchange.get(Exception.class);
+        }
+        assert null != ex;
+        
+        BindingFaultInfo bfi = getBindingFaultInfo(message, ex, boi);
+        if (null == bfi) {
+            LOG.fine("No binding fault info.");
             return;
         }
         

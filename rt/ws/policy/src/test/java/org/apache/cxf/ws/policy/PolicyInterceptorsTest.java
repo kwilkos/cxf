@@ -212,7 +212,7 @@ public class PolicyInterceptorsTest extends Assert {
     
     @Test
     public void testServerPolicyOutFaultInterceptor() throws NoSuchMethodException {
-        Method m = ServerPolicyOutFaultInterceptor.class.getDeclaredMethod("getBindingFaultInfo",
+        Method m = AbstractPolicyInterceptor.class.getDeclaredMethod("getBindingFaultInfo",
             new Class[] {Message.class, Exception.class, BindingOperationInfo.class});
         
         ServerPolicyOutFaultInterceptor interceptor = 

@@ -28,32 +28,47 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.MessageObserver;
 
-public abstract class AbstractFaultChainIntiatorObserver implements MessageObserver {
+public abstract class AbstractFaultChainInitiatorObserver implements MessageObserver {
     
-    private static final Logger LOG = Logger.getLogger(AbstractFaultChainIntiatorObserver.class.getName());
+    private static final Logger LOG = Logger.getLogger(AbstractFaultChainInitiatorObserver.class.getName());
     
     private Bus bus;
 
-    public AbstractFaultChainIntiatorObserver(Bus bus) {
+    public AbstractFaultChainInitiatorObserver(Bus bus) {
         this.bus = bus;
     }
 
-    public void onMessage(Message m) {
-        Message faultMessage = getFaultMessage(m);
-        Exchange ex = m.getExchange();
-        if (faultMessage == null) {
-            Endpoint ep = ex.get(Endpoint.class);
-            faultMessage = ep.getBinding().createMessage();
-        }
-        
-        setFaultMessage(m, faultMessage);
-        MessageImpl.copyContent(m, faultMessage);
+    public void onMessage(Message message) {
+      
+        assert  null != message;
+        Exchange exchange = message.getExchange();
 
+        Message faultMessage = null;
+
+        // now that we have switched over to the fault chain,
+        // prevent any further operations on the in/out message 
+
+        if (isOutboundObserver()) {
+            Exception ex = message.getContent(Exception.class);
+            faultMessage = exchange.getOutMessage();
+            if (null == faultMessage) {
+                faultMessage = exchange.get(Endpoint.class).getBinding().createMessage();
+            }
+            faultMessage.setContent(Exception.class, ex);
+            assert exchange.get(Exception.class) == ex;
+            exchange.setOutMessage(null);
+            exchange.setOutFaultMessage(faultMessage);
+        } else {
+            faultMessage = message;
+            exchange.setInMessage(null);
+            exchange.setInFaultMessage(faultMessage);
+        }          
+         
+       
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(getPhases());
         initializeInterceptors(faultMessage.getExchange(), chain);
@@ -62,7 +77,7 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         try {
             chain.doIntercept(faultMessage);
         } catch (Exception exc) {
-            LogUtils.log(LOG, Level.INFO, "Error occured during error handling, give up!", ex);
+            LogUtils.log(LOG, Level.INFO, "Error occured during error handling, give up!", exc);
         }
     }
 
@@ -78,17 +93,4 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         return bus;
     }
 
-    private Message getFaultMessage(Message original) {
-        return isOutboundObserver()
-               ? original.getExchange().getOutFaultMessage()
-               : original.getExchange().getInFaultMessage();
-    }
-
-    private void setFaultMessage(Message original, Message fault) {
-        if (isOutboundObserver()) {
-            original.getExchange().setOutFaultMessage(fault);
-        } else {
-            original.getExchange().setInFaultMessage(fault);
-        }
-    }
 }

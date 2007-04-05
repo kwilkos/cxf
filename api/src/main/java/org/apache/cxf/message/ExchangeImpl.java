@@ -76,7 +76,9 @@ public class ExchangeImpl extends StringMapImpl implements Exchange {
 
     public void setInMessage(Message m) {
         inMessage = m;
-        m.setExchange(this);
+        if (null != m) {
+            m.setExchange(this);
+        }
     }
 
     public void setConduit(Conduit c) {

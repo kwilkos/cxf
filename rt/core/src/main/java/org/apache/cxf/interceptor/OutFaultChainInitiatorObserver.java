@@ -27,7 +27,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 
-public class OutFaultChainInitiatorObserver extends AbstractFaultChainIntiatorObserver {
+public class OutFaultChainInitiatorObserver extends AbstractFaultChainInitiatorObserver {
 
     public OutFaultChainInitiatorObserver(Bus bus) {
         super(bus);

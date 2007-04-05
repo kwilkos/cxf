@@ -78,11 +78,11 @@ public class EndpointPolicyImpl implements EndpointPolicy {
     }
     
     
-    void initialise(EndpointInfo ei, boolean isServer, PolicyEngineImpl engine, Assertor assertor) {
+    void initialise(EndpointInfo ei, boolean isRequestor, PolicyEngineImpl engine, Assertor assertor) {
         initialisePolicy(ei, engine);
         chooseAlternative(engine, assertor);
-        initialiseVocabulary(ei, isServer, engine);
-        initialiseInterceptors(ei, isServer, engine); 
+        initialiseVocabulary(ei, isRequestor, engine);
+        initialiseInterceptors(ei, isRequestor, engine); 
     }
    
     void initialisePolicy(EndpointInfo ei, PolicyEngineImpl engine) {

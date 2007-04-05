@@ -326,8 +326,7 @@ public final class ContextUtils {
             storePartialResponseSent(inMessage);
             Exchange exchange = inMessage.getExchange();
             Message fullResponse = exchange.getOutMessage();
-            Endpoint endpoint = exchange.get(Endpoint.class);
-            Message partialResponse = endpoint.getBinding().createMessage();
+            Message partialResponse = createMessage(exchange);
             ensurePartialResponseMAPs(partialResponse, namespaceURI);
             
             // ensure the inbound MAPs are available in the partial response
@@ -364,7 +363,7 @@ public final class ContextUtils {
                     if (fullResponse != null) {
                         exchange.setOutMessage(fullResponse);
                     } else {
-                        fullResponse = endpoint.getBinding().createMessage();
+                        fullResponse = createMessage(exchange);
                         exchange.setOutMessage(fullResponse);
                     }
                     

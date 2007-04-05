@@ -36,7 +36,6 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -125,13 +124,6 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     }
     
     // Interceptor interface
-
-    /* (non-Javadoc)
-     * @see org.apache.cxf.interceptor.Interceptor#handleFault(org.apache.cxf.message.Message)
-     */
-    public void handleFault(SoapMessage message) {
-        mediate(message);        
-    }
 
     /* (non-Javadoc)
      * @see org.apache.cxf.interceptor.Interceptor#handleMessage(org.apache.cxf.message.Message)
@@ -366,23 +358,11 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     private static void discardRMHeaders(Element header) throws SOAPException {
         NodeList headerElements =
             header.getElementsByTagNameNS(RMConstants.getNamespace(), "*");
-        
         for (int i = 0; i < headerElements.getLength(); i++) {
             Node headerElement = headerElements.item(i);
             if (RMConstants.getNamespace().equals(headerElement.getNamespaceURI())) {
                 header.removeChild(headerElement);
             }
-
-            
-            // REVISIT should detach wsa:Action on resend
-            /*
-            if (org.apache.cxf.ws.addressing.Names.WSA_NAMESPACE_NAME
-                .equals(headerName.getURI())
-                && org.apache.cxf.ws.addressing.Names.WSA_ACTION_NAME
-                .equals(headerName.getLocalName())) {
-                headerElement.detachNode();
-            }
-            */
         }
     }
     

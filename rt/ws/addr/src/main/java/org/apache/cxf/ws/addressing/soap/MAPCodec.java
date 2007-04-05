@@ -60,7 +60,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.addressing.RelatesToType;
 
-import static org.apache.cxf.message.Message.MIME_HEADERS;
+
 
 
 /**
@@ -123,8 +123,11 @@ public class MAPCodec extends AbstractSoapInterceptor {
     private void mediate(SoapMessage message) {
         if (ContextUtils.isOutbound(message)) {
             encode(message, ContextUtils.retrieveMAPs(message, false, true));
-        } else {
-            ContextUtils.storeMAPs(decode(message), message, false);
+        } else if (null == ContextUtils.retrieveMAPs(message, false, false)) {            
+            AddressingProperties maps = decode(message);
+            ContextUtils.storeMAPs(maps, message, false);
+            markPartialResponse(message, maps);
+            restoreExchange(message, maps);     
         }
     }
 
@@ -138,7 +141,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         AddressingProperties maps) {
         if (maps != null) { 
             cacheExchange(message, maps);
-            LOG.log(Level.INFO, "\nOutbound WS-Addressing headers");
+            LOG.log(Level.INFO, "Outbound WS-Addressing headers");
             try {
                 Element header = message.getHeaders(Element.class);
                 discardMAPs(header, maps);
@@ -241,7 +244,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
         try {
             Element header = message.getHeaders(Element.class);
             if (header != null) {
-                LOG.log(Level.INFO, "\nInbound WS-Addressing headers");
+                LOG.log(Level.INFO, "Inbound WS-Addressing headers");
                 Unmarshaller unmarshaller = null;
                 NodeList headerElements = header.getChildNodes();
                 int headerCount = headerElements.getLength();
@@ -304,9 +307,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                     headerURI);
                         }
                     }
-                }
-                restoreExchange(message, maps);
-                markPartialResponse(message, maps);
+                }                
             }
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
@@ -419,7 +420,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
      */
     private void discardMAPs(Element header, AddressingProperties maps) throws SOAPException {
         NodeList headerElements =
-            header.getElementsByTagNameNS(maps.getNamespaceURI(), "*");
+            header.getElementsByTagNameNS(maps.getNamespaceURI(), "*");        
         for (int i = 0; i < headerElements.getLength(); i++) {
             Node headerElement = headerElements.item(i);
             if (Names.WSA_NAMESPACE_NAME.equals(headerElement.getNamespaceURI())) {
@@ -438,7 +439,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                  SoapMessage message) {
         if (!(action == null || "".equals(action.getValue()))) {
             Map<String, List<String>> mimeHeaders = CastUtils.cast((Map<?, ?>)
-                message.get(MIME_HEADERS));
+                message.get(Message.MIME_HEADERS));
             if (mimeHeaders != null) {
                 List<String> soapActionHeaders =
                     mimeHeaders.get(Names.SOAP_ACTION_HEADER);
@@ -539,7 +540,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         && endpoint != null) {
                         message.getInterceptorChain().abort();
                         if (endpoint.getInFaultObserver() != null) {
-                            endpoint.getInFaultObserver().onMessage(message);
+                            endpoint.getInFaultObserver().onMessage(message);                            
                         }
                     }
                 }

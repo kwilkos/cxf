@@ -26,7 +26,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseManager;
 
-public class ClientOutFaultObserver extends AbstractFaultChainIntiatorObserver {
+public class ClientOutFaultObserver extends AbstractFaultChainInitiatorObserver {
 
     
     public ClientOutFaultObserver(Bus bus) {

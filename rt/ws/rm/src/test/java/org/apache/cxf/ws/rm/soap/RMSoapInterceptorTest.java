@@ -100,20 +100,6 @@ public class RMSoapInterceptorTest extends Assert {
     }
     
     @Test
-    public void testHandleFault() throws NoSuchMethodException {
-        Method m = RMSoapInterceptor.class.getDeclaredMethod("mediate", 
-            new Class[] {SoapMessage.class});
-        RMSoapInterceptor codec = control.createMock(RMSoapInterceptor.class, new Method[] {m});
-        SoapMessage msg = control.createMock(SoapMessage.class);
-        codec.mediate(msg);
-        EasyMock.expectLastCall();
-        
-        control.replay();
-        codec.handleFault(msg);
-        control.verify();
-    }
-    
-    @Test
     public void testMediate() throws NoSuchMethodException {
         Method m1 = RMSoapInterceptor.class.getDeclaredMethod("encode", 
                                                              new Class[] {SoapMessage.class});

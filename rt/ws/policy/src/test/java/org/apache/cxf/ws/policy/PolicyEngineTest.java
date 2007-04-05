@@ -265,7 +265,7 @@ public class PolicyEngineTest extends Assert {
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         AssertingConduit conduit = control.createMock(AssertingConduit.class);
         EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
-        EasyMock.expect(engine.createEndpointPolicyInfo(ei, false, conduit)).andReturn(epi);
+        EasyMock.expect(engine.createEndpointPolicyInfo(ei, true, conduit)).andReturn(epi);
         control.replay();
         assertSame(epi, engine.getClientEndpointPolicy(ei, conduit));
         control.verify();        
@@ -280,7 +280,7 @@ public class PolicyEngineTest extends Assert {
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         AssertingDestination destination = control.createMock(AssertingDestination.class);
         EndpointPolicyImpl epi = control.createMock(EndpointPolicyImpl.class);
-        EasyMock.expect(engine.createEndpointPolicyInfo(ei, true, destination)).andReturn(epi);
+        EasyMock.expect(engine.createEndpointPolicyInfo(ei, false, destination)).andReturn(epi);
         control.replay();
         assertSame(epi, engine.getServerEndpointPolicy(ei, destination));
         control.verify();        

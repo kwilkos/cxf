@@ -192,7 +192,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             return endpointPolicy;
         }
         Assertor assertor = conduit instanceof Assertor ? (Assertor)conduit : null;
-        return createEndpointPolicyInfo(ei, false, assertor);
+        return createEndpointPolicyInfo(ei, true, assertor);
     }
    
     public EndpointPolicy getServerEndpointPolicy(EndpointInfo ei, Destination destination) {
@@ -201,7 +201,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             return endpointPolicy;
         }
         Assertor assertor = destination instanceof Assertor ? (Assertor)destination : null;
-        return createEndpointPolicyInfo(ei, true, assertor);
+        return createEndpointPolicyInfo(ei, false, assertor);
     }
     
     public void setEndpointPolicy(EndpointInfo ei, EndpointPolicy ep) {
@@ -459,9 +459,9 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
    
     
     
-    EndpointPolicyImpl createEndpointPolicyInfo(EndpointInfo ei, boolean isServer, Assertor assertor) {
+    EndpointPolicyImpl createEndpointPolicyInfo(EndpointInfo ei, boolean isRequestor, Assertor assertor) {
         EndpointPolicyImpl epi = createEndpointPolicyInfo();
-        epi.initialise(ei, isServer, this, assertor);
+        epi.initialise(ei, isRequestor, this, assertor);
         endpointInfo.put(ei, epi);
 
         return epi;

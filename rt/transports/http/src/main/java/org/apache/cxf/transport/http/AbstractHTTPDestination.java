@@ -62,6 +62,7 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
     
     public static final String HTTP_REQUEST = "HTTP.REQUEST";
     public static final String HTTP_RESPONSE = "HTTP.RESPONSE";
+    public static final String PROTOCOL_HEADERS_CONTENT_TYPE = Message.CONTENT_TYPE.toLowerCase();
     
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
     
@@ -295,7 +296,14 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
 
             Integer i = (Integer)outMessage.get(Message.RESPONSE_CODE);
             if (i != null) {
-                int status = i.intValue();               
+                int status = i.intValue();  
+                if (HttpURLConnection.HTTP_INTERNAL_ERROR == i) {
+                    Map<Object, Object> pHeaders = 
+                        CastUtils.cast((Map)outMessage.get(Message.PROTOCOL_HEADERS));
+                    if (null != pHeaders && pHeaders.containsKey(PROTOCOL_HEADERS_CONTENT_TYPE)) {
+                        pHeaders.remove(PROTOCOL_HEADERS_CONTENT_TYPE);
+                    }
+                }
                 response.setStatus(status);
             } else {
                 response.setStatus(HttpURLConnection.HTTP_OK);
