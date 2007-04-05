@@ -99,5 +99,4 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="org.apache.cxf.endpoint.EndpointResolverRegistry" class="org.apache.cxf.endpoint.EndpointResolverRegistryImpl">
         <property name="bus" ref="cxf"/>
     </bean>
-    
 </beans>

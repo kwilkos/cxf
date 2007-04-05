@@ -7,9 +7,9 @@
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
   with the License. You may obtain a copy of the License at
- 
+
   http://www.apache.org/licenses/LICENSE-2.0
- 
+
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,19 +17,20 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<extensions xmlns="http://cxf.apache.org/bus/extension">
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:jaxws="http://cxf.apache.org/jaxws"
+      xmlns:soap="http://cxf.apache.org/bindings/soap"
+      xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 
-    <extension class="org.apache.cxf.binding.soap.SoapBindingFactory" 
-      interface="org.apache.cxf.binding.BindingFactory" deferred="true">
-        <namespace>http://schemas.xmlsoap.org/soap/</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap12/</namespace>
-    </extension>
-    
-    <extension class="org.apache.cxf.binding.soap.SoapTransportFactory" 
-      interface="org.apache.cxf.transport.DestinationFactory" deferred="true">
-        <namespace>http://schemas.xmlsoap.org/soap/</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap12/</namespace>
-    </extension>    
-</extensions>
+  
+  <jaxws:client id="{http://apache.org/hello_world_soap_http}SoapPort" abstract="true">
+     <jaxws:properties>
+      <entry key="foo" value="bar"/>
+    </jaxws:properties>
+  </jaxws:client>
+
+</beans>

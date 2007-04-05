@@ -143,7 +143,12 @@ public class ManagedConnectionImpl
                 Object obj = null;
                 Service service = Service.create(serviceName);
             
-                obj = service.getPort(arReqInfo.getInterface());
+                QName port = arReqInfo.getPortQName();
+                if (port == null) {
+                    obj = service.getPort(arReqInfo.getInterface());
+                } else {
+                    obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
+                }
                 setSubject(subject);
                 return createConnectionProxy(obj, arReqInfo, subject);
             } catch (WebServiceException wse) {

@@ -61,12 +61,6 @@ public class SpringBusFactoryTest extends Assert {
         }
         assertNotNull("binding factory not available", 
                       bfm.getBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/"));
-        assertNotNull("binding factory not available", 
-                      bfm.getBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/http"));
-        assertNotNull("binding factory not available", 
-                      bfm.getBindingFactory("http://cxf.apache.org/transports/jms"));   
-        assertNotNull("binding factory not available", 
-                      bfm.getBindingFactory("http://cxf.apache.org/bindings/xformat"));
         
         
         try {

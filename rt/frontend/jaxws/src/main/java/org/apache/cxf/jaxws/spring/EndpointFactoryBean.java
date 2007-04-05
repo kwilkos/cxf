@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
@@ -55,6 +56,8 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
     private String binding;
     private Map<String, Object> properties;
     private String wsdlLocation;
+    private QName endpointName;
+    private QName serviceName;
     
     public void setApplicationContext(ApplicationContext c) 
         throws BeansException {
@@ -81,17 +84,24 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
         }
 
         if (serviceFactory == null) {
-            //TODO support to lookup wsdl from classpath
-            if (null != wsdlLocation && wsdlLocation.length() > 0) {
-                //if wsdl can't be found, we will try to init Endpoint without wsdl
-                URL wsdl = ClassLoaderUtils.getResource(wsdlLocation, this.getClass());                
-                endpoint = new EndpointImpl(bus, implementor, binding, wsdl);
-            } else {
-                endpoint = new EndpointImpl(bus, implementor, binding);
-            }
-        } else {
-            endpoint = new EndpointImpl(bus, implementor, serviceFactory);
+            serviceFactory = new JaxWsServiceFactoryBean();
+            
         }
+        
+        serviceFactory.setServiceClass(implementor.getClass());
+        serviceFactory.setBus(bus);
+        serviceFactory.setServiceName(serviceName);
+        serviceFactory.setEndpointName(endpointName);
+        
+        if (null != wsdlLocation && wsdlLocation.length() > 0) {
+            //if wsdl can't be found, we will try to init Endpoint without wsdl
+            URL wsdl = ClassLoaderUtils.getResource(wsdlLocation, this.getClass());                
+            if (null != wsdl) {
+                serviceFactory.setWsdlURL(wsdl);
+            }
+        }
+        
+        endpoint = new EndpointImpl(bus, implementor, serviceFactory);
         
         if (executor != null) {
             endpoint.setExecutor(executor);
@@ -200,6 +210,22 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
 
     public void setWsdlLocation(String wsdlLocation) {
         this.wsdlLocation = wsdlLocation;
+    }
+
+    public QName getEndpointName() {
+        return endpointName;
+    }
+
+    public void setEndpointName(QName endpointName) {
+        this.endpointName = endpointName;
+    }
+
+    public QName getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(QName serviceName) {
+        this.serviceName = serviceName;
     }
     
 }

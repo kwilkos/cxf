@@ -23,4 +23,7 @@ public class NullConfigurer implements Configurer {
     public void configureBean(Object beanInstance) {
     }
 
+    public void configureBean(String name, Object beanInstance) {
+    }
+
 }

@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.helpers.DOMUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -145,6 +146,42 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
                 bean.addPropertyValue(propertyName, val);
             }
         }
+    }
+    
+    protected boolean isAttribute(String pre, String name) {
+        return !"xmlns".equals(name) && (pre == null || !pre.equals("xmlns"))
+            && !"abstract".equals(name) && !"lazy-init".equals(name) && !"id".equals(name);
+    }
+
+    protected QName parseQName(Element element, String t) {
+        String ns = null;
+        String pre = null;
+        String local = null;
+
+        if (t.startsWith("{")) {
+            int i = t.indexOf('}');
+            if (i == -1) {
+                throw new RuntimeException("Namespace bracket '{' must having a closing bracket '}'.");
+            }
+
+            ns = t.substring(1, i);
+            t = t.substring(i + 1);
+        }
+
+        int colIdx = t.indexOf(':');
+        if (colIdx == -1) {
+            local = t;
+            pre = "";
+            
+            ns = DOMUtils.getNamespace(element, "");
+        } else {
+            pre = t.substring(0, colIdx);
+            local = t.substring(colIdx + 1);
+            
+            ns = DOMUtils.getNamespace(element, pre);
+        }
+
+        return new QName(ns, local, pre);
     }
 
 }

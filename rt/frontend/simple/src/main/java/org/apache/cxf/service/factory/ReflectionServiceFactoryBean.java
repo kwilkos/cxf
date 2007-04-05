@@ -105,6 +105,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
     private Boolean wrappedStyle;
     private Map<String, Object> properties;
+    private QName endpointName;
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
@@ -504,7 +505,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return rawClass;
     }
     
-    protected QName getServiceQName() { 
+    public QName getServiceQName() { 
         if (serviceName == null) {
             serviceName = new QName(getServiceNamespace(), getServiceName());
         }
@@ -513,15 +514,24 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
     
     public QName getEndpointName() {
+        if (endpointName != null) {
+            return endpointName;
+        }
+        
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             QName name = c.getEndpointName();
             if (name != null) {
+                endpointName = name;
                 return name;
             }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
+    public void setEndpointName(QName en) {
+        this.endpointName = en;
+    }
+    
     protected String getServiceName() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String name = c.getServiceName();

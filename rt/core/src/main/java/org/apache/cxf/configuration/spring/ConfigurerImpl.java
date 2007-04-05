@@ -70,17 +70,24 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
     }
     
     public void configureBean(Object beanInstance) {
+        configureBean(null, beanInstance);
+    }
+    
+    public void configureBean(String bn, Object beanInstance) {
 
         if (null == appContext) {
             return;
         }
         
-        final String beanName = getBeanName(beanInstance);
+        if (null == bn) {
+            bn = getBeanName(beanInstance);
+        }
         
-        if (null == beanName) {
+        if (null == bn) {
             return;
         }
         
+        final String beanName = bn;
         setBeanWiringInfoResolver(new BeanWiringInfoResolver() {
             public BeanWiringInfo resolveWiringInfo(Object instance) {
                 if (null != beanName && !"".equals(beanName)) {

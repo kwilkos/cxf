@@ -76,13 +76,20 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private JaxWsImplementorInfo implInfo;
     private JaxWsServiceFactoryBean serviceFactory;
     private Map<String, Object> properties;
+    private List<Source> metadata;
     
     public EndpointImpl(Bus b, Object implementor, JaxWsServiceFactoryBean serviceFactory) {
+        this(b, implementor, serviceFactory, null);
+    }
+    
+    public EndpointImpl(Bus b, Object implementor, 
+                        JaxWsServiceFactoryBean serviceFactory, String bindingUri) {
         this.bus = b;
         this.serviceFactory = serviceFactory;
         this.implInfo = serviceFactory.getJaxWsImplementorInfo();
         this.service = serviceFactory.getService();
         this.implementor = implementor;
+        this.bindingId = bindingUri;
         
         if (this.service == null) {
             service = serviceFactory.create();
@@ -90,11 +97,19 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         
         doInit = true;
     }
-    
-    public EndpointImpl(Bus b, Object i, String uri, URL wsdl) {
+   
+    /**
+     * 
+     * @param b
+     * @param i The implementor object.
+     * @param bindingUri The URI of the Binding being used. Optional.
+     * @param wsdl The URL of the WSDL for the service, if different than the URL specified on the
+     * WebService annotation. Optional.
+     */
+    public EndpointImpl(Bus b, Object i, String bindingUri, URL wsdl) {
         bus = b;
         implementor = i;
-        bindingId = uri;
+        bindingId = bindingUri;
         // build up the Service model
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
         serviceFactory = new JaxWsServiceFactoryBean(implInfo);
@@ -118,8 +133,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         this(b, i, uri, (URL)null);
     }
    
-   
-
     public EndpointImpl(Bus bus, Object implementor) {
         this(bus, implementor, (String) null);
     }
@@ -141,10 +154,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         return implementor;
     }
 
-    @Override
     public List<Source> getMetadata() {
-        // TODO Auto-generated method stub
-        return null;
+        return metadata;
     }
 
     @Override
@@ -168,9 +179,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         doPublish(address);
     }
 
-    public void setMetadata(List<Source> arg0) {
-        // TODO Auto-generated method stub
-
+    public void setMetadata(List<Source> metadata) {
+        this.metadata = metadata;
     }
 
     @Override

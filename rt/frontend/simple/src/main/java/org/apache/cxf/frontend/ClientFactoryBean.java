@@ -36,10 +36,14 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
     }
 
     public Client create() {
+        if (client != null) {
+            return client;
+        }
+        
         try {
             Endpoint ep = createEndpoint();
             
-            client = new ClientImpl(getBus(), ep);
+            createClient(ep);
         } catch (EndpointException e) {
             throw new ServiceConstructionException(e);
         } catch (BusException e) {
@@ -49,6 +53,10 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
         applyFeatures();
         
         return client;
+    }
+
+    protected void createClient(Endpoint ep) {
+        client = new ClientImpl(getBus(), ep);
     }
 
     protected void applyFeatures() {

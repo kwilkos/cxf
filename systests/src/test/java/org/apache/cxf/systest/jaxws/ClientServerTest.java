@@ -154,7 +154,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testGetPortOnePara() throws Exception {
+    public void testGetPortOneParam() throws Exception {
 
         Service service = Service.create(serviceName);
         

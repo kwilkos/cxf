@@ -23,9 +23,12 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 
 /**
@@ -41,7 +44,7 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
  * Client cxfClient = ClientProxy.getClient(client);
  * </pre>
  */
-public class ClientProxyFactoryBean {
+public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     private ClientFactoryBean clientFactoryBean;
     private String username;
     private String password;
@@ -73,12 +76,22 @@ public class ClientProxyFactoryBean {
 
         Client c = clientFactoryBean.create();
 
-        ClientProxy handler = new ClientProxy(c);
+        ClientProxy handler = clientClientProxy(c);
 
-        Class cls = clientFactoryBean.getServiceClass();
-        Object obj = Proxy.newProxyInstance(cls.getClassLoader(), new Class[] {cls}, handler);
+        Object obj = Proxy.newProxyInstance(clientFactoryBean.getServiceClass().getClassLoader(), 
+                                            getImplementingClasses(), 
+                                            handler);
 
         return obj;
+    }
+
+    protected Class[] getImplementingClasses() {
+        Class cls = clientFactoryBean.getServiceClass();
+        return new Class[] {cls};
+    }
+
+    protected ClientProxy clientClientProxy(Client c) {
+        return new ClientProxy(c);
     }
 
     public ClientFactoryBean getClientFactoryBean() {
@@ -119,6 +132,23 @@ public class ClientProxyFactoryBean {
 
     public void setWsdlURL(URL wsdlURL) {
         clientFactoryBean.getServiceFactory().setWsdlURL(wsdlURL);
+    }
+
+    public QName getEndpointName() {
+        return clientFactoryBean.getEndpointName();
+    }
+
+    public void setEndpointName(QName endpointName) {
+        System.out.println("Setting endpoint name " + endpointName);
+        clientFactoryBean.setEndpointName(endpointName);
+    }
+
+    public QName getServiceName() {
+        return getServiceFactory().getServiceQName();
+    }
+
+    public void setServiceName(QName serviceName) {
+        getServiceFactory().setServiceName(serviceName);
     }
 
     public String getAddress() {

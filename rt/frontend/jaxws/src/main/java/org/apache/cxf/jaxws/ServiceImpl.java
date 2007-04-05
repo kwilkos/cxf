@@ -19,8 +19,6 @@
 
 package org.apache.cxf.jaxws;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,17 +31,11 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
-//  TODO JAX-WS 2.1
-//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebServiceException;
-//  TODO JAX-WS 2.1
-//import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
@@ -55,8 +47,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.source.SourceDataBinding;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
@@ -65,6 +55,7 @@ import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.support.DummyImpl;
 import org.apache.cxf.jaxws.support.JaxWsClientEndpointImpl;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
@@ -228,91 +219,61 @@ public class ServiceImpl extends ServiceDelegate {
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
 
-        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
-        serviceFactory.setBus(bus);
-        serviceFactory.setServiceName(serviceName);
-        serviceFactory.setServiceClass(serviceEndpointInterface);
+        JaxWsProxyFactoryBean proxyFac = new JaxWsProxyFactoryBean();
+        JaxWsClientFactoryBean clientFac = (JaxWsClientFactoryBean) proxyFac.getClientFactoryBean();
+        ReflectionServiceFactoryBean serviceFactory = proxyFac.getServiceFactory();
+        
+        proxyFac.setBus(bus);
+        proxyFac.setServiceClass(serviceEndpointInterface);
+        proxyFac.setServiceName(serviceName);
 
         if (wsdlURL != null) {
-            serviceFactory.setWsdlURL(wsdlURL);
+            proxyFac.setWsdlURL(wsdlURL);
         }
 
-        Service service = serviceFactory.create();
-        configureObject(service);
-        service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
-
-        QName pn = portName;
-        ServiceInfo si = service.getServiceInfo();
-
-        EndpointInfo ei = null;
         if (portName == null) {
-            if (1 <= si.getEndpoints().size()) {
-                Iterator it = si.getEndpoints().iterator();
-                if (1 == si.getEndpoints().size()) {
-                    ei = (EndpointInfo) it.next();
-                    pn = new QName(service.getName().getNamespaceURI(), ei.getName().getLocalPart());
-                } else {
-                    WebService webService = (WebService) serviceEndpointInterface
-                        .getAnnotation(WebService.class);
-                    String name = webService.name();
-                    String nameSpace = webService.targetNamespace();
-                    QName portTypeName = new QName(nameSpace, name);
-                    EndpointInfo epi = null;
-                    while (it.hasNext()) {
-                        epi = (EndpointInfo) it.next();
-                        //InterfaceInfo interfaceInfo = epi.getBinding().getInterface();
-                        if (epi.getBinding().getInterface().getName().equals(portTypeName)) {
-                            pn = new QName(service.getName().getNamespaceURI(), epi.getName().getLocalPart());
-                            ei = epi;
-                            break;
-                        }
-                    }
-                }
-            }
-        } else {
-            // first check the endpointInfo from portInfos
-            PortInfoImpl portInfo = portInfos.get(portName);
-            if (null != portInfo) {
-                try {
-                    ei = createEndpointInfo(serviceFactory, portName, portInfo);
-                } catch (BusException e) {
-                    throw new WebServiceException(e);
-                }
-            } else {
-                ei = si.getEndpoint(portName);
-            }
+            clientFac.create();
+            portName = clientFac.getEndpointName();
         }
-        if (null == pn) {
-            throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));
-        }
-
-        JaxWsClientEndpointImpl jaxwsEndpoint;
-        try {
-            jaxwsEndpoint = new JaxWsClientEndpointImpl(bus, service, ei, this);
-        } catch (EndpointException e) {
-            throw new WebServiceException(e);
-        }
-        configureObject(jaxwsEndpoint);        
         
+        serviceFactory.setEndpointName(portName);
+        PortInfoImpl portInfo = portInfos.get(portName);
+        if (portInfo != null) {
+            clientFac.setBindingId(portInfo.getBindingID());
+            clientFac.setAddress(portInfo.getAddress());
+        }
+        configureObject(portName.toString() + ".jaxwsProxyFactory", proxyFac);
+        
+        proxyFac.create();
+        
+        // Configure the Service
+        Service service = serviceFactory.getService();
+        service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
+        service.setExecutor(new Executor() {
+            public void execute(Runnable command) {
+                Executor ex = getExecutor();
+                if (ex != null) {
+                    ex.execute(command);
+                } else {
+                    command.run();
+                }
+            }
+        });
+        configureObject(service);
+        
+        // Configure the JaxWsEndpoitnImpl
+        JaxWsEndpointImpl jaxwsEndpoint = (JaxWsEndpointImpl) clientFac.getClient().getEndpoint();
+        configureObject(jaxwsEndpoint);  
+        
+        QName pn = portName;
         if (jaxwsEndpoint.getEnableSchemaValidation()) {
             jaxwsEndpoint.put(Message.SCHEMA_VALIDATION_ENABLED, jaxwsEndpoint.getEnableSchemaValidation());
         }
 
-        Client client = new ClientImpl(bus, jaxwsEndpoint);
-
-        InvocationHandler ih = new JaxWsClientProxy(client, jaxwsEndpoint.getJaxwsBinding());
-        
-        List<Handler> hc = ((JaxWsClientProxy)ih).getBinding().getHandlerChain();
+        List<Handler> hc = jaxwsEndpoint.getJaxwsBinding().getHandlerChain();
         hc.addAll(handlerResolver.getHandlerChain(portInfos.get(pn)));
 
-        // configuration stuff
-        // createHandlerChainForBinding(serviceEndpointInterface, portName,
-        // endpointHandler.getBinding());
-
-        Object obj = Proxy
-            .newProxyInstance(serviceEndpointInterface.getClassLoader(),
-                              new Class[] {serviceEndpointInterface, BindingProvider.class}, ih);
-
+        Object obj = proxyFac.create();
         LOG.log(Level.FINE, "created proxy", obj);
 
         ports.add(pn);
@@ -354,9 +315,13 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     private void configureObject(Object instance) {
+        configureObject(null, instance);
+    }
+    
+    private void configureObject(String name, Object instance) {
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
-            configurer.configureBean(instance);
+            configurer.configureBean(name, instance);
         }
     }
 

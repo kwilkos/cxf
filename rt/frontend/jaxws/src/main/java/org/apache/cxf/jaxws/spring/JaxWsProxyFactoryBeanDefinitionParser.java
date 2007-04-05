@@ -29,36 +29,39 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.springframework.beans.FatalBeanException;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.util.StringUtils;
 
-public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
-
-    private static final String IMPLEMENTOR = "implementor";
+public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     @Override
-    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder clientBean) {
+        
+        BeanDefinitionBuilder bean = BeanDefinitionBuilder.rootBeanDefinition(JaxWsProxyFactoryBean.class);
+
         NamedNodeMap atts = element.getAttributes();
+        String id = null;
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
             String pre = node.getPrefix();
             String name = node.getLocalName();
-            
-            if (isAttribute(pre, name)) {
+            if (!"id".equals(name) && isAttribute(pre, name)) {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
-                } else if (IMPLEMENTOR.equals(name)) {
-                    loadImplementor(bean, val);
                 } else {
                     mapToProperty(bean, name, val);
                 }
+            } else if ("id".equals(name)) {
+                id = val;
+            } else if ("abstract".equals(name)) {
+                bean.setAbstract(true);
+                clientBean.setAbstract(true);
             }
+            
         }
         
         NodeList children = element.getChildNodes();
@@ -79,33 +82,15 @@ public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionP
             }
         }
         
-        // We don't really want to delay the registration of our Server
-        bean.setLazyInit(false);
+        String factoryId = id + ".jaxwsProxyFactory";
+        ctx.getRegistry().registerBeanDefinition(factoryId, bean.getBeanDefinition());
         
-//        PropertyValue idValue = bean.getBeanDefinition().getPropertyValues().getPropertyValue("id");
-//        if (idValue == null) {
-//            bean.addPropertyReference("id", arg1);
-//        }
-    }
-
-    private void loadImplementor(BeanDefinitionBuilder bean, String val) {
-        if (StringUtils.hasText(val)) {
-            if (val.startsWith("#")) {
-                bean.addPropertyReference(IMPLEMENTOR, val.substring(1));
-            } else {
-                try {
-                    bean.addPropertyValue(IMPLEMENTOR,
-                                          ClassLoaderUtils.loadClass(val, getClass()).newInstance());
-                } catch (Exception e) {
-                    throw new FatalBeanException("Could not load class: " + val, e);
-                }
-            }
-        }
+        clientBean.getBeanDefinition().setAttribute("id", id);
+        clientBean.setFactoryBean(factoryId, "create");
     }
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return EndpointFactoryBean.class;
+        return Object.class;
     }
-
 }

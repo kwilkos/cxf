@@ -18,13 +18,30 @@
  */
 package org.apache.cxf.jaxws;
 
-import org.junit.Ignore;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
+import org.apache.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.SOAPService;
 import org.junit.Test;
 
 public class ServiceImplTest extends AbstractJaxWsTest {
     @Test
-    @Ignore
     public void testServiceImpl() throws Exception {
-        // new ServiceImpl(getBus(), )
+        SOAPService service = new SOAPService();
+        
+        Greeter proxy = service.getSoapPort();
+        
+        Client client = ClientProxy.getClient(proxy);
+        assertEquals("bar", client.getEndpoint().get("foo"));
     }
+
+    @Override
+    protected Bus createBus() throws BusException {
+        SpringBusFactory bf = new SpringBusFactory();
+        return bf.createBus("/org/apache/cxf/jaxws/soapServiceConfig.xml");
+    }
+    
 }

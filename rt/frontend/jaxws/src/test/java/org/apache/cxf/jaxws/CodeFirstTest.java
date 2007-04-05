@@ -153,4 +153,5 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         //List<String> result = proxy.getGreetings();
         //assertEquals(2, result.size());
     }
+
 }

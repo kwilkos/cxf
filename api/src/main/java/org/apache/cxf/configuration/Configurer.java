@@ -29,5 +29,6 @@ public interface Configurer {
     String USER_CFG_FILE_PROPERTY_URL = "cxf.config.file.url";
 
     void configureBean(Object beanInstance);
+    void configureBean(String name, Object beanInstance);
 
 }

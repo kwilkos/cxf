@@ -20,7 +20,10 @@ package org.apache.cxf.jaxws.spring;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import javax.xml.namespace.QName;
+
+import junit.framework.Assert;
+
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
@@ -30,9 +33,12 @@ import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello;
+import org.apache.hello_world_soap_http.Greeter;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SpringBeansTest extends TestCase {
+public class SpringBeansTest extends Assert {
+    @Test
     public void testEndpoints() throws Exception {
         ClassPathXmlApplicationContext ctx = 
             new ClassPathXmlApplicationContext(new String[] {"/org/apache/cxf/jaxws/spring/endpoints.xml"});
@@ -71,6 +77,14 @@ public class SpringBeansTest extends TestCase {
         ep = (EndpointImpl) bean;
         assertTrue(ep.getImplementor() instanceof Hello);
         
+        QName name = ep.getServer().getEndpoint().getService().getName();
+        assertEquals("http://service.jaxws.cxf.apache.org/service", name.getNamespaceURI());
+        assertEquals("HelloServiceCustomized", name.getLocalPart());
+        
+        name = ep.getServer().getEndpoint().getEndpointInfo().getName();
+        assertEquals("http://service.jaxws.cxf.apache.org/endpoint", name.getNamespaceURI());
+        assertEquals("HelloEndpointCustomized", name.getLocalPart());
+        
         bean = ctx.getBean("wsdlLocation");
         assertNotNull(bean);
         
@@ -101,6 +115,7 @@ public class SpringBeansTest extends TestCase {
         }
     }
     
+    @Test
     public void testServers() throws Exception {
         ClassPathXmlApplicationContext ctx = 
             new ClassPathXmlApplicationContext(new String[] {"/org/apache/cxf/jaxws/spring/servers.xml"});
@@ -110,5 +125,19 @@ public class SpringBeansTest extends TestCase {
 
         bean = (JaxWsServerFactoryBean) ctx.getBean("inlineSoapBinding");
         assertNotNull(bean);
+    }
+    
+
+    @Test
+    public void testClients() throws Exception {
+        ClassPathXmlApplicationContext ctx = 
+            new ClassPathXmlApplicationContext(new String[] {"/org/apache/cxf/jaxws/spring/clients.xml"});
+
+        Object bean = ctx.getBean("client1.jaxwsProxyFactory");
+        assertNotNull(bean);
+        
+        Greeter c1 = (Greeter) ctx.getBean("client1");
+        assertNotNull(c1);
+
     }
 }

@@ -18,13 +18,26 @@
  */
 package org.apache.cxf.jaxws;
 
+import javax.xml.ws.BindingProvider;
+
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 
 public class JaxWsProxyFactoryBean extends ClientProxyFactoryBean {
-
     public JaxWsProxyFactoryBean() {
         super();
         setClientFactoryBean(new JaxWsClientFactoryBean());
     }
 
+    @Override
+    protected ClientProxy clientClientProxy(Client c) {
+        return new JaxWsClientProxy(c, ((JaxWsEndpointImpl)  c.getEndpoint()).getJaxwsBinding());
+    }
+
+    protected Class[] getImplementingClasses() {
+        Class cls = getClientFactoryBean().getServiceClass();
+        return new Class[] {cls, BindingProvider.class};
+    }
 }

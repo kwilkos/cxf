@@ -39,18 +39,13 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
       </property>
   </bean>
   
-  <jaxws:endpoint id="simple" implementor="#greeter"/>
-
-  <bean id="greeter" class="org.apache.hello_world_soap_http.GreeterImpl"/>
-
-  <jaxws:endpoint id="simpleWithAddress" 
-    implementor="#greeter" address="http://localhost:8080/simpleWithAddress"/>
-  
-  <jaxws:endpoint id="inlineImplementor" address="http://localhost:8080/simpleWithAddress">
-    <jaxws:implementor>
-      <bean class="org.apache.hello_world_soap_http.GreeterImpl"/>
-    </jaxws:implementor>
-  </jaxws:endpoint>
+  <jaxws:client id="client1" 
+    serviceClass="org.apache.hello_world_soap_http.Greeter"
+    address="http://localhost:9000/foo"
+    serviceName="s:SOAPService"
+    xmlns:s="http://apache.org/hello_world_soap_http"/>
+    
+<!--
   
   <jaxws:endpoint id="epWithProps" 
     implementor="#greeter"
@@ -62,11 +57,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
   
   <jaxws:endpoint id="classImpl" 
     implementor="org.apache.cxf.jaxws.service.Hello"
-    endpointName="e:HelloEndpointCustomized"
-    serviceName="s:HelloServiceCustomized"
-    address="http://localhost:8080/test"
-    xmlns:e="http://service.jaxws.cxf.apache.org/endpoint"
-    xmlns:s="http://service.jaxws.cxf.apache.org/service"/>
+    address="http://localhost:8080/test"/>
     
   <jaxws:endpoint id="wsdlLocation" 
     implementor="#greeter" address="http://localhost:8080/simpleWithAddress"
@@ -85,5 +76,5 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 	  <bean class="org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor"/>
 	</jaxws:outInterceptors>
   </jaxws:endpoint>
-    
+    -->
 </beans>

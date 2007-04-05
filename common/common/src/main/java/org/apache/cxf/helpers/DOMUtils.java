@@ -371,4 +371,25 @@ public final class DOMUtils {
         el.setAttribute("xmlns:" + p, ns);
         return p;
     }
+
+    public static String getNamespace(Element el, String pre) {
+        NamedNodeMap atts = el.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Node node = atts.item(i);
+            String name = node.getLocalName();
+            String pre2 = node.getPrefix();
+            if (pre.equals(name) && "xmlns".equals(pre2)) {
+                return node.getNodeValue();
+            } else if (pre.length() == 0 && "xmlns".equals(name) && pre2.length() == 0) {
+                return node.getNodeValue();
+            }
+        }
+        
+        Node parent = el.getParentNode();
+        if (parent instanceof Element) {
+            return getNamespace((Element) parent, pre);
+        }
+        
+        return null;
+    }
 }

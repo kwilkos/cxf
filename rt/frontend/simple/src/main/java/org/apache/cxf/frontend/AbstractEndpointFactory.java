@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.frontend;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -39,6 +40,7 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.AbstractWSFeature;
@@ -73,7 +75,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         if (endpointName == null) {
             endpointName = serviceFactory.getEndpointName();
         }
-
+        
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
         if (ei != null
             && transportId != null
@@ -83,7 +85,12 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         
         Endpoint ep = null;
         if (ei == null) {
-            ei = createEndpointInfo();
+            if (getAddress() == null) {
+                ei = findBestEndpointInfo(service.getServiceInfo());
+            } 
+            if (ei == null) {
+                ei = createEndpointInfo();
+            }
         } else if (getAddress() != null) {
             ei.setAddress(getAddress()); 
         }                        
@@ -113,6 +120,25 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ep.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
         }
         return ep;
+    }
+
+    protected EndpointInfo findBestEndpointInfo(ServiceInfo serviceInfo) {
+        Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
+        if (eps.size() == 1) {
+            return eps.iterator().next();
+        } else {
+            for (EndpointInfo ep : eps) {
+                if (ep.getTransportId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                    return ep;
+                }
+            }
+        } 
+        
+        if (eps.size() > 0) {
+            return eps.iterator().next();
+        }
+        
+        return null;
     }
 
     protected EndpointInfo createEndpointInfo() throws BusException {
