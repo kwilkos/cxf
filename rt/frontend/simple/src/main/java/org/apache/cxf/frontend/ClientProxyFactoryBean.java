@@ -139,7 +139,6 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     }
 
     public void setEndpointName(QName endpointName) {
-        System.out.println("Setting endpoint name " + endpointName);
         clientFactoryBean.setEndpointName(endpointName);
     }
 

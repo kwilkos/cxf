@@ -87,7 +87,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         if (ei == null) {
             if (getAddress() == null) {
                 ei = findBestEndpointInfo(service.getServiceInfo());
-            } 
+            }
             if (ei == null) {
                 ei = createEndpointInfo();
             }
@@ -298,12 +298,10 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         this.serviceFactory = serviceFactory;
     }
 
-
     public QName getEndpointName() {
         return endpointName;
     }
-
-
+    
     public void setEndpointName(QName endpointName) {
         this.endpointName = endpointName;
     }

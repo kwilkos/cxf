@@ -233,10 +233,11 @@ public class ServiceImpl extends ServiceDelegate {
 
         if (portName == null) {
             clientFac.create();
-            portName = clientFac.getEndpointName();
+            portName = serviceFactory.getEndpointName();
+        } else {
+            serviceFactory.setEndpointName(portName);
         }
         
-        serviceFactory.setEndpointName(portName);
         PortInfoImpl portInfo = portInfos.get(portName);
         if (portInfo != null) {
             clientFac.setBindingId(portInfo.getBindingID());
@@ -244,7 +245,7 @@ public class ServiceImpl extends ServiceDelegate {
         }
         configureObject(portName.toString() + ".jaxwsProxyFactory", proxyFac);
         
-        proxyFac.create();
+        Object obj = proxyFac.create();
         
         // Configure the Service
         Service service = serviceFactory.getService();
@@ -273,7 +274,6 @@ public class ServiceImpl extends ServiceDelegate {
         List<Handler> hc = jaxwsEndpoint.getJaxwsBinding().getHandlerChain();
         hc.addAll(handlerResolver.getHandlerChain(portInfos.get(pn)));
 
-        Object obj = proxyFac.create();
         LOG.log(Level.FINE, "created proxy", obj);
 
         ports.add(pn);
