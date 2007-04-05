@@ -171,10 +171,14 @@ public class URIResolver {
         if (i == -1) {
             tryFileSystem(baseStr, uriStr);
         }
-        baseStr = baseStr.substring(i + 1);
+
+        String jarBase = baseStr.substring(0, i + 1);
+        String jarEntry = baseStr.substring(i + 1);
         try {
-            URI u = new URI(baseStr).resolve(uriStr);
-            tryClasspath(u.toString());
+            URI u = new URI(jarEntry).resolve(uriStr);
+
+            tryJar(jarBase + u.toString());
+
             if (is != null) {
                 if (u.isAbsolute()) {
                     url = u.toURL();
@@ -195,14 +199,14 @@ public class URIResolver {
         }
 
         url = new URL(uriStr);
-        is = url.openStream();
-        if (is != null) {
+        try {
+            is = url.openStream();
             try {
                 uri = url.toURI();
             } catch (URISyntaxException ex) {
                 // ignore
             }
-        } else {
+        } catch (IOException e) {
             uriStr = uriStr.substring(i + 1);
             tryClasspath(uriStr);
         }
