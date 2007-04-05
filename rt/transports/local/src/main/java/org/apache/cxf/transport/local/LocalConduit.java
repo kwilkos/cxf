@@ -50,12 +50,19 @@ public class LocalConduit extends AbstractConduit {
         this.destination = destination;
     }
     
-    public void send(final Message message) throws IOException {
-        if (Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
-            dispatchDirect(message);
-        } else {
+    public void prepare(final Message message) throws IOException {
+        if (!Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
             dispatchViaPipe(message);
         }
+    }
+
+    @Override
+    public void close(Message message) throws IOException {
+        if (Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
+            dispatchDirect(message);
+        } 
+        
+        super.close(message);
     }
 
     private void dispatchDirect(Message message) {

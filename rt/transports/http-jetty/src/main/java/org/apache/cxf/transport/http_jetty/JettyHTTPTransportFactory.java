@@ -19,6 +19,8 @@
 package org.apache.cxf.transport.http_jetty;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -28,12 +30,13 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 import org.apache.cxf.transport.https_jetty.JettySslConnectorFactory;
-
 import org.mortbay.jetty.AbstractConnector;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 
 
 public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
+    Map<String, JettyHTTPDestination> destinations = new HashMap<String, JettyHTTPDestination>();
+    
     public JettyHTTPTransportFactory() {
         super();
         
@@ -46,12 +49,29 @@ public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
 
     @Override
     public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
-        JettyHTTPDestination destination = new JettyHTTPDestination(getBus(), this, endpointInfo);
-        configure(destination);
-        destination.retrieveEngine();        
+        String addr = endpointInfo.getAddress();
+        JettyHTTPDestination destination = destinations.get(addr);
+        if (destination == null) {
+            destination = createDestination(endpointInfo);
+        }
+           
         return destination;
     }
     
+    private synchronized JettyHTTPDestination createDestination(EndpointInfo endpointInfo) 
+        throws IOException {
+        JettyHTTPDestination destination = destinations.get(endpointInfo.getAddress());
+        if (destination == null) {
+            destination = new JettyHTTPDestination(getBus(), this, endpointInfo);
+            
+            destinations.put(endpointInfo.getAddress(), destination);
+            
+            configure(destination);
+            destination.retrieveEngine(); 
+        }
+        return destination;
+    }
+
     protected static JettyConnectorFactory getConnectorFactory(SSLServerPolicy policy) {
         return policy == null
                ? new JettyConnectorFactory() {                     

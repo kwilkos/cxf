@@ -32,6 +32,8 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class ObjectBindingFactory extends AbstractBindingFactory {
     public static final String BINDING_ID = "http://cxf.apache.org/binding/object";
+    public static final String STOP_AFTER_LOGICAL  = "objectBinding.stopAfterLogical";
+    
     private Collection<String> activationNamespaces;    
 
     public Collection<String> getActivationNamespaces() {
@@ -53,6 +55,12 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
 
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object config) {
         BindingInfo info = super.createBindingInfo(si, bindingid, config);
+        
+        if (config instanceof ObjectBindingConfigBean) {
+            ObjectBindingConfigBean c = (ObjectBindingConfigBean) config;
+            
+            info.setProperty(STOP_AFTER_LOGICAL, c.isStopAfterLogicalPhases());
+        }
         
         info.setName(new QName(si.getName().getNamespaceURI(), 
                                si.getName().getLocalPart() + "ObjectBinding"));

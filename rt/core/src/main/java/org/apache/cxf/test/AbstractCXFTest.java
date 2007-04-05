@@ -112,7 +112,7 @@ public class AbstractCXFTest extends Assert {
         conduit.setMessageObserver(obs);
         
         Message m = new MessageImpl();
-        conduit.send(m);
+        conduit.prepare(m);
 
         OutputStream os = m.getContent(OutputStream.class);
         InputStream is = getResourceAsStream(message);

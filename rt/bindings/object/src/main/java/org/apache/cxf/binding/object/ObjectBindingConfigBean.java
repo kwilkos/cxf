@@ -18,6 +18,26 @@
  */
 package org.apache.cxf.binding.object;
 
-public class ObjectBindingConfigBean {
+import java.util.Set;
 
+public class ObjectBindingConfigBean {
+    private boolean stopAfterLogicalPhases = true;
+    private Set<String> skipPhases;
+
+    public Set<String> getSkipPhases() {
+        return skipPhases;
+    }
+
+    public void setSkipPhases(Set<String> skipPhases) {
+        this.skipPhases = skipPhases;
+    }
+
+    public boolean isStopAfterLogicalPhases() {
+        return stopAfterLogicalPhases;
+    }
+
+    public void setStopAfterLogicalPhases(boolean stopAfterLogicalPhases) {
+        this.stopAfterLogicalPhases = stopAfterLogicalPhases;
+    }
+    
 }

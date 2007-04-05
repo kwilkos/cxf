@@ -109,7 +109,7 @@ public class HTTPConduitTest extends Assert {
     public void testSend() throws Exception {
         HTTPConduit conduit = setUpConduit(true, false, false);
         Message message = new MessageImpl();
-        conduit.send(message);
+        conduit.prepare(message);
         verifySentMessage(conduit, message);
     }
     
@@ -118,7 +118,7 @@ public class HTTPConduitTest extends Assert {
         HTTPConduit conduit = setUpConduit(true, false, false);
         Message message = new MessageImpl();
         setUpHeaders(message);
-        conduit.send(message);
+        conduit.prepare(message);
         verifySentMessage(conduit, message, true);
     }
     
@@ -126,7 +126,7 @@ public class HTTPConduitTest extends Assert {
     public void testSendHttpConnection() throws Exception {
         HTTPConduit conduit = setUpConduit(true, true, false);
         Message message = new MessageImpl();
-        conduit.send(message);
+        conduit.prepare(message);
         verifySentMessage(conduit, message);
     }
 
@@ -134,7 +134,7 @@ public class HTTPConduitTest extends Assert {
     public void testSendHttpConnectionAutoRedirect() throws Exception {
         HTTPConduit conduit = setUpConduit(true, true, true);
         Message message = new MessageImpl();
-        conduit.send(message);
+        conduit.prepare(message);
         verifySentMessage(conduit, message);
     }
     
@@ -142,7 +142,7 @@ public class HTTPConduitTest extends Assert {
     public void testSendDecoupled() throws Exception {
         HTTPConduit conduit = setUpConduit(true, false, false, true);
         Message message = new MessageImpl();
-        conduit.send(message);
+        conduit.prepare(message);
         verifySentMessage(conduit, message, false, true);
     }
     

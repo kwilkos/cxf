@@ -47,11 +47,12 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 public interface Conduit extends Observable {
     
     /**
-     * Send an outbound message.
+     * Prepare the message for sending. This will typically involve setting
+     * an OutputStream on the message, but it may do nothing at all.
      * 
      * @param message the message to be sent.
      */
-    void send(Message message) throws IOException;
+    void prepare(Message message) throws IOException;
     
     /**
      * Close the connections associated with the message

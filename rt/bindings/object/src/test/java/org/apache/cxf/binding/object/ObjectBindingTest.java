@@ -84,8 +84,9 @@ public class ObjectBindingTest extends AbstractCXFTest {
                 response = message;
             }
         });
-        c.send(m);
-
+        c.prepare(m);
+        c.close(m);
+        
         Thread.sleep(1000);
         assertNotNull(response);
 
@@ -119,8 +120,8 @@ public class ObjectBindingTest extends AbstractCXFTest {
                 inMsg.getExchange().setInMessage(outMsg);
                 try {
                     Conduit backChannel = d.getBackChannel(inMsg, null, null);
-                    backChannel.send(outMsg);
-                    backChannel.close();
+                    backChannel.prepare(outMsg);
+                    backChannel.close(outMsg);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

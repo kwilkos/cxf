@@ -94,7 +94,7 @@ public abstract class AbstractJMSTester extends Assert {
         message.setExchange(exchange);
         exchange.setInMessage(message);
         try {
-            conduit.send(message);
+            conduit.prepare(message);
         } catch (IOException ex) {
             assertFalse("JMSConduit can't perpare to send out message", false);
             ex.printStackTrace();            

@@ -363,7 +363,7 @@ public class JMSDestination extends AbstractDestination implements Configurable,
          * 
          * @param message the message to be sent.
          */
-        public void send(Message message) throws IOException {
+        public void prepare(Message message) throws IOException {
             // setup the message to be send back
             message.put(JMSConstants.JMS_REQUEST_MESSAGE, 
                         inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE));

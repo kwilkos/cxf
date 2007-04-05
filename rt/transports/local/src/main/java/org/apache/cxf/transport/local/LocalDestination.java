@@ -73,7 +73,7 @@ public class LocalDestination extends AbstractDestination {
             this.conduit = conduit;
         }
 
-        public void send(final Message message) throws IOException {
+        public void prepare(final Message message) throws IOException {
             final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
             
             if (Boolean.TRUE.equals(message.get(LocalConduit.DIRECT_DISPATCH))) {

@@ -151,11 +151,11 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
     }
    
     /**
-     * Send an outbound message.
+     * Prepare the outbound message for sending.
      * 
      * @param message the message to be sent.
      */
-    public void send(Message message) throws IOException {
+    public void prepare(Message message) throws IOException {
         Map<String, List<String>> headers = setHeaders(message);
         URL currentURL = setupURL(message);        
         URLConnection connection = 

@@ -119,7 +119,7 @@ public class JBIDestination extends AbstractDestination {
          * 
          * @param message the message to be sent.
          */
-        public void send(Message message) throws IOException {
+        public void prepare(Message message) throws IOException {
             // setup the message to be send back
             message.put(JBIConstants.MESSAGE_EXCHANGE_PROPERTY, 
                 inMessage.get(JBIConstants.MESSAGE_EXCHANGE_PROPERTY));

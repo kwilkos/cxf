@@ -57,10 +57,7 @@ lengths, if/try depths, etc...
 
 
         <!-- Checks for Naming Conventions.                  -->
-        <!-- See http://checkstyle.sf.net/config_naming.html -->
-        <module name="AbstractClassName">
-        	<property name="format" value="^Abstract.*$|^.*Factory$|^.*Bus$|^.*ConfigurationRepository$|^.*Base$|^Exception$|^.*Builder$"/>
-        </module>        
+        <!-- See http://checkstyle.sf.net/config_naming.html -->      
         <module name="ConstantName"/>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>

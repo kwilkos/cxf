@@ -78,7 +78,7 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
     } 
     
     // prepare the message for send out , not actually send out the message
-    public void send(Message message) throws IOException {        
+    public void prepare(Message message) throws IOException {        
         getLogger().log(Level.FINE, "JMSConduit send message");
 
         try {

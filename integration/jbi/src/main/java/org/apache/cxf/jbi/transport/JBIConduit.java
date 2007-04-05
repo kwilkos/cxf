@@ -49,7 +49,7 @@ public class JBIConduit extends AbstractConduit {
         return LOG;
     }
     
-    public void send(Message message) throws IOException {
+    public void prepare(Message message) throws IOException {
         getLogger().log(Level.FINE, "JBIConduit send message");
                 
         message.setContent(OutputStream.class,

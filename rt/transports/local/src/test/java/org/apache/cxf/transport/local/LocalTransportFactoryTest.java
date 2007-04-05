@@ -55,7 +55,7 @@ public class LocalTransportFactoryTest extends TestCase {
         conduit.setMessageObserver(obs);
         
         Message m = new MessageImpl();
-        conduit.send(m);
+        conduit.prepare(m);
 
         OutputStream out = m.getContent(OutputStream.class);
         out.write("hello".getBytes());
@@ -86,10 +86,10 @@ public class LocalTransportFactoryTest extends TestCase {
         m.put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
         m.setDestination(d);
         m.setContent(InputStream.class, new ByteArrayInputStream("hello".getBytes()));
-        conduit.send(m);
+        conduit.prepare(m);
+        conduit.close(m);
 
         assertEquals("hello", obs.getResponseStream().toString());
-
     }
     static class EchoObserver implements MessageObserver {
 
@@ -98,7 +98,7 @@ public class LocalTransportFactoryTest extends TestCase {
                 Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
                 message.remove(LocalConduit.DIRECT_DISPATCH);
                 
-                backChannel.send(message);
+                backChannel.prepare(message);
 
                 OutputStream out = message.getContent(OutputStream.class);
                 assertNotNull(out);

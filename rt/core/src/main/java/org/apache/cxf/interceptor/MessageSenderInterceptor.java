@@ -53,7 +53,7 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
                 : null;
 
         try {
-            conduit.send(message);
+            conduit.prepare(message);
 
             if (message.getInterceptorChain().doIntercept(message)) {
                 conduit.close(message);

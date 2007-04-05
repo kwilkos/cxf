@@ -45,7 +45,7 @@ public class MessageReplayObserver implements MessageObserver {
             
             Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
 
-            backChannel.send(message);
+            backChannel.prepare(message);
 
             OutputStream out = message.getContent(OutputStream.class);
             Assert.assertNotNull(out);
@@ -55,6 +55,7 @@ public class MessageReplayObserver implements MessageObserver {
             res.close();
             in.close();
             out.close();
+            backChannel.close(message);
         } catch (Exception e) {
             e.printStackTrace();
         }

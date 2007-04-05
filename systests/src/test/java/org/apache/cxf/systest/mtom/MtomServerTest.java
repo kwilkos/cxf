@@ -73,7 +73,7 @@ public class MtomServerTest extends AbstractCXFTest {
                     + "boundary=\"----=_Part_4_701508.1145579811786\"";
 
         m.put(Message.CONTENT_TYPE, ct);
-        conduit.send(m);
+        conduit.prepare(m);
 
         OutputStream os = m.getContent(OutputStream.class);
         InputStream is = getResourceAsStream("request");

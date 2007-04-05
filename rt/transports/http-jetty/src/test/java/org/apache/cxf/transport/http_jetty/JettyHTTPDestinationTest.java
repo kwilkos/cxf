@@ -21,6 +21,7 @@ package org.apache.cxf.transport.http_jetty;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.security.transport.TLSSessionInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.WSDLQueryHandler;
 import org.apache.cxf.transports.http.QueryHandler;
@@ -76,7 +77,6 @@ public class JettyHTTPDestinationTest extends Assert {
     private static final String DIGEST_CHALLENGE = "Digest realm=luna";
     private static final String CUSTOM_CHALLENGE = "Custom realm=sol";
     private Bus bus;
-    private ConduitInitiator conduitInitiator;
     private Conduit decoupledBackChannel;
     private EndpointInfo endpointInfo;
     private EndpointReferenceType address;
@@ -93,13 +93,14 @@ public class JettyHTTPDestinationTest extends Assert {
     private ServletOutputStream os;
     private WSDLQueryHandler wsdlQueryHandler;
     private QueryHandlerRegistry  queryHandlerRegistry;
-    private List<QueryHandler> queryHandlerList; 
+    private List<QueryHandler> queryHandlerList;
+    private JettyHTTPTransportFactory transportFactory; 
 
     @After
     public void tearDown() {
        
         bus = null;
-        conduitInitiator = null;
+        transportFactory = null;
         decoupledBackChannel = null;
         address = null;
         replyTo = null;
@@ -122,6 +123,25 @@ public class JettyHTTPDestinationTest extends Assert {
                      EndpointReferenceUtils.getAddress(ref),
                      StringUtils.addDefaultPortIfMissing(EndpointReferenceUtils.getAddress(address)));
     }
+    
+    @Test
+    public void testGetMultiple() throws Exception {
+        transportFactory = new JettyHTTPTransportFactory();
+        transportFactory.setBus(new CXFBusImpl());
+        
+        EndpointInfo ei = new EndpointInfo();
+        ei.setAddress("http://foo");
+        Destination d1 = transportFactory.getDestination(ei);
+        
+        Destination d2 = transportFactory.getDestination(ei);
+        assertEquals(d1, d2);
+        
+        d2.shutdown();
+        
+        Destination d3 = transportFactory.getDestination(ei);
+        assertNotSame(d1, d3);
+    }
+    
     
     @Test
     public void testRemoveServant() throws Exception {
@@ -211,7 +231,7 @@ public class JettyHTTPDestinationTest extends Assert {
         Conduit backChannel =
             destination.getBackChannel(inMessage, null, null);
         outMessage = setUpOutMessage();
-        backChannel.send(outMessage);
+        backChannel.prepare(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 200);
     }
 
@@ -224,7 +244,7 @@ public class JettyHTTPDestinationTest extends Assert {
         Conduit backChannel =
             destination.getBackChannel(inMessage, null, null);
         outMessage = setUpOutMessage();
-        backChannel.send(outMessage);
+        backChannel.prepare(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 500);
     }
     
@@ -237,7 +257,7 @@ public class JettyHTTPDestinationTest extends Assert {
         Conduit backChannel =
             destination.getBackChannel(inMessage, null, null);
         outMessage = setUpOutMessage();
-        backChannel.send(outMessage);
+        backChannel.prepare(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 500, true);
     }
 
@@ -255,7 +275,7 @@ public class JettyHTTPDestinationTest extends Assert {
         assertEquals("unexpected response code",
                      202,
                      partialResponse.get(Message.RESPONSE_CODE));
-        partialBackChannel.send(partialResponse);
+        partialBackChannel.prepare(partialResponse);
         verifyBackChannelSend(partialBackChannel, partialResponse, 202);
 
         outMessage = setUpOutMessage();
@@ -264,7 +284,7 @@ public class JettyHTTPDestinationTest extends Assert {
         assertSame("unexpected back channel",
                    fullBackChannel,
                    decoupledBackChannel);
-        fullBackChannel.send(outMessage);
+        fullBackChannel.prepare(outMessage);
     }
     
     @Test
@@ -274,7 +294,7 @@ public class JettyHTTPDestinationTest extends Assert {
         address = getEPR("bar/foo");
         bus = new CXFBusImpl();
         
-        conduitInitiator = EasyMock.createMock(ConduitInitiator.class);
+        transportFactory = new JettyHTTPTransportFactory();
         endpointInfo = new EndpointInfo();
         endpointInfo.addExtensor(policy); 
         endpointInfo.addExtensor(new SSLServerPolicy()); 
@@ -284,7 +304,7 @@ public class JettyHTTPDestinationTest extends Assert {
         endpointInfo.setAddress(NOWHERE + "bar/foo");
         
         JettyHTTPDestination dest = new JettyHTTPDestination(bus,
-                                                             conduitInitiator,
+                                                             transportFactory,
                                                              endpointInfo,
                                                              engine);
         assertEquals(policy, dest.getServer());
@@ -308,7 +328,15 @@ public class JettyHTTPDestinationTest extends Assert {
             EasyMock.replay(bus);
         }
         
-        conduitInitiator = EasyMock.createMock(ConduitInitiator.class);
+        transportFactory = new JettyHTTPTransportFactory() {
+            @Override
+            public Conduit getConduit(EndpointInfo epi,
+                                      EndpointReferenceType target) throws IOException {
+                return decoupledBackChannel;
+            }
+        };
+        transportFactory.setBus(bus);
+        
         engine = EasyMock.createMock(ServerEngine.class);
         endpointInfo = new EndpointInfo();
         endpointInfo.setAddress(NOWHERE + "bar/foo");
@@ -322,7 +350,7 @@ public class JettyHTTPDestinationTest extends Assert {
         EasyMock.replay(engine);
         
         JettyHTTPDestination dest = new JettyHTTPDestination(bus,
-                                                             conduitInitiator,
+                                                             transportFactory,
                                                              endpointInfo,
                                                              engine);
         dest.retrieveEngine();
@@ -457,13 +485,9 @@ public class JettyHTTPDestinationTest extends Assert {
         
         if (decoupled) {
             decoupledBackChannel = EasyMock.createMock(Conduit.class);
-            conduitInitiator.getConduit(EasyMock.isA(EndpointInfo.class),
-                                        EasyMock.eq(replyTo));
-            EasyMock.expectLastCall().andReturn(decoupledBackChannel);
             decoupledBackChannel.setMessageObserver(EasyMock.isA(MessageObserver.class));           
-            decoupledBackChannel.send(EasyMock.isA(Message.class));
+            decoupledBackChannel.prepare(EasyMock.isA(Message.class));
             EasyMock.expectLastCall();
-            EasyMock.replay(conduitInitiator);
             EasyMock.replay(decoupledBackChannel);
         }
         EasyMock.replay(response);

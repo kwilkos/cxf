@@ -77,7 +77,7 @@ public class JMSConduitTest extends AbstractJMSTester {
         JMSConduit conduit = setupJMSConduit(false, false);
         Message message = new MessageImpl();
         try {
-            conduit.send(message);
+            conduit.prepare(message);
         } catch (Exception ex) {
             ex.printStackTrace();            
         }

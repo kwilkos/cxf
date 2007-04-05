@@ -342,7 +342,7 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
          * 
          * @param message the message to be sent.
          */
-        public void send(Message message) throws IOException {
+        public void prepare(Message message) throws IOException {
             message.put(HTTP_RESPONSE, response);
             message.setContent(OutputStream.class, new WrappedOutputStream(message, response));
         }

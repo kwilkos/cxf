@@ -47,7 +47,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
 
     protected ServerEngine engine;
     protected ServerEngine alternateEngine;
-
+    protected JettyHTTPTransportFactory transportFactory;
+    
     /**
      * Constructor, using Jetty server engine.
      * 
@@ -56,8 +57,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param endpointInfo the endpoint info of the destination
      * @throws IOException
      */
-    public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo) throws IOException {
+    public JettyHTTPDestination(Bus b, JettyHTTPTransportFactory ci, 
+                                EndpointInfo endpointInfo) throws IOException {
         this(b, ci, endpointInfo, null);
+        this.transportFactory = ci;
     }
 
     /**
@@ -69,11 +72,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param eng the server engine
      * @throws IOException
      */
-    public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
+    public JettyHTTPDestination(Bus b, JettyHTTPTransportFactory ci, 
+                                EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
         //Add the defualt port if the address is missing it
         super(b, ci, endpointInfo, true);
         alternateEngine = eng;
+        this.transportFactory = ci;
     }
 
     protected Logger getLogger() {
@@ -188,6 +193,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
+    }
+
+    @Override
+    public void shutdown() {
+        transportFactory.destinations.remove(endpointInfo.getAddress());
+        
+        super.shutdown();
     }
    
 }

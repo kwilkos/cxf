@@ -27,7 +27,7 @@ public class ObjectBinding extends AbstractBasicInterceptorProvider implements B
 
     public static final String OPERATION = "objectBinding.operationName";
     public static final String BINDING = "objectBinding.bindingName";
-    
+
     public Message createMessage() {
         return new MessageImpl();
     }
@@ -35,4 +35,5 @@ public class ObjectBinding extends AbstractBasicInterceptorProvider implements B
     public Message createMessage(Message m) {
         return m;
     }
+
 }

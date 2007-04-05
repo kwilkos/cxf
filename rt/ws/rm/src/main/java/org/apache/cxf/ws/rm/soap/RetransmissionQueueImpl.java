@@ -288,7 +288,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                 callbacks = ((AbstractCachedOutputStream)os).getCallbacks();
             }
 
-            c.send(message);
+            c.prepare(message);
 
             os = message.getContent(OutputStream.class);
             if (os instanceof AbstractCachedOutputStream && callbacks.size() > 1) {
