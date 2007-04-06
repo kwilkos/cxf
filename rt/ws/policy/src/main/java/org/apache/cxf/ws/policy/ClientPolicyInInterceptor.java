@@ -68,7 +68,7 @@ public class ClientPolicyInInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Conduit conduit = msg.getConduit();
+        Conduit conduit = exchange.getConduit();
         
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with any resposes or faults returned to this client endpoint.
@@ -87,6 +87,8 @@ public class ClientPolicyInInterceptor extends AbstractPolicyInterceptor {
         if (null != assertions) {
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }
+        
+        // if the conduit implements the Assertor interface, 
         
     }
 }

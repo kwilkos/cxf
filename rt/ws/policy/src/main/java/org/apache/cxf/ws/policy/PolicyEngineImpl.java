@@ -56,7 +56,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     private Bus bus;
     private PolicyRegistry registry;
     private Collection<PolicyProvider> policyProviders;
-    private boolean registerInterceptors;
+    private boolean enabled;
 
     private Map<BindingOperation, EffectivePolicy> clientRequestInfo;
     
@@ -77,6 +77,10 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     }
     
     // configuration
+    
+    public boolean isEnabled() {
+        return enabled;
+    }
     
     public void setBus(Bus b) {
         bus = b;
@@ -101,13 +105,9 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     public PolicyRegistry getRegistry() {
         return registry;
     }
-      
-    public boolean getRegisterInterceptors() {
-        return registerInterceptors;
-    }
 
-    public void setRegisterInterceptors(boolean ri) {
-        registerInterceptors = ri;
+    public void setEnabled(boolean e) {
+        enabled = e;
     }
     
     // BusExtension interface
@@ -128,7 +128,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             if (c instanceof Assertor) {
                 assertor = (Assertor)c;
             }
-            epi.initialise(ei, boi, this, assertor, true);
+            epi.initialise(ei, bo.getBindingOperation(), this, assertor, true);
             clientRequestInfo.put(bo, epi);
             effectivePolicy = epi;
         }
@@ -151,7 +151,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             if (d instanceof Assertor) {
                 assertor = (Assertor)d;
             }
-            epi.initialise(ei, boi, this, assertor, false);
+            epi.initialise(ei, bo.getBindingOperation(), this, assertor, false);
             serverResponseInfo.put(bo, epi);
             effectivePolicy = epi;
         }
@@ -213,7 +213,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         EffectivePolicy effectivePolicy = serverRequestInfo.get(bo);
         if (null == effectivePolicy) {
             EffectivePolicyImpl epi = createOutPolicyInfo();
-            epi.initialisePolicy(ei, boi, this, false);
+            epi.initialisePolicy(ei, bo.getBindingOperation(), this, false);
             serverRequestInfo.put(bo, epi);
             effectivePolicy = epi;
         }
@@ -231,7 +231,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         EffectivePolicy effectivePolicy = clientResponseInfo.get(bo);
         if (null == effectivePolicy) {
             EffectivePolicyImpl epi = createOutPolicyInfo();
-            epi.initialisePolicy(ei, boi, this, true);            
+            epi.initialisePolicy(ei, bo.getBindingOperation(), this, true);            
             clientResponseInfo.put(bo, epi);
             effectivePolicy = epi;
         }
@@ -293,7 +293,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     
     @PostConstruct
     public void addBusInterceptors() {
-        if (null == bus || !registerInterceptors) {
+        if (null == bus || !enabled) {
             return;
         }
 
@@ -454,10 +454,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             vocabulary.add(a.getName());
         }
         return vocabulary;
-    }
-      
-   
-    
+    } 
     
     EndpointPolicyImpl createEndpointPolicyInfo(EndpointInfo ei, boolean isRequestor, Assertor assertor) {
         EndpointPolicyImpl epi = createEndpointPolicyInfo();
@@ -465,11 +462,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         endpointInfo.put(ei, epi);
 
         return epi;
-    }
-    
-    
-    
-    
+    }  
 
     /**
      * Check if a given list of assertions can potentially be supported by
@@ -485,7 +478,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         for (Assertion a : alternative) {
             if (!(a.isOptional() 
                 || (null != pipr.get(a.getName())) 
-                || (null != assertor && assertor.asserts(a)))) {
+                || (null != assertor && assertor.canAssert(a.getName())))) {
                 return false;
             }
         }
@@ -497,12 +490,20 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
      * Class used as key in the client request policy and server response policy maps.
      */
     class BindingOperation {
-        EndpointInfo ei;
-        BindingOperationInfo boi;
+        private EndpointInfo ei;
+        private BindingOperationInfo boi;
         
         BindingOperation(EndpointInfo e, BindingOperationInfo b) {
             ei = e;
-            boi = b;
+            boi = b.isUnwrapped() ? b.getWrappedOperation() : b;
+        }
+        
+        EndpointInfo getEndpoint() {
+            return ei;
+        }
+        
+        BindingOperationInfo getBindingOperation() {
+            return boi;
         }
 
         @Override
@@ -528,12 +529,20 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
      * Class used as key in the server fault policy map.
      */
     class BindingFault {
-        EndpointInfo ei;
-        BindingFaultInfo bfi;
+        private EndpointInfo ei;
+        private BindingFaultInfo bfi;
         
         BindingFault(EndpointInfo e, BindingFaultInfo b) {
             ei = e;
             bfi = b;
+        }
+        
+        EndpointInfo getEndpoint() {
+            return ei;
+        }
+        
+        BindingFaultInfo getBindingFault() {
+            return bfi;
         }
         
         @Override

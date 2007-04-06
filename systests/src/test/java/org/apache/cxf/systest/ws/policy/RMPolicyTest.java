@@ -26,9 +26,9 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
-import org.apache.cxf.greeter_control.ReliableGreeterService;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
@@ -44,12 +44,12 @@ import org.junit.Test;
 
 
 /**
- * Tests the use of the WS-Policy Framework to automatically engage WS-Addressing and
- * WS-RM in response to Policies defined for the endpoint via an external policy attachment.
+ * Tests the use of the WS-Policy Framework to automatically engage WS-RM
+ * in response to Policies defined for the endpoint via an external policy attachment.
  */
-public class RMWsdlPolicyClientServerTest extends AbstractBusClientServerTestBase {
+public class RMPolicyTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(RMWsdlPolicyClientServerTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMPolicyTest.class.getName());
     private static final String GREETMEONEWAY_ACTION = null;
     private static final String GREETME_ACTION = null;
     private static final String GREETME_RESPONSE_ACTION = null;
@@ -60,7 +60,7 @@ public class RMWsdlPolicyClientServerTest extends AbstractBusClientServerTestBas
     
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
-            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
+            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/rm.xml");
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             bus.getInInterceptors().add(in);
@@ -68,7 +68,7 @@ public class RMWsdlPolicyClientServerTest extends AbstractBusClientServerTestBas
             bus.getOutInterceptors().add(out);
             bus.getOutFaultInterceptors().add(out);
             
-            ReliableGreeterImpl implementor = new ReliableGreeterImpl();
+            GreeterImpl implementor = new GreeterImpl();
             String address = "http://localhost:9020/SoapContext/GreeterPort";
             Endpoint.publish(address, implementor);
             LOG.info("Published greeter endpoint.");
@@ -96,14 +96,14 @@ public class RMWsdlPolicyClientServerTest extends AbstractBusClientServerTestBas
     @Test
     public void testUsingRM() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
-        bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
+        bus = bf.createBus("org/apache/cxf/systest/ws/policy/rm.xml");
         BusFactory.setDefaultBus(bus);
         OutMessageRecorder outRecorder = new OutMessageRecorder();
         bus.getOutInterceptors().add(outRecorder);
         InMessageRecorder inRecorder = new InMessageRecorder();
         bus.getInInterceptors().add(inRecorder);
         
-        ReliableGreeterService gs = new ReliableGreeterService();
+        BasicGreeterService gs = new BasicGreeterService();
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 

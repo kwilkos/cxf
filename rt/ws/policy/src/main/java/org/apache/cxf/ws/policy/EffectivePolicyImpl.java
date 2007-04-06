@@ -24,11 +24,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -45,7 +48,8 @@ import org.apache.neethi.Policy;
  */
 public class EffectivePolicyImpl implements EffectivePolicy {
     
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EffectivePolicyImpl.class);    
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EffectivePolicyImpl.class); 
+    private static final Logger LOG = LogUtils.getL7dLogger(EffectivePolicyImpl.class);
     
     protected Policy policy;     
     protected Collection<Assertion> chosenAlternative;
@@ -124,6 +128,7 @@ public class EffectivePolicyImpl implements EffectivePolicy {
                 return;
             }
         }
+        PolicyUtils.logPolicy(LOG, Level.FINE, "No alternative supported.", getPolicy());
         throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
 
     }

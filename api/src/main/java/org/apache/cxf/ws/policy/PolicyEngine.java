@@ -31,6 +31,8 @@ import org.apache.neethi.PolicyRegistry;
  */
 public interface PolicyEngine {
 
+    boolean isEnabled();
+    
     // available throughout the outbound path
     
     EffectivePolicy getEffectiveClientRequestPolicy(EndpointInfo ei, BindingOperationInfo boi, Conduit c);

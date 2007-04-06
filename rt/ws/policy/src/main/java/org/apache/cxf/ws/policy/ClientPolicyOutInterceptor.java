@@ -75,12 +75,12 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Conduit conduit = msg.getConduit();
+        Conduit conduit = exchange.getConduit();
         
         // add the required interceptors
         
         EffectivePolicy effectivePolicy = pe.getEffectiveClientRequestPolicy(ei, boi, conduit);
-        PolicyUtils.logPolicy(LOG, Level.FINEST, "Using effective policy: ", effectivePolicy.getPolicy());
+        PolicyUtils.logPolicy(LOG, Level.FINE, "Using effective policy: ", effectivePolicy.getPolicy());
         
         List<Interceptor> interceptors = effectivePolicy.getInterceptors();
         for (Interceptor i : interceptors) {            
@@ -92,6 +92,14 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         
         Collection<Assertion> assertions = effectivePolicy.getChosenAlternative();
         if (null != assertions) {
+            StringBuffer buf = new StringBuffer();
+            buf.append("Chosen alternative: ");
+            String nl = System.getProperty("line.separator");
+            buf.append(nl);
+            for (Assertion a : assertions) {
+                PolicyUtils.printPolicyComponent(a, buf, 1);
+            }
+            LOG.fine(buf.toString());
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }
     }

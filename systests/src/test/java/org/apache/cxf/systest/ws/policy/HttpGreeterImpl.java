@@ -17,19 +17,33 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.systest.ws.policy;
 
-import javax.xml.namespace.QName;
+import javax.jws.WebService;
 
-import org.apache.cxf.message.Message;
+import org.apache.cxf.greeter_control.AbstractGreeterImpl;
 
 /**
- * API used in the WS-Policy framework to allow a message exchange participant to
- * assert its capabilities for the underlying message.
+ * 
  */
-public interface Assertor {
+
+@WebService(serviceName = "BasicGreeterService",
+            portName = "GreeterPort",
+            endpointInterface = "org.apache.cxf.greeter_control.Greeter",
+            targetNamespace = "http://cxf.apache.org/greeter_control")
+public class HttpGreeterImpl extends AbstractGreeterImpl {
+
+    private int greetMeCount;
     
-    void assertMessage(Message message);
+    @Override
+    public String greetMe(String arg0) {
+        if (0 == greetMeCount % 2) {
+            setDelay(0);
+        } else {
+            setDelay(2000);
+        }   
+        greetMeCount++;
+        return super.greetMe(arg0);
+    }
     
-    boolean canAssert(QName type);
 }

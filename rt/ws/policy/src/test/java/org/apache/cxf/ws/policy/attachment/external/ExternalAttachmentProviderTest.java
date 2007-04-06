@@ -253,7 +253,7 @@ public class ExternalAttachmentProviderTest extends Assert {
         } else if (subject instanceof BindingFaultInfo) {
             EasyMock.expect(attachment.appliesTo((BindingFaultInfo)subject)).andReturn(applies);
         } else {
-            System.out.println("subject class: " + subject.getClass());
+            System.err.println("subject class: " + subject.getClass());
         }
         if (applies) {
             EasyMock.expect(attachment.getPolicy()).andReturn(policy);

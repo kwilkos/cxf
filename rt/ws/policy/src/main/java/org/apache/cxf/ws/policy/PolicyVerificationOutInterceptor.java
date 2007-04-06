@@ -19,13 +19,9 @@
 
 package org.apache.cxf.ws.policy;
 
-import java.util.Collection;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
@@ -37,9 +33,6 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
 
     private static final Logger LOG 
         = LogUtils.getL7dLogger(PolicyVerificationOutInterceptor.class);
-    private static final ResourceBundle BUNDLE 
-        = BundleUtils.getBundle(PolicyVerificationOutInterceptor.class);
-
     public PolicyVerificationOutInterceptor() {
         setPhase(Phase.POST_STREAM);
     }
@@ -51,7 +44,7 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
      * to predict if these interceptors actually have asserted their assertions.  
      * @param message
      */
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         
         if (MessageUtils.isPartialResponse(message)) {
             LOG.fine("Not verifying policies on outbound partial response.");
@@ -62,14 +55,11 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
         if (null == aim) {
             return;
         }
-        for (Collection<AssertionInfo> ais : aim.values()) {
-            for (AssertionInfo ai : ais) {
-                if (!ai.isAsserted()) {
-                    throw new PolicyException(new org.apache.cxf.common.i18n.Message(
-                        "NOT_ASSERTED_EXC", BUNDLE, ai.getAssertion().getName()));
-                }
-            }
-        }
+        
+        getTransportAssertions(message);
+        
+        aim.check();
+        
         LOG.fine("Verified policies for outbound message.");
     }
 

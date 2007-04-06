@@ -134,5 +134,22 @@ public class AssertionInfoMapTest extends Assert {
         ci.setAsserted(true);
         
         aim.checkEffectivePolicy(p);
-    }  
+    } 
+    
+    @Test
+    public void testCheck() throws PolicyException {
+        QName aqn = new QName("http://x.y.z", "a");
+        Assertion a = new PrimitiveAssertion(aqn);
+        Collection<Assertion> assertions = new ArrayList<Assertion>();
+        assertions.add(a);
+        AssertionInfoMap aim = new AssertionInfoMap(assertions);
+        try {
+            aim.check();
+            fail("Expected PolicyException not thrown.");
+        } catch (PolicyException ex) {
+            assertEquals("NOT_ASSERTED_EXC", ex.getCode());
+        }
+        aim.get(aqn).iterator().next().setAsserted(true);
+        aim.check();
+    }
 }

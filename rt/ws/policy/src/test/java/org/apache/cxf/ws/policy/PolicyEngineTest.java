@@ -72,18 +72,18 @@ public class PolicyEngineTest extends Assert {
         assertNotNull(engine.getRegistry());
         assertNull(engine.getBus());
         assertNull(engine.getPolicyProviders()); 
-        assertTrue(!engine.getRegisterInterceptors());
+        assertTrue(!engine.isEnabled());
         Bus bus = control.createMock(Bus.class);
         engine.setBus(bus);
         List<PolicyProvider> providers = CastUtils.cast(Collections.EMPTY_LIST, PolicyProvider.class);
         engine.setPolicyProviders(providers);
         PolicyRegistry reg = control.createMock(PolicyRegistry.class);
         engine.setRegistry(reg);
-        engine.setRegisterInterceptors(true);
+        engine.setEnabled(true);
         assertSame(bus, engine.getBus());
         assertSame(providers, engine.getPolicyProviders());
         assertSame(reg, engine.getRegistry());
-        assertTrue(engine.getRegisterInterceptors());        
+        assertTrue(engine.isEnabled());        
         assertNotNull(engine.createOutPolicyInfo());
         assertNotNull(engine.createEndpointPolicyInfo());
         
@@ -112,10 +112,13 @@ public class PolicyEngineTest extends Assert {
         engine = new PolicyEngineImpl();
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EasyMock.expect(boi.isUnwrapped()).andReturn(false).times(2);
         EffectivePolicy effectivePolicy = control.createMock(EffectivePolicy.class);
+        control.replay();
         engine.setEffectiveClientRequestPolicy(ei, boi, effectivePolicy);
         assertSame(effectivePolicy, 
-                   engine.getEffectiveClientRequestPolicy(ei, boi, (Conduit)null));        
+                   engine.getEffectiveClientRequestPolicy(ei, boi, (Conduit)null)); 
+        control.verify();
     }
     
     @Test
@@ -141,10 +144,13 @@ public class PolicyEngineTest extends Assert {
         engine = new PolicyEngineImpl();
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EasyMock.expect(boi.isUnwrapped()).andReturn(false).times(2);
         EffectivePolicy effectivePolicy = control.createMock(EffectivePolicy.class);
+        control.replay();
         engine.setEffectiveServerResponsePolicy(ei, boi, effectivePolicy);
         assertSame(effectivePolicy, 
-                   engine.getEffectiveServerResponsePolicy(ei, boi, (Destination)null));   
+                   engine.getEffectiveServerResponsePolicy(ei, boi, (Destination)null));
+        control.verify();
     }
    
     @Test
@@ -197,9 +203,12 @@ public class PolicyEngineTest extends Assert {
         engine = new PolicyEngineImpl();
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EasyMock.expect(boi.isUnwrapped()).andReturn(false).times(2);
         EffectivePolicy effectivePolicy = control.createMock(EffectivePolicy.class);
+        control.replay();
         engine.setEffectiveServerRequestPolicy(ei, boi, effectivePolicy);
-        assertSame(effectivePolicy, engine.getEffectiveServerRequestPolicy(ei, boi));        
+        assertSame(effectivePolicy, engine.getEffectiveServerRequestPolicy(ei, boi));   
+        control.verify();
     }
     
     @Test
@@ -224,9 +233,12 @@ public class PolicyEngineTest extends Assert {
         engine = new PolicyEngineImpl();
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        EasyMock.expect(boi.isUnwrapped()).andReturn(false).times(2);
         EffectivePolicy epi = control.createMock(EffectivePolicy.class);
+        control.replay();
         engine.setEffectiveClientResponsePolicy(ei, boi, epi);
-        assertSame(epi, engine.getEffectiveClientResponsePolicy(ei, boi));        
+        assertSame(epi, engine.getEffectiveClientResponsePolicy(ei, boi));   
+        control.verify();
     }
     
     @Test
@@ -323,9 +335,9 @@ public class PolicyEngineTest extends Assert {
         doTestAddBusInterceptors(true);
     }
     
-    private void doTestAddBusInterceptors(boolean add) {        
+    private void doTestAddBusInterceptors(boolean enabled) {        
         engine = new PolicyEngineImpl();
-        engine.setRegisterInterceptors(add);
+        engine.setEnabled(enabled);
     
         Bus bus = control.createMock(Bus.class);
         engine.setBus(bus);
@@ -333,7 +345,7 @@ public class PolicyEngineTest extends Assert {
         List<Interceptor> in = new ArrayList<Interceptor>();
         List<Interceptor> inFault = new ArrayList<Interceptor>();
         List<Interceptor> outFault = new ArrayList<Interceptor>();
-        if (add) {
+        if (enabled) {
             EasyMock.expect(bus.getOutInterceptors()).andReturn(out).times(3);
             EasyMock.expect(bus.getInInterceptors()).andReturn(in).times(3);
             EasyMock.expect(bus.getInFaultInterceptors()).andReturn(inFault).times(2);
@@ -343,7 +355,7 @@ public class PolicyEngineTest extends Assert {
         
         engine.addBusInterceptors();
         
-        if (add) {
+        if (enabled) {
             Set<String> idsOut = getInterceptorIds(out);
             Set<String> idsIn = getInterceptorIds(in);
             Set<String> idsInFault = getInterceptorIds(inFault);
@@ -367,7 +379,7 @@ public class PolicyEngineTest extends Assert {
             assertEquals(0, inFault.size());
             assertEquals(0, outFault.size());
         }
-        if (add) {
+        if (enabled) {
             control.verify();
         }
     }

@@ -55,8 +55,7 @@ public class AssertionInfoMap extends HashMap<QName, Collection<AssertionInfo>> 
     }
     
     public boolean supportsAlternative(Collection<Assertion> alternative) {
-        
-        for (Assertion a : alternative) {
+        for (Assertion a : alternative) {          
             boolean asserted = false;
             Collection<AssertionInfo> ais = get(a.getName());
             if (null != ais) {
@@ -85,5 +84,16 @@ public class AssertionInfoMap extends HashMap<QName, Collection<AssertionInfo>> 
             }
         }
         throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
+    }
+    
+    public void check() {
+        for (Collection<AssertionInfo> ais : values()) {
+            for (AssertionInfo ai : ais) {
+                if (!ai.isAsserted()) {
+                    throw new PolicyException(new org.apache.cxf.common.i18n.Message(
+                        "NOT_ASSERTED_EXC", BUNDLE, ai.getAssertion().getName()));
+                }
+            }
+        }
     }
 }

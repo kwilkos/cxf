@@ -150,4 +150,10 @@ public class MessageImpl extends StringMapImpl implements Message {
             m2.setContent(c, m1.getContent(c));
         }
     }
+    
+    public static void copyProperties(Message m1, Message m2) {
+        for (String s : m1.keySet()) {
+            m2.put(s, m1.get(s));
+        }        
+    }
 }

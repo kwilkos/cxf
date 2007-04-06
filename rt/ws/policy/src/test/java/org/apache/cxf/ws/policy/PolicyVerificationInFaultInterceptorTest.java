@@ -19,6 +19,8 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.lang.reflect.Method;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -57,9 +59,12 @@ public class PolicyVerificationInFaultInterceptorTest extends Assert {
     } 
     
     @Test
-    public void testHandleMessage() {
+    public void testHandleMessage() throws NoSuchMethodException {
+        Method m = AbstractPolicyInterceptor.class.getDeclaredMethod("getTransportAssertions",
+            new Class[] {Message.class});
+        
         PolicyVerificationInFaultInterceptor interceptor = 
-            new PolicyVerificationInFaultInterceptor();
+            control.createMock(PolicyVerificationInFaultInterceptor.class, new Method[] {m});
         interceptor.setBus(bus);
         
         setupMessage(false, false, false, false, false, false);
@@ -99,6 +104,8 @@ public class PolicyVerificationInFaultInterceptorTest extends Assert {
         
         control.reset();
         setupMessage(true, true, true, true, true, true);
+        interceptor.getTransportAssertions(message);
+        EasyMock.expectLastCall();
         EffectivePolicyImpl effectivePolicy = control.createMock(EffectivePolicyImpl.class);        
         EasyMock.expect(engine.getEffectiveClientFaultPolicy(ei, bfi)).andReturn(effectivePolicy);
         Policy policy = control.createMock(Policy.class);
@@ -116,6 +123,7 @@ public class PolicyVerificationInFaultInterceptorTest extends Assert {
                       boolean setupPolicyEngine,
                       boolean setupAssertionInfoMap,
                       boolean setupBindingFaultInfo) {
+
         if (null == message) {
             message = control.createMock(Message.class); 
         }

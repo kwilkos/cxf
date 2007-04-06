@@ -95,11 +95,7 @@ public class JaxbAssertionTest extends Assert {
         JaxbAssertion<FooType> oassertion = new JaxbAssertion<FooType>();
         oassertion.setData(odata);
         oassertion.setName(qn);
-        assertTrue(!assertion.equal(oassertion));
-        
-        oassertion.setData(data);
-        assertTrue(assertion.equal(assertion));  
-        
+        assertTrue(assertion.equal(oassertion));          
         assertTrue(assertion.equal(assertion));          
     }
     

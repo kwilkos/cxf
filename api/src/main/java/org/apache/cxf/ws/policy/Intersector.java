@@ -95,8 +95,6 @@ public class Intersector {
                     return true;                    
                 }
             }             
-            System.out.println("p1 and p2 are incompatible because p2 has no alternative compatible with "
-                               + alt1);
             return false;
         }        
         return true;

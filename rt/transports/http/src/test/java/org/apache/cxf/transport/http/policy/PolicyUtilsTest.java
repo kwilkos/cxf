@@ -23,17 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
-import org.apache.cxf.ws.policy.EndpointPolicy;
-import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
@@ -133,7 +129,7 @@ public class PolicyUtilsTest extends Assert {
         Message message = control.createMock(Message.class);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
         control.replay();
-        PolicyUtils.assertClientPolicy(null, message);
+        PolicyUtils.assertClientPolicy(message, null);
         control.verify();
 
         control.reset();
@@ -141,7 +137,7 @@ public class PolicyUtilsTest extends Assert {
         AssertionInfoMap aim = new AssertionInfoMap(as);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
         control.replay();
-        PolicyUtils.assertClientPolicy(null, message);
+        PolicyUtils.assertClientPolicy(message, null);
         control.verify();
     }
 
@@ -157,9 +153,9 @@ public class PolicyUtilsTest extends Assert {
 
     void testAssertClientPolicy(boolean outbound) {
         Message message = control.createMock(Message.class);
-        PolicyEngine pe = control.createMock(PolicyEngine.class);
         HTTPClientPolicy ep = new HTTPClientPolicy();
         HTTPClientPolicy cmp = new HTTPClientPolicy();
+        
         cmp.setConnectionTimeout(60000L);
         HTTPClientPolicy icmp = new HTTPClientPolicy();
         icmp.setAllowChunking(false);
@@ -186,23 +182,14 @@ public class PolicyUtilsTest extends Assert {
         aim.put(PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME, ais);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
         Exchange ex = control.createMock(Exchange.class);
-        EasyMock.expect(message.getExchange()).andReturn(ex).times(outbound ? 2 : 1);
+        EasyMock.expect(message.getExchange()).andReturn(ex);
         EasyMock.expect(ex.getOutMessage()).andReturn(outbound ? message : null);
         if (!outbound) {
             EasyMock.expect(ex.getOutFaultMessage()).andReturn(null);
-        } else {
-            Endpoint e = control.createMock(Endpoint.class);
-            EasyMock.expect(ex.get(Endpoint.class)).andReturn(e);
-            EndpointInfo ei = control.createMock(EndpointInfo.class);
-            EasyMock.expect(e.getEndpointInfo()).andReturn(ei);
-            EndpointPolicy endpointPolicy = control.createMock(EndpointPolicy.class);
-            EasyMock.expect(pe.getClientEndpointPolicy(ei, null)).andReturn(endpointPolicy);
-            Collection<Assertion> alt = CastUtils.cast(Collections.singleton(ea), Assertion.class);
-            EasyMock.expect(endpointPolicy.getChosenAlternative()).andReturn(alt);
         }
 
         control.replay();
-        PolicyUtils.assertClientPolicy(pe, message);
+        PolicyUtils.assertClientPolicy(message, ep);
         assertTrue(eai.isAsserted());
         assertTrue(cmai.isAsserted());
         assertTrue(outbound ? !icmai.isAsserted() : icmai.isAsserted());

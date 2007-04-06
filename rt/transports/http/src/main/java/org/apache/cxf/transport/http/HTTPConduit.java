@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -53,8 +55,11 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.http.policy.PolicyUtils;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.policy.Assertor;
+import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
@@ -63,7 +68,7 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 /**
  * HTTP Conduit implementation.
  */
-public class HTTPConduit extends AbstractConduit implements Configurable {   
+public class HTTPConduit extends AbstractConduit implements Configurable, Assertor {   
     public static final String HTTP_CONNECTION = "http.connection";
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     
@@ -157,13 +162,16 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
      */
     public void prepare(Message message) throws IOException {
         Map<String, List<String>> headers = setHeaders(message);
-        URL currentURL = setupURL(message);        
+        URL currentURL = setupURL(message);   
+        HTTPClientPolicy clientPolicy = getClient(message);
         URLConnection connection = 
-            connectionFactory.createConnection(getProxy(), currentURL);
-        connection.setDoOutput(true);        
-        //TODO using Message context to deceided HTTP send properties        
-        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
-        connection.setReadTimeout((int)getClient().getReceiveTimeout());
+            connectionFactory.createConnection(getProxy(clientPolicy), currentURL);
+        connection.setDoOutput(true);  
+        
+        //TODO using Message context to deceided HTTP send properties 
+             
+        connection.setConnectTimeout((int)clientPolicy.getConnectionTimeout());
+        connection.setReadTimeout((int)clientPolicy.getReceiveTimeout());
         connection.setUseCaches(false);
         
         if (connection instanceof HttpURLConnection) {
@@ -174,14 +182,14 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
             } else {
                 hc.setRequestMethod("POST");
             }
-            if (getClient().isAutoRedirect()) {
+            if (clientPolicy.isAutoRedirect()) {
                 //cannot use chunking if autoredirect as the request will need to be
                 //completely cached locally and resent to the redirect target
                 hc.setInstanceFollowRedirects(true);
             } else {
                 hc.setInstanceFollowRedirects(false);
                 if (!hc.getRequestMethod().equals("GET")
-                    && getClient().isAllowChunking()) {
+                    && clientPolicy.isAllowChunking()) {
                     hc.setChunkedStreamingMode(2048);
                 }
             }
@@ -404,16 +412,26 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
 
     private void initConfig() {
         //Initialize some default values for the configuration
-        client = endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class);
+        
+        // wsdl extensors are superseded by policies which in turn are superseded by injection
+
+        PolicyEngine pe = bus.getExtension(PolicyEngine.class);
+        if (null != pe && pe.isEnabled()) {
+            client = PolicyUtils.getClient(pe, endpointInfo, this);            
+        }
+        
+        if (null == client) {
+            client = endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class);
+        }
+        
         authorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
                                                           AuthorizationPolicy.class);
         proxyAuthorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
                                                                AuthorizationPolicy.class);
     }
 
-    private Proxy getProxy() {
-        Proxy proxy = null;
-        HTTPClientPolicy policy = getClient(); 
+    private Proxy getProxy(HTTPClientPolicy policy) {
+        Proxy proxy = null; 
         if (policy.isSetProxyServer()) {
             proxy = new Proxy(Proxy.Type.valueOf(policy.getProxyServerType().toString()),
                               new InetSocketAddress(policy.getProxyServer(),
@@ -475,7 +493,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
                             Arrays.asList(new String[] {type}));
             }
         }
-        HTTPClientPolicy policy = getClient();
+        HTTPClientPolicy policy = getClient(message);
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
                         Arrays.asList(new String[] {policy.getCacheControl().value()}));
@@ -531,6 +549,10 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
 
     public void setAuthorization(AuthorizationPolicy authorization) {
         this.authorization = authorization;
+    }
+    
+    public HTTPClientPolicy getClient(Message message) {
+        return PolicyUtils.getClient(message, client);
     }
 
     public HTTPClientPolicy getClient() {
@@ -662,6 +684,14 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
 
             incomingObserver.onMessage(inMessage);
         }
+    }
+    
+    public void assertMessage(Message message) {
+        PolicyUtils.assertClientPolicy(message, client);
+    }
+    
+    public boolean canAssert(QName type) {
+        return PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(type);  
     }
     
 }

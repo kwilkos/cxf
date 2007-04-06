@@ -25,6 +25,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertionBuilder;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.PolicyComponent;
 
 /**
  * 
@@ -32,7 +33,7 @@ import org.apache.neethi.Assertion;
 public class HTTPClientAssertionBuilder extends JaxbAssertionBuilder<HTTPClientPolicy> {
  
     public HTTPClientAssertionBuilder() throws JAXBException {
-        super(HTTPClientPolicy.class, PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME);        
+        super(HTTPClientPolicy.class, PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME);     
     }
 
     @Override
@@ -54,7 +55,28 @@ public class HTTPClientAssertionBuilder extends JaxbAssertionBuilder<HTTPClientP
         }
         return null;
     }
-    
-    
 
+    @Override
+    protected JaxbAssertion<HTTPClientPolicy> buildAssertion() {
+        return new HTTPClientPolicyAssertion();
+    }
+    
+    class HTTPClientPolicyAssertion extends JaxbAssertion<HTTPClientPolicy> {
+        HTTPClientPolicyAssertion() {
+            super(PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME, false);
+        }
+
+        @Override
+        public boolean equal(PolicyComponent policyComponent) {
+            if (!super.equal(policyComponent)) {
+                return false;
+            }
+            JaxbAssertion<HTTPClientPolicy> other = JaxbAssertion.cast((Assertion)policyComponent);
+            return PolicyUtils.equals(this.getData(), other.getData());  
+        }      
+    }
+    
+    
+    
+    
 }

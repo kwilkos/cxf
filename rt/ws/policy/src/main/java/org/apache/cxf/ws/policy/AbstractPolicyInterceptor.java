@@ -20,10 +20,13 @@
 package org.apache.cxf.ws.policy;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 
 /**
  * 
@@ -38,6 +41,23 @@ public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor
     
     public Bus getBus() {
         return bus;
+    }
+
+    protected void getTransportAssertions(Message message) {
+        Exchange ex = message.getExchange();
+        Assertor assertor = null;
+        Conduit conduit = ex.getConduit();
+        if (conduit instanceof Assertor) {
+            assertor = (Assertor)conduit;
+        } else {
+            Destination destination = ex.getDestination();
+            if (destination instanceof Assertor) {
+                assertor = (Assertor)destination;
+            }
+        }
+        if (null != assertor) {
+            assertor.assertMessage(message);
+        }
     }
     
     protected BindingFaultInfo getBindingFaultInfo(Message msg, Exception ex, BindingOperationInfo boi) {

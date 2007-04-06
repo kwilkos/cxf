@@ -107,6 +107,9 @@ public final class PolicyUtils {
             if (((Assertion)pc).isOptional()) {
                 buf.append(" (optional)");
             }
+            buf.append(" (");
+            buf.append((Assertion)pc);
+            buf.append(")");
             nl(buf);
             if (pc instanceof NestedPrimitiveAssertion) {
                 PolicyComponent nested = ((NestedPrimitiveAssertion)pc).getNested();

@@ -53,6 +53,7 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
     public void handleMessage(Message message) throws Fault {
         
         if (!MessageUtils.isRequestor(message)) {
+            LOG.fine("Not a requestor.");
             return; 
         }
         
@@ -80,7 +81,7 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
         if (null == aim) {
             return;
-        }
+        }        
         
         Exception ex = message.getContent(Exception.class);
         if (null == ex) {
@@ -93,6 +94,8 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
             LOG.fine("No binding fault info.");
             return;
         }
+        
+        getTransportAssertions(message);
         
         EffectivePolicy effectivePolicy = pe.getEffectiveClientFaultPolicy(ei, bfi);
         aim.checkEffectivePolicy(effectivePolicy.getPolicy());

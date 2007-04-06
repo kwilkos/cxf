@@ -206,6 +206,17 @@ public class RMEndpointTest extends Assert {
     }
     
     @Test
+    public void testSetPoliciesEngineDisabled() {
+        Bus bus = control.createMock(Bus.class);
+        EasyMock.expect(manager.getBus()).andReturn(bus);
+        PolicyEngine pe = control.createMock(PolicyEngine.class);
+        EasyMock.expect(bus.getExtension(PolicyEngine.class)).andReturn(pe);
+        EasyMock.expect(pe.isEnabled()).andReturn(false);
+        control.replay();
+        rme.setPolicies();   
+    }
+    
+    @Test
     public void testSetPolicies() throws NoSuchMethodException {
         Method m = RMEndpoint.class.getDeclaredMethod("getEndpoint", new Class[] {});
         rme = control.createMock(RMEndpoint.class, new Method[] {m});
@@ -219,6 +230,7 @@ public class RMEndpointTest extends Assert {
         EasyMock.expect(manager.getBus()).andReturn(bus).times(2);
         PolicyEngine pe = control.createMock(PolicyEngine.class);
         EasyMock.expect(bus.getExtension(PolicyEngine.class)).andReturn(pe);
+        EasyMock.expect(pe.isEnabled()).andReturn(true);
         PolicyInterceptorProviderRegistry reg = control.createMock(PolicyInterceptorProviderRegistry.class);
         EasyMock.expect(bus.getExtension(PolicyInterceptorProviderRegistry.class)).andReturn(reg);
         EndpointInfo aei = control.createMock(EndpointInfo.class);

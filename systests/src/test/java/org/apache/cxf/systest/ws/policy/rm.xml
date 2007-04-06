@@ -31,7 +31,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 
     <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
         <property name="bus" ref="cxf"/>
-        <property name="registerInterceptors" value="true"/>
+        <property name="enabled" value="true"/>
     </bean>
 
     <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">

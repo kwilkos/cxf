@@ -82,8 +82,41 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
         supportedTypes = Collections.singletonList(qn);
     }
        
-    @SuppressWarnings("unchecked")
+    
     public Assertion build(Element element) {
+        QName name = new QName(element.getNamespaceURI(), element.getLocalName());
+        JaxbAssertion<T> assertion = buildAssertion();
+        assertion.setName(name);
+        assertion.setOptional(getOptionality(element));
+        assertion.setData(getData(element));
+        return assertion;
+    }
+    
+    public Collection<QName> getKnownElements() {
+        return supportedTypes;
+    }
+
+    public Assertion buildCompatible(Assertion a, Assertion b) {
+        return null;
+    }
+    
+    protected JaxbAssertion<T> buildAssertion() {
+        return new JaxbAssertion<T>();
+    }
+    
+    protected boolean getOptionality(Element element) {
+        boolean optional = false;
+        String value = element.getAttributeNS(
+                           Constants.Q_ELEM_OPTIONAL_ATTR.getNamespaceURI(), 
+                           Constants.Q_ELEM_OPTIONAL_ATTR.getLocalPart());
+        if (Boolean.valueOf(value)) {
+            optional = true;
+        }
+        return optional;
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected T getData(Element element) {
         Object obj = null;
         try {
             obj = unmarshaller.unmarshal(element);
@@ -94,33 +127,11 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
             JAXBElement<?> el = (JAXBElement<?>)obj;
             obj = el.getValue();
         } 
-
-        if (null != obj) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Unmarshaled element into object of type: " + obj.getClass().getName()
-                     + "    value: " + obj);
-            }
-            QName name = new QName(element.getNamespaceURI(), element.getLocalName());
-            boolean optional = false;
-            String value = element.getAttributeNS(
-                               Constants.Q_ELEM_OPTIONAL_ATTR.getNamespaceURI(), 
-                               Constants.Q_ELEM_OPTIONAL_ATTR.getLocalPart());
-            if (Boolean.valueOf(value)) {
-                optional = true;
-            }
-            JaxbAssertion<T> a = new JaxbAssertion<T>(name, optional);
-            a.setData((T)obj);
-            return a;
+        if (null != obj && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Unmarshaled element into object of type: " + obj.getClass().getName()
+                 + "    value: " + obj);
         }
-        return null;
-    }
-    
-    public Collection<QName> getKnownElements() {
-        return supportedTypes;
-    }
-
-    public Assertion buildCompatible(Assertion a, Assertion b) {
-        return null;
+        return (T)obj;
     }
     
     

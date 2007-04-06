@@ -19,13 +19,9 @@
 
 package org.apache.cxf.ws.policy;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import javax.xml.namespace.QName;
+import java.lang.reflect.Method;
 
 import org.apache.cxf.message.Message;
-import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
@@ -45,8 +41,11 @@ public class PolicyVerificationOutInterceptorTest extends Assert {
     } 
     
     @Test
-    public void testHandleMessage() {
-        PolicyVerificationOutInterceptor interceptor = new PolicyVerificationOutInterceptor();
+    public void testHandleMessage() throws NoSuchMethodException {
+        Method m = AbstractPolicyInterceptor.class.getDeclaredMethod("getTransportAssertions",
+            new Class[] {Message.class});
+        PolicyVerificationOutInterceptor interceptor = 
+            control.createMock(PolicyVerificationOutInterceptor.class, new Method[] {m});
         
         Message message = control.createMock(Message.class);
         EasyMock.expect(message.get(Message.PARTIAL_RESPONSE_MESSAGE)).andReturn(Boolean.TRUE);
@@ -61,46 +60,14 @@ public class PolicyVerificationOutInterceptorTest extends Assert {
         interceptor.handleMessage(message);
         control.verify();
         
-        control.reset();
-        Collection<Assertion> assertions = new ArrayList<Assertion>();
-        AssertionInfoMap aim = new AssertionInfoMap(assertions);
-        
-        Assertion a1 = control.createMock(Assertion.class);   
-        AssertionInfo ai1 = new AssertionInfo(a1);
-        Assertion a2 = control.createMock(Assertion.class);
-        AssertionInfo ai2 = new AssertionInfo(a2);
-        Assertion a3 = control.createMock(Assertion.class);
-        AssertionInfo ai3 = new AssertionInfo(a3);
-        
-        QName n1 = new QName("http://x.b.c/x", "a1"); 
-        QName n2 = new QName("http://x.b.c/x", "a2");
-        
-        Collection<AssertionInfo> c = new ArrayList<AssertionInfo>();
-        c.add(ai1);
-        c.add(ai2);
-        aim.put(n1, c);
-        c = new ArrayList<AssertionInfo>();
-        c.add(ai3);
-        aim.put(n2, c);
-        
+        control.reset();   
         EasyMock.expect(message.get(Message.PARTIAL_RESPONSE_MESSAGE)).andReturn(null);
+        AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
-        
-        control.replay();
-        try {
-            interceptor.handleMessage(message);
-            fail("Expected PolicyException not thrown.");
-        } catch (PolicyException ex) {
-            // expected
-        }
-        control.verify();
-        
-        control.reset();
-        ai1.setAsserted(true);
-        ai2.setAsserted(true);
-        ai3.setAsserted(true);
-
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
+        interceptor.getTransportAssertions(message);
+        EasyMock.expectLastCall();
+        aim.check();
+        EasyMock.expectLastCall();
         
         control.replay();        
         interceptor.handleMessage(message);       

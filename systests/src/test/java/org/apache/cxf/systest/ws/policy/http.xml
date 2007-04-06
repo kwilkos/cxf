@@ -24,18 +24,9 @@
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <http:conduit id="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
-      <http:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
-    </http:conduit>
-
     <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
         <property name="bus" ref="cxf"/>
         <property name="enabled" value="true"/>
-    </bean>
-
-    <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
-        <constructor-arg ref="cxf"/>
-        <property name="location" value="org/apache/cxf/systest/ws/policy/addr-external.xml"/>
     </bean>
 
 </beans>

@@ -68,14 +68,17 @@ public class ClientPolicyInFaultInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Conduit conduit = msg.getConduit();
+        Conduit conduit = exchange.getConduit();
+        LOG.fine("conduit: " + conduit);
         
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with all faults returned to this client endpoint.
         
-        EndpointPolicy ep = pe.getClientEndpointPolicy(ei, conduit);
+        EndpointPolicy ep = pe.getClientEndpointPolicy(ei, conduit);        
+        LOG.fine("ep: " + ep);
         
         List<Interceptor> faultInterceptors = ep.getFaultInterceptors();
+        LOG.fine("faultInterceptors: " + faultInterceptors);
         for (Interceptor i : faultInterceptors) {
             msg.getInterceptorChain().add(i);
             LOG.log(Level.INFO, "Added interceptor of type {0}", i.getClass().getSimpleName());

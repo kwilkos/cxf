@@ -245,7 +245,7 @@ public class RMEndpoint {
     void setPolicies() {
         // use same WS-policies as for application endpoint
         PolicyEngine engine = manager.getBus().getExtension(PolicyEngine.class);  
-        if (null == engine) {
+        if (null == engine || !engine.isEnabled()) {
             return;
         }
         

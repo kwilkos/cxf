@@ -19,19 +19,24 @@
 
 package org.apache.cxf.transport.http.policy;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.neethi.Assertion;
 
@@ -43,9 +48,11 @@ public final class PolicyUtils {
     public static final String HTTPCONF_NAMESPACE = 
         "http://cxf.apache.org/transports/http/configuration";
     public static final QName HTTPCLIENTPOLICY_ASSERTION_QNAME =
-        new QName(HTTPCONF_NAMESPACE, "HTTPClientPolicy");
+        new QName(HTTPCONF_NAMESPACE, "client");
     public static final QName HTTPSERVERPOLICY_ASSERTION_QNAME =
-        new QName(HTTPCONF_NAMESPACE, "HTTPServerPolicy");
+        new QName(HTTPCONF_NAMESPACE, "server");
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(PolicyUtils.class);
 
     /**
      * Prevents instantiation.
@@ -56,112 +63,84 @@ public final class PolicyUtils {
 
 
     /**
-     * Returns the HTTPClientPolicy for the specified message or null if no assertions of this type
-     * pertain to the underlying message.
-     * If on the other hand there is more than one such assertion, the first one is taken.
-     * TODO:
-     * This should be replaced by computing an merged assertion if this is possible, e.g. one in
-     * which the connection timeout is set to be to the minimum of all connections timeouts.
-     * If there are conflicting assertions, resulting e.g. from a client element that is included
-     * in a policy attached to the endpoint and another client element, included in a policy 
-     * attached to the underlying message, in which chunking is disallowed, a exception should be thrown. 
-     * 
+     * Returns a HTTPClientPolicy  that is compatible with the assertions included in the
+     * service, endpoint, operation and message policy subjects AND the HTTPClientPolicy configured
+     * for the conduit. 
      * @param message the message
      * @return the HTTPClientPolicy for the message
      */
-    public static HTTPClientPolicy getClient(Message message) {
+    public static HTTPClientPolicy getClient(Message message, HTTPClientPolicy confPolicy) {
         AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
         if (null == amap) {
-            return null;
+            return confPolicy;
         }
         Collection<AssertionInfo> ais = amap.get(HTTPCLIENTPOLICY_ASSERTION_QNAME);
-        if (null != ais) {
-            for (AssertionInfo ai : ais) {
-                JaxbAssertion<HTTPClientPolicy> ja = 
-                    JaxbAssertion.cast(ai.getAssertion(), HTTPClientPolicy.class);
-                return ja.getData();
+        if (null == ais) {
+            return confPolicy;
+        }
+        Collection<Assertion> alternative = new ArrayList<Assertion>();
+        for (AssertionInfo ai : ais) {
+            alternative.add(ai.getAssertion());
+        }
+        HTTPClientPolicy compatible = getClient(alternative);
+        if (null != compatible && null != confPolicy) {
+            if (PolicyUtils.compatible(compatible, confPolicy)) {
+                compatible = intersect(compatible, confPolicy);
+            } else {
+                LogUtils.log(LOG, Level.SEVERE, "INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS");
+                throw new PolicyException(new org.apache.cxf.common.i18n.Message(
+                    "INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS", LOG));
             }
         }
-        return null;
+        return compatible;
     }
     
     /**
-     * Returns the HTTPServerPolicy for the specified message or null if no assertions of this type
-     * pertain to the underlying message.
+     * Returns a HTTPClientPolicy that is compatible with the assertions included in the
+     * service and endpoint policy subjects, or null if there are no such assertions.
      */
-    public static HTTPServerPolicy getServer(Message message) {
-        AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
-        if (null == amap) {
-            return null;
-        }
-        Collection<AssertionInfo> ais = amap.get(HTTPSERVERPOLICY_ASSERTION_QNAME);
-        if (null != ais) {
-            for (AssertionInfo ai : ais) {
-                JaxbAssertion<HTTPServerPolicy> ja = 
-                    JaxbAssertion.cast(ai.getAssertion(), HTTPServerPolicy.class);
-                return ja.getData();
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * Returns the first HTTPClientPolicy element specified in the http client policy assertions
-     * or null if there are no such assertions. 
-     * TODO: Return a merged value if there are multiple such assertions, or report conflict
-     */
-    public static HTTPClientPolicy getClient(Collection<Assertion> alternative) {
+    public static HTTPClientPolicy getClient(PolicyEngine pe, EndpointInfo ei, Conduit c) {
+        Collection<Assertion> alternative = pe.getClientEndpointPolicy(ei, c).getChosenAlternative();
+
+        HTTPClientPolicy compatible = null;
         for (Assertion a : alternative) {
             if (HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(a.getName())) {
-                return JaxbAssertion.cast(a, HTTPClientPolicy.class).getData();
+                HTTPClientPolicy p = JaxbAssertion.cast(a, HTTPClientPolicy.class).getData();
+                if (null == compatible) {
+                    compatible = p;
+                } else {
+                    compatible = intersect(compatible, p);
+                    if (null == compatible) {
+                        LogUtils.log(LOG, Level.SEVERE, "INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS");
+                        throw new PolicyException(new org.apache.cxf.common.i18n.Message(
+                            "INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS", LOG));
+                    }
+                }
             }
         }
-        return null;
+        return compatible;
+
     }
     
-    /**
-     * Returns the first HTTPServerPolicy element specified in the http client policy assertions
-     * or null if there are no such assertions. 
-     * TODO: Return a merged value if there are multiple such assertions, or report conflict
-     */
-    public static HTTPServerPolicy getServer(Collection<Assertion> alternative) {       
-        for (Assertion a : alternative) {
-            if (HTTPSERVERPOLICY_ASSERTION_QNAME.equals(a.getName())) {
-                return JaxbAssertion.cast(a, HTTPServerPolicy.class).getData();
-            }
-        }
-        return null;
-    }
-    
-    public static void assertClientPolicy(PolicyEngine engine, Message message) {
+    public static void assertClientPolicy(Message message, HTTPClientPolicy client) {
+       
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
         if (null == aim) {
             return;
         }
-        Collection<AssertionInfo> ais = aim.get(HTTPCLIENTPOLICY_ASSERTION_QNAME);        
+        Collection<AssertionInfo> ais = aim.get(HTTPCLIENTPOLICY_ASSERTION_QNAME);          
         if (null == ais || ais.size() == 0) {
             return;
-        }
+        }   
         
-        // assert the endpoint level assertion(s) and any message specific ones that are compatible
-        // with these
+        // assert all assertion(s) that are compatible with the value configured for the conduit
         
-        if (MessageUtils.isOutbound(message)) {
-            System.out.println("message is outbound");
-            Endpoint e = message.getExchange().get(Endpoint.class);
-            EndpointInfo ei = e.getEndpointInfo();
-            Collection<Assertion> endpointAssertions = engine.getClientEndpointPolicy(ei, null)
-                .getChosenAlternative();
-            for (Assertion a : endpointAssertions) {
-                if (HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(a.getName())) {
-                    HTTPClientPolicy p1 = (JaxbAssertion.cast(a, HTTPClientPolicy.class)).getData();
-                    for (AssertionInfo ai : ais) {
-                        HTTPClientPolicy p2 = (JaxbAssertion.cast(ai.getAssertion(), 
-                                                                  HTTPClientPolicy.class)).getData();
-                        if (compatible(p1, p2)) {
-                            ai.setAsserted(true);
-                        }
-                    }
+        if (MessageUtils.isOutbound(message)) {                        
+            for (AssertionInfo ai : ais) {
+                HTTPClientPolicy p = (JaxbAssertion.cast(ai.getAssertion(), 
+                                                          HTTPClientPolicy.class)).getData(); 
+                if (compatible(p, client)) {
+                    ai.setAsserted(true);
                 }
             }
         } else {
@@ -434,7 +413,80 @@ public final class PolicyUtils {
         return s1 == null ? s2 : s1;
     }
     
+    private static boolean equals(String s1, String s2) {
+        return s1 == null ? s2 == null : s1.equals(s2);
+    }
+    
     private static boolean compatible(String s1, String s2) {
         return s1 == null || s2 == null || s1.equals(s2);
+    }
+    
+    private static HTTPClientPolicy getClient(Collection<Assertion> alternative) {      
+        HTTPClientPolicy compatible = null;
+        for (Assertion a : alternative) {
+            if (HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(a.getName())) {
+                HTTPClientPolicy p = JaxbAssertion.cast(a, HTTPClientPolicy.class).getData();
+                if (null == compatible) {
+                    compatible = p;
+                } else {
+                    compatible = intersect(compatible, p);
+                    if (null == compatible) {
+                        LogUtils.log(LOG, Level.SEVERE, "INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS");
+                        org.apache.cxf.common.i18n.Message m = 
+                            new org.apache.cxf.common.i18n.Message(
+                                "INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS", LOG);
+                        throw new PolicyException(m);
+                    }
+                }
+            }
+        }
+        return compatible;
+    }
+    
+    public static String toString(HTTPClientPolicy p) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(p);
+        buf.append("[DecoupledEndpoint=\"");
+        buf.append(p.getDecoupledEndpoint());
+        buf.append("\", ReceiveTimeout=");
+        buf.append(p.getReceiveTimeout());
+        buf.append("])");
+        return buf.toString();
+        
+    }
+    
+    public static boolean equals(HTTPClientPolicy p1, HTTPClientPolicy p2) {
+        if (p1 == p2) {
+            return true;
+        }
+        boolean result = true;
+        result &= p1.isAllowChunking() == p2.isAllowChunking()
+            && p1.isAutoRedirect() == p2.isAutoRedirect()
+            && equals(p1.getAccept(), p2.getAccept())
+            && equals(p1.getAcceptEncoding(), p2.getAcceptEncoding())
+            && equals(p1.getAcceptLanguage(), p2.getAcceptLanguage())
+            && equals(p1.getBrowserType(), p2.getBrowserType());
+        if (!result) {
+            return false;
+        }
+        
+        result &= p1.getCacheControl() == null 
+                ? p2.getCacheControl() == null 
+                : p1.getCacheControl().value().equals(p2.getCacheControl().value())
+                && p1.getConnection().value().equals(p2.getConnection().value())        
+            && p1.getConnectionTimeout() == p2.getConnectionTimeout()
+            && equals(p1.getContentType(), p2.getContentType())
+            && equals(p1.getCookie(), p2.getCookie())
+            && equals(p1.getDecoupledEndpoint(), p2.getDecoupledEndpoint())
+            && equals(p1.getHost(), p2.getHost());
+        if (!result) {
+            return false;
+        }
+        result &= equals(p1.getProxyServer(), p2.getProxyServer())
+            && p1.getProxyServerPort() == p2.getProxyServerPort()
+            && p1.getProxyServerType().value().equals(p2.getProxyServerType().value())
+            && p1.getReceiveTimeout() == p2.getReceiveTimeout()
+            && equals(p1.getReferer(), p2.getReferer()); 
+        return result;
     }
 }
