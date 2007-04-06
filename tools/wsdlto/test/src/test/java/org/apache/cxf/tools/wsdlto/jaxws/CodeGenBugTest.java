@@ -35,6 +35,8 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.ResourceHandler;
 
 public class CodeGenBugTest extends ProcessorTestBase {
 
@@ -386,5 +388,25 @@ public class CodeGenBugTest extends ProcessorTestBase {
         File address = new File(ws, "addressing");
         assertTrue(address.exists());
     }
+    
+    public void testHelloWorldExternalBindingFile() throws Exception {
+        Server server = new Server(8585);
+        ResourceHandler reshandler = new ResourceHandler();
+        reshandler.setResourceBase(getLocation("/wsdl2java_wsdl/"));
+        server.addHandler(reshandler);
+        server.start();
+        env.put(ToolConstants.CFG_WSDLURL, "http://localhost:8585/hello_world.wsdl");
+        env.put(ToolConstants.CFG_BINDING, "http://localhost:8585/remote-hello_world_binding.xsd");
+        processor.setContext(env);
+        processor.execute();
+        server.stop();
+
+        
+        
+    }
+    
+    
+    
+    
 
 }

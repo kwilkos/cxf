@@ -19,12 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -50,27 +51,17 @@ public class JAXWSContainer extends WSDLToJavaContainer {
 
     public void validate(ToolContext env) throws ToolException {
         super.validate(env);
-        File tmpfile = new File("");
         if (env.containsKey(ToolConstants.CFG_BINDING)) {
             String[] bindings = (String[])env.get(ToolConstants.CFG_BINDING);
-            for (int i = 0; i < bindings.length; i++) {               
-                
-                File bindingFile = null;
+            URIResolver resolver = null;
+            for (int i = 0; i < bindings.length; i++) {
                 try {
-                    URI bindingURI = new URI(bindings[i]);
-                    if (!bindingURI.isAbsolute()) {
-                        bindingURI = tmpfile.toURI().resolve(bindingURI);
-                    }
-                    bindingFile = new File(bindingURI);
-                } catch (URISyntaxException e) {
-                    bindingFile = new File(bindings[i]);
+                    resolver = new URIResolver(bindings[i]);
+                } catch (IOException ioe) {
+                    throw new ToolException(ioe);
                 }
-                bindings[i] = bindingFile.toURI().toString();
-                if (!bindingFile.exists()) {
+                if (!resolver.isResolved()) {
                     Message msg = new Message("FILE_NOT_EXIST", LOG, bindings[i]);
-                    throw new ToolException(msg);
-                } else if (bindingFile.isDirectory()) {
-                    Message msg = new Message("NOT_A_FILE", LOG, bindings[i]);
                     throw new ToolException(msg);
                 }
             }

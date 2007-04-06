@@ -18,9 +18,7 @@
  */
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,6 +48,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -113,26 +112,18 @@ public final class CustomizationParser {
 
     public Element getTargetNode(String wsdlLoc) {
         Document doc = null;
-        URI uri = null;
+        InputStream ins = null;
         try {
-            uri = new URI(wsdlLoc);
-        } catch (URISyntaxException e1) {
-            // ignore
+            URIResolver resolver = new URIResolver(wsdlLoc);
+            ins = resolver.getInputStream();
+        } catch (IOException e1) {
+            throw new ToolException(e1);
         }
-        File file = new File(uri);
-        InputStream ins;
-
-        try {
-            ins = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            Message msg = new Message("FILE_NOT_FOUND", LOG, new Object[] {file});
-            throw new ToolException(msg, e);
-        }
-
+            
         try {
             doc = DOMUtils.readXml(ins);
         } catch (Exception e) {
-            Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {file});
+            Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {wsdlLoc});
             throw new ToolException(msg, e);
         }
 
@@ -376,12 +367,10 @@ public final class CustomizationParser {
         StAXUtil.toStartTag(reader);
 
         if (isValidJaxwsBindingFile(bindingFile, reader)) {
-            InputStream inputStream;
             Element root = null;
             try {
-                URI uri = new URI(bindingFile);
-                inputStream = new FileInputStream(new File(uri));
-                root = DOMUtils.readXml(inputStream).getDocumentElement();
+                URIResolver resolver = new URIResolver(bindingFile);
+                root = DOMUtils.readXml(resolver.getInputStream()).getDocumentElement();
             } catch (Exception e1) {
                 Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {bindingFile});
                 throw new ToolException(msg, e1);
