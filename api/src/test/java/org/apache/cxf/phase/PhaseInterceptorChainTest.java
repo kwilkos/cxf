@@ -283,52 +283,10 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(1, p3.invoked);
     }
 
-    public void testSubChainInvocation() throws Exception {
-        SubChainPhaseInterceptor p1 = new SubChainPhaseInterceptor("phase1",
-                "p1");
-        EndOfSubChainPhaseInterceptor p2 = new EndOfSubChainPhaseInterceptor(
-                "phase2", "p2");
-        CountingPhaseInterceptor p3 = new CountingPhaseInterceptor("phase3",
-                "p3");
-
-        message.getInterceptorChain();
-        EasyMock.expectLastCall().andReturn(chain).anyTimes();
-
-        control.replay();
-        chain.add(p1);
-        chain.add(p2);
-        chain.add(p3);
-        chain.doIntercept(message);
-        assertEquals(1, p1.invoked);
-        assertEquals(1, p2.invoked);
-        assertEquals(1, p3.invoked);
-    }
-
-    public void testSubChainInvocationWithoutEnteringSubChain() throws Exception {
-        CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
-                "p1");
-        EndOfSubChainPhaseInterceptor p2 = new EndOfSubChainPhaseInterceptor(
-                "phase2", "p2");
-        CountingPhaseInterceptor p3 = new CountingPhaseInterceptor("phase3",
-                "p3");
-
-        message.getInterceptorChain();
-        EasyMock.expectLastCall().andReturn(chain).anyTimes();
-
-        control.replay();
-        chain.add(p1);
-        chain.add(p2);
-        chain.add(p3);
-        chain.doIntercept(message);
-        assertEquals(1, p1.invoked);
-        assertEquals(1, p2.invoked);
-        assertEquals(1, p3.invoked);
-    }
-
     public void testChainInvocationStartFromSpecifiedInterceptor() throws Exception {
         CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
                 "p1");
-        EndOfSubChainPhaseInterceptor p2 = new EndOfSubChainPhaseInterceptor(
+        CountingPhaseInterceptor p2 = new CountingPhaseInterceptor(
                 "phase2", "p2");
         CountingPhaseInterceptor p3 = new CountingPhaseInterceptor("phase3",
                 "p3");
@@ -435,34 +393,5 @@ public class PhaseInterceptorChainTest extends TestCase {
         }
     }
 
-    public class SubChainPhaseInterceptor extends
-            AbstractPhaseInterceptor<Message> {
-        int invoked;
-
-        public SubChainPhaseInterceptor(String phase, String id) {
-            setPhase(phase);
-            setId(id);
-        }
-
-        public void handleMessage(Message m) {
-            invoked++;
-            m.getInterceptorChain().doInterceptInSubChain(m);
-        }
-    }
-
-    public class EndOfSubChainPhaseInterceptor extends
-            AbstractPhaseInterceptor<Message> {
-        int invoked;
-
-        public EndOfSubChainPhaseInterceptor(String phase, String id) {
-            setPhase(phase);
-            setId(id);
-        }
-
-        public void handleMessage(Message m) {
-            invoked++;
-            m.getInterceptorChain().finishSubChain();
-        }
-    }
 
 }

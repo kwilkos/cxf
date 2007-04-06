@@ -146,7 +146,6 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                     writer.writeEndElement();
                     
                     writer.flush();
-                    message.getInterceptorChain().finishSubChain();
                 } catch (Exception e) {
                     // do nothing
                 }
@@ -335,7 +334,6 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                     writer.writeEndElement();
                     
                     writer.flush();
-                    message.getInterceptorChain().finishSubChain();
                 } catch (Exception e) {
                     // do nothing
                 }

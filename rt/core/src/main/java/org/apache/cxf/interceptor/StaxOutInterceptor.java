@@ -35,6 +35,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
+
 /**
  * Creates an XMLStreamReader from the InputStream on the Message.
  */
@@ -74,28 +75,10 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STREAM_CREATE_EXC", BUNDLE), e);
         }
-
         message.setContent(XMLStreamWriter.class, writer);
 
-        boolean result = message.getInterceptorChain().doIntercept(message);
-        
-        try {
-            XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
-            if (xtw != null) {
-                xtw.writeEndDocument();
-                xtw.close();
-            }
-            
-            if (!result && message.getContent(Exception.class) != null) {
-                if (message.getContent(Exception.class) instanceof Fault) {
-                    throw (Fault)message.getContent(Exception.class);
-                } else {
-                    throw new Fault(message.getContent(Exception.class));
-                }
-            }            
-        } catch (XMLStreamException e) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
-        }
+        // Add a final interceptor to write end elements
+        message.getInterceptorChain().add(new StaxOutEndingInterceptor());
     }
 
     public static XMLOutputFactory getXMLOutputFactory(Message m) throws Fault {
@@ -133,4 +116,25 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
             return StaxUtils.getXMLOutputFactory();
         }
     }
+    
+    public class StaxOutEndingInterceptor extends AbstractPhaseInterceptor<Message> {
+        public StaxOutEndingInterceptor() {
+            super();
+            setPhase(Phase.PRE_STREAM_ENDING);
+            getAfter().add(AttachmentOutInterceptor.AttachmentOutEndingInterceptor.class.getName());
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            try {
+                XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
+                if (xtw != null) {
+                    xtw.writeEndDocument();
+                    xtw.close();
+                }
+            } catch (XMLStreamException e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
+            }
+        }
+
+    }    
 }

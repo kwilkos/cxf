@@ -25,10 +25,10 @@ import java.util.List;
 import org.apache.cxf.extension.BusExtension;
 
 public class PhaseManagerImpl implements PhaseManager, BusExtension {
- 
+
     private  List<Phase> inPhases;
     private  List<Phase> outPhases;
-   
+
     public PhaseManagerImpl() {
         createInPhases();
         createOutPhases();
@@ -46,18 +46,18 @@ public class PhaseManagerImpl implements PhaseManager, BusExtension {
     public List<Phase> getInPhases() {
         return inPhases;
     }
-  
+
     public List<Phase> getOutPhases() {
         return outPhases;
     }
 
     final void createInPhases() {
 
-        inPhases = new ArrayList<Phase>(); 
-        int i = 0;
-        
         inPhases = new ArrayList<Phase>();
-        inPhases.add(new Phase(Phase.RECEIVE, ++i * 1000));        
+        int i = 0;
+
+        inPhases = new ArrayList<Phase>();
+        inPhases.add(new Phase(Phase.RECEIVE, ++i * 1000));
         inPhases.add(new Phase(Phase.PRE_STREAM, ++i * 1000));
         inPhases.add(new Phase(Phase.USER_STREAM, ++i * 1000));
         inPhases.add(new Phase(Phase.POST_STREAM, ++i * 1000));
@@ -73,12 +73,12 @@ public class PhaseManagerImpl implements PhaseManager, BusExtension {
         inPhases.add(new Phase(Phase.INVOKE, ++i * 1000));
         inPhases.add(new Phase(Phase.POST_INVOKE, ++i * 1000));
     }
-    
+
     final void createOutPhases() {
-        
+
         outPhases = new ArrayList<Phase>();
         int i = 0;
-        
+
         outPhases.add(new Phase(Phase.SETUP, ++i * 1000));
         outPhases.add(new Phase(Phase.PRE_LOGICAL, ++i * 1000));
         outPhases.add(new Phase(Phase.USER_LOGICAL, ++i * 1000));
@@ -87,19 +87,46 @@ public class PhaseManagerImpl implements PhaseManager, BusExtension {
 
         outPhases.add(new Phase(Phase.PRE_STREAM, ++i * 1000));
 
-        outPhases.add(new Phase(Phase.PRE_PROTOCOL, ++i * 1000));        
-        
+        outPhases.add(new Phase(Phase.PRE_PROTOCOL, ++i * 1000));
+
         outPhases.add(new Phase(Phase.WRITE, ++i * 1000));
         outPhases.add(new Phase(Phase.MARSHAL, ++i * 1000));
-        
+
         outPhases.add(new Phase(Phase.USER_PROTOCOL, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_PROTOCOL, ++i * 1000));
-        
+
         outPhases.add(new Phase(Phase.USER_STREAM, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_STREAM, ++i * 1000));
-        
+
         outPhases.add(new Phase(Phase.SEND, ++i * 1000));
+
+        //Make sure ending interceptors are put in positions symmetric
+        // to their starting interceptors
+        outPhases.add(new Phase(Phase.SEND_ENDING, ++i * 1000));
         
+        outPhases.add(new Phase(Phase.POST_STREAM_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.USER_STREAM_ENDING, ++i * 1000));
+
+        outPhases.add(new Phase(Phase.POST_PROTOCOL_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.USER_PROTOCOL_ENDING, ++i * 1000));
+
+        outPhases.add(new Phase(Phase.MARSHAL_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.WRITE_ENDING, ++i * 1000));
+
+        outPhases.add(new Phase(Phase.PRE_PROTOCOL_ENDING, ++i * 1000));
+        
+        outPhases.add(new Phase(Phase.PRE_STREAM_ENDING, ++i * 1000));
+
+        outPhases.add(new Phase(Phase.PREPARE_SEND_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.POST_LOGICAL_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.USER_LOGICAL_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.PRE_LOGICAL_ENDING, ++i * 1000));
+        outPhases.add(new Phase(Phase.SETUP_ENDING, ++i * 1000));
+
     }
+
+
+
+
 
 }

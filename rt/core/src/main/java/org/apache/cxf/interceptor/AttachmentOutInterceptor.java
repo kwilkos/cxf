@@ -37,7 +37,7 @@ public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> 
         setPhase(Phase.PRE_STREAM);
     }
 
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         if (!Boolean.TRUE.equals(message.getContextualProperty(
                 org.apache.cxf.message.Message.MTOM_ENABLED))) {
             return;
@@ -46,13 +46,31 @@ public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> 
         AttachmentSerializer serializer = new AttachmentSerializer(message);
         try {
             serializer.writeProlog();
-            
-            message.getInterceptorChain().doIntercept(message);
-            
-            serializer.writeAttachments();
         } catch (IOException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("WRITE_ATTACHMENTS", BUNDLE), e);
-        }
+        }        
+        message.setContent(AttachmentSerializer.class, serializer);
+        
+        // Add a final interceptor to write attachements
+        message.getInterceptorChain().add(new AttachmentOutEndingInterceptor());   
     }
+    
+    public class AttachmentOutEndingInterceptor extends AbstractPhaseInterceptor<Message> {
+        public AttachmentOutEndingInterceptor() {
+            super();
+            setPhase(Phase.PRE_STREAM_ENDING);
+        }
 
+        public void handleMessage(Message message) {
+            AttachmentSerializer ser = message.getContent(AttachmentSerializer.class);
+            if (ser != null) {
+                try {
+                    ser.writeAttachments();
+                } catch (IOException e) {
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("WRITE_ATTACHMENTS", BUNDLE), e);
+                }
+            }
+        }
+
+    }
 }

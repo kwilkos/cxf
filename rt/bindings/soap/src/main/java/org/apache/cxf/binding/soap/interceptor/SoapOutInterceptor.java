@@ -81,21 +81,14 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                   soapVersion.getBody().getLocalPart(),
                                   soapVersion.getNamespace());
             
-            // Calling for Wrapped/RPC/Doc/ Interceptor for writing SOAP body
-            //message.getInterceptorChain().doIntercept(message);            
-            message.getInterceptorChain().doInterceptInSubChain(message);
-            
-            xtw.writeEndElement();            
-            // Write Envelope end element
-            xtw.writeEndElement();
-            xtw.writeEndDocument();
-            
-            xtw.flush();
-            
+            // Interceptors followed such as Wrapped/RPC/Doc Interceptor will write SOAP body
         } catch (XMLStreamException e) {
             throw new SoapFault(
                 new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, soapVersion.getSender());
         }
+
+        // Add a final interceptor to write end elements
+        message.getInterceptorChain().add(new SoapOutEndingInterceptor());
     }
     
     private boolean handleHeaderPart(boolean preexistingHeaders, SoapMessage message) {
@@ -204,4 +197,30 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
 
         return dataWriter;
     }
+        
+    public class SoapOutEndingInterceptor extends AbstractSoapInterceptor {
+        public SoapOutEndingInterceptor() {
+            super();
+            setPhase(Phase.WRITE_ENDING);
+        }
+
+        public void handleMessage(SoapMessage message) throws Fault {
+            SoapVersion soapVersion = message.getVersion();
+            try {
+                XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
+                if (xtw != null) {
+                    xtw.writeEndElement();            
+                    // Write Envelope end element
+                    xtw.writeEndElement();
+                    xtw.writeEndDocument();
+                    
+                    xtw.flush();
+                }
+            } catch (XMLStreamException e) {
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e,
+                                    soapVersion.getSender());
+            }
+        }
+
+    }    
 }

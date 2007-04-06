@@ -57,8 +57,6 @@ public class BareOutInterceptorTest extends TestBase {
         message.getExchange().put(BindingOperationInfo.class, operation);
         IMocksControl control = EasyMock.createNiceControl();
         InterceptorChain ic = control.createMock(InterceptorChain.class);
-        ic.finishSubChain();
-        EasyMock.expectLastCall().anyTimes();
         message.setInterceptorChain(ic);
         control.replay();
     }

@@ -54,20 +54,33 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
 
         try {
             conduit.prepare(message);
-
-            if (message.getInterceptorChain().doIntercept(message)) {
-                conduit.close(message);
-            } else {
-                if (message.getContent(Exception.class) != null) {
-                    if (message.getContent(Exception.class) instanceof Fault) {
-                        throw (Fault)message.getContent(Exception.class);
-                    } else {
-                        throw new Fault(message.getContent(Exception.class));
-                    }
-                }
-            }
         } catch (IOException ex) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_SEND", BUNDLE), ex);
+        }    
+        
+        // Add a final interceptor to close the conduit
+        message.getInterceptorChain().add(new MessageSenderEndingInterceptor());
+    }
+    
+    public class MessageSenderEndingInterceptor extends AbstractPhaseInterceptor<Message> {
+        public MessageSenderEndingInterceptor() {
+            super();
+            setPhase(Phase.PREPARE_SEND_ENDING);
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            Exchange ex = message.getExchange();
+            Conduit endingConduit = 
+                message.getConduit() != null
+                ? message.getConduit() : ex.getConduit() != null
+                    ? ex.getConduit() : (ex.getOutMessage() != null || ex.getOutFaultMessage() != null)
+                        ? OutgoingChainInterceptor.getBackChannelConduit(ex) : null;
+            try {
+                endingConduit.close(message);
+            } catch (IOException e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_SEND", BUNDLE), e);
+            }
         }
     }
+
 }

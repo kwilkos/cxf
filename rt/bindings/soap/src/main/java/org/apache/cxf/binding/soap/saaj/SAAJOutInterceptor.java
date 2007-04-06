@@ -55,8 +55,8 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
         setPhase(Phase.PRE_PROTOCOL);
     }
     
-    public void handleMessage(SoapMessage cxfMessage) throws Fault {
-        SoapVersion version = cxfMessage.getVersion();
+    public void handleMessage(SoapMessage message) throws Fault {
+        SoapVersion version = message.getVersion();
         try {
             MessageFactory factory = null;
             if (version.getVersion() == 1.1) {
@@ -64,45 +64,44 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
             } else {
                 factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
             }
-            SOAPMessage message = factory.createMessage();
+            SOAPMessage soapMessage = factory.createMessage();
 
-            SOAPPart soapPart = message.getSOAPPart();
+            SOAPPart soapPart = soapMessage.getSOAPPart();
             W3CDOMStreamWriter writer = new W3CDOMStreamWriter(soapPart);
             // Replace stax writer with DomStreamWriter
-            cxfMessage.setContent(XMLStreamWriter.class, writer);
-            cxfMessage.setContent(SOAPMessage.class, message);
+            message.setContent(XMLStreamWriter.class, writer);
+            message.setContent(SOAPMessage.class, soapMessage);
         } catch (SOAPException e) {
             throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, version.getSender());
         }
         
-        // Add a final interceptor to write the message
-        cxfMessage.getInterceptorChain().add(new AbstractSoapInterceptor() {
+        // Add a final interceptor to write the message        
+        message.getInterceptorChain().add(new SAAJOutEndingInterceptor());
+    }
+    
+    public class SAAJOutEndingInterceptor extends AbstractSoapInterceptor {
+        public SAAJOutEndingInterceptor() {
+            super();
+            setPhase(Phase.PRE_PROTOCOL_ENDING);
+        }
 
-            @Override
-            public String getPhase() {
-                return Phase.SEND;
-            }
+        public void handleMessage(SoapMessage message) throws Fault {
+            SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
 
-            public void handleMessage(SoapMessage message) throws Fault {
-                SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
-                
-                if (soapMessage != null) {
-                    OutputStream os = message.getContent(OutputStream.class);
-                    try {
-                        soapMessage.writeTo(os);
-                        os.flush();
-                    } catch (IOException e) {
-                        throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, 
-                                            message.getVersion().getSender());
-                    } catch (SOAPException e) {
-                        throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, 
-                                            message.getVersion().getSender());
-                    }
+            if (soapMessage != null) {
+                OutputStream os = message.getContent(OutputStream.class);
+                try {
+                    soapMessage.writeTo(os);
+                    os.flush();
+                } catch (IOException e) {
+                    throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, message.getVersion()
+                        .getSender());
+                } catch (SOAPException e) {
+                    throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, message.getVersion()
+                        .getSender());
                 }
             }
-            
-        });
-       
-    }
+        }
 
+    }
 }

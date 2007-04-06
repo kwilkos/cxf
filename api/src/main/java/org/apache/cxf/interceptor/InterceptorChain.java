@@ -31,8 +31,6 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
         EXECUTING,
         COMPLETE,
         ABORTED,
-        SUBCHAIN_EXECUTING,
-        SUBCHAIN_COMPLETE
     };
     
     String STARTING_AFTER_INTERCEPTOR_ID = "starting_after_interceptor_id";
@@ -44,16 +42,12 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     boolean doIntercept(Message message);
     
     boolean doIntercept(Message message, String startingAfterInterceptorID);
-
-    boolean doInterceptInSubChain(Message message);    
   
     void pause();
     
     void resume();
     
     void reset();
-    
-    void finishSubChain();
     
     ListIterator<Interceptor<? extends Message>> getIterator();
 

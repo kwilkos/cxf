@@ -96,7 +96,6 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             }
             // Finishing the writing.
             xmlWriter.writeEndElement();            
-            message.getInterceptorChain().finishSubChain();
         } catch (XMLStreamException e) {
             throw new Fault(e);
         }

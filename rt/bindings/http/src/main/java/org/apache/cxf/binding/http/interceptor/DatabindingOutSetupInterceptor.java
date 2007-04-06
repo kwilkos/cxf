@@ -80,7 +80,7 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
             boolean putOrPost = verb.equals(HttpConstants.POST) || verb.equals(HttpConstants.PUT);
             
             if (putOrPost) { 
-                chain.doInterceptInSubChain(message);
+                chain.doIntercept(message);
                 chain.add(new URIParameterOutInterceptor());
                 chain.add(new DocumentWriterInterceptor());
                 chain.add(STAX_OUT);

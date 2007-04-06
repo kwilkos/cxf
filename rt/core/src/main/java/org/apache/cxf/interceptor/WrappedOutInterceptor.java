@@ -45,7 +45,7 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
 
         if (bop != null && bop.isUnwrapped()) {
-            XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
+            XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
 
             MessageInfo messageInfo;
             if (isRequestor(message)) {
@@ -53,7 +53,7 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
             } else {
                 messageInfo = bop.getWrappedOperation().getOperationInfo().getOutput();
             }
-            
+
             MessagePartInfo part = messageInfo.getMessageParts().get(0);
             QName name = part.getConcreteName();
 
@@ -61,15 +61,31 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
                 xmlWriter.setDefaultNamespace(name.getNamespaceURI());
                 xmlWriter.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
                 xmlWriter.writeDefaultNamespace(name.getNamespaceURI());
-                message.getInterceptorChain().doIntercept(message);
-                xmlWriter.writeEndElement();
+            } catch (XMLStreamException e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
+            }
+
+            // Add a final interceptor to write end element
+            message.getInterceptorChain().add(new WrappedOutEndingInterceptor());
+        }
+    }
+    
+    public class WrappedOutEndingInterceptor extends AbstractOutDatabindingInterceptor {
+        public WrappedOutEndingInterceptor() {
+            super();
+            setPhase(Phase.MARSHAL_ENDING);
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            try {
+                XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
+                if (xtw != null) {
+                    xtw.writeEndElement();
+                }
             } catch (XMLStreamException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
             }
         }
-    }
 
-    protected XMLStreamWriter getXMLStreamWriter(Message message) {
-        return message.getContent(XMLStreamWriter.class);
-    }
+    }  
 }

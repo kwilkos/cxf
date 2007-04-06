@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Stack;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private final Map<String, List<Interceptor>> nameMap = new HashMap<String, List<Interceptor>>();
 
     private State state;
-    private Stack<State> subChainState;
     private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
     private MessageObserver faultObserver;
@@ -73,8 +71,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     
     public PhaseInterceptorChain(List<Phase> ps) {
         state = State.EXECUTING;
-        subChainState = new Stack<State>();
-
+ 
         for (Phase phase : ps) {
             List<Interceptor> ints = new ArrayList<Interceptor>();
             interceptors.put(phase, ints);
@@ -124,13 +121,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
         state = State.PAUSED;
     }
 
-    public void finishSubChain() {
-        if (!subChainState.isEmpty()) {
-            subChainState.pop();
-            subChainState.push(State.SUBCHAIN_COMPLETE);
-        }
-    }
-
     public void resume() {
         if (state == State.PAUSED) {
             state = State.EXECUTING;
@@ -165,17 +155,11 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
+                
                 currentInterceptor.handleMessage(message);
                 
-                if (!subChainState.empty() && subChainState.peek() == State.SUBCHAIN_COMPLETE) {
-                    return true;
-                }
             } catch (RuntimeException ex) {
                 if (!faultOccured) {
-                    if (subChainState.size() > 0 
-                        && subChainState.peek().equals(State.EXECUTING)) {
-                        throw ex;
-                    }
  
                     faultOccured = true;
                     if (LOG.isLoggable(Level.INFO)) {
@@ -222,21 +206,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
             }
         }
         return doIntercept(message);
-    }
-    
-    /**
-     * Invokes the following inteceptors in a sub chain until the last chain in the
-     * sub chain calls finishSubChain, which makes the flow continue in the
-     * main chain.
-     * 
-     * @param message the message
-     * @throws Exception
-     */
-    public boolean doInterceptInSubChain(Message message) {
-        subChainState.push(State.SUBCHAIN_EXECUTING);
-        boolean result = doIntercept(message);
-        subChainState.pop();
-        return result;
     }
 
     public void reset() {
