@@ -32,7 +32,6 @@ import org.apache.cxf.common.logging.LogUtils;
 public class DefaultResourceManager implements ResourceManager {
     
     private static final Logger LOG = LogUtils.getL7dLogger(DefaultResourceManager.class);
-    private static ResourceManager instance; 
 
     protected final List<ResourceResolver> registeredResolvers = new LinkedList<ResourceResolver>();
 
@@ -106,17 +105,6 @@ public class DefaultResourceManager implements ResourceManager {
         } 
         return ret;
     } 
-
-
-    public static synchronized ResourceManager instance() { 
-        if (instance == null) { 
-            instance = new DefaultResourceManager();
-        } 
-        return instance;
-    }
-    public static synchronized void clearInstance() {
-        instance = null;
-    }
 
     private void initializeDefaultResolvers() { 
         addResourceResolver(new ClasspathResolver());

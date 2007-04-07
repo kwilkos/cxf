@@ -228,7 +228,7 @@ public class ServiceImpl extends ServiceDelegate {
         proxyFac.setServiceName(serviceName);
 
         if (wsdlURL != null) {
-            proxyFac.setWsdlURL(wsdlURL);
+            proxyFac.setWsdlURL(wsdlURL.toString());
         }
 
         if (portName == null) {

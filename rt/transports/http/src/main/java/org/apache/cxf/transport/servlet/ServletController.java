@@ -21,6 +21,7 @@ package org.apache.cxf.transport.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,21 +91,23 @@ public class ServletController {
             if (xsd) {
                 address = "http://localhost"
                           + request.getServletPath()
-                          + request.getPathInfo()
-                              .substring(0, request.getPathInfo().lastIndexOf(xsdName) - 1);
+                          + (request.getPathInfo() == null ? "" 
+                              : request.getPathInfo()
+                                  .substring(0, request.getPathInfo().lastIndexOf(xsdName) - 1));
             } else {
-                address = "http://localhost" + request.getServletPath() + request.getPathInfo();
+                address = "http://localhost" + request.getServletPath() 
+                    + (request.getPathInfo() == null ? "" : request.getPathInfo());
             }
             ei.setAddress(address);
            
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
-                if (request.getRequestURI().endsWith("services")) {
+                if (request.getRequestURI().endsWith("services")
+                    || request.getRequestURI().endsWith("services/")) {
                     generateServiceList(request, res);
                 } else {
-                    LOG.warning("Can't find the the request for" + "http://localhost"
-                                + request.getServletPath() + request.getPathInfo() + " 's Observer ");
+                    LOG.warning("Can't find the the request for " + address + "'s Observer ");
                     generateNotFound(request, res);
                 }
 
@@ -122,7 +125,7 @@ public class ServletController {
     
     private void generateServiceList(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
-        List<ServletDestination> destinations = transport.getDestinations();
+        Collection<ServletDestination> destinations = transport.getDestinations();
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
         if (destinations.size() > 0) {  

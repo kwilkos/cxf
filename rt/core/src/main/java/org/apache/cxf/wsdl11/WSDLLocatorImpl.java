@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.wsdl4jutils;
+package org.apache.cxf.wsdl11;
 
 import javax.wsdl.xml.WSDLLocator;
 
@@ -38,6 +38,7 @@ public class WSDLLocatorImpl implements WSDLLocator {
         this.baseUri = this.wsdlUrl;
         resolver = new ExtendedURIResolver();
     }
+    
     public InputSource getBaseInputSource() {
         InputSource result =  resolver.resolve(baseUri, null);
         baseUri = resolver.getURI();

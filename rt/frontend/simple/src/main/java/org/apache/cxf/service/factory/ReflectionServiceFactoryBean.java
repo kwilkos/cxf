@@ -92,7 +92,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
     
-    protected URL wsdlURL;
+    protected String wsdlURL;
 
     protected Class<?> serviceClass;
     
@@ -171,10 +171,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
     
-    protected void buildServiceFromWSDL(URL url) {
-        LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
+    protected void buildServiceFromWSDL(String url) {
+        LOG.info("Creating Service " + getServiceQName() + " from WSDL.");        
+        
         WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
-
         setService(factory.create());
 
         if (properties != null) {
@@ -218,10 +218,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void initializeServiceModel() {
-        URL url = getWsdlURL();
+        String wsdlurl = getWsdlURL();
 
-        if (url != null) {
-            buildServiceFromWSDL(url);
+        if (wsdlurl != null) {
+            buildServiceFromWSDL(wsdlurl);
         } else {
             buildServiceFromClass();
         }
@@ -862,7 +862,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         this.serviceClass = serviceClass;
     }
 
-    public URL getWsdlURL() {
+    public String getWsdlURL() {
         if (wsdlURL == null) {
             for (AbstractServiceConfiguration c : serviceConfigurations) {
                 wsdlURL = c.getWsdlURL();
@@ -874,8 +874,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return wsdlURL;
     }
 
-    public void setWsdlURL(URL wsdlURL) {
+    public void setWsdlURL(String wsdlURL) {
         this.wsdlURL = wsdlURL;
+    }
+    public void setWsdlURL(URL wsdlURL) {
+        this.wsdlURL = wsdlURL.toString();
     }
 
     public List<AbstractServiceConfiguration> getServiceConfigurations() {

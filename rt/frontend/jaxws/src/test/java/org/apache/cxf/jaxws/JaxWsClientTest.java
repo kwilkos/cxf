@@ -108,7 +108,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
-        bean.setWsdlURL(resource);
+        bean.setWsdlURL(resource.toString());
         bean.setBus(getBus());
         bean.setServiceClass(GreeterImpl.class);
         GreeterImpl greeter = new GreeterImpl();

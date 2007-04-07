@@ -19,22 +19,43 @@
 
 package org.apache.cxf.transport.servlet;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.servlet.ServletContext;
 
 
 import org.apache.cxf.resource.ResourceResolver;
 
 
 public class ServletContextResourceResolver implements ResourceResolver {
+    ServletContext servletContext;
+    Map<String, URL> urlMap = new ConcurrentHashMap<String, URL>();
+    
+    public ServletContextResourceResolver(ServletContext sc) {
+        servletContext = sc;
+    }
+    
 
     public final InputStream getAsStream(final String string) {
-        return null;
+        if (urlMap.containsKey(string)) {
+            try {
+                return urlMap.get(string).openStream();
+            } catch (IOException e) {
+                //ignore
+            }
+        }
+        return servletContext.getResourceAsStream(string);
     }
 
     public final <T> T resolve(final String entryName, final Class<T> clz) {
+        
         Object obj = null;
         try {
             InitialContext ic = new InitialContext();
@@ -43,9 +64,35 @@ public class ServletContextResourceResolver implements ResourceResolver {
             //do nothing
         }
         
-        if (obj != null && obj.getClass().isAssignableFrom(clz)) {
+        if (obj != null && clz.isInstance(obj)) {
             return clz.cast(obj);
         }
+        
+        if (clz.isAssignableFrom(URL.class)) {
+            if (urlMap.containsKey(entryName)) {
+                return clz.cast(urlMap.get(entryName));
+            }
+            try {
+                URL url = servletContext.getResource(entryName);
+                if (url != null) {
+                    urlMap.put(url.toString(), url);
+                    return clz.cast(url);
+                }
+            } catch (MalformedURLException e) {
+                //fallthrough
+            }
+            try {
+                URL url = servletContext.getResource("/" + entryName);
+                if (url != null) {
+                    urlMap.put(url.toString(), url);
+                    return clz.cast(url);
+                }
+            } catch (MalformedURLException e1) {
+                //ignore
+            }
+        } else if (clz.isAssignableFrom(InputStream.class)) {
+            return clz.cast(getAsStream(entryName));
+        }        
         return null;
     }
 }

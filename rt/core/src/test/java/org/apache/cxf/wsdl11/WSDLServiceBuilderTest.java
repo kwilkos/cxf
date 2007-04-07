@@ -60,7 +60,6 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.easymock.classextension.EasyMock;

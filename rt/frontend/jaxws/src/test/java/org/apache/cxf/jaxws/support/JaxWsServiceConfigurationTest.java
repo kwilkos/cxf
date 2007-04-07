@@ -38,8 +38,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl11.WSDLLocatorImpl;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
-import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 

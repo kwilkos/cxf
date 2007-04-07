@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxws;
 
-import java.net.URL;
 import java.security.AccessController;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +105,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
      * @param wsdl The URL of the WSDL for the service, if different than the URL specified on the
      * WebService annotation. Optional.
      */
-    public EndpointImpl(Bus b, Object i, String bindingUri, URL wsdl) {
+    public EndpointImpl(Bus b, Object i, String bindingUri, String wsdl) {
         bus = b;
         implementor = i;
         bindingId = bindingUri;
@@ -130,7 +129,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     
     
     public EndpointImpl(Bus b, Object i, String uri) {
-        this(b, i, uri, (URL)null);
+        this(b, i, uri, (String)null);
     }
    
     public EndpointImpl(Bus bus, Object implementor) {

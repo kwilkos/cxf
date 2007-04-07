@@ -33,6 +33,7 @@ public abstract class BusFactory {
     public static final String DEFAULT_BUS_FACTORY = "org.apache.cxf.bus.CXFBusFactory";
 
     protected static Bus defaultBus;
+    protected static ThreadLocal<Bus> localBus = new ThreadLocal<Bus>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(BusFactory.class, "APIMessages");
     
@@ -76,6 +77,27 @@ public abstract class BusFactory {
     public static synchronized void setDefaultBus(Bus bus) {
         defaultBus = bus;
     }
+    
+    
+    /**
+     * Sets the default bus for the thread.
+     * @param bus the default bus.
+     */
+    public static synchronized void setThreadDefaultBus(Bus bus) {
+        localBus.set(bus);
+    }
+    
+    /**
+     * Gets the default bus for the thread.
+     * @retur the default bus.
+     */
+    public static synchronized Bus getThreadDefaultBus() {
+        if (localBus.get() == null) {
+            Bus b = getDefaultBus();
+            localBus.set(b);
+        }
+        return localBus.get();
+    }
 
     /**
      * Sets the default bus if a default bus is not already set.
@@ -83,6 +105,10 @@ public abstract class BusFactory {
      * @return true if the bus was not set and is now set
      */
     public static synchronized boolean possiblySetDefaultBus(Bus bus) {
+        if (localBus.get() == null) {
+            localBus.set(bus);
+        }
+        
         if (defaultBus == null) {
             defaultBus = bus;            
             return true;

@@ -168,8 +168,12 @@ public class WSDLManagerImpl implements WSDLManager {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         reader.setExtensionRegistry(registry);
-        CatalogWSDLLocator wsdlLocator = 
+        CatalogWSDLLocator catLocator = 
             new CatalogWSDLLocator(url, OASISCatalogManager.getCatalog(bus));
+        ResourceManagerWSDLLocator wsdlLocator = new ResourceManagerWSDLLocator(url,
+                                                                                catLocator,
+                                                                                bus);
+        
         Definition def = reader.readWSDL(wsdlLocator);
         synchronized (definitionsMap) {
             definitionsMap.put(url, def);

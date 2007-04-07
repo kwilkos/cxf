@@ -68,7 +68,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/calculator.wsdl");
         assertNotNull(resource);
-        bean.setWsdlURL(resource);
+        bean.setWsdlURL(resource.toString());
         bean.setBus(getBus());
         bean.setServiceClass(CalculatorImpl.class);
         CalculatorImpl calculator = new CalculatorImpl();

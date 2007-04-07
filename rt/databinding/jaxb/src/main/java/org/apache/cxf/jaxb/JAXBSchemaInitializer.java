@@ -59,7 +59,10 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
 
         JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
-
+        if (beanInfo == null) {
+            return;
+        }
+        
         boolean isElement = beanInfo.isElement();
         part.setElement(isElement);
         if (isElement) {

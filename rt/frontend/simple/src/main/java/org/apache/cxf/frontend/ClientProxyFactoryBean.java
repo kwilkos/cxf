@@ -19,7 +19,6 @@
 package org.apache.cxf.frontend;
 
 import java.lang.reflect.Proxy;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -126,11 +125,11 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
         this.username = username;
     }
 
-    public URL getWsdlURL() {
+    public String getWsdlURL() {
         return clientFactoryBean.getServiceFactory().getWsdlURL();
     }
 
-    public void setWsdlURL(URL wsdlURL) {
+    public void setWsdlURL(String wsdlURL) {
         clientFactoryBean.getServiceFactory().setWsdlURL(wsdlURL);
     }
 

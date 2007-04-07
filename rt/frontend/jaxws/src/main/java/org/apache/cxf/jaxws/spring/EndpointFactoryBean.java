@@ -79,7 +79,7 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
             if (context.containsBean("cxf")) {
                 bus = (Bus) context.getBean("cxf");
             } else {
-                bus = BusFactory.getDefaultBus();
+                bus = BusFactory.getThreadDefaultBus();
             }
         }
 
@@ -97,7 +97,7 @@ public class EndpointFactoryBean extends AbstractBasicInterceptorProvider
             //if wsdl can't be found, we will try to init Endpoint without wsdl
             URL wsdl = ClassLoaderUtils.getResource(wsdlLocation, this.getClass());                
             if (null != wsdl) {
-                serviceFactory.setWsdlURL(wsdl);
+                serviceFactory.setWsdlURL(wsdl.toString());
             }
         }
         

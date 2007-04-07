@@ -47,7 +47,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
 
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
-        bean.setWsdlURL(resource);
+        bean.setWsdlURL(resource.toString());
         Bus bus = getBus();
         bean.setBus(bus);
         bean.setServiceClass(GreeterImpl.class);

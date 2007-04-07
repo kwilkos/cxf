@@ -43,7 +43,7 @@ public class CXFServletTest extends AbstractServletTest {
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
-        svr.getServiceFactory().setWsdlURL(resource);
+        svr.getServiceFactory().setWsdlURL(resource.toString());
         svr.setBus(getBus());
         svr.setServiceClass(GreeterImpl.class);
         svr.setAddress("http://localhost/services/Greeter");
@@ -66,7 +66,7 @@ public class CXFServletTest extends AbstractServletTest {
     }
 
     private void invoke(String encoding) throws Exception {        
-        WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter", 
+        WebRequest req = new PostMethodWebRequest("http://localhost/services/greeter", 
             getClass().getResourceAsStream("GreeterMessage.xml"), 
             "text/xml; charset=" + encoding);
         

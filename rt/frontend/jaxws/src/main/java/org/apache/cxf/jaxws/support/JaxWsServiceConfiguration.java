@@ -19,11 +19,8 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -38,13 +35,9 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
-import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.DefaultServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -53,7 +46,6 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
     private JaxWsImplementorInfo implInfo;
 
@@ -94,20 +86,10 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public URL getWsdlURL() {
+    public String getWsdlURL() {
         String wsdlLocation = implInfo.getWsdlLocation();
         if (wsdlLocation != null && wsdlLocation.length() > 0) {
-            try {
-                URIResolver resolver = new URIResolver(null, wsdlLocation, getClass());
-                if (resolver.isResolved()) {
-                    return resolver.getURI().toURL();
-                } else {
-                    throw new WebServiceException("Could not find WSDL with URL " + wsdlLocation);
-                }
-            } catch (IOException e) {
-                throw new ServiceConstructionException(
-                    new Message("LOAD_WSDL_EXC", BUNDLE, wsdlLocation), e);
-            }
+            return wsdlLocation;
         }
         return null;
     }

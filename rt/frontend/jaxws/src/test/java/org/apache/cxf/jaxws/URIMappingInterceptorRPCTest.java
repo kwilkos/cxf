@@ -67,7 +67,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(resource);
-        bean.setWsdlURL(resource);
+        bean.setWsdlURL(resource.toString());
         bean.setBus(getBus());
         bean.setServiceClass(RPCLitGreeterImpl.class);
         RPCLitGreeterImpl greeter = new RPCLitGreeterImpl();

@@ -48,7 +48,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
 
         JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(HWSoapMessageProvider.class);
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean(implInfo);
-        bean.setWsdlURL(resource);
+        bean.setWsdlURL(resource.toString());
 
         Bus bus = getBus();
         bean.setBus(bus);

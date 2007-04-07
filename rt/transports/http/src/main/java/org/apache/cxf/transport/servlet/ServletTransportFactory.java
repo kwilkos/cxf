@@ -21,9 +21,10 @@
 package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
@@ -67,11 +68,10 @@ public class ServletTransportFactory extends AbstractTransportFactory
         return d;
     }
     
-    public List<ServletDestination> getDestinations() {
-        List<ServletDestination> result = new ArrayList<ServletDestination>();
-        for (ServletDestination sd : destinations.values()) {
-            result.add(sd);
-        }
-        return result;        
+    public Collection<ServletDestination> getDestinations() {
+        return Collections.unmodifiableCollection(destinations.values());        
+    }
+    public Set<String> getDestinationsPaths() {
+        return Collections.unmodifiableSet(destinations.keySet());        
     }
 }

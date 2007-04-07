@@ -19,24 +19,15 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
-import javax.xml.ws.WebServiceException;
 
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.service.factory.ServiceConstructionException;
 
 public class WebServiceProviderConfiguration extends JaxWsServiceConfiguration {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WebServiceProviderConfiguration.class);
 
     private JaxWsImplementorInfo implInfo;
     
@@ -82,20 +73,10 @@ public class WebServiceProviderConfiguration extends JaxWsServiceConfiguration {
     }
 
     @Override
-    public URL getWsdlURL() {
+    public String getWsdlURL() {
         String wsdlLocation = implInfo.getWsdlLocation();
         if (wsdlLocation != null && wsdlLocation.length() > 0) {
-            try {
-                URIResolver resolver = new URIResolver(null, wsdlLocation, getClass());
-                if (resolver.isResolved()) {
-                    return resolver.getURI().toURL();
-                } else {
-                    throw new WebServiceException("Could not find WSDL with URL " + wsdlLocation);
-                }
-            } catch (IOException e) {
-                throw new ServiceConstructionException(
-                    new Message("LOAD_WSDL_EXC", BUNDLE, wsdlLocation), e);
-            }
+            return wsdlLocation;
         }
         return null;
     }

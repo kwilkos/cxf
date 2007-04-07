@@ -64,19 +64,17 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         Service wsdlService = def.getService(new QName(tns, "Hello"));
         assertNotNull("Generate WSDL Service Error", wsdlService);
     }
-    
+
+
     public void testCalculator() throws Exception {
         ToolContext context = new ToolContext();
         context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator_rpc.wsdl");
         context.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
         processor.setEnvironment(context);
-        try {
-            processor.process();
-            fail("FIXME:CXF-337, remove this line if we fixed the runtime");
-        } catch (Exception e) {
-            // Test for CXF-337
-            // FIXME
-        }
+        processor.process();
+
+        // Test for CXF-337
+        // FIXME - check for existence and correctness of faults
     }
 }

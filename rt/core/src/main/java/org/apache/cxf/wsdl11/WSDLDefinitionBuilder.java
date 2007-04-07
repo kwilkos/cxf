@@ -43,7 +43,6 @@ import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLBuilder;
-import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 
 public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {    
     

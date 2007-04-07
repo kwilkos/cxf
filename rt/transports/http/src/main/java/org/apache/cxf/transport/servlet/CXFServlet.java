@@ -78,6 +78,9 @@ public class CXFServlet extends HttpServlet {
 
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
+
+        BusFactory.setDefaultBus(null);
+        BusFactory.setThreadDefaultBus(null);
         
         String busid = servletConfig.getInitParameter("bus.id");
         if (null != busid) {
@@ -99,14 +102,18 @@ public class CXFServlet extends HttpServlet {
         if (null != busid) {
             BUS_MAP.put(busid, new WeakReference<Bus>(bus));
         }
-        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
-        resourceManager.addResourceResolver(new ServletContextResourceResolver());
+        BusFactory.setDefaultBus(null);
+        BusFactory.setThreadDefaultBus(null);
     }
     
     private void loadBusNoConfig(ServletConfig servletConfig) throws ServletException {
         if (bus == null) {
             bus = BusFactory.getDefaultBus();
         }
+        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+        resourceManager.addResourceResolver(new ServletContextResourceResolver(
+                                               servletConfig.getServletContext()));
+        
         // Set up the ServletController
         controller = createServletController();
 
@@ -136,6 +143,9 @@ public class CXFServlet extends HttpServlet {
         } else {
             bus = new SpringBusFactory(ctx).createBus();
         }
+        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+        resourceManager.addResourceResolver(new ServletContextResourceResolver(
+                                               servletConfig.getServletContext()));
         
         replaceDestionFactory();
 
@@ -220,27 +230,34 @@ public class CXFServlet extends HttpServlet {
         String s = bus.getId();
         BUS_MAP.remove(s);
         bus.shutdown(true);
-        //clean up the defaultBus
-        SpringBusFactory.setDefaultBus(null);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        controller.invoke(request, response);
+        invoke(request, response);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        controller.invoke(request, response);
+        invoke(request, response);
     }
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        controller.invoke(request, response);
+        invoke(request, response);
     }
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException,
         IOException {
-        controller.invoke(request, response);
+        invoke(request, response);
+    }
+    
+    private  void invoke(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        try {
+            BusFactory.setThreadDefaultBus(getBus());
+            controller.invoke(request, response);
+        } finally {
+            BusFactory.setThreadDefaultBus(null);
+        }
     }
 }
