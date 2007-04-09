@@ -162,20 +162,21 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
      * @param client
      * @return
      */
-    protected BindingOperationInfo getBindingOperationInfoForWrapped(Exchange exchange, QName name,
-                                                                     boolean client) {
+    protected BindingOperationInfo getBindingOperationInfo(Exchange exchange, QName name,
+                                                              boolean client) {
         String local = name.getLocalPart();
         if (client && local.endsWith("Response")) {
             local = local.substring(0, local.length() - 8);
         }
 
         // TODO: Allow overridden methods.
-        BindingOperationInfo operation = ServiceModelUtil.getOperation(exchange, local);
-        if (operation != null && operation.isUnwrappedCapable()) {
-            return operation;
+        BindingOperationInfo bop = ServiceModelUtil.getOperation(exchange, local);
+        
+        if (bop != null) {
+            exchange.put(BindingOperationInfo.class, bop);
+            exchange.put(OperationInfo.class, bop.getOperationInfo());
         }
-
-        return null;
+        return bop;
     }
     
     protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation) {

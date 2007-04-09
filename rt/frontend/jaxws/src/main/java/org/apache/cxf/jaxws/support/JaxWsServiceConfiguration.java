@@ -425,6 +425,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         if (!getServiceFactory().isWrapped()) {
             return Boolean.FALSE;
         }
+        m = getDeclaredMethod(m);
 
         SOAPBinding ann = m.getAnnotation(SOAPBinding.class);
         if (ann != null) {

@@ -25,6 +25,10 @@ public class SoapHeaderInfo {
     
     private MessagePartInfo part;
     private String use;
+    
+    public SoapHeaderInfo() {
+        
+    }
 
     public MessagePartInfo getPart() {
         return part;

@@ -87,7 +87,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
 
         if (bop == null) {
             QName startQName = xmlReader.getName();
-            bop = getBindingOperationInfoForWrapped(exchange, startQName, client);
+            bop = getBindingOperationInfo(exchange, startQName, client);
         }
 
         if (bop != null && bop.isUnwrappedCapable()) {
@@ -132,7 +132,6 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 } else {
                     msgInfo = bop.getInput();
                 }
-
             }
 
             Collection<OperationInfo> operations = null;

@@ -31,7 +31,9 @@ public class SoapBindingInfoConfigBean {
     private boolean mtomEnabled;
     
 
-
+    public SoapBindingInfoConfigBean() {
+        
+    }
 
     protected boolean isHeader(BindingOperationInfo op, MessagePartInfo part) {
         return false;

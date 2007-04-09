@@ -26,9 +26,9 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoConfigBean;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
@@ -41,7 +41,7 @@ public class HeaderTest extends AbstractJaxWsTest {
     
     @Test
     public void testInvocation() throws Exception {
-        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         Bus bus = getBus();
         bean.setBus(bus);
@@ -76,6 +76,8 @@ public class HeaderTest extends AbstractJaxWsTest {
         ServerFactoryBean svr = new ServerFactoryBean();
         svr.setBus(bus);
         svr.setServiceFactory(bean);
+        svr.setAddress("http://localhost:9104/SoapHeaderContext/SoapHeaderPort");
+        svr.setBindingConfig(new JaxWsSoapBindingInfoConfigBean(bean));
         
         svr.create();
         

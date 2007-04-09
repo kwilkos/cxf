@@ -27,7 +27,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
-import org.apache.cxf.mime.types.XopType;
 import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -102,13 +101,22 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
             new QName("http://cxf.apache.org/mime", "testXop"));
         assertNotNull(op);
         
-        // test setup of input parts
+        
         Iterator<MessagePartInfo> itr = op.getInput().getMessageParts().iterator();
         assertTrue(itr.hasNext());
         MessagePartInfo part = itr.next();
-        assertEquals("data", part.getName().getLocalPart());
-        assertEquals(XopType.class, part.getTypeClass());
-
+        assertEquals("testXop", part.getElementQName().getLocalPart());
+        
+        op = op.getUnwrappedOperation();
+        assertNotNull(op);
+        
+        // test setup of input parts
+        itr = op.getInput().getMessageParts().iterator();
+        assertTrue(itr.hasNext());
+        part = itr.next();
+        assertEquals("name", part.getName().getLocalPart());
+        assertEquals(String.class, part.getTypeClass());
+        
         /*
          * revisit, try to use other wsdl operation rewrite test in future 
         assertTrue(itr.hasNext());
@@ -125,6 +133,5 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         part = itr.next();
         assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
         */
-        assertFalse(itr.hasNext());
     }
 }

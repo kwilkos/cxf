@@ -78,7 +78,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         e = (EndpointImpl)Endpoint.publish(address, implementor);        
         e.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
         e.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());
-        
     }
 
     @Test
@@ -317,4 +316,5 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
   //         proxy.sendReceiveAnyType(simpleAll, new SimpleChoice());    
   
   //     }
+   
 }

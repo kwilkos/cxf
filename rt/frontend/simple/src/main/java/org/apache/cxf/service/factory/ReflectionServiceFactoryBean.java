@@ -434,8 +434,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         for (int j = 0; j < paramClasses.length; j++) {
             if (isInParam(method, j)) {
-                final QName q = getInParameterName(op, method, j);                
-                MessagePartInfo part = inMsg.addMessagePart(q);
+                final QName q = getInParameterName(op, method, j);
+                final QName q2 = getInPartName(op, method, j);
+                MessagePartInfo part = inMsg.addMessagePart(q2);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                 //TODO - RPC vs DOC (type vs element)
                 if (isHeader(method, j)) {
@@ -452,7 +453,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             final Class<?> returnType = method.getReturnType();
             if (!returnType.isAssignableFrom(void.class)) {
-                final QName q = getOutParameterName(op, method, -1);                
+                final QName q = getOutPartName(op, method, -1);                
                 MessagePartInfo part = outMsg.addMessagePart(q);
                 initializeParameter(part, method.getReturnType(), method.getGenericReturnType());
                 part.setIndex(-1);
@@ -460,7 +461,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             for (int j = 0; j < paramClasses.length; j++) {
                 if (isOutParam(method, j)) {
-                    final QName q = getInParameterName(op, method, j);
+                    final QName q = getOutPartName(op, method, j);
+                    final QName q2 = getOutParameterName(op, method, j);
                     MessagePartInfo part = outMsg.addMessagePart(q);
                     initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                     part.setIndex(j);
@@ -469,7 +471,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         part.setProperty(MODE_INOUT, Boolean.TRUE);
                     }
                     if (isHeader(method, j)) {
-                        part.setElementQName(q);
+                        part.setElementQName(q2);
                     }
                 }
             }

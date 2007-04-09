@@ -84,8 +84,9 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
     
     @Test
     public void testRequestContext() throws Exception {
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
         javax.xml.ws.Service s = javax.xml.ws.Service
-            .create(serviceName);
+            .create(url, serviceName);
         Greeter greeter = s.getPort(portName, Greeter.class);
         InvocationHandler handler  = Proxy.getInvocationHandler(greeter);
         BindingProvider  bp = null;
