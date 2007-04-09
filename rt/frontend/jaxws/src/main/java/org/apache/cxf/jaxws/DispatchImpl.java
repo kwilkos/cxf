@@ -149,7 +149,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         chain.doIntercept(message);
                 
         if (message.getContent(Exception.class) != null) {
-            throw new RuntimeException(message.get(Exception.class));
+            throw new RuntimeException(message.getContent(Exception.class));
         }
 
         // correlate response        
