@@ -58,7 +58,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
 
     <!--WS-A Interceptors not required in Fault Chain-->
-    <bean id="{http://cxf.apache.org/greeter_control}GreeterPort" abstract="true">
+    <bean id="{http://cxf.apache.org/greeter_control}GreeterPort.endpoint" abstract="true">
         <property name="inInterceptors">
             <list>
                 <ref bean="rmLogicalIn"/>
