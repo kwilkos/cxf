@@ -22,7 +22,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import org.apache.cxf.binding.object.ObjectBindingConfigBean;
+import org.apache.cxf.binding.object.ObjectBindingConfiguration;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -41,7 +41,7 @@ public class ObjectBindingConfigBeanDefinintionParser extends AbstractBeanDefini
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return ObjectBindingConfigBean.class;
+        return ObjectBindingConfiguration.class;
     }
 
 }

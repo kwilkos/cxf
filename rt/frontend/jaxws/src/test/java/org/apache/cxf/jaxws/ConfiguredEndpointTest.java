@@ -94,8 +94,9 @@ public class ConfiguredEndpointTest extends Assert {
         JaxWsClientProxy eih = (JaxWsClientProxy)Proxy.getInvocationHandler(greeter);
         Client client = eih.getClient();
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
-        assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        assertTrue("Unexpected value for property validating", !endpoint.getEnableSchemaValidation());
+        assertEquals("Unexpected bean name", PORT_NAME.toString() + ".endpoint", endpoint.getBeanName());
+        assertTrue("Unexpected value for property validating", 
+                   !Boolean.TRUE.equals(endpoint.get(Message.SCHEMA_VALIDATION_ENABLED)));
    
         // System.out.println("endpoint interceptors");
         List<Interceptor> interceptors = endpoint.getInInterceptors();
@@ -160,28 +161,29 @@ public class ConfiguredEndpointTest extends Assert {
         JaxWsClientProxy eih = (JaxWsClientProxy)Proxy.getInvocationHandler(greeter);
         Client client = eih.getClient();
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
-        assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        // assertTrue("Unexpected value for property validating", endpoint.getValidating());
-        List<Interceptor> interceptors = endpoint.getInInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
-        assertEquals("Unexpected interceptor id.", "endpoint-in", 
-                     findTestInterceptor(interceptors).getId());
-        interceptors = endpoint.getOutInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
-        assertEquals("Unexpected interceptor id.", "endpoint-out", 
-                     findTestInterceptor(interceptors).getId());
-        interceptors = endpoint.getInFaultInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
-        assertEquals("Unexpected interceptor id.", "endpoint-in-fault", 
-                     findTestInterceptor(interceptors).getId());
-        interceptors = endpoint.getOutFaultInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
-        assertEquals("Unexpected interceptor id.", "endpoint-out-fault", 
-                     findTestInterceptor(interceptors).getId());
+//      The service shouldn't pick up the <jaxws:endpoint>...
+//        assertEquals("Unexpected bean name", PORT_NAME.toString() + ".endpoint", endpoint.getBeanName());
+//        // assertTrue("Unexpected value for property validating", endpoint.getValidating());
+//        List<Interceptor> interceptors = endpoint.getInInterceptors();
+//        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+//        assertEquals("Unexpected interceptor id.", "endpoint-in", 
+//                     findTestInterceptor(interceptors).getId());
+//        interceptors = endpoint.getOutInterceptors();
+//        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+//        assertEquals("Unexpected interceptor id.", "endpoint-out", 
+//                     findTestInterceptor(interceptors).getId());
+//        interceptors = endpoint.getInFaultInterceptors();
+//        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+//        assertEquals("Unexpected interceptor id.", "endpoint-in-fault", 
+//                     findTestInterceptor(interceptors).getId());
+//        interceptors = endpoint.getOutFaultInterceptors();
+//        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+//        assertEquals("Unexpected interceptor id.", "endpoint-out-fault", 
+//                     findTestInterceptor(interceptors).getId());
         
         org.apache.cxf.service.ServiceImpl svc = (org.apache.cxf.service.ServiceImpl)endpoint.getService();
         assertEquals("Unexpected bean name.", SERVICE_NAME.toString(), svc.getBeanName());
-        interceptors = svc.getInInterceptors();
+        List<Interceptor> interceptors = svc.getInInterceptors();
         assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
         assertEquals("Unexpected interceptor id.", "service-in", 
                      findTestInterceptor(interceptors).getId());
@@ -226,8 +228,9 @@ public class ConfiguredEndpointTest extends Assert {
         ei.publish("http://localhost/greeter");
         
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
-        assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        assertTrue("Unexpected value for property validating", !endpoint.getEnableSchemaValidation());
+        assertEquals("Unexpected bean name", PORT_NAME.toString() + ".endpoint", endpoint.getBeanName());
+        assertTrue("Unexpected value for property validating", 
+                   !Boolean.TRUE.equals(endpoint.get(Message.SCHEMA_VALIDATION_ENABLED)));
    
         List<Interceptor> interceptors = endpoint.getInInterceptors();
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
@@ -283,22 +286,23 @@ public class ConfiguredEndpointTest extends Assert {
         ei.publish("http://localhost/greeter");
         
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
-        assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        assertTrue("Unexpected value for property validating", endpoint.getEnableSchemaValidation());
+        assertEquals("Unexpected bean name", PORT_NAME.toString() + ".endpoint", endpoint.getBeanName());
+        assertTrue("Unexpected value for property validating", 
+                   Boolean.valueOf((String) ei.getProperties().get(Message.SCHEMA_VALIDATION_ENABLED)));
         List<Interceptor> interceptors = endpoint.getInInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+        assertEquals("Unexpected number of interceptors.", 5, interceptors.size());
         assertEquals("Unexpected interceptor id.", "endpoint-in", 
                      findTestInterceptor(interceptors).getId());
         interceptors = endpoint.getOutInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+        assertEquals("Unexpected number of interceptors.", 6, interceptors.size());
         assertEquals("Unexpected interceptor id.", "endpoint-out", 
                      findTestInterceptor(interceptors).getId());
         interceptors = endpoint.getInFaultInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+        assertEquals("Unexpected number of interceptors.", 2, interceptors.size());
         assertEquals("Unexpected interceptor id.", "endpoint-in-fault", 
                      findTestInterceptor(interceptors).getId());
         interceptors = endpoint.getOutFaultInterceptors();
-        assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
+        assertEquals("Unexpected number of interceptors.", 4, interceptors.size());
         assertEquals("Unexpected interceptor id.", "endpoint-out-fault", 
                      findTestInterceptor(interceptors).getId());
         

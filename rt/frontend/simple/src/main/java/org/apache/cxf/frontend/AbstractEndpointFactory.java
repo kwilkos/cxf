@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
@@ -59,8 +60,8 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private QName endpointName;
     private Map<String, Object> properties;
     private List<AbstractWSFeature> features;
-    private Object bindingConfig;
-
+    private BindingConfiguration bindingConfig;
+    
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         Service service = serviceFactory.getService();
         
@@ -208,10 +209,16 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     protected BindingInfo createBindingInfo() {
         BindingFactoryManager mgr = bus.getExtension(BindingFactoryManager.class);
         String binding = bindingId;
+        
+        if (binding == null && bindingConfig != null) {
+            binding = bindingConfig.getBindingId();
+        }
+        
         if (binding == null) {
             // default to soap binding
             binding = "http://schemas.xmlsoap.org/soap/";
         }
+        
         try {
             return mgr.getBindingFactory(binding).createBindingInfo(serviceFactory.getService(),
                                                                     binding, bindingConfig);
@@ -263,10 +270,10 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         return bindingId;
     }
 
-    public void setBindingConfig(Object obj) {
+    public void setBindingConfig(BindingConfiguration obj) {
         bindingConfig = obj;
     }
-    public Object getBindingConfig() {
+    public BindingConfiguration getBindingConfig() {
         return bindingConfig;
     }
     
@@ -320,6 +327,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
 
     public void setFeatures(List<AbstractWSFeature> features) {
         this.features = features;
+    }
+
+    public String getWsdlURL() {
+        return getServiceFactory().getWsdlURL();
+    }
+
+    public void setWsdlURL(String wsdlURL) {
+        getServiceFactory().setWsdlURL(wsdlURL);
     }
     
 }

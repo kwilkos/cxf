@@ -16,23 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.holder;
+package org.apache.cxf.binding.object;
 
-import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
-import javax.jws.WebService;
-import javax.xml.ws.Holder;
+import java.util.Set;
 
-@WebService
-public interface HolderService {
+import org.apache.cxf.binding.BindingConfiguration;
 
-    String echo(String s1, String s2, @WebParam(mode = Mode.OUT)
-    Holder<String> outS2);
+public class ObjectBindingConfiguration extends BindingConfiguration {
+    private boolean stopAfterLogicalPhases = true;
+    private Set<String> skipPhases;
+    
+    @Override
+    public String getBindingId() {
+        return ObjectBindingFactory.BINDING_ID;
+    }
 
-    String echo2(String s1, @WebParam(mode = Mode.OUT)
-    Holder<String> outS2, String s2);
+    public Set<String> getSkipPhases() {
+        return skipPhases;
+    }
 
-    String echo3(@WebParam(mode = Mode.INOUT, header = true, name = "header")
-    Holder<String> header, String s1);
+    public void setSkipPhases(Set<String> skipPhases) {
+        this.skipPhases = skipPhases;
+    }
 
+    public boolean isStopAfterLogicalPhases() {
+        return stopAfterLogicalPhases;
+    }
+
+    public void setStopAfterLogicalPhases(boolean stopAfterLogicalPhases) {
+        this.stopAfterLogicalPhases = stopAfterLogicalPhases;
+    }
+    
 }

@@ -51,6 +51,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
@@ -85,6 +86,11 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         this.serviceClass = implInfo.getEndpointClass();
     }
 
+    @Override
+    protected Invoker createInvoker() {
+        return null;
+    }
+    
     protected SimpleMethodDispatcher getMethodDispatcher() {
         return methodDispatcher;
     }

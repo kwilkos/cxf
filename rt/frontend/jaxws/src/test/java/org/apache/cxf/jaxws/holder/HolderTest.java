@@ -22,6 +22,9 @@ import javax.xml.ws.Holder;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
@@ -33,6 +36,12 @@ import org.junit.Test;
 
 public class HolderTest extends AbstractJaxWsTest {
     private final String address = "http://localhost:9000/HolderService";
+
+    @Override
+    protected Bus createBus() throws BusException {
+        // TODO Auto-generated method stub
+        return new CXFBusFactory().createBus();
+    }
 
     @Test
     public void testClient() throws Exception {
@@ -67,7 +76,7 @@ public class HolderTest extends AbstractJaxWsTest {
         
         assertNotNull(response);
         assertValid("//h:echoResponse/h:return[text()='one']", response);
-        assertValid("//h:echoResponse/h:outS2[text()='two']", response);
+        assertValid("//h:echoResponse/h:return1[text()='two']", response);
         assertNoFault(response);
 
         response = invoke(address, LocalTransportFactory.TRANSPORT_ID, "echo2.xml");
@@ -75,7 +84,7 @@ public class HolderTest extends AbstractJaxWsTest {
         assertNotNull(response);
         assertNoFault(response);
         assertValid("//h:echo2Response/h:return[text()='one']", response);
-        assertValid("//h:echo2Response/h:outS2[text()='two']", response);
+        assertValid("//h:echo2Response/h:return1[text()='two']", response);
         
         // test holder with in/out header
         response = invoke(address, LocalTransportFactory.TRANSPORT_ID, "echo3.xml");

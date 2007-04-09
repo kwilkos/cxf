@@ -22,7 +22,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import org.apache.cxf.binding.soap.SoapBindingInfoConfigBean;
+import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -41,7 +41,7 @@ public class SoapBindingInfoConfigBeanDefinitionParser extends AbstractBeanDefin
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return SoapBindingInfoConfigBean.class;
+        return SoapBindingConfiguration.class;
     }
 
 }

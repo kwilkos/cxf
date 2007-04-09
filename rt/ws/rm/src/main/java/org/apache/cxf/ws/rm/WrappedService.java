@@ -87,16 +87,8 @@ public class WrappedService implements Service {
     
     // remaining APIs all wrapped
 
-    public boolean getEnableSchemaValidationForAllPort() {
-        return wrappedService.getEnableSchemaValidationForAllPort();
-    }
-
     public Executor getExecutor() {
         return wrappedService.getExecutor();
-    }
-
-    public void setEnableSchemaValidationForAllPort(boolean arg0) {
-        wrappedService.setEnableSchemaValidationForAllPort(arg0);
     }
 
     public void setExecutor(Executor arg0) {

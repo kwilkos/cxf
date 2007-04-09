@@ -59,7 +59,8 @@ public class WrappedServiceTest extends AbstractRestTest {
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(true);
         sf.setAddress("http://localhost:9001/");
-
+        sf.setServiceBean(new CustomerService());
+        
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("contextMatchStrategy", "stem");
         sf.setProperties(props);

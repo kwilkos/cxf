@@ -36,6 +36,8 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLLocatorImpl;
@@ -58,9 +60,16 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
         jwsc.setServiceFactory(bean);
         
-        QName partName = jwsc.getInPartName(si.getInterface().getOperation(opName), sayHelloMethod, 0);
+        OperationInfo op = si.getInterface().getOperation(opName);
+        op.setInput("input", new MessageInfo(op, new QName("input")));
+        op.setOutput("output", new MessageInfo(op, new QName("output")));
+        
+        QName partName = jwsc.getInPartName(op, sayHelloMethod, 0);
         assertEquals("get wrong in partName for first param", new QName("http://cxf.com/", "arg0"), partName);
-        partName = jwsc.getInPartName(si.getInterface().getOperation(opName), sayHelloMethod, 1);
+        
+        op.getInput().addMessagePart(new QName("arg0"));
+        
+        partName = jwsc.getInPartName(op, sayHelloMethod, 1);
         assertEquals("get wrong in partName for first param", new QName("http://cxf.com/", "arg1"), partName);
     }
 
@@ -69,7 +78,15 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         Method sayHiMethod = Hello.class.getMethod("sayHi", new Class[]{});
         ServiceInfo si = getMockedServiceModel("/wsdl/default_partname_test.wsdl");
         JaxWsServiceConfiguration jwsc = new JaxWsServiceConfiguration();
-        QName partName = jwsc.getOutPartName(si.getInterface().getOperation(opName), sayHiMethod, -1);
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setServiceClass(Hello.class);
+        jwsc.setServiceFactory(bean);
+        
+        // clear the output
+        OperationInfo op = si.getInterface().getOperation(opName);
+        op.setOutput("output", new MessageInfo(op, new QName("output")));
+        
+        QName partName = jwsc.getOutPartName(op, sayHiMethod, -1);
         assertEquals("get wrong return partName", new QName("http://cxf.com/", "return"), partName);
     }
 

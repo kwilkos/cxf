@@ -26,7 +26,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoConfigBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -76,8 +76,10 @@ public class HeaderTest extends AbstractJaxWsTest {
         ServerFactoryBean svr = new ServerFactoryBean();
         svr.setBus(bus);
         svr.setServiceFactory(bean);
+        svr.setServiceBean(new TestHeaderImpl());
         svr.setAddress("http://localhost:9104/SoapHeaderContext/SoapHeaderPort");
-        svr.setBindingConfig(new JaxWsSoapBindingInfoConfigBean(bean));
+        svr.setBindingConfig(new JaxWsSoapBindingConfiguration(bean));
+
         
         svr.create();
         

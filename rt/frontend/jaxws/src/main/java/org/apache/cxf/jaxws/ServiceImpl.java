@@ -50,14 +50,13 @@ import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
-import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoConfigBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.support.DummyImpl;
 import org.apache.cxf.jaxws.support.JaxWsClientEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -249,7 +248,6 @@ public class ServiceImpl extends ServiceDelegate {
         
         // Configure the Service
         Service service = serviceFactory.getService();
-        service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
         service.setExecutor(new Executor() {
             public void execute(Runnable command) {
                 Executor ex = getExecutor();
@@ -267,10 +265,7 @@ public class ServiceImpl extends ServiceDelegate {
         configureObject(jaxwsEndpoint);  
         
         QName pn = portName;
-        if (jaxwsEndpoint.getEnableSchemaValidation()) {
-            jaxwsEndpoint.put(Message.SCHEMA_VALIDATION_ENABLED, jaxwsEndpoint.getEnableSchemaValidation());
-        }
-
+        
         List<Handler> hc = jaxwsEndpoint.getJaxwsBinding().getHandlerChain();
         hc.addAll(handlerResolver.getHandlerChain(portInfos.get(pn)));
 
@@ -295,7 +290,7 @@ public class ServiceImpl extends ServiceDelegate {
         
         Object config = null;
         if (serviceFactory instanceof JaxWsServiceFactoryBean) {
-            config = new JaxWsSoapBindingInfoConfigBean((JaxWsServiceFactoryBean)serviceFactory);
+            config = new JaxWsSoapBindingConfiguration((JaxWsServiceFactoryBean)serviceFactory);
         }
         BindingInfo bindingInfo = bus.getExtension(BindingFactoryManager.class).getBindingFactory(bindingID)
                 .createBindingInfo(serviceFactory.getService(), bindingID, config);

@@ -127,7 +127,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
             assertEquals(expeced, e.getMessage());
         }
     }
-
+    
     @Test
     public void testPublishEndpointPermission() throws Exception {
         Hello service = new Hello();

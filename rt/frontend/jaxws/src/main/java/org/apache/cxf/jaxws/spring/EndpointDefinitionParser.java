@@ -31,25 +31,28 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
 
-public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
+
+public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
 
     private static final String IMPLEMENTOR = "implementor";
 
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+
         NamedNodeMap atts = element.getAttributes();
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
             String pre = node.getPrefix();
             String name = node.getLocalName();
-            
-            if (isAttribute(pre, name)) {
+
+            if (isAttribute(pre, name) && !"publish".equals(name)) {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
@@ -58,6 +61,8 @@ public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionP
                 } else {
                     mapToProperty(bean, name, val);
                 }
+            } else if ("abstract".equals(name)) {
+                bean.setAbstract(true);
             }
         }
         
@@ -73,29 +78,29 @@ public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionP
                     || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue(n.getLocalName(), list);
+                } else if (IMPLEMENTOR.equals(name)) {
+                    ctx.getDelegate()
+                        .parseConstructorArgElement(getFirstChild(element), bean.getBeanDefinition());
                 } else {
                     setFirstChildAsProperty((Element) n, ctx, bean, n.getLocalName());
                 }
             }
         }
+
+        bean.setInitMethodName("publish");
         
-        // We don't really want to delay the registration of our Server
+        // We don't want to delay the registration of our Server
         bean.setLazyInit(false);
-        
-//        PropertyValue idValue = bean.getBeanDefinition().getPropertyValues().getPropertyValue("id");
-//        if (idValue == null) {
-//            bean.addPropertyReference("id", arg1);
-//        }
     }
 
     private void loadImplementor(BeanDefinitionBuilder bean, String val) {
         if (StringUtils.hasText(val)) {
             if (val.startsWith("#")) {
-                bean.addPropertyReference(IMPLEMENTOR, val.substring(1));
+                bean.addConstructorArgReference(val.substring(1));
             } else {
                 try {
-                    bean.addPropertyValue(IMPLEMENTOR,
-                                          ClassLoaderUtils.loadClass(val, getClass()).newInstance());
+                    Object obj = ClassLoaderUtils.loadClass(val, getClass()).newInstance();
+                    bean.addConstructorArg(obj);
                 } catch (Exception e) {
                     throw new FatalBeanException("Could not load class: " + val, e);
                 }
@@ -105,7 +110,7 @@ public class EndpointFactoryBeanDefinitionParser extends AbstractBeanDefinitionP
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return EndpointFactoryBean.class;
+        return EndpointImpl.class;
     }
 
 }

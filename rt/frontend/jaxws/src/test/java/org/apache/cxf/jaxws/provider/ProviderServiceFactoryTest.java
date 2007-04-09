@@ -31,6 +31,7 @@ import org.apache.cxf.binding.xml.XMLBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
+import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -81,7 +82,8 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(DOMSourcePayloadProvider.class);
         bean.setBus(getBus());
-
+        bean.setInvoker(new JAXWSMethodInvoker(new DOMSourcePayloadProvider()));
+        
         Service service = bean.create();
 
         assertEquals("DOMSourcePayloadProviderService", service.getName().getLocalPart());
@@ -115,7 +117,8 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(SOAPSourcePayloadProvider.class);
         bean.setBus(getBus());
-
+        bean.setInvoker(new JAXWSMethodInvoker(new SOAPSourcePayloadProvider()));
+        
         Service service = bean.create();
 
         assertEquals("SOAPSourcePayloadProviderService", service.getName().getLocalPart());
@@ -156,7 +159,8 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(SAAJProvider.class);
         bean.setBus(getBus());
-
+        bean.setInvoker(new JAXWSMethodInvoker(new SAAJProvider()));
+        
         Service service = bean.create();
 
         assertEquals("SAAJProviderService", service.getName().getLocalPart());
@@ -194,6 +198,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
         svrFactory.setServiceClass(StreamSourcePayloadProvider.class);
         svrFactory.setBus(getBus());
+        svrFactory.setServiceBean(new StreamSourcePayloadProvider());
         String address = "http://localhost:9000/test";
         svrFactory.setAddress(address);
 
@@ -211,6 +216,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
         svrFactory.setServiceClass(SourceMessageProvider.class);
         svrFactory.setBus(getBus());
+        svrFactory.setServiceBean(new SourceMessageProvider());
         String address = "http://localhost:9000/test";
         svrFactory.setAddress(address);
 

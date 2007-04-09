@@ -24,9 +24,11 @@ import javax.xml.namespace.QName;
 
 import junit.framework.Assert;
 
+import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -90,8 +92,7 @@ public class SpringBeansTest extends Assert {
         
         ep = (EndpointImpl) ctx.getBean("epWithInterceptors");
         assertNotNull(ep);
-        Endpoint cxfEP = ep.getServer().getEndpoint();
-        List<Interceptor> inInterceptors = cxfEP.getInInterceptors();
+        List<Interceptor> inInterceptors = ep.getInInterceptors();
         boolean saaj = false;
         boolean logging = false;
         for (Interceptor<?> i : inInterceptors) {
@@ -106,7 +107,7 @@ public class SpringBeansTest extends Assert {
         
         saaj = false;
         logging = false;
-        for (Interceptor<?> i : cxfEP.getOutInterceptors()) {
+        for (Interceptor<?> i : ep.getOutInterceptors()) {
             if (i instanceof SAAJOutInterceptor) {
                 saaj = true;
             } else if (i instanceof LoggingOutInterceptor) {
@@ -125,6 +126,11 @@ public class SpringBeansTest extends Assert {
 
         bean = (JaxWsServerFactoryBean) ctx.getBean("inlineSoapBinding");
         assertNotNull(bean);
+        
+        BindingConfiguration bc = bean.getBindingConfig();
+        assertTrue(bc instanceof SoapBindingConfiguration);
+        SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
+        assertTrue(sbc.getVersion() instanceof Soap12);
     }
     
 

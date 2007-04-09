@@ -48,7 +48,8 @@ public class BareServiceTest extends AbstractRestTest {
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
         sf.setAddress("http://localhost:9001/foo/");
-
+        sf.setServiceBean(new CustomerService());
+        
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("contextMatchStrategy", "stem");
         sf.setProperties(props);
@@ -130,7 +131,8 @@ public class BareServiceTest extends AbstractRestTest {
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
         sf.setAddress("http://localhost:9001/foo/");
-
+        sf.setServiceBean(new CustomerService());
+        
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("Content-Type", "text/plain");
         sf.setProperties(props);

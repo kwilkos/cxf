@@ -24,11 +24,19 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
  
     <bean id="{http://apache.org/type_test/doc}SOAPService" abstract="true">
-        <property name="enableSchemaValidationForAllPort" value="true"/>
+        <property name="properties">
+          	<map>
+          		<entry key="schema-validation-enabled" value="true" />
+          	</map>
+        </property>
     </bean>
 
-     <bean id="{http://apache.org/type_test/xml}XMLService" abstract="true">
-        <property name="enableSchemaValidationForAllPort" value="true"/>
+    <bean id="{http://apache.org/type_test/xml}XMLService" abstract="true">
+        <property name="properties">
+          	<map>
+          		<entry key="schema-validation-enabled" value="true" />
+          	</map>
+        </property>
     </bean>
     
 </beans>

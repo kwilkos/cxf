@@ -26,7 +26,7 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoConfigBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.invoker.Invoker;
@@ -48,8 +48,8 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     }
     public JaxWsServerFactoryBean(JaxWsServiceFactoryBean serviceFactory) {
         setServiceFactory(serviceFactory);
-        JaxWsSoapBindingInfoConfigBean defConfig 
-            = new JaxWsSoapBindingInfoConfigBean(serviceFactory);
+        JaxWsSoapBindingConfiguration defConfig 
+            = new JaxWsSoapBindingConfiguration(serviceFactory);
         setBindingConfig(defConfig);
     }
 
@@ -75,7 +75,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
                 binding = "http://schemas.xmlsoap.org/soap/";
                 
                 if (getBindingConfig() == null) {
-                    setBindingConfig(new JaxWsSoapBindingInfoConfigBean(sf));
+                    setBindingConfig(new JaxWsSoapBindingConfiguration(sf));
                 }
             }
             
@@ -83,15 +83,15 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         }
         boolean messageMode = implInfo.getServiceMode().equals(javax.xml.ws.Service.Mode.MESSAGE);
         
-        if (getBindingConfig() instanceof JaxWsSoapBindingInfoConfigBean) {
-            JaxWsSoapBindingInfoConfigBean conf = (JaxWsSoapBindingInfoConfigBean)getBindingConfig();
+        if (getBindingConfig() instanceof JaxWsSoapBindingConfiguration) {
+            JaxWsSoapBindingConfiguration conf = (JaxWsSoapBindingConfiguration)getBindingConfig();
             
             if (jaxBid.equals(binding.equals(SOAPBinding.SOAP12HTTP_BINDING))) {
-                conf.setSoapVersion(Soap12.getInstance());
+                conf.setVersion(Soap12.getInstance());
             }
             
             if (jaxBid.equals(binding.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING))) {
-                conf.setSoapVersion(Soap12.getInstance());
+                conf.setVersion(Soap12.getInstance());
                 conf.setMtomEnabled(true);
             }
             

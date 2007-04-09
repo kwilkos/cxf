@@ -60,10 +60,6 @@ public class WrappedEndpoint implements Endpoint {
         return wrappedEndpoint.getBinding();
     }
 
-    public boolean getEnableSchemaValidation() {
-        return wrappedEndpoint.getEnableSchemaValidation();
-    }
-
     public Executor getExecutor() {
         return wrappedEndpoint.getExecutor();
     }
@@ -74,10 +70,6 @@ public class WrappedEndpoint implements Endpoint {
 
     public MessageObserver getOutFaultObserver() {
         return wrappedEndpoint.getOutFaultObserver();
-    }
-
-    public void setEnableSchemaValidation(boolean arg0) {
-        wrappedEndpoint.setEnableSchemaValidation(arg0);
     }
 
     public void setExecutor(Executor arg0) {

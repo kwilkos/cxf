@@ -47,7 +47,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     <jaxws:endpoint id="endpoint2" 
               implementor="org.apache.hello_world_soap_http.GreeterImpl"
               address="http://localhost/services/Greeter2"
-              wsdlLocation="/wsdl/world1.wsdl"
               />     
   
 </beans>

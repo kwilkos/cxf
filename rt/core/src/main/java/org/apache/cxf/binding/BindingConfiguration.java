@@ -16,23 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.holder;
+package org.apache.cxf.binding;
 
-import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
-import javax.jws.WebService;
-import javax.xml.ws.Holder;
-
-@WebService
-public interface HolderService {
-
-    String echo(String s1, String s2, @WebParam(mode = Mode.OUT)
-    Holder<String> outS2);
-
-    String echo2(String s1, @WebParam(mode = Mode.OUT)
-    Holder<String> outS2, String s2);
-
-    String echo3(@WebParam(mode = Mode.INOUT, header = true, name = "header")
-    Holder<String> header, String s1);
-
+/**
+ * A configuration for a binding.
+ */
+public abstract class BindingConfiguration {
+    public abstract String getBindingId();
 }

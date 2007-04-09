@@ -19,6 +19,7 @@
 
 package org.apache.cxf.endpoint;
 
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -55,7 +56,6 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     private Bus bus;
     private MessageObserver inFaultObserver;
     private MessageObserver outFaultObserver;
-    private boolean schemaValidation;
 
     public EndpointImpl(Bus bus, Service s, QName endpointName) throws EndpointException {
         this(bus, s, s.getServiceInfo().getEndpoint(endpointName));
@@ -84,7 +84,7 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     }
     
     public String getBeanName() {
-        return endpointInfo.getName().toString();
+        return endpointInfo.getName().toString() + ".endpoint";
     }
     
    
@@ -141,13 +141,6 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     public MessageObserver getOutFaultObserver() {
         return outFaultObserver;
     }
-    
-    public void setEnableSchemaValidation(boolean value) {
-        schemaValidation = value;
-    }
-    public boolean getEnableSchemaValidation() {
-        return schemaValidation;
-    }
 
     public void setInFaultObserver(MessageObserver observer) {
         inFaultObserver = observer;        
@@ -157,7 +150,14 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
         outFaultObserver = observer;
         
     }
-
-   
+    
+    /**
+     * Utility method to make it easy to set properties from Spring.
+     * 
+     * @param properties
+     */
+    public void setProperties(Map<String, Object> properties) {
+        this.putAll(properties);
+    }
     
 }

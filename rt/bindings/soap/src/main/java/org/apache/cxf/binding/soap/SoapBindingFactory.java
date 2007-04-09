@@ -90,16 +90,16 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     }
 
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object conf) {
-        SoapBindingInfoConfigBean config;
-        if (conf instanceof SoapBindingInfoConfigBean) {
-            config = (SoapBindingInfoConfigBean)conf;
+        SoapBindingConfiguration config;
+        if (conf instanceof SoapBindingConfiguration) {
+            config = (SoapBindingConfiguration)conf;
         } else {
-            config = new SoapBindingInfoConfigBean();
+            config = new SoapBindingConfiguration();
         }
         
         SoapBindingInfo info = new SoapBindingInfo(si,
                                                    "http://schemas.xmlsoap.org/wsdl/soap/",
-                                                   config.getSoapVersion());
+                                                   config.getVersion());
         
         info.setName(new QName(si.getName().getNamespaceURI(), 
                                si.getName().getLocalPart() + "SoapBinding"));
@@ -156,7 +156,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                               BindingMessageInfo bMsg, 
                               BindingMessageInfo unwrappedBMsg, 
                               MessageInfo msg,
-                              SoapBindingInfoConfigBean config) {
+                              SoapBindingConfiguration config) {
         List<MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
         for (MessagePartInfo part : msg.getMessageParts()) {
             if (config.isHeader(op, part)) {

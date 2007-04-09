@@ -16,28 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.object;
+package org.apache.cxf.binding.soap;
 
-import java.util.Set;
+import java.beans.PropertyEditorSupport;
 
-public class ObjectBindingConfigBean {
-    private boolean stopAfterLogicalPhases = true;
-    private Set<String> skipPhases;
+public class SoapVersionPropertyEditor extends PropertyEditorSupport {
 
-    public Set<String> getSkipPhases() {
-        return skipPhases;
+    private SoapVersion version;
+
+    @Override
+    public Object getValue() {
+        return version;
     }
 
-    public void setSkipPhases(Set<String> skipPhases) {
-        this.skipPhases = skipPhases;
+    @Override
+    public void setAsText(String text) throws IllegalArgumentException {
+        if ("1.2".equals(text)) {
+            this.version = Soap12.getInstance();
+        } else if ("1.1".equals(text)) {
+            this.version = Soap11.getInstance();
+        } else {
+            super.setAsText(text);
+        }
     }
 
-    public boolean isStopAfterLogicalPhases() {
-        return stopAfterLogicalPhases;
-    }
-
-    public void setStopAfterLogicalPhases(boolean stopAfterLogicalPhases) {
-        this.stopAfterLogicalPhases = stopAfterLogicalPhases;
-    }
-    
 }

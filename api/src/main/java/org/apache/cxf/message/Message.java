@@ -49,7 +49,7 @@ public interface Message extends StringMap {
     String PATH_INFO = Message.class.getName() + ".PATH_INFO";
     String QUERY_STRING = Message.class.getName() + ".QUERY_STRING";
     String MTOM_ENABLED = "mtom-enabled";
-    String SCHEMA_VALIDATION_ENABLED = Message.class.getCanonicalName() + ".schemaValidationEnabled";
+    String SCHEMA_VALIDATION_ENABLED = "schema-validation-enabled";
     String FAULT_STACKTRACE_ENABLED = "faultStackTraceEnabled";
     String CONTENT_TYPE = "Content-Type";
     String BASE_PATH = Message.class.getName() + ".BASE_PATH";

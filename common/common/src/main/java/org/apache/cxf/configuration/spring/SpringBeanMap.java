@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,9 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.BeanIsAbstractException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.TypedStringValue;
+import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.ManagedSet;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -100,6 +104,18 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
                     }
                 }
                 
+                if (ids instanceof ManagedSet || ids instanceof ManagedList) {
+                    List<String> newIds = new ArrayList<String>();
+                    for (Iterator itr = ids.iterator(); itr.hasNext();) {
+                        Object o = itr.next();
+                        if (o instanceof TypedStringValue) {
+                            newIds.add(((TypedStringValue) o).getValue());
+                        } else {
+                            newIds.add((String) o);
+                        }
+                    }
+                    ids = newIds;
+                }
                 for (Object id : ids) {
                     idToBeanName.put(id.toString(), beanNames[i]);
                 }

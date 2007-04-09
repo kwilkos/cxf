@@ -78,7 +78,8 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     }
 
     private void setSchemaInMessage(Service service, Message message, DataReader<?> reader) {
-        if (Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
+        Object en = message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED);
+        if (Boolean.TRUE.equals(en) || "true".equals(en)) {
             Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
             reader.setSchema(schema);
         }

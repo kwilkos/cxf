@@ -56,8 +56,8 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object config) {
         BindingInfo info = super.createBindingInfo(si, bindingid, config);
         
-        if (config instanceof ObjectBindingConfigBean) {
-            ObjectBindingConfigBean c = (ObjectBindingConfigBean) config;
+        if (config instanceof ObjectBindingConfiguration) {
+            ObjectBindingConfiguration c = (ObjectBindingConfiguration) config;
             
             info.setProperty(STOP_AFTER_LOGICAL, c.isStopAfterLogicalPhases());
         }

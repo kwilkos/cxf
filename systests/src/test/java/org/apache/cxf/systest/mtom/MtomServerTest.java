@@ -47,7 +47,7 @@ public class MtomServerTest extends AbstractCXFTest {
     @Test
     public void testMtomRequest() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
-        sf.setServiceClass(EchoService.class);
+        sf.setServiceBean(new EchoService());
         sf.setBus(getBus());
         String address = "http://localhost:9036/EchoService";
         sf.setAddress(address);

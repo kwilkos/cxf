@@ -18,8 +18,6 @@
  */
 package org.apache.cxf.jaxws.holder;
 
-import javax.jws.WebParam;
-import javax.jws.WebParam.Mode;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
@@ -27,14 +25,12 @@ import javax.xml.ws.Holder;
 @WebService(endpointInterface = "org.apache.cxf.jaxws.holder.HolderService")
 public class HolderServiceImpl implements HolderService {
 
-    public String echo(String s1, String s2, @WebParam(mode = Mode.OUT)
-    Holder<String> outS2) {
+    public String echo(String s1, String s2, Holder<String> outS2) {
         outS2.value = s2;
         return s1;
     }
 
-    public String echo2(String s1, @WebParam(mode = Mode.OUT)
-    Holder<String> outS2, String s2) {
+    public String echo2(String s1, Holder<String> outS2, String s2) {
         outS2.value = s2;
         return s1;
     }

@@ -18,25 +18,27 @@
  */
 package org.apache.cxf.binding.soap;
 
+import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
-public class SoapBindingInfoConfigBean {
+public class SoapBindingConfiguration extends BindingConfiguration {
     private SoapVersion soapVersion = Soap11.getInstance();
     private String style = "document";
     private String use;
     private String transportURI = "http://schemas.xmlsoap.org/soap/http";
     private String defaultSoapAction = "";
     private boolean mtomEnabled;
-    
 
-    public SoapBindingInfoConfigBean() {
-        
+    @Override
+    public String getBindingId() {
+        return "http://schemas.xmlsoap.org/soap/";
     }
 
     protected boolean isHeader(BindingOperationInfo op, MessagePartInfo part) {
-        return false;
+        Object isHeader = part.getProperty("messagepart.isheader");
+        return Boolean.TRUE.equals(isHeader);
     }
 
     public String getSoapAction(OperationInfo op) {
@@ -59,12 +61,12 @@ public class SoapBindingInfoConfigBean {
         return getStyle();
     }
 
-    public SoapVersion getSoapVersion() {
+    public SoapVersion getVersion() {
         return soapVersion;
     }
 
-    public void setSoapVersion(SoapVersion soapVersion) {
-        this.soapVersion = soapVersion;
+    public void setVersion(SoapVersion sv) {
+        this.soapVersion = sv;
     }
 
     public String getUse() {

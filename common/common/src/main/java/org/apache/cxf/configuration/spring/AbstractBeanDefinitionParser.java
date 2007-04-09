@@ -40,11 +40,18 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     protected void setFirstChildAsProperty(Element element, ParserContext ctx, 
-                                         BeanDefinitionBuilder bean, String string) {
+                                         BeanDefinitionBuilder bean, String propertyName) {
+        String id = getAndRegisterFirstChild(element, ctx, bean, propertyName);
+        bean.addPropertyReference(propertyName, id);
+        
+    }
+
+    protected String getAndRegisterFirstChild(Element element, ParserContext ctx, 
+                                              BeanDefinitionBuilder bean, String propertyName) {
         Element first = getFirstChild(element);
         
         if (first == null) {
-            throw new IllegalStateException(string + " property must have child elements!");
+            throw new IllegalStateException(propertyName + " property must have child elements!");
         }
         
         // Seems odd that we have to do the registration, I wonder if there is a better way
@@ -61,8 +68,7 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         }
        
         ctx.getRegistry().registerBeanDefinition(id, child);
-        bean.addPropertyReference(string, id);
-        
+        return id;
     }
 
     protected Element getFirstChild(Element element) {

@@ -88,6 +88,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String MODE_OUT = "messagepart.mode.out";
     public static final String MODE_INOUT = "messagepart.mode.inout";
     public static final String HOLDER = "messagepart.isholder";
+    public static final String HEADER = "messagepart.isheader";
     
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
@@ -441,6 +442,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 //TODO - RPC vs DOC (type vs element)
                 if (isHeader(method, j)) {
                     part.setElementQName(q);
+                    part.setProperty(HEADER, Boolean.TRUE);
                 }
                 part.setIndex(j);
             }
@@ -472,6 +474,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                     if (isHeader(method, j)) {
                         part.setElementQName(q2);
+                        part.setProperty(HEADER, Boolean.TRUE);
                     }
                 }
             }

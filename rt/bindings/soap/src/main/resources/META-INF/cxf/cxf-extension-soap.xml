@@ -44,4 +44,15 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
         <property name="bus" ref="cxf"/>
     </bean>
+        
+	<bean id="org.apache.cxf.binding.soap.customEditorConfigurer"
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="org.apache.cxf.binding.soap.SoapVersion">
+					<bean class="org.apache.cxf.binding.soap.SoapVersionPropertyEditor"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
 </beans>

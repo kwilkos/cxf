@@ -24,6 +24,8 @@ import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.junit.Test;
 
@@ -32,6 +34,14 @@ public class SpringServletTest extends AbstractServletTest {
     protected String getConfiguration() {
         return "/org/apache/cxf/systest/servlet/web-spring.xml";
     }
+
+    @Override
+    protected Bus createBus() throws BusException {
+        // don't set up the bus, let the servlet do it
+        return null;
+    }
+
+
 
     @Test
     public void testInvokingSpringBeans() throws Exception {

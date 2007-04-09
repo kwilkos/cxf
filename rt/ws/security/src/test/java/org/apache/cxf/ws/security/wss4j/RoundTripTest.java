@@ -41,7 +41,7 @@ public class RoundTripTest extends AbstractSecurityTest {
     @Before
     public void setUpService() throws Exception {
         JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
-        factory.setServiceClass(EchoImpl.class);
+        factory.setServiceBean(new EchoImpl());
         factory.setAddress("local://Echo");
         factory.setTransportId(LocalTransportFactory.TRANSPORT_ID);
         Server server = factory.create();
