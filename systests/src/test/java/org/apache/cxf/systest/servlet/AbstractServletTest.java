@@ -19,7 +19,10 @@
 package org.apache.cxf.systest.servlet;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
+import java.util.Map;
 
 import org.xml.sax.SAXException;
 
@@ -31,9 +34,9 @@ import com.meterware.servletunit.ServletRunner;
 import com.meterware.servletunit.ServletUnitClient;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.test.AbstractCXFTest;
-import org.junit.After;
+import org.apache.cxf.transport.servlet.CXFServlet;
 import org.junit.Before;
 
 public abstract class AbstractServletTest extends AbstractCXFTest {
@@ -48,33 +51,18 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
             sr.newClient().getResponse("http://localhost/services/");
         } catch (HttpNotFoundException e) {
             // ignore, we just want to boot up the servlet
-        }        
-        super.setUpBus();
+        }   
+        
+        Field f = CXFServlet.class.getDeclaredField("BUS_MAP");
+        f.setAccessible(true);
+        Map<String, WeakReference<Bus>> obj = CastUtils.cast((Map<?, ?>)f.get(null));
+        if (obj.containsKey("servlet.systest.bus.id")) {
+            bus = obj.get("servlet.systest.bus.id").get();
+        }
         
         HttpUnitOptions.setExceptionsThrownOnErrorStatus(true);        
     } 
-    
-    @Override
-    public void setUpBus() throws Exception {
-        // don't set anything up, let the servlet do it
-    }
 
-    @After
-    public void tearDown() {
-        BusFactory.getDefaultBus().shutdown(false);
-        BusFactory.setDefaultBus(null);                
-    }
-       
-    //CXFservlet has create the bus, so we need to use this bus for service init 
-    @Override
-    public Bus getBus() {
-        return BusFactory.getDefaultBus();
-    }
-    
-    @Override
-    public Bus createBus() {
-        return BusFactory.getDefaultBus();
-    }
     /**
      * @return The web.xml to use for testing.
      */

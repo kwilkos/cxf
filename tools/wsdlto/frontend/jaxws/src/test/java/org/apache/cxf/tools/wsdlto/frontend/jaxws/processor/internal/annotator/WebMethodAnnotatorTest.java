@@ -30,6 +30,8 @@ public class WebMethodAnnotatorTest extends TestCase {
 
     public void testAddWebMethodAnnotation() throws Exception {
         JavaMethod method = new JavaMethod();
+        method.setName("echoFoo");
+        method.setOperationName("echoFoo");
         method.annotate(new WebMethodAnnotator());
         Map<String, JavaAnnotation> annotations = method.getAnnotationMap();
         assertNotNull(annotations);

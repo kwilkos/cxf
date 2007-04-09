@@ -74,12 +74,18 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
         }
         
         for (JavaServiceClass js : serviceClasses.values()) {
-            String location = (String)env.get(ToolConstants.CFG_WSDLURL);
+            String url = (String)env.get(ToolConstants.CFG_WSDLURL);
+            String location = (String)env.get(ToolConstants.CFG_WSDLLOCATION);
+            if (location == null 
+                || "".equals(location)) {
+                location = url;
+            }
             
             clearAttributes();
 
             setAttributes("service", js);
             setAttributes("wsdlLocation", location);
+            setAttributes("wsdlUrl", url);
             setCommonAttributes();
 
             doWrite(SERVICE_TEMPLATE, parseOutputName(js.getPackageName(), 

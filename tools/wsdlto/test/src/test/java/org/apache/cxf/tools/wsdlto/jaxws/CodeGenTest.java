@@ -90,14 +90,13 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
         assertEquals(4, files.length);
+        
         files = types.listFiles();
         assertEquals(files.length, 3);
 
         Class clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
 
         javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
-        assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
-            .startsWith("file"));
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
         assertEquals("LITERAL", soapBindingAnno.use().toString());
@@ -185,8 +184,11 @@ public class CodeGenTest extends ProcessorTestBase {
 
         Method method = clz.getMethod("sayHi", new Class[] {});
         WebMethod webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
-        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "sayHi",
+        if (webMethodAnno.operationName() != null
+            && !"".equals(webMethodAnno.operationName())) {
+            assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "sayHi",
                      webMethodAnno.operationName());
+        }
 
         RequestWrapper requestWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                   RequestWrapper.class);
@@ -204,8 +206,11 @@ public class CodeGenTest extends ProcessorTestBase {
 
         method = clz.getMethod("pingMe", new Class[] {});
         webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
-        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "pingMe",
+        if (webMethodAnno.operationName() != null
+            && !"".equals(webMethodAnno.operationName())) {
+            assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "pingMe",
                      webMethodAnno.operationName());
+        }
         Class[] exceptionCls = method.getExceptionTypes();
         assertEquals(1, exceptionCls.length);
         assertEquals("org.apache.hello_world_soap12_http.PingMeFault", exceptionCls[0].getName());
@@ -242,8 +247,11 @@ public class CodeGenTest extends ProcessorTestBase {
 
         Method method = clz.getMethod("sayHi", new Class[] {});
         WebMethod webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
-        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "sayHi",
+        if (webMethodAnno.operationName() != null
+            && !"".equals(webMethodAnno.operationName())) {
+            assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "sayHi",
                      webMethodAnno.operationName());
+        }
 
         RequestWrapper requestWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                   RequestWrapper.class);
@@ -280,7 +288,8 @@ public class CodeGenTest extends ProcessorTestBase {
         webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
         assertEquals("out", webResultAnno.partName());
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivMethodAnnotation(method, SOAPBinding.class);
-        assertEquals("BARE", soapBindingAnno.parameterStyle().toString());
+        assertNotNull(soapBindingAnno);
+        assertEquals(SOAPBinding.ParameterStyle.BARE, soapBindingAnno.parameterStyle());
         assertEquals("BareDocumentResponse", method.getReturnType().getSimpleName());
 
     }
@@ -462,7 +471,9 @@ public class CodeGenTest extends ProcessorTestBase {
         Method method = clz.getMethod("inoutHeader", new Class[] {para, Holder.class});
 
         soapBindingAnno = AnnotationUtil.getPrivMethodAnnotation(method, SOAPBinding.class);
-        assertEquals("BARE", soapBindingAnno.parameterStyle().name());
+        assertNotNull(soapBindingAnno);
+        assertEquals(SOAPBinding.ParameterStyle.BARE, soapBindingAnno.parameterStyle());
+        
         WebParam webParamAnno = AnnotationUtil.getWebParam(method, "SOAPHeaderInfo");
         assertEquals("INOUT", webParamAnno.mode().name());
         assertEquals(true, webParamAnno.header());
@@ -547,8 +558,11 @@ public class CodeGenTest extends ProcessorTestBase {
 
         Method method = clz.getMethod("echoVoid", new Class[] {});
         WebMethod webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
-        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "echoVoid",
+        if (webMethodAnno.operationName() != null
+            && !"".equals(webMethodAnno.operationName())) {
+            assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "echoVoid",
                      webMethodAnno.operationName());
+        }
     }
 
     public void testWsdlImport() throws Exception {
@@ -780,10 +794,6 @@ public class CodeGenTest extends ProcessorTestBase {
 
 
         Class<?> clz = classLoader.loadClass("org.apache.locator.LocatorService");
-
-        javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
-        assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
-                   .startsWith("file"));
 
         Class<?> paraClass = classLoader.loadClass("org.apache.locator.types.QueryEndpoints");
         Method method = clz.getMethod("queryEndpoints", new Class[] {paraClass});

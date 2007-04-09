@@ -35,10 +35,21 @@ public class SoapBindingAnnotator implements Annotator {
         } else {
             throw new RuntimeException("SOAPBindingAnnotator can only annotate JavaMethod");
         }
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle()) {
-            JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
-            bindingAnnotation.addArgument("parameterStyle", SOAPBindingUtil.getBindingAnnotation("BARE"), "");
-            method.addAnnotation("SOAPBinding", bindingAnnotation);
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+            if (!method.isWrapperStyle()
+                && !SOAPBinding.ParameterStyle.BARE.equals(method.getInterface().getSOAPParameterStyle())) {
+            
+                JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
+                bindingAnnotation.addArgument("parameterStyle",
+                                              SOAPBindingUtil.getBindingAnnotation("BARE"), "");
+                method.addAnnotation("SOAPBinding", bindingAnnotation);
+            } else if (method.isWrapperStyle()
+                && SOAPBinding.ParameterStyle.BARE.equals(method.getInterface().getSOAPParameterStyle())) {
+                JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
+                bindingAnnotation.addArgument("parameterStyle",
+                                              SOAPBindingUtil.getBindingAnnotation("WRAPPED"), "");
+                method.addAnnotation("SOAPBinding", bindingAnnotation);                
+            }
         }
     }
     

@@ -85,7 +85,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
     @Test
     public void testRequestContext() throws Exception {
         javax.xml.ws.Service s = javax.xml.ws.Service
-        .create(serviceName);
+            .create(serviceName);
         Greeter greeter = s.getPort(portName, Greeter.class);
         InvocationHandler handler  = Proxy.getInvocationHandler(greeter);
         BindingProvider  bp = null;
@@ -97,7 +97,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
             String reqAddr = 
                 (String)requestContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             assertEquals("the address get from requestContext is not equal",
-                         reqAddr, address);
+                         address, reqAddr);
         } else {
             fail("can't get the requset context");
         }

@@ -41,10 +41,14 @@ public final class BindingAnnotator implements Annotator {
         
         if (processBinding(intf)) {
             JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
-            String style = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPStyle().toString());
-            bindingAnnotation.addArgument("style", style, "");
-            String use = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPUse().toString());
-            bindingAnnotation.addArgument("use", use, "");
+            if (!SOAPBinding.Style.DOCUMENT.equals(intf.getSOAPStyle())) {
+                String style = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPStyle().toString());
+                bindingAnnotation.addArgument("style", style, "");                
+            }
+            if (!SOAPBinding.Use.LITERAL.equals(intf.getSOAPUse())) {
+                String use = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPUse().toString());
+                bindingAnnotation.addArgument("use", use, "");
+            }            
             if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT) {
                 String parameterStyle = SOAPBindingUtil.getBindingAnnotation(intf.
                                                                              getSOAPParameterStyle().

@@ -369,11 +369,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         schema.setNamespaceContext(nsMap);
         
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
-            if (op.hasInput()) {
-                createWrappedMessage(op.getInput(), op.getUnwrappedOperation().getInput(), schema);
-            }
-            if (op.hasOutput()) {
-                createWrappedMessage(op.getOutput(), op.getUnwrappedOperation().getOutput(), schema);
+            if (op.getUnwrappedOperation() != null) {
+                if (op.hasInput()) {
+                    createWrappedMessage(op.getInput(), op.getUnwrappedOperation().getInput(), schema);
+                }
+                if (op.hasOutput()) {
+                    createWrappedMessage(op.getOutput(), op.getUnwrappedOperation().getOutput(), schema);
+                }
             }
         }
         

@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.concurrent.Future;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -33,6 +34,7 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.Response;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
@@ -114,6 +116,11 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public Boolean isOperation(Method method) {
         method = getDeclaredMethod(method);
+        if (method.getReturnType().equals(Future.class)
+            || method.getReturnType().equals(Response.class)) {
+            return false;
+        }
+        
         if (method != null) {
             WebMethod wm = method.getAnnotation(WebMethod.class);
             if (wm != null) {

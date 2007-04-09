@@ -36,7 +36,10 @@ public class WebMethodAnnotator implements Annotator {
         }
         String operationName = method.getOperationName();
         JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
-        methodAnnotation.addArgument("operationName", operationName);
+        
+        if (!method.getName().equals(operationName)) {
+            methodAnnotation.addArgument("operationName", operationName);
+        }
         if (!StringUtils.isEmpty(method.getSoapAction())) {
             methodAnnotation.addArgument("action", method.getSoapAction());
         }
