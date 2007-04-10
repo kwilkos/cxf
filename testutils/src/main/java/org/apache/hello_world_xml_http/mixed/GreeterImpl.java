@@ -26,7 +26,8 @@ import org.apache.hello_world_xml_http.mixed.types.SayHiResponse;
 @javax.jws.WebService(serviceName = "XMLService",
                       portName = "XMLPort",
                       endpointInterface = "org.apache.hello_world_xml_http.mixed.Greeter",
-                      targetNamespace = "http://apache.org/hello_world_xml_http/mixed")
+                      targetNamespace = "http://apache.org/hello_world_xml_http/mixed",
+                      wsdlLocation = "testutils/hello_world_xml_mixed.wsdl")
 
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 

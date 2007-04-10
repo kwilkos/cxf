@@ -32,7 +32,8 @@ import org.apache.cxf.greeter_control.types.SayHiResponse;
 @WebService(serviceName = "GreeterService",
             portName = "GreeterPort",
             endpointInterface = "org.apache.cxf.greeter_control.Greeter",
-            targetNamespace = "http://cxf.apache.org/greeter_control")
+            targetNamespace = "http://cxf.apache.org/greeter_control",
+            wsdlLocation = "testutils/greeter_control.wsdl")
 /* This class does not implement the SEI */
 public class GreeterImplBase {
 

@@ -25,8 +25,8 @@ import org.apache.callback.CallbackPortType;
 @javax.jws.WebService(serviceName = "CallbackService", 
                       portName = "CallbackPort",
                       endpointInterface = "org.apache.callback.CallbackPortType",
-                      targetNamespace = "http://apache.org/callback") 
-                      //wsdlLocation = "file:./wsdl/basic_callback.wsdl")
+                      targetNamespace = "http://apache.org/callback", 
+                      wsdlLocation = "testutils/basic_callback_test.wsdl")
                   
 public class CallbackImpl implements CallbackPortType  {
 

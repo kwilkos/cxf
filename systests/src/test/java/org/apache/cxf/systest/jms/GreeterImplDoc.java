@@ -28,7 +28,8 @@ import org.apache.hello_world_doc_lit.types.FaultDetail;
 @WebService(serviceName = "SOAPService2", 
             portName = "SoapPort2", 
             endpointInterface = "org.apache.hello_world_doc_lit.Greeter",
-            targetNamespace = "http://apache.org/hello_world_doc_lit")
+            targetNamespace = "http://apache.org/hello_world_doc_lit",
+            wsdlLocation = "testutils/hello_world_doc_lit.wsdl")
 public class GreeterImplDoc implements Greeter {
 
     public String sayHi() {

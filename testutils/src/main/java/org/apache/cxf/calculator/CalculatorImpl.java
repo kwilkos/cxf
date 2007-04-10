@@ -26,7 +26,8 @@ import org.apache.cxf.calculator.types.CalculatorFault;
 @WebService(serviceName = "CalculatorService", 
             portName = "CalculatorPort", 
             targetNamespace = "http://apache.org/cxf/calculator", 
-            endpointInterface = "org.apache.cxf.calculator.CalculatorPortType")
+            endpointInterface = "org.apache.cxf.calculator.CalculatorPortType",
+            wsdlLocation = "testutils/calculator.wsdl")
 public class CalculatorImpl implements CalculatorPortType {
     public int add(int number1, int number2) throws AddNumbersFault {
         if (number1 < 0 || number2 < 0) {

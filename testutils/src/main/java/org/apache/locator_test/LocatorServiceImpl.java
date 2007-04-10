@@ -44,7 +44,8 @@ import org.apache.locator.types.QueryEndpointsResponse;
                       serviceName = "LocatorService", 
                       portName = "LocatorServicePort", 
                       targetNamespace = "http://apache.org/locator", 
-                      endpointInterface = "org.apache.locator.LocatorService")
+                      endpointInterface = "org.apache.locator.LocatorService",
+                      wsdlLocation = "testutils/locator.wsdl")
 public class LocatorServiceImpl implements LocatorService {
 
     static final Logger LOG = Logger.getLogger(LocatorServiceImpl.class.getName());

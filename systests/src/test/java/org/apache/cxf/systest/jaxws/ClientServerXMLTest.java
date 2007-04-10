@@ -22,6 +22,7 @@ package org.apache.cxf.systest.jaxws;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -206,11 +207,13 @@ public class ClientServerXMLTest extends AbstractBusClientServerTestBase {
 
     @Test
     public void testAddPort() throws Exception {
+        URL url = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
+        
+        Service service = Service.create(url, wrapServiceName);
+        assertNotNull(service);
 
-        Service service = Service.create(wrapServiceName);
         service.addPort(wrapFakePortName, "http://cxf.apache.org/bindings/xformat",
                 "http://localhost:9032/XMLService/XMLPort");
-        assertNotNull(service);
 
         String response1 = new String("Hello ");
         String response2 = new String("Bonjour");

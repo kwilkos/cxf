@@ -19,6 +19,8 @@
 package org.apache.cxf.catalog;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+
 import javax.wsdl.xml.WSDLLocator;
 
 import org.xml.sax.InputSource;
@@ -45,6 +47,18 @@ public class CatalogWSDLLocator implements WSDLLocator {
 
     public InputSource getBaseInputSource() {
         InputSource result =  resolver.resolve(baseUri, null);
+        if (result == null) {
+            try {
+                String s = catalogResolver.resolveSystem(baseUri);
+                if (s != null) {
+                    result = resolver.resolve(s, null);
+                }
+            } catch (MalformedURLException e) {
+                //ignore
+            } catch (IOException e) {
+                //ignore
+            }
+        }
         baseUri = resolver.getURI();
         return result;
     }

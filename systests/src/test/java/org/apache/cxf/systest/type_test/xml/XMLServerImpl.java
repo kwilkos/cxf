@@ -55,7 +55,8 @@ public class XMLServerImpl extends AbstractBusTestServerBase {
     @WebService(serviceName = "XMLService", 
                 portName = "XMLPort",
                 endpointInterface = "org.apache.type_test.xml.TypeTestPortType",
-                targetNamespace = "http://apache.org/type_test/xml")
+                targetNamespace = "http://apache.org/type_test/xml",
+                wsdlLocation = "testutils/type_test/type_test_xml.wsdl")
     @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xmlformat")
     class XMLTypeTestImpl extends TypeTestImpl implements TypeTestPortType {
     }

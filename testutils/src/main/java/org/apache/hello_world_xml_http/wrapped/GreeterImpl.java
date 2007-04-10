@@ -24,7 +24,8 @@ import org.apache.hello_world_xml_http.wrapped.types.FaultDetail;
 @javax.jws.WebService(serviceName = "XMLService", 
                       portName = "XMLPort",
                       endpointInterface = "org.apache.hello_world_xml_http.wrapped.Greeter",
-                      targetNamespace = "http://apache.org/hello_world_xml_http/wrapped")
+                      targetNamespace = "http://apache.org/hello_world_xml_http/wrapped",
+                      wsdlLocation = "testutils/hello_world_xml_wrapped.wsdl")
 
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 

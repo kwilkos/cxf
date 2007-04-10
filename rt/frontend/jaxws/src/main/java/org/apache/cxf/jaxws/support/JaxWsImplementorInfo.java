@@ -73,11 +73,17 @@ public class JaxWsImplementorInfo {
     }
 
     public String getWsdlLocation() {
-        if (null != seiAnnotation) {
+        if (null != seiAnnotation 
+            && seiAnnotation.wsdlLocation() != null
+            && !"".equals(seiAnnotation.wsdlLocation())) {
             return seiAnnotation.wsdlLocation();
-        } else if (null != implementorAnnotation) {
+        } else if (null != implementorAnnotation 
+            && implementorAnnotation.wsdlLocation() != null
+            && !"".equals(implementorAnnotation.wsdlLocation())) {
             return implementorAnnotation.wsdlLocation();
-        } else if (null != wsProviderAnnotation) {
+        } else if (null != wsProviderAnnotation 
+            && wsProviderAnnotation.wsdlLocation() != null
+            && !"".equals(wsProviderAnnotation.wsdlLocation())) {
             return wsProviderAnnotation.wsdlLocation();
         }
         return null;

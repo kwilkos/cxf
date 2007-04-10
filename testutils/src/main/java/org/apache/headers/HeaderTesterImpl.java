@@ -33,7 +33,8 @@ import org.apache.headers.types.SOAPHeaderData;
 @WebService(serviceName = "XMLHeaderService", 
         portName = "XMLPort9000", 
         endpointInterface = "org.apache.headers.HeaderTester",
-        targetNamespace = "http://apache.org/headers")
+        targetNamespace = "http://apache.org/headers",
+        wsdlLocation = "testutils/soapheader2.wsdl")
         
 public class HeaderTesterImpl implements HeaderTester {
 

@@ -27,7 +27,8 @@ import org.apache.cxf.hello_world_jms.HelloWorldOneWayPort;
 @WebService(serviceName = "HelloWorldOneWayQueueService", 
             portName = "HelloWorldOneWayQueuePort", 
             endpointInterface = "org.apache.cxf.hello_world_jms.HelloWorldOneWayPort",
-            targetNamespace = "http://cxf.apache.org/hello_world_jms")
+            targetNamespace = "http://cxf.apache.org/hello_world_jms",
+            wsdlLocation = "testutils/jms_test.wsdl")
 public class GreeterImplQueueOneWay implements HelloWorldOneWayPort {
 
     public void greetMeOneWay(String stringParam0) {

@@ -115,6 +115,7 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
         serviceFactory.setBus(bus);
         serviceFactory.setServiceName(serviceName);
         serviceFactory.setServiceClass(serviceEndpointInterface);
+        serviceFactory.setWsdlURL(ClientMtomXopTest.class.getResource("/wsdl/mtom_xop.wsdl"));
         Service service = serviceFactory.create();
         ServiceInfo si = service.getServiceInfo();
         EndpointInfo ei = null;

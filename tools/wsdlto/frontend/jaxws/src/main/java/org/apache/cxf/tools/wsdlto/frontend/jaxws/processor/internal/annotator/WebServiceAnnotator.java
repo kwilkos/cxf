@@ -35,7 +35,7 @@ public final class WebServiceAnnotator implements Annotator {
         }
         JavaAnnotation serviceAnnotation = new JavaAnnotation("WebService");
         serviceAnnotation.addArgument("targetNamespace", intf.getNamespace());
-        serviceAnnotation.addArgument("wsdlLocation", intf.getLocation());
+        //serviceAnnotation.addArgument("wsdlLocation", intf.getLocation());
         serviceAnnotation.addArgument("name", intf.getWebServiceName());
         
         intf.addAnnotation(serviceAnnotation.toString());

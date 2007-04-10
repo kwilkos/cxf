@@ -36,7 +36,8 @@ import org.apache.handler_test.types.PingFaultDetails;
 @WebService(serviceName = "HandlerTestService",
             portName = "SoapPort",
             endpointInterface = "org.apache.handler_test.HandlerTest",
-            targetNamespace = "http://apache.org/handler_test")
+            targetNamespace = "http://apache.org/handler_test",
+            wsdlLocation = "testutils/handler_test.wsdl")
 @HandlerChain(file = "./handlers_invocation.xml", name = "TestHandlerChain")
 public class HandlerTestImpl implements HandlerTest {
 

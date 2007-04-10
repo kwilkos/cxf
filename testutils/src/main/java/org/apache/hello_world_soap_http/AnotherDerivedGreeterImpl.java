@@ -37,7 +37,8 @@ import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
 import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 
-@javax.jws.WebService(endpointInterface = "org.apache.hello_world_soap_http.Greeter")
+@javax.jws.WebService(endpointInterface = "org.apache.hello_world_soap_http.Greeter",
+                      wsdlLocation = "tetutils/hello_world.wsdl")
 public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface {
 
     private static final Logger LOG =

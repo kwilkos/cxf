@@ -28,7 +28,8 @@ import org.apache.hello_world_mixedstyle.types.GreetMeResponse;
 @WebService(serviceName = "SOAPService",
             portName = "SoapPort",
             endpointInterface = "org.apache.hello_world_mixedstyle.Greeter",
-            targetNamespace = "http://apache.org/hello_world_mixedstyle")
+            targetNamespace = "http://apache.org/hello_world_mixedstyle",
+            wsdlLocation = "testutils/hello_world_mixedstyle.wsdl")
 public class GreeterImplMixedStyle implements Greeter {
 
     public String sayHi() {

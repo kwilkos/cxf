@@ -156,7 +156,8 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     @Test
     public void testGetPortOneParam() throws Exception {
 
-        Service service = Service.create(serviceName);
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
+        Service service = Service.create(url, serviceName);
         
         Greeter greeter = service.getPort(Greeter.class);
         String response = new String("Bonjour");

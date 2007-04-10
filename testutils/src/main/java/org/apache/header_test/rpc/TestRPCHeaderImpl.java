@@ -27,7 +27,8 @@ import org.apache.header_test.rpc.types.HeaderMessage;
 @WebService(serviceName = "SOAPRPCHeaderService", 
             portName = "SoapRPCHeaderPort", 
             endpointInterface = "org.apache.header_test.rpc.TestRPCHeader",
-            targetNamespace = "http://apache.org/header_test/rpc")
+            targetNamespace = "http://apache.org/header_test/rpc",
+            wsdlLocation = "testutils/soapheader_rpc.wsdl")
             
 public class TestRPCHeaderImpl implements TestRPCHeader {
 

@@ -41,7 +41,8 @@ import org.apache.tests.type_test.sequence.SimpleStruct;
 @WebService(serviceName = "SOAPHeaderService", 
             portName = "SoapHeaderPort", 
             endpointInterface = "org.apache.header_test.TestHeader",
-            targetNamespace = "http://apache.org/header_test")
+            targetNamespace = "http://apache.org/header_test",
+            wsdlLocation = "testutils/soapheader.wsdl")
 public class TestHeaderImpl implements TestHeader {
 
     public TestHeader1Response testHeader1(

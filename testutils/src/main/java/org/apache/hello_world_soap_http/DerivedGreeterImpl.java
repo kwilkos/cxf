@@ -38,7 +38,8 @@ import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService",
-                      targetNamespace = "http://apache.org/hello_world_soap_http")
+                      targetNamespace = "http://apache.org/hello_world_soap_http",
+                      wsdlLocation = "tetutils/hello_world.wsdl")
 public class DerivedGreeterImpl implements Greeter {
 
     private static final Logger LOG =

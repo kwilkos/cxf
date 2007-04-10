@@ -31,7 +31,8 @@ import org.apache.cxf.greeter_control.AbstractGreeterImpl;
 @WebService(serviceName = "GreeterService",
             portName = "GreeterPort",
             endpointInterface = "org.apache.cxf.greeter_control.Greeter",
-            targetNamespace = "http://cxf.apache.org/greeter_control")
+            targetNamespace = "http://cxf.apache.org/greeter_control",
+            wsdlLocation = "testutils/greeter_control.wsdl")
 @HandlerChain(file = "trivial_soap_handler.xml")
 public class TrivialSOAPHandlerAnnotatedGreeterImpl extends AbstractGreeterImpl {
 }

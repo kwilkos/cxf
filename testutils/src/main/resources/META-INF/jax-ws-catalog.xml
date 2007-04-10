@@ -22,4 +22,5 @@
     <rewriteSystem systemIdStartString="doesnotexist" rewritePrefix="../wsdl/catalog"/>
     <rewriteSystem systemIdStartString="nopath" rewritePrefix="../wsdl"/>
 
+    <rewriteSystem systemIdStartString="testutils" rewritePrefix="classpath:/wsdl"/>
 </catalog>

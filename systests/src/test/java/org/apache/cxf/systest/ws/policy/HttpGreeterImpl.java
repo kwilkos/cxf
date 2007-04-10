@@ -30,7 +30,8 @@ import org.apache.cxf.greeter_control.AbstractGreeterImpl;
 @WebService(serviceName = "BasicGreeterService",
             portName = "GreeterPort",
             endpointInterface = "org.apache.cxf.greeter_control.Greeter",
-            targetNamespace = "http://cxf.apache.org/greeter_control")
+            targetNamespace = "http://cxf.apache.org/greeter_control",
+            wsdlLocation = "testutils/greeter_control.wsdl")
 public class HttpGreeterImpl extends AbstractGreeterImpl {
 
     private int greetMeCount;

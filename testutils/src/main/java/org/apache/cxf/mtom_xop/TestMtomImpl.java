@@ -27,7 +27,8 @@ import org.apache.cxf.mime.TestMtom;
 @WebService(serviceName = "TestMtomService", 
         portName = "TestMtomPort", 
         targetNamespace = "http://cxf.apache.org/mime", 
-        endpointInterface = "org.apache.cxf.mime.TestMtom")
+        endpointInterface = "org.apache.cxf.mime.TestMtom",
+        wsdlLocation = "testutils/mtom_xop.wsdl")
         
 public class TestMtomImpl implements TestMtom {
 

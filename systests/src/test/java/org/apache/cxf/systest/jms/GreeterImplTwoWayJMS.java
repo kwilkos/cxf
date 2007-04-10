@@ -39,7 +39,8 @@ import org.apache.cxf.transport.jms.JMSPropertyType;
 @WebService(serviceName = "HelloWorldService", 
             portName = "HelloWorldPort",
             endpointInterface = "org.apache.cxf.hello_world_jms.HelloWorldPortType",
-            targetNamespace = "http://cxf.apache.org/hello_world_jms")
+            targetNamespace = "http://cxf.apache.org/hello_world_jms",
+            wsdlLocation = "testutils/jms_test.wsdl")
 public class GreeterImplTwoWayJMS implements HelloWorldPortType {
     @Resource
     protected WebServiceContext wsContext;

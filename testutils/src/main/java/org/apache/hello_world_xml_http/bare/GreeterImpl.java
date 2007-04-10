@@ -24,7 +24,8 @@ import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 @javax.jws.WebService(serviceName = "XMLService", 
                 portName = "XMLPort",
                 endpointInterface = "org.apache.hello_world_xml_http.bare.Greeter",
-                targetNamespace = "http://apache.org/hello_world_xml_http/bare")
+                targetNamespace = "http://apache.org/hello_world_xml_http/bare",
+                wsdlLocation = "testutils/hello_world_xml_bare.wsdl")
 
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 

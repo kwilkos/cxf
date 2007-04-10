@@ -77,7 +77,8 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         serviceFactory.setInvoker(new BeanInvoker(greeter));
         serviceFactory.setServiceClass(GreeterImpl.class);
         
-        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, serviceFactory);
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, 
+                                                 new JaxWsServerFactoryBean(serviceFactory));
  
         WebServiceContext ctx = greeter.getContext();
         assertNull(ctx);
@@ -101,7 +102,8 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         serviceFactory.setInvoker(new BeanInvoker(hello));
         serviceFactory.setServiceClass(HelloImpl.class);
         
-        EndpointImpl endpoint = new EndpointImpl(getBus(), hello, serviceFactory);
+        EndpointImpl endpoint = new EndpointImpl(getBus(), hello, 
+                                                 new JaxWsServerFactoryBean(serviceFactory));
 
         try {
             String address = "http://localhost:8080/test";
@@ -121,7 +123,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         serviceFactory.setServiceClass(HelloWrongAnnotation.class);
         
         try {
-            new EndpointImpl(getBus(), hello, serviceFactory);
+            new EndpointImpl(getBus(), hello, new JaxWsServerFactoryBean(serviceFactory));
         } catch (Exception e) {
             String expeced = "Method [sayHi] processing error: SOAPBinding can not on method with RPC style";
             assertEquals(expeced, e.getMessage());

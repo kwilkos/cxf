@@ -27,8 +27,8 @@ import javax.jws.WebService;
 @WebService(serviceName = "anonymous_complex_type_service", 
         portName = "anonymous_complex_typeSOAP", 
         endpointInterface = "org.apache.cxf.anonymous_complex_type.AnonymousComplexType", 
-        targetNamespace = "http://cxf.apache.org/anonymous_complex_type/")
-        
+        targetNamespace = "http://cxf.apache.org/anonymous_complex_type/",
+        wsdlLocation = "testutils/anonymous_complex_type.wsdl")
 public class AnonymousComplexTypeImpl implements AnonymousComplexType {
 
     public SplitNameResponse.Names splitName(String name) {
