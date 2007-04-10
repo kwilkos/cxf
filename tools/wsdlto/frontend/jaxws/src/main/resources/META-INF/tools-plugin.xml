@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<plugin name="jaxws" version="" provider="" xmlns="http://cxf.apache.org/tools/plugin">
+<plugin name="jaxws" version="" provider="cxf.apache.org" xmlns="http://cxf.apache.org/tools/plugin">
     <frontend name="jaxws" package="org.apache.cxf.tools.wsdlto.frontend.jaxws" profile="JAXWSProfile">
 	<container name="JAXWSContainer" toolspec="jaxws-toolspec.xml"/>
 	<processor name="WSDLToJavaProcessor" package="org.apache.cxf.tools.wsdlto.frontend.jaxws.processor"/>

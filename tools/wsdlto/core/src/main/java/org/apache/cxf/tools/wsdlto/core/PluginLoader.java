@@ -51,6 +51,7 @@ import org.apache.cxf.tools.plugin.Plugin;
 
 public final class PluginLoader {
     public static final Logger LOG = LogUtils.getL7dLogger(PluginLoader.class);
+    public static final String DEFAULT_PROVIDER_NAME = "cxf.apache.org";
     private static PluginLoader pluginLoader;
     private static final String PLUGIN_FILE_NAME = "META-INF/tools-plugin.xml";
     
@@ -138,6 +139,13 @@ public final class PluginLoader {
                 LOG.log(Level.WARNING, "FRONTEND_MISSING_NAME", plugin.getName());
                 continue;
             }
+
+            if (frontends.containsKey(frontend.getName())
+                && DEFAULT_PROVIDER_NAME.equals(plugin.getProvider())) {
+                Message msg = new Message("REPLACED_DEFAULT_FRONTEND", LOG, frontend.getName());
+                LOG.log(Level.INFO, msg.toString());
+                continue;
+            }
             frontends.put(frontend.getName(), frontend);
         }
 
@@ -150,6 +158,12 @@ public final class PluginLoader {
             LOG.log(Level.INFO, "LOADING_DATABINDING", new Object[]{databinding.getName(), plugin.getName()});
             if (StringUtils.isEmpty(databinding.getName())) {
                 LOG.log(Level.WARNING, "DATABINDING_MISSING_NAME", plugin.getName());
+                continue;
+            }
+            if (databindings.containsKey(databinding.getName())
+                && DEFAULT_PROVIDER_NAME.equals(plugin.getProvider())) {
+                Message msg = new Message("REPLACED_DEFAULT_DATABINDING", LOG, databinding.getName());
+                LOG.log(Level.INFO, msg.toString());
                 continue;
             }
             databindings.put(databinding.getName(), databinding);
