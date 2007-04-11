@@ -26,14 +26,19 @@ import java.net.URISyntaxException;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.misc.XSDToWSDL;
+import org.junit.Before;
+import org.junit.Test;
 
 public class XSDToWSDLProcessorTest
     extends ProcessorTestBase {
+    
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
     }
 
+    @Test
     public void testNewTypes() throws Exception {
         String[] args = new String[] {"-t", "http://org.apache/invoice", "-n", "Invoice", "-d",
                                       output.getCanonicalPath(), "-o", "Invoice_xsd.wsdl",
@@ -64,6 +69,7 @@ public class XSDToWSDLProcessorTest
         
     }
 
+    @Test
     public void testDefaultFileName() throws Exception {
         String[] args = new String[] {"-t", "http://org.apache/invoice", "-n", "Invoice", "-d",
                                       output.getCanonicalPath(), getLocation("/misctools_wsdl/Invoice.xsd")};

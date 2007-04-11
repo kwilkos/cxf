@@ -25,10 +25,13 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+import org.junit.Before;
+import org.junit.Test;
     
 public class ValidatorTest extends ProcessorTestBase {
     private WSDLToJavaContainer processor;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
@@ -38,6 +41,7 @@ public class ValidatorTest extends ProcessorTestBase {
         //env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
     }
     
+    @Test
     public void testXMLFormat() throws Exception {
         processor = new JAXWSContainer(null);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_format_root.wsdl"));

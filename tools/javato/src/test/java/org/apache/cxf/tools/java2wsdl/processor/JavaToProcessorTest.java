@@ -30,24 +30,19 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
     private WSDLHelper wsdlHelper = new WSDLHelper();
-    
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-    
-    public void tearDown() {
-        super.tearDown();
-    }
-    
+        
+    @Test
     public void testGetWSDLVersion() {
         processor.setEnvironment(new ToolContext());
         assertEquals(WSDLConstants.WSDLVersion.WSDL11, processor.getWSDLVersion());
     }
 
+    @Test
     public void testSimpleClass() throws Exception {
         ToolContext context = new ToolContext();
         context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped_bare.wsdl");
@@ -66,6 +61,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
 
+    @Test
     public void testCalculator() throws Exception {
         ToolContext context = new ToolContext();
         context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator_rpc.wsdl");

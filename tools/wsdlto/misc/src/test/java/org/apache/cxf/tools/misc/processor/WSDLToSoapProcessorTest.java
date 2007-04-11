@@ -44,15 +44,19 @@ import org.apache.cxf.tools.common.extensions.soap.SoapFault;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.misc.WSDLToSoap;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
     }
 
+    @Test
     public void testDocLitWithFault() throws Exception {
         String[] args = new String[] {"-i", "Greeter", "-d", output.getCanonicalPath(),
                                       getLocation("/misctools_wsdl/hello_world_doc_lit.wsdl")};
@@ -128,6 +132,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testRpcLitWithoutFault() throws Exception {
         String[] args = new String[] {"-i", "GreeterRPCLit", "-n",
                                       "http://apache.org/hello_world_rpclit_test", "-b",
@@ -201,6 +206,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testNewSoap12Binding() throws Exception {
         String[] args = new String[] {"-i", "Greeter", 
                                       "-soap12",                                      
@@ -268,6 +274,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }    
     
+    @Test
     public void testAddSoap12Binding() throws Exception {
         String[] args = new String[] {"-i", "Greeter", 
                                       "-soap12",
@@ -352,6 +359,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }    
 
+    @Test
     public void testPartValidation() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         env.put(ToolConstants.CFG_PORTTYPE, "Greeter");
@@ -374,6 +382,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testWithoutBinding() throws Exception {
         String[] args = new String[] {"-i", "Greeter",                                    
                                       "-b", "Greeter_SOAPBinding",
@@ -438,6 +447,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }        
     }
 
+    @Test
     public void testBindingExist() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl"));
@@ -455,6 +465,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testPortTypeNotExist() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl"));
@@ -473,6 +484,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testNameSpaceMissing() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl"));

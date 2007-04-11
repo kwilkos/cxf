@@ -21,23 +21,30 @@ package org.apache.cxf.tools.java2wsdl.processor;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
 
     private JavaToWSDLProcessor j2wProcessor;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         j2wProcessor = new JavaToWSDLProcessor();
         System.setProperty("java.class.path", getClassPath());
     }
 
+    
+    @After
     public void tearDown() {
         super.tearDown();
         j2wProcessor = null;
     }
 
     
+    @Test
     public void testGeneratedWithElementryClass() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_bare.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.classnoanno.docbare.Stock");
@@ -47,6 +54,7 @@ public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
 
     }
     
+    @Test
     public void testGeneratedWithDocWrappedClass() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME,
@@ -57,6 +65,7 @@ public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
 
     }
    
+    @Test
     public void testGeneratedWithRPCClass() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.classnoanno.rpc.Stock");

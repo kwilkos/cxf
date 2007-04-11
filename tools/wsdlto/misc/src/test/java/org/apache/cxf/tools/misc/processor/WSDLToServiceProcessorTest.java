@@ -32,15 +32,19 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.misc.WSDLToService;
 import org.apache.cxf.transport.jms.AddressType;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
     }
 
+    @Test
     public void testNewService() throws Exception {
         String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
                                       "Greeter_SOAPBinding", "-a",
@@ -87,6 +91,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testNewServiceSoap12() throws Exception {
         String[] args = new String[] {"-soap12", "-transport", "http",
                                       "-e", "SOAPService", "-p", "SoapPort", "-n",
@@ -130,6 +135,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
     }
 
+    @Test
     public void testDefaultLocation() throws Exception {
 
         String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
@@ -175,6 +181,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testJMSNewService() throws Exception {
         String[] args = new String[] {"-transport", "jms", "-e", "serviceins", "-p", "portins", "-n",
                                       "HelloWorldPortBinding", "-jpu", "tcp://localhost:61616", "-jcf",
@@ -246,6 +253,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testServiceExist() throws Exception {
 
         WSDLToServiceProcessor processor = new WSDLToServiceProcessor();
@@ -270,6 +278,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testBindingNotExist() throws Exception {
 
         WSDLToServiceProcessor processor = new WSDLToServiceProcessor();

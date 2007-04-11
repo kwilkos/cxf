@@ -51,6 +51,9 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
@@ -61,6 +64,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     private WSDLHelper wsdlHelper = new WSDLHelper();
     private File classFile;
     
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         j2wProcessor = new JavaToWSDLProcessor();
@@ -73,13 +77,15 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));        
     }
 
+    @After
     public void tearDown() {
         super.tearDown();
         j2wProcessor = null;
         wj2Processor = null;
     }
 
-    public void testAsyn() throws Exception {
+    @Test
+    public void testAsync() throws Exception {
 
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -107,6 +113,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
     }
 
+    @Test
     public void testDocWrapparBare() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -134,6 +141,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
     }
 
+    @Test
     public void testDocLitUseClassPathFlag() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -162,6 +170,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
     }
 
+    @Test
     public void testRPCLit() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -214,6 +223,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testSOAP12() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -265,6 +275,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
     
+    @Test
     public void testRPCWithoutParentBindingAnnotation() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc_lit_service_no_anno.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.rpc.Hello");
@@ -295,6 +306,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
     
+    @Test
     public void testDocWrappedWithoutWrapperClass() {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_no_anno.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
@@ -310,6 +322,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
     
+    @Test
     public void testSOAPBindingRPCOnMethod() {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc_on_method.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, 
@@ -327,6 +340,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testDocWrappedWithLocalName() {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("xsd", "http://www.w3.org/2001/XMLSchema");
@@ -352,6 +366,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testDocWrappedNoWebParam() {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("xsd", "http://www.w3.org/2001/XMLSchema");
@@ -375,6 +390,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
+    @Test
     public void testSoapHeader() throws Exception {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("wsdl", "http://schemas.xmlsoap.org/wsdl/");
@@ -434,6 +450,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
     
+    @Test
     public void testCXF188() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/cxf188.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf188.Demo");

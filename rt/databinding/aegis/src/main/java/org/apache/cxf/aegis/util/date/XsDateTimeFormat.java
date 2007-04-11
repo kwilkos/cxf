@@ -24,6 +24,10 @@ import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 /**
  * <p>
  * An instance of {@link java.text.Format}, which may be used to parse and
@@ -49,20 +53,6 @@ public class XsDateTimeFormat extends Format {
         this(true, true);
     }
 
-    private int parseInt(String pString, int pOffset, StringBuffer pDigits) {
-        int length = pString.length();
-        pDigits.setLength(0);
-        while (pOffset < length) {
-            char c = pString.charAt(pOffset);
-            if (Character.isDigit(c)) {
-                pDigits.append(c);
-                ++pOffset;
-            } else {
-                break;
-            }
-        }
-        return pOffset;
-    }
 
     public Object parseObject(String pString, ParsePosition pParsePosition) {
         if (pString == null) {
@@ -72,166 +62,31 @@ public class XsDateTimeFormat extends Format {
             throw new NullPointerException("The ParsePosition argument must not be null.");
         }
         int offset = pParsePosition.getIndex();
-        int length = pString.length();
+        int idxSpc = pString.indexOf(' ', offset);
+        int idxCom = pString.indexOf(',', offset);
 
-        boolean isMinus = false;
-        StringBuffer digits = new StringBuffer();
-        int year;
-        int month;
-        int mday;
-        if (parseDate) {
-            // Sign
-            if (offset < length) {
-                char c = pString.charAt(offset);
-                if (c == '+') {
-                    ++offset;
-                } else if (c == '-') {
-                    ++offset;
-                    isMinus = true;
-                }
-            }
-
-            offset = parseInt(pString, offset, digits);
-            if (digits.length() < 4) {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-            year = Integer.parseInt(digits.toString());
-
-            if (offset < length && pString.charAt(offset) == '-') {
-                ++offset;
-            } else {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-
-            offset = parseInt(pString, offset, digits);
-            if (digits.length() != 2) {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-            month = Integer.parseInt(digits.toString());
-
-            if (offset < length && pString.charAt(offset) == '-') {
-                ++offset;
-            } else {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-
-            offset = parseInt(pString, offset, digits);
-            if (digits.length() != 2) {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-            mday = Integer.parseInt(digits.toString());
-
-            if (parseTime) {
-                if (offset < length && pString.charAt(offset) == 'T') {
-                    ++offset;
-                } else {
-                    pParsePosition.setErrorIndex(offset);
-                    return null;
-                }
-            }
+        if (idxCom != -1 && idxCom < idxSpc) {
+            idxSpc = idxCom;
+        }
+        String newVal = null;
+        if (idxSpc == -1) {
+            newVal = pString.substring(offset);
         } else {
-            year = 0;
-            month = 0;
-            mday = 0;
+            newVal = pString.substring(offset, idxSpc);
         }
+        DatatypeFactory factory;
+        try {
+            factory = DatatypeFactory.newInstance();
+            XMLGregorianCalendar cal = factory.newXMLGregorianCalendar(newVal);
 
-        int hour;
-        int minute;
-        int second;
-        int millis;
-        if (parseTime) {
-            offset = parseInt(pString, offset, digits);
-            if (digits.length() != 2) {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-            hour = Integer.parseInt(digits.toString());
-
-            if (offset < length && pString.charAt(offset) == ':') {
-                ++offset;
-            } else {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-
-            offset = parseInt(pString, offset, digits);
-            if (digits.length() != 2) {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-            minute = Integer.parseInt(digits.toString());
-
-            if (offset < length && pString.charAt(offset) == ':') {
-                ++offset;
-            } else {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-
-            offset = parseInt(pString, offset, digits);
-            if (digits.length() != 2) {
-                pParsePosition.setErrorIndex(offset);
-                return null;
-            }
-            second = Integer.parseInt(digits.toString());
-
-            if (offset < length && pString.charAt(offset) == '.') {
-                ++offset;
-                offset = parseInt(pString, offset, digits);
-                if (digits.length() > 0) {
-                    int cut = Math.min(3, digits.length());
-                    millis = Integer.parseInt(digits.substring(0, cut).toString());
-                } else {
-                    millis = 0;
-                }
-            } else {
-                millis = 0;
-            }
-        } else {
-            hour = 0;
-            minute = 0;
-            second = 0;
-            millis = 0;
+            pParsePosition.setIndex(idxSpc);
+            return cal.toGregorianCalendar();
+        } catch (DatatypeConfigurationException e) {
+            pParsePosition.setErrorIndex(offset);
         }
-
-        digits.setLength(0);
-        digits.append("GMT");
-        if (offset < length) {
-            char c = pString.charAt(offset);
-            if (c == 'Z') {
-                // Ignore UTC, it is the default
-                ++offset;
-            } else if (c == '+' || c == '-') {
-                digits.append(c);
-                ++offset;
-                for (int i = 0; i < 5; i++) {
-                    if (offset >= length) {
-                        pParsePosition.setErrorIndex(offset);
-                        return null;
-                    }
-                    c = pString.charAt(offset);
-                    if ((i != 2 && Character.isDigit(c)) || (i == 2 && c == ':')) {
-                        digits.append(c);
-                    } else {
-                        pParsePosition.setErrorIndex(offset);
-                        return null;
-                    }
-                    ++offset;
-                }
-            }
-        }
-
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(digits.toString()));
-        cal.set(isMinus ? -year : year, parseDate ? month - 1 : month, mday, hour, minute, second);
-        cal.set(Calendar.MILLISECOND, millis);
-        pParsePosition.setIndex(offset);
-        return cal;
+        return null;
     }
+        
 
     private void append(StringBuffer pBuffer, int pNum, int pMinLen) {
         String s = Integer.toString(pNum);

@@ -34,18 +34,19 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.misc.WSDLToXML;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class WSDLToXMLProcessorTest extends ProcessorTestBase {
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
     }
 
-    public void tearDown() {
-    }
-
+    @Test
     public void testAllDefault() throws Exception {
         String[] args = new String[] {"-i", "Greeter", "-d", output.getCanonicalPath(),
                                       getLocation("/misctools_wsdl/hello_world.wsdl")};

@@ -41,6 +41,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-simple</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -122,37 +127,24 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>codehaus</id>
-            <name>Codehaus</name>
-            <url>http://repository.codehaus.org</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-buildtools</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.0</version>
                 <executions>
                     <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <failsOnError>false</failsOnError>
-                            <consoleOutput>false</consoleOutput>
-                        </configuration>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>checkstyle</goal>
+                            <goal>add-source</goal>
                         </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/src/main/generated</source>
+                            </sources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

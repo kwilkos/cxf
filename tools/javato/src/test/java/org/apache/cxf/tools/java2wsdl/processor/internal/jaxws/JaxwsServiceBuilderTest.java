@@ -29,16 +29,21 @@ import org.apache.cxf.tools.fortest.withannotation.doc.Hello;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.hello_world_rpclit.GreeterRPCLit;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
     WSDL11Generator generator = new WSDL11Generator();
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         builder.setBus(BusFactory.getDefaultBus());
     }
 
+    @Test
     public void testGetOutputFile() {
         builder.setServiceClass(Stock.class);
         assertNull(builder.getOutputFile());
@@ -49,7 +54,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(expected.equals(builder.getOutputFile()));
     }
 
-    public void xtestWrapped() {
+    @Test
+    @Ignore
+    public void testWrapped() {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Hello.class);
         ServiceInfo service = builder.build();
         generator.setServiceModel(service);
@@ -60,7 +67,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     //FIXME: CXF-519
-    public void xtestAsyn() throws Exception {
+    @Test
+    @Ignore
+    public void testAsync() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
         ServiceInfo service = builder.build();
         generator.setServiceModel(service);
@@ -74,6 +83,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
+    @Test
     public void testRPCLit() throws Exception {
         builder.setServiceClass(GreeterRPCLit.class);
         ServiceInfo service = builder.build();
@@ -90,7 +100,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestDocWrapparBare() throws Exception {
+    @Test
+    @Ignore
+    public void testDocWrapparBare() throws Exception {
 
         builder.setServiceClass(org.apache.hello_world_doc_wrapped_bare.Greeter.class);
         ServiceInfo service = builder.build();
@@ -104,7 +116,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
     
     //FIXME: CXF-519
-    public void xtestDocLit() throws Exception {
+    @Test
+    @Ignore
+    public void testDocLit() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
         ServiceInfo service = builder.build();
         generator.setServiceModel(service);
@@ -119,7 +133,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestSOAP12() throws Exception {
+    @Test
+    @Ignore
+    public void testSOAP12() throws Exception {
         builder.setServiceClass(org.apache.hello_world_soap12_http.Greeter.class);
         ServiceInfo service = builder.build();
 
@@ -132,7 +148,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestRPCWithoutParentBindingAnnotation() throws Exception {
+    @Test
+    @Ignore
+    public void testRPCWithoutParentBindingAnnotation() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.Hello.class);
         ServiceInfo service = builder.build();
 
@@ -145,7 +163,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestDocWrappedWithoutWrapperClass() throws Exception {
+    @Test
+    @Ignore
+    public void testDocWrappedWithoutWrapperClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped.class);
         ServiceInfo service = builder.build();
 
@@ -158,7 +178,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestSOAPBindingRPCOnMethod() throws Exception {
+    @Test
+    @Ignore
+    public void testSOAPBindingRPCOnMethod() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.HelloWrongAnnotation.class);
         ServiceInfo service = builder.build();
 
@@ -171,7 +193,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestDocWrappedWithLocalName() throws Exception {
+    @Test
+    @Ignore
+    public void testDocWrappedWithLocalName() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Stock.class);
         ServiceInfo service = builder.build();
 
@@ -184,7 +208,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestDocWrappedNoWebParam() throws Exception {
+    @Test
+    @Ignore
+    public void testDocWrappedNoWebParam() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWithNoWebParam.class);
         ServiceInfo service = builder.build();
 
@@ -196,7 +222,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestSoapHeader() throws Exception {
+    @Test
+    @Ignore
+    public void testSoapHeader() throws Exception {
 
         builder.setServiceClass(org.apache.samples.headers.HeaderTester.class);
         ServiceInfo service = builder.build();
@@ -210,7 +238,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     // TODO:
-    public void xtestCXF188() throws Exception {
+    @Test
+    @Ignore
+    public void testCXF188() throws Exception {
         Class clz = AnnotationUtil.loadClass("org.apache.cxf.tools.fortest.cxf188.Demo", getClass()
             .getClassLoader());
         builder.setServiceClass(clz);

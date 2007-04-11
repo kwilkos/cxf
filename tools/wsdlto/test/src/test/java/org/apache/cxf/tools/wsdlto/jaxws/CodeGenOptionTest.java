@@ -27,11 +27,15 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CodeGenOptionTest extends ProcessorTestBase {
     private JAXWSContainer processor;
     private ClassLoader classLoader;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
@@ -50,6 +54,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
 
     }
 
+    @After
     public void tearDown() {
         super.tearDown();
         processor = null;
@@ -57,6 +62,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
     }
     
     
+    @Test
     public void testFlagForGenStandAlone() throws Exception {
         env.put(ToolConstants.CFG_GEN_TYPES, ToolConstants.CFG_GEN_TYPES);
         env.put(ToolConstants.CFG_GEN_SEI, ToolConstants.CFG_GEN_SEI);
@@ -74,6 +80,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
       
     }
     
+    @Test
     public void testFlagForGenAdditional() throws Exception {
         env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
         env.put(ToolConstants.CFG_SERVER, ToolConstants.CFG_SERVER);
@@ -87,6 +94,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
     }
      
     
+    @Test
     public void testHelloWorldExternalBindingFile() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_jaxws_base.wsdl"));
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/hello_world_jaxws_binding.wsdl"));

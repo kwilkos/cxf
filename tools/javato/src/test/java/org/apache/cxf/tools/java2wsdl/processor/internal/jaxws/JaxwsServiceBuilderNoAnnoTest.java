@@ -25,17 +25,18 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
     WSDL11Generator generator = new WSDL11Generator();
     
+    
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         builder.setBus(BusFactory.getDefaultBus());
-    }
-
-    public void tearDown() {
     }
 
     // Revisit:
@@ -45,6 +46,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     //        <wsdl:part name="arg0" type="xsd:string"/>
     //     </wsdl:message>
     // CXF-521
+    @Test
     public void testGeneratedWithElementryClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docbare.Stock.class);
         ServiceInfo service =  builder.build();
@@ -55,6 +57,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     }
 
     // Passed
+    @Test
     public void testGeneratedWithDocWrappedClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docwrapped.Stock.class);
         ServiceInfo service =  builder.build();
@@ -73,6 +76,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     // * input message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // * output message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // CXF-522
+    @Test
     public void testGeneratedWithRPCClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.rpc.Stock.class);
         ServiceInfo service =  builder.build();

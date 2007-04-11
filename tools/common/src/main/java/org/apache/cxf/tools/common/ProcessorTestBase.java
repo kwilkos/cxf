@@ -29,14 +29,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.StringTokenizer;
 
-import junit.framework.TestCase;
 import org.apache.cxf.helpers.FileUtils;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-public class ProcessorTestBase extends TestCase {
+public class ProcessorTestBase extends Assert {
 
     protected ToolContext env = new ToolContext();
     protected File output;
 
+    @Before
     public void setUp() throws Exception {
         URL url = getClass().getResource(".");
         output = new File(url.toURI());
@@ -44,6 +47,8 @@ public class ProcessorTestBase extends TestCase {
         FileUtils.mkDir(output);
     }
 
+    
+    @After
     public void tearDown() {
         FileUtils.removeDir(output);
         output = null;
