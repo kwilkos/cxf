@@ -119,20 +119,18 @@
 
     </dependencies>
 
-    <!-- will remove this after it is got sync to central repository -->
-    <repositories>
-        <repository>
-            <id>java.net</id>
-            <name>jsr181 temp repository</name>
-            <url>https://maven-repository.dev.java.net/nonav/repository</url>
-            <layout>legacy</layout>
-        </repository>
-    </repositories>
-
-
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common/common</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common/common</developerConnection>
     </scm>
+
+    <!-- will remove this after it is got sync to central repository -->
+    <repositories>
+        <repository>
+            <id>java.net</id>
+            <url>https://maven-repository.dev.java.net/repository/</url>
+            <layout>legacy</layout>
+        </repository>
+    </repositories>
 
 </project>

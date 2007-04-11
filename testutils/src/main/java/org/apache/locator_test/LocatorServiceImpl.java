@@ -24,6 +24,7 @@
 
 package org.apache.locator_test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -85,7 +86,7 @@ public class LocatorServiceImpl implements LocatorService {
     public java.util.List<
         Endpoint> listEndpoints() {
         LOG.info("Executing operation listEndpoints");
-        return null;
+        return new ArrayList<Endpoint>();
     }
 
     
