@@ -72,7 +72,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
     }
 
-    // TODO: CXF-519
+    //FIXME: CXF-519
     public void xtestAsyn() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
         ServiceInfo service = builder.build();
@@ -115,17 +115,20 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
     }
-
-    // TODO:
-    public void xtestDocLitUseClassPathFlag() throws Exception {
+    
+    //FIXME: CXF-519
+    public void xtestDocLit() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
         ServiceInfo service = builder.build();
-
         generator.setServiceModel(service);
-        File file = getOutputFile("doc_lit.wsdl");
+        File output = getOutputFile("hello_doc_lit.wsdl");
         assertNotNull(output);
-        generator.generate(file);
+        generator.generate(output);
         assertTrue(output.exists());
+
+        String expectedFile = this.getClass().getResource("expected/expected_hello_world_doc_lit.wsdl")
+            .getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
     // TODO:
