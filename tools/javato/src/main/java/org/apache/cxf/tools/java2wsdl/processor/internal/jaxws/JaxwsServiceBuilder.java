@@ -31,7 +31,11 @@ public class JaxwsServiceBuilder extends ServiceBuilder {
     
     public JaxwsServiceBuilder() {
         super();
-        setServiceFactory(new JaxWsServiceFactoryBean());
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        //As this is a javatowsdl tool, explictly populate service model from class
+        serviceFactory.setPopulateFromClass(true);
+        
+        setServiceFactory(serviceFactory);
     }
 
     public File getOutputFile() {

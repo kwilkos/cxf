@@ -107,6 +107,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Boolean wrappedStyle;
     private Map<String, Object> properties;
     private QName endpointName;
+    private boolean populateFromClass;
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
@@ -221,13 +222,21 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeServiceModel() {
         String wsdlurl = getWsdlURL();
 
-        if (wsdlurl != null) {
+        if (!populateFromClass && wsdlurl != null) {
             buildServiceFromWSDL(wsdlurl);
         } else {
             buildServiceFromClass();
         }
     }
+    
+    public boolean isPopulateFromClass() {
+        return populateFromClass;
+    }
 
+    public void setPopulateFromClass(boolean fomClass) {
+        this.populateFromClass = fomClass;
+    }
+    
     protected void initializeWSDLOperations() {
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
