@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.cxf.binding.BindingConfiguration;
 
 public class ObjectBindingConfiguration extends BindingConfiguration {
-    private boolean stopAfterLogicalPhases = true;
+    private boolean nonLogicalPhasesEnabled = true;
     private Set<String> skipPhases;
     
     @Override
@@ -39,12 +39,12 @@ public class ObjectBindingConfiguration extends BindingConfiguration {
         this.skipPhases = skipPhases;
     }
 
-    public boolean isStopAfterLogicalPhases() {
-        return stopAfterLogicalPhases;
+    public boolean isNonLogicalPhasesEnabled() {
+        return nonLogicalPhasesEnabled;
     }
 
-    public void setStopAfterLogicalPhases(boolean stopAfterLogicalPhases) {
-        this.stopAfterLogicalPhases = stopAfterLogicalPhases;
+    public void setNonLogicalPhasesEnabled(boolean nonLogicalPhasesEnabled) {
+        this.nonLogicalPhasesEnabled = nonLogicalPhasesEnabled;
     }
     
 }

@@ -74,9 +74,32 @@ public class LocalDestination extends AbstractDestination {
         }
 
         public void prepare(final Message message) throws IOException {
-            final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
-            
+            if (!Boolean.TRUE.equals(message.get(LocalConduit.DIRECT_DISPATCH))) {
+                final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
+                
+                final PipedInputStream stream = new PipedInputStream();
+                final Runnable receiver = new Runnable() {
+                    public void run() {
+                        MessageImpl m = new MessageImpl();
+                        if (exchange != null) {
+                            exchange.setInMessage(m);
+                        }
+                        m.setContent(InputStream.class, stream);
+                        conduit.getMessageObserver().onMessage(m);
+                    }
+                };
+    
+                PipedOutputStream outStream = new PipedOutputStream(stream);
+                message.setContent(OutputStream.class, outStream);
+    
+                new Thread(receiver).start();
+            }
+        }
+
+        @Override
+        public void close(Message message) throws IOException {
             if (Boolean.TRUE.equals(message.get(LocalConduit.DIRECT_DISPATCH))) {
+                final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
                 MessageImpl copy = new MessageImpl();
                 copy.putAll(message);
                 MessageImpl.copyContent(message, copy);
@@ -88,23 +111,8 @@ public class LocalDestination extends AbstractDestination {
                 conduit.getMessageObserver().onMessage(copy);
                 return;
             }
-
-            final PipedInputStream stream = new PipedInputStream();
-            final Runnable receiver = new Runnable() {
-                public void run() {
-                    MessageImpl m = new MessageImpl();
-                    if (exchange != null) {
-                        exchange.setInMessage(m);
-                    }
-                    m.setContent(InputStream.class, stream);
-                    conduit.getMessageObserver().onMessage(m);
-                }
-            };
-
-            PipedOutputStream outStream = new PipedOutputStream(stream);
-            message.setContent(OutputStream.class, outStream);
-
-            new Thread(receiver).start();
+            
+            super.close(message);
         }
 
         protected Logger getLogger() {

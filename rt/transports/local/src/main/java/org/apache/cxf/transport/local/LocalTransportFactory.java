@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
@@ -54,12 +55,17 @@ public class LocalTransportFactory extends AbstractTransportFactory
     
     private Map<String, Destination> destinations = new HashMap<String, Destination>();
     private Bus bus;
-     
+
+    private Set<String> messageFilterProperties;
+    
     public LocalTransportFactory() {
         super();
         List<String> ids = new ArrayList<String>();
         ids.add(TRANSPORT_ID);
         setTransportIds(ids);
+        
+        messageFilterProperties = new HashSet<String>();
+        messageFilterProperties.add(Message.REQUESTOR_ROLE);
     }
     
     @Resource(name = "bus")
@@ -96,11 +102,11 @@ public class LocalTransportFactory extends AbstractTransportFactory
     }
 
     public Conduit getConduit(EndpointInfo ei) throws IOException {
-        return new LocalConduit((LocalDestination)getDestination(ei));
+        return new LocalConduit(this, (LocalDestination)getDestination(ei));
     }
 
     public Conduit getConduit(EndpointInfo ei, EndpointReferenceType target) throws IOException {
-        return new LocalConduit((LocalDestination)getDestination(ei, target));
+        return new LocalConduit(this, (LocalDestination)getDestination(ei, target));
     }
 
     EndpointReferenceType createReference(EndpointInfo ei) {
@@ -113,6 +119,14 @@ public class LocalTransportFactory extends AbstractTransportFactory
 
     public Set<String> getUriPrefixes() {
         return URI_PREFIXES;
+    }
+
+    public Set<String> getMessageFilterProperties() {
+        return messageFilterProperties;
+    }
+
+    public void setMessageFilterProperties(Set<String> messageFilterProperties) {
+        this.messageFilterProperties = messageFilterProperties;
     }
 
 }

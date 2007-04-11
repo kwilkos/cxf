@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.wsdlto.core;
 
+import java.util.Collection;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -85,7 +86,8 @@ public class PluginLoaderTest extends TestCase {
     }
     
     protected Plugin getPlugin(PluginLoader loader, int index) {
-        int size = loader.getPlugins().size();
-        return loader.getPlugins().values().toArray(new Plugin[size])[index];
+        Collection plugins = (Collection) loader.getPlugins().values().toArray()[index];
+        
+        return (Plugin) plugins.iterator().next();
     }
 }

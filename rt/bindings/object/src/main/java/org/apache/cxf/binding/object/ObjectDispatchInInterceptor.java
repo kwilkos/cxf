@@ -50,14 +50,17 @@ public class ObjectDispatchInInterceptor extends AbstractPhaseInterceptor<Messag
         if (opName == null) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", BUNDLE));
         }
-        
-        if (bindingName == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_BINDING", BUNDLE));
-        }
-        
+
         Endpoint ep = message.getExchange().get(Endpoint.class);
         
-        BindingInfo binding = ep.getService().getServiceInfo().getBinding(bindingName);
+        BindingInfo binding = null;
+        
+        if (bindingName == null) {
+            binding = ep.getEndpointInfo().getBinding(); 
+        } else {
+            binding = ep.getService().getServiceInfo().getBinding(bindingName);
+        }
+        
         BindingOperationInfo bop = binding.getOperation(opName);
         
         message.getExchange().put(BindingOperationInfo.class, bop);

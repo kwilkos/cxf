@@ -27,14 +27,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
@@ -48,6 +49,7 @@ import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;
+import org.apache.cxf.tools.plugin.Plugins;
 
 public final class PluginLoader {
     public static final Logger LOG = LogUtils.getL7dLogger(PluginLoader.class);
@@ -55,7 +57,7 @@ public final class PluginLoader {
     private static PluginLoader pluginLoader;
     private static final String PLUGIN_FILE_NAME = "META-INF/tools-plugin.xml";
     
-    private Map<String, Plugin> plugins = new LinkedHashMap<String, Plugin>();
+    private Map<String, Collection<Plugin>> plugins = new LinkedHashMap<String, Collection<Plugin>>();
 
     private Map<String, FrontEnd> frontends = new LinkedHashMap<String, FrontEnd>();
     private Map<String, FrontEndProfile> frontendProfiles = new LinkedHashMap<String, FrontEndProfile>();
@@ -103,7 +105,7 @@ public final class PluginLoader {
     public void loadPlugin(URL url) throws IOException {
         try {
             LOG.log(Level.INFO, "PLUGIN_LOADING", url);
-            loadPlugin(getPlugin(url));
+            loadPlugins(getPlugins(url));
         } catch (JAXBException e) {
             Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, url);
             LOG.log(Level.SEVERE, msg.toString());
@@ -114,7 +116,7 @@ public final class PluginLoader {
     public void loadPlugin(String resource) {
         try {
             LOG.log(Level.INFO, "PLUGIN_LOADING", resource);
-            loadPlugin(getPlugin(resource));
+            loadPlugins(getPlugins(resource));
         } catch (JAXBException e) {
             Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, resource);
             LOG.log(Level.SEVERE, msg.toString());
@@ -125,6 +127,12 @@ public final class PluginLoader {
             throw new ToolException(msg, fe);
         }
 
+    }
+    
+    protected void loadPlugins(Collection<Plugin> ps) {
+        for (Plugin p : ps) {
+            loadPlugin(p);
+        }
     }
     
     protected void loadPlugin(Plugin plugin) {
@@ -170,28 +178,29 @@ public final class PluginLoader {
         }
     }
 
-    protected Plugin getPlugin(URL url) throws IOException, JAXBException, FileNotFoundException {
-        Plugin plugin = plugins.get(url.getFile());
+    protected Collection<Plugin> getPlugins(URL url) 
+        throws IOException, JAXBException, FileNotFoundException {
+        Collection<Plugin> p = plugins.get(url.getFile());
         InputStream is = null;
-        if (plugin == null) {
+        if (p == null) {
             is = url.openStream();
-            plugin = getPlugin(is);
-            if (plugin == null || StringUtils.isEmpty(plugin.getName())) {
+            p = getPlugins(is);
+            if (p == null) {
                 Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, url);
                 LOG.log(Level.SEVERE, msg.toString());
                 throw new ToolException(msg);
             }
-            plugins.put(url.getFile(), plugin);
+            plugins.put(url.getFile(), p);
         }        
         if (is == null) {
-            return getPlugin(url.getFile());
+            return getPlugins(url.getFile());
         }
-        return plugin;
+        return p;
     }
     
-    protected Plugin getPlugin(String resource) throws JAXBException, FileNotFoundException {
-        Plugin plugin = plugins.get(resource);
-        if (plugin == null) {
+    protected Collection<Plugin> getPlugins(String resource) throws JAXBException, FileNotFoundException {
+        Collection<Plugin> p = plugins.get(resource);
+        if (p == null) {
             InputStream is = null;
             if (new File(resource).exists()) {
                 is = new BufferedInputStream(new FileInputStream(new File(resource)));
@@ -204,19 +213,23 @@ public final class PluginLoader {
                 LOG.log(Level.SEVERE, msg.toString());
                 throw new ToolException(msg);
             }
-            plugin = getPlugin(is);
-            if (plugin == null || StringUtils.isEmpty(plugin.getName())) {
+            p = getPlugins(is);
+            if (p == null) {
                 Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, resource);
                 LOG.log(Level.SEVERE, msg.toString());
                 throw new ToolException(msg);
             }
-            plugins.put(resource, plugin);
+            plugins.put(resource, p);
         }
-        return plugin;
+        return p;
     }
 
-    private Plugin getPlugin(InputStream is) throws JAXBException {
-        return (Plugin) ((JAXBElement<?>)unmarshaller.unmarshal(is)).getValue();
+    private Collection<Plugin> getPlugins(InputStream is) throws JAXBException {
+        Plugins ps = (Plugins) unmarshaller.unmarshal(is);
+        if (ps != null) {
+            return ps.getPlugin();
+        }
+        return null;
     }
 
     public FrontEnd getFrontEnd(String name) {
@@ -417,7 +430,7 @@ public final class PluginLoader {
         return this.databindings;
     }
 
-    public Map<String, Plugin> getPlugins() {
+    public Map<String, Collection<Plugin>> getPlugins() {
         return this.plugins;
     }
 }

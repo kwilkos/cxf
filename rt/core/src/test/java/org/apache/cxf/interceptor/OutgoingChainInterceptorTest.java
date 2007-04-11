@@ -106,6 +106,7 @@ public class OutgoingChainInterceptorTest extends TestCase {
         m.setExchange(exchange);
         exchange.put(Bus.class, bus);
         exchange.put(Endpoint.class, endpoint);
+        exchange.put(Binding.class, binding);
         exchange.put(BindingOperationInfo.class, bopInfo);
         exchange.setOutMessage(m);
         setupIntc.handleMessage(m);

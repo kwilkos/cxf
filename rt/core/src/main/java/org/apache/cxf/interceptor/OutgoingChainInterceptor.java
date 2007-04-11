@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -87,6 +88,7 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
     
     public static InterceptorChain getOutInterceptorChain(Exchange ex) {
         Bus bus = ex.get(Bus.class);
+        Binding binding = ex.get(Binding.class);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
@@ -106,8 +108,8 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);        
-        if (ep.getBinding() != null) {
-            il = ep.getBinding().getOutInterceptors();
+        if (binding != null) {
+            il = binding.getOutInterceptors();
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Interceptors contributed by binding: " + il);
             }

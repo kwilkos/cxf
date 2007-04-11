@@ -19,10 +19,10 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws;
 
+import java.util.Collection;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
@@ -92,7 +92,8 @@ public class JAXWSProfileTest extends TestCase {
     }
 
     protected Plugin getPlugin(PluginLoader loader, int index) {
-        int size = loader.getPlugins().size();
-        return loader.getPlugins().values().toArray(new Plugin[size])[index];
+        Collection plugins = (Collection) loader.getPlugins().values().toArray()[index];
+        
+        return (Plugin) plugins.iterator().next();
     }
 }

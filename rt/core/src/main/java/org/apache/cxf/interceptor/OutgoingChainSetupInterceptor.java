@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -50,11 +51,11 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             return;
         }
         
-        Endpoint ep = ex.get(Endpoint.class);
+        Binding binding = ex.get(Binding.class);
         
         Message outMessage = message.getExchange().getOutMessage();
         if (outMessage == null) {
-            outMessage = ep.getBinding().createMessage();
+            outMessage = binding.createMessage();
             ex.setOutMessage(outMessage);
         }
         
@@ -62,7 +63,7 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
 
         Message faultMessage = message.getExchange().getOutFaultMessage();
         if (faultMessage == null) {
-            faultMessage = ep.getBinding().createMessage();            
+            faultMessage = binding.createMessage();            
             ex.setOutFaultMessage(faultMessage);
         }
         outMessage.setInterceptorChain(getOutInterceptorChain(ex));
@@ -70,6 +71,7 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
     
     public static InterceptorChain getOutInterceptorChain(Exchange ex) {
         Bus bus = ex.get(Bus.class);
+        Binding binding = ex.get(Binding.class);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
@@ -89,8 +91,8 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);        
-        if (ep.getBinding() != null) {
-            il = ep.getBinding().getOutInterceptors();
+        if (binding != null) {
+            il = binding.getOutInterceptors();
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("Interceptors contributed by binding: " + il);
             }

@@ -20,11 +20,14 @@ package org.apache.cxf.binding.object;
 
 import java.util.Collection;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -32,10 +35,14 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class ObjectBindingFactory extends AbstractBindingFactory {
     public static final String BINDING_ID = "http://cxf.apache.org/binding/object";
-    public static final String STOP_AFTER_LOGICAL  = "objectBinding.stopAfterLogical";
+    public static final String RUN_NON_LOGICAL  = "objectBinding.stopAfterLogical";
     
     private Collection<String> activationNamespaces;    
-
+    private Bus bus;
+    private boolean autoRegisterLocalEndpoint;
+    private boolean initialized = true;
+    private LocalServerListener listener;
+    
     public Collection<String> getActivationNamespaces() {
         return activationNamespaces;
     }
@@ -44,7 +51,24 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
+    
+    @Resource(name = "bus")
+    public void setBus(Bus bus) {
+        this.bus = bus;
+    }
 
+    @PostConstruct
+    public void initialize() {
+        if (autoRegisterLocalEndpoint) {
+            ServerLifeCycleManager manager = bus.getExtension(ServerLifeCycleManager.class);
+            if (manager != null) {
+                listener = new LocalServerListener(bus, this);
+                manager.registerListener(listener);
+            }
+        }
+        initialized = true;
+    }
+    
     public Binding createBinding(BindingInfo bi) {
         ObjectBinding binding = new ObjectBinding();
         binding.getOutInterceptors().add(new ObjectDispatchOutInterceptor());
@@ -59,7 +83,7 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
         if (config instanceof ObjectBindingConfiguration) {
             ObjectBindingConfiguration c = (ObjectBindingConfiguration) config;
             
-            info.setProperty(STOP_AFTER_LOGICAL, c.isStopAfterLogicalPhases());
+            info.setProperty(RUN_NON_LOGICAL, c.isNonLogicalPhasesEnabled());
         }
         
         info.setName(new QName(si.getName().getNamespaceURI(), 
@@ -70,6 +94,19 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
             info.addOperation(bop);
         }
         return info;
+    }
+
+    public boolean isAutoRegisterLocalEndpoint() {
+        return autoRegisterLocalEndpoint;
+    }
+
+    public void setAutoRegisterLocalEndpoint(boolean autoRegisterLocalEndpoint) {
+        this.autoRegisterLocalEndpoint = autoRegisterLocalEndpoint;
+        
+        if (initialized && listener == null) {
+            // register the lifecycle listener
+            initialize();
+        }
     }
 
 }

@@ -23,10 +23,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.cxf.attachment.CachedOutputStream;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -40,14 +43,17 @@ public class LocalConduit extends AbstractConduit {
     public static final String RESPONSE_CONDUIT = LocalConduit.class.getName() + ".inConduit";
     public static final String IN_EXCHANGE = LocalConduit.class.getName() + ".inExchange";
     public static final String DIRECT_DISPATCH = LocalConduit.class.getName() + ".directDispatch";
+    public static final String MESSAGE_FILTER_PROPERTIES = LocalConduit.class.getName() + ".filterProperties";
 
     private static final Logger LOG = LogUtils.getL7dLogger(LocalConduit.class);
     
     private LocalDestination destination;
+    private LocalTransportFactory transportFactory;
 
-    public LocalConduit(LocalDestination destination) {
+    public LocalConduit(LocalTransportFactory transportFactory, LocalDestination destination) {
         super(destination.getAddress());
         this.destination = destination;
+        this.transportFactory = transportFactory;
     }
     
     public void prepare(final Message message) throws IOException {
@@ -75,10 +81,7 @@ public class LocalConduit extends AbstractConduit {
         copy.put(IN_CONDUIT, this);
         copy.setDestination(destination);
         
-        // copy all the contents
-        copy.putAll(message);
-        MessageImpl.copyContent(message, copy);
-        copy.remove(Message.REQUESTOR_ROLE);
+        copy(message, copy, transportFactory.getMessageFilterProperties());
         
         // Create a new incoming exchange and store the original exchange for the response
         ExchangeImpl ex = new ExchangeImpl();
@@ -87,6 +90,22 @@ public class LocalConduit extends AbstractConduit {
         ex.setDestination(destination);
         
         destination.getMessageObserver().onMessage(copy);
+    }
+
+    public static void copy(Message message, MessageImpl copy, Set<String> defaultFilter) {
+        Set<String> filter = CastUtils.cast((Set)message.get(MESSAGE_FILTER_PROPERTIES));
+        if (filter == null) {
+            filter = defaultFilter;
+        }
+        
+        // copy all the contents
+        for (Map.Entry<String, Object> e : message.entrySet()) {
+            if (!filter.contains(e.getKey())) {
+                copy.put(e.getKey(), e.getValue());
+            }
+        }
+        
+        MessageImpl.copyContent(message, copy);
     }
 
     private void dispatchViaPipe(final Message message) throws IOException {

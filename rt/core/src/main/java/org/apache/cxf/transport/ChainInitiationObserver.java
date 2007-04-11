@@ -40,7 +40,7 @@ public class ChainInitiationObserver implements MessageObserver {
     }
 
     public void onMessage(Message m) {
-        Message message = endpoint.getBinding().createMessage(m);
+        Message message = getBinding().createMessage(m);
         Exchange exchange = message.getExchange();
         if (exchange == null) {
             exchange = new ExchangeImpl();
@@ -49,25 +49,34 @@ public class ChainInitiationObserver implements MessageObserver {
         setExchangeProperties(exchange, message);
         
         // setup chain
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
-            .getInPhases());
+        PhaseInterceptorChain chain = createChain();
         
         message.setInterceptorChain(chain);
         
         chain.add(bus.getInInterceptors());
         chain.add(endpoint.getInInterceptors());
-        chain.add(endpoint.getBinding().getInInterceptors());
+        chain.add(getBinding().getInInterceptors());
         chain.add(endpoint.getService().getInInterceptors());
 
         chain.setFaultObserver(endpoint.getOutFaultObserver());
        
         chain.doIntercept(message);        
     }
+
+    protected PhaseInterceptorChain createChain() {
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
+            .getInPhases());
+        return chain;
+    }
+
+    protected Binding getBinding() {
+        return endpoint.getBinding();
+    }
     
     protected void setExchangeProperties(Exchange exchange, Message m) {
         exchange.put(Endpoint.class, endpoint);
         exchange.put(Service.class, endpoint.getService());
-        exchange.put(Binding.class, endpoint.getBinding());
+        exchange.put(Binding.class, getBinding());
         exchange.put(Bus.class, bus);
         if (exchange.getDestination() == null) {
             exchange.setDestination(m.getDestination());
