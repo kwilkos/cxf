@@ -111,7 +111,7 @@ public class ProcessorTestBase extends TestCase {
         return result;
     }
     
-    private static String normalizeCRLF(InputStream instream) {
+    private String normalizeCRLF(InputStream instream) {
         BufferedReader in = new BufferedReader(new InputStreamReader(instream));
         StringBuffer result = new StringBuffer();
         String line = null;

@@ -49,19 +49,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(expected.equals(builder.getOutputFile()));
     }
 
-    public void testBare() {
-        builder.setServiceClass(Stock.class);
-        ServiceInfo service = builder.build();
-        generator.setServiceModel(service);
-        File output = getOutputFile("stock_bare.wsdl");
-        assertNotNull(output);
-        generator.generate(output);
-        assertTrue(output.exists());
-
-        String expectedFile = getClass().getResource("expected/expected_stock_bare.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
-    }
-
     public void xtestWrapped() {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Hello.class);
         ServiceInfo service = builder.build();
