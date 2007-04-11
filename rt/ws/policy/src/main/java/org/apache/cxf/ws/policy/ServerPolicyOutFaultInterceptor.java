@@ -49,7 +49,7 @@ public class ServerPolicyOutFaultInterceptor extends AbstractPolicyInterceptor {
         setPhase(Phase.SETUP);
     }
        
-    public void handleMessage(Message msg) {        
+    protected void handle(Message msg) {        
         if (MessageUtils.isRequestor(msg)) {
             LOG.fine("Is a requestor.");
             return;
@@ -76,7 +76,7 @@ public class ServerPolicyOutFaultInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Destination destination = msg.getDestination();
+        Destination destination = exchange.getDestination();
         
         Exception ex = exchange.get(Exception.class);
         assert null != ex;

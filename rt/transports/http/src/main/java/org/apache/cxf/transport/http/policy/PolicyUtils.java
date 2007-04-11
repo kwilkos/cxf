@@ -31,6 +31,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.AssertionInfo;
@@ -63,11 +64,13 @@ public final class PolicyUtils {
 
 
     /**
-     * Returns a HTTPClientPolicy  that is compatible with the assertions included in the
-     * service, endpoint, operation and message policy subjects AND the HTTPClientPolicy configured
-     * for the conduit. 
+     * Returns a HTTPClientPolicy that is compatible with the assertions included in the
+     * service, endpoint, operation and message policy subjects AND the HTTPClientPolicy 
+     * passed as a second argument.
      * @param message the message
+     * @param confPolicy the additional policy to be compatible with
      * @return the HTTPClientPolicy for the message
+     * @throws PolicyException if no compatible HTTPClientPolicy can be determined
      */
     public static HTTPClientPolicy getClient(Message message, HTTPClientPolicy confPolicy) {
         AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
@@ -96,12 +99,51 @@ public final class PolicyUtils {
     }
     
     /**
+     * Returns a HTTPServerPolicy that is compatible with the assertions included in the
+     * service, endpoint, operation and message policy subjects AND the HTTPServerPolicy 
+     * passed as a second argument.
+     * @param message the message
+     * @param confPolicy the additional policy to be compatible with
+     * @return the HTTPServerPolicy for the message
+     * @throws PolicyException if no compatible HTTPServerPolicy can be determined
+     */
+    public static HTTPServerPolicy getServer(Message message, HTTPServerPolicy confPolicy) {
+        AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
+        if (null == amap) {
+            return confPolicy;
+        }
+        Collection<AssertionInfo> ais = amap.get(HTTPSERVERPOLICY_ASSERTION_QNAME);
+        if (null == ais) {
+            return confPolicy;
+        }
+        Collection<Assertion> alternative = new ArrayList<Assertion>();
+        for (AssertionInfo ai : ais) {
+            alternative.add(ai.getAssertion());
+        }
+        HTTPServerPolicy compatible = getServer(alternative);
+        if (null != compatible && null != confPolicy) {
+            if (PolicyUtils.compatible(compatible, confPolicy)) {
+                compatible = intersect(compatible, confPolicy);
+            } else {
+                LogUtils.log(LOG, Level.SEVERE, "INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS");
+                throw new PolicyException(new org.apache.cxf.common.i18n.Message(
+                    "INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS", LOG));
+            }
+        }
+        return compatible;
+    }
+  
+    /**
      * Returns a HTTPClientPolicy that is compatible with the assertions included in the
      * service and endpoint policy subjects, or null if there are no such assertions.
+     * @param pe the policy engine
+     * @param ei the endpoint info
+     * @param c the conduit
+     * @return the compatible policy
+     * @throws PolicyException if no compatible HTTPClientPolicy can be determined
      */
     public static HTTPClientPolicy getClient(PolicyEngine pe, EndpointInfo ei, Conduit c) {
         Collection<Assertion> alternative = pe.getClientEndpointPolicy(ei, c).getChosenAlternative();
-
         HTTPClientPolicy compatible = null;
         for (Assertion a : alternative) {
             if (HTTPCLIENTPOLICY_ASSERTION_QNAME.equals(a.getName())) {
@@ -119,9 +161,44 @@ public final class PolicyUtils {
             }
         }
         return compatible;
-
     }
     
+    /**
+     * Returns a HTTPServerPolicy that is compatible with the assertions included in the
+     * service and endpoint policy subjects, or null if there are no such assertions.
+     * @param pe the policy engine
+     * @param ei the endpoint info
+     * @param d the destination
+     * @return the compatible policy
+     * @throws PolicyException if no compatible HTTPServerPolicy can be determined
+     */
+    public static HTTPServerPolicy getServer(PolicyEngine pe, EndpointInfo ei, Destination d) {
+        Collection<Assertion> alternative = pe.getServerEndpointPolicy(ei, d).getChosenAlternative();
+        HTTPServerPolicy compatible = null;
+        for (Assertion a : alternative) {
+            if (HTTPSERVERPOLICY_ASSERTION_QNAME.equals(a.getName())) {
+                HTTPServerPolicy p = JaxbAssertion.cast(a, HTTPServerPolicy.class).getData();
+                if (null == compatible) {
+                    compatible = p;
+                } else {
+                    compatible = intersect(compatible, p);
+                    if (null == compatible) {
+                        LogUtils.log(LOG, Level.SEVERE, "INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS");
+                        throw new PolicyException(new org.apache.cxf.common.i18n.Message(
+                            "INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS", LOG));
+                    }
+                }
+            }
+        }
+        return compatible;
+    }
+    
+    /**
+     * Asserts all HTTPClientPolicy assertions that are compatible with the specified
+     * client policy.
+     * @param message the current message
+     * @param client the client policy
+     */
     public static void assertClientPolicy(Message message, HTTPClientPolicy client) {
        
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
@@ -151,9 +228,43 @@ public final class PolicyUtils {
     }
     
     /**
+     * Asserts all HTTPServerPolicy assertions that are equal to the specified
+     * server policy.
+     * @param message the current message
+     * @param server the server policy
+     */
+    public static void assertServerPolicy(Message message, HTTPServerPolicy server) {
+        
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return;
+        }
+        Collection<AssertionInfo> ais = aim.get(HTTPSERVERPOLICY_ASSERTION_QNAME);          
+        if (null == ais || ais.size() == 0) {
+            return;
+        }   
+ 
+        // assert all assertion(s) that are equal to the value configured for the conduit
+        
+        if (MessageUtils.isOutbound(message)) {  
+            for (AssertionInfo ai : ais) {
+                ai.setAsserted(true);
+            }
+        } else {
+            for (AssertionInfo ai : ais) {
+                HTTPServerPolicy p = (JaxbAssertion.cast(ai.getAssertion(), 
+                                                          HTTPServerPolicy.class)).getData(); 
+                if (equals(p, server)) {
+                    ai.setAsserted(true);                 
+                }
+            }
+        } 
+    }
+    
+    /**
      * Checks if two HTTPClientPolicy objects are compatible.
-     * @param p1 one policy
-     * @param p2 another policy
+     * @param p1 one client policy
+     * @param p2 another client policy
      * @return true iff policies are compatible
      */
     public static boolean compatible(HTTPClientPolicy p1, HTTPClientPolicy p2) {
@@ -198,6 +309,8 @@ public final class PolicyUtils {
             compatible &= compatible(p1.getCookie(), p2.getCookie());
         }
         
+        // REVISIT: Should compatibility require strict equality?
+        
         if (compatible) {
             compatible &= compatible(p1.getDecoupledEndpoint(), p2.getDecoupledEndpoint());
         }
@@ -237,7 +350,7 @@ public final class PolicyUtils {
  
     
     /**
-     * Returns a new HTTPClientPolicy which is compatible with the two specified policies or
+     * Returns a new HTTPClientPolicy that is compatible with the two specified policies or
      * null if no compatible policy can be determined.
      * @param p1 one policy
      * @param p2 another policy
@@ -306,9 +419,55 @@ public final class PolicyUtils {
     }
     
     /**
+     * Determines if two HTTPClientPolicy objects are equal.
+     * REVISIT: Check if this can be replaced by a generated equals method.
+     * @param p1 one client policy
+     * @param p2 another client policy
+     * @return true iff the two policies are equal
+     */
+    public static boolean equals(HTTPClientPolicy p1, HTTPClientPolicy p2) {
+        if (p1 == p2) {
+            return true;
+        }
+        boolean result = true;
+        result &= (p1.isAllowChunking() == p2.isAllowChunking())
+            && (p1.isAutoRedirect() == p2.isAutoRedirect())
+            && equals(p1.getAccept(), p2.getAccept())
+            && equals(p1.getAcceptEncoding(), p2.getAcceptEncoding())
+            && equals(p1.getAcceptLanguage(), p2.getAcceptLanguage())
+            && equals(p1.getBrowserType(), p2.getBrowserType());
+        if (!result) {
+            return false;
+        }
+      
+        result &= (p1.getCacheControl() == null 
+                ? p2.getCacheControl() == null 
+                : p1.getCacheControl().value().equals(p2.getCacheControl().value())
+                && p1.getConnection().value().equals(p2.getConnection().value()))        
+            && (p1.getConnectionTimeout() == p2.getConnectionTimeout())
+            && equals(p1.getContentType(), p2.getContentType())
+            && equals(p1.getCookie(), p2.getCookie())
+            && equals(p1.getDecoupledEndpoint(), p2.getDecoupledEndpoint())
+            && equals(p1.getHost(), p2.getHost());
+        if (!result) {
+            return false;
+        } 
+
+        result &= equals(p1.getProxyServer(), p2.getProxyServer())
+            && (p1.isSetProxyServerPort() 
+                ? p1.getProxyServerPort() == p2.getProxyServerPort()
+                : !p2.isSetProxyServerPort())
+            && p1.getProxyServerType().value().equals(p2.getProxyServerType().value())
+            && (p1.getReceiveTimeout() == p2.getReceiveTimeout())
+            && equals(p1.getReferer(), p2.getReferer());
+        
+        return result;
+    }
+    
+    /**
      * Checks if two HTTPServerPolicy objects are compatible.
-     * @param p1 one policy
-     * @param p2 another policy
+     * @param p1 one server policy
+     * @param p2 another server policy
      * @return true iff policies are compatible
      */
     public static boolean compatible(HTTPServerPolicy p1, HTTPServerPolicy p2) {
@@ -360,7 +519,7 @@ public final class PolicyUtils {
     }
     
     /**
-     * Returns a new HTTPServerPolicy which is compatible with the two specified policies or
+     * Returns a new HTTPServerPolicy that is compatible with the two specified policies or
      * null if no compatible policy can be determined.
      * @param p1 one policy
      * @param p2 another policy
@@ -409,6 +568,38 @@ public final class PolicyUtils {
         return p;
     }
     
+    /**
+     * Determines if two HTTPServerPolicy objects are equal.
+     * REVISIT: Check if this can be replaced by a generated equals method.
+     * @param p1 one server policy
+     * @param p2 another server policy
+     * @return true iff the two policies are equal
+     */
+    public static boolean equals(HTTPServerPolicy p1, HTTPServerPolicy p2) {
+        if (p1 == p2) {
+            return true;
+        }
+        boolean result = true;
+
+        result &= (p1.isHonorKeepAlive() == p2.isHonorKeepAlive())
+            && (p1.getCacheControl() == null 
+                ? p2.getCacheControl() == null 
+                : p1.getCacheControl().value().equals(p2.getCacheControl().value()))
+            && equals(p1.getContentEncoding(), p2.getContentEncoding())
+            && equals(p1.getContentLocation(), p2.getContentLocation())
+            && equals(p1.getContentType(), p2.getContentType());
+        if (!result) {
+            return false;
+        }
+        result &= (p1.getReceiveTimeout() == p2.getReceiveTimeout())
+            && equals(p1.getRedirectURL(), p2.getRedirectURL())
+            && equals(p1.getServerType(), p2.getServerType())
+            && (p1.isSuppressClientReceiveErrors() == p2.isSuppressClientReceiveErrors())
+            && (p1.isSuppressClientSendErrors() == p2.isSuppressClientSendErrors());
+        
+        return result;
+    }
+    
     private static String combine(String s1, String s2) {
         return s1 == null ? s2 : s1;
     }
@@ -443,6 +634,28 @@ public final class PolicyUtils {
         return compatible;
     }
     
+    private static HTTPServerPolicy getServer(Collection<Assertion> alternative) {      
+        HTTPServerPolicy compatible = null;
+        for (Assertion a : alternative) {
+            if (HTTPSERVERPOLICY_ASSERTION_QNAME.equals(a.getName())) {
+                HTTPServerPolicy p = JaxbAssertion.cast(a, HTTPServerPolicy.class).getData();
+                if (null == compatible) {
+                    compatible = p;
+                } else {
+                    compatible = intersect(compatible, p);
+                    if (null == compatible) {
+                        LogUtils.log(LOG, Level.SEVERE, "INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS");
+                        org.apache.cxf.common.i18n.Message m = 
+                            new org.apache.cxf.common.i18n.Message(
+                                "INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS", LOG);
+                        throw new PolicyException(m);
+                    }
+                }
+            }
+        }
+        return compatible;
+    }
+    
     public static String toString(HTTPClientPolicy p) {
         StringBuffer buf = new StringBuffer();
         buf.append(p);
@@ -452,41 +665,19 @@ public final class PolicyUtils {
         buf.append(p.getReceiveTimeout());
         buf.append("])");
         return buf.toString();
+    }
+    
+    public static String toString(HTTPServerPolicy p) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(p);
+        buf.append("[ContentType=\"");
+        buf.append(p.getContentType());
+        buf.append("\", ReceiveTimeout=");
+        buf.append(p.getReceiveTimeout());
+        buf.append("])");
+        return buf.toString();
         
     }
     
-    public static boolean equals(HTTPClientPolicy p1, HTTPClientPolicy p2) {
-        if (p1 == p2) {
-            return true;
-        }
-        boolean result = true;
-        result &= p1.isAllowChunking() == p2.isAllowChunking()
-            && p1.isAutoRedirect() == p2.isAutoRedirect()
-            && equals(p1.getAccept(), p2.getAccept())
-            && equals(p1.getAcceptEncoding(), p2.getAcceptEncoding())
-            && equals(p1.getAcceptLanguage(), p2.getAcceptLanguage())
-            && equals(p1.getBrowserType(), p2.getBrowserType());
-        if (!result) {
-            return false;
-        }
-        
-        result &= p1.getCacheControl() == null 
-                ? p2.getCacheControl() == null 
-                : p1.getCacheControl().value().equals(p2.getCacheControl().value())
-                && p1.getConnection().value().equals(p2.getConnection().value())        
-            && p1.getConnectionTimeout() == p2.getConnectionTimeout()
-            && equals(p1.getContentType(), p2.getContentType())
-            && equals(p1.getCookie(), p2.getCookie())
-            && equals(p1.getDecoupledEndpoint(), p2.getDecoupledEndpoint())
-            && equals(p1.getHost(), p2.getHost());
-        if (!result) {
-            return false;
-        }
-        result &= equals(p1.getProxyServer(), p2.getProxyServer())
-            && p1.getProxyServerPort() == p2.getProxyServerPort()
-            && p1.getProxyServerType().value().equals(p2.getProxyServerType().value())
-            && p1.getReceiveTimeout() == p2.getReceiveTimeout()
-            && equals(p1.getReferer(), p2.getReferer()); 
-        return result;
-    }
+    
 }

@@ -20,66 +20,65 @@
 package org.apache.cxf.systest.ws.policy;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.policy.PolicyUtils;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.apache.cxf.ws.policy.AssertionInfo;
-import org.apache.cxf.ws.policy.AssertionInfoMap;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.ws.policy.EffectivePolicy;
+import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
+import org.apache.neethi.Assertion;
 
 public class PolicyLoggingInterceptor extends AbstractPhaseInterceptor {
 
     private static final Logger LOG = Logger.getLogger(PolicyLoggingInterceptor.class.getName());
     
     private boolean outbound;
+    private Bus bus;
     
     PolicyLoggingInterceptor(boolean o) {
         outbound = o;
-        setPhase(Phase.PRE_LOGICAL);
-        /*
+        // setPhase(Phase.PRE_LOGICAL);
         if (outbound) {
             setPhase(Phase.POST_STREAM);
-            addBefore(PolicyVerificationOutInterceptor.class.getName());
+            // addBefore(PolicyVerificationOutInterceptor.class.getName());
         } else {
-            setPhase(Phase.PRE_INVOKE);
-            addBefore(PolicyVerificationInInterceptor.class.getName());
+            setPhase(Phase.POST_INVOKE);
+            // addBefore(PolicyVerificationInInterceptor.class.getName());
         }
-        */
+    }
+    
+    public void setBus(Bus b) {
+        bus = b;
     }
     
     public void handleMessage(Message message) throws Fault {
-        StringBuffer buf = new StringBuffer();
-        String nl = System.getProperty("line.separator");
-        buf.append(outbound ? "Outbound " : "Inbound ");
-        buf.append("message for operation: " + message.getExchange().get(OperationInfo.class).getName());
-        buf.append(nl);
-        buf.append("Policies:");
-        buf.append(nl);
-        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
-        if (null != aim) {
-            for (Collection<AssertionInfo> ais : aim.values()) {
-                for (AssertionInfo ai : ais) {
-                    JaxbAssertion<HTTPClientPolicy> cp = JaxbAssertion.cast((JaxbAssertion)ai.getAssertion(),
-                                                                            HTTPClientPolicy.class);
-                    buf.append(cp);
-                    buf.append(nl);
-                    buf.append("    data: ");
-                    buf.append(PolicyUtils.toString(cp.getData()));
-                    buf.append(nl);
-                    buf.append("    asserted: ");
-                    buf.append(ai.isAsserted());
-                    buf.append(nl);
-                }
+        EndpointInfo ei = message.getExchange().get(Endpoint.class).getEndpointInfo();
+        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        LOG.fine("Getting effective server request policy for endpoint " + ei
+                 + " and binding operation " + boi);
+        EffectivePolicy ep = 
+            bus.getExtension(PolicyEngine.class).getEffectiveServerRequestPolicy(ei, boi);                
+        for (Iterator it = ep.getPolicy().getAlternatives(); it.hasNext();) {
+            Collection<Assertion> as = CastUtils.cast((Collection)it.next(), Assertion.class);
+            LOG.fine("Checking alternative with " + as.size() + " assertions.");
+            for (Assertion a : as) {
+                LOG.fine("Assertion: " + a.getClass().getName());
+                HTTPServerPolicy p = (JaxbAssertion.cast(a, HTTPServerPolicy.class)).getData(); 
+                LOG.fine("server policy: " + PolicyUtils.toString(p));
             }
         }
-        LOG.fine(buf.toString());
-        
+
     }
 
 }

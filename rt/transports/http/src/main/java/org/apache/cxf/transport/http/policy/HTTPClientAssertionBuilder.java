@@ -73,7 +73,14 @@ public class HTTPClientAssertionBuilder extends JaxbAssertionBuilder<HTTPClientP
             }
             JaxbAssertion<HTTPClientPolicy> other = JaxbAssertion.cast((Assertion)policyComponent);
             return PolicyUtils.equals(this.getData(), other.getData());  
-        }      
+        }
+        
+        @Override
+        protected Assertion cloneMandatory() {
+            HTTPClientPolicyAssertion a = new HTTPClientPolicyAssertion();
+            a.setData(getData());
+            return a;        
+        }
     }
     
     

@@ -358,7 +358,7 @@ public class PolicyInterceptorsTest extends Assert {
             EasyMock.expect(exchange.getConduit()).andReturn(conduit);
         } else {
             destination = control.createMock(Destination.class);
-            EasyMock.expect(message.getDestination()).andReturn(destination);
+            EasyMock.expect(exchange.getDestination()).andReturn(destination);
         }
       
     }

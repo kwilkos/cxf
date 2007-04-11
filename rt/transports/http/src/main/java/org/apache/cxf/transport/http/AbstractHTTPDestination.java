@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -52,13 +53,17 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.http.policy.PolicyUtils;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.policy.Assertor;
+import org.apache.cxf.ws.policy.PolicyEngine;
 
 /**
  * Common base for HTTP Destination implementations.
  */
-public abstract class AbstractHTTPDestination extends AbstractDestination implements Configurable {
+public abstract class AbstractHTTPDestination extends AbstractDestination 
+    implements Configurable, Assertor {
     
     public static final String HTTP_REQUEST = "HTTP.REQUEST";
     public static final String HTTP_RESPONSE = "HTTP.RESPONSE";
@@ -246,7 +251,14 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
     }
 
     private void initConfig() {
-        this.server = endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class);
+        PolicyEngine engine = bus.getExtension(PolicyEngine.class);
+        // for a decoupled endpoint there is no service info
+        if (null != engine && engine.isEnabled() && null != endpointInfo.getService()) {
+            server = PolicyUtils.getServer(engine, endpointInfo, this);
+        }
+        if (null == server) {
+            server = endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class);
+        }
         this.sslServer = endpointInfo.getTraversedExtensor(null, SSLServerPolicy.class);
     }
 
@@ -450,4 +462,16 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
     public void setSslServer(SSLServerPolicy sslServer) {
         this.sslServer = sslServer;
     }
+
+    public void assertMessage(Message message) {
+        PolicyUtils.assertServerPolicy(message, server); 
+    }
+
+    public boolean canAssert(QName type) {
+        return PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME.equals(type); 
+    }
+    
+    
+    
+    
 }

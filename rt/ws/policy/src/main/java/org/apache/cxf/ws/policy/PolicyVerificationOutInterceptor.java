@@ -43,8 +43,9 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
      * interceptors necessary to assert the assertions are present, it is not possible
      * to predict if these interceptors actually have asserted their assertions.  
      * @param message
+     * @throws PolicyException if none of the alternatives is supported
      */
-    public void handleMessage(Message message) {
+    protected void handle(Message message) {
         
         if (MessageUtils.isPartialResponse(message)) {
             LOG.fine("Not verifying policies on outbound partial response.");

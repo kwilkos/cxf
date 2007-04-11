@@ -48,7 +48,7 @@ public class ServerPolicyOutInterceptor extends AbstractPolicyInterceptor {
         setPhase(Phase.SETUP);
     }
     
-    public void handleMessage(Message msg) {        
+    protected void handle(Message msg) {        
         if (MessageUtils.isRequestor(msg)) {
             LOG.fine("Is a requestor.");
             return;
@@ -75,7 +75,7 @@ public class ServerPolicyOutInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Destination destination = msg.getDestination();
+        Destination destination = exchange.getDestination();
         EffectivePolicy effectivePolicy = pe.getEffectiveServerResponsePolicy(ei, boi, destination);
         
         List<Interceptor> interceptors = effectivePolicy.getInterceptors();

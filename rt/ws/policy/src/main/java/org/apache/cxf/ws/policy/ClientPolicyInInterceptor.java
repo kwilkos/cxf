@@ -47,7 +47,7 @@ public class ClientPolicyInInterceptor extends AbstractPolicyInterceptor {
         setPhase(Phase.RECEIVE);
     }
     
-    public void handleMessage(Message msg) {        
+    protected void handle(Message msg) {        
         if (!MessageUtils.isRequestor(msg)) {
             LOG.fine("Not a requestor.");
             return;

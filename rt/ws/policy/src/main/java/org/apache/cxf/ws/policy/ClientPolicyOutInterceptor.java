@@ -48,7 +48,7 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         setPhase(Phase.SETUP);
     }
     
-    public void handleMessage(Message msg) {
+    protected void handle(Message msg) {
         if (!MessageUtils.isRequestor(msg)) {
             LOG.fine("Not a requestor.");
             return;
@@ -80,7 +80,7 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         // add the required interceptors
         
         EffectivePolicy effectivePolicy = pe.getEffectiveClientRequestPolicy(ei, boi, conduit);
-        PolicyUtils.logPolicy(LOG, Level.FINE, "Using effective policy: ", effectivePolicy.getPolicy());
+        PolicyUtils.logPolicy(LOG, Level.FINEST, "Using effective policy: ", effectivePolicy.getPolicy());
         
         List<Interceptor> interceptors = effectivePolicy.getInterceptors();
         for (Interceptor i : interceptors) {            
@@ -92,14 +92,16 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         
         Collection<Assertion> assertions = effectivePolicy.getChosenAlternative();
         if (null != assertions) {
-            StringBuffer buf = new StringBuffer();
-            buf.append("Chosen alternative: ");
-            String nl = System.getProperty("line.separator");
-            buf.append(nl);
-            for (Assertion a : assertions) {
-                PolicyUtils.printPolicyComponent(a, buf, 1);
+            if (LOG.isLoggable(Level.FINEST)) {
+                StringBuffer buf = new StringBuffer();
+                buf.append("Chosen alternative: ");
+                String nl = System.getProperty("line.separator");
+                buf.append(nl);
+                for (Assertion a : assertions) {
+                    PolicyUtils.printPolicyComponent(a, buf, 1);
+                }
+                LOG.finest(buf.toString());
             }
-            LOG.fine(buf.toString());
             msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }
     }

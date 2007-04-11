@@ -19,7 +19,7 @@
 
 package org.apache.cxf.transport.http.policy;
 
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.neethi.Assertion;
 import org.junit.Assert;
@@ -28,46 +28,47 @@ import org.junit.Test;
 /**
  * 
  */
-public class HTTPClientAssertionBuilderTest extends Assert {
+public class HTTPServerAssertionBuilderTest extends Assert {
 
     @Test
     public void testBuildCompatible() throws Exception {
-        HTTPClientAssertionBuilder ab = new HTTPClientAssertionBuilder();
-        JaxbAssertion<HTTPClientPolicy>  a = ab.buildAssertion();
-        HTTPClientPolicy pa = new HTTPClientPolicy();
+        HTTPServerAssertionBuilder ab = new HTTPServerAssertionBuilder();
+        JaxbAssertion<HTTPServerPolicy>  a = ab.buildAssertion();
+        HTTPServerPolicy pa = new HTTPServerPolicy();
         a.setData(pa);
-        JaxbAssertion<HTTPClientPolicy> b = ab.buildAssertion();
-        HTTPClientPolicy pb = new HTTPClientPolicy();
+        JaxbAssertion<HTTPServerPolicy> b = ab.buildAssertion();
+        HTTPServerPolicy pb = new HTTPServerPolicy();
         b.setData(pb);
-        JaxbAssertion<HTTPClientPolicy> c = 
-            JaxbAssertion.cast(ab.buildCompatible(a, b), HTTPClientPolicy.class);
+        JaxbAssertion<HTTPServerPolicy> c = 
+            JaxbAssertion.cast(ab.buildCompatible(a, b), HTTPServerPolicy.class);
         assertNotNull(c);        
     }
     
     @Test
     public void testBuildAssertion() throws Exception {
-        HTTPClientAssertionBuilder ab = new HTTPClientAssertionBuilder();
+        HTTPServerAssertionBuilder ab = new HTTPServerAssertionBuilder();
         Assertion a = ab.buildAssertion();
         assertTrue(a instanceof JaxbAssertion);
-        assertTrue(a instanceof HTTPClientAssertionBuilder.HTTPClientPolicyAssertion);
-        assertEquals(PolicyUtils.HTTPCLIENTPOLICY_ASSERTION_QNAME, a.getName());
+        assertTrue(a instanceof HTTPServerAssertionBuilder.HTTPServerPolicyAssertion);
+        assertEquals(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, a.getName());
         assertTrue(!a.isOptional());
     }
     
     @Test
-    public void testHTTPCLientPolicyAssertionEqual() throws Exception {
-        HTTPClientAssertionBuilder ab = new HTTPClientAssertionBuilder();
-        JaxbAssertion<HTTPClientPolicy>  a = ab.buildAssertion();        
+    public void testHTTPServerPolicyAssertionEqual() throws Exception {
+        HTTPServerAssertionBuilder ab = new HTTPServerAssertionBuilder();
+        JaxbAssertion<HTTPServerPolicy>  a = ab.buildAssertion();        
         assertTrue(a.equal(a));        
-        JaxbAssertion<HTTPClientPolicy> b = ab.buildAssertion();
+        JaxbAssertion<HTTPServerPolicy> b = ab.buildAssertion();
         assertTrue(a.equal(b));
-        HTTPClientPolicy pa = new HTTPClientPolicy();
+        HTTPServerPolicy pa = new HTTPServerPolicy();
         a.setData(pa);
         assertTrue(a.equal(a));
-        HTTPClientPolicy pb = new HTTPClientPolicy();
+        HTTPServerPolicy pb = new HTTPServerPolicy();
         b.setData(pb);
         assertTrue(a.equal(b));
-        pa.setDecoupledEndpoint("http://localhost:9999/decoupled_endpoint");
-        assertTrue(!a.equal(b));  
-    }    
+        pa.setSuppressClientSendErrors(true);
+        assertTrue(!a.equal(b));       
+    }
+    
 }

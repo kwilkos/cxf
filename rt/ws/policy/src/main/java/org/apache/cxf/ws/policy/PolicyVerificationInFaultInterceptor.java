@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
@@ -49,8 +48,9 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
      * is supported.
      *  
      * @param message
+     * @throws PolicyException if none of the alternatives is supported
      */
-    public void handleMessage(Message message) throws Fault {
+    protected void handle(Message message) {
         
         if (!MessageUtils.isRequestor(message)) {
             LOG.fine("Not a requestor.");

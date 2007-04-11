@@ -85,6 +85,20 @@ public class PolicyUtilsTest extends Assert {
         p = PolicyUtils.intersect(p1, p2);
         assertTrue(!p.isAllowChunking());
     }
+    
+    @Test
+    public void testEqualClientPolicies() {
+        HTTPClientPolicy p1 = new HTTPClientPolicy();
+        assertTrue(PolicyUtils.equals(p1, p1));
+        HTTPClientPolicy p2 = new HTTPClientPolicy();        
+        assertTrue(PolicyUtils.equals(p1, p2));
+        p1.setDecoupledEndpoint("http://localhost:8080/decoupled");
+        assertTrue(!PolicyUtils.equals(p1, p2));
+        p2.setDecoupledEndpoint("http://localhost:8080/decoupled");
+        assertTrue(PolicyUtils.equals(p1, p2));
+        p1.setReceiveTimeout(10000L);
+        assertTrue(!PolicyUtils.equals(p1, p2));
+    }
 
     @Test
     public void testCompatibleServerPolicies() {
@@ -104,7 +118,7 @@ public class PolicyUtilsTest extends Assert {
         p2.setSuppressClientSendErrors(true);
         assertTrue("Policies are compatible.", PolicyUtils.compatible(p1, p2));
     }
-
+        
     @Test
     public void testIntersectServerPolicies() {
         HTTPServerPolicy p1 = new HTTPServerPolicy();
@@ -124,8 +138,32 @@ public class PolicyUtilsTest extends Assert {
         assertTrue(p.isSuppressClientSendErrors());
     }
 
+    
+    @Test
+    public void testEqualServerPolicies() {
+        HTTPServerPolicy p1 = new HTTPServerPolicy();
+        assertTrue(PolicyUtils.equals(p1, p1));
+        HTTPServerPolicy p2 = new HTTPServerPolicy();        
+        assertTrue(PolicyUtils.equals(p1, p2));
+        p1.setContentEncoding("encoding");
+        assertTrue(!PolicyUtils.equals(p1, p2));
+        p2.setContentEncoding("encoding");
+        assertTrue(PolicyUtils.equals(p1, p2));
+        p1.setSuppressClientSendErrors(true);
+        assertTrue(!PolicyUtils.equals(p1, p2));
+    }
+    
     @Test
     public void testAssertClientPolicyNoop() {
+        testAssertPolicyNoop(true);
+    }
+    
+    @Test
+    public void testAssertServerPolicyNoop() {
+        testAssertPolicyNoop(false);
+    }
+    
+    void testAssertPolicyNoop(boolean isRequestor) {
         Message message = control.createMock(Message.class);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
         control.replay();
@@ -137,7 +175,11 @@ public class PolicyUtilsTest extends Assert {
         AssertionInfoMap aim = new AssertionInfoMap(as);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
         control.replay();
-        PolicyUtils.assertClientPolicy(message, null);
+        if (isRequestor) {
+            PolicyUtils.assertClientPolicy(message, null);
+        } else {
+            PolicyUtils.assertServerPolicy(message, null);
+        }
         control.verify();
     }
 
@@ -193,6 +235,67 @@ public class PolicyUtilsTest extends Assert {
         assertTrue(eai.isAsserted());
         assertTrue(cmai.isAsserted());
         assertTrue(outbound ? !icmai.isAsserted() : icmai.isAsserted());
+        control.verify();
+    }
+    
+    @Test
+    public void testAssertServerPolicyOutbound() {
+        testAssertServerPolicy(true);
+    }
+
+    @Test
+    public void testAssertServerPolicyInbound() {
+        testAssertServerPolicy(false);
+    }
+
+    void testAssertServerPolicy(boolean outbound) {
+        Message message = control.createMock(Message.class);
+        HTTPServerPolicy ep = new HTTPServerPolicy();
+        HTTPServerPolicy mp = new HTTPServerPolicy();
+        HTTPServerPolicy cmp = new HTTPServerPolicy(); 
+        cmp.setReceiveTimeout(60000L);
+        HTTPServerPolicy icmp = new HTTPServerPolicy();
+        icmp.setSuppressClientSendErrors(true);
+
+        JaxbAssertion<HTTPServerPolicy> ea = 
+            new JaxbAssertion<HTTPServerPolicy>(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, false);
+        ea.setData(ep);
+        JaxbAssertion<HTTPServerPolicy> ma = 
+            new JaxbAssertion<HTTPServerPolicy>(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, false);
+        ma.setData(mp);
+        JaxbAssertion<HTTPServerPolicy> cma = 
+            new JaxbAssertion<HTTPServerPolicy>(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, false);
+        cma.setData(cmp);
+        JaxbAssertion<HTTPServerPolicy> icma = 
+            new JaxbAssertion<HTTPServerPolicy>(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, false);
+        icma.setData(icmp);
+
+        AssertionInfo eai = new AssertionInfo(ea);
+        AssertionInfo mai = new AssertionInfo(ma);
+        AssertionInfo cmai = new AssertionInfo(cma);
+        AssertionInfo icmai = new AssertionInfo(icma);
+
+        AssertionInfoMap aim = new AssertionInfoMap(CastUtils.cast(Collections.EMPTY_LIST, Assertion.class));
+        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
+        ais.add(eai);
+        ais.add(mai);
+        ais.add(cmai);
+        ais.add(icmai);
+        aim.put(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, ais);
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
+        Exchange ex = control.createMock(Exchange.class);
+        EasyMock.expect(message.getExchange()).andReturn(ex);
+        EasyMock.expect(ex.getOutMessage()).andReturn(outbound ? message : null);
+        if (!outbound) {
+            EasyMock.expect(ex.getOutFaultMessage()).andReturn(null);
+        }
+
+        control.replay();
+        PolicyUtils.assertServerPolicy(message, ep);
+        assertTrue(eai.isAsserted());
+        assertTrue(mai.isAsserted());
+        assertTrue(outbound ? cmai.isAsserted() : !cmai.isAsserted());
+        assertTrue(outbound ? icmai.isAsserted() : !icmai.isAsserted());
         control.verify();
     }
 }

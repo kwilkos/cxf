@@ -47,7 +47,7 @@ public class ServerPolicyInInterceptor extends AbstractPolicyInterceptor {
         setPhase(Phase.RECEIVE);
     }
     
-    public void handleMessage(Message msg) {        
+    protected void handle(Message msg) {        
         if (MessageUtils.isRequestor(msg)) {
             LOG.fine("Is a requestor.");
             return;
@@ -68,7 +68,7 @@ public class ServerPolicyInInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Destination destination = msg.getDestination();
+        Destination destination = exchange.getDestination();
         
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with any messages to this endpoint

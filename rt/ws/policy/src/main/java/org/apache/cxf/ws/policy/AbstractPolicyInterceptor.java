@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.policy;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -41,6 +42,14 @@ public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor
     
     public Bus getBus() {
         return bus;
+    }
+    
+    public void handleMessage(Message message) throws Fault {
+        try {
+            handle(message);
+        } catch (PolicyException ex) {
+            throw new Fault(ex);
+        }
     }
 
     protected void getTransportAssertions(Message message) {
@@ -88,4 +97,7 @@ public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor
         }
         return bfi;
     }
+    
+    protected abstract void handle(Message message) throws PolicyException;
+
 }

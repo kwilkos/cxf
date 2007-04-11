@@ -19,15 +19,12 @@
 
 package org.apache.cxf.systest.ws.policy;
 
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
@@ -36,7 +33,6 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
-import org.apache.cxf.ws.policy.PolicyException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -51,27 +47,28 @@ import org.junit.Test;
  * of the DecoupledEndpoint attribute in the HTTPClientPolicy assertions is merely for illustrating
  * the use of multiple compatible or incompatible assertions.
  */
-public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
+public class HTTPServerPolicyTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(HTTPClientPolicyTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(HTTPServerPolicyTest.class.getName());
 
     public static class Server extends AbstractBusTestServerBase {
    
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
-            Bus bus = bf.createBus();
-            BusFactory.setDefaultBus(bus);
-            LoggingInInterceptor in = new LoggingInInterceptor();
-            LoggingOutInterceptor out = new LoggingOutInterceptor();           
-            bus.getInInterceptors().add(in);
-            bus.getOutInterceptors().add(out);                    
-            bus.getOutFaultInterceptors().add(out);
+            Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/http-server.xml");
             
-            HttpGreeterImpl implementor = new HttpGreeterImpl();
+            GreeterImpl implementor = new GreeterImpl();
             implementor.setThrowAlways(true);
-            String address = "http://localhost:9020/SoapContext/GreeterPort";
-            Endpoint.publish(address, implementor);
-            LOG.info("Published greeter endpoint.");            
+            Endpoint.publish("http://localhost:9020/SoapContext/GreeterPort", implementor);
+
+            LOG.info("Published greeter endpoint."); 
+            
+            LoggingInInterceptor in = new LoggingInInterceptor();
+            LoggingOutInterceptor out = new LoggingOutInterceptor();
+            
+            bus.getInInterceptors().add(in);
+            bus.getOutInterceptors().add(out);
+            bus.getOutFaultInterceptors().add(out);
         }
         
 
@@ -94,50 +91,38 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
     }
          
     @Test
-    public void testUsingHTTPClientPolicies() throws Exception {
+    public void testUsingHTTPServerPolicies() throws Exception {        
+        
+        // use a plain client
+        
         SpringBusFactory bf = new SpringBusFactory();
-        bus = bf.createBus("org/apache/cxf/systest/ws/policy/http.xml");
-        BusFactory.setDefaultBus(bus);
-        LoggingInInterceptor in = new LoggingInInterceptor();
-        bus.getInInterceptors().add(in);
-        bus.getInFaultInterceptors().add(in);
-        LoggingOutInterceptor out = new LoggingOutInterceptor();
-        bus.getOutInterceptors().add(out);
-        bus.getOutFaultInterceptors().add(out);
-      
-        // use a client wsdl with policies attached to endpoint, operation and message subjects
+        Bus bus = bf.createBus();
         
-        URL url = HTTPClientPolicyTest.class.getResource("http_client_greeter.wsdl");
-        
-        BasicGreeterService gs = new BasicGreeterService(url, 
-            new QName("http://cxf.apache.org/greeter_control", "BasicGreeterService"));
+        BasicGreeterService gs = new BasicGreeterService();
         final Greeter greeter = gs.getGreeterPort();
-        LOG.fine("Created greeter client.");
+        LoggingInInterceptor in = new LoggingInInterceptor();
+        LoggingOutInterceptor out = new LoggingOutInterceptor();
         
+        bus.getInInterceptors().add(in);
+        bus.getOutInterceptors().add(out);
+        
+        LOG.fine("Created greeter client.");
+
         // sayHi - this operation has message policies that are incompatible with
         // the endpoint policies
-       
+
         try {
             greeter.sayHi();
-            fail("Did not receive expected PolicyException.");
-        } catch (PolicyException ex) {
-            assertEquals("INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS", ex.getCode());
+            fail("Did not receive expected Exception.");
+        } catch (SoapFault sf) {
+            assertEquals("Server", sf.getFaultCode().getLocalPart());
+            assertEquals("None of the policy alternatives can be satisfied.", sf.getMessage());
+            // assertEquals("INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS", ex.getCode());
         }
-
-        // greetMeOneWay - no message or operation policies
-
-        greeter.greetMeOneWay("CXF");
-
-        // greetMe - operation policy specifies receive timeout and should cause every 
-        // other invocation to fail
+        
+        // greetMe - no operation or message specific policies
 
         assertEquals("CXF", greeter.greetMe("cxf")); 
-
-        try {
-            greeter.greetMe("cxf");
-        } catch (Exception ex) {
-            assertTrue(ex.getCause() instanceof SocketTimeoutException);
-        }
      
         // pingMe - policy attached to binding operation fault should have no effect
 
@@ -147,7 +132,7 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
         } catch (PingMeFault ex) {
             assertEquals(2, (int)ex.getFaultInfo().getMajor());
             assertEquals(1, (int)ex.getFaultInfo().getMinor());
-        } 
+        }
 
     }
 }
