@@ -141,6 +141,22 @@
 				<wsdlOption>
 				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_async.wsdl</wsdl>
 				</wsdlOption>
+				<wsdlOption>
+				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/doc_wrapped_simple.wsdl</wsdl>
+				</wsdlOption>
+				<wsdlOption>
+				     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_lit.wsdl</wsdl>
+				</wsdlOption>
+				<wsdlOption>
+				     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_wrapped_bare.wsdl</wsdl>
+				</wsdlOption>
+				<wsdlOption>
+				     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_rpc_lit.wsdl</wsdl>
+				</wsdlOption>
+				<wsdlOption>
+				      <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_soap12.wsdl</wsdl>
+				</wsdlOption>
+				
 			    </wsdlOptions>
 			</configuration>
 			<goals>
