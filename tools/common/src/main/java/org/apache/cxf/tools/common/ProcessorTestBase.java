@@ -72,7 +72,7 @@ public class ProcessorTestBase extends TestCase {
         return getClass().getResource(wsdlFile).toString();
     }
 
-    protected void compareTextFile(String location1, String location2) {
+    protected void assertFileEquals(String location1, String location2) {
         String str1 = getStringFromFile(location1);
         String str2 = getStringFromFile(location2);
 

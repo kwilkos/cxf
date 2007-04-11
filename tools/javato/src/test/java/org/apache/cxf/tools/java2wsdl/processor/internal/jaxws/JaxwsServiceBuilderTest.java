@@ -57,7 +57,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
         
         String expectedFile = getClass().getResource("expected/expected_stock_bare.wsdl").getFile();
-        compareTextFile(expectedFile, output.getAbsolutePath());
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
     public void xtestWrapped() {
@@ -82,7 +82,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass().getResource("expected/expected_hello_world_async.wsdl")
             .getFile();
-        compareTextFile(expectedFile, output.getAbsolutePath());
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
     
     private File getOutputFile(String fileName) {
