@@ -30,7 +30,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxb.DatatypeFactory;
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -116,16 +115,19 @@ public class ProxyTest extends Assert {
         EasyMock.expect(acksToEPR.getAddress()).andReturn(acksToURI);
         String acksToAddress = "acksTo";
         EasyMock.expect(acksToURI.getValue()).andReturn(acksToAddress);
-        Service service = control.createMock(Service.class);
-        EasyMock.expect(rme.getService()).andReturn(service);
+        Endpoint endpoint = control.createMock(Endpoint.class);
+        EasyMock.expect(rme.getEndpoint()).andReturn(endpoint);
+        EndpointInfo epi = control.createMock(EndpointInfo.class);
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);
         ServiceInfo si = control.createMock(ServiceInfo.class);
-        EasyMock.expect(service.getServiceInfo()).andReturn(si);
+        EasyMock.expect(epi.getService()).andReturn(si);
         InterfaceInfo ii = control.createMock(InterfaceInfo.class);
         EasyMock.expect(si.getInterface()).andReturn(ii);
         OperationInfo oi = control.createMock(OperationInfo.class);
         EasyMock.expect(ii.getOperation(RMConstants.getSequenceAckOperationName())).andReturn(oi);
         expectInvoke(proxy, oi, null);
         control.replay();
+        
         proxy.acknowledge(ds);      
     }
     
@@ -135,10 +137,12 @@ public class ProxyTest extends Assert {
             new Class[] {OperationInfo.class, Object[].class, Map.class});
         Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
         proxy.setReliableEndpoint(rme);        
-        Service service = control.createMock(Service.class);
-        EasyMock.expect(rme.getService()).andReturn(service);
+        Endpoint endpoint = control.createMock(Endpoint.class);
+        EasyMock.expect(rme.getEndpoint()).andReturn(endpoint);
+        EndpointInfo epi = control.createMock(EndpointInfo.class);
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);
         ServiceInfo si = control.createMock(ServiceInfo.class);
-        EasyMock.expect(service.getServiceInfo()).andReturn(si);
+        EasyMock.expect(epi.getService()).andReturn(si);
         InterfaceInfo ii = control.createMock(InterfaceInfo.class);
         EasyMock.expect(si.getInterface()).andReturn(ii);
         OperationInfo oi = control.createMock(OperationInfo.class);
@@ -157,10 +161,12 @@ public class ProxyTest extends Assert {
             new Class[] {OperationInfo.class, Object[].class, Map.class});
         Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
         proxy.setReliableEndpoint(rme);
-        Service service = control.createMock(Service.class);
-        EasyMock.expect(rme.getService()).andReturn(service);
+        Endpoint endpoint = control.createMock(Endpoint.class);
+        EasyMock.expect(rme.getEndpoint()).andReturn(endpoint);
+        EndpointInfo epi = control.createMock(EndpointInfo.class);
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);
         ServiceInfo si = control.createMock(ServiceInfo.class);
-        EasyMock.expect(service.getServiceInfo()).andReturn(si);
+        EasyMock.expect(epi.getService()).andReturn(si);
         InterfaceInfo ii = control.createMock(InterfaceInfo.class);
         EasyMock.expect(si.getInterface()).andReturn(ii);
         OperationInfo oi = control.createMock(OperationInfo.class);
@@ -279,10 +285,12 @@ public class ProxyTest extends Assert {
         Identifier offeredId = control.createMock(Identifier.class);
         EasyMock.expect(source.generateSequenceIdentifier()).andReturn(offeredId);
              
-        Service service = control.createMock(Service.class);
-        EasyMock.expect(rme.getService()).andReturn(service);
+        Endpoint endpoint = control.createMock(Endpoint.class);
+        EasyMock.expect(rme.getEndpoint()).andReturn(endpoint);
+        EndpointInfo epi = control.createMock(EndpointInfo.class);
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);
         ServiceInfo si = control.createMock(ServiceInfo.class);
-        EasyMock.expect(service.getServiceInfo()).andReturn(si);
+        EasyMock.expect(epi.getService()).andReturn(si);
         InterfaceInfo ii = control.createMock(InterfaceInfo.class);
         EasyMock.expect(si.getInterface()).andReturn(ii);
         OperationInfo oi = control.createMock(OperationInfo.class);

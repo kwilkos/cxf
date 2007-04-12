@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -152,13 +153,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void createEndpoints() {
         Service service = getService();
 
-        for (EndpointInfo ei : service.getServiceInfo().getEndpoints()) {
-            try {
-                Endpoint ep = createEndpoint(ei);
-
-                service.getEndpoints().put(ei.getName(), ep);
-            } catch (EndpointException e) {
-                throw new ServiceConstructionException(e);
+        for (ServiceInfo inf : service.getServiceInfos()) {
+            for (EndpointInfo ei : inf.getEndpoints()) {
+                try {
+                    Endpoint ep = createEndpoint(ei);
+    
+                    service.getEndpoints().put(ei.getName(), ep);
+                } catch (EndpointException e) {
+                    throw new ServiceConstructionException(e);
+                }
             }
         }
     }
@@ -241,20 +244,31 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
 
-        InterfaceInfo intf = getService().getServiceInfo().getInterface();
+        InterfaceInfo intf;
+        if (getEndpointInfo() != null) {
+            intf = getEndpointInfo().getInterface();
+        } else {
+            intf = getService().getServiceInfos().get(0).getInterface();
+        }
 
+        Map<QName, Method> validMethods = new HashMap<QName, Method>();
+        for (Method m : methods) {
+            if (isValidMethod(m)) {
+                QName opName = getOperationName(intf, m);
+                validMethods.put(opName, m);
+            }
+        }
+            
+        
         for (OperationInfo o : intf.getOperations()) {
             Method selected = null;
-            for (Method m : methods) {
-                if (isValidMethod(m)) {
-                    QName opName = getOperationName(intf, m);
+            for (Map.Entry<QName, Method> m : validMethods.entrySet()) {
+                QName opName = m.getKey();
 
-                    if (o.getName().getNamespaceURI().equals(opName.getNamespaceURI())
-                        && isMatchOperation(o.getName().getLocalPart(), opName.getLocalPart())) {
-                    //if (o.getName().equals(opName)) {
-                        selected = m;
-                        break;
-                    }
+                if (o.getName().getNamespaceURI().equals(opName.getNamespaceURI())
+                    && isMatchOperation(o.getName().getLocalPart(), opName.getLocalPart())) {
+                    selected = m.getValue();
+                    break;
                 }
             }
 
@@ -544,6 +558,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
+    public EndpointInfo getEndpointInfo() {
+        return getService().getEndpointInfo(getEndpointName());
+    }
+    
     public void setEndpointName(QName en) {
         this.endpointName = en;
     }

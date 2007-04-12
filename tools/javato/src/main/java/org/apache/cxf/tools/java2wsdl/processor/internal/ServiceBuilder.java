@@ -37,8 +37,7 @@ public class ServiceBuilder extends AbstractEndpointFactory {
     public ServiceInfo build() {
         try {
             Endpoint ep = createEndpoint();
-            
-            return ep.getService().getServiceInfo();
+            return ep.getEndpointInfo().getService();
         } catch (EndpointException e) {
             throw new ServiceConstructionException(e);
         } catch (BusException e) {

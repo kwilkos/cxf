@@ -60,7 +60,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         assertEquals("SOAPService", service.getName().getLocalPart());
         assertEquals("http://apache.org/hello_world_soap_http", service.getName().getNamespaceURI());
 
-        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        InterfaceInfo intf = service.getServiceInfos().get(0).getInterface();
         assertNotNull(intf);
 
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
@@ -88,7 +88,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
 
         assertEquals("DOMSourcePayloadProviderService", service.getName().getLocalPart());
 
-        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        InterfaceInfo intf = service.getServiceInfos().get(0).getInterface();
         assertNotNull(intf);
 
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
@@ -99,7 +99,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
 
         ServerImpl server = (ServerImpl)svrFactory.create();
 
-        assertEquals(1, service.getServiceInfo().getEndpoints().size());
+        assertEquals(1, service.getServiceInfos().get(0).getEndpoints().size());
 
         Endpoint endpoint = server.getEndpoint();
         Binding binding = endpoint.getBinding();
@@ -123,7 +123,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
 
         assertEquals("SOAPSourcePayloadProviderService", service.getName().getLocalPart());
 
-        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        InterfaceInfo intf = service.getServiceInfos().get(0).getInterface();
         assertNotNull(intf);
         assertEquals(1, intf.getOperations().size());
 
@@ -136,7 +136,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         ServerImpl server = (ServerImpl)svrFactory.create();
 
         // See if our endpoint was created correctly
-        assertEquals(1, service.getServiceInfo().getEndpoints().size());
+        assertEquals(1, service.getServiceInfos().get(0).getEndpoints().size());
 
         Endpoint endpoint = server.getEndpoint();
         Binding binding = endpoint.getBinding();
@@ -165,7 +165,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
 
         assertEquals("SAAJProviderService", service.getName().getLocalPart());
 
-        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        InterfaceInfo intf = service.getServiceInfos().get(0).getInterface();
         assertNotNull(intf);
         assertEquals(1, intf.getOperations().size());
 

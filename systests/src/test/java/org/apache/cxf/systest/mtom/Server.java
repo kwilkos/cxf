@@ -50,7 +50,7 @@ public class Server extends AbstractBusTestServerBase {
             serviceFactory.setBus(bus);
             Service service = serviceFactory.create();
             QName endpointName = implInfo.getEndpointName();
-            EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
+            EndpointInfo ei = service.getEndpointInfo(endpointName);
             service.setInvoker(new JAXWSMethodInvoker(implementor));
             org.apache.cxf.endpoint.EndpointImpl endpoint = new JaxWsEndpointImpl(bus, service, ei);
             SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding()); 

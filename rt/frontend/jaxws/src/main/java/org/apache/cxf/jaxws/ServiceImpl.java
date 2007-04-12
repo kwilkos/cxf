@@ -103,9 +103,10 @@ public class ServiceImpl extends ServiceDelegate {
     private void initializePorts() {        
         WSDLServiceFactory sf = new WSDLServiceFactory(bus, wsdlURL, serviceName);
         Service service = sf.create();
-        ServiceInfo si = service.getServiceInfo();
-        for (EndpointInfo ei : si.getEndpoints()) {
-            this.ports.add(ei.getName());
+        for (ServiceInfo si : service.getServiceInfos()) { 
+            for (EndpointInfo ei : si.getEndpoints()) {
+                this.ports.add(ei.getName());
+            }
         }
     }
 
@@ -117,10 +118,9 @@ public class ServiceImpl extends ServiceDelegate {
 
     private Endpoint getJaxwsEndpoint(QName portName, AbstractServiceFactoryBean sf) {
         Service service = sf.getService();
-        ServiceInfo si = service.getServiceInfo();
         EndpointInfo ei = null;
         if (portName == null) {
-            ei = si.getEndpoints().iterator().next();
+            ei = service.getServiceInfos().get(0).getEndpoints().iterator().next();
         } else {
             PortInfoImpl portInfo = getPortInfo(portName);
             if (null != portInfo) {
@@ -130,7 +130,7 @@ public class ServiceImpl extends ServiceDelegate {
                     throw new WebServiceException(e);
                 }
             } else {
-                ei = si.getEndpoint(portName);
+                ei = service.getEndpointInfo(portName);
             }
         }
 
@@ -333,15 +333,15 @@ public class ServiceImpl extends ServiceDelegate {
 
 
         Service service = serviceFactory.getService();
-        service.getServiceInfo().addBinding(bindingInfo);
+        service.getServiceInfos().get(0).addBinding(bindingInfo);
 
         // TODO we may need to get the transportURI from Address
-        ei = new EndpointInfo(service.getServiceInfo(), transportId);
+        ei = new EndpointInfo(service.getServiceInfos().get(0), transportId);
         ei.setName(portName);
         ei.setAddress(address);
         ei.setBinding(bindingInfo);
 
-        service.getServiceInfo().addEndpoint(ei);
+        service.getServiceInfos().get(0).addEndpoint(ei);
         return ei;
     }
 

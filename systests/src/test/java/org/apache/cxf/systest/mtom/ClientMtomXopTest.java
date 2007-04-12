@@ -40,7 +40,6 @@ import org.apache.cxf.mime.TestMtom;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -117,9 +116,7 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
         serviceFactory.setServiceClass(serviceEndpointInterface);
         serviceFactory.setWsdlURL(ClientMtomXopTest.class.getResource("/wsdl/mtom_xop.wsdl"));
         Service service = serviceFactory.create();
-        ServiceInfo si = service.getServiceInfo();
-        EndpointInfo ei = null;
-        ei = si.getEndpoint(portName);
+        EndpointInfo ei = service.getEndpointInfo(portName);
         JaxWsEndpointImpl jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
         SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding());
         jaxWsSoapBinding.setMTOMEnabled(true);

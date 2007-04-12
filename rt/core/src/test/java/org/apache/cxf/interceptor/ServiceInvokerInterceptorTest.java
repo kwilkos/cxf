@@ -31,6 +31,7 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.easymock.IMocksControl;
 
 import static org.easymock.EasyMock.createNiceControl;
@@ -67,7 +68,7 @@ public class ServiceInvokerInterceptorTest extends TestCase {
         IMocksControl control = createNiceControl();
         Endpoint endpoint = control.createMock(Endpoint.class);
 
-        ServiceImpl service = new ServiceImpl(null);
+        ServiceImpl service = new ServiceImpl((ServiceInfo)null);
         service.setInvoker(i);
         service.setExecutor(new SimpleExecutor());
         expect(endpoint.getService()).andReturn(service).anyTimes();

@@ -148,7 +148,8 @@ public final class DynamicClientFactory {
         ClientImpl client = new ClientImpl(bus, u, service, port);
 
         Service svc = client.getEndpoint().getService();
-        Collection<SchemaInfo> schemas = svc.getServiceInfo().getSchemas();
+        //all SI's should have the same schemas
+        Collection<SchemaInfo> schemas = svc.getServiceInfos().get(0).getSchemas();
 
         SchemaCompiler compiler = XJC.createSchemaCompiler();
         ErrorListener elForRun = new InnerErrorListener(wsdlUrl);
@@ -228,7 +229,7 @@ public final class DynamicClientFactory {
         databinding.setContext(context);
         svc.setDataBinding(databinding);
 
-        ServiceInfo svcfo = svc.getServiceInfo();
+        ServiceInfo svcfo = client.getEndpoint().getEndpointInfo().getService();
 
         // Setup the new classloader!
         Thread.currentThread().setContextClassLoader(cl);

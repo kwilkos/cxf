@@ -90,7 +90,7 @@ public class HttpBindingFactory extends AbstractBindingFactory {
     public BindingInfo createBindingInfo(Service service, String namespace, Object obj) {
         URIMapper mapper = new URIMapper();
         
-        ServiceInfo si = service.getServiceInfo();
+        ServiceInfo si = service.getServiceInfos().get(0);
         BindingInfo info = new BindingInfo(si, 
                                            HttpBindingFactory.HTTP_BINDING_ID);
         info.setName(new QName(si.getName().getNamespaceURI(), 

@@ -59,7 +59,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     private void setSchemaOutMessage(Service service, Message message, DataWriter<?> writer) {
         Object en = message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED);
         if (Boolean.TRUE.equals(en) || "true".equals(en)) {
-            Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
+            Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfos().get(0));
             writer.setSchema(schema);
         }
     }

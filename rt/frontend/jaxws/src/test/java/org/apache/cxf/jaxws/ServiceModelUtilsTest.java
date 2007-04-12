@@ -66,7 +66,7 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
         bean.setWsdlURL(wsdl.toString());
         bean.setServiceClass(implClz);
         Service service = bean.create();
-        EndpointInfo endpointInfo = service.getServiceInfo().getEndpoint(port);
+        EndpointInfo endpointInfo = service.getServiceInfos().get(0).getEndpoint(port);
         Endpoint endpoint = new EndpointImpl(getBus(), service, endpointInfo);
         exchange.put(Service.class, service);
         exchange.put(Endpoint.class, endpoint);

@@ -33,6 +33,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 /**
@@ -43,14 +44,14 @@ public class WrappedService implements Service {
     private Service wrappedService;
     private DataBinding dataBinding;
     private QName name;
-    private ServiceInfo serviceInfo;
+    private List<ServiceInfo> serviceInfos;
     private Map<QName, Endpoint> endpoints;
     private Invoker invoker;
     
     WrappedService(Service wrapped, QName n, ServiceInfo info) {
         wrappedService = wrapped;
         name = n;
-        serviceInfo = info;
+        serviceInfos = Collections.singletonList(info);
     }
     
     public Service getWrappedService() {
@@ -65,8 +66,11 @@ public class WrappedService implements Service {
         return name;
     }
 
+    public List<ServiceInfo> getServiceInfos() {
+        return serviceInfos;
+    }
     public ServiceInfo getServiceInfo() {
-        return serviceInfo;
+        return serviceInfos.get(0);
     }
 
     public void setDataBinding(DataBinding arg0) {
@@ -162,5 +166,10 @@ public class WrappedService implements Service {
     void setEndpoint(Endpoint e) {
         endpoints = Collections.singletonMap(e.getEndpointInfo().getName(), e);
     }
+
+    public EndpointInfo getEndpointInfo(QName endpoint) {
+        return serviceInfos.get(0).getEndpoint(endpoint);
+    }
+
 
 }

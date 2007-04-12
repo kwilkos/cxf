@@ -42,7 +42,8 @@ public final class ServiceModelUtil {
     }
     
     public static String getTargetNamespace(Exchange exchange) {
-        return getService(exchange).getServiceInfo().getTargetNamespace();
+        //all ServiceInfo's will have the same target namespace
+        return getService(exchange).getServiceInfos().get(0).getTargetNamespace();
     }
     
     public static BindingOperationInfo getOperation(Exchange exchange, String opName) {

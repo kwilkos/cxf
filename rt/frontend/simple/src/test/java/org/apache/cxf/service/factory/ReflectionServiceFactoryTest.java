@@ -48,7 +48,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
     public void testUnwrappedBuild() throws Exception {
         Service service = createService(false);
         
-        ServiceInfo si = service.getServiceInfo();
+        ServiceInfo si = service.getServiceInfos().get(0);
         InterfaceInfo intf = si.getInterface();
         
         assertEquals(4, intf.getOperations().size());
@@ -80,7 +80,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
     public void testWrappedBuild() throws Exception {
         Service service = createService(true);
         
-        ServiceInfo si = service.getServiceInfo();
+        ServiceInfo si = service.getServiceInfos().get(0);
         InterfaceInfo intf = si.getInterface();
         
         assertEquals(4, intf.getOperations().size());
@@ -159,7 +159,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         SOAPAddress soapAddress = endpointInfo.getExtensor(SOAPAddress.class);
         assertNotNull(soapAddress);
         
-        BindingInfo b = service.getServiceInfo().getBindings().iterator().next();
+        BindingInfo b = endpointInfo.getService().getBindings().iterator().next();
         
         assertTrue(b instanceof SoapBindingInfo);
         

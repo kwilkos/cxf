@@ -60,7 +60,7 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
     
     /**
      * Creates a "default" BindingInfo object for the service.  Called by 
-     * createBindingInfo(ServiceInfo service, Binding binding) to actually 
+     * createBindingInfo(Service service, String binding, Object config) to actually 
      * create the BindingInfo.  Can return a subclass which can then process
      * the extensors within the subclass.
      * @param service
@@ -70,8 +70,13 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
         return new BindingInfo(service, namespace);
     }
     
+    /**
+     * Creates a "default" BindingInfo object for the service.  Can return a subclass 
+     * which can then process the extensors within the subclass.   By default, just 
+     * creates it for the first ServiceInfo in the service
+     */    
     public BindingInfo createBindingInfo(Service service, String namespace, Object config) {
-        return createBindingInfo(service.getServiceInfo(), namespace, config);
+        return createBindingInfo(service.getServiceInfos().get(0), namespace, config);
     }
     
     

@@ -135,7 +135,7 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         for (Server s : svrMan.getServers()) {
             Service svc = s.getEndpoint().getService();
             if (svc.getName().getLocalPart().equals(string)) {
-                ServiceWSDLBuilder builder = new ServiceWSDLBuilder(svc.getServiceInfo());
+                ServiceWSDLBuilder builder = new ServiceWSDLBuilder(svc.getServiceInfos());
                 Definition definition = builder.build();
                 
                 WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();

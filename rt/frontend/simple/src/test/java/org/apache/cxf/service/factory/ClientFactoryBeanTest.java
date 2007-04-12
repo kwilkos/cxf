@@ -58,7 +58,7 @@ public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
         SOAPAddress soapAddress = endpointInfo.getExtensor(SOAPAddress.class);
         assertNotNull(soapAddress);
         
-        BindingInfo b = service.getServiceInfo().getBindings().iterator().next();
+        BindingInfo b = endpointInfo.getService().getBindings().iterator().next();
         
         assertTrue(b instanceof SoapBindingInfo);
         

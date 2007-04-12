@@ -41,7 +41,7 @@ public class WebFaultInInterceptor extends AbstractPhaseInterceptor<Message> {
     public void handleMessage(Message message) throws Fault {
         Exception ex = message.getContent(Exception.class);
         if (ex != null) {
-            message.put(Message.RESPONSE_CODE, new Integer(500));
+            message.put(Message.RESPONSE_CODE, Integer.valueOf(500));
         }
         
         if (ex instanceof Fault) {

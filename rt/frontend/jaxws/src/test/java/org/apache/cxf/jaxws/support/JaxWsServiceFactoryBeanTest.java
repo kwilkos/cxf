@@ -60,7 +60,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertEquals("SOAPService", service.getName().getLocalPart());
         assertEquals(ns, service.getName().getNamespaceURI());
         
-        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        InterfaceInfo intf = service.getServiceInfos().get(0).getInterface();
         
         OperationInfo op = intf.getOperation(new QName(ns, "sayHi"));
         
@@ -95,7 +95,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         bean.setServiceClass(TestMtomImpl.class);
 
         Service service = bean.create();
-        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        InterfaceInfo intf = service.getServiceInfos().get(0).getInterface();
         
         OperationInfo op = intf.getOperation(
             new QName("http://cxf.apache.org/mime", "testXop"));

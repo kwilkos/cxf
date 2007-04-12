@@ -77,17 +77,16 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             endpointName = serviceFactory.getEndpointName();
         }
         
-        EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
+        EndpointInfo ei = service.getEndpointInfo(endpointName);
         if (ei != null
             && transportId != null
             && !ei.getTransportId().equals(transportId)) {
             ei = null;
         }
         
-        Endpoint ep = null;
         if (ei == null) {
             if (getAddress() == null) {
-                ei = findBestEndpointInfo(service.getServiceInfo());
+                ei = findBestEndpointInfo(service.getServiceInfos());
             }
             if (ei == null) {
                 ei = createEndpointInfo();
@@ -96,7 +95,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ei.setAddress(getAddress()); 
         }                        
 
-        ep = service.getEndpoints().get(ei.getName());
+        Endpoint ep = service.getEndpoints().get(ei.getName());
         
         if (ep == null) {
             ep = serviceFactory.createEndpoint(ei);
@@ -123,23 +122,21 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         return ep;
     }
 
-    protected EndpointInfo findBestEndpointInfo(ServiceInfo serviceInfo) {
-        Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
-        if (eps.size() == 1) {
-            return eps.iterator().next();
-        } else {
+    protected EndpointInfo findBestEndpointInfo(List<ServiceInfo> serviceInfos) {
+        EndpointInfo best = null;
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
             for (EndpointInfo ep : eps) {
+                if (best == null) {
+                    best = ep;
+                }
                 if (ep.getTransportId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
                     return ep;
                 }
             }
-        } 
-        
-        if (eps.size() > 0) {
-            return eps.iterator().next();
         }
         
-        return null;
+        return best;
     }
 
     protected EndpointInfo createEndpointInfo() throws BusException {
@@ -175,7 +172,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
         
-        service.getServiceInfo().addBinding(bindingInfo);
+        service.getServiceInfos().get(0).addBinding(bindingInfo);
 
         setTransportId(transportId);
         
@@ -184,9 +181,9 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             destinationFactory = dfm.getDestinationFactory(transportId);
         }
         
-        EndpointInfo ei = new EndpointInfo(service.getServiceInfo(), transportId);
+        EndpointInfo ei = new EndpointInfo(service.getServiceInfos().get(0), transportId);
         int count = 1;
-        while (service.getServiceInfo().getEndpoint(endpointName) != null) {
+        while (service.getEndpointInfo(endpointName) != null) {
             endpointName = new QName(endpointName.getNamespaceURI(), 
                                      endpointName.getLocalPart() + count);
             count++;
@@ -202,7 +199,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         } else {
             // ?
         }
-        service.getServiceInfo().addEndpoint(ei);
+        service.getServiceInfos().get(0).addEndpoint(ei);
         return ei;
     }
 

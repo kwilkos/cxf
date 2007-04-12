@@ -130,9 +130,8 @@ public class TestBase extends TestCase {
 
         org.apache.cxf.service.Service service = factory.create();
 
-        serviceInfo = service.getServiceInfo();
-        
-        EndpointInfo epi = service.getServiceInfo().getEndpoint(portName);
+        EndpointInfo epi = service.getEndpointInfo(portName);
+        serviceInfo = epi.getService();
         assertNotNull(epi);
         Binding xmlBinding = new XMLBindingFactory().createBinding(epi.getBinding());
 

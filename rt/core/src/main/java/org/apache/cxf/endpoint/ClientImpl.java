@@ -103,7 +103,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             ? (new WSDLServiceFactory(bus, wsdlUrl)) : (new WSDLServiceFactory(bus, wsdlUrl, service));
         Service svc = sf.create();
     
-        EndpointInfo epfo = findEndpoint(svc.getServiceInfo(), port);
+        EndpointInfo epfo = findEndpoint(svc, port);
 
         try {
             endpoint = new EndpointImpl(bus, svc, epfo);
@@ -113,30 +113,32 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
     
 
-    private EndpointInfo findEndpoint(ServiceInfo svcfo, QName port) {
+    private EndpointInfo findEndpoint(Service svc, QName port) {
         EndpointInfo epfo;
         if (port != null) {
-            epfo = svcfo.getEndpoint(port);
+            epfo = svc.getEndpointInfo(port);
             if (epfo == null) {
-                throw new IllegalArgumentException("The service " + svcfo.getName()
+                throw new IllegalArgumentException("The service " + svc.getName()
                                                    + " does not have an endpoint " + port + ".");
             }
         } else {
             epfo = null;
-            for (EndpointInfo e : svcfo.getEndpoints()) {
-                BindingInfo bfo = e.getBinding();
-
-                if (bfo.getBindingId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
-                    for (Object o : bfo.getExtensors().get()) {
-                        if (o instanceof SOAPBindingImpl) {
-                            SOAPBindingImpl soapB = (SOAPBindingImpl)o;
-                            if (soapB.getTransportURI().equals("http://schemas.xmlsoap.org/soap/http")) {
-                                epfo = e;
-                                break;
+            for (ServiceInfo svcfo : svc.getServiceInfos()) {
+                for (EndpointInfo e : svcfo.getEndpoints()) {
+                    BindingInfo bfo = e.getBinding();
+    
+                    if (bfo.getBindingId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                        for (Object o : bfo.getExtensors().get()) {
+                            if (o instanceof SOAPBindingImpl) {
+                                SOAPBindingImpl soapB = (SOAPBindingImpl)o;
+                                if (soapB.getTransportURI().equals("http://schemas.xmlsoap.org/soap/http")) {
+                                    epfo = e;
+                                    break;
+                                }
                             }
                         }
+    
                     }
-
                 }
             }
             if (epfo == null) {
@@ -399,8 +401,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
        
         exchange.put(Service.class, endpoint.getService());
         exchange.put(Endpoint.class, endpoint);
-        exchange.put(ServiceInfo.class, endpoint.getService().getServiceInfo());
-        exchange.put(InterfaceInfo.class, endpoint.getService().getServiceInfo().getInterface());
+        exchange.put(ServiceInfo.class, endpoint.getEndpointInfo().getService());
+        exchange.put(InterfaceInfo.class, endpoint.getEndpointInfo().getService().getInterface());
         exchange.put(Binding.class, endpoint.getBinding());
         exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
         exchange.put(BindingOperationInfo.class, boi);

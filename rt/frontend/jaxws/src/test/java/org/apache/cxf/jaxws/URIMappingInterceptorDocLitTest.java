@@ -77,7 +77,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
 
         Service service = bean.create();
         
-        EndpointInfo endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "CalculatorPort"));
+        EndpointInfo endpointInfo = service.getEndpointInfo(new QName(ns, "CalculatorPort"));
         Endpoint endpoint = new EndpointImpl(getBus(), service, endpointInfo);
         exchange.put(Service.class, service);
         exchange.put(Endpoint.class, endpoint);        

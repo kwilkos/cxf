@@ -20,6 +20,7 @@
 package org.apache.cxf.wsdl11;
 
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -86,9 +87,9 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     }
     
     public Service create() {
-        ServiceInfo serviceInfo;
+        
+        List<ServiceInfo> services;
         if (serviceName == null) {
-            List<ServiceInfo> services = null;
             try {
                 services = new WSDLServiceBuilder(getBus()).buildServices(definition);
             } catch (XmlSchemaException ex) {
@@ -98,8 +99,14 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
                 throw new ServiceConstructionException(new Message("NO_SERVICE_EXC", LOG));
             } else {
                 //@@TODO  - this isn't good, need to return all the services
-                serviceInfo = services.get(0);
-                serviceName = serviceInfo.getName();
+                serviceName = services.get(0).getName();
+                //get all the service info's that match that first one.
+                Iterator<ServiceInfo> it = services.iterator();
+                while (it.hasNext()) {
+                    if (!it.next().getName().equals(serviceName)) {
+                        it.remove();
+                    }
+                }
             }
         } else {
             javax.wsdl.Service wsdlService = definition.getService(serviceName);
@@ -107,12 +114,12 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
                 throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE_EXC", LOG, serviceName));
             }
             try {
-                serviceInfo = new WSDLServiceBuilder(getBus()).buildServices(definition, wsdlService).get(0);
+                services = new WSDLServiceBuilder(getBus()).buildServices(definition, wsdlService);
             } catch (XmlSchemaException ex) {
                 throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
             }
         }
-        ServiceImpl service = new ServiceImpl(serviceInfo);
+        ServiceImpl service = new ServiceImpl(services);
         setService(service);
         return service;
     }

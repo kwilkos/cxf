@@ -91,7 +91,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         
         Service service = bean.create();
 
-        InterfaceInfo i = service.getServiceInfo().getInterface();
+        InterfaceInfo i = service.getServiceInfos().get(0).getInterface();
         assertEquals(2, i.getOperations().size());
 
         ServerFactoryBean svrFactory = new ServerFactoryBean();
@@ -100,11 +100,11 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         svrFactory.setAddress(address);
         svrFactory.create();
         
-        Collection<BindingInfo> bindings = service.getServiceInfo().getBindings();
+        Collection<BindingInfo> bindings = service.getServiceInfos().get(0).getBindings();
         assertEquals(1, bindings.size());
         
         ServiceWSDLBuilder wsdlBuilder = 
-            new ServiceWSDLBuilder(service.getServiceInfo());
+            new ServiceWSDLBuilder(service.getServiceInfos().get(0));
         return wsdlBuilder.build();
     }
 

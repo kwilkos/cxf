@@ -263,7 +263,7 @@ public class RMEndpointTest extends Assert {
        
     private void verifyService() {        
         Service service = rme.getService();
-        ServiceInfo si = service.getServiceInfo();
+        ServiceInfo si = service.getServiceInfos().get(0);
         assertNotNull("service info is null", si);
 
         InterfaceInfo intf = si.getInterface();

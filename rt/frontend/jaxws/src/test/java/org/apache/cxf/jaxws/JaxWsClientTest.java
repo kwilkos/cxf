@@ -120,7 +120,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         Service service = bean.create();
 
         String namespace = "http://apache.org/hello_world_soap_http";
-        EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName(namespace, "SoapPort"));
+        EndpointInfo ei = service.getServiceInfos().get(0).getEndpoint(new QName(namespace, "SoapPort"));
         JaxWsEndpointImpl endpoint = new JaxWsEndpointImpl(getBus(), service, ei);
 
         ClientImpl client = new ClientImpl(getBus(), endpoint);

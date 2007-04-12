@@ -59,6 +59,7 @@ import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
+import org.apache.hello_world_soap_http.SOAPServiceMultiPortTypeTest;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.junit.BeforeClass;
@@ -90,7 +91,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         assertNotNull("cannot find test resource", url);
         defaultConfigFileName = url.toString();
 
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+        assertTrue("server did not launch correctly", launchServer(Server.class, true));
     }
 
     
@@ -729,7 +730,23 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
             e.printStackTrace();
             fail("There is some excpetion happened ");
         }    
+    }
+    
+    @Test
+    public void testMultiPorts() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        QName sname = new QName("http://apache.org/hello_world_soap_http",
+                                "SOAPServiceMultiPortTypeTest");
+        SOAPServiceMultiPortTypeTest service = new SOAPServiceMultiPortTypeTest(wsdl, sname);
         
+        BareDocumentResponse resp = service.getDocLitBarePort().testDocLitBare("CXF");
+        assertNotNull(resp);
+        assertEquals("CXF", resp.getCompany());
+        
+                                                                                
+        String result = service.getGreeterPort().greetMe("CXF");
+        assertEquals("Hello CXF", result);
     }
 
     

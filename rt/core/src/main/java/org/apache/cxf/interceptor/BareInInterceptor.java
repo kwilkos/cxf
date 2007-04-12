@@ -36,12 +36,12 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -75,8 +75,8 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         List<Object> parameters = new ArrayList<Object>();
 
         Endpoint ep = exchange.get(Endpoint.class);
-        Service service = ep.getService();
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
+        ServiceInfo si = ep.getEndpointInfo().getService();
         // XXX - Should the BindingMessageInfo.class be put on
         // the message?
         //MessageInfo msgInfo = message.get(MessageInfo.class);
@@ -87,7 +87,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         Collection<OperationInfo> ops = null;
         if (bop == null) {
             ops = new ArrayList<OperationInfo>();
-            ops.addAll(service.getServiceInfo().getInterface().getOperations());
+            ops.addAll(si.getInterface().getOperations());
             if (xmlReader.getEventType() == XMLStreamReader.END_ELEMENT && !client) {
                 //empty input
                 //TO DO : check duplicate operation with no input

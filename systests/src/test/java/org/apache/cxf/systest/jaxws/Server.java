@@ -35,8 +35,20 @@ public class Server extends AbstractBusTestServerBase {
         if (url != null) {
             System.setProperty("cxf.config.file.url", url.toString());
         }
-        Object implementor = new GreeterImpl();
-        String address = "http://localhost:9000/SoapContext/SoapPort";
+        Object implementor;
+        String address;
+        
+        implementor = new GreeterImplMultiPort();
+        address = "http://localhost:9020/MultiPort/GreeterPort";
+        Endpoint.publish(address, implementor);
+
+        implementor = new DocLitBareGreeterMultiPort();
+        address = "http://localhost:9021/MultiPort/DocBarePort";
+        Endpoint.publish(address, implementor);
+        
+        
+        implementor = new GreeterImpl();
+        address = "http://localhost:9000/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
         implementor = new DocLitBareGreeterImpl();
         address = "http://localhost:7600/SoapContext/SoapPort";
@@ -46,6 +58,8 @@ public class Server extends AbstractBusTestServerBase {
         implementor = new GreeterImplBogus();
         address = "http://localhost:9015/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
+        
+
     }
 
     public static void main(String[] args) {
@@ -68,5 +82,23 @@ public class Server extends AbstractBusTestServerBase {
                 wsdlLocation = "testutils/hello_world.wsdl")
     public class GreeterImplBogus extends GreeterImpl {
     
-    }    
+    } 
+    
+    @WebService(serviceName = "SOAPServiceMultiPortTypeTest", 
+                portName = "GreeterPort", 
+                endpointInterface = "org.apache.hello_world_soap_http.Greeter",
+                targetNamespace = "http://apache.org/hello_world_soap_http",
+                wsdlLocation = "testutils/hello_world.wsdl") 
+    public class GreeterImplMultiPort extends GreeterImpl {
+    
+    } 
+    
+    @WebService(serviceName = "SOAPServiceMultiPortTypeTest", 
+            portName = "DocLitBarePort", 
+            endpointInterface = "org.apache.hello_world_soap_http.DocLitBare",
+            targetNamespace = "http://apache.org/hello_world_soap_http",
+            wsdlLocation = "testutils/hello_world.wsdl")
+    public class DocLitBareGreeterMultiPort extends DocLitBareGreeterImpl {
+    
+    }  
 }

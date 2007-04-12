@@ -38,13 +38,13 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -91,8 +91,9 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
         }
 
         if (bop != null && bop.isUnwrappedCapable()) {
+            ServiceInfo si = bop.getBinding().getService();
             // Wrapped case
-            MessageInfo msgInfo = setMessage(message, bop, client);
+            MessageInfo msgInfo = setMessage(message, bop, client, si);
 
             // Determine if there is a wrapper class
             if (msgInfo.getMessageParts().get(0).getTypeClass() != null) {
@@ -104,7 +105,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
 
                 bop = bop.getUnwrappedOperation();
 
-                msgInfo = setMessage(message, bop, client);
+                msgInfo = setMessage(message, bop, client, si);
                 List<MessagePartInfo> messageParts = msgInfo.getMessageParts();
                 Iterator<MessagePartInfo> itr = messageParts.iterator();
 
@@ -137,8 +138,8 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             Collection<OperationInfo> operations = null;
             operations = new ArrayList<OperationInfo>();
             Endpoint ep = exchange.get(Endpoint.class);
-            Service service = ep.getService();
-            operations.addAll(service.getServiceInfo().getInterface().getOperations());
+            ServiceInfo si = ep.getEndpointInfo().getService();
+            operations.addAll(si.getInterface().getOperations());
 
             if (!StaxUtils.toNextElement(xmlReader)) {
                 // empty input
@@ -194,7 +195,8 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
         }
     }
 
-    private MessageInfo setMessage(Message message, BindingOperationInfo operation, boolean requestor) {
+    private MessageInfo setMessage(Message message, BindingOperationInfo operation,
+                                   boolean requestor, ServiceInfo si) {
         MessageInfo msgInfo = getMessageInfo(message, operation, requestor);
         message.put(MessageInfo.class, msgInfo);
 
@@ -205,11 +207,10 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
         //Set standard MessageContext properties required by JAX_WS, but not specific to JAX_WS.
         message.put(Message.WSDL_OPERATION, operation.getName());
 
-        Service service = message.getExchange().get(Service.class);
-        QName serviceQName = service.getServiceInfo().getName();
+        QName serviceQName = si.getName();
         message.put(Message.WSDL_SERVICE, serviceQName);
 
-        QName interfaceQName = service.getServiceInfo().getInterface().getName();
+        QName interfaceQName = si.getInterface().getName();
         message.put(Message.WSDL_INTERFACE, interfaceQName);
 
         EndpointInfo endpointInfo = message.getExchange().get(Endpoint.class).getEndpointInfo();

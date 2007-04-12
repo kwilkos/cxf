@@ -70,13 +70,13 @@ public class Proxy {
             return;
         }
         
-        OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
+        OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
             .getOperation(RMConstants.getSequenceAckOperationName());
         invoke(oi, new Object[] {}, null);
     }
     
     void terminate(SourceSequence ss) throws IOException {
-        OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
+        OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
             .getOperation(RMConstants.getTerminateSequenceOperationName());
         
         TerminateSequenceType ts = RMUtils.getWSRMFactory().createTerminateSequenceType();
@@ -86,7 +86,7 @@ public class Proxy {
     
     void createSequenceResponse(final CreateSequenceResponseType createResponse) {
         LOG.fine("sending CreateSequenceResponse from client side");
-        final OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
+        final OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
             .getOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
         
         // TODO: need to set relatesTo
@@ -132,7 +132,7 @@ public class Proxy {
             setOfferedIdentifier(offer);
         }
         
-        InterfaceInfo ii = reliableEndpoint.getService().getServiceInfo().getInterface();
+        InterfaceInfo ii = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface();
         
         final OperationInfo oi = isServer 
             ? ii.getOperation(RMConstants.getCreateSequenceOnewayOperationName())

@@ -49,7 +49,7 @@ public class HeaderTest extends AbstractJaxWsTest {
         
         Service service = bean.create();
         
-        OperationInfo op = service.getServiceInfo().getInterface().getOperation(
+        OperationInfo op = service.getServiceInfos().get(0).getInterface().getOperation(
             new QName(service.getName().getNamespaceURI(), "testHeader5"));
         assertNotNull(op);
         List<MessagePartInfo> parts = op.getInput().getMessageParts();

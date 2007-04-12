@@ -63,7 +63,7 @@ public class LocalServerRegistrationTest extends AbstractCXFTest {
         List<Object> content = new ArrayList<Object>();
         content.add("Hello");
 
-        ServiceInfo serviceInfo = server.getEndpoint().getService().getServiceInfo();
+        ServiceInfo serviceInfo = server.getEndpoint().getEndpointInfo().getService();
         BindingInfo bi = serviceInfo.getBindings().iterator().next();
         BindingOperationInfo bop = bi.getOperations().iterator().next();
 

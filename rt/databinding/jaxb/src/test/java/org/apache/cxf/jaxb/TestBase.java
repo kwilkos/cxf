@@ -89,7 +89,7 @@ public class TestBase extends TestCase {
                                                             new QName(ns, "SOAPService"));
 
         service = factory.create();
-        endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "SoapPort"));
+        endpointInfo = service.getEndpointInfo(new QName(ns, "SoapPort"));
         endpoint = new EndpointImpl(bus, service, endpointInfo);
         JAXBDataBinding db = new JAXBDataBinding();
         db.setContext(JAXBContext.newInstance(new Class[] {

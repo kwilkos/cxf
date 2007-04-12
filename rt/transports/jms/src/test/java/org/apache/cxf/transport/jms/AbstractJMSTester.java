@@ -83,7 +83,7 @@ public abstract class AbstractJMSTester extends Assert {
         WSDLServiceFactory factory = new WSDLServiceFactory(bus, wsdlUrl, new QName(ns, serviceName));
 
         Service service = factory.create();        
-        endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, portName));
+        endpointInfo = service.getEndpointInfo(new QName(ns, portName));
    
     }
     

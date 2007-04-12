@@ -395,5 +395,13 @@
             <soap:address location="FOO"/>
         </wsdl:port>
     </wsdl:service>
+    <wsdl:service name="SOAPServiceMultiPortTypeTest">
+		<wsdl:port name="GreeterPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="http://localhost:9020/MultiPort/GreeterPort"/>
+        </wsdl:port>
+        <wsdl:port name="DocLitBarePort" binding="tns:Doc_Lit_Bare_SOAPBinding">
+            <soap:address location="http://localhost:9021/MultiPort/DocBarePort"/>
+        </wsdl:port>        
+    </wsdl:service>
 </wsdl:definitions>
 

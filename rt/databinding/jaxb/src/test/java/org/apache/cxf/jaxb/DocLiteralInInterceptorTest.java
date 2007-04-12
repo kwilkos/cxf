@@ -170,7 +170,7 @@ public class DocLiteralInInterceptorTest extends TestCase {
             .getResource("/wsdl/hello_world.wsdl"), new QName(ns, "SOAPService"));
 
         service = factory.create();
-        endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "SoapPort"));
+        endpointInfo = service.getEndpointInfo(new QName(ns, "SoapPort"));
         endpoint = new EndpointImpl(bus, service, endpointInfo);
         JAXBDataBinding db = new JAXBDataBinding();
         db.setContext(JAXBContext.newInstance(new Class[] {GreetMe.class, GreetMeResponse.class}));
@@ -195,7 +195,7 @@ public class DocLiteralInInterceptorTest extends TestCase {
             .getResource("/wsdl/doc_lit_bare.wsdl"), new QName(ns, "SOAPService"));
 
         service = factory.create();
-        endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "SoapPort"));
+        endpointInfo = service.getEndpointInfo(new QName(ns, "SoapPort"));
         endpoint = new EndpointImpl(bus, service, endpointInfo);
         JAXBDataBinding db = new JAXBDataBinding();
         db.setContext(JAXBContext.newInstance(new Class[] {TradePriceData.class}));

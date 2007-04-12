@@ -19,6 +19,7 @@
 
 package org.apache.cxf.service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -28,14 +29,17 @@ import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public interface Service extends Map<String, Object>, InterceptorProvider {
     
     QName getName();
     
-    ServiceInfo getServiceInfo();
+    List<ServiceInfo> getServiceInfos();
 
+    EndpointInfo getEndpointInfo(QName endpoint);
+    
     DataBinding getDataBinding();
 
     void setDataBinding(DataBinding dataBinding);

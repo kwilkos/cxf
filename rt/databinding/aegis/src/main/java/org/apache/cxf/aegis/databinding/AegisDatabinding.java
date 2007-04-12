@@ -112,19 +112,21 @@ public class AegisDatabinding implements DataBinding {
     }
 
     public void initialize(Service service) {
-        ServiceInfo endpoint = service.getServiceInfo();
+        QName serviceName = service.getServiceInfos().get(0).getName();
         TypeMapping serviceTM = typeMappingRegistry.createTypeMapping(XmlConstants.XSD, true);
-        typeMappingRegistry.register(endpoint.getName().getNamespaceURI(), serviceTM);
+        typeMappingRegistry.register(serviceName.getNamespaceURI(), serviceTM);
 
         service.put(TypeMapping.class.getName(), serviceTM);
 
         Set<Type> deps = new HashSet<Type>();
 
-        for (OperationInfo opInfo : endpoint.getInterface().getOperations()) {
-            if (opInfo.isUnwrappedCapable()) {
-                initializeOperation(service, serviceTM, opInfo.getUnwrappedOperation(), deps);
-            } else {
-                initializeOperation(service, serviceTM, opInfo, deps);
+        for (ServiceInfo info : service.getServiceInfos()) {
+            for (OperationInfo opInfo : info.getInterface().getOperations()) {
+                if (opInfo.isUnwrappedCapable()) {
+                    initializeOperation(service, serviceTM, opInfo.getUnwrappedOperation(), deps);
+                } else {
+                    initializeOperation(service, serviceTM, opInfo, deps);
+                }
             }
         }
 
@@ -251,12 +253,14 @@ public class AegisDatabinding implements DataBinding {
             try {
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));
 
-                SchemaInfo info = new SchemaInfo(service.getServiceInfo(), entry.getKey());
+                for (ServiceInfo si : service.getServiceInfos()) {
+                    SchemaInfo info = new SchemaInfo(si, entry.getKey());
 
-                info.setElement(schema.getDocumentElement());
-                info.setSystemId(entry.getKey());
-
-                service.getServiceInfo().addSchema(info);
+                    info.setElement(schema.getDocumentElement());
+                    info.setSystemId(entry.getKey());
+    
+                    si.addSchema(info);
+                }
             } catch (JDOMException e1) {
                 throw new ServiceConstructionException(e1);
             }

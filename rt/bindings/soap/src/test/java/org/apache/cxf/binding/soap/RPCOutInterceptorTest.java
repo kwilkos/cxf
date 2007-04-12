@@ -22,6 +22,7 @@ package org.apache.cxf.binding.soap;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -66,8 +67,9 @@ public class RPCOutInterceptorTest extends TestBase {
         JAXBDataBinding dataBinding = new JAXBDataBinding(MyComplexStruct.class);
         service.getDataBinding();
         EasyMock.expectLastCall().andReturn(dataBinding).anyTimes();
-        service.getServiceInfo();
-        EasyMock.expectLastCall().andReturn(si).anyTimes();
+        service.getServiceInfos();
+        List<ServiceInfo> list = Arrays.asList(si);
+        EasyMock.expectLastCall().andReturn(list).anyTimes();
 
         soapMessage.getExchange().put(Service.class, service);
         soapMessage.getExchange().put(Message.SCHEMA_VALIDATION_ENABLED, Boolean.FALSE);

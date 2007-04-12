@@ -236,79 +236,81 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public void initialize(Service service) {
-        ServiceInfo serviceInfo = service.getServiceInfo();
         Set<Class<?>> classes = new HashSet<Class<?>>();
-        JAXBContextInitializer initializer = 
-            new JAXBContextInitializer(serviceInfo, classes);
-        initializer.walk();
-
+        for (ServiceInfo serviceInfo : service.getServiceInfos()) {
+            JAXBContextInitializer initializer = 
+                new JAXBContextInitializer(serviceInfo, classes);
+            initializer.walk();
+    
+        }
         try {
             setContext(createJAXBContext(classes));
         } catch (JAXBException e1) {
             throw new ServiceConstructionException(e1);
         }
-        
-        XmlSchemaCollection col = (XmlSchemaCollection)serviceInfo
-            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
-
-        if (col != null) {
-            // someone has already filled in the types
-            return;
-        }
-
-        col = new XmlSchemaCollection();
-
-        try {
-            for (DOMResult r : generateJaxbSchemas()) {
-                Document d = (Document)r.getNode();
-                String ns = d.getDocumentElement().getAttribute("targetNamespace");
-                if (ns == null) {
-                    ns = "";
-                }
-
-                NodeList nodes = d.getDocumentElement().getChildNodes();
-                for (int i = 0; i < nodes.getLength(); i++) {
-                    Node n = nodes.item(i);
-                    if (n instanceof Element) {
-                        Element e = (Element) n;
-                        if (e.getLocalName().equals("import")) {
-                            d.getDocumentElement().removeChild(e);
+            
+        for (ServiceInfo serviceInfo : service.getServiceInfos()) {
+            XmlSchemaCollection col = (XmlSchemaCollection)serviceInfo
+                .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+    
+            if (col != null) {
+                // someone has already filled in the types
+                continue;
+            }
+    
+            col = new XmlSchemaCollection();
+    
+            try {
+                for (DOMResult r : generateJaxbSchemas()) {
+                    Document d = (Document)r.getNode();
+                    String ns = d.getDocumentElement().getAttribute("targetNamespace");
+                    if (ns == null) {
+                        ns = "";
+                    }
+    
+                    NodeList nodes = d.getDocumentElement().getChildNodes();
+                    for (int i = 0; i < nodes.getLength(); i++) {
+                        Node n = nodes.item(i);
+                        if (n instanceof Element) {
+                            Element e = (Element) n;
+                            if (e.getLocalName().equals("import")) {
+                                d.getDocumentElement().removeChild(e);
+                            }
                         }
                     }
+                    
+                    // Don't include WS-Addressing bits
+                    if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
+                        continue;
+                    }
+    
+                    SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
+                    schema.setElement(d.getDocumentElement());
+                    schema.setSystemId(r.getSystemId());
+                    serviceInfo.addSchema(schema);
+                    col.read(d.getDocumentElement());
                 }
-                
-                // Don't include WS-Addressing bits
-                if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
-                    continue;
+            } catch (IOException e) {
+                throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", BUNDLE), e);
+            }
+    
+            serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
+            JAXBContextImpl riContext;
+            if (context instanceof JAXBContextImpl) {
+                riContext = (JAXBContextImpl) context;
+            } else {
+                // fall back if we're using another jaxb implementation
+                try {
+                    riContext = (JAXBContextImpl)
+                        ContextFactory.createContext(classes.toArray(new Class[classes.size()]), null);
+                } catch (JAXBException e) {
+                    throw new ServiceConstructionException(e);
                 }
-
-                SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
-                schema.setElement(d.getDocumentElement());
-                schema.setSystemId(r.getSystemId());
-                serviceInfo.addSchema(schema);
-                col.read(d.getDocumentElement());
             }
-        } catch (IOException e) {
-            throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", BUNDLE), e);
+            
+            JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col, riContext);
+            schemaInit.walk();
         }
-
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
-        JAXBContextImpl riContext;
-        if (context instanceof JAXBContextImpl) {
-            riContext = (JAXBContextImpl) context;
-        } else {
-            // fall back if we're using another jaxb implementation
-            try {
-                riContext = (JAXBContextImpl)
-                    ContextFactory.createContext(classes.toArray(new Class[classes.size()]), null);
-            } catch (JAXBException e) {
-                throw new ServiceConstructionException(e);
-            }
-        }
-        
-        JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col, riContext);
-        schemaInit.walk();
-
     }
 
     private List<DOMResult> generateJaxbSchemas() throws IOException {
@@ -352,7 +354,7 @@ public final class JAXBDataBinding implements DataBinding {
             // context?
         }
        
-        return  JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+        return JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
     }
 
 }

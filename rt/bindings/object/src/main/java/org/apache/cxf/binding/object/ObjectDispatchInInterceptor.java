@@ -58,7 +58,7 @@ public class ObjectDispatchInInterceptor extends AbstractPhaseInterceptor<Messag
         if (bindingName == null) {
             binding = ep.getEndpointInfo().getBinding(); 
         } else {
-            binding = ep.getService().getServiceInfo().getBinding(bindingName);
+            binding = ep.getEndpointInfo().getService().getBinding(bindingName);
         }
         
         BindingOperationInfo bop = binding.getOperation(opName);

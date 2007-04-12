@@ -128,10 +128,12 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             }
 
             boolean messageMode = implInfo.getServiceMode().equals(javax.xml.ws.Service.Mode.MESSAGE);
-            for (BindingInfo bi : getService().getServiceInfo().getBindings()) {
-                if ((bi instanceof SoapBindingInfo) 
-                    && messageMode && !type.equals(SOAPMessage.class)) {
-                    bi.setProperty(SoapBindingFactory.MESSAGE_PROCESSING_DISABLED, Boolean.TRUE);
+            if (getEndpointInfo() != null) {
+                for (BindingInfo bi : getEndpointInfo().getService().getBindings()) {
+                    if ((bi instanceof SoapBindingInfo) 
+                        && messageMode && !type.equals(SOAPMessage.class)) {
+                        bi.setProperty(SoapBindingFactory.MESSAGE_PROCESSING_DISABLED, Boolean.TRUE);
+                    }
                 }
             }
         }
@@ -197,7 +199,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             Method invoke = getServiceClass().getMethod("invoke", c);
 
             // Bind each operation to the invoke method.
-            for (OperationInfo o : getService().getServiceInfo().getInterface().getOperations()) {
+            for (OperationInfo o : getEndpointInfo().getService().getInterface().getOperations()) {
                 getMethodDispatcher().bind(o, invoke);
             }
 
@@ -207,7 +209,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             throw new ServiceConstructionException(e);
         }
 
-        for (BindingInfo bi : getService().getServiceInfo().getBindings()) {
+        for (BindingInfo bi : getEndpointInfo().getService().getBindings()) {
             bi.setProperty(AbstractBindingFactory.DATABINDING_DISABLED, Boolean.TRUE);
         }
     }

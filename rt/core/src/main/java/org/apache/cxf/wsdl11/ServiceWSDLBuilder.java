@@ -19,6 +19,7 @@
 
 package org.apache.cxf.wsdl11;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -71,17 +72,22 @@ public final class ServiceWSDLBuilder {
     private Map<String, String> prefix2ns;
     private Map<String, String> ns2prefix;
     private Definition definition;
-    private ServiceInfo service;
+    private List<ServiceInfo> services;
     
-    public ServiceWSDLBuilder(ServiceInfo service) {
-        this.service = service;
+    public ServiceWSDLBuilder(List<ServiceInfo> services) {
+        this.services = services;
+        prefix2ns = new HashMap<String, String>();
+        ns2prefix = new HashMap<String, String>();
+    }
+    public ServiceWSDLBuilder(ServiceInfo ... services) {
+        this.services = Arrays.asList(services);
         prefix2ns = new HashMap<String, String>();
         ns2prefix = new HashMap<String, String>();
     }
 
     public Definition build() throws WSDLException {
         try {
-            definition = service.getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
+            definition = services.get(0).getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
         } catch (ClassCastException e) {
             //ignore
         }
@@ -95,15 +101,18 @@ public final class ServiceWSDLBuilder {
             addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
             addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
             
-            definition.setQName(service.getName());
-            definition.setTargetNamespace(service.getTargetNamespace());
-            addExtensibiltyElements(definition, getWSDL11Extensors(service));
-            if (service.getSchemas() != null && service.getSchemas().size() > 0) {
-                buildTypes(service.getSchemas());
+            ServiceInfo si = services.get(0);
+            definition.setQName(si.getName());
+            definition.setTargetNamespace(si.getTargetNamespace());
+            addExtensibiltyElements(definition, getWSDL11Extensors(si));
+            if (si.getSchemas() != null && si.getSchemas().size() > 0) {
+                buildTypes(si.getSchemas());
             }
-            buildPortType(service.getInterface());
-            buildBinding(service.getBindings());
-            buildService(service);
+            for (ServiceInfo service : services) {
+                buildPortType(service.getInterface());
+                buildBinding(service.getBindings());
+                buildService(service);
+            }
         }
         return definition;
     }

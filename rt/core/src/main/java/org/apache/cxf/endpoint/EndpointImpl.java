@@ -58,7 +58,7 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     private MessageObserver outFaultObserver;
 
     public EndpointImpl(Bus bus, Service s, QName endpointName) throws EndpointException {
-        this(bus, s, s.getServiceInfo().getEndpoint(endpointName));
+        this(bus, s, s.getEndpointInfo(endpointName));
     }
     
     public EndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
