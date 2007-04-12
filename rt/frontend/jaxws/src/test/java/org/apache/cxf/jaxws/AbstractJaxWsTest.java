@@ -45,6 +45,8 @@ public abstract class AbstractJaxWsTest extends AbstractCXFTest {
 
         bus.getExtension(BindingFactoryManager.class)
             .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
+        bus.getExtension(BindingFactoryManager.class)
+            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/http", bindingFactory);
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 

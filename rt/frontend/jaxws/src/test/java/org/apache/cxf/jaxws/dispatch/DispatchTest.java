@@ -26,6 +26,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
+import javax.xml.ws.http.HTTPBinding;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.w3c.dom.Document;
 
@@ -94,5 +96,21 @@ public class DispatchTest extends AbstractJaxWsTest {
         Source res = disp.invoke(source);
         assertNotNull(res);
         
+    }
+    
+    @Test
+    public void testHTTPBinding() throws Exception {
+        ServiceImpl service = new ServiceImpl(getBus(), null, serviceName, null);   
+        service.addPort(portName, HTTPBinding.HTTP_BINDING, "local://foobar");
+        Dispatch<Source> disp = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
+        assertTrue(disp.getBinding() instanceof HTTPBinding);        
+    }
+    
+    @Test
+    public void testSOAPPBinding() throws Exception {
+        ServiceImpl service = new ServiceImpl(getBus(), null, serviceName, null);   
+        service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, "local://foobar");
+        Dispatch<Source> disp = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
+        assertTrue(disp.getBinding() instanceof SOAPBinding);        
     }
 }

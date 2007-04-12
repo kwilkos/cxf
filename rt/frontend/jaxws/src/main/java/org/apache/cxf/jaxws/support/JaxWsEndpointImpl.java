@@ -26,11 +26,13 @@ import javax.xml.ws.Binding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.binding.xml.XMLBinding;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptor.ClientFaultConverter;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
+import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
 //import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
@@ -91,6 +93,8 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     final void createJaxwsBinding() {
         if (getBinding() instanceof SoapBinding) {
             binding = new SOAPBindingImpl(getEndpointInfo().getBinding());
+        } else if (getBinding() instanceof XMLBinding) {
+            binding = new HTTPBindingImpl(getEndpointInfo().getBinding());
         } else {
             binding = new BindingImpl();
         }
