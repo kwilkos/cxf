@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.interceptor.Fault;
@@ -37,7 +38,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -77,7 +77,8 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         try {
             s = javax.xml.ws.Service.create(new URL("file:/does/not/exist.wsdl"),
                                             new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
-        } catch (ServiceConstructionException sce) {
+            fail("did not throw exception");
+        } catch (WebServiceException sce) {
             // ignore, this is expected
         }
     }

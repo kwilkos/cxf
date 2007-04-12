@@ -25,6 +25,7 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -70,13 +71,11 @@ public class OASISCatalogTest extends Assert {
         OASISCatalogManager catalog = new OASISCatalogManager();
         bus.setExtension(catalog.getCatalog(), Catalog.class);
         
-        SOAPService service = new SOAPService(wsdl, serviceName);
-        assertNotNull(service);
-
         try {
+            SOAPService service = new SOAPService(wsdl, serviceName);
             service.getPort(portName, Greeter.class);
             fail("Test did not fail as expected");
-        } catch (Exception e) {
+        } catch (WebServiceException e) {
             // ignore
         }
 
@@ -87,6 +86,7 @@ public class OASISCatalogTest extends Assert {
 
         catalog.loadCatalog(jaxwscatalog);
 
+        SOAPService service = new SOAPService(wsdl, serviceName);
         Greeter greeter = service.getPort(portName, Greeter.class);
         assertNotNull(greeter);
     }

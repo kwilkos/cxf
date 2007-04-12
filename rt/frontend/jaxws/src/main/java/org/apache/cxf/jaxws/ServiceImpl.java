@@ -43,6 +43,7 @@ import javax.xml.ws.spi.ServiceDelegate;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.databinding.DataBinding;
@@ -60,6 +61,7 @@ import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -89,7 +91,22 @@ public class ServiceImpl extends ServiceDelegate {
         clazz = cls;
         
         handlerResolver = new HandlerResolverImpl(bus, name, clazz);
-        
+        if (url != null) {
+            try {
+                initializePorts();
+            } catch (ServiceConstructionException e) {
+                throw new WebServiceException(e);
+            }
+        }
+    }
+    
+    private void initializePorts() {        
+        WSDLServiceFactory sf = new WSDLServiceFactory(bus, wsdlURL, serviceName);
+        Service service = sf.create();
+        ServiceInfo si = service.getServiceInfo();
+        for (EndpointInfo ei : si.getEndpoints()) {
+            this.ports.add(ei.getName());
+        }
     }
 
     public void addPort(QName portName, String bindingId, String address) {
@@ -115,6 +132,11 @@ public class ServiceImpl extends ServiceDelegate {
             } else {
                 ei = si.getEndpoint(portName);
             }
+        }
+
+        if (ei == null) {
+            Message msg = new Message("INVALID_PORT", BUNDLE, portName);
+            throw new WebServiceException(msg.toString());
         }
 
         try {
@@ -149,9 +171,13 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
-        AbstractServiceFactoryBean sf = createDispatchService(new SourceDataBinding());
+        AbstractServiceFactoryBean sf = null;
+        try {
+            sf = createDispatchService(new SourceDataBinding());
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
-
         Dispatch<T> disp = new DispatchImpl<T>(bus, mode, type, getExecutor(), endpoint);
 
         configureObject(disp);
@@ -160,8 +186,12 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
-
-        AbstractServiceFactoryBean sf = createDispatchService(new JAXBDataBinding(context));
+        AbstractServiceFactoryBean sf = null;
+        try {
+            sf = createDispatchService(new JAXBDataBinding(context));
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
         Dispatch<Object> disp = new DispatchImpl<Object>(bus, mode, context, Object.class, getExecutor(),
                                                          endpoint);
@@ -180,14 +210,22 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public <T> T getPort(Class<T> type) {
-        return createPort(null, type);
+        try {
+            return createPort(null, type);
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }  
     }
 
     public <T> T getPort(QName portName, Class<T> type) {
         if (portName == null) {
             throw new WebServiceException(BUNDLE.getString("PORT_NAME_NULL_EXC"));
         }
-        return createPort(portName, type);
+        try {
+            return createPort(portName, type);
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }  
     }
 
     public Iterator<QName> getPorts() {
@@ -229,7 +267,7 @@ public class ServiceImpl extends ServiceDelegate {
         if (wsdlURL != null) {
             proxyFac.setWsdlURL(wsdlURL.toString());
         }
-
+        
         if (portName == null) {
             clientFac.create();
             portName = serviceFactory.getEndpointName();
@@ -259,19 +297,17 @@ public class ServiceImpl extends ServiceDelegate {
             }
         });
         configureObject(service);
-        
+                
         // Configure the JaxWsEndpoitnImpl
         JaxWsEndpointImpl jaxwsEndpoint = (JaxWsEndpointImpl) clientFac.getClient().getEndpoint();
         configureObject(jaxwsEndpoint);  
-        
-        QName pn = portName;
-        
+                                      
         List<Handler> hc = jaxwsEndpoint.getJaxwsBinding().getHandlerChain();
-        hc.addAll(handlerResolver.getHandlerChain(portInfos.get(pn)));
+        hc.addAll(handlerResolver.getHandlerChain(portInfos.get(portName)));
 
         LOG.log(Level.FINE, "created proxy", obj);
 
-        ports.add(pn);
+        ports.add(portName);
         return serviceEndpointInterface.cast(obj);
     }
 

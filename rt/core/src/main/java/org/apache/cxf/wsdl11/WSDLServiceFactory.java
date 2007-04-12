@@ -36,6 +36,7 @@ import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.ws.commons.schema.XmlSchemaException;
 
 public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     
@@ -87,7 +88,12 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     public Service create() {
         ServiceInfo serviceInfo;
         if (serviceName == null) {
-            List<ServiceInfo> services = new WSDLServiceBuilder(getBus()).buildServices(definition);
+            List<ServiceInfo> services = null;
+            try {
+                services = new WSDLServiceBuilder(getBus()).buildServices(definition);
+            } catch (XmlSchemaException ex) {
+                throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
+            }
             if (services.size() == 0) {
                 throw new ServiceConstructionException(new Message("NO_SERVICE_EXC", LOG));
             } else {
@@ -100,7 +106,11 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
             if (wsdlService == null) {
                 throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE_EXC", LOG, serviceName));
             }
-            serviceInfo = new WSDLServiceBuilder(getBus()).buildServices(definition, wsdlService).get(0);
+            try {
+                serviceInfo = new WSDLServiceBuilder(getBus()).buildServices(definition, wsdlService).get(0);
+            } catch (XmlSchemaException ex) {
+                throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
+            }
         }
         ServiceImpl service = new ServiceImpl(serviceInfo);
         setService(service);

@@ -66,6 +66,8 @@ public abstract class AbstractJaxWsTest extends AbstractCXFTest {
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/", localTransport);
         
-        bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
+        WSDLManagerImpl manager = new WSDLManagerImpl();
+        manager.setBus(bus);
+        bus.setExtension(manager, WSDLManager.class);
     }
 }
