@@ -74,7 +74,7 @@ public class OutgoingChainInterceptorTest extends TestCase {
         EasyMock.expect(endpoint.getBinding()).andStubReturn(binding);
         MessageImpl m = new MessageImpl();
         EasyMock.expect(binding.createMessage()).andStubReturn(m);
-        
+
         EasyMock.expect(endpoint.getService()).andReturn(service).anyTimes();
         EasyMock.expect(endpoint.getOutInterceptors()).andReturn(empty);
         EasyMock.expect(service.getOutInterceptors()).andReturn(empty);
@@ -98,7 +98,6 @@ public class OutgoingChainInterceptorTest extends TestCase {
     }
 
     public void testInterceptor() throws Exception {
-        OutgoingChainSetupInterceptor setupIntc = new OutgoingChainSetupInterceptor();
         OutgoingChainInterceptor intc = new OutgoingChainInterceptor();
 
         MessageImpl m = new MessageImpl();
@@ -109,7 +108,6 @@ public class OutgoingChainInterceptorTest extends TestCase {
         exchange.put(Binding.class, binding);
         exchange.put(BindingOperationInfo.class, bopInfo);
         exchange.setOutMessage(m);
-        setupIntc.handleMessage(m);
         intc.handleMessage(m);
     }
 
