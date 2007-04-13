@@ -52,6 +52,12 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
         List<String> value = new ArrayList<String>();
         
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        
+        // The soap action is set on the wrapped operation.
+        if (boi != null && boi.isUnwrapped()) {
+            boi = boi.getWrappedOperation();
+        }
+        
         if (boi == null) {
             value.add("\"\"");
         } else {

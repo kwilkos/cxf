@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.writer.FileCodeWriter;
 import com.sun.tools.xjc.Options;
@@ -145,6 +146,7 @@ public final class DynamicClientFactory {
 
     public Client createClient(String wsdlUrl, QName service, ClassLoader classLoader, QName port) {
         URL u = composeUrl(wsdlUrl);
+        LOG.log(Level.FINE, "Creating client from URL " + u.toString());
         ClientImpl client = new ClientImpl(bus, u, service, port);
 
         Service svc = client.getEndpoint().getService();
@@ -175,7 +177,8 @@ public final class DynamicClientFactory {
             }
             sb.append(packadge.name());
         }
-
+        outputDebug(codeModel);
+        
         String packageList = sb.toString();
 
         // our hashcode + timestamp ought to be enough.
@@ -239,6 +242,30 @@ public final class DynamicClientFactory {
         // delete the classes files
         FileUtils.removeDir(classes);
         return client;
+    }
+
+    private void outputDebug(JCodeModel codeModel) {
+        if (!LOG.isLoggable(Level.INFO)) {
+            return;
+        }
+        
+        StringBuffer sb = new StringBuffer();
+        boolean first = true;
+        for (Iterator<JPackage> itr = codeModel.packages(); itr.hasNext();) {
+            JPackage package1 = itr.next();
+            
+            for (Iterator<JDefinedClass> citr = package1.classes(); citr.hasNext();) {
+                if (!first) {
+                    sb.append(", ");
+                } else {
+                    first = false;
+                }
+                sb.append(citr.next().fullName());
+            }
+        }
+        
+        LOG.log(Level.INFO, "Created classes: " + sb.toString());
+        
     }
 
     private void addSchemas(String wsdlUrl, Collection<SchemaInfo> schemas, SchemaCompiler compiler) {
