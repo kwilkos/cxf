@@ -39,7 +39,7 @@ public class JavaToWSDLNoAnnoTest extends ProcessorTestBase {
     
     @After
     public void tearDown() {
-        super.tearDown();
+        //super.tearDown();
         j2wProcessor = null;
     }
 

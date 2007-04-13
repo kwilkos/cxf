@@ -73,6 +73,47 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         assertEquals("get wrong in partName for first param", new QName("http://cxf.com/", "arg1"), partName);
     }
 
+    public void testDefaultStyle() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setServiceClass(Hello.class);
+        JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
+        jwsc.setServiceFactory(bean);
+
+        // REVIST: the Hello.class,  is not a valide JAXWS SEI, the Style.RPC can not on method (JSR-181)
+        assertEquals("document", jwsc.getStyle());
+        assertNull(jwsc.isWrapped());
+    }
+
+    public void testRPCStyle() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setServiceClass(HelloRPC.class);
+        JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
+        jwsc.setServiceFactory(bean);
+        
+        assertEquals("rpc", jwsc.getStyle());
+        assertFalse(jwsc.isWrapped());
+    }
+
+    public void testDocumentWrappedStyle() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setServiceClass(HelloWrapped.class);
+        JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
+        jwsc.setServiceFactory(bean);
+        
+        assertEquals("document", jwsc.getStyle());
+        assertTrue(jwsc.isWrapped());
+    }
+
+    public void testDocumentBareStyle() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setServiceClass(HelloBare.class);
+        JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
+        jwsc.setServiceFactory(bean);
+        
+        assertEquals("document", jwsc.getStyle());
+        assertFalse(jwsc.isWrapped());
+    }
+
     public void testGetOutPartName() throws Exception {
         QName opName = new QName("http://cxf.com/", "sayHi");
         Method sayHiMethod = Hello.class.getMethod("sayHi", new Class[]{});
@@ -120,6 +161,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         return serviceInfo;
     }
 
+    // REVISIT this is not a valid JAXWS SEI Style.RPC can not put on method. (JSR-181)
     @WebService(name = "Hello", targetNamespace = "http://cxf.com/")
     public interface Hello {
         @SOAPBinding(parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.BARE, 
@@ -133,4 +175,19 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         String sayHello(String asdf1, String asdf2);
     }
 
+    @SOAPBinding(style = javax.jws.soap.SOAPBinding.Style.RPC)
+    public interface HelloRPC {
+        String sayHi();
+    }
+
+    @SOAPBinding(style = javax.jws.soap.SOAPBinding.Style.DOCUMENT)
+    public interface HelloWrapped {
+        String sayHi();
+    }
+
+    @SOAPBinding(parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.BARE,
+                 style = javax.jws.soap.SOAPBinding.Style.DOCUMENT)
+    public interface HelloBare {
+        String sayHi();
+    }
 }

@@ -180,7 +180,7 @@ public final class PluginLoader {
 
     protected Collection<Plugin> getPlugins(URL url) 
         throws IOException, JAXBException, FileNotFoundException {
-        Collection<Plugin> p = plugins.get(url.getFile());
+        Collection<Plugin> p = plugins.get(url.toString());
         InputStream is = null;
         if (p == null) {
             is = url.openStream();
@@ -190,10 +190,10 @@ public final class PluginLoader {
                 LOG.log(Level.SEVERE, msg.toString());
                 throw new ToolException(msg);
             }
-            plugins.put(url.getFile(), p);
+            plugins.put(url.toString(), p);
         }        
         if (is == null) {
-            return getPlugins(url.getFile());
+            return getPlugins(url);
         }
         return p;
     }

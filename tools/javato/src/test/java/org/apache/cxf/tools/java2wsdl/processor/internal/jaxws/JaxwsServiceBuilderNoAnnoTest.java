@@ -39,6 +39,10 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         builder.setBus(BusFactory.getDefaultBus());
     }
 
+//     @org.junit.After
+//     public void tearDown() {
+//     }
+
     // Revisit:
     // * Missing wsdl:types
     // * getPrice MUST refeter to schema element
@@ -56,6 +60,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         assertTrue(output.exists());
     }
 
+
     // Passed
     @Test
     public void testGeneratedWithDocWrappedClass() throws Exception {
@@ -72,7 +77,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
 
     // Revisit:
     // * Missing wsdl:types
-    // * Binding style should be RPC not Document
+    // * Binding style should be RPC not Document (FIXED)
     // * input message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // * output message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // CXF-522
@@ -84,6 +89,9 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         File output = getOutputFile("stock_noanno_rpc.wsdl");
         generator.generate(output);
         assertTrue(output.exists());
+
+        String expectedFile = getClass().getResource("expected/stock_noanno_rpc.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
     private File getOutputFile(String fileName) {

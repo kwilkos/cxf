@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
@@ -30,6 +29,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -76,7 +76,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         if (endpointName == null) {
             endpointName = serviceFactory.getEndpointName();
         }
-        
         EndpointInfo ei = service.getEndpointInfo(endpointName);
         if (ei != null
             && transportId != null
@@ -93,7 +92,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             }
         } else if (getAddress() != null) {
             ei.setAddress(getAddress()); 
-        }                        
+        }
 
         Endpoint ep = service.getEndpoints().get(ei.getName());
         
@@ -217,6 +216,12 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         }
         
         try {
+            if ("http://schemas.xmlsoap.org/soap/".equals(binding)) {
+                if (bindingConfig == null) {
+                    bindingConfig = new SoapBindingConfiguration();
+                }
+                ((SoapBindingConfiguration)bindingConfig).setStyle(serviceFactory.getStyle());
+            }
             return mgr.getBindingFactory(binding).createBindingInfo(serviceFactory.getService(),
                                                                     binding, bindingConfig);
         } catch (BusException ex) {

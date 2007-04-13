@@ -964,6 +964,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return true;
     }
 
+    public String getStyle() {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            String style = c.getStyle();
+            if (style != null) {
+                return style;
+            }
+        }
+        return "document";
+    }
+
     public void setWrapped(boolean style) {
         this.wrappedStyle = style;
     }

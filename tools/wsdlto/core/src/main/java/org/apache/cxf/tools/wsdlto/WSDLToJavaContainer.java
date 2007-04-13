@@ -40,6 +40,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
@@ -324,6 +325,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
 
         String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
+        if (StringUtils.isEmpty(wsdl)) {
+            Message msg = new Message("NO_WSDL_URL", LOG);
+            throw new ToolException(msg);
+        }
+
         env.put(ToolConstants.CFG_WSDLURL, URIParserUtil.normalize(wsdl));
 
         String[] bindingFiles;

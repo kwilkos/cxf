@@ -470,5 +470,14 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             return webResult != null && webResult.header();
         }
     }
+
+    @Override
+    public String getStyle() {
+        SOAPBinding ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return ann.style().toString().toLowerCase();
+        }
+        return "document";
+    }
     
 }

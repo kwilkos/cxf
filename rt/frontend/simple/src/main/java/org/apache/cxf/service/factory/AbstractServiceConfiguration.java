@@ -53,6 +53,10 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public String getStyle() {
+        return null;
+    }
+
     public Boolean isWrapped() {
         return null;
     }
