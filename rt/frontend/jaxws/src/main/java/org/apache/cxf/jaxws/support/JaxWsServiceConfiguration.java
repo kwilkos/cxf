@@ -41,7 +41,6 @@ import javax.xml.ws.WebFault;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
-import org.apache.cxf.service.factory.DefaultServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -160,7 +159,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         if (paramNumber < 0) {
             return null;
         }
-        
+                
         return getPartName(op, method, paramNumber, op.getInput().size(), "arg");
     }
 
@@ -174,6 +173,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     private QName getPartName(OperationInfo op, Method method, int paramNumber, int curSize, String prefix) {
+        method = getDeclaredMethod(method);
         WebParam param = getWebParam(method, paramNumber);
         String tns = op.getName().getNamespaceURI();
         if (param != null) {
@@ -217,17 +217,13 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     private String getDefaultLocalName(OperationInfo op, Method method, int paramNumber, 
                                        int curSize, String prefix) {
-        Class<?> impl = implInfo.getImplementorClass(); 
-        // try to grab the implementation class so we can read the debug symbols from it
-        if (impl == null) {
-            try {
-                method = impl.getMethod(method.getName(), method.getParameterTypes());
-            } catch (Exception e) {
-                throw new ServiceConstructionException(e);
-            }
+        String paramName = null;        
+        if (paramNumber != -1) {
+            paramName = prefix + curSize;
+        } else {
+            paramName = prefix;
         }
-        
-        return DefaultServiceConfiguration.createName(method, paramNumber, curSize, false, prefix);
+        return paramName;
     }
 
     private WebParam getWebParam(Method method, int parameter) {
@@ -306,12 +302,13 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public Boolean isInParam(Method method, int j) {
-        method = getDeclaredMethod(method);
+    public Boolean isInParam(Method method, int j) {        
         if (j < 0) {
             return Boolean.FALSE;
         }
             
+        method = getDeclaredMethod(method);
+        
         WebParam webParam = getWebParam(method, j);
 
         return webParam == null || (webParam.mode().equals(Mode.IN) || webParam.mode().equals(Mode.INOUT));

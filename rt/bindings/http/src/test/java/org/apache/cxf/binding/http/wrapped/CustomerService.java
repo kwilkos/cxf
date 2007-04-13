@@ -56,7 +56,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public Customer getCustomer(Long id) {
+    public Customer getCustomer(@WebParam(name = "id") Long id) {
         return customers.get(id);
     }
 

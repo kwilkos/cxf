@@ -55,7 +55,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
         assertValid("//wsdl:portType[@name='Hello']", wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@type='xsd:string'][@name='text']",
+                    + "/wsdl:part[@type='xsd:string'][@name='arg0']",
                     wsdl);
     }
 
@@ -77,7 +77,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
                     + "/wsdl:part[@element='ns1:sayHiResponse'][@name='sayHiResponse']",
                     wsdl);
         assertValid("//xsd:element[@name='sayHi']/xsd:complexType"
-                    + "/xsd:sequence/xsd:element[@name='text']",
+                    + "/xsd:sequence/xsd:element[@name='arg0']",
                     wsdl);
     }
     
