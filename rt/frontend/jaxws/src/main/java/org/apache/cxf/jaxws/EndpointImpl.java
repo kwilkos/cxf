@@ -78,7 +78,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private List<Source> metadata;
     
     private Executor executor;
-    private String binding;
+    private String bindingUri;
     private String wsdlLocation;
     private String address;
     private QName endpointName;
@@ -110,7 +110,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public EndpointImpl(Bus b, Object implementor, 
                         JaxWsServiceFactoryBean serviceFactory, String bindingUri) {
         this.bus = b;
-        this.binding = bindingUri;
+        this.bindingUri = bindingUri;
         this.serverFactory = new JaxWsServerFactoryBean(serviceFactory);
         this.implementor = implementor;
         
@@ -137,7 +137,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public EndpointImpl(Bus b, Object i, String bindingUri, String wsdl) {
         bus = b;
         implementor = i;
-        binding = bindingUri;
+        this.bindingUri = bindingUri;
         wsdlLocation = wsdl;
         serverFactory = new JaxWsServerFactoryBean();
         
@@ -249,8 +249,23 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         return endpointName.toString();
     }
 
+    protected void checkProperties() {
+        if (properties != null) {
+            if (properties.containsKey("javax.xml.ws.wsdl.description")) {
+                wsdlLocation = properties.get("javax.xml.ws.wsdl.description").toString();
+            }
+            if (properties.containsKey(javax.xml.ws.Endpoint.WSDL_PORT)) {
+                endpointName = (QName)properties.get(javax.xml.ws.Endpoint.WSDL_PORT);
+            }
+            if (properties.containsKey(javax.xml.ws.Endpoint.WSDL_SERVICE)) {
+                serviceName = (QName)properties.get(javax.xml.ws.Endpoint.WSDL_SERVICE);
+            }
+        }
+    }
+    
     protected void doPublish(String addr) {
         checkPublishPermission();
+        checkProperties();
 
         // Initialize the endpointName so we can do configureObject
         if (endpointName == null) {
@@ -273,8 +288,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             serverFactory.setWsdlURL(getWsdlLocation());
         }
         
-        if (binding != null) {
-            serverFactory.setBindingId(binding);
+        if (bindingUri != null) {
+            serverFactory.setBindingId(bindingUri);
         }
         
         if (serviceName != null) {
@@ -399,8 +414,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.wsdlLocation = wsdlLocation;
     }
 
-    public void setBinding(String binding) {
-        this.binding = binding;
+    public void setBindingUri(String binding) {
+        this.bindingUri = binding;
+    }
+    public String getBindingUri() {
+        return this.bindingUri;
     }
 
     public List<Interceptor> getOutFaultInterceptors() {

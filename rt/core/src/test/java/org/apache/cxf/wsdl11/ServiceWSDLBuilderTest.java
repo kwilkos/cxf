@@ -46,6 +46,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
@@ -67,6 +68,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
     private Bus bus;
     private BindingFactoryManager bindingFactoryManager;
     private DestinationFactoryManager destinationFactoryManager;
+    private DestinationFactory destinationFactory;
     
     public void setUp() throws Exception {
   
@@ -81,6 +83,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         bus = control.createMock(Bus.class);
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
         destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
+        destinationFactory = control.createMock(DestinationFactory.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
@@ -93,6 +96,10 @@ public class ServiceWSDLBuilderTest extends TestCase {
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
         EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
             .andReturn(destinationFactoryManager);
+        
+        EasyMock.expect(destinationFactoryManager
+                        .getDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/"))
+            .andReturn(destinationFactory);
 
         control.replay();
         

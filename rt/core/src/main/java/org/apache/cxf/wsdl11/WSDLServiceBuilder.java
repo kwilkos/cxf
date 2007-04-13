@@ -401,27 +401,48 @@ public class WSDLServiceBuilder {
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {
         List elements = port.getExtensibilityElements();
         String ns = null;
-        if (null != elements && elements.size() > 0) {
-            ns = ((ExtensibilityElement)elements.get(0)).getElementType().getNamespaceURI();
-        } else { // get the transport id from bindingInfo
-            ExtensibilityElement extElem = (ExtensibilityElement)port.getBinding().getExtensibilityElements()
-                .get(0);
-            if (extElem instanceof SOAPBindingImpl) {
-                ns = (String)((SOAPBindingImpl)extElem).getTransportURI();
-            }
-        }
+        
+        DestinationFactory factory = null;
         EndpointInfo ei = null;
 
-        try {
-            DestinationFactory factory = bus.getExtension(DestinationFactoryManager.class)
-                .getDestinationFactory(ns);
-            if (factory instanceof WSDLEndpointFactory) {
-                WSDLEndpointFactory wFactory = (WSDLEndpointFactory)factory;
-                ei = wFactory.createEndpointInfo(service, bi, port);
+        if (null != elements && elements.size() > 0) {
+            for (ExtensibilityElement el : CastUtils.cast(elements, ExtensibilityElement.class)) {
+                ns = el.getElementType().getNamespaceURI();
+                try {
+                    factory = bus.getExtension(DestinationFactoryManager.class)
+                        .getDestinationFactory(ns);
+                } catch (BusException e) {
+                    // do nothing
+                }
+                if (factory != null) {
+                    break;
+                }
             }
-        } catch (BusException e) {
-            // do nothing
+            if (factory == null) {
+                ns = ((ExtensibilityElement)elements.get(0)).getElementType().getNamespaceURI();
+            }
         }
+            
+        if (factory == null) { // get the transport id from bindingInfo
+            elements = port.getBinding().getExtensibilityElements();
+            for (ExtensibilityElement el : CastUtils.cast(elements, ExtensibilityElement.class)) {
+                if (el instanceof SOAPBindingImpl) {
+                    ns = (String)((SOAPBindingImpl)el).getTransportURI();
+                    break;
+                }
+            }
+            try {
+                factory = bus.getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactory(ns);
+            } catch (BusException e) {
+                // do nothing
+            }
+        }
+        if (factory instanceof WSDLEndpointFactory) {
+            WSDLEndpointFactory wFactory = (WSDLEndpointFactory)factory;
+            ei = wFactory.createEndpointInfo(service, bi, port);
+        }
+
 
         if (ei == null) {
             ei = new EndpointInfo(service, ns);

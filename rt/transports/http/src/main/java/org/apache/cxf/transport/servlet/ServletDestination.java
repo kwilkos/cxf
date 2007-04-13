@@ -20,7 +20,6 @@
 package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +41,6 @@ public class ServletDestination extends AbstractHTTPDestination {
     private static final long serialVersionUID = 1L;        
     
     protected String name;
-    protected URL nurl;
     
     
     /**
@@ -59,7 +57,20 @@ public class ServletDestination extends AbstractHTTPDestination {
                               EndpointInfo ei)
         throws IOException {
         // would add the default port to the address
-        super(b, ci, ei, false);
+        super(b, ci, updateEndpointAddress(ei), false);
+    }
+    
+    private static EndpointInfo updateEndpointAddress(EndpointInfo ei) {
+        String ad = ei.getAddress();
+        if (ad != null && ad.indexOf("://") == -1) {
+            if (ad.startsWith("/")) {
+                ad = "http://localhost" + ad;
+            } else {
+                ad = "http://localhost/" + ad;
+            }
+            ei.setAddress(ad);
+        }
+        return ei;
     }
     
     protected Logger getLogger() {

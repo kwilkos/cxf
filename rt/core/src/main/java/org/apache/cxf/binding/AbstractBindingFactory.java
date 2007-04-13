@@ -76,7 +76,12 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
      * creates it for the first ServiceInfo in the service
      */    
     public BindingInfo createBindingInfo(Service service, String namespace, Object config) {
-        return createBindingInfo(service.getServiceInfos().get(0), namespace, config);
+        BindingInfo bi = createBindingInfo(service.getServiceInfos().get(0), namespace, config);
+        if (bi.getName() == null) {
+            bi.setName(new QName(service.getName().getNamespaceURI(), 
+                                 service.getName().getLocalPart() + "Binding"));
+        }
+        return bi;
     }
     
     
@@ -89,7 +94,6 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
     public BindingInfo createBindingInfo(ServiceInfo service, Binding binding, String ns) {
 
         BindingInfo bi = createBindingInfo(service, ns, null);
-        
         return initializeBindingInfo(service, binding, bi);
     }
 

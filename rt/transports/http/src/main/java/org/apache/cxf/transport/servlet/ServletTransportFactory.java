@@ -60,9 +60,11 @@ public class ServletTransportFactory extends AbstractTransportFactory
     
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
+        //String origAddress = endpointInfo.getAddress();
         ServletDestination d = destinations.get(endpointInfo.getAddress());
         if (d == null) { 
             d = new ServletDestination(bus, null, endpointInfo);
+            //destinations.put(origAddress, d);
             destinations.put(endpointInfo.getAddress(), d);
         }
         return d;
