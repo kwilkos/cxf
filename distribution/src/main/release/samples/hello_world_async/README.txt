@@ -74,13 +74,8 @@ files, run:
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/hello_world_async directory, first create the target
-directory build/classes and then generate code from the WSDL file.
-
-Edit the async_binding.xml.tmpl, substituting the full path to the 
-wsdl for @WSDL_LOCATION@
-Save the editied file as async_binding.xml, This file is required by 
-the wsdl2java command to generate classes required in the async case.
+From the samples/hello_world_async directory, run the following wsdl2java 
+command to generate classes required in the async case.
 
 For UNIX:
   mkdir -p build/classes

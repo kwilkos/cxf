@@ -126,7 +126,6 @@
         <delete dir="${build.src.dir}"/>
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
-        <delete file="${wsdl.dir}/async_binding.xml"/>
         <delete dir="${build.var.dir}"/>
         <delete dir="${activemq.home}/var"/>
     </target>
