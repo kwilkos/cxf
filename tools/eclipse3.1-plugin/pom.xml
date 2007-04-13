@@ -48,14 +48,6 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.ws.commons.schema</groupId>
-                    <artifactId>XmlSchema</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-annotation_1.0_spec</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>javax.xml.soap</groupId>
                     <artifactId>saaj-api</artifactId>
                 </exclusion>

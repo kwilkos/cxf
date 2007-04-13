@@ -77,10 +77,10 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
 
     // Revisit:
     // * Missing wsdl:types
-    // * Binding style should be RPC not Document (FIXED)
+    // * Binding style should be RPC not Document (FIXED CXF-522)
     // * input message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // * output message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
-    // CXF-522
+    // CXF-527
     @Test
     public void testGeneratedWithRPCClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.rpc.Stock.class);
