@@ -19,53 +19,88 @@
 
 package org.apache.cxf.jaxws.binding.soap;
 
-
+import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
-
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
     
     private BindingInfo soapBinding;
-    
-    // private SoapBinding soapBinding;
+    private Set<String> roles;
 
     public SOAPBindingImpl(BindingInfo sb) {
-        soapBinding = sb;
-        
+        soapBinding = sb;    
     }
     
     public Set<String> getRoles() {
-        return null;
+        return this.roles;
     }
 
     public void setRoles(Set<String> set) {
-        // TODO
+        if (set != null 
+            && (set.contains(Soap11.getInstance().getNoneRole()) 
+             || set.contains(Soap12.getInstance().getNoneRole()))) {
+            throw new WebServiceException(BUNDLE.getString("NONE_ROLE_ERR"));
+        }
+        this.roles = set;
     }
 
     public boolean isMTOMEnabled() {
         return Boolean.TRUE.equals(soapBinding.getProperty(Message.MTOM_ENABLED));
     }
 
-    public void setMTOMEnabled(boolean flag) {
-        
+    public void setMTOMEnabled(boolean flag) {        
         soapBinding.setProperty(Message.MTOM_ENABLED, flag);
     }
 
     public MessageFactory getMessageFactory() {
-        // TODO: get from wrapped SoapBinding
-        return null;
-    }  
-
-    public SOAPFactory getSOAPFactory() {
-        // TODO: get from wrapped SoapBinding
+        if (this.soapBinding instanceof SoapBindingInfo) {
+            SoapBindingInfo bindingInfo = (SoapBindingInfo) this.soapBinding;
+            try {
+                if (bindingInfo.getSoapVersion() instanceof Soap11) {
+                    return MessageFactory.newInstance();
+                } else if (bindingInfo.getSoapVersion() instanceof Soap12) {
+                    return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                }
+            } catch (SOAPException e) {
+                throw new WebServiceException(BUNDLE.getString("SAAJ_FACTORY_ERR"), e);
+            }
+        }
         return null;
     }
+
+    public SOAPFactory getSOAPFactory() {
+        if (this.soapBinding instanceof SoapBindingInfo) {
+            SoapBindingInfo bindingInfo = (SoapBindingInfo) this.soapBinding;
+            try {
+                if (bindingInfo.getSoapVersion() instanceof Soap11) {
+                    return SOAPFactory.newInstance();
+                } else if (bindingInfo.getSoapVersion() instanceof Soap12) {
+                    return SOAPFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                }
+            } catch (SOAPException e) {
+                throw new WebServiceException(BUNDLE.getString("SAAJ_FACTORY_ERR"), e);
+            }
+        }
+        return null;
+    }
+    
 }
