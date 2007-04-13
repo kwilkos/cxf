@@ -68,6 +68,11 @@
             <artifactId>cxf-tools-wsdlto-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -91,6 +96,14 @@
         </dependency>
     </dependencies>
 
+    <!-- will remove this after it is got sync to central repository -->
+    <repositories>
+        <repository>
+            <id>java.net</id>
+            <url>https://maven-repository.dev.java.net/repository/</url>
+            <layout>legacy</layout>
+        </repository>
+    </repositories>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/codegen-plugin</connection>

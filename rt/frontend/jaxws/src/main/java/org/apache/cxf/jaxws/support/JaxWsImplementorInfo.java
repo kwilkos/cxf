@@ -21,6 +21,8 @@ package org.apache.cxf.jaxws.support;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -47,8 +49,7 @@ public class JaxWsImplementorInfo {
 
     private Class<?> implementorClass;
     private Class<?> seiClass;
-    private WebService implementorAnnotation;
-    private WebService seiAnnotation;
+    private List<WebService> wsAnnotations = new ArrayList<WebService>(2);
     private WebServiceProvider wsProviderAnnotation;
 
     public JaxWsImplementorInfo(Class<?> ic) {
@@ -73,17 +74,14 @@ public class JaxWsImplementorInfo {
     }
 
     public String getWsdlLocation() {
-        if (null != seiAnnotation 
-            && seiAnnotation.wsdlLocation() != null
-            && !"".equals(seiAnnotation.wsdlLocation())) {
-            return seiAnnotation.wsdlLocation();
-        } else if (null != implementorAnnotation 
-            && implementorAnnotation.wsdlLocation() != null
-            && !"".equals(implementorAnnotation.wsdlLocation())) {
-            return implementorAnnotation.wsdlLocation();
-        } else if (null != wsProviderAnnotation 
-            && wsProviderAnnotation.wsdlLocation() != null
-            && !"".equals(wsProviderAnnotation.wsdlLocation())) {
+        for (WebService service : wsAnnotations) {
+            if (!StringUtils.isEmpty(service.wsdlLocation())) {
+                return service.wsdlLocation();
+            }
+        }
+        
+        if (null != wsProviderAnnotation 
+            && !StringUtils.isEmpty(wsProviderAnnotation.wsdlLocation())) {
             return wsProviderAnnotation.wsdlLocation();
         }
         return null;
@@ -97,14 +95,20 @@ public class JaxWsImplementorInfo {
     public QName getServiceName() {
         String serviceName = null;
         String namespace = null;
-        if (implementorAnnotation != null) {
-            serviceName = implementorAnnotation.serviceName();
-            namespace = implementorAnnotation.targetNamespace();
-        } else if (wsProviderAnnotation != null) {
+
+        for (WebService service : wsAnnotations) {
+            if (!StringUtils.isEmpty(service.serviceName())) {
+                serviceName = service.serviceName();
+            }
+            if (!StringUtils.isEmpty(service.targetNamespace())) {
+                namespace = service.targetNamespace();
+            }
+        }
+        
+        if ((serviceName == null || namespace == null) 
+            && wsProviderAnnotation != null) {
             serviceName = wsProviderAnnotation.serviceName();
             namespace = wsProviderAnnotation.targetNamespace();
-        } else {
-            return null;
         }
 
         if (StringUtils.isEmpty(serviceName)) {
@@ -126,14 +130,18 @@ public class JaxWsImplementorInfo {
     public QName getEndpointName() {
         String portName = null;
         String namespace = null;
-        if (implementorAnnotation != null) {
-            portName = implementorAnnotation.portName();
-            namespace = implementorAnnotation.targetNamespace();
-        } else if (wsProviderAnnotation != null) {
+        for (WebService service : wsAnnotations) {
+            if (!StringUtils.isEmpty(service.portName())) {
+                portName = service.portName();
+            }
+            if (!StringUtils.isEmpty(service.targetNamespace())) {
+                namespace = service.targetNamespace();
+            }
+        }
+        if ((portName == null || namespace == null) 
+            && wsProviderAnnotation != null) {
             portName = wsProviderAnnotation.portName();
             namespace = wsProviderAnnotation.targetNamespace();
-        } else {
-            return null;
         }
 
         if (StringUtils.isEmpty(portName)) {
@@ -150,31 +158,38 @@ public class JaxWsImplementorInfo {
     public QName getInterfaceName() {
         String name = null;
         String namespace = null;
-
-        if (seiAnnotation != null) {
-            if (StringUtils.isEmpty(seiAnnotation.name())) {
-                name = seiClass.getSimpleName();
-            } else {
-                name = seiAnnotation.name();
+        
+        if (seiClass != null) {
+            WebService service = seiClass.getAnnotation(WebService.class);
+            if (!StringUtils.isEmpty(service.name())) {
+                name = service.name();
             }
-            if (StringUtils.isEmpty(seiAnnotation.targetNamespace())) {
-                namespace = getDefaultNamespace(seiClass);
-            } else {
-                namespace = seiAnnotation.targetNamespace();
-            }
-        } else if (implementorAnnotation != null) {
-            if (StringUtils.isEmpty(implementorAnnotation.name())) {
-                name = implementorClass.getSimpleName();
-            } else {
-                name = implementorAnnotation.name();
-            }
-            if (StringUtils.isEmpty(implementorAnnotation.targetNamespace())) {
-                namespace = getDefaultNamespace(implementorClass);
-            } else {
-                namespace = implementorAnnotation.targetNamespace();
+            if (!StringUtils.isEmpty(service.targetNamespace())) {
+                namespace = service.targetNamespace();
             }
         } else {
-            return null;
+            for (WebService service : wsAnnotations) {
+                if (!StringUtils.isEmpty(service.name())) {
+                    name = service.name();
+                }
+                if (!StringUtils.isEmpty(service.targetNamespace())) {
+                    namespace = service.targetNamespace();
+                }
+            }
+        }
+        if (name == null) {
+            if (seiClass != null) {
+                name = seiClass.getSimpleName();
+            } else if (implementorClass != null) {
+                name = implementorClass.getSimpleName();
+            }
+        }
+        if (namespace == null) {
+            if (seiClass != null) {
+                namespace = getDefaultNamespace(seiClass);
+            } else if (implementorClass != null) {
+                namespace = getDefaultNamespace(implementorClass);
+            }
         }
         
         return new QName(namespace, name);
@@ -199,33 +214,46 @@ public class JaxWsImplementorInfo {
         return null;
     }
 
-    private void initialise() {
-        implementorAnnotation = implementorClass.getAnnotation(WebService.class);
-        if (null != implementorAnnotation) {
-            String sei = implementorAnnotation.endpointInterface();
-            if (StringUtils.isEmpty(sei)) {
-                sei = getWSInterfaceName(implementorClass);                
+    private String getImplementorClassName() {
+        for (WebService service : wsAnnotations) {
+            if (!StringUtils.isEmpty(service.endpointInterface())) {
+                return service.endpointInterface();
             }
-            if (!StringUtils.isEmpty(sei)) {
-                try {
-                    seiClass = ClassLoaderUtils.loadClass(sei, implementorClass);
-                } catch (ClassNotFoundException ex) {
-                    throw new WebServiceException(BUNDLE.getString("SEI_LOAD_FAILURE_MSG"), ex);
-                }
-                seiAnnotation = seiClass.getAnnotation(WebService.class);
-                if (null == seiAnnotation) {
-                    throw new WebServiceException(BUNDLE.getString("SEI_WITHOUT_WEBSERVICE_ANNOTATION_EXC"));
-                }
-                if (!StringUtils.isEmpty(seiAnnotation.portName())
-                    || !StringUtils.isEmpty(seiAnnotation.serviceName())
-                    || !StringUtils.isEmpty(seiAnnotation.endpointInterface())) {
-                    String expString = BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC");
-                    throw new WebServiceException(expString);
-                }
-            }
-        } else {
-            wsProviderAnnotation = implementorClass.getAnnotation(WebServiceProvider.class);
         }
+        return null;
+    }
+    private void initialise() {
+        Class<?> cls = implementorClass;
+        while (cls != null) {
+            WebService annotation = implementorClass.getAnnotation(WebService.class);
+            if (annotation != null) {
+                wsAnnotations.add(annotation); 
+            }
+            cls = cls.getSuperclass();
+        }
+        String sei = getImplementorClassName();
+        if (StringUtils.isEmpty(sei)) {
+            sei = getWSInterfaceName(implementorClass);                
+        }
+        if (!StringUtils.isEmpty(sei)) {
+            try {
+                seiClass = ClassLoaderUtils.loadClass(sei, implementorClass);
+            } catch (ClassNotFoundException ex) {
+                throw new WebServiceException(BUNDLE.getString("SEI_LOAD_FAILURE_MSG"), ex);
+            }
+            WebService seiAnnotation = seiClass.getAnnotation(WebService.class);
+            if (null == seiAnnotation) {
+                throw new WebServiceException(BUNDLE.getString("SEI_WITHOUT_WEBSERVICE_ANNOTATION_EXC"));
+            }
+            if (!StringUtils.isEmpty(seiAnnotation.portName())
+                || !StringUtils.isEmpty(seiAnnotation.serviceName())
+                || !StringUtils.isEmpty(seiAnnotation.endpointInterface())) {
+                String expString = BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC");
+                throw new WebServiceException(expString);
+            }
+            wsAnnotations.add(seiAnnotation);
+        }
+        wsProviderAnnotation = implementorClass.getAnnotation(WebServiceProvider.class);
     }
 
     public boolean isWebServiceProvider() {
