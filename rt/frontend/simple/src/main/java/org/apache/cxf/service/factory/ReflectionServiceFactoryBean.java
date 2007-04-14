@@ -240,18 +240,28 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         this.populateFromClass = fomClass;
     }
     
+    protected InterfaceInfo getInterfaceInfo() {
+        if (getEndpointInfo() != null) {
+            return getEndpointInfo().getInterface();
+        }
+        QName qn = this.getInterfaceName();
+        for (ServiceInfo si : getService().getServiceInfos()) {
+            if (qn.equals(si.getInterface().getName())) {
+                return si.getInterface();
+            }
+        }
+        throw new ServiceConstructionException(new Message("COULD_NOT_FIND_PORTTYPE", BUNDLE, qn));
+    }
+    
     protected void initializeWSDLOperations() {
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
-
-        InterfaceInfo intf;
-        if (getEndpointInfo() != null) {
-            intf = getEndpointInfo().getInterface();
-        } else {
-            intf = getService().getServiceInfos().get(0).getInterface();
-        }
+        getInterfaceInfo();
+        
+        InterfaceInfo intf = getInterfaceInfo();
 
         Map<QName, Method> validMethods = new HashMap<QName, Method>();
+        
         for (Method m : methods) {
             if (isValidMethod(m)) {
                 QName opName = getOperationName(intf, m);

@@ -106,11 +106,12 @@ public class ServiceImpl extends ServiceDelegate {
         for (ServiceInfo si : service.getServiceInfos()) { 
             for (EndpointInfo ei : si.getEndpoints()) {
                 this.ports.add(ei.getName());
+                addPort(ei.getName(), ei.getBinding().getBindingId(), ei.getAddress());
             }
         }
     }
 
-    public void addPort(QName portName, String bindingId, String address) {
+    public final void addPort(QName portName, String bindingId, String address) {
         PortInfoImpl portInfo = new PortInfoImpl(bindingId, portName, serviceName);
         portInfo.setAddress(address);
         portInfos.put(portName, portInfo);
@@ -122,15 +123,16 @@ public class ServiceImpl extends ServiceDelegate {
         if (portName == null) {
             ei = service.getServiceInfos().get(0).getEndpoints().iterator().next();
         } else {
-            PortInfoImpl portInfo = getPortInfo(portName);
-            if (null != portInfo) {
-                try {
-                    ei = createEndpointInfo(sf, portName, portInfo);
-                } catch (BusException e) {
-                    throw new WebServiceException(e);
+            ei = service.getEndpointInfo(portName);
+            if (ei == null) {
+                PortInfoImpl portInfo = getPortInfo(portName);
+                if (null != portInfo) {
+                    try {
+                        ei = createEndpointInfo(sf, portName, portInfo);
+                    } catch (BusException e) {
+                        throw new WebServiceException(e);
+                    }
                 }
-            } else {
-                ei = service.getEndpointInfo(portName);
             }
         }
 
@@ -303,6 +305,7 @@ public class ServiceImpl extends ServiceDelegate {
         configureObject(jaxwsEndpoint);  
                                       
         List<Handler> hc = jaxwsEndpoint.getJaxwsBinding().getHandlerChain();
+        
         hc.addAll(handlerResolver.getHandlerChain(portInfos.get(portName)));
 
         LOG.log(Level.FINE, "created proxy", obj);

@@ -137,8 +137,14 @@ public class JaxWsImplementorInfo {
             if (!StringUtils.isEmpty(service.targetNamespace())) {
                 namespace = service.targetNamespace();
             }
+            
+            if (!StringUtils.isEmpty(portName)
+                && !StringUtils.isEmpty(namespace)) {
+                break;
+            }
         }
-        if ((portName == null || namespace == null) 
+        if ((StringUtils.isEmpty(portName) 
+            || StringUtils.isEmpty(namespace)) 
             && wsProviderAnnotation != null) {
             portName = wsProviderAnnotation.portName();
             namespace = wsProviderAnnotation.targetNamespace();

@@ -176,6 +176,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
         // rpc out-message-part-info class mapping
         Operation op = (Operation)o.getProperty(WSDLServiceBuilder.WSDL_OPERATION);
+        
         initializeClassInfo(o, method, op == null ? null
             : CastUtils.cast(op.getParameterOrdering(), String.class));
     }
@@ -339,6 +340,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             Class paramType = paramTypes[i];
             Type genericType = genericTypes[i];
 
+            
             initializeParameter(o, method, i, paramType, genericType);
         }
 
