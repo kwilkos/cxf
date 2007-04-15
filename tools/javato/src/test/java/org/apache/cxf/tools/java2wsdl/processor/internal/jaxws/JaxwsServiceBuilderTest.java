@@ -115,7 +115,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
     }
     
-    //FIXME: CXF-519
+    //FIXME: CXF-519, CXF-533
     @Test
     @Ignore
     public void testDocLit() throws Exception {

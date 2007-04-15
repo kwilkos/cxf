@@ -214,10 +214,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         getDataBinding().initialize(service);
         
         if (isWrapped()) {
-            initializeWrappedElementNames(serviceInfo);
-        }
-        
-        if (isWrapped()) {
             initializeWrappedSchema(serviceInfo);
         }      
     }
@@ -342,7 +338,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (uOp.hasInput()) {
                 MessageInfo msg = new MessageInfo(op, uOp.getInput().getName());                
                 op.setInput(uOp.getInputName(), msg);
-                msg.addMessagePart(uOp.getInput().getName());
+                
+                createInputWrappedMessageParts(uOp, m, msg);
+                //msg.addMessagePart(uOp.getInput().getName());
                 
                 for (MessagePartInfo p : uOp.getInput().getMessageParts()) {                    
                     p.setConcreteName(p.getName());
@@ -355,8 +353,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 MessageInfo msg = new MessageInfo(op, name);
                 op.setOutput(uOp.getOutputName(), msg);
                 
-                MessagePartInfo part = msg.addMessagePart(name);
-                part.setIndex(-1);
+                createOutputWrappedMessageParts(uOp, m, msg);
+                /*                
+                                MessagePartInfo part = msg.addMessagePart(name);
+                                part.setIndex(-1);
+                */   
                 
                 for (MessagePartInfo p : uOp.getOutput().getMessageParts()) {
                     p.setConcreteName(p.getName());
@@ -370,26 +371,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
 
         return op;
-    }
-
-    private void initializeWrappedElementNames(ServiceInfo serviceInfo) {
-        for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
-            if (op.hasInput()) {
-                setElementNameOnPart(op.getInput());
-            }
-            if (op.hasOutput()) {
-                setElementNameOnPart(op.getOutput());
-            }
-        }
-    }
-
-    private void setElementNameOnPart(MessageInfo m) {
-        List<MessagePartInfo> parts = m.getMessageParts();
-        if (parts.size() == 1) {
-            MessagePartInfo p = parts.get(0);
-            p.setElement(true);
-            p.setElementQName(m.getName());
-        }
     }
 
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
@@ -515,7 +496,39 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         initializeFaults(intf, op, method);
     }
-
+    
+    protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
+        MessagePartInfo part = inMsg.addMessagePart(op.getInputName());
+        part.setElement(true);
+        for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
+            AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
+            QName q = c.getRequestWrapperName(op, method);
+            if (q != null) {
+                part.setElementQName(q);
+            }
+        }
+        if (part.getElementQName() == null) {
+            part.setElementQName(inMsg.getName());
+        }
+    }  
+    
+    protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
+        MessagePartInfo part = inMsg.addMessagePart(op.getOutputName());
+        part.setElement(true);
+        part.setIndex(-1);
+        for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
+            AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
+            QName q = c.getResponseWrapperName(op, method);
+            if (q != null) {
+                part.setElementQName(q);              
+            }
+        }
+        
+        if (part.getElementQName() == null) {
+            part.setElementQName(inMsg.getName());
+        }
+    }     
+    
     // TODO: Remove reference to JAX-WS holder if possible
     // We do need holder support in the simple frontend though as Aegis has its own
     // holder class. I'll tackle refactoring this into a more generic way of handling

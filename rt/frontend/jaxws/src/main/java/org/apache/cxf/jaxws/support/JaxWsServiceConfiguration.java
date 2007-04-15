@@ -325,36 +325,6 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
     
     @Override
-    public QName getOutputMessageName(OperationInfo op, Method method) {
-        Method m = getDeclaredMethod(method);
-        ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
-        if (rw == null) {
-            return null;
-        }
-        String nm = rw.targetNamespace();
-        String lp = rw.localName();
-        if (nm.length() > 0 && lp.length() > 0) {            
-            return new QName(nm, lp); 
-        } 
-        return null;
-    }
-    
-    @Override
-    public QName getInputMessageName(OperationInfo op, Method method) {
-        Method m = getDeclaredMethod(method);
-        RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
-        if (rw == null) {
-            return null;
-        }
-        String nm = rw.targetNamespace();
-        String lp = rw.localName();
-        if (nm.length() > 0 && lp.length() > 0) {            
-            return new QName(nm, lp); 
-        } 
-        return null;        
-    }
-
-    @Override
     public Boolean isOutParam(Method method, int j) {
         method = getDeclaredMethod(method);
         if (j == -1) {
@@ -370,6 +340,37 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         return method.getParameterTypes()[j] == Holder.class;
     }
 
+    @Override
+    public QName getRequestWrapperName(OperationInfo op, Method method) {
+        Method m = getDeclaredMethod(method);
+        RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
+        if (rw == null) {
+            return null;
+        }
+        String nm = rw.targetNamespace();
+        String lp = rw.localName();
+        if (nm.length() > 0 && lp.length() > 0) {            
+            return new QName(nm, lp); 
+        } 
+        return null;        
+    }  
+    
+    @Override
+    public QName getResponseWrapperName(OperationInfo op, Method method) {
+        Method m = getDeclaredMethod(method);
+        ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
+        if (rw == null) {
+            return null;
+        }
+        String nm = rw.targetNamespace();
+        String lp = rw.localName();
+        if (nm.length() > 0 && lp.length() > 0) {            
+            return new QName(nm, lp); 
+        } 
+        return null;      
+    }
+    
+    
     @Override
     public Class getResponseWrapper(Method selected) {
         Method m = getDeclaredMethod(selected);

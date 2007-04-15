@@ -144,7 +144,15 @@ public abstract class AbstractServiceConfiguration {
     public QName getEndpointName() {
         return null;
     }
-
+    
+    public QName getRequestWrapperName(OperationInfo op, Method method) {
+        return null;        
+    }  
+    
+    public QName getResponseWrapperName(OperationInfo op, Method method) {
+        return null;        
+    }  
+ 
     public Class getResponseWrapper(Method selected) {
         return null;
     }

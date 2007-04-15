@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.support;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -35,6 +36,7 @@ import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.junit.Test;
 
@@ -134,4 +136,55 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
         */
     }
+    
+    @Test
+    public void testWrappedDocLit() throws Exception {
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        Bus bus = getBus();
+        bean.setBus(bus);
+        bean.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
+        Service service = bean.create();
+        
+        ServiceInfo si = service.getServiceInfos().get(0);
+        InterfaceInfo intf = si.getInterface();
+        
+        assertEquals(4, intf.getOperations().size());
+        
+        String ns = si.getName().getNamespaceURI();
+        assertEquals("http://apache.org/hello_world_doc_lit", ns);
+        OperationInfo greetMeOp = intf.getOperation(new QName(ns, "greetMe"));
+        assertNotNull(greetMeOp);
+        
+        assertEquals("greetMe", greetMeOp.getInput().getName().getLocalPart());
+        assertEquals("http://apache.org/hello_world_doc_lit", greetMeOp.getInput().getName()
+            .getNamespaceURI());
+       
+        List<MessagePartInfo> messageParts = greetMeOp.getInput().getMessageParts();
+        assertEquals(1, messageParts.size());
+        
+        MessagePartInfo inMessagePart = messageParts.get(0);
+        assertEquals("http://apache.org/hello_world_doc_lit", inMessagePart.getName().getNamespaceURI());
+        assertEquals("http://apache.org/hello_world_doc_lit/types", inMessagePart.getElementQName()
+            .getNamespaceURI());
+        
+        
+        // test output
+        messageParts = greetMeOp.getOutput().getMessageParts();
+        assertEquals(1, messageParts.size());
+        assertEquals("greetMeResponse", greetMeOp.getOutput().getName().getLocalPart());
+        
+        MessagePartInfo outMessagePart = messageParts.get(0);
+        assertEquals("greetMeResponse", outMessagePart.getName().getLocalPart());
+        assertEquals("http://apache.org/hello_world_doc_lit", outMessagePart.getName().getNamespaceURI());
+        assertEquals("http://apache.org/hello_world_doc_lit/types", outMessagePart.getElementQName()
+            .getNamespaceURI());
+
+        
+        OperationInfo greetMeOneWayOp = si.getInterface().getOperation(new QName(ns, "greetMeOneWay"));
+        assertEquals(1, greetMeOneWayOp.getInput().getMessageParts().size());
+        
+        //FIXME: CXF-533
+        //assertEquals(0, greetMeOneWayOp.getOutput().getMessageParts().size());
+    }
+
 }
