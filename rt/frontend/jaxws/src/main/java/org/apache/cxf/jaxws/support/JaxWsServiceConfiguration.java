@@ -182,6 +182,10 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         String tns = mi.getName().getNamespaceURI();
         QName ret = null;
         if (param != null) {
+            /*if (param.targetNamespace().length() > 0) {
+                tns = param.targetNamespace();
+            }*/
+
             String local = param.partName();
             if (local.length() == 0) {
                 local = param.name();
@@ -250,7 +254,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {
+    public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {       
         method = getDeclaredMethod(method);
         
         if (paramNumber >= 0) {
@@ -474,7 +478,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             return webResult != null && webResult.header();
         }
     }
-
+    
     @Override
     public String getStyle() {
         SOAPBinding ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
@@ -483,5 +487,31 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
         return "document";
     }
+    
+    
+    
+    @Override
+    public Boolean isRPC(Method method) {
+        SOAPBinding ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return ann.style().equals(SOAPBinding.Style.RPC);
+        }
+        ann = method.getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return ann.style().equals(SOAPBinding.Style.RPC);
+        }
+        return Boolean.FALSE;
+    }
+    
+   /* 
+    @Override 
+    public Boolean hasOutMessage(Method method) {
+        Annotation anno = method.getAnnotation(Oneway.class);
+        if (anno != null) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+    */
     
 }

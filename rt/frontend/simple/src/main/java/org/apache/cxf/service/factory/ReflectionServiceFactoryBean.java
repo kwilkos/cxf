@@ -257,7 +257,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         InterfaceInfo intf = getInterfaceInfo();
 
         Map<QName, Method> validMethods = new HashMap<QName, Method>();
-        
         for (Method m : methods) {
             if (isValidMethod(m)) {
                 QName opName = getOperationName(intf, m);
@@ -328,7 +327,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected OperationInfo createOperation(ServiceInfo serviceInfo, InterfaceInfo intf, Method m) {
         OperationInfo op = intf.addOperation(getOperationName(intf, m));
-
         if (isWrapped(m)) {
             UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
             op.setUnwrappedOperation(uOp);
@@ -444,14 +442,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         final Class[] paramClasses = method.getParameterTypes();
 
         // Setup the input message
-        MessageInfo inMsg = op.createMessage(getInputMessageName(op, method));        
+        MessageInfo inMsg = op.createMessage(this.getInputMessageName(op, method));        
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
 
         for (int j = 0; j < paramClasses.length; j++) {
             if (isInParam(method, j)) {
-                final QName q = getInParameterName(op, method, j);
+                final QName q = getInParameterName(op, method, j);                
                 final QName q2 = getInPartName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q2);
+                //if Docoument ,Bare
+                if (!isRPC(method) && !isWrapped(method) && wrappedStyle == null) {
+                    part.setElementQName(q);
+                } 
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                 //TODO - RPC vs DOC (type vs element)
                 if (isHeader(method, j)) {
@@ -461,25 +463,34 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 part.setIndex(j);
             }
         }
-
+        
         if (hasOutMessage(method)) {
             // Setup the output message
-            MessageInfo outMsg = op.createMessage(createOutputMessageName(op, method));
+            MessageInfo  outMsg = op.createMessage(createOutputMessageName(op, method));
             op.setOutput(outMsg.getName().getLocalPart(), outMsg);
-
             final Class<?> returnType = method.getReturnType();
             if (!returnType.isAssignableFrom(void.class)) {
-                final QName q = getOutPartName(op, method, -1);                
+                final QName q = getOutPartName(op, method, -1); 
+                QName q2 = getOutParameterName(op, method, -1);
                 MessagePartInfo part = outMsg.addMessagePart(q);
+                if (!isRPC(method) && !isWrapped(method)) {
+                    part.setElementQName(q2);
+                } 
                 initializeParameter(part, method.getReturnType(), method.getGenericReturnType());
                 part.setIndex(-1);
             }
 
             for (int j = 0; j < paramClasses.length; j++) {
                 if (isOutParam(method, j)) {
+                    if (outMsg == null) {
+                        outMsg = op.createMessage(createOutputMessageName(op, method)); 
+                    }
                     final QName q = getOutPartName(op, method, j);
                     final QName q2 = getOutParameterName(op, method, j);
-                    MessagePartInfo part = outMsg.addMessagePart(q);
+                    MessagePartInfo part = outMsg.addMessagePart(q);               
+                    if (!isRPC(method) && !isWrapped(method) && wrappedStyle == null) {
+                        part.setElementQName(q2);
+                    } 
                     initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                     part.setIndex(j);
                     
@@ -492,11 +503,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                 }
             }
+            
         }
 
         initializeFaults(intf, op, method);
     }
-    
+
     protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
         MessagePartInfo part = inMsg.addMessagePart(op.getInputName());
         part.setElement(true);
@@ -830,6 +842,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (q != null) {
                 return q;
             }
+            
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -986,7 +999,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return true;
     }
-
+    
+    
     public String getStyle() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String style = c.getStyle();
@@ -995,6 +1009,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
         }
         return "document";
+    }
+    
+    public boolean isRPC(Method method) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Boolean b = c.isRPC(method);
+            if (b != null) {
+                return b.booleanValue();
+            }
+        }
+        return true;
     }
 
     public void setWrapped(boolean style) {

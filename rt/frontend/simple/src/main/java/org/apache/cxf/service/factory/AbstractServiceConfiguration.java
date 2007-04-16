@@ -160,4 +160,8 @@ public abstract class AbstractServiceConfiguration {
     public Class getRequestWrapper(Method selected) {
         return null;
     }
+    
+    public Boolean isRPC(Method selected) {
+        return null;
+    }
 }

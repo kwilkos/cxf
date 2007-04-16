@@ -101,7 +101,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
     // TODO:
     @Test
-    @Ignore
     public void testDocWrapparBare() throws Exception {
 
         builder.setServiceClass(org.apache.hello_world_doc_wrapped_bare.Greeter.class);
@@ -114,7 +113,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
     }
-    
+
     //FIXME: CXF-519, CXF-533
     @Test
     @Ignore
@@ -256,5 +255,5 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     private File getOutputFile(String fileName) {
         return new File(output, fileName);
     }
-    
+
 }
