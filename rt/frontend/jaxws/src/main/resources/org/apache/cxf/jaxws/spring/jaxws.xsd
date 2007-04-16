@@ -78,6 +78,7 @@
             <xsd:element name="outInterceptors" type="xsd:anyType" minOccurs="0"/>
             <xsd:element name="outFaultInterceptors" type="xsd:anyType" minOccurs="0"/>
             <xsd:element name="properties" type="beans:mapType" minOccurs="0"/>
+            <xsd:element name="conduitSelector" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
           <xsd:attribute name="address" type="xsd:string" />
           <xsd:attribute name="bindingUri" type="xsd:string" />

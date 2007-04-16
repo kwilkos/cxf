@@ -119,7 +119,7 @@ public class RMManager extends RMManagerConfigBean {
                 AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
                 replyTo = maps.getReplyTo();
             } 
-            rme.initialise(message.getExchange().getConduit(), replyTo);
+            rme.initialise(message.getExchange().getConduit(message), replyTo);
             reliableEndpoints.put(endpoint, rme); 
             LOG.fine("Created new RMEndpoint.");
         }
@@ -175,7 +175,7 @@ public class RMManager extends RMManagerConfigBean {
                     acksTo = VersionTransformer.convert(maps.getReplyTo()); 
                     if (RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
                         org.apache.cxf.transport.Destination dest = message.getExchange()
-                            .getConduit().getBackChannel();
+                            .getConduit(message).getBackChannel();
                         if (null == dest) {
                             acksTo = RMUtils.createAnonymousReference2004();
                         } else {

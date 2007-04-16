@@ -275,7 +275,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     private void clientResend(Message message) {
-        Conduit c = message.getExchange().getConduit();
+        Conduit c = message.getExchange().getConduit(message);
         try {
 
             // get registered callbacks, create new output stream and

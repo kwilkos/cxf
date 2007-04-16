@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
 public interface Message extends StringMap {
@@ -68,11 +67,6 @@ public interface Message extends StringMap {
     
     InterceptorChain getInterceptorChain();
     void setInterceptorChain(InterceptorChain chain);
-    
-    /**
-     * @return the associated Conduit if message is outbound, null otherwise
-     */
-    Conduit getConduit();
 
     /**
      * @return the associated Destination if message is inbound, null otherwise

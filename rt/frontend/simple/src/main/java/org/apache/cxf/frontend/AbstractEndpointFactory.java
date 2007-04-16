@@ -33,6 +33,7 @@ import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
@@ -62,6 +63,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private Map<String, Object> properties;
     private List<AbstractWSFeature> features;
     private BindingConfiguration bindingConfig;
+    private ConduitSelector conduitSelector;
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         Service service = serviceFactory.getService();
@@ -333,4 +335,11 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         getServiceFactory().setWsdlURL(wsdlURL);
     }
     
+    public ConduitSelector getConduitSelector() {
+        return conduitSelector;
+    }
+
+    public void setConduitSelector(ConduitSelector selector) {
+        conduitSelector = selector;
+    }
 }

@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
 /**
@@ -78,10 +77,6 @@ public abstract class AbstractWrappedMessage implements Message {
 
     public void setMessage(Message message) {
         this.message = message;
-    }
-
-    public Conduit getConduit() {
-        return message.getConduit();
     }
     
     public Destination getDestination() {

@@ -200,7 +200,7 @@ public class RMManagerTest extends Assert {
         EasyMock.expect(exchange.getInMessage()).andReturn(null).anyTimes();
         EasyMock.expect(exchange.getOutFaultMessage()).andReturn(null).anyTimes();
         Conduit conduit = control.createMock(Conduit.class);
-        EasyMock.expect(exchange.getConduit()).andReturn(conduit).anyTimes();
+        EasyMock.expect(exchange.getConduit(message)).andReturn(conduit).anyTimes();
         EasyMock.expect(conduit.getBackChannel()).andReturn(null).anyTimes();
         Identifier inSid = control.createMock(Identifier.class);        
         AddressingProperties maps = control.createMock(AddressingProperties.class);

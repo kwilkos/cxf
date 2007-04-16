@@ -49,9 +49,10 @@ public interface Exchange extends StringMap {
     void setDestination(Destination destination);
 
     /**
+     * @param message the associated message
      * @return the associated outgoing Conduit (may be anonymous)
      */
-    Conduit getConduit();
+    Conduit getConduit(Message message);
 
     /**
      * @param conduit the associated outgoing Conduit 

@@ -43,7 +43,11 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     serviceClass="org.apache.hello_world_soap_http.Greeter"
     address="http://localhost:9000/foo"
     serviceName="s:SOAPService"
-    xmlns:s="http://apache.org/hello_world_soap_http"/>
+    xmlns:s="http://apache.org/hello_world_soap_http">
+    <jaxws:conduitSelector>
+      <bean class="org.apache.cxf.endpoint.NullConduitSelector"/>
+    </jaxws:conduitSelector>
+  </jaxws:client>
     
 <!--
   

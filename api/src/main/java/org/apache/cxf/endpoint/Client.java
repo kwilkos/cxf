@@ -78,4 +78,18 @@ public interface Client extends InterceptorProvider, MessageObserver {
      * @return Conduit
      */
     Conduit getConduit();
+    
+    /**
+     * Get the ConduitSelector responsible for retreiving the Conduit.
+     * 
+     * @return the current ConduitSelector
+     */
+    ConduitSelector getConduitSelector();
+
+    /**
+     * Set the ConduitSelector responsible for retreiving the Conduit.
+     * 
+     * @param selector the ConduitSelector to use
+     */
+    void setConduitSelector(ConduitSelector selector);
 }

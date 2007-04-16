@@ -19,7 +19,6 @@
 
 package org.apache.cxf.endpoint;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +32,6 @@ import javax.xml.namespace.QName;
 import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.i18n.UncheckedException;
@@ -41,12 +39,12 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.ClientOutFaultObserver;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
@@ -59,8 +57,6 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
@@ -71,7 +67,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     
     protected Bus bus;
     protected Endpoint endpoint;
-    protected Conduit initedConduit;
+    protected ConduitSelector conduitSelector;
     protected ClientOutFaultObserver outFaultObserver; 
     protected int synchronousTimeout = 10000; // default 10 second timeout
 
@@ -84,7 +80,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         endpoint = e;
         outFaultObserver = new ClientOutFaultObserver(bus);
         if (null != c) {
-            initedConduit = c;
+            conduitSelector = new PreexistingConduitSelector(c);
         }
     }
 
@@ -111,7 +107,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             throw new IllegalStateException("Unable to create endpoint: " + epex.getMessage(), epex);
         }
     }
-    
 
     private EndpointInfo findEndpoint(Service svc, QName port) {
         EndpointInfo epfo;
@@ -203,7 +198,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         exchange.setOutMessage(message);
         
         setOutMessageProperties(message, oi);
-        setExchangeProperties(exchange, requestContext, oi);
+        setExchangeProperties(exchange, oi);
         
         // setup chain
 
@@ -212,24 +207,15 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         
         modifyChain(chain, requestContext);
         chain.setFaultObserver(outFaultObserver);
-        
-        if (requestContext != null 
-            && requestContext.containsKey(Message.ENDPOINT_ADDRESS)) {
-            endpoint.getEndpointInfo().setAddress((String)requestContext.get(Message.ENDPOINT_ADDRESS));
-        }
-        
-        
-        // setup conduit
-        Conduit conduit = getConduit();
-        exchange.setConduit(conduit);
-        conduit.setMessageObserver(this);
-        
-        //set clientImpl to exchange. used by jax-ws handlers
-        exchange.put(Client.class, this);
+                
+        // setup conduit selector
+        prepareConduitSelector(message);
         
         // execute chain
         chain.doIntercept(message);
 
+        getConduitSelector().complete(exchange);
+        
         // Check to see if there is a Fault from the outgoing chain
         Exception ex = message.getContent(Exception.class);
         
@@ -371,21 +357,17 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
     }
 
-    public Conduit getConduit() {        
-        if (null == initedConduit) {
-            EndpointInfo ei = endpoint.getEndpointInfo();
-            String transportID = ei.getTransportId();
-            try {
-                ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
-                    .getConduitInitiator(transportID);
-                initedConduit = ci.getConduit(ei);
-            } catch (BusException ex) {
-                throw new Fault(ex);
-            } catch (IOException ex) {
-                throw new Fault(ex);
-            }
-        }
-        return initedConduit;
+    public Conduit getConduit() {
+        Message message = new MessageImpl();
+        Exchange exchange = new ExchangeImpl();
+        message.setExchange(exchange);
+        setExchangeProperties(exchange, null);
+        return getConduitSelector().selectConduit(message);
+    }
+
+    protected void prepareConduitSelector(Message message) {
+        getConduitSelector().prepare(message);
+        message.getExchange().put(ConduitSelector.class, getConduitSelector());
     }
 
     protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {
@@ -396,17 +378,23 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
     
     protected void setExchangeProperties(Exchange exchange,
-                                         Map<String, Object> ctx,
                                          BindingOperationInfo boi) {
        
         exchange.put(Service.class, endpoint.getService());
         exchange.put(Endpoint.class, endpoint);
-        exchange.put(ServiceInfo.class, endpoint.getEndpointInfo().getService());
-        exchange.put(InterfaceInfo.class, endpoint.getEndpointInfo().getService().getInterface());
+        if (endpoint.getEndpointInfo().getService() != null) {
+            exchange.put(ServiceInfo.class, endpoint.getEndpointInfo().getService());
+            exchange.put(InterfaceInfo.class, endpoint.getEndpointInfo().getService().getInterface());
+        }
         exchange.put(Binding.class, endpoint.getBinding());
         exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
-        exchange.put(BindingOperationInfo.class, boi);
-        exchange.put(OperationInfo.class, boi.getOperationInfo());
+        if (boi != null) {
+            exchange.put(BindingOperationInfo.class, boi);
+            exchange.put(OperationInfo.class, boi.getOperationInfo());
+        }
+                
+        exchange.put(MessageObserver.class, this);
+        exchange.put(Bus.class, bus);
     }
 
     protected PhaseInterceptorChain setupInterceptorChain() { 
@@ -451,6 +439,17 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
     public void setSynchronousTimeout(int synchronousTimeout) {
         this.synchronousTimeout = synchronousTimeout;
+    }
+    
+    public synchronized ConduitSelector getConduitSelector() {
+        if (null == conduitSelector) {
+            conduitSelector = new UpfrontConduitSelector();
+        }
+        return conduitSelector;
+    }
+
+    public void setConduitSelector(ConduitSelector selector) {
+        conduitSelector = selector;
     }
 
     private boolean isPartialResponse(Message in) {

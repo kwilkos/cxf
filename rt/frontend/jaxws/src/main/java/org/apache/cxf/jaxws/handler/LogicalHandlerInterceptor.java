@@ -24,11 +24,11 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.MessageObserver;
 
 public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSHandlerInterceptor<T> {
 
@@ -55,13 +55,12 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
                  * 3. set XMLSTreamReader to element inside Body
                  * OR
                  * message.setContent(Element.class, elementInBody);
-                 * 4. invoke Client.onMessage() starting after this.getID()
+                 * 4. invoke MessageObserver.onMessage() starting after this.getID()
                  */
-                Client client = (Client)message.getExchange().get(Client.class);
+                MessageObserver observer =
+                    (MessageObserver)message.getExchange().get(MessageObserver.class);
                 responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID, this.getId());
-                if (client != null) {
-                    //message.getExchange().put(ClientImpl.FINISHED, Boolean.TRUE);
-                    //lctx.getMessage().getPayload();
+                if (observer != null) {
                     Source inSource = message.getContent(Source.class);
                     if (inSource != null) {
                         responseMsg.setContent(Source.class, inSource);
@@ -70,7 +69,7 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
                     if (inObj != null) {
                         responseMsg.setContent(List.class, inObj);
                     }
-                    client.onMessage(responseMsg);
+                    observer.onMessage(responseMsg);
                 } else if (!message.getExchange().isOneWay()) {
                     //for the server side inbound
 

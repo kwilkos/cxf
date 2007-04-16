@@ -28,12 +28,10 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
 public class MessageImpl extends StringMapImpl implements Message {
     private Collection<Attachment> attachments;
-    private Conduit conduit;
     private Destination destination;
     private Exchange exchange;
     private String id;
@@ -53,10 +51,6 @@ public class MessageImpl extends StringMapImpl implements Message {
         return null;
     }
     
-    public Conduit getConduit() {
-        return conduit;
-    }
-
     public Destination getDestination() {
         return destination;
     }
@@ -83,10 +77,6 @@ public class MessageImpl extends StringMapImpl implements Message {
 
     public Set<Class<?>> getContentFormats() {
         return contents.keySet();
-    }
-
-    public void setConduit(Conduit c) {
-        this.conduit = c;
     }
 
     public void setDestination(Destination d) {

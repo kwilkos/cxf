@@ -26,7 +26,9 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.PreexistingConduitSelector;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -54,7 +56,7 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
         }
         Message out = ex.getOutMessage();
         if (out != null) {
-            getBackChannelConduit(ex);
+            getBackChannelConduit(message);
             if (bin != null) {
                 out.put(MessageInfo.class, bin.getOperationInfo().getOutput());
                 out.put(BindingMessageInfo.class, bin.getOutput());
@@ -69,15 +71,17 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
         }
     }
     
-    protected static Conduit getBackChannelConduit(Exchange ex) {
+    protected static Conduit getBackChannelConduit(Message message) {
         Conduit conduit = null;
-        if (ex.getConduit() == null
+        Exchange ex = message.getExchange();
+        if (ex.getConduit(message) == null
             && ex.getDestination() != null) {
             try {
                 EndpointReferenceType target =
                     ex.get(EndpointReferenceType.class);
                 conduit = ex.getDestination().getBackChannel(ex.getInMessage(), null, target);
-                ex.setConduit(conduit);
+                ex.put(ConduitSelector.class, 
+                       new PreexistingConduitSelector(conduit));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

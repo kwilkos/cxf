@@ -576,7 +576,7 @@ public class MAPAggregatorTest extends TestCase {
     private void setUpConduit(Message message, Exchange exchange) {
         setUpMessageExchange(message, exchange);        
         Conduit conduit = EasyMock.createMock(Conduit.class);
-        setUpExchangeConduit(exchange, conduit);
+        setUpExchangeConduit(message, exchange, conduit);
         EndpointReferenceType to =
             ContextUtils.WSA_OBJECT_FACTORY.createEndpointReferenceType();
         to.setAddress(ContextUtils.getAttributedURI(expectedTo));
@@ -653,8 +653,10 @@ public class MAPAggregatorTest extends TestCase {
         //exchange.setOutMessage(outbound ? message : new MessageImpl());
     }
 
-    private void setUpExchangeConduit(Exchange exchange, Conduit conduit) {
-        exchange.getConduit();
+    private void setUpExchangeConduit(Message message,
+                                      Exchange exchange,
+                                      Conduit conduit) {
+        exchange.getConduit(message);
         EasyMock.expectLastCall().andReturn(conduit);
         //exchange.setConduit(conduit);
     }

@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 
@@ -155,6 +156,14 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
 
     public void setAddress(String add) {
         clientFactoryBean.setAddress(add);
+    }
+
+    public ConduitSelector getConduitSelector() {
+        return clientFactoryBean.getConduitSelector();
+    }
+
+    public void setConduitSelector(ConduitSelector selector) {
+        clientFactoryBean.setConduitSelector(selector);
     }
 
     public ReflectionServiceFactoryBean getServiceFactory() {

@@ -68,7 +68,7 @@ public class ClientPolicyInInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Conduit conduit = exchange.getConduit();
+        Conduit conduit = exchange.getConduit(msg);
         
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with any resposes or faults returned to this client endpoint.

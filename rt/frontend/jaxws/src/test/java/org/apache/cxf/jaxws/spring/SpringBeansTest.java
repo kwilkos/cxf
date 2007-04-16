@@ -29,6 +29,9 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.NullConduitSelector;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -142,8 +145,12 @@ public class SpringBeansTest extends Assert {
         Object bean = ctx.getBean("client1.jaxwsProxyFactory");
         assertNotNull(bean);
         
-        Greeter c1 = (Greeter) ctx.getBean("client1");
-        assertNotNull(c1);
-
+        Greeter greeter = (Greeter) ctx.getBean("client1");
+        assertNotNull(greeter);
+        
+        Client client = ClientProxy.getClient(greeter);
+        assertNotNull("expected ConduitSelector", client.getConduitSelector());
+        assertTrue("unexpected ConduitSelector",
+                   client.getConduitSelector() instanceof NullConduitSelector);
     }
 }

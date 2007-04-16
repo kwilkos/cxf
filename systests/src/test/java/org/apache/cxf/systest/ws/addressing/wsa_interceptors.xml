@@ -20,6 +20,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
@@ -56,6 +57,13 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </list>
         </property>
     </bean>
+
+    <jaxws:client id="{http://apache.org/hello_world_soap_http}SoapPort" 
+                  abstract="true">
+        <jaxws:conduitSelector>
+            <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
+        </jaxws:conduitSelector>
+    </jaxws:client>
     
     <!-- Configuring the service level interceptors would work also but is not as convenient
          as we have to remember to include the default interceptors. -->

@@ -30,11 +30,11 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.transport.MessageObserver;
 import org.apache.handlers.types.AddNumbersResponse;
 import org.easymock.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -124,9 +124,9 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         outMessage.setInterceptorChain(chain);
         chain.abort();
         EasyMock.expectLastCall();
-        Client client = control1.createMock(Client.class);
-        expect(exchange1.get(Client.class)).andReturn(client).anyTimes();
-        client.onMessage(isA(Message.class));
+        MessageObserver observer = control1.createMock(MessageObserver.class);
+        expect(exchange1.get(MessageObserver.class)).andReturn(observer).anyTimes();
+        observer.onMessage(isA(Message.class));
         EasyMock.expectLastCall();
 
         control1.replay();

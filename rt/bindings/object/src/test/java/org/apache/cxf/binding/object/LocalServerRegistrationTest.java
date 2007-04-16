@@ -79,7 +79,7 @@ public class LocalServerRegistrationTest extends AbstractCXFTest {
         ex.setInMessage(m);
 
         Conduit c = getLocalConduit("local://" + server);
-        m.setConduit(c);
+        ex.setConduit(c);
 
         c.setMessageObserver(new MessageObserver() {
             public void onMessage(Message message) {

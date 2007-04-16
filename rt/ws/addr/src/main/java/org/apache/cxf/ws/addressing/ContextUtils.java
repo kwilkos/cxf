@@ -38,7 +38,10 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.NullConduitSelector;
+import org.apache.cxf.endpoint.PreexistingConduitSelector;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
@@ -340,6 +343,7 @@ public final class ContextUtils {
                 Conduit backChannel = target.getBackChannel(inMessage,
                                                             partialResponse,
                                                             reference);
+
                 if (backChannel != null) {
                     // set up interceptor chains and send message
                     InterceptorChain chain =
@@ -347,8 +351,9 @@ public final class ContextUtils {
                         ? fullResponse.getInterceptorChain()
                         : OutgoingChainInterceptor.getOutInterceptorChain(exchange);
                     partialResponse.setInterceptorChain(chain);
-                    exchange.setConduit(backChannel);
-                    
+                    exchange.put(ConduitSelector.class,
+                                 new PreexistingConduitSelector(backChannel));
+
                     if (!partialResponse.getInterceptorChain().doIntercept(partialResponse) 
                             && partialResponse.getContent(Exception.class) != null) {
                         if (partialResponse.getContent(Exception.class) instanceof Fault) {
@@ -359,7 +364,7 @@ public final class ContextUtils {
                     }
                     
                     partialResponse.getInterceptorChain().reset();
-                    exchange.setConduit(null);
+                    exchange.put(ConduitSelector.class, new NullConduitSelector());
                     if (fullResponse != null) {
                         exchange.setOutMessage(fullResponse);
                     } else {
@@ -594,7 +599,7 @@ public final class ContextUtils {
     public static Conduit getConduit(Conduit conduit, Message message) {
         if (conduit == null) {
             Exchange exchange = message.getExchange();
-            conduit = exchange != null ? exchange.getConduit() : null;
+            conduit = exchange != null ? exchange.getConduit(message) : null;
         }
         return conduit;
     }

@@ -72,4 +72,13 @@ public abstract class AbstractConduit
     public void close() {
         // nothing to do by default
     }
+    
+    public String toString() {
+        return "conduit: " + this.getClass() + System.identityHashCode(this)
+               + "target: "
+               +  ((getTarget() != null
+                   && getTarget().getAddress() != null)
+                   ? getTarget().getAddress().getValue()
+                   : "null");
+    }
 }

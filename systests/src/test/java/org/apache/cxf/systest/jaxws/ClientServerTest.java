@@ -50,6 +50,7 @@ import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
 //import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
+import org.apache.cxf.interceptor.Fault;
 //import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -690,23 +691,34 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         }
     }
     
-    
+
     @Test
+    @Ignore
     public void testBogusAddress() throws Exception {
+        String realAddress = "http://localhost:9015/SoapContext/SoapPort";
         Service service = Service.create(bogusAddressServiceName);
         Greeter greeter = service.getPort(portName, Greeter.class);
         BindingProvider bp = (BindingProvider)greeter;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-                                   "http://localhost:9015/SoapContext/SoapPort");
-                                   
+                                   realAddress);
         greeter.greetMe("test");
+
+        try {
+            greeter.greetMe("test");
+            fail("expected address override not to persist beyond a single invocation");
+        } catch (Fault f) {
+            // expected
+        }
+
+        bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                                   realAddress);
         String reply = greeter.sayHi();
         assertNotNull("no response received from service", reply);
         assertEquals("Bonjour", reply);
                                    
     }
     
-    @Test   
+    @Test
     public void testDynamicClientFactory()  {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);

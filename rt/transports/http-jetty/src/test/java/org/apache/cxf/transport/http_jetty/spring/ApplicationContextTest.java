@@ -67,7 +67,7 @@ public class ApplicationContextTest extends Assert {
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
         ConduitInitiator ci = cim.getConduitInitiator("http://schemas.xmlsoap.org/soap/http");
         HTTPConduit conduit = (HTTPConduit) ci.getConduit(info);
-        assertEquals(97, conduit.getClient().getConnectionTimeout(), 0);
+        assertEquals(97, conduit.getClient().getConnectionTimeout());
         
     }
 }

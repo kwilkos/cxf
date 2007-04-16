@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxws;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +37,10 @@ import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.UpfrontConduitSelector;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
@@ -51,10 +51,6 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
 
 public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>, MessageObserver {
@@ -68,7 +64,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     private Service.Mode mode;
 
     private Endpoint endpoint;
-
+    private ConduitSelector conduitSelector;
+    
     DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {
         super(((JaxWsEndpointImpl)ep).getJaxwsBinding());
         bus = b;
@@ -128,32 +125,29 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         ContextPropertiesMapping.mapRequestfromJaxws2Cxf(message);
         
         Exchange exchange = new ExchangeImpl();
-        exchange.put(Service.Mode.class, mode);
-        exchange.put(Class.class, cl);
-        exchange.put(org.apache.cxf.service.Service.class, endpoint.getService());
 
         exchange.setOutMessage(message);
-        message.setExchange(exchange);
+        setExchangeProperties(exchange);
 
         message.setContent(Object.class, obj);
 
         PhaseInterceptorChain chain = getDispatchOutChain();
         message.setInterceptorChain(chain);
 
-        // setup conduit
-        Conduit conduit = getConduit();
-        exchange.setConduit(conduit);
-        conduit.setMessageObserver(this);
-
+        // setup conduit selector
+        prepareConduitSelector(message);
+        
         // execute chain
         chain.doIntercept(message);
+        
+        getConduitSelector().complete(exchange);
                 
         if (message.getContent(Exception.class) != null) {
             throw new RuntimeException(message.getContent(Exception.class));
         }
 
         // correlate response        
-        if (conduit.getBackChannel() != null) {
+        if (getConduitSelector().selectConduit(message).getBackChannel() != null) {
             // process partial response and wait for decoupled response
         } else {
             // process response: send was synchronous so when we get here we can assume that the 
@@ -248,24 +242,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         }
     }
 
-    private Conduit getConduit() {
-        EndpointInfo ei = endpoint.getEndpointInfo();
-        String transportID = ei.getTransportId();
-        try {
-            ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
-                .getConduitInitiator(transportID);
-            return ci.getConduit(ei);
-        } catch (BusException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        }
-
-        return null;
-    }
-
     private Executor getExecutor() {
         if (executor == null) {
             executor = endpoint.getService().getExecutor();
@@ -297,4 +273,31 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     public void invokeOneWay(T obj) {
         invoke(obj, true);
     }
+        
+    public synchronized ConduitSelector getConduitSelector() {
+        if (null == conduitSelector) {
+            conduitSelector = new UpfrontConduitSelector();
+        }
+        return conduitSelector;
+    }
+
+    public void setConduitSelector(ConduitSelector selector) {
+        conduitSelector = selector;
+    }
+    
+    protected void prepareConduitSelector(Message message) {
+        getConduitSelector().prepare(message);
+        message.getExchange().put(ConduitSelector.class, getConduitSelector());
+    }
+    
+    protected void setExchangeProperties(Exchange exchange) {
+        exchange.put(Service.Mode.class, mode);
+        exchange.put(Class.class, cl);
+        exchange.put(org.apache.cxf.service.Service.class, endpoint.getService());
+        exchange.put(Endpoint.class, endpoint);
+        
+        exchange.put(MessageObserver.class, this);
+        exchange.put(Bus.class, bus);
+    }
+
 }

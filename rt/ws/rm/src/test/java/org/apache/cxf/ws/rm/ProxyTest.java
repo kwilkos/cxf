@@ -247,7 +247,7 @@ public class ProxyTest extends Assert {
             control.createMock(org.apache.cxf.ws.addressing.EndpointReferenceType.class);
         Proxy.RMClient client = proxy.new RMClient(bus, endpoint, conduit, address);
         EndpointInfo endpointInfo = control.createMock(EndpointInfo.class);
-        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(endpointInfo);
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(endpointInfo).anyTimes();
         String oa = "oa";
         EasyMock.expect(endpointInfo.getAddress()).andReturn(oa);
         AttributedURIType uri = control.createMock(AttributedURIType.class);

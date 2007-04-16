@@ -41,19 +41,8 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
     }
 
     public void handleMessage(Message message) {
-        Exchange exchange = message.getExchange();
-        Conduit conduit =
-            message.getConduit() != null
-            ? message.getConduit()
-            : exchange.getConduit() != null
-              ? exchange.getConduit()
-              : (exchange.getOutMessage() != null
-                  || exchange.getOutFaultMessage() != null)
-                ? OutgoingChainInterceptor.getBackChannelConduit(exchange)
-                : null;
-
         try {
-            conduit.prepare(message);
+            getConduit(message).prepare(message);
         } catch (IOException ex) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_SEND", BUNDLE), ex);
         }    
@@ -69,18 +58,23 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
         }
 
         public void handleMessage(Message message) throws Fault {
-            Exchange ex = message.getExchange();
-            Conduit endingConduit = 
-                message.getConduit() != null
-                ? message.getConduit() : ex.getConduit() != null
-                    ? ex.getConduit() : (ex.getOutMessage() != null || ex.getOutFaultMessage() != null)
-                        ? OutgoingChainInterceptor.getBackChannelConduit(ex) : null;
             try {
-                endingConduit.close(message);
+                getConduit(message).close(message);
             } catch (IOException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_SEND", BUNDLE), e);
             }
         }
+    }
+    
+    private Conduit getConduit(Message message) {
+        Exchange exchange = message.getExchange();
+        Conduit conduit = exchange.getConduit(message);
+        if (conduit == null
+            && (exchange.getOutMessage() != null
+                || exchange.getOutFaultMessage() != null)) {
+            conduit = OutgoingChainInterceptor.getBackChannelConduit(message);
+        }
+        return conduit;
     }
 
 }

@@ -75,7 +75,7 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
             return;
         }
         
-        Conduit conduit = exchange.getConduit();
+        Conduit conduit = exchange.getConduit(msg);
         
         // add the required interceptors
         

@@ -55,7 +55,7 @@ public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor
     protected void getTransportAssertions(Message message) {
         Exchange ex = message.getExchange();
         Assertor assertor = null;
-        Conduit conduit = ex.getConduit();
+        Conduit conduit = ex.getConduit(message);
         if (conduit instanceof Assertor) {
             assertor = (Assertor)conduit;
         } else {

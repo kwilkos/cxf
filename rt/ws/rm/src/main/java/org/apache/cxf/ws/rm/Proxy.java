@@ -31,6 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
@@ -209,32 +210,33 @@ public class Proxy {
 
         RMClient(Bus bus, Endpoint endpoint, Conduit conduit,
             org.apache.cxf.ws.addressing.EndpointReferenceType a) {
-            super(bus, endpoint, conduit);  
+            super(bus, endpoint);  
             address = a;
+            setConduitSelector(new DeferredConduitSelector(conduit) {
+                @Override
+                public Conduit selectConduit(Message message) {
+                    Conduit conduit = null;
+                    EndpointInfo endpointInfo = getEndpoint().getEndpointInfo();
+                    String originalAddress = endpointInfo.getAddress();
+                    try {
+                        if (null != address) {
+                            endpointInfo.setAddress(address.getAddress().getValue());
+                        }
+                        conduit = super.selectConduit(message);
+                    } finally {
+                        endpointInfo.setAddress(originalAddress);
+                    }
+                    return conduit;
+                }
+            });
+
         }
 
         @Override
         public void onMessage(Message m) {
-            // TODO Auto-generated method stub
             m.getExchange().put(Endpoint.class, Proxy.this.reliableEndpoint.getApplicationEndpoint());
             super.onMessage(m);
         }    
-
-        @Override
-        public Conduit getConduit() {
-            Conduit conduit = null;
-            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
-            String originalAddress = endpointInfo.getAddress();
-            try {
-                if (null != address) {
-                    endpointInfo.setAddress(address.getAddress().getValue());
-                }
-                conduit = super.getConduit();
-            } finally {
-                endpointInfo.setAddress(originalAddress);
-            }
-            return conduit;
-        }
     }
     
     // for test
