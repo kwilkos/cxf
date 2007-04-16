@@ -16,31 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.transport;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
-import org.apache.cxf.service.Service;
 
-public class ChainInitiationObserver implements MessageObserver {
-    protected Endpoint endpoint;
+/**
+ * This MessageObserver creates an Interceptor chain which adds in the interceptors
+ * set on this class and the global Bus interceptors. At somepoint, it is expected
+ * that these interceptors will resolve the appropriate Endpoint/Binding combination
+ * and continue setting up the chain.
+ *
+ */
+public class MultipleEndpointObserver implements MessageObserver {
+    
+    public static final String ENDPOINTS = "multipleEndpointObserver.endpoints";
+    
     protected Bus bus;
-
-    public ChainInitiationObserver(Endpoint endpoint, Bus bus) {
+    protected List<Interceptor> bindingInterceptors = new ArrayList<Interceptor>();
+    protected List<Interceptor> routingInterceptors = new ArrayList<Interceptor>();
+    private Set<Endpoint> endpoints = new HashSet<Endpoint>();
+    
+    public MultipleEndpointObserver(Bus bus) {
         super();
-        this.endpoint = endpoint;
         this.bus = bus;
     }
 
-    public void onMessage(Message m) {
-        Message message = getBinding().createMessage(m);
+    public void onMessage(Message message) {
+        message = createMessage(message);
         Exchange exchange = message.getExchange();
         if (exchange == null) {
             exchange = new ExchangeImpl();
@@ -54,13 +68,25 @@ public class ChainInitiationObserver implements MessageObserver {
         message.setInterceptorChain(chain);
         
         chain.add(bus.getInInterceptors());
-        chain.add(endpoint.getInInterceptors());
-        chain.add(getBinding().getInInterceptors());
-        chain.add(endpoint.getService().getInInterceptors());
-
-        chain.setFaultObserver(endpoint.getOutFaultObserver());
-       
+        if (bindingInterceptors != null) {
+            chain.add(bindingInterceptors);
+        }
+        if (routingInterceptors != null) {
+            chain.add(routingInterceptors);
+        }
+        
+        if (endpoints != null) {
+            exchange.put(ENDPOINTS, endpoints);
+        }
+        
         chain.doIntercept(message);        
+    }
+
+    /**
+     * Give a chance for a Binding to customize their message
+     */
+    protected Message createMessage(Message message) {
+        return message;
     }
 
     protected PhaseInterceptorChain createChain() {
@@ -68,23 +94,36 @@ public class ChainInitiationObserver implements MessageObserver {
             .getInPhases());
         return chain;
     }
-
-    protected Binding getBinding() {
-        return endpoint.getBinding();
-    }
     
     protected void setExchangeProperties(Exchange exchange, Message m) {
-        exchange.put(Endpoint.class, endpoint);
-        exchange.put(Service.class, endpoint.getService());
-        exchange.put(Binding.class, getBinding());
         exchange.put(Bus.class, bus);
         if (exchange.getDestination() == null) {
             exchange.setDestination(m.getDestination());
         }
     }
 
-    public Endpoint getEndpoint() {
-        return endpoint;
+    public List<Interceptor> getBindingInterceptors() {
+        return bindingInterceptors;
+    }
+
+    public void setBindingInterceptors(List<Interceptor> bindingInterceptors) {
+        this.bindingInterceptors = bindingInterceptors;
+    }
+
+    public List<Interceptor> getRoutingInterceptors() {
+        return routingInterceptors;
+    }
+
+    public void setRoutingInterceptors(List<Interceptor> routingInterceptors) {
+        this.routingInterceptors = routingInterceptors;
+    }
+
+    public Set<Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
+    public void setEndpoints(Set<Endpoint> endpoints) {
+        this.endpoints = endpoints;
     }
     
 }

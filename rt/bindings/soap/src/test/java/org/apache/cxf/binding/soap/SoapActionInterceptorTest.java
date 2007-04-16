@@ -36,7 +36,7 @@ public class SoapActionInterceptorTest extends TestCase {
         Message message = new MessageImpl();
         message.setExchange(new ExchangeImpl());
         message.getExchange().setOutMessage(message);
-        SoapBinding sb = new SoapBinding();
+        SoapBinding sb = new SoapBinding(null);
         message = sb.createMessage(message);
         assertNotNull(message);
         assertTrue(message instanceof SoapMessage);

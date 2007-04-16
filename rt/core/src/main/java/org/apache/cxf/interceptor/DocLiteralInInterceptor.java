@@ -116,7 +116,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 }
 
                 // loop through each child element
-                while (StaxUtils.toNextElement(xmlReader)) {
+                while (StaxUtils.toNextElement(xmlReader) && itr.hasNext()) {
                     MessagePartInfo part = itr.next();
                     parameters.add(dr.read(part, xmlReader));
                 }

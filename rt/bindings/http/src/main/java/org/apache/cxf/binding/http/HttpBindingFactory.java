@@ -20,10 +20,8 @@ package org.apache.cxf.binding.http;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
@@ -50,25 +48,15 @@ import org.apache.cxf.service.model.ServiceInfo;
 public class HttpBindingFactory extends AbstractBindingFactory {
 
     public static final String HTTP_BINDING_ID = "http://apache.org/cxf/binding/http";
-    private Collection<String> activationNamespaces;
     private List<ResourceStrategy> strategies = new ArrayList<ResourceStrategy>();
 
     public HttpBindingFactory() {
         strategies.add(new JRAStrategy());
         strategies.add(new ConventionStrategy());
     }
-    
-    @Resource(name = "activationNamespaces")
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
-    
-    public Collection<String> getActivationNamespaces() {
-        return activationNamespaces;
-    }
 
     public Binding createBinding(BindingInfo bi) {
-        XMLBinding binding = new XMLBinding();
+        XMLBinding binding = new XMLBinding(bi);
         
         binding.getInInterceptors().add(new AttachmentInInterceptor());
         binding.getInInterceptors().add(new DatabindingInSetupInterceptor());

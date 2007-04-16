@@ -28,7 +28,7 @@ public class SoapBindingTest extends TestCase {
     
     public void testCreateMessage() throws Exception {
         Message message = new MessageImpl();
-        SoapBinding sb = new SoapBinding();
+        SoapBinding sb = new SoapBinding(null);
         message = sb.createMessage(message);
         assertNotNull(message);
         assertTrue(message instanceof SoapMessage);

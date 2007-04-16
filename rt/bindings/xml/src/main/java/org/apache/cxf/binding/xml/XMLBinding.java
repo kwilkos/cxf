@@ -23,12 +23,21 @@ import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.message.XMLMessage;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class XMLBinding extends AbstractBasicInterceptorProvider implements Binding {
-
-    public XMLBinding() {
-    }
     
+    private BindingInfo bindingInfo;
+    
+    public XMLBinding(BindingInfo bindingInfo) {
+        super();
+        this.bindingInfo = bindingInfo;
+    }
+
+    public BindingInfo getBindingInfo() {
+        return bindingInfo;
+    }
+
     public Message createMessage() {
         return createMessage(new MessageImpl());
     }

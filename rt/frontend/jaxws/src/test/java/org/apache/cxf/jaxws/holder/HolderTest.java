@@ -39,7 +39,6 @@ public class HolderTest extends AbstractJaxWsTest {
 
     @Override
     protected Bus createBus() throws BusException {
-        // TODO Auto-generated method stub
         return new CXFBusFactory().createBus();
     }
 

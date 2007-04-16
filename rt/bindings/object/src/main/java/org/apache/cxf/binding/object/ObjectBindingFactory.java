@@ -18,10 +18,7 @@
  */
 package org.apache.cxf.binding.object;
 
-import java.util.Collection;
-
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
@@ -37,29 +34,14 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
     public static final String BINDING_ID = "http://cxf.apache.org/binding/object";
     public static final String RUN_NON_LOGICAL  = "objectBinding.stopAfterLogical";
     
-    private Collection<String> activationNamespaces;    
-    private Bus bus;
     private boolean autoRegisterLocalEndpoint;
     private boolean initialized = true;
     private LocalServerListener listener;
     
-    public Collection<String> getActivationNamespaces() {
-        return activationNamespaces;
-    }
-
-    @Resource(name = "activationNamespaces")
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
-    
-    @Resource(name = "bus")
-    public void setBus(Bus bus) {
-        this.bus = bus;
-    }
-
     @PostConstruct
     public void initialize() {
         if (autoRegisterLocalEndpoint) {
+            Bus bus = getBus();
             ServerLifeCycleManager manager = bus.getExtension(ServerLifeCycleManager.class);
             if (manager != null) {
                 listener = new LocalServerListener(bus, this);
@@ -70,7 +52,7 @@ public class ObjectBindingFactory extends AbstractBindingFactory {
     }
     
     public Binding createBinding(BindingInfo bi) {
-        ObjectBinding binding = new ObjectBinding();
+        ObjectBinding binding = new ObjectBinding(bi);
         binding.getOutInterceptors().add(new ObjectDispatchOutInterceptor());
         binding.getInInterceptors().add(new ObjectDispatchInInterceptor());
         

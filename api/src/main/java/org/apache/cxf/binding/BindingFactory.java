@@ -19,8 +19,10 @@
 
 package org.apache.cxf.binding;
 
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.transport.Destination;
 
 /**
  * A factory interface for creating Bindings from BindingInfo metadata.
@@ -42,4 +44,6 @@ public interface BindingFactory {
      * @return
      */
     BindingInfo createBindingInfo(Service service, String namespace, Object configObject);
+    
+    void addListener(Destination d, Endpoint e);
 }

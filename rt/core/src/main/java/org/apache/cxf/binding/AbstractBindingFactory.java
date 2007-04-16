@@ -31,11 +31,14 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.ChainInitiationObserver;
+import org.apache.cxf.transport.Destination;
 import org.apache.cxf.wsdl11.WSDLBindingFactory;
 
 import static org.apache.cxf.helpers.CastUtils.cast;
@@ -44,12 +47,10 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
 
     public static final String DATABINDING_DISABLED = "databinding.disabled";
     
-    @Resource
-    Bus bus;
-    
-    @Resource
     Collection<String> activationNamespaces;
     
+    Bus bus;
+
     @PostConstruct
     void registerWithBindingManager() {
         BindingFactoryManager manager = bus.getExtension(BindingFactoryManager.class);
@@ -144,4 +145,29 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
             }
         }
     }
+
+    public void addListener(Destination d, Endpoint e) {
+        ChainInitiationObserver observer = new ChainInitiationObserver(e, bus);
+        
+        d.setMessageObserver(observer);
+    }
+
+    public Bus getBus() {
+        return bus;
+    }
+
+    @Resource(name = "bus")
+    public void setBus(Bus bus) {
+        this.bus = bus;
+    }
+
+    public Collection<String> getActivationNamespaces() {
+        return activationNamespaces;
+    }
+
+    @Resource(name = "activationNamespaces")
+    public void setActivationNamespaces(Collection<String> activationNamespaces) {
+        this.activationNamespaces = activationNamespaces;
+    }
+    
 }

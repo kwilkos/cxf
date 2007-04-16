@@ -23,31 +23,30 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.transport.MultipleEndpointObserver;
 import org.apache.hello_world_mixedstyle.GreeterImplMixedStyle;
 
 
 public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
-        //implementor1 and implementor2 are published using local transport
-        Object implementor1 = new GreeterImplMixedStyle();
-        String address1 = "local://SoapContext/version1/SoapPort";
-        Endpoint.publish(address1, implementor1);
-
-        Object implementor2 = new GreeterImplMixedStyle();
-        String address2 = "local://SoapContext/version2/SoapPort";
-        Endpoint.publish(address2, implementor2);
-        
-        //A dummy service that acts as a routing mediator
-        Object implementor = new GreeterImplMixedStyle();
         String address = "http://localhost:9027/SoapContext/SoapPort";
-        javax.xml.ws.Endpoint jaxwsEndpoint = Endpoint.publish(address, implementor);  
+
+        Object implementor1 = new GreeterImplMixedStyle();
+        EndpointImpl ep1 = (EndpointImpl) Endpoint.publish(address, implementor1);
+
+        ep1.getServer().getEndpoint().put("version", "1");
+        
+        Object implementor2 = new GreeterImplMixedStyle();
+        EndpointImpl ep2 = (EndpointImpl) Endpoint.publish(address, implementor2);
+        ep2.getServer().getEndpoint().put("version", "2");
         
         //Register a MediatorInInterceptor on this dummy service
-        EndpointImpl jaxwsEndpointImpl = (EndpointImpl)jaxwsEndpoint;
-        org.apache.cxf.endpoint.Server server = jaxwsEndpointImpl.getServer();
-        org.apache.cxf.endpoint.Endpoint endpoint = server.getEndpoint();
-        endpoint.getInInterceptors().add(new MediatorInInterceptor());
+        
+        MultipleEndpointObserver meo = (MultipleEndpointObserver)
+            ep2.getServer().getDestination().getMessageObserver();
+        meo.getRoutingInterceptors().clear();
+        meo.getRoutingInterceptors().add(new MediatorInInterceptor());
     }
 
     public static void main(String[] args) {

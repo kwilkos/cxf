@@ -50,6 +50,7 @@ public class WrappedServiceTest extends AbstractRestTest {
     }
 
     public void testService(HttpBindingFactory httpFactory) throws Exception {
+        httpFactory.setBus(bus);
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, httpFactory);
         

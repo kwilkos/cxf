@@ -19,6 +19,7 @@
 
 package org.apache.cxf.interceptor;
 
+import java.util.Collection;
 import java.util.ListIterator;
 
 import org.apache.cxf.message.Message;
@@ -36,6 +37,8 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     String STARTING_AFTER_INTERCEPTOR_ID = "starting_after_interceptor_id";
     
     void add(Interceptor i);
+    
+    void add(Collection<Interceptor> i);
     
     void remove(Interceptor i);
     

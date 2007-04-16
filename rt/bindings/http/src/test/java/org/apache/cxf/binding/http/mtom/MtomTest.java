@@ -39,6 +39,7 @@ public class MtomTest extends AbstractRestTest {
     public void testService() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         HttpBindingFactory factory = new HttpBindingFactory();
+        factory.setBus(getBus());
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
 
         PeopleServiceImpl impl = new PeopleServiceImpl();

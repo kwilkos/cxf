@@ -18,9 +18,6 @@
  */
 package org.apache.cxf.binding.xml;
 
-import java.util.Collection;
-
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
@@ -41,19 +38,8 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
 
-    private Collection<String> activationNamespaces;
-
-    @Resource(name = "activationNamespaces")
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
-
-    public Collection<String> getActivationNamespaces() {
-        return activationNamespaces;
-    }
-
     public Binding createBinding(BindingInfo binding) {
-        XMLBinding xb = new XMLBinding();
+        XMLBinding xb = new XMLBinding(binding);
         
         xb.getInInterceptors().add(new AttachmentInInterceptor());
         xb.getInInterceptors().add(new StaxInInterceptor());

@@ -23,19 +23,26 @@ import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class SoapBinding extends AbstractBasicInterceptorProvider implements Binding {
     
     private SoapVersion version;
+    private BindingInfo bindingInfo;
     
-    public SoapBinding() {
-        this(Soap11.getInstance());
+    public SoapBinding(BindingInfo info) {
+        this(info, Soap11.getInstance());
     }
     
-    public SoapBinding(SoapVersion v) {
+    public SoapBinding(BindingInfo info, SoapVersion v) {
         version = v; 
+        bindingInfo = info;
     }
     
+    public BindingInfo getBindingInfo() {
+        return bindingInfo;
+    }
+
     public void setSoapVersion(SoapVersion v) {
         this.version = v;
     }

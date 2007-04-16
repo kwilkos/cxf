@@ -87,5 +87,10 @@ public class ServerFactoryTest extends AbstractSimpleFrontendTest {
             
         }
 
+        public MessageObserver getMessageObserver() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
     }
 }

@@ -44,7 +44,8 @@ public class RountripTest extends AbstractSimpleFrontendTest {
         clientBean.setTransportId("http://schemas.xmlsoap.org/soap/http");
         clientBean.setServiceClass(HelloService.class);
         clientBean.setBus(getBus());
-
+        clientBean.getInInterceptors().add(new LoggingInInterceptor());
+        
         HelloService client = (HelloService) proxyFactory.create();
         
         ClientImpl c = (ClientImpl) clientBean.getClient();

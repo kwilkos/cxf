@@ -21,7 +21,6 @@ package org.apache.cxf.transport;
 
 import java.io.IOException;
 
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
@@ -58,4 +57,6 @@ public interface Destination extends Observable {
      * Shutdown the Destination, i.e. stop accepting incoming messages.
      */
     void shutdown();
+    
+    MessageObserver getMessageObserver();
 }

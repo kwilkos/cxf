@@ -20,11 +20,9 @@
 package org.apache.cxf.binding.soap;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.mime.MIMEContent;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
@@ -33,6 +31,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.interceptor.EndpointSelectionInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCOutInterceptor;
@@ -50,6 +49,7 @@ import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
@@ -70,6 +70,10 @@ import org.apache.cxf.tools.common.extensions.soap.SoapBody;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.transport.ChainInitiationObserver;
+import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.MultipleEndpointObserver;
 
 
 public class SoapBindingFactory extends AbstractBindingFactory {
@@ -78,17 +82,6 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     
     private boolean mtomEnabled = true;
     
-    private Collection<String> activationNamespaces;    
-
-    public Collection<String> getActivationNamespaces() {
-        return activationNamespaces;
-    }
-
-    @Resource(name = "activationNamespaces")
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
-
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object conf) {
         SoapBindingConfiguration config;
         if (conf instanceof SoapBindingConfiguration) {
@@ -184,7 +177,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         if (binding instanceof SoapBindingInfo) {
             SoapBindingInfo sbi = (SoapBindingInfo) binding;
             version = sbi.getSoapVersion();
-            sb = new SoapBinding(version);
+            sb = new SoapBinding(binding, version);
             // Service wide style
             if (!StringUtils.isEmpty(sbi.getStyle())) {
                 bindingStyle = sbi.getStyle();
@@ -373,6 +366,47 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         bmsg.addExtensor(bodyInfo);
     }
     
+    @Override
+    public synchronized void addListener(Destination d, Endpoint e) {
+        MessageObserver mo = d.getMessageObserver();
+        if (mo == null) {
+            super.addListener(d, e);
+            return;
+        } 
+        
+        if (mo instanceof ChainInitiationObserver) {
+            ChainInitiationObserver cio = (ChainInitiationObserver) mo;
+            MultipleEndpointObserver newMO = new MultipleEndpointObserver(getBus()) {
+                @Override
+                protected Message createMessage(Message message) {
+                    return new SoapMessage(message);
+                }
+            };
+            
+            newMO.getBindingInterceptors().add(new AttachmentInInterceptor());
+            newMO.getBindingInterceptors().add(new StaxInInterceptor()); 
+            
+            // This will not work if we one of the endpoints disables message
+            // processing. But, if you've disabled message processing, you 
+            // probably aren't going to use this feature.
+            newMO.getBindingInterceptors().add(new ReadHeadersInterceptor());
+
+            // Add in a default selection interceptor
+            newMO.getRoutingInterceptors().add(new EndpointSelectionInterceptor());
+            
+            newMO.getEndpoints().add(cio.getEndpoint());
+            
+            mo = newMO;
+        }
+        
+        if (mo instanceof MultipleEndpointObserver) {
+            MultipleEndpointObserver meo = (MultipleEndpointObserver) mo;
+            meo.getEndpoints().add(e);
+        }
+        
+        d.setMessageObserver(mo);
+    }
+
     public void setMtomEnabled(boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
     }

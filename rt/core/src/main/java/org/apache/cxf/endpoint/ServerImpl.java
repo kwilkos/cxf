@@ -27,6 +27,7 @@ import javax.management.JMException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -34,29 +35,25 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.MultipleEndpointObserver;
 
 public class ServerImpl implements Server {
     private static final Logger LOG = LogUtils.getL7dLogger(ServerImpl.class);    
     private Destination destination;
-    private MessageObserver messageObserver;
     private Endpoint endpoint;
     private ServerRegistry serverRegistry;
     private Bus bus;
     private ServerLifeCycleManager mgr;
-    
-    public ServerImpl(Bus bus, Endpoint endpoint, MessageObserver observer) 
-        throws BusException, IOException {
-        this(bus, endpoint, null, observer);
-    }
+    private BindingFactory bindingFactory;
     
     public ServerImpl(Bus bus, 
                       Endpoint endpoint, 
                       DestinationFactory destinationFactory, 
-                      MessageObserver observer) throws BusException, IOException {
+                      BindingFactory bindingFactory) throws BusException, IOException {
         this.endpoint = endpoint;
-        this.messageObserver = observer;  
         this.bus = bus;
-
+        this.bindingFactory = bindingFactory;
+        
         EndpointInfo ei = endpoint.getEndpointInfo();
         
         //Treat local transport as a special case, transports loaded by transportId can be replaced
@@ -100,8 +97,8 @@ public class ServerImpl implements Server {
     }
 
     public void start() {     
+        bindingFactory.addListener(destination, endpoint);
         
-        getDestination().setMessageObserver(messageObserver);
         // register the active server to run
         if (null != serverRegistry) {
             LOG.fine("register the server to serverRegistry ");
@@ -118,24 +115,22 @@ public class ServerImpl implements Server {
         if (mgr != null) {
             mgr.stopServer(this);
         }
-        getDestination().setMessageObserver(null);
+        
+        MessageObserver mo = getDestination().getMessageObserver();
+        if (mo instanceof MultipleEndpointObserver) {
+            ((MultipleEndpointObserver) mo).getEndpoints().remove(endpoint);
+        } else {
+            getDestination().setMessageObserver(null);
+        }
+        
         if (null != serverRegistry) {
             LOG.fine("unregister the server to serverRegistry ");
             serverRegistry.unregister(this);
         }
     }
 
-    public MessageObserver getMessageObserver() {
-        return messageObserver;
-    }
-
-    public void setMessageObserver(MessageObserver messageObserver) {
-        this.messageObserver = messageObserver;
-    }
-
     public Endpoint getEndpoint() {
         return endpoint;
     }
-    
     
 }

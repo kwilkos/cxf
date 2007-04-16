@@ -92,7 +92,7 @@ public  class AnnotationProcessor {
     
     private void processMethods(AnnotationVisitor visitor) {
         
-        visitAnnotatedElement(target.getClass().getDeclaredMethods(), visitor, visitMethodMethod); 
+        visitAnnotatedElement(target.getClass().getMethods(), visitor, visitMethodMethod); 
     }
     
     private void processFields(AnnotationVisitor visitor) { 
@@ -120,7 +120,7 @@ public  class AnnotationProcessor {
                         // ignore, we're invoking methods of a public interface
                     } catch (InvocationTargetException e) {
                         Throwable cause = e.getCause() == null ? e : e.getCause();
-                        LogUtils.log(LOG, Level.SEVERE, "VISITOR_RAISED_EXCEPTION", cause, visitor);
+                        LogUtils.log(LOG, Level.SEVERE, "VISITOR_RAISED_EXCEPTION", cause, visitor, element);
                     }
                 }
             }

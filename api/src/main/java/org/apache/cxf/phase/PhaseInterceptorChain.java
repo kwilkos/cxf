@@ -80,11 +80,11 @@ public class PhaseInterceptorChain implements InterceptorChain {
         iterator = new PhaseInterceptorIterator();
     }
     
-    public void add(List<Interceptor> newhandlers) {
+    public void add(Collection<Interceptor> newhandlers) {
         add(newhandlers, false);
     }
 
-    public void add(List<Interceptor> newhandlers, boolean force) {
+    public void add(Collection<Interceptor> newhandlers, boolean force) {
         if (newhandlers == null) {
             return;
         }

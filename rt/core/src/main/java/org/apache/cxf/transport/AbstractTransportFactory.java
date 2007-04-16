@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.apache.cxf.helpers.CastUtils;
 
 /**
@@ -36,7 +34,6 @@ public class AbstractTransportFactory {
         return transportIds;
     }
 
-    @Resource
     public void setTransportIds(List<String> transportIds) {
         this.transportIds = transportIds;
     }

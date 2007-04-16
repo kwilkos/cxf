@@ -40,6 +40,7 @@ public class BareServiceTest extends AbstractRestTest {
     public void testCreation() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         HttpBindingFactory factory = new HttpBindingFactory();
+        factory.setBus(getBus());
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
@@ -123,6 +124,7 @@ public class BareServiceTest extends AbstractRestTest {
     public void testSetContentType() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         HttpBindingFactory factory = new HttpBindingFactory();
+        factory.setBus(getBus());
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();

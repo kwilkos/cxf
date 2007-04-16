@@ -28,6 +28,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -57,6 +58,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private String transportId;
     private String bindingId;
     private Class serviceClass;
+    private BindingFactory bindingFactory;
     private DestinationFactory destinationFactory;
     private ReflectionServiceFactoryBean serviceFactory;
     private QName endpointName;
@@ -80,10 +82,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             endpointName = serviceFactory.getEndpointName();
         }
         EndpointInfo ei = service.getEndpointInfo(endpointName);
-        if (ei != null
-            && transportId != null
-            && !ei.getTransportId().equals(transportId)) {
-            ei = null;
+        if (ei != null) {
+            if (transportId != null
+                && !ei.getTransportId().equals(transportId)) {
+                ei = null;
+            } else {
+                BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
+                bindingFactory = bfm.getBindingFactory(ei.getBinding().getBindingId());
+            }
         }
         
         if (ei == null) {
@@ -225,9 +231,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
                 if (bindingConfig == null) {
                     bindingConfig = new SoapBindingConfiguration();
                 }
-                ((SoapBindingConfiguration)bindingConfig).setStyle(serviceFactory.getStyle());
+                if (bindingConfig instanceof SoapBindingConfiguration) {
+                    ((SoapBindingConfiguration)bindingConfig).setStyle(serviceFactory.getStyle());
+                }
             }
-            return mgr.getBindingFactory(binding).createBindingInfo(serviceFactory.getService(),
+
+            bindingFactory = mgr.getBindingFactory(binding);
+            
+            return bindingFactory.createBindingInfo(serviceFactory.getService(),
                                                                     binding, bindingConfig);
         } catch (BusException ex) {
             throw new ServiceConstructionException(
@@ -283,7 +294,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         this.serviceClass = serviceClass;
     }
 
-
     public DestinationFactory getDestinationFactory() {
         return destinationFactory;
     }
@@ -333,6 +343,10 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
 
     public void setWsdlURL(String wsdlURL) {
         getServiceFactory().setWsdlURL(wsdlURL);
+    }
+
+    public BindingFactory getBindingFactory() {
+        return bindingFactory;
     }
     
     public ConduitSelector getConduitSelector() {

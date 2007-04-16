@@ -22,11 +22,23 @@ import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class ObjectBinding extends AbstractBasicInterceptorProvider implements Binding {
 
     public static final String OPERATION = "objectBinding.operationName";
     public static final String BINDING = "objectBinding.bindingName";
+    
+    private BindingInfo bindingInfo;
+    
+    public ObjectBinding(BindingInfo bindingInfo) {
+        super();
+        this.bindingInfo = bindingInfo;
+    }
+
+    public BindingInfo getBindingInfo() {
+        return bindingInfo;
+    }
 
     public Message createMessage() {
         return new MessageImpl();

@@ -29,7 +29,6 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.ws.AbstractWSFeature;
 
 /**
@@ -86,9 +85,9 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
             server = new ServerImpl(getBus(), 
                                     ep, 
                                     getDestinationFactory(), 
-                                    new ChainInitiationObserver(ep, getBus()));
+                                    getBindingFactory());
             
-            if (serviceBean != null && ep.getService().getInvoker() == null) {
+            if (serviceBean != null) {
                 ep.getService().setInvoker(createInvoker());
             }
             

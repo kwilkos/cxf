@@ -413,7 +413,7 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
             decoupledMessageObserver = observer;
         }
         
-        protected synchronized MessageObserver getMessageObserver() {
+        public synchronized MessageObserver getMessageObserver() {
             return decoupledMessageObserver;
         }
     }     

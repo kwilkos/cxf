@@ -62,6 +62,16 @@ public abstract class AbstractAttributedInterceptorProvider extends HashMap<Stri
     public void setOutFaultInterceptors(List<Interceptor> interceptors) {
         outFault = interceptors;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return o == this;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
     
     
 }
