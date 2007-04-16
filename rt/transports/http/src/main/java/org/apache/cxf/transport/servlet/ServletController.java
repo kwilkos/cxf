@@ -132,8 +132,12 @@ public class ServletController {
             for (ServletDestination sd : destinations) {
                 if (null != sd.getEndpointInfo().getName()) {
                     String address = sd.getAddress().getAddress().getValue();
-                    int bi = address.indexOf(CXFServlet.ADDRESS_PERFIX);                            
-                    address = request.getRequestURL() 
+                    int bi = address.indexOf(CXFServlet.ADDRESS_PERFIX);
+                    String reqPerfix = request.getRequestURL().toString();
+                    if (reqPerfix.endsWith("/")) {
+                        reqPerfix = reqPerfix.substring(0, reqPerfix.length() - 1);
+                    }
+                    address = reqPerfix 
                         + address.substring(bi + CXFServlet.ADDRESS_PERFIX.length());
                     response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
                     response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");

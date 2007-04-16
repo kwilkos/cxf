@@ -199,7 +199,7 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
     
    
     public void postShutdown() {
-        //Using the array to hold the busMBeans to avoid the CurrentModification exception
+        //Using the array to hold the busMBeans to avoid the CurrentModificationException
         Object[] mBeans = busMBeans.toArray();
         for (Object name : mBeans) {
             busMBeans.remove((ObjectName)name);

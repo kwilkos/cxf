@@ -17,15 +17,19 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<endpoints>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:jaxws="http://cxf.apache.org/jaxws"
+      xmlns:soap="http://cxf.apache.org/bindings/soap"
+      xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 
-    <endpoint
+    <jaxws:endpoint
         name="soap_headers"
-        interface="org.apache.soap_header.TestHeader"
-        implementation="demo.soap_header.server.HeaderTesterImpl"
+        implementor="demo.soap_header.server.HeaderTesterImpl"
         wsdl="WEB-INF/wsdl/soap_header.wsdl"
-        service="{http://apache.org/headers}HeaderService"
-        port="{http://apache.org/headers}SOAPPort"
-        url-pattern="/soap_header" />
+        address="/services/soap_header" />
 
 </endpoints>

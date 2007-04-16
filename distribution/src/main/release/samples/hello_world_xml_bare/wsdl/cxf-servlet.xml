@@ -17,15 +17,18 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<endpoints>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:jaxws="http://cxf.apache.org/jaxws"
+      xmlns:soap="http://cxf.apache.org/bindings/soap"
+      xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 
-    <endpoint
-        name="hello_world"
-        interface="org.apache.hello_world_soap_http.Greeter"
-        implementation="demo.hw.server.GreeterImpl"
-        wsdl="WEB-INF/wsdl/hello_world.wsdl"
-        service="{http://apache.org/hello_world_soap_http}SOAPService"
-        port="{http://apache.org/hello_world_soap_http}SOAPPort"
-        url-pattern="/hello_world" />
-
-</endpoints>
+    <jaxws:endpoint
+        id="hello_world"       
+        implementor="demo.hw.server.GreeterImpl"
+        wsdlLocation="WEB-INF/wsdl/hello_world.wsdl"
+        address="/services/hello_world"/>
+</beans>
