@@ -227,10 +227,10 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 sb.getOutInterceptors().add(new WrappedOutInterceptor());
                 sb.getOutInterceptors().add(new BareOutInterceptor());
             }
+            sb.getInInterceptors().add(new SoapHeaderInterceptor());
         }
         
         if (!Boolean.TRUE.equals(binding.getProperty(MESSAGE_PROCESSING_DISABLED))) {
-            sb.getInInterceptors().add(new SoapHeaderInterceptor());
             sb.getInInterceptors().add(new ReadHeadersInterceptor());
             sb.getInInterceptors().add(new MustUnderstandInterceptor());
             sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
