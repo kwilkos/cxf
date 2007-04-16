@@ -227,17 +227,6 @@ public class WSDLQueryHandler implements QueryHandler {
                     imp.setSchemaLocationURI(uri);
                     doneSchemas.put(start, imp);
                     updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
-
-                    System.out.println(schema.getDocumentBaseURI());
-                    System.out.println(start);
-                    System.out.println(uri);
-                    System.out.println();
-                } else {
-                    System.out.println(schema.getDocumentBaseURI());
-                    System.out.println(imp.getId());
-                    System.out.println(imp.getSchemaLocationURI());
-                    System.out.println(imp.getReferencedSchema());
-                    System.out.println();
                 }
             }
         }
