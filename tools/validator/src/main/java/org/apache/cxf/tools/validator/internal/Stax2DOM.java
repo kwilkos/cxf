@@ -45,6 +45,7 @@ public class Stax2DOM {
     public Document getDocument(XMLEventReader xmlEventReader) throws ToolException {
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setNamespaceAware(true);
         DocumentBuilder builder = null;
         try {
             builder = builderFactory.newDocumentBuilder();

@@ -93,8 +93,9 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
                 try {
                     Element detail = fault.getDetail(); 
                     if (detail == null) {
-                        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                            .newDocument();
+                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                        factory.setNamespaceAware(true);
+                        Document doc = factory.newDocumentBuilder().newDocument();
                         Element stackTrace = doc.createElementNS(Soap11.SOAP_NAMESPACE, Fault.STACKTRACE);
                         stackTrace.setTextContent(sb.toString());
                         detail = doc.createElementNS(Soap11.SOAP_NAMESPACE, "detail");

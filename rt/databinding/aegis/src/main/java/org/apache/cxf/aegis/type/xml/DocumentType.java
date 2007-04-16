@@ -46,6 +46,7 @@ public class DocumentType extends Type {
 
     public DocumentType() {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
         try {
             builder = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {

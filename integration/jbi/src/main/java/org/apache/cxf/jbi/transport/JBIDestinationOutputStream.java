@@ -77,6 +77,7 @@ public class JBIDestinationOutputStream extends AbstractCachedOutputStream {
                 LOG.finest(new org.apache.cxf.common.i18n.Message(
                     "BUILDING.DOCUMENT", LOG).toString());
                 DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                docBuilderFactory.setNamespaceAware(true);
                 DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
                 Document doc = builder.parse(bais);
             

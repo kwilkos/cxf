@@ -93,7 +93,9 @@ public class CommandLineParser {
         Document resultDoc = null;
 
         try {
-            resultDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            resultDoc = factory.newDocumentBuilder().newDocument();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "FAIL_CREATE_DOM_MSG");
         }

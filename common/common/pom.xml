@@ -116,6 +116,17 @@
             <artifactId>wstx-asl</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

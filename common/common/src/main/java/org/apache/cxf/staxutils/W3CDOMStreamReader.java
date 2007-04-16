@@ -312,6 +312,16 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     }
 
     public String getNamespaceURI() {
+        String ln = getCurrentElement().getLocalName();
+        if (ln == null) {
+            ln = getCurrentElement().getNodeName();
+            if (ln.indexOf(":") == -1) {
+                ln = getNamespaceURI("");
+            } else {
+                ln = getNamespaceURI(ln.substring(0, ln.indexOf(":")));
+            }
+            return ln;
+        }
         return getCurrentElement().getNamespaceURI();
     }
 

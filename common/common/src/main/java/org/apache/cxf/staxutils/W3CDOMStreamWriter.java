@@ -42,7 +42,9 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
     private Map properties = Collections.EMPTY_MAP;
 
     public W3CDOMStreamWriter() throws ParserConfigurationException {
-        this(DocumentBuilderFactory.newInstance().newDocumentBuilder());
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        document = factory.newDocumentBuilder().newDocument();
     }
 
     public W3CDOMStreamWriter(DocumentBuilder builder) {

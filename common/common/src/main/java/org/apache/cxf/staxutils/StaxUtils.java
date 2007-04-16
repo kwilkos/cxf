@@ -19,7 +19,10 @@
 
 package org.apache.cxf.staxutils;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -35,10 +38,22 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.EntityReference;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
+
 
 public final class StaxUtils {
 
@@ -278,8 +293,7 @@ public final class StaxUtils {
 
         // Write out the element name
         if (uri != null) {
-            if (prefix.length() == 0) {
-
+            if (prefix.length() == 0 && StringUtils.isEmpty(uri)) {
                 writer.writeStartElement(local);
                 writer.setDefaultNamespace(uri);
 

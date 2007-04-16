@@ -59,6 +59,7 @@ public final class DOMUtils {
     
     private static synchronized DocumentBuilder getBuilder() throws ParserConfigurationException {
         if (builder == null) {
+            FACTORY.setNamespaceAware(true);
             builder = FACTORY.newDocumentBuilder();
         }
         return builder;

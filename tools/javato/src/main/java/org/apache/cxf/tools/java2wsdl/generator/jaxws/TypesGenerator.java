@@ -86,7 +86,9 @@ public class TypesGenerator {
                                                                          "schema"));
 
             DocumentBuilder docBuilder;
-            docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            docBuilder = factory.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
             Element element = doc.createElement("xsd:schema");
             Map<String, String> schemafileMap = wmodel.getSchemaNSFileMap();
