@@ -53,6 +53,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     @Test
     public void testGeneratedWithElementryClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docbare.Stock.class);
+        builder.setAddress("http://localhost");
         ServiceInfo service =  builder.build();
         generator.setServiceModel(service);
         File output = getOutputFile("stock_noanno_bare.wsdl");
@@ -65,6 +66,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     @Test
     public void testGeneratedWithDocWrappedClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docwrapped.Stock.class);
+        builder.setAddress("http://localhost");
         ServiceInfo service =  builder.build();
         generator.setServiceModel(service);
         File output = getOutputFile("stock_noanno_wrapped.wsdl");
@@ -84,6 +86,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     @Test
     public void testGeneratedWithRPCClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.rpc.Stock.class);
+        builder.setAddress("http://localhost");
         ServiceInfo service =  builder.build();
         generator.setServiceModel(service);
         File output = getOutputFile("stock_noanno_rpc.wsdl");

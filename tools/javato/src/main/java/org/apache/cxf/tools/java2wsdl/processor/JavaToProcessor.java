@@ -19,11 +19,17 @@
 
 package org.apache.cxf.tools.java2wsdl.processor;
 
-import java.io.*;
+import java.io.File;
 import java.util.logging.Logger;
+import javax.xml.ws.BindingType;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -40,7 +46,7 @@ import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToProcessor.class);
-    private static final String DEFAULT_BINDING_ID = "http://schemas.xmlsoap.org/soap/http";
+    //private static final String DEFAULT_TRANSPORT_ID = WSDLConstants.SOAP11_NAMESPACE;
     private static final String DEFAULT_ADDRESS = "http://localhost:9090/hello";
     private ToolContext context;
 
@@ -52,8 +58,9 @@ public class JavaToProcessor implements Processor {
         //      builderFactory.setStyle(style/from/command/line);
         ServiceBuilder builder = builderFactory.newBuilder();
         builder.setAddress(DEFAULT_ADDRESS);
-        builder.setTransportId(DEFAULT_BINDING_ID);
+        builder.setTransportId(getTransportId());
         builder.setBus(getBus());
+        builder.setBindingConfig(getBindingConfig());
 
         ServiceInfo service = builder.build();
 
@@ -66,6 +73,35 @@ public class JavaToProcessor implements Processor {
         AbstractGenerator generator = factory.newGenerator();
         generator.setServiceModel(service);
         generator.generate(output);
+    }
+
+    protected String getTransportId() {
+        if (isSOAP12()) {
+            return WSDLConstants.SOAP12_NAMESPACE;
+        }
+        return WSDLConstants.SOAP11_NAMESPACE;
+    }
+    
+    protected BindingConfiguration getBindingConfig() {
+        SoapBindingConfiguration bindingConfig = new SoapBindingConfiguration();
+        if (isSOAP12()) {
+            bindingConfig.setVersion(Soap12.getInstance());
+            bindingConfig.setTransportURI(WSDLConstants.SOAP12_HTTP_TRANSPORT);
+        } else {
+            bindingConfig.setVersion(Soap11.getInstance());
+        }
+        return bindingConfig;
+    }
+
+    protected boolean isSOAP12() {
+        if (!this.context.optionSet(ToolConstants.CFG_SOAP12)) {
+            BindingType bType = getServiceClass().getAnnotation(BindingType.class);
+            if (bType != null) {
+                return SOAPBinding.SOAP12HTTP_BINDING.equals(bType.value());
+            }
+            return false;
+        }
+        return true;
     }
 
     protected File getOutputFile(File nameFromClz, File defaultOutputFile) {
@@ -86,7 +122,7 @@ public class JavaToProcessor implements Processor {
         return result;
     }
 
-    public Class getServiceClass() {
+    public Class<?> getServiceClass() {
         return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME),
                                         getClass().getClassLoader());
     }

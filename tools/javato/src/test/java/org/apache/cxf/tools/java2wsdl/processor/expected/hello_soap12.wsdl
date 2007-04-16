@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="GreeterService" targetNamespace="http://apache.org/hello_world_soap12_http" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://apache.org/hello_world_soap12_http" xmlns:wsdlsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://apache.org/hello_world_soap12_http/types" xmlns:soap="http://schemas.xmlsoap.org/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/hello_world_soap12_http/types" version="1.0">
+<xs:element name="faultDetail">
+<xs:complexType>
+<xs:sequence>
+<xs:element form="qualified" name="minor" type="xs:short"/>
+<xs:element form="qualified" name="major" type="xs:short"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="pingMe">
+<xs:complexType/>
+</xs:element>
+<xs:element name="pingMeResponse">
+<xs:complexType/>
+</xs:element>
+<xs:element name="sayHi">
+<xs:complexType/>
+</xs:element>
+<xs:element name="sayHiResponse">
+<xs:complexType>
+<xs:sequence>
+<xs:element form="qualified" name="responseType" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+</xs:schema>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/hello_world_soap12_http" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://apache.org/hello_world_soap12_http">
+<xsd:element name="sayHi">
+<xsd:complexType>
+<xsd:sequence/>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="sayHiResponse">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element name="responseType" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="pingMe">
+<xsd:complexType>
+<xsd:sequence/>
+</xsd:complexType>
+</xsd:element>
+<xsd:element name="pingMeResponse">
+<xsd:complexType>
+<xsd:sequence/>
+</xsd:complexType>
+</xsd:element>
+</xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="sayHi">
+    <wsdl:part name="sayHi" element="ns2:sayHi">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sayHiResponse">
+    <wsdl:part name="sayHiResponse" element="ns2:sayHiResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="pingMeResponse">
+    <wsdl:part name="pingMeResponse" element="ns2:pingMeResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="pingMe">
+    <wsdl:part name="pingMe" element="ns2:pingMe">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="Greeter">
+    <wsdl:operation name="sayHi">
+      <wsdl:input name="sayHi" message="ns1:sayHi">
+    </wsdl:input>
+      <wsdl:output name="sayHiResponse" message="ns1:sayHiResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="pingMe">
+      <wsdl:input name="pingMe" message="ns1:pingMe">
+    </wsdl:input>
+      <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="GreeterServiceSoapBinding" type="ns1:Greeter">
+    <wsdlsoap12:binding style="document" transport="http://www.w3.org/2003/05/soap/bindings/HTTP/"/>
+    <wsdl:operation name="sayHi">
+      <wsdlsoap12:operation soapAction="" style="document"/>
+      <wsdl:input name="sayHi">
+        <wsdlsoap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sayHiResponse">
+        <wsdlsoap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="pingMe">
+      <wsdlsoap12:operation soapAction="" style="document"/>
+      <wsdl:input name="pingMe">
+        <wsdlsoap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="pingMeResponse">
+        <wsdlsoap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="GreeterService">
+    <wsdl:port name="GreeterPort" binding="ns1:GreeterServiceSoapBinding">
+      <wsdlsoap12:address location="http://localhost:9090/hello"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

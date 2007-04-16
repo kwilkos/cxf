@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="StockService" targetNamespace="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="StockService" targetNamespace="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:wsdlsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:message name="getPrice">
     <wsdl:part name="arg0" type="xsd:string">
     </wsdl:part>
@@ -30,7 +30,7 @@
   </wsdl:binding>
   <wsdl:service name="StockService">
     <wsdl:port name="StockPort" binding="ns1:StockServiceSoapBinding">
-      <wsdlsoap:address/>
+      <wsdlsoap:address location="http://localhost"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

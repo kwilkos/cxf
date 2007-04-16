@@ -19,12 +19,15 @@
 
 package org.apache.cxf.tools.java2wsdl.processor;
 
-import java.io.*;
-
+import java.io.File;
 import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -35,6 +38,10 @@ import org.junit.Test;
 public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
     private WSDLHelper wsdlHelper = new WSDLHelper();
+
+    //     @org.junit.After
+    //     public void tearDown() {
+    //     }
         
     @Test
     public void testGetWSDLVersion() {
@@ -60,7 +67,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertNotNull("Generate WSDL Service Error", wsdlService);
     }
 
-
     @Test
     public void testCalculator() throws Exception {
         ToolContext context = new ToolContext();
@@ -72,5 +78,55 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
         // Test for CXF-337
         // FIXME - check for existence and correctness of faults
+    }
+
+    @Test
+    public void testIsSOAP12() throws Exception {
+        ToolContext context = new ToolContext();
+        context.put(ToolConstants.CFG_CLASSNAME,
+                    "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
+        processor.setEnvironment(context);
+        assertTrue(processor.isSOAP12());
+
+        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        assertFalse(processor.isSOAP12());
+
+        context.put(ToolConstants.CFG_SOAP12, "soap12");
+        assertTrue(processor.isSOAP12());
+    }
+
+    @Test
+    public void testGetBindingConfig() throws Exception {
+        ToolContext context = new ToolContext();
+        context.put(ToolConstants.CFG_CLASSNAME,
+                    "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
+        processor.setEnvironment(context);
+        BindingConfiguration config = processor.getBindingConfig();
+        assertTrue(config instanceof SoapBindingConfiguration);
+        
+        assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
+
+        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        config = processor.getBindingConfig();
+        assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap11);
+
+        context.put(ToolConstants.CFG_SOAP12, "soap12");
+        config = processor.getBindingConfig();
+        assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
+    }
+
+    // FIXME CXF-534
+    @Test
+    public void testSOAP12() throws Exception {
+        ToolContext context = new ToolContext();
+        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        context.put(ToolConstants.CFG_SOAP12, "soap12");
+        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello_soap12.wsdl");
+        
+        processor.setEnvironment(context);
+        processor.process();
+
+        String expectedFile = getClass().getResource("expected/hello_soap12.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
     }
 }

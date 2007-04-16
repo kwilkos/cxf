@@ -44,6 +44,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.ws.AbstractWSFeature;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
@@ -163,14 +164,16 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         // Get the Service from the ServiceFactory if specified
         Service service = serviceFactory.getService();
 
-
         // SOAP nonsense
         BindingInfo bindingInfo = createBindingInfo();
         if (bindingInfo instanceof SoapBindingInfo) {
-            ((SoapBindingInfo) bindingInfo).setTransportURI(transportId);
+            if (((SoapBindingInfo) bindingInfo).getTransportURI() == null
+                || LocalTransportFactory.TRANSPORT_ID.equals(transportId)) {
+                ((SoapBindingInfo) bindingInfo).setTransportURI(transportId);
+            }
             transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
-        
+
         service.getServiceInfos().get(0).addBinding(bindingInfo);
 
         setTransportId(transportId);

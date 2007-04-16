@@ -77,7 +77,11 @@ public class ProcessorTestBase extends Assert {
         return getClass().getResource(wsdlFile).toString();
     }
 
-    protected void assertFileEquals(String location1, String location2) {
+    protected void assertFileEquals(String f1, String f2) {
+        assertFileEquals(new File(f1), new File(f2));
+    }
+    
+    protected void assertFileEquals(File location1, File location2) {
         String str1 = getStringFromFile(location1);
         String str2 = getStringFromFile(location2);
 
@@ -94,12 +98,12 @@ public class ProcessorTestBase extends Assert {
         assertTrue(!st1.hasMoreTokens());
     }
 
-    private String getStringFromFile(String location) {
+    private String getStringFromFile(File location) {
         InputStream is = null;
         String result = null;
 
         try {
-            is = new FileInputStream(new File(location));
+            is = new FileInputStream(location);
             result = normalizeCRLF(is);
         } catch (Exception e) {
             e.printStackTrace();

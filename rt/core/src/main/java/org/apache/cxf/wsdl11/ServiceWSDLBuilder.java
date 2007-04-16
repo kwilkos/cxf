@@ -98,6 +98,7 @@ public final class ServiceWSDLBuilder {
                                                                  new SchemaSerializer());
                     
             addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
+            addNamespace("wsdlsoap12", "http://schemas.xmlsoap.org/wsdl/soap12/");
             addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
             addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
             

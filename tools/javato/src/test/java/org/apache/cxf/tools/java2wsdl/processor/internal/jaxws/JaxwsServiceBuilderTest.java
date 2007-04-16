@@ -86,6 +86,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Test
     public void testRPCLit() throws Exception {
         builder.setServiceClass(GreeterRPCLit.class);
+        builder.setAddress("http://localhost");
         ServiceInfo service = builder.build();
 
         generator.setServiceModel(service);
@@ -104,6 +105,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void testDocWrapparBare() throws Exception {
 
         builder.setServiceClass(org.apache.hello_world_doc_wrapped_bare.Greeter.class);
+        builder.setAddress("http://localhost");
         ServiceInfo service = builder.build();
 
         generator.setServiceModel(service);
