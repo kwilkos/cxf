@@ -19,42 +19,242 @@
 
 package org.apache.cxf.transport.http;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.wsdl.Definition;
+import javax.wsdl.Import;
+import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.schema.SchemaImport;
+import javax.wsdl.extensions.schema.SchemaReference;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.wsdl11.ResourceManagerWSDLLocator;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+
 
 public class WSDLQueryHandler implements QueryHandler {
 
-    public String getResponseContentType(String uri) {
-        if (uri.toLowerCase().endsWith("?wsdl")) {
+    Bus bus;
+    public WSDLQueryHandler(Bus b) {
+        bus = b;
+    }
+
+    public String getResponseContentType(String baseUri, String ctx) {
+        if (baseUri.toLowerCase().contains("?wsdl")
+            || baseUri.toLowerCase().contains("?xsd=")) {
             return "text/xml";
         }
         return null;
     }
 
-    public boolean isRecognizedQuery(String uri, EndpointInfo endpointInfo) {
-        if (uri != null && uri.toLowerCase().endsWith("?wsdl")) {
-            String addressContext = uri.substring(0, uri.length() - 5);            
-            return endpointInfo.getAddress().contains(addressContext);
+    public boolean isRecognizedQuery(String baseUri, String ctx, EndpointInfo endpointInfo) {
+        if (baseUri != null 
+            && (baseUri.toLowerCase().contains("?wsdl")
+                || baseUri.toLowerCase().contains("?xsd="))) {
+            return endpointInfo.getAddress().contains(ctx);
         }
         return false;
     }
 
-    public void writeResponse(String queryURI, EndpointInfo endpointInfo, OutputStream os) {
+    public void writeResponse(String baseUri, String ctxUri,
+                              EndpointInfo endpointInfo, OutputStream os) {
         try {
-            WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-            Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
-            wsdlWriter.writeWSDL(def, os);
+            int idx = baseUri.toLowerCase().indexOf("?wsdl");
+            String base = null;
+            String wsdl = "";
+            String xsd =  null;
+            if (idx != -1) {
+                base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?wsdl"));
+                wsdl = baseUri.substring(baseUri.toLowerCase().indexOf("?wsdl") + 5);
+                if (wsdl.length() > 0) {
+                    wsdl = wsdl.substring(1);
+                }
+            } else {
+                base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?xsd="));
+                xsd = baseUri.substring(baseUri.toLowerCase().indexOf("?xsd=") + 5);
+            }
+            
+            Map<String, Definition> mp = CastUtils.cast((Map)endpointInfo.getService()
+                                                        .getProperty(WSDLQueryHandler.class.getName()));
+            Map<String, SchemaReference> smp = CastUtils.cast((Map)endpointInfo.getService()
+                                                        .getProperty(WSDLQueryHandler.class.getName() 
+                                                                     + ".Schemas"));
+
+            if (mp == null) {
+                endpointInfo.getService().setProperty(WSDLQueryHandler.class.getName(),
+                                                      new ConcurrentHashMap());
+                mp = CastUtils.cast((Map)endpointInfo.getService()
+                                    .getProperty(WSDLQueryHandler.class.getName()));
+            }
+            if (smp == null) {
+                endpointInfo.getService().setProperty(WSDLQueryHandler.class.getName()
+                                                      + ".Schemas",
+                                                      new ConcurrentHashMap());
+                smp = CastUtils.cast((Map)endpointInfo.getService()
+                                    .getProperty(WSDLQueryHandler.class.getName()
+                                                 + ".Schemas"));
+            }
+            
+            if (!mp.containsKey(wsdl)) {
+                Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
+                mp.put("", def);
+                updateDefinition(def, mp, smp, base, endpointInfo);
+            }
+            
+            
+            Document doc;
+            if (xsd == null) {
+                Definition def = mp.get(wsdl);
+    
+                WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
+                doc = wsdlWriter.getDocument(def);
+            } else {
+                SchemaReference si = smp.get(xsd);
+                ResourceManagerWSDLLocator rml = new ResourceManagerWSDLLocator(si.getReferencedSchema()
+                                                                                .getDocumentBaseURI(),
+                                                                                bus);
+                
+                InputSource src = rml.getBaseInputSource();
+                doc = XMLUtils.getParser().parse(src);
+            }
+            
+            NodeList nl = doc.getDocumentElement()
+                .getElementsByTagNameNS("http://www.w3.org/2001/XMLSchema",
+                                        "import");
+            for (int x = 0; x < nl.getLength(); x++) {
+                Element el = (Element)nl.item(x);
+                String sl = el.getAttribute("schemaLocation");
+                if (smp.containsKey(sl)) {
+                    el.setAttribute("schemaLocation", smp.get(sl).getSchemaLocationURI());
+                }
+            }
+            nl = doc.getDocumentElement()
+                .getElementsByTagNameNS("http://www.w3.org/2001/XMLSchema",
+                                        "include");
+            for (int x = 0; x < nl.getLength(); x++) {
+                Element el = (Element)nl.item(x);
+                String sl = el.getAttribute("schemaLocation");
+                if (smp.containsKey(sl)) {
+                    el.setAttribute("schemaLocation", smp.get(sl).getSchemaLocationURI());
+                }
+            }
+            
+            XMLUtils.writeTo(doc, os);
         } catch (WSDLException wex) {
             wex.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+    }
+    
+    private void updateDefinition(Definition def, Map<String, Definition> done,
+                                  Map<String, SchemaReference> doneSchemas,
+                                  String base, EndpointInfo ei) {
+        Collection<List> imports = CastUtils.cast((Collection<?>)def.getImports().values());
+        for (List lst : imports) {
+            List<Import> impLst = CastUtils.cast(lst);
+            for (Import imp : impLst) {
+                String start = imp.getLocationURI();
+                String uri = start;
+                if (!uri.startsWith(base)) {
+                    uri = base + "?wsdl=" + uri;
+                }
+                imp.setLocationURI(uri);
+                done.put(start, imp.getDefinition());
+                updateDefinition(imp.getDefinition(), done, doneSchemas, base, ei);
+            }
+        }      
+        
+        
+        /* This doesn't actually work.   Setting setSchemaLocationURI on the import
+        * for some reason doesn't actually result in the new URI being written
+        * */
+        Types types = def.getTypes();
+        if (types != null) {
+            for (ExtensibilityElement el 
+                : CastUtils.cast((List)types.getExtensibilityElements(), ExtensibilityElement.class)) {
+                if (el instanceof Schema) {
+                    Schema see = (Schema)el;
+                    updateSchemaImports(see, doneSchemas, base);
+                }
+            }
+        }
+    }
+    
+    private void updateSchemaImports(Schema schema,
+                                     Map<String, SchemaReference> doneSchemas,
+                                     String base) {
+        Collection<List>  imports = CastUtils.cast((Collection<?>)schema.getImports().values());
+        for (List lst : imports) {
+            List<SchemaImport> impLst = CastUtils.cast(lst);
+            for (SchemaImport imp : impLst) {
+                String start = imp.getSchemaLocationURI();
+                if (start != null) {
+                    String uri = start;
+                    if (!uri.startsWith(base)) {
+                        uri = base + "?xsd=" + uri;
+                    }
+                    imp.setSchemaLocationURI(uri);
+                    doneSchemas.put(start, imp);
+                    updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
+
+                    System.out.println(schema.getDocumentBaseURI());
+                    System.out.println(start);
+                    System.out.println(uri);
+                    System.out.println();
+                } else {
+                    System.out.println(schema.getDocumentBaseURI());
+                    System.out.println(imp.getId());
+                    System.out.println(imp.getSchemaLocationURI());
+                    System.out.println(imp.getReferencedSchema());
+                    System.out.println();
+                }
+            }
+        }
+        List<SchemaReference> includes = CastUtils.cast(schema.getIncludes());
+        for (SchemaReference included : includes) {
+            String start = included.getSchemaLocationURI();
+            if (start != null) {
+                String uri = start;
+                if (!uri.startsWith(base)) {
+                    uri = base + "?xsd=" + uri;
+                }
+                included.setSchemaLocationURI(uri);
+                doneSchemas.put(start, included);
+                updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
+            }
+        }
+        
     }
 
 }

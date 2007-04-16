@@ -26,22 +26,29 @@ import org.apache.cxf.service.model.EndpointInfo;
 public interface QueryHandler {
     
     /**
-     * @param uri the target URI
+     * @param fullQueryString the target full query string (with params) of the request
+     * @param ctx the context that was set for this invokation
      * @param endpoint the current endpoint for this context (e.g. the endpoint this
      * Destination was activated for). Null if no current endpoint.
      * @return true iff the URI is a recognized WSDL query
      */
-    boolean isRecognizedQuery(String uri, EndpointInfo endpoint);
+    boolean isRecognizedQuery(String fullQueryString, String ctx, EndpointInfo endpoint);
 
     /**
+     * @param fullQueryString the target full query string (with params) of the request
+     * @param ctx the context that was set for this invokation
      * @return the content-type for the response
      */
-    String getResponseContentType(String uri);
+    String getResponseContentType(String fullQueryString, String ctx);
  
     /**
      * Write query response to output stream
+     * @param fullQueryString the target full query string (with params) of the request
+     * @param ctx the context that was set for this invokation
+     * @param endpoint the current endpoint for this context (e.g. the endpoint this
+     * Destination was activated for). Null if no current endpoint.
      */ 
-    void writeResponse(String queryURI, EndpointInfo endpoint, OutputStream os);
+    void writeResponse(String fullQueryString, String ctx, EndpointInfo endpoint, OutputStream os);
     
 
 

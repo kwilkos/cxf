@@ -116,9 +116,12 @@ public final class XMLUtils {
     }
 
     public static void writeTo(Node node, OutputStream os) {
+        writeTo(new DOMSource(node), os);
+    }
+    public static void writeTo(Source src, OutputStream os) {
+        Transformer it;
         try {
-            Transformer it = newTransformer();
-
+            it = newTransformer();
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             if (indent()) {
                 it.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -126,12 +129,13 @@ public final class XMLUtils {
             }
             it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, omitXmlDecl);
             it.setOutputProperty(OutputKeys.ENCODING, charset);
-            it.transform(new DOMSource(node), new StreamResult(os));
-        } catch (Exception e) {
+            it.transform(src, new StreamResult(os));
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
 
+    }
     public static String toString(Source source) throws TransformerException, IOException {
         return toString(source, null);
     }

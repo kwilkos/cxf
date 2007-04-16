@@ -25,6 +25,8 @@ import javax.wsdl.xml.WSDLLocator;
 import org.xml.sax.InputSource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.catalog.CatalogWSDLLocator;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.resource.ResourceManager;
 
 
@@ -40,6 +42,13 @@ public class ResourceManagerWSDLLocator implements WSDLLocator {
         this.wsdlUrl = wsdlUrl;
         this.bus = bus;
         this.parent = parent;
+    }
+
+    public ResourceManagerWSDLLocator(String wsdlUrl,
+                                      Bus bus) {
+        this.wsdlUrl = wsdlUrl;
+        this.bus = bus;
+        this.parent = new CatalogWSDLLocator(wsdlUrl, OASISCatalogManager.getCatalog(bus));
     }
 
 

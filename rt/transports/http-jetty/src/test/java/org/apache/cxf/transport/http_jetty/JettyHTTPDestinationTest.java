@@ -530,9 +530,11 @@ public class JettyHTTPDestinationTest extends Assert {
         bus.getExtension(QueryHandlerRegistry.class);
         EasyMock.expectLastCall().andReturn(queryHandlerRegistry);
         queryHandlerRegistry.getHandlers();
-        EasyMock.expectLastCall().andReturn(queryHandlerList);
-        request.getPathInfo();
+        EasyMock.expectLastCall().andReturn(queryHandlerList);       
+        request.getRequestURI();
         EasyMock.expectLastCall().andReturn("http://localhost/bar/foo");
+        request.getPathInfo();
+        EasyMock.expectLastCall().andReturn("/bar/foo");
         request.getQueryString();
         EasyMock.expectLastCall().andReturn("wsdl");       
         response.setContentType("text/xml");
@@ -541,11 +543,11 @@ public class JettyHTTPDestinationTest extends Assert {
         EasyMock.expectLastCall().andReturn(os).anyTimes();
         request.setHandled(true);
         EasyMock.expectLastCall();
-        wsdlQueryHandler.isRecognizedQuery("http://localhost/bar/foo?wsdl", endpointInfo);
+        wsdlQueryHandler.isRecognizedQuery("http://localhost/bar/foo?wsdl", "/bar/foo", endpointInfo);
         EasyMock.expectLastCall().andReturn(true);   
-        wsdlQueryHandler.getResponseContentType("http://localhost/bar/foo?wsdl");
+        wsdlQueryHandler.getResponseContentType("http://localhost/bar/foo?wsdl", "/bar/foo");
         EasyMock.expectLastCall().andReturn("text/xml");
-        wsdlQueryHandler.writeResponse("http://localhost/bar/foo?wsdl", endpointInfo, os);
+        wsdlQueryHandler.writeResponse("http://localhost/bar/foo?wsdl", "/bar/foo", endpointInfo, os);
         EasyMock.expectLastCall().once();
         EasyMock.replay(bus);
         EasyMock.replay(queryHandlerRegistry);

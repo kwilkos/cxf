@@ -24,14 +24,13 @@ import java.io.ByteArrayInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
-
-import com.sun.xml.messaging.saaj.soap.ver1_1.Message1_1Impl;
-import com.sun.xml.messaging.saaj.soap.ver1_1.SOAPMessageFactory1_1Impl;
-import com.sun.xml.messaging.saaj.soap.ver1_1.SOAPPart1_1Impl;
 
 import org.apache.cxf.helpers.XMLUtils;
 
@@ -57,15 +56,14 @@ public class W3CDOMStreamReaderTest extends Assert {
         docBuilderFactory.setNamespaceAware(true);
         DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 
-        SOAPMessageFactory1_1Impl factory = new SOAPMessageFactory1_1Impl();
-        Message1_1Impl msg = (Message1_1Impl)factory.createMessage();
-        SOAPPart1_1Impl part = new SOAPPart1_1Impl(msg);
+        MessageFactory factory = MessageFactory.newInstance();
+        SOAPMessage msg = factory.createMessage();
+        SOAPPart part = msg.getSOAPPart();
 
         Document doc = docBuilder.parse(is);
 
         W3CDOMStreamWriter writer = new W3CDOMStreamWriter(part.getEnvelope());
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(new DOMSource(doc));
-
 
         StaxUtils.copy(reader, writer);
         assertEquals(RESULT, XMLUtils.toString(writer.getDocument()));

@@ -44,7 +44,7 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
     @PostConstruct
     public void init() {
         queryHandlers = new ArrayList<QueryHandler>();
-        registerHandler(new WSDLQueryHandler());
+        registerHandler(new WSDLQueryHandler(bus));
     }
 
 

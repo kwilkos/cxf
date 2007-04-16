@@ -141,12 +141,21 @@ public class CXFServletTest extends AbstractServletTest {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(true);
 
-        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/greeter/test_import.xsd");
-        
+        WebRequest req 
+            = new GetMethodQueryWebRequest("http://localhost/services/greeter?wsdl");
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
-        //assertEquals("text/xml", res.getContentType());
+        String text = res.getText();
+        assertEquals("text/xml", res.getContentType());
+        assertTrue(text.contains("http://localhost/services/greeter?wsdl=test_import.xsd"));
+
+        req = new GetMethodQueryWebRequest("http://localhost/services/greeter?wsdl=test_import.xsd");
+        res = client.getResponse(req); 
+        assertEquals(200, res.getResponseCode());
+        text = res.getText();
+        
+        assertEquals("text/xml", res.getContentType());
         assertTrue("the xsd should contain the completType SimpleStruct",
-                   res.getText().contains("<complexType name=\"SimpleStruct\">"));
+                   text.contains("<complexType name=\"SimpleStruct\">"));
     }
 }

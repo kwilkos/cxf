@@ -55,7 +55,6 @@ import org.springframework.core.io.InputStreamResource;
  *
  */
 public class CXFServlet extends HttpServlet {
-    static final String ADDRESS_PERFIX = "http://localhost/services";
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
     static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
     
@@ -65,7 +64,7 @@ public class CXFServlet extends HttpServlet {
     private GenericApplicationContext childCtx;
 
     public ServletController createServletController() {
-        return new ServletController(servletTransportFactory, this.getServletContext(), this);
+        return new ServletController(servletTransportFactory, this);
     }
 
     public ServletController getController() {
