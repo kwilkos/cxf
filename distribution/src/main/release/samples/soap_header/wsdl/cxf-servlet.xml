@@ -27,7 +27,7 @@ http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.x
 http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 
     <jaxws:endpoint
-        name="soap_headers"
+        id="soap_headers"
         implementor="demo.soap_header.server.HeaderTesterImpl"
         wsdl="WEB-INF/wsdl/soap_header.wsdl"
         address="/services/soap_header" />

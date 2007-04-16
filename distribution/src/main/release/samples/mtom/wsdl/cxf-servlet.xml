@@ -27,7 +27,7 @@ http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.x
 http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 
     <jaxws:endpoint
-        name="mtom"
+        id="mtom"
         implementor="demo.mtom.server.TestMtomImpl"
         wsdlLocation="WEB-INF/wsdl/mtom_xop.wsdl"
         address="/services/mtom" />
