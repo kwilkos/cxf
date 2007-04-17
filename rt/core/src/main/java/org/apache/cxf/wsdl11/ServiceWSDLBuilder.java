@@ -291,12 +291,14 @@ public final class ServiceWSDLBuilder {
                 input.setMessage(message);
                 operation.setInput(input);
                 
-                Output output = definition.createOutput();
-                output.setName(operationInfo.getOutputName());
-                message = definition.createMessage();
-                buildMessage(message, operationInfo.getOutput());
-                output.setMessage(message);
-                operation.setOutput(output);
+                if (operationInfo.getOutput() != null) {
+                    Output output = definition.createOutput();
+                    output.setName(operationInfo.getOutputName());
+                    message = definition.createMessage();
+                    buildMessage(message, operationInfo.getOutput());
+                    output.setMessage(message);
+                    operation.setOutput(output);
+                }
                 //loop to add fault
                 Collection<FaultInfo> faults = operationInfo.getFaults();
                 Fault fault = null;

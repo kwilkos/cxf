@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.Future;
 
+import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebParam.Mode;
@@ -503,15 +504,11 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         return Boolean.FALSE;
     }
     
-   /* 
+    
     @Override 
     public Boolean hasOutMessage(Method method) {
-        Annotation anno = method.getAnnotation(Oneway.class);
-        if (anno != null) {
-            return Boolean.FALSE;
-        }
-        return Boolean.TRUE;
+        return !method.isAnnotationPresent(Oneway.class);
     }
-    */
+    
     
 }

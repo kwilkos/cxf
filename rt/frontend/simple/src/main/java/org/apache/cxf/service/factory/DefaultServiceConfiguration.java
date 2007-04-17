@@ -152,6 +152,9 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean hasOutMessage(Method m) {
+        if (m.getReturnType().getClass().equals(void.class) && m.getExceptionTypes().length == 0) {
+            return false;
+        }
         return true;
     }
 
