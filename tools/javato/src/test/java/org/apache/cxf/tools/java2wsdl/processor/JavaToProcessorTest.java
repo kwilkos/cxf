@@ -39,9 +39,9 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
     private WSDLHelper wsdlHelper = new WSDLHelper();
 
-    //     @org.junit.After
-    //     public void tearDown() {
-    //     }
+//         @org.junit.After
+//         public void tearDown() {
+//         }
         
     @Test
     public void testGetWSDLVersion() {

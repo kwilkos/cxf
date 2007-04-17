@@ -46,7 +46,6 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
-import javax.xml.namespace.QName;
 
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
@@ -64,25 +63,20 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public final class ServiceWSDLBuilder {
     
-    private static final QName SCHEMA_QNAME = new QName("http://www.w3.org/2001/XMLSchema", "schema");
-    
-    private Map<String, String> prefix2ns;
     private Map<String, String> ns2prefix;
     private Definition definition;
     private List<ServiceInfo> services;
     
     public ServiceWSDLBuilder(List<ServiceInfo> services) {
         this.services = services;
-        prefix2ns = new HashMap<String, String>();
         ns2prefix = new HashMap<String, String>();
     }
     public ServiceWSDLBuilder(ServiceInfo ... services) {
-        this.services = Arrays.asList(services);
-        prefix2ns = new HashMap<String, String>();
-        ns2prefix = new HashMap<String, String>();
+        this(Arrays.asList(services));
     }
 
     public Definition build() throws WSDLException {
@@ -94,13 +88,10 @@ public final class ServiceWSDLBuilder {
         if (definition == null) {
             definition = WSDLFactory.newInstance().newDefinition();
             definition.getExtensionRegistry().registerSerializer(Types.class, 
-                                                                 SCHEMA_QNAME,
+                                                                 WSDLConstants.SCHEMA_QNAME,
                                                                  new SchemaSerializer());
                     
-            addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
-            addNamespace("wsdlsoap12", "http://schemas.xmlsoap.org/wsdl/soap12/");
-            addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
-            addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
+            addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
             
             ServiceInfo si = services.get(0);
             definition.setQName(si.getName());
@@ -137,7 +128,7 @@ public final class ServiceWSDLBuilder {
         for (SchemaInfo schemaInfo : schemas) {
             SchemaImpl schemaImpl = new SchemaImpl();
             schemaImpl.setRequired(true);
-            schemaImpl.setElementType(SCHEMA_QNAME);
+            schemaImpl.setElementType(WSDLConstants.SCHEMA_QNAME);
             schemaImpl.setElement(schemaInfo.getElement());
             types.addExtensibilityElement(schemaImpl);
         }
@@ -228,7 +219,7 @@ public final class ServiceWSDLBuilder {
 
         for (EndpointInfo ei : serviceInfo.getEndpoints()) {
             addNamespace(ei.getTransportId());
-            addNamespace(ei.getBinding().getBindingId());
+            //addNamespace(ei.getBinding().getBindingId());
             Port port = definition.createPort();
             port.setName(ei.getName().getLocalPart());
             port.setBinding(definition.getBinding(ei.getBinding().getName()));
@@ -261,7 +252,6 @@ public final class ServiceWSDLBuilder {
     }
 
     protected void addNamespace(String prefix, String namespaceURI) {
-        prefix2ns.put(prefix, namespaceURI);
         ns2prefix.put(namespaceURI, prefix);
         definition.addNamespace(prefix, namespaceURI);
     }
@@ -315,7 +305,12 @@ public final class ServiceWSDLBuilder {
         }
     }
 
-    protected String getPrefix(String ns) {
+    private String getPrefix(String ns) {
+        for (String namespace : WSDLConstants.NS_PREFIX_PAIR.keySet()) {
+            if (namespace.equals(ns)) {
+                return WSDLConstants.NS_PREFIX_PAIR.get(namespace);
+            }
+        }
         String prefix = ns2prefix.get(ns);
         if (prefix == null) {
             prefix = getNewPrefix();
@@ -324,10 +319,10 @@ public final class ServiceWSDLBuilder {
         return prefix;
     }
     
-    protected String getNewPrefix() {
+    private String getNewPrefix() {
         String prefix = "ns1";
         int i = 0;
-        while (prefix2ns.get(prefix) != null) {
+        while (ns2prefix.containsValue(prefix)) {
             i++;
             prefix = "ns" + i;
         }

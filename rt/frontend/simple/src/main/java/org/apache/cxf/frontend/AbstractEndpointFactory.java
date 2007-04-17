@@ -165,23 +165,20 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
                 // TODO: we shouldn't have to do this, but the DF is null because the
                 // LocalTransport doesn't return for the http:// uris
                 // People also seem to be supplying a null JMS getAddress(), which is worrying
-                transportId = "http://schemas.xmlsoap.org/soap/http";
+                transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
             }
         }
         
         // Get the Service from the ServiceFactory if specified
         Service service = serviceFactory.getService();
-
         // SOAP nonsense
         BindingInfo bindingInfo = createBindingInfo();
-        if (bindingInfo instanceof SoapBindingInfo) {
-            if (((SoapBindingInfo) bindingInfo).getTransportURI() == null
-                || LocalTransportFactory.TRANSPORT_ID.equals(transportId)) {
-                ((SoapBindingInfo) bindingInfo).setTransportURI(transportId);
-            }
+        if (bindingInfo instanceof SoapBindingInfo
+            && (((SoapBindingInfo) bindingInfo).getTransportURI() == null
+            || LocalTransportFactory.TRANSPORT_ID.equals(transportId))) {
+            ((SoapBindingInfo) bindingInfo).setTransportURI(transportId);
             transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
-
         service.getServiceInfos().get(0).addBinding(bindingInfo);
 
         setTransportId(transportId);
@@ -239,7 +236,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             bindingFactory = mgr.getBindingFactory(binding);
             
             return bindingFactory.createBindingInfo(serviceFactory.getService(),
-                                                                    binding, bindingConfig);
+                                                    binding, bindingConfig);
         } catch (BusException ex) {
             throw new ServiceConstructionException(
                    new Message("COULD.NOT.RESOLVE.BINDING", LOG, bindingId), ex);

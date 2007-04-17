@@ -96,6 +96,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         svrFactory.setServiceFactory(bean);
         String address = "http://localhost:9000/test";
         svrFactory.setAddress(address);
+        svrFactory.setTransportId(LocalTransportFactory.TRANSPORT_ID);
 
         ServerImpl server = (ServerImpl)svrFactory.create();
 
@@ -201,6 +202,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         svrFactory.setServiceBean(new StreamSourcePayloadProvider());
         String address = "http://localhost:9000/test";
         svrFactory.setAddress(address);
+        svrFactory.setTransportId(LocalTransportFactory.TRANSPORT_ID);
 
         svrFactory.create();
 
