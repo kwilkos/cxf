@@ -116,7 +116,13 @@ public class HTTPConduitTest extends Assert {
         assertEquals("unexpected target",
                      EndpointReferenceUtils.getAddress(ref),
                      EndpointReferenceUtils.getAddress(target));
-        assertEquals("unexpected URL",
+
+        assertEquals("unexpected address",
+                     conduit.getAddress(),
+                     "http://nowhere.com/bar/foo");
+        assertNull("unexpected upfront URL",
+                    conduit.getURL(false));
+        assertEquals("unexpected on-demand URL",
                      conduit.getURL().getPath(),
                      "/bar/foo");
     }

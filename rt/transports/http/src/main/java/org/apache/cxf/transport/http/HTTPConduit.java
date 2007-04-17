@@ -182,10 +182,17 @@ public class HTTPConduit
     private final EndpointInfo endpointInfo;
     
     /**
-     * This field holds the "default" URL for this particular conduit, which
+     * This field holds the "default" address for this particular conduit, which
      * is set at construction.
      */
-    private final URL defaultEndpointURL;
+    private final String defaultEndpointAddress;
+
+    /**
+     * This field holds the "default" URL for this particular conduit, which
+     * is created on demand.
+     */
+    private URL defaultEndpointURL;
+
     private Destination decoupledDestination;
     private MessageObserver decoupledObserver;
     private int decoupledDestinationRefCount;
@@ -253,25 +260,22 @@ public class HTTPConduit
     /**
      * Constructor
      * 
-     * @param associatedBus  The associated Bus.
-     * @param endpoint       The endpoint info of the initiator.
-     * @param epr            The endpoint reference of the target.
+     * @param b the associated Bus.
+     * @param endpoint the endpoint info of the initiator.
+     * @param t the endpoint reference of the target.
      * @throws IOException
      */
-    public HTTPConduit(
-        Bus                   associatedBus, 
-        EndpointInfo          endpoint, 
-        EndpointReferenceType epr
-    ) throws IOException {
-
-        super(getTargetReference(endpoint, epr, associatedBus));
+    public HTTPConduit(Bus b, 
+                       EndpointInfo ei, 
+                       EndpointReferenceType t) throws IOException {
+        super(getTargetReference(ei, t, b));
         
-        bus          = associatedBus;
-        endpointInfo = endpoint;
+        bus = b;
+        endpointInfo = ei;
 
-        defaultEndpointURL = epr == null
-              ? new URL(endpointInfo.getAddress())
-              : new URL(epr.getAddress().getValue());
+        defaultEndpointAddress = t == null
+                                 ? ei.getAddress()
+                                 : t.getAddress().getValue();
 
         initializeConfig();                                    
     }
@@ -595,7 +599,7 @@ public class HTTPConduit
         String pathInfo = (String)message.get(Message.PATH_INFO);
         String queryString = (String)message.get(Message.QUERY_STRING);
         
-        String result = value != null ? value : defaultEndpointURL.toString();
+        String result = value != null ? value : getURL().toString();
         
         // REVISIT: is this really correct?
         if (null != pathInfo && !result.endsWith(pathInfo)) { 
@@ -646,9 +650,28 @@ public class HTTPConduit
     }
 
     /**
-     * @return the encapsulated URL
+     * @return the default target address
      */
-    protected URL getURL() {
+    protected String getAddress() throws MalformedURLException {
+        return defaultEndpointAddress;
+    }
+
+    /**
+     * @return the default target URL
+     */
+    protected synchronized URL getURL() throws MalformedURLException {
+        return getURL(true);
+    }
+
+    /**
+     * @param createOnDemand create URL on-demand if null
+     * @return the default target URL
+     */
+    protected synchronized URL getURL(boolean createOnDemand)
+        throws MalformedURLException {
+        if (defaultEndpointURL == null && createOnDemand) {
+            defaultEndpointURL = new URL(defaultEndpointAddress);
+        }
         return defaultEndpointURL;
     }
 
