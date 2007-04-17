@@ -169,7 +169,6 @@ public class ServiceImplTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore
     public void testHandlerResolver() {
         URL wsdl1 = getClass().getResource("/wsdl/calculator.wsdl");
         assertNotNull(wsdl1);

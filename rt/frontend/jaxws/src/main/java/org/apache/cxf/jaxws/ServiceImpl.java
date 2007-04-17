@@ -106,7 +106,7 @@ public class ServiceImpl extends ServiceDelegate {
         for (ServiceInfo si : service.getServiceInfos()) { 
             for (EndpointInfo ei : si.getEndpoints()) {
                 this.ports.add(ei.getName());
-                addPort(ei.getName(), ei.getBinding().getBindingId(), ei.getAddress());
+                addPort(ei.getName(), ei.getTransportId(), ei.getAddress());
             }
         }
     }
