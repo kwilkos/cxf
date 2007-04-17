@@ -45,14 +45,31 @@ public class ServerImpl implements Server {
     private Bus bus;
     private ServerLifeCycleManager mgr;
     private BindingFactory bindingFactory;
+    private MessageObserver messageObserver;
     
     public ServerImpl(Bus bus, 
                       Endpoint endpoint, 
                       DestinationFactory destinationFactory, 
                       BindingFactory bindingFactory) throws BusException, IOException {
+        this(bus, endpoint, destinationFactory, bindingFactory, null);
+    }
+
+    public ServerImpl(Bus bus, 
+                      Endpoint endpoint, 
+                      DestinationFactory destinationFactory, 
+                      MessageObserver messageObserver) throws BusException, IOException {
+        this(bus, endpoint, destinationFactory, null, messageObserver);
+    }
+
+    protected ServerImpl(Bus bus, 
+                         Endpoint endpoint, 
+                         DestinationFactory destinationFactory, 
+                         BindingFactory bindingFactory,
+                         MessageObserver messageObserver) throws BusException, IOException {
         this.endpoint = endpoint;
         this.bus = bus;
         this.bindingFactory = bindingFactory;
+        this.messageObserver = messageObserver;
         
         EndpointInfo ei = endpoint.getEndpointInfo();
         
@@ -97,7 +114,11 @@ public class ServerImpl implements Server {
     }
 
     public void start() {     
-        bindingFactory.addListener(destination, endpoint);
+        if (messageObserver != null) {
+            destination.setMessageObserver(messageObserver);
+        } else {
+            bindingFactory.addListener(destination, endpoint);
+        }
         
         // register the active server to run
         if (null != serverRegistry) {
