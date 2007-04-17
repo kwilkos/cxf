@@ -28,6 +28,7 @@ import javax.xml.validation.Schema;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.ServiceModelUtil;
@@ -43,7 +44,8 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriter<T> writer = service.getDataBinding().createWriter(output);
         
-        if (Boolean.TRUE.equals(message.getContextualProperty(Message.MTOM_ENABLED))) {
+        if (MessageUtils.isTrue(message.getContextualProperty(
+              org.apache.cxf.message.Message.MTOM_ENABLED))) {
             Collection<Attachment> atts = message.getAttachments();
             if (atts == null) {
                 atts = new ArrayList<Attachment>();

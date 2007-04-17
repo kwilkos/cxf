@@ -60,6 +60,8 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
 
         String encoding = (String)message.get(Message.ENCODING);
         
+        encoding = extractEncoding(encoding);
+        
         XMLStreamReader reader;
         try {
             reader = getXMLInputFactory(message).createXMLStreamReader(is, encoding);
@@ -68,6 +70,20 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
 
         message.setContent(XMLStreamReader.class, reader);
+    }
+
+    private String extractEncoding(String encoding) {
+        if (encoding != null) {
+            int csIdx = encoding.indexOf("charset=");
+            if (csIdx != -1) {
+                int end = encoding.indexOf(';', csIdx + 1);
+                if (end == -1) {
+                    end = encoding.length();
+                }
+                encoding = encoding.substring(csIdx, end);
+            }
+        }
+        return encoding;
     }
 
     public static XMLInputFactory getXMLInputFactory(Message m) throws Fault {

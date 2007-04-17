@@ -17,8 +17,7 @@ KIND, either express or implied. See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<plugins xmlns="http://cxf.apache.org/tools/plugin">
-  <plugin name="jaxb" version="" provider="cxf.apache.org">
+
+<plugin name="jaxb" version="" provider="cxf.apache.org" xmlns="http://cxf.apache.org/tools/plugin">
     <databinding name="jaxb" package="org.apache.cxf.tools.wsdlto.databinding.jaxb" profile="JAXBDataBinding"/>
-  </plugin>
-</plugins>
+</plugin>

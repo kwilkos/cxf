@@ -75,5 +75,18 @@ public final class MessageUtils {
     public static boolean isPartialResponse(Message message) {
         return Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE));
     }
+    
+    /**
+     * Returns true if a value is either the String "true" or Boolean.TRUE.
+     * @param value
+     * @return
+     */
+    public static boolean isTrue(Object value) {
+        if (Boolean.TRUE.equals(value) || "true".equals(value)) {
+            return true;
+        }
+        
+        return false;
+    }
 
 }

@@ -143,6 +143,7 @@
             <!-- default profile enables checkstyle and Xlint stuff -->
             <id>everything</id>
             <modules>
+                <module>bundle</module>
                 <module>distribution</module>
                 <module>tools/eclipse-plugin</module>
                 <module>tools/eclipse3.1-plugin</module>
@@ -296,7 +297,8 @@
         </profile>
         <profile>
             <id>deploy</id>
-            <modules>
+            <modules> 
+                <module>bundle</module>
                 <module>distribution</module>
                 <module>tools/eclipse-plugin</module>
                 <module>tools/eclipse3.1-plugin</module>

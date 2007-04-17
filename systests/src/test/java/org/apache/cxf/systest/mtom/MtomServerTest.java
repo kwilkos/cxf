@@ -52,7 +52,7 @@ public class MtomServerTest extends AbstractCXFTest {
         String address = "http://localhost:9036/EchoService";
         sf.setAddress(address);
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(Message.MTOM_ENABLED, Boolean.TRUE);
+        props.put(Message.MTOM_ENABLED, "true");
         sf.setProperties(props);
         sf.create();
 

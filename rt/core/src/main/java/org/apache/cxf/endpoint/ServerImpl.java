@@ -46,31 +46,30 @@ public class ServerImpl implements Server {
     private ServerLifeCycleManager mgr;
     private BindingFactory bindingFactory;
     private MessageObserver messageObserver;
+
+    public ServerImpl(Bus bus, 
+                      Endpoint endpoint, 
+                      DestinationFactory destinationFactory, 
+                      MessageObserver observer) throws BusException, IOException {
+        this.endpoint = endpoint;
+        this.bus = bus;
+        this.messageObserver = observer;
+        
+        initDestination(destinationFactory);
+    }
     
     public ServerImpl(Bus bus, 
                       Endpoint endpoint, 
                       DestinationFactory destinationFactory, 
                       BindingFactory bindingFactory) throws BusException, IOException {
-        this(bus, endpoint, destinationFactory, bindingFactory, null);
-    }
-
-    public ServerImpl(Bus bus, 
-                      Endpoint endpoint, 
-                      DestinationFactory destinationFactory, 
-                      MessageObserver messageObserver) throws BusException, IOException {
-        this(bus, endpoint, destinationFactory, null, messageObserver);
-    }
-
-    protected ServerImpl(Bus bus, 
-                         Endpoint endpoint, 
-                         DestinationFactory destinationFactory, 
-                         BindingFactory bindingFactory,
-                         MessageObserver messageObserver) throws BusException, IOException {
         this.endpoint = endpoint;
         this.bus = bus;
         this.bindingFactory = bindingFactory;
-        this.messageObserver = messageObserver;
         
+        initDestination(destinationFactory);
+    }
+
+    private void initDestination(DestinationFactory destinationFactory) throws BusException, IOException {
         EndpointInfo ei = endpoint.getEndpointInfo();
         
         //Treat local transport as a special case, transports loaded by transportId can be replaced
@@ -152,6 +151,14 @@ public class ServerImpl implements Server {
 
     public Endpoint getEndpoint() {
         return endpoint;
+    }
+
+    public MessageObserver getMessageObserver() {
+        return messageObserver;
+    }
+
+    public void setMessageObserver(MessageObserver messageObserver) {
+        this.messageObserver = messageObserver;
     }
     
 }

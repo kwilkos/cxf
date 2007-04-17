@@ -25,6 +25,7 @@ import java.util.ResourceBundle;
 import org.apache.cxf.attachment.AttachmentSerializer;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
@@ -38,7 +39,8 @@ public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> 
     }
 
     public void handleMessage(Message message) {
-        if (!Boolean.TRUE.equals(message.getContextualProperty(
+        
+        if (!MessageUtils.isTrue(message.getContextualProperty(
                 org.apache.cxf.message.Message.MTOM_ENABLED))) {
             return;
         }

@@ -144,10 +144,28 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-object</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-coloc</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-bindings-http</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-databinding-aegis</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-addr</artifactId>
@@ -163,7 +181,11 @@
             <artifactId>cxf-rt-ws-policy</artifactId>
             <version>${pom.version}</version>
         </dependency>
-
+		<dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -182,7 +204,12 @@
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
-            <version>1.0-beta-1</version>
+            <version>1.0-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>${pom.version}</version>
         </dependency>
     </dependencies>
 
@@ -239,6 +266,11 @@
                                     <artifactId>cxf-integration-jca</artifactId>
                                     <version>${pom.version}</version>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>cxf-bundle</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -282,7 +314,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <finalName>cxf-incubator</finalName>
+                    <finalName>cxf-manifest-incubator</finalName>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>

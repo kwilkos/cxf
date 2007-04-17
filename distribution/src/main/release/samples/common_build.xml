@@ -81,7 +81,10 @@
         <pathelement location="${basedir}"/>
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
-        <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
+        <pathelement location="${cxf.home}/modules/cxf-manifest-incubator.jar"/>
+    	<fileset dir="${cxf.home}/lib">
+    		<include name="**/*.jar"/>
+    	</fileset>
     </path>
     <condition property="thirdparty.classpath" value="">
         <not> <isset property="thirdparty.classpath"/> </not>
