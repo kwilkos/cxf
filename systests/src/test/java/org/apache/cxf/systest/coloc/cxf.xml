@@ -21,6 +21,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xmlns:jms="http://cxf.apache.org/transports/jms"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
        xsi:schemaLocation="
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
@@ -97,5 +98,19 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
     </bean>
 
+    <!-- Avoid upfront Conduit creation, as client-side transport resources
+         are not required in the coloc case -->
+    <jaxws:client id="{http://apache.org/headers/rpc_lit}SoapPort" 
+                  abstract="true">
+        <jaxws:conduitSelector>
+            <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
+        </jaxws:conduitSelector>
+    </jaxws:client>
+    <jaxws:client id="{http://apache.org/headers/doc_lit}SoapPort9000" 
+                  abstract="true">
+        <jaxws:conduitSelector>
+            <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
+        </jaxws:conduitSelector>
+    </jaxws:client>
 
 </beans>
