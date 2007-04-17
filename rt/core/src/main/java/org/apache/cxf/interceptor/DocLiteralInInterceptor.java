@@ -19,6 +19,8 @@
 
 package org.apache.cxf.interceptor;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -116,10 +118,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 }
 
                 // loop through each child element
-                while (StaxUtils.toNextElement(xmlReader) && itr.hasNext()) {
-                    MessagePartInfo part = itr.next();
-                    parameters.add(dr.read(part, xmlReader));
-                }
+                getPara(xmlReader, dr, parameters, itr);
             }
 
         } else {
@@ -194,6 +193,42 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             message.setContent(List.class, parameters);
         }
     }
+    
+    private void getPara(DepthXMLStreamReader xmlReader,
+                         DataReader<XMLStreamReader> dr,
+                         List<Object> parameters,
+                         Iterator<MessagePartInfo> itr) {
+
+        boolean isListPara = false;
+        List<Object> list = new ArrayList<Object>();
+        MessagePartInfo part = null;
+        while (StaxUtils.toNextElement(xmlReader)) {
+            if (itr.hasNext()) {
+                part = itr.next();
+                if (part.getTypeClass().getName().startsWith("[L")) {
+                    //it's List Para
+                    isListPara = true;
+                    Type genericType = (Type) part.getProperty("generic.type");
+                    ParameterizedType pt = (ParameterizedType) genericType;
+                    part.setTypeClass((Class<?>)pt.getActualTypeArguments()[0]);
+                } 
+            } 
+            if (part == null) {
+                break;
+            }
+            list.add(dr.read(part, xmlReader));
+
+        }
+        if (isListPara) {
+            parameters.add(list);
+        } else {
+            for (Object obj : list) {
+                parameters.add(obj);
+            }
+
+        }
+    }
+
 
     private MessageInfo setMessage(Message message, BindingOperationInfo operation,
                                    boolean requestor, ServiceInfo si) {
