@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -53,20 +54,19 @@ public class ServletController {
     public void invoke(HttpServletRequest request, HttpServletResponse res) throws ServletException {
         try {
             EndpointInfo ei = new EndpointInfo();
-            String address = "http://localhost" + request.getServletPath() 
+            String address = "http://localhost" 
                 + (request.getPathInfo() == null ? "" : request.getPathInfo());
-            
+
             ei.setAddress(address);
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
                 if (request.getRequestURI().endsWith("services")
-                    || request.getRequestURI().endsWith("services/")) {
+                    || request.getRequestURI().endsWith("services/")
+                    || StringUtils.isEmpty(request.getPathInfo())) {
                     generateServiceList(request, res);
                 } else {
                     LOG.warning("Can't find the the request for " + request.getRequestURI() + "'s Observer ");
-                    LOG.warning(transport.getDestinationsPaths().toString());
-                    LOG.warning(transport.getDestinations().toString());
                     generateNotFound(request, res);
                 }
             } else {
@@ -109,8 +109,11 @@ public class ServletController {
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
         
-        String reqPerfix = request.getRequestURL().toString();
-        reqPerfix = reqPerfix.substring(0, reqPerfix.lastIndexOf("services"));
+        String reqPerfix = request.getScheme() + "://" + request.getServerName();
+        if (request.getServerPort() != 80 && request.getServerPort() != 0) {
+            reqPerfix += ":" + request.getServerPort();
+        }
+        reqPerfix += request.getContextPath() + request.getServletPath() + "/";
         
         if (destinations.size() > 0) {  
             for (ServletDestination sd : destinations) {

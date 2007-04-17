@@ -89,13 +89,8 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
         ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
                                          + ":type=Bus.Service.Endpoint,*");
         Set s = mbs.queryNames(name, null);
-        //assertTrue(s.size() == 1);
-        Iterator it = s.iterator();
-        
-        while (it.hasNext()) {
-            name = (ObjectName)it.next();
-            System.out.println("ObjectName: " + name);           
-        }
+        assertTrue(s.size() == 1);
+        name = (ObjectName)s.iterator().next();
         
         Object val = mbs.invoke(name, "getState", new Object[0], new String[0]);    
         assertEquals("Service should have been started.", "STARTED", val);

@@ -27,7 +27,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
   
   <jaxws:endpoint 
     id="greeter1" 
-    address="/services/greeter"
+    address="/greeter"
   	implementor="org.apache.hello_world_soap_http.GreeterImpl"
   	wsdlLocation="/org/apache/cxf/systest/servlet/hello_world.wsdl"      />
 

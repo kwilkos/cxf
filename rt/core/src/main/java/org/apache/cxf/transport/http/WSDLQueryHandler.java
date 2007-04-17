@@ -21,9 +21,12 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.wsdl.Definition;
@@ -47,6 +50,8 @@ import org.xml.sax.SAXException;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -56,6 +61,7 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 
 public class WSDLQueryHandler implements QueryHandler {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WSDLQueryHandler.class);
 
     Bus bus;
     public WSDLQueryHandler(Bus b) {
@@ -164,20 +170,26 @@ public class WSDLQueryHandler implements QueryHandler {
             
             XMLUtils.writeTo(doc, os);
         } catch (WSDLException wex) {
-            wex.printStackTrace();
+            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
+                                                     BUNDLE,
+                                                     baseUri), wex);
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
+                                                     BUNDLE,
+                                                     baseUri), e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
+                                                     BUNDLE,
+                                                     baseUri), e);
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
+                                                     BUNDLE,
+                                                     baseUri), e);
         }
     }
     
-    private void updateDefinition(Definition def, Map<String, Definition> done,
+    
+    protected void updateDefinition(Definition def, Map<String, Definition> done,
                                   Map<String, SchemaReference> doneSchemas,
                                   String base, EndpointInfo ei) {
         Collection<List> imports = CastUtils.cast((Collection<?>)def.getImports().values());
@@ -185,13 +197,18 @@ public class WSDLQueryHandler implements QueryHandler {
             List<Import> impLst = CastUtils.cast(lst);
             for (Import imp : impLst) {
                 String start = imp.getLocationURI();
-                String uri = start;
-                if (!uri.startsWith(base)) {
-                    uri = base + "?wsdl=" + uri;
+                try {
+                    //check to see if it's aleady in a URL format.  If so, leave it.
+                    new URL(start);
+                } catch (MalformedURLException e) {
+                    String uri = start;
+                    if (!uri.startsWith(base)) {
+                        uri = base + "?wsdl=" + uri;
+                    }
+                    imp.setLocationURI(uri);
+                    done.put(start, imp.getDefinition());
+                    updateDefinition(imp.getDefinition(), done, doneSchemas, base, ei);
                 }
-                imp.setLocationURI(uri);
-                done.put(start, imp.getDefinition());
-                updateDefinition(imp.getDefinition(), done, doneSchemas, base, ei);
             }
         }      
         
@@ -211,22 +228,28 @@ public class WSDLQueryHandler implements QueryHandler {
         }
     }
     
-    private void updateSchemaImports(Schema schema,
-                                     Map<String, SchemaReference> doneSchemas,
-                                     String base) {
+    protected void updateSchemaImports(Schema schema,
+                                           Map<String, SchemaReference> doneSchemas,
+                                           String base) {
         Collection<List>  imports = CastUtils.cast((Collection<?>)schema.getImports().values());
         for (List lst : imports) {
             List<SchemaImport> impLst = CastUtils.cast(lst);
             for (SchemaImport imp : impLst) {
                 String start = imp.getSchemaLocationURI();
                 if (start != null) {
-                    String uri = start;
-                    if (!uri.startsWith(base)) {
-                        uri = base + "?xsd=" + uri;
+                    try {
+                        //check to see if it's aleady in a URL format.  If so, leave it.
+                        new URL(start);
+                    } catch (MalformedURLException e) {
+                    
+                        String uri = start;
+                        if (!uri.startsWith(base)) {
+                            uri = base + "?xsd=" + uri;
+                        }
+                        imp.setSchemaLocationURI(uri);
+                        doneSchemas.put(start, imp);
+                        updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
                     }
-                    imp.setSchemaLocationURI(uri);
-                    doneSchemas.put(start, imp);
-                    updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
                 }
             }
         }
@@ -234,16 +257,19 @@ public class WSDLQueryHandler implements QueryHandler {
         for (SchemaReference included : includes) {
             String start = included.getSchemaLocationURI();
             if (start != null) {
-                String uri = start;
-                if (!uri.startsWith(base)) {
-                    uri = base + "?xsd=" + uri;
+                try {
+                    //check to see if it's aleady in a URL format.  If so, leave it.
+                    new URL(start);
+                } catch (MalformedURLException e) {
+                    String uri = start;
+                    if (!uri.startsWith(base)) {
+                        uri = base + "?xsd=" + uri;
+                    }
+                    included.setSchemaLocationURI(uri);
+                    doneSchemas.put(start, included);
+                    updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
                 }
-                included.setSchemaLocationURI(uri);
-                doneSchemas.put(start, included);
-                updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
             }
         }
-        
     }
-
 }

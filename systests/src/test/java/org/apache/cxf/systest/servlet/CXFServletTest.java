@@ -94,14 +94,14 @@ public class CXFServletTest extends AbstractServletTest {
         WebResponse res = client.getResponse("http://localhost/services");    
         
         WebLink[] links = res.getLinks();
-        assertEquals("There should get one link for service", links.length, 1);
-        assertEquals(links[0].getURLString(), "http://localhost/services/greeter?wsdl");       
+        assertEquals("There should get one link for service", 1, links.length);
+        assertEquals("http://localhost/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
         
         res = client.getResponse("http://localhost/services/");
         links = res.getLinks();
-        assertEquals("There should get one link for service", links.length, 1);
-        assertEquals(links[0].getURLString(), "http://localhost/services/greeter?wsdl");       
+        assertEquals("There should get one link for service", 1, links.length);
+        assertEquals("http://localhost/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
     }
     

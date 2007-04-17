@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.http;
 
 import java.net.URL;
+
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -77,7 +78,7 @@ public class Server extends AbstractBusTestServerBase {
 
     public static void main(String[] args) {
         try {
-            Server s = new Server(args[0], args[1], args[3]);
+            Server s = new Server(args);
             s.start();
         } catch (Exception ex) {
             ex.printStackTrace();
