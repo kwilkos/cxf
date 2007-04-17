@@ -244,6 +244,8 @@ public class WSDLServiceBuilderTest extends Assert {
         assertNotNull(greetMeOneWayUnwrapped.getInput());
         assertNull(greetMeOneWayUnwrapped.getOutput());
         assertEquals("wrapped part not set", 1, greetMeOneWayUnwrapped.getInput().size());
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "requestType"),
+                     greetMeOneWayUnwrapped.getInput().getMessagePartByIndex(0).getConcreteName());
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "pingMe");
         OperationInfo pingMe = serviceInfo.getInterface().getOperation(name);

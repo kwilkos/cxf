@@ -721,6 +721,7 @@ public class WSDLServiceBuilder {
                 if (el.getSchemaTypeName() != null) {
                     MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
                     mpi.setTypeQName(el.getSchemaTypeName());
+                    mpi.setConcreteName(el.getQName());
                     mpi.setXmlSchema(el);
                 } else if (el.getRefName() != null) {
                     MessagePartInfo mpi = wrapper.addMessagePart(el.getRefName());
