@@ -45,6 +45,7 @@ import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+//import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.MessageObserver;
 
 public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
@@ -120,6 +121,11 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
         Message m = getInBoundMessage(ex);
         Message inMsg = ep.getBinding().createMessage();
         MessageImpl.copyContent(m, inMsg);
+        
+        //Copy Response Context to Client inBound Message
+        //TODO a Context Filter Strategy required. 
+        inMsg.putAll(m);
+        
         inMsg.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         inMsg.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
         inMsg.setExchange(ex);
@@ -153,7 +159,7 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
     protected void setMessageObserver(MessageObserver observer) {
         colocObserver = observer;
     }
-    
+
     protected Server isColocated(List<Server> servers, Endpoint endpoint, BindingOperationInfo boi) {
         if (servers != null) {
             Service senderService = endpoint.getService();
@@ -163,15 +169,24 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 Service receiverService = receiverEndpoint.getService();
                 EndpointInfo receiverEI = receiverEndpoint.getEndpointInfo();
                 if (receiverService.getName().equals(senderService.getName())
-                    && receiverEI.getName().equals(senderEI.getName())
-                    && receiverEI.getBinding().getOperation(boi.getName()) != null) {
-                    return s;
-                    //TODO Do a Strict check on the SEI Method from the implementor. 
+                    && receiverEI.getName().equals(senderEI.getName())) {
+                    //Check For Operation Match.
+                    BindingOperationInfo receiverOI = receiverEI.getBinding().getOperation(boi.getName());
+                    if (receiverOI != null 
+                        && isSameOperationInfo(boi, receiverOI)) {
+                        return s;
+                    }
                 }
             }
         }
         
         return null;
+    }
+    
+    protected boolean isSameOperationInfo(BindingOperationInfo sender,
+                                          BindingOperationInfo receiver) {
+        return ColocUtil.isSameOperationInfo(sender.getOperationInfo(), 
+                                             receiver.getOperationInfo());
     }
     
     public void setExchangeProperties(Exchange exchange, Endpoint ep) {

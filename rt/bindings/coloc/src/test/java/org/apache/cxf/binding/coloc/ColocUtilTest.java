@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -34,6 +36,14 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.phase.PhaseManagerImpl;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.FaultInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.headers.coloc.types.FaultDetailT;
+import org.apache.headers.coloc.types.InHeaderT;
+import org.apache.headers.coloc.types.OutHeaderT;
+import org.apache.headers.rpc_lit.PingMeFault;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
@@ -151,6 +161,70 @@ public class ColocUtilTest extends Assert {
                      false,
                      iter.hasNext());
         assertNotNull("OutFaultObserver should be set", chain.getFaultObserver());
+    }
+    
+    @Test
+    public void testIsSameFaultInfo() {
+        OperationInfo oi = control.createMock(OperationInfo.class);
+        
+        boolean match = ColocUtil.isSameFaultInfo(null, null);
+        assertEquals("Should return true", true, match);
+        List<FaultInfo> fil1 = new ArrayList<FaultInfo>();
+        match = ColocUtil.isSameFaultInfo(fil1, null);
+        assertEquals("Should not find a match", false, match);
+        match = ColocUtil.isSameFaultInfo(null, fil1);
+        assertEquals("Should not find a match", false, match);
+        
+        List<FaultInfo> fil2 = new ArrayList<FaultInfo>();
+        match = ColocUtil.isSameFaultInfo(fil1, fil2);
+        
+        QName fn1 = new QName("A", "B");
+        QName fn2 = new QName("C", "D");
+        
+        FaultInfo fi1 = new FaultInfo(fn1, null, oi);
+        fi1.setProperty(Class.class.getName(), PingMeFault.class);
+        fil1.add(fi1);
+        FaultInfo fi2 = new FaultInfo(fn2, null, oi);
+        fi2.setProperty(Class.class.getName(), FaultDetailT.class);
+        match = ColocUtil.isSameFaultInfo(fil1, fil2);
+        assertEquals("Should not find a match", false, match);
+
+        FaultInfo fi3 = new FaultInfo(fn2, null, oi);
+        fi3.setProperty(Class.class.getName(), PingMeFault.class);
+        fil2.add(fi3);
+        match = ColocUtil.isSameFaultInfo(fil1, fil2);
+        assertEquals("Should find a match", true, match);
+    }
+    
+    @Test
+    public void testIsSameMessageInfo() {
+        OperationInfo oi = control.createMock(OperationInfo.class);
+        boolean match = ColocUtil.isSameMessageInfo(null, null);
+        assertEquals("Should return true", true, match);
+        QName mn1 = new QName("A", "B");
+        QName mn2 = new QName("C", "D");
+
+        MessageInfo mi1 = new MessageInfo(oi, mn1);
+        MessageInfo mi2 = new MessageInfo(oi, mn2);
+        match = ColocUtil.isSameMessageInfo(mi1, null);
+        assertEquals("Should not find a match", false, match);
+        match = ColocUtil.isSameMessageInfo(null, mi2);
+        assertEquals("Should not find a match", false, match);
+        
+        MessagePartInfo mpi = new MessagePartInfo(new QName("", "B"), null);
+        mpi.setTypeClass(InHeaderT.class);
+        mi1.addMessagePart(mpi);
+        
+        mpi = new MessagePartInfo(new QName("", "D"), null);
+        mpi.setTypeClass(OutHeaderT.class);
+        mi2.addMessagePart(mpi);
+        
+        match = ColocUtil.isSameMessageInfo(mi1, mi2);
+        assertEquals("Should not find a match", false, match);
+        
+        mpi.setTypeClass(InHeaderT.class);
+        match = ColocUtil.isSameMessageInfo(mi1, mi2);
+        assertEquals("Should find a match", true, match);
     }
     
 }

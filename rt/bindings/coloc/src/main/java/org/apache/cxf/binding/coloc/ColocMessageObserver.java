@@ -59,6 +59,10 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         Message inMsg = endpoint.getBinding().createMessage();
         MessageImpl.copyContent(m, inMsg);
         
+        //Copy Request Context to Server inBound Message
+        //TODO a Context Filter Strategy required. 
+        inMsg.putAll(m);
+
         inMsg.put(COLOCATED, Boolean.TRUE);
         inMsg.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
         inMsg.put(Message.INBOUND_MESSAGE, Boolean.TRUE);

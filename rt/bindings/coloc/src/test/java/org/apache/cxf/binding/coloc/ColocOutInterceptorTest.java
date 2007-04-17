@@ -372,6 +372,7 @@ public class ColocOutInterceptorTest extends Assert {
     }
 
     private void verifyIsColocatedWithSameOperation() {
+        colocOut = new TestColocOutInterceptor1();
         //Funtion Param
         Server s1 = control.createMock(Server.class);
         List<Server> list = new ArrayList<Server>();
@@ -421,6 +422,10 @@ public class ColocOutInterceptorTest extends Assert {
         
         public void invokeInboundChain(Exchange exchange, Endpoint ep) {
             //No Op
-        }        
+        }
+        
+        protected boolean isSameOperationInfo(BindingOperationInfo s, BindingOperationInfo r) {
+            return true;
+        }
     }
 }

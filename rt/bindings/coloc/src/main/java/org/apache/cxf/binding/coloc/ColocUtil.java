@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.binding.coloc;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Level;
@@ -30,6 +32,10 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.service.model.FaultInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 public final class ColocUtil {
     //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ColocInInterceptor.class);
@@ -106,4 +112,69 @@ public final class ColocUtil {
         return chain;
     }    
     
+    public static boolean isSameOperationInfo(OperationInfo oi1, OperationInfo oi2) {
+        return  oi1.getName().equals(oi2.getName())
+                && isSameMessageInfo(oi1.getInput(), oi2.getInput())
+                && isSameMessageInfo(oi1.getOutput(), oi2.getOutput())
+                && isSameFaultInfo(oi1.getFaults(), oi2.getFaults());
+    }
+    
+    public static boolean isSameMessageInfo(MessageInfo mi1, MessageInfo mi2) {
+        if ((mi1 == null && mi2 != null)
+            || (mi1 != null && mi2 == null)) {
+            return false;
+        }
+        
+        if (mi1 != null && mi2 != null) {
+            List<MessagePartInfo> mpil1 = mi1.getMessageParts();
+            List<MessagePartInfo> mpil2 = mi2.getMessageParts();
+            if (mpil1.size() != mpil2.size()) {
+                return false;
+            }
+            int idx = 0;
+            for (MessagePartInfo mpi1 : mpil1) {
+                MessagePartInfo mpi2 = mi2.getMessagePartByIndex(idx);
+                if (!mpi1.getTypeClass().equals(mpi2.getTypeClass())) {
+                    return false;
+                }
+                ++idx;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean isSameFaultInfo(Collection<FaultInfo> fil1, 
+                                          Collection<FaultInfo> fil2) {
+        if ((fil1 == null && fil2 != null)
+            || (fil1 != null && fil2 == null)) {
+            return false;
+        }
+        
+        if (fil1 != null && fil2 != null) {
+            if (fil1.size() != fil2.size()) {
+                return false;
+            }
+            for (FaultInfo fi1 : fil1) {
+                Iterator<FaultInfo> iter = fil2.iterator();
+                Class<?> fiClass1 = fi1.getProperty(Class.class.getName(), 
+                                                    Class.class);
+                boolean match = false;
+                while (iter.hasNext()) {
+                    FaultInfo fi2 = iter.next();
+                    Class<?> fiClass2 = fi2.getProperty(Class.class.getName(), 
+                                                        Class.class);
+                    //Sender/Receiver Service Model not same for faults wr.t message names.
+                    //So Compare Exception Class Instance.
+                    if (fiClass1.equals(fiClass2)) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) {
+                    return false;        
+                }
+            }
+        }
+        return true;
+    }
 }
