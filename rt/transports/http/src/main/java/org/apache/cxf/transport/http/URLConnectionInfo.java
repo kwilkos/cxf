@@ -16,25 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+ 
 package org.apache.cxf.transport.http;
 
-import java.io.IOException;
-import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * Encapsulates creation of URLConnection.
+ * This class is returned from the URLConnectionFactory to give
+ * information that is from the URLConnection that was created by that
+ * factory.
  */
-public interface URLConnectionFactory {
-
+public class URLConnectionInfo {
     /**
-     * Create a URLConnection, proxified if neccessary.
-     * 
-     * @param proxy non-null if connection should be proxified
-     * @param url the target URL
-     * @return an appropriate URLConnection
+     * The URL the connection is associated with.
      */
-    URLConnection createConnection(Proxy proxy, URL url) throws IOException;
+    protected final URL theURL;
+    
+    /**
+     * This constructor is used to represent a URLConnection.
+     * 
+     * @param connection The URLConnection that this info object will represent.
+     */
+    public URLConnectionInfo(URLConnection connection) {
+        theURL = connection.getURL();
+    }
+    
+    /**
+     * This field returns the URL associated with the connection
+     * in question.
+     * 
+     * @return
+     */
+    public URL getURL() {
+        return theURL;
+    }
 }

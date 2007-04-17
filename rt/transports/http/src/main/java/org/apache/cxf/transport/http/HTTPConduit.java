@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.transport.http;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,8 +30,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,33 +64,178 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.policy.Assertor;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.apache.geronimo.mail.util.StringBufferOutputStream;
 
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 
 
-/**
+/*
  * HTTP Conduit implementation.
+ * <p>
+ * This implementation is a based on the java.net.URLConnection interface and
+ * dependent upon installed implementations of that URLConnection, 
+ * HttpURLConnection, and HttpsURLConnection. Currently, this implemenation
+ * has been known to work with the Sun JDK 1.5 default implementations. The
+ * HttpsURLConnection is part of Sun's implemenation of the JSSE. 
+ * Presently, the source code for the Sun JSSE implemenation is unavaiable
+ * and therefore we may only lay a guess of whether its HttsURLConnection
+ * implemenation correctly works as far as security is concerned.
+ * <p>
+ * The Trust Decision. If a MessageTrustDecider is configured/set for the 
+ * Conduit, it is called upon the first flush of the headers in the 
+ * WrappedOutputStream. This reason for this approach is two fold. 
+ * Theoretically, in order to get connection information out of the 
+ * URLConnection, it must be "connected". We assume that its implementation will
+ * only follow through up to the point at which it will be ready to send
+ * one byte of data down to the endpoint, but through proxies, and the 
+ * commpletion of a TLS handshake in the case of HttpsURLConnection. 
+ * However, if we force the connect() call right away, the default
+ * implementations will not allow any calls to add/setRequestProperty,
+ * throwing an exception that the URLConnection is already connected. 
+ * <p>
+ * We need to keep the semantic that later CXF interceptors may add to the 
+ * PROTOCOL_HEADERS in the Message. This architectual decision forces us to 
+ * delay the connection until after that point, then pulling the trust decision.
+ * <p>
+ * The security caveat is that we don't really know when the connection is 
+ * really established. The call to "connect" is stated to force the 
+ * "connection," but it is a no-op if the connection was already established. 
+ * It is entirely possible that an implementation of an URLConnection may 
+ * indeed connect at will and start sending the headers down the connection 
+ * during calls to add/setRequestProperty!
+ * <p>
+ * We know that the JDK 1.5 sun.com.net.www.HttpURLConnection does not send
+ * this information before the "connect" call, because we can look at the
+ * source code. However, we can only assume, not verify, that the JSSE 1.5 
+ * HttpsURLConnection does the same, in that it is probable that the 
+ * HttpsURLConnection shares the HttpURLConnection implemenation.
+ * <p>
+ * Due to these implementations following redirects without trust checks, we
+ * force the URLConnection implementations not to follow redirects. If 
+ * client side policy dictates that we follow redirects, trust decisions are
+ * placed before each retransmit. On a redirect, any authorization information
+ * dynamically acquired by a BasicAuth UserPass supplier is removed before
+ * being retransmitted, as it may no longer be applicable to the new url to
+ * which the connection is redirected.
  */
-public class HTTPConduit extends AbstractConduit implements Configurable, Assertor {   
-    public static final String HTTP_CONNECTION = "http.connection";
+
+/**
+ * This Conduit handles the "http" and "https" transport protocols. An
+ * instance is governed by policies either explicity set or by 
+ * configuration.
+ */
+public class HTTPConduit 
+    extends AbstractConduit 
+    implements Configurable, Assertor {  
+
+    /**
+     *  This constant is the Message(Map) key for the HttpURLConnection that
+     *  is used to get the response.
+     */
+    public static final String KEY_HTTP_CONNECTION = "http.connection";
+
+    /**
+     * This constant is the Message(Map) key for a list of visited URLs that
+     * is used in redirect loop protection.
+     */
+    private static final String KEY_VISITED_URLS = "VisitedURLs";
+
+    /**
+     * This constant is the Message(Map) key for a list of URLs that
+     * is used in authorization loop protection.
+     */
+    private static final String KEY_AUTH_URLS = "AuthURLs";
+    
+    /**
+     * The Logger for this class.
+     */
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     
-    private final Bus bus;    
-    private final URLConnectionFactory alternateConnectionFactory;
-    private URLConnectionFactory connectionFactory;
-    private URL url;
+    /**
+     * This constant holds the suffix ".http-conduit" that is appended to the 
+     * Endpoint Qname to give the configuration name of this conduit.
+     */
+    private static final String SC_HTTP_CONDUIT_SUFFIX = ".http-conduit";
+
+
+    /**
+     * This field holds the connection factory, which primarily is used to 
+     * factor out SSL specific code from this implementation.
+     * <p>
+     * This field is "protected" to facilitate some contrived UnitTesting so
+     * that an extended class may alter its value with an EasyMock URLConnection
+     * Factory. 
+     */
+    protected HttpURLConnectionFactory connectionFactory;
     
+    /**
+     *  This field holds a reference to the CXF bus associated this conduit.
+     */
+    private final Bus bus;
+
+    /**
+     * This field is used for two reasons. First it provides the base name for
+     * the conduit for Spring configuration. The other is to hold default 
+     * address information, should it not be supplied in the Message Map, by the 
+     * Message.ENDPOINT_ADDRESS property.
+     */
+    private final EndpointInfo endpointInfo;
+    
+    /**
+     * This field holds the "default" URL for this particular conduit, which
+     * is set at construction.
+     */
+    private final URL defaultEndpointURL;
     private Destination decoupledDestination;
     private MessageObserver decoupledObserver;
     private int decoupledDestinationRefCount;
-    private EndpointInfo endpointInfo;
     
-    // Configuration values
-    private HTTPClientPolicy client;
-    private AuthorizationPolicy authorization;
-    private AuthorizationPolicy proxyAuthorization;
-    private SSLClientPolicy sslClient;
+    // Configuratble/settable values
     
+    /**
+     * This field holds the QoS configuration settings for this conduit.
+     * This field is injected via spring configuration based on the conduit 
+     * name.
+     */
+    private HTTPClientPolicy clientSidePolicy;
+    
+    /**
+     * This field holds the password authorization configuration.
+     * This field is injected via spring configuration based on the conduit 
+     * name.
+    */
+    private AuthorizationPolicy authorizationPolicy;
+    
+    /**
+     * This field holds the password authorization configuration for the 
+     * configured proxy. This field is injected via spring configuration based 
+     * on the conduit name.
+     */
+    private AuthorizationPolicy proxyAuthorizationPolicy;
+    
+    /**
+     * This field holds the configuration TLS configuration which is
+     * "injected" by spring based on the conduit name.
+     */
+    private SSLClientPolicy sslClientSidePolicy;
+    
+    /**
+     * This field contains the MessageTrustDecider.
+     */
+    private MessageTrustDecider trustDecider;
+    
+    /**
+     * This field contains the HttpBasicAuthSupplier.
+     */
+    private HttpBasicAuthSupplier basicAuthSupplier;
+
+    /**
+     * This boolean signfies that that finalizeConfig is called, which is
+     * after the HTTPTransportFactory configures this object via spring.
+     * At this point, any change by a "setter" is dynamic, and any change
+     * should be handled as such.
+     */
+    private boolean configFinalized;
 
     /**
      * Constructor
@@ -105,109 +253,351 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
     /**
      * Constructor
      * 
-     * @param b the associated Bus
-     * @param ei the endpoint info of the initiator
-     * @param t the endpoint reference of the target
+     * @param associatedBus  The associated Bus.
+     * @param endpoint       The endpoint info of the initiator.
+     * @param epr            The endpoint reference of the target.
      * @throws IOException
      */
-    public HTTPConduit(Bus b, EndpointInfo ei, EndpointReferenceType t) throws IOException {
-        this(b,
-             ei,
-             t,
-             null);
-    }    
+    public HTTPConduit(
+        Bus                   associatedBus, 
+        EndpointInfo          endpoint, 
+        EndpointReferenceType epr
+    ) throws IOException {
 
-    /**
-     * Constructor, allowing subsititution of
-     * connnection factory and decoupled engine.
-     * 
-     * @param b the associated Bus
-     * @param ei the endpoint info of the initiator
-     * @param t the endpoint reference of the target
-     * @param factory the URL connection factory
-     * @throws IOException
-     */
-    public HTTPConduit(Bus b,
-                       EndpointInfo ei,
-                       EndpointReferenceType t,
-                       URLConnectionFactory factory) throws IOException {
-        super(getTargetReference(ei, t, b));
-        bus = b;
-        endpointInfo = ei;
-        alternateConnectionFactory = factory;
-
-        initConfig();
+        super(getTargetReference(endpoint, epr, associatedBus));
         
-        url = t == null
+        bus          = associatedBus;
+        endpointInfo = endpoint;
+
+        defaultEndpointURL = epr == null
               ? new URL(endpointInfo.getAddress())
-              : new URL(t.getAddress().getValue());
+              : new URL(epr.getAddress().getValue());
+
+        initializeConfig();                                    
     }
 
-
+    /**
+     * This method returns the registered Logger for this conduit.
+     */
     protected Logger getLogger() {
         return LOG;
     }
-    
-    protected void retrieveConnectionFactory() {
-        connectionFactory = alternateConnectionFactory != null
-                            ? alternateConnectionFactory
-                            : AbstractHTTPTransportFactory.getConnectionFactory(
-                                getSslClient());
-    }
-   
+
     /**
-     * Prepare the outbound message for sending.
+     * This method returns the name of the conduit, which is based on the
+     * endpoint name plus the SC_HTTP_CONDUIT_SUFFIX.
+     * @return
+     */
+    public final String getConduitName() {
+        return endpointInfo.getName() + SC_HTTP_CONDUIT_SUFFIX;
+    }
+
+    /**
+     * This method is called from the constructor which initializes
+     * the configuration. The TransportFactory will call configureBean
+     * on this object after construction.
+     */    
+    private void initializeConfig() {
+    
+        // wsdl extensors are superseded by policies which in        
+        // turn are superseded by injection                          
+
+        PolicyEngine pe = bus.getExtension(PolicyEngine.class);      
+        if (null != pe && pe.isEnabled()) {                          
+            clientSidePolicy =                                       
+                PolicyUtils.getClient(pe, endpointInfo, this);              
+        }                                                            
+
+    }
+    
+    /**
+     * This call gets called by the HTTPTransportFactory after it
+     * causes an injection of the Spring configuration properties
+     * of this Conduit.
+     */
+    void finalizeConfig() {
+        // See if not set by configuration, if there are defaults
+        // in order from the Endpoint, Service, or Bus.
+        
+        if (this.clientSidePolicy == null) {
+            clientSidePolicy = endpointInfo.getTraversedExtensor(
+                    new HTTPClientPolicy(), HTTPClientPolicy.class);
+        }
+        if (this.authorizationPolicy == null) {
+            authorizationPolicy = endpointInfo.getTraversedExtensor(
+                    new AuthorizationPolicy(), AuthorizationPolicy.class);
+           
+        }
+        // This doesn't work well for proxyAuthorization because of the
+        // sameness of the class.
+        // TODO: Fix proxyAuthorization
+        if (this.proxyAuthorizationPolicy == null) {
+            proxyAuthorizationPolicy = endpointInfo.getTraversedExtensor(
+                    new AuthorizationPolicy(), AuthorizationPolicy.class);
+           
+        }
+        if (this.sslClientSidePolicy == null) {
+            sslClientSidePolicy = endpointInfo.getTraversedExtensor(
+                    null, SSLClientPolicy.class);
+        }
+        if (this.trustDecider == null) {
+            trustDecider = endpointInfo.getTraversedExtensor(
+                    null, MessageTrustDecider.class);
+        }
+        if (this.basicAuthSupplier == null) {
+            basicAuthSupplier = endpointInfo.getTraversedExtensor(
+                    null, HttpBasicAuthSupplier.class);
+        }
+        if (trustDecider == null) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO,
+                    "No Trust Decider configured for Conduit '"
+                    + getConduitName() + "'");
+            }
+        } else {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "Message Trust Decider of class '" 
+                    + trustDecider.getClass().getName()
+                    + "' with logical name of '"
+                    + trustDecider.getLogicalName()
+                    + "' has been configured for Conduit '" 
+                    + getConduitName()
+                    + "'");
+            }
+        }
+        if (basicAuthSupplier == null) {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO,
+                    "No Basic Auth Supplier configured for Conduit '"
+                    + getConduitName() + "'");
+            }
+        } else {
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "HttpBasicAuthSupplier of class '" 
+                    + basicAuthSupplier.getClass().getName()
+                    + "' with logical name of '"
+                    + basicAuthSupplier.getLogicalName()
+                    + "' has been configured for Conduit '" 
+                    + getConduitName()
+                    + "'");
+            }
+        }
+
+        // Get the correct URLConnection factory based on the 
+        // configuration.
+        retrieveConnectionFactory();
+
+        // We have finalized the configuration. Any configurable entity
+        // set now, must make changes dynamically.
+        configFinalized = true;
+    }
+    
+    /**
+     * This method sets the connectionFactory field for this object. It is called
+     * after an SSL Client Policy is set or an HttpsHostnameVerifier
+     * because we need to reinitialize the connection factory.
+     * <p>
+     * This method is "protected" so that this class may be extended and override
+     * this method to put an EasyMock URL Connection factory for some contrived 
+     * UnitTest that will of course break, should the calls to the URL Connection
+     * Factory get altered.
+     */
+    protected void retrieveConnectionFactory() {
+        connectionFactory = AbstractHTTPTransportFactory.getConnectionFactory(this);
+    }
+    
+    /**
+     * Prepare to send an outbound HTTP message over this http conduit to a 
+     * particular endpoint.
+     * <P>
+     * If the Message.PATH_INFO property is set it gets appended
+     * to the Conduit's endpoint URL. If the Message.QUERY_STRING
+     * property is set, it gets appended to the resultant URL following
+     * a "?".
+     * <P>
+     * If the Message.HTTP_REQUEST_METHOD property is NOT set, the
+     * Http request method defaults to "POST".
+     * <P>
+     * If the Message.PROTOCOL_HEADERS is not set on the message, it is
+     * initialized to an empty map.
+     * <P>
+     * This call creates the OutputStream for the content of the message.
+     * It also assigns the created Http(s)URLConnection to the Message
+     * Map.
      * 
-     * @param message the message to be sent.
+     * @param message The message to be sent.
      */
     public void prepare(Message message) throws IOException {
-        Map<String, List<String>> headers = setHeaders(message);
-        URL currentURL = setupURL(message);   
-        HTTPClientPolicy clientPolicy = getClient(message);
-        URLConnection connection = 
-            connectionFactory.createConnection(getProxy(clientPolicy), currentURL);
+        Map<String, List<String>> headers = getSetProtocolHeaders(message);
+        
+        // This call can possibly change the conduit endpoint address and 
+        // protocol from the default set in EndpointInfo that is associated
+        // with the Conduit.
+        URL currentURL = setupURL(message);       
+        
+        HttpBasicAuthSupplier.UserPass userPass = null;
+        
+        // The need to cache the request is off by default
+        boolean needToCacheRequest = false;
+        
+        HttpURLConnection connection = 
+            connectionFactory.createConnection(
+                      getProxy(clientSidePolicy), currentURL);
         connection.setDoOutput(true);  
         
         //TODO using Message context to deceided HTTP send properties 
              
-        connection.setConnectTimeout((int)clientPolicy.getConnectionTimeout());
-        connection.setReadTimeout((int)clientPolicy.getReceiveTimeout());
+        connection.setConnectTimeout((int)clientSidePolicy.getConnectionTimeout());
+        connection.setReadTimeout((int)clientSidePolicy.getReceiveTimeout());
         connection.setUseCaches(false);
+        // We implement redirects in this conduit. We do not
+        // rely on the underlying URLConnection implementation
+        // because of trust issues.
+        connection.setInstanceFollowRedirects(false);
         
-        if (connection instanceof HttpURLConnection) {
-            String httpRequestMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
-            HttpURLConnection hc = (HttpURLConnection)connection;           
-            if (null != httpRequestMethod) {
-                hc.setRequestMethod(httpRequestMethod);                 
-            } else {
-                hc.setRequestMethod("POST");
-            }
-            if (clientPolicy.isAutoRedirect()) {
-                //cannot use chunking if autoredirect as the request will need to be
-                //completely cached locally and resent to the redirect target
-                hc.setInstanceFollowRedirects(true);
-            } else {
-                hc.setInstanceFollowRedirects(false);
-                if (!hc.getRequestMethod().equals("GET")
-                    && clientPolicy.isAllowChunking()) {
-                    hc.setChunkedStreamingMode(2048);
-                }
+        // If the HTTP_REQUEST_METHOD is not set, the default is "POST".
+        String httpRequestMethod = 
+            (String)message.get(Message.HTTP_REQUEST_METHOD);        
+
+        if (null != httpRequestMethod) {
+            connection.setRequestMethod(httpRequestMethod);
+        } else {
+            connection.setRequestMethod("POST");
+        }
+        // We must cache the request if we have basic auth supplier
+        // without preemptive basic auth.
+        if (basicAuthSupplier != null) {
+            userPass = basicAuthSupplier.getPreemptiveUserPass(
+                    getConduitName(), currentURL, message);
+            needToCacheRequest = userPass == null;
+            LOG.log(Level.INFO,
+                "Basic Auth Supplier, but no Premeptive User Pass." 
+                + " We must cache request.");
+        }
+        if (getClient().isAutoRedirect()) {
+            // If the AutoRedirect property is set then we cannot
+            // use chunked streaming mode. We ignore the "AllowChunking" 
+            // property if AutoRedirect is turned on.
+            
+            needToCacheRequest = true;
+            LOG.log(Level.INFO, "AutoRedirect is turned on.");
+        } else {
+            if (!connection.getRequestMethod().equals("GET")
+                && getClient().isAllowChunking()
+                && !needToCacheRequest) {
+                //TODO: The chunking mode be configured or at least some
+                // documented client constant.
+                LOG.log(Level.INFO, "Chunking is set at 2048.");
+                connection.setChunkedStreamingMode(2048);
             }
         }
-        message.put(HTTP_CONNECTION, connection);
-        setPolicies(message, headers);
+        
+        // The trust decision is relagated to after the "flushing" of the
+        // request headers.
+        
+        // We place the connection on the message to pick it up
+        // in the WrappedOutputStream.
+        
+        message.put(KEY_HTTP_CONNECTION, connection);
+        
+        // Set the headers on the message according to configured 
+        // client side policy.
+        
+        setHeadersByPolicy(message, currentURL, headers);
      
         message.setContent(OutputStream.class,
-                           new WrappedOutputStream(message, connection));
+                new WrappedOutputStream(
+                        message, connection, needToCacheRequest));
+        
+        // We are now "ready" to "send" the message. 
     }
     
+    /**
+     * This call must take place before anything is written to the 
+     * URLConnection. The URLConnection.connect() will be called in order 
+     * to get the connection information. 
+     * 
+     * This method is invoked just after setURLRequestHeaders() from the 
+     * WrappedOutputStream before it writes data to the URLConnection.
+     * 
+     * If trust cannot be established the Trust Decider implemenation
+     * throws an IOException.
+     * 
+     * @param message      The message being sent.
+     * @throws IOException This exception is thrown if trust cannot be
+     *                     established by the configured MessageTrustDecider.
+     * @see MessageTrustDecider
+     */
+    private void makeTrustDecision(Message message)
+        throws IOException {
+
+        HttpURLConnection connection = 
+            (HttpURLConnection) message.get(KEY_HTTP_CONNECTION);
+        
+        if (trustDecider != null) {
+            try {
+                // We must connect or we will not get the credentials.
+                // The call is (said to be) ingored internally if
+                // already connected.
+                connection.connect();
+                trustDecider.establishTrust(
+                    getConduitName(), 
+                    connectionFactory.getConnectionInfo(connection),
+                    message);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(Level.FINE, "Trust Decider "
+                        + trustDecider.getLogicalName()
+                        + " considers Conduit "
+                        + getConduitName() 
+                        + " trusted.");
+                }
+            } catch (UntrustedURLConnectionIOException untrustedEx) {
+                // This cast covers HttpsURLConnection as well.
+                ((HttpURLConnection)connection).disconnect();
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.log(Level.INFO, "Trust Decider "
+                        + trustDecider.getLogicalName()
+                        + " considers Conduit "
+                        + getConduitName() 
+                        + " untrusted.", untrustedEx);
+                }
+                throw untrustedEx;
+            }
+        } else {
+            // This case, when there is no trust decider, a trust
+            // decision should be a matter of policy.
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "No Trust Decider for Conduit '"
+                    + getConduitName()
+                    + "'. An afirmative Trust Decision is assumed.");
+            }
+        }
+    }
     
+    /**
+     * This function sets up a URL based on ENDPOINT_ADDRESS, PATH_INFO,
+     * and QUERY_STRING properties in the Message. The QUERY_STRING gets
+     * added with a "?" after the PATH_INFO. If the ENDPOINT_ADDRESS is not
+     * set on the Message, the endpoint address is taken from the 
+     * "defaultEndpointURL".
+     * <p>
+     * The PATH_INFO is only added to the endpoint address string should 
+     * the PATH_INFO not equal the end of the endpoint address string.
+     * 
+     * @param message The message holds the addressing information.
+     * 
+     * @return The full URL specifying the HTTP request to the endpoint.
+     * 
+     * @throws MalformedURLException
+     */
     private URL setupURL(Message message) throws MalformedURLException {
         String value = (String)message.get(Message.ENDPOINT_ADDRESS);
         String pathInfo = (String)message.get(Message.PATH_INFO);
         String queryString = (String)message.get(Message.QUERY_STRING);
         
-        String result = value != null ? value : url.toString();
+        String result = value != null ? value : defaultEndpointURL.toString();
+        
+        // REVISIT: is this really correct?
         if (null != pathInfo && !result.endsWith(pathInfo)) { 
             result = result + pathInfo;
         }
@@ -235,16 +625,16 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
      * Close the conduit
      */
     public void close() {
-        if (url != null) {
+        if (defaultEndpointURL != null) {
             try {
-                URLConnection connect = url.openConnection();
+                URLConnection connect = defaultEndpointURL.openConnection();
                 if (connect instanceof HttpURLConnection) {
                     ((HttpURLConnection)connect).disconnect();
                 }
             } catch (IOException ex) {
                 //ignore
             }
-            url = null;
+            //defaultEndpointURL = null;
         }
     
         // in decoupled case, close response Destination if reference count
@@ -259,16 +649,19 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
      * @return the encapsulated URL
      */
     protected URL getURL() {
-        return url;
+        return defaultEndpointURL;
     }
 
     /**
-     * Ensure an initial set of header is availbale on the outbound message.
+     * While extracting the Message.PROTOCOL_HEADERS property from the Message,
+     * this call ensures that the Message.PROTOCOL_HEADERS property is
+     * set on the Message. If it is not set, an empty map is placed there, and
+     * then returned.
      * 
-     * @param message the outbound message
-     * @return the headers
+     * @param message The outbound message
+     * @return The PROTOCOL_HEADERS map
      */
-    private Map<String, List<String>> setHeaders(Message message) {
+    private Map<String, List<String>> getSetProtocolHeaders(Message message) {
         Map<String, List<String>> headers =
             CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));        
         if (null == headers) {
@@ -278,61 +671,94 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
         return headers;
     }
     
+    /* PMD for non-use!
+    private void printHeaders(URLConnection connection) {
+        int i = 0;
+        String k = connection.getHeaderFieldKey(i);
+        String h = connection.getHeaderField(i);
+        while (h != null) {
+            System.out.println(k + ": " + h);
+            k = connection.getHeaderFieldKey(++i);
+            h = connection.getHeaderField(i);
+        }           
+    }
+    */
+
     /**
-     * Flush the headers onto the output stream.
+     * This procedure sets the URLConnection request properties
+     * from the PROTOCOL_HEADERS in the message.
+     */
+    private void transferProtocolHeadersToURLConnection(
+        Message       message,
+        URLConnection connection
+    ) {
+        Map<String, List<String>> headers =
+            getSetProtocolHeaders(message);
+        for (String header : headers.keySet()) {
+            List<String> headerList = headers.get(header);
+            for (String value : headerList) {
+                connection.addRequestProperty(header, value);
+            }
+        }
+    }
+    
+    /**
+     * This procedure logs the PROTOCOL_HEADERS from the 
+     * Message at the specified logging level.
      * 
-     * @param message the outbound message
+     * @param level   The Logging Level.
+     * @param message The Message.
+     */
+    private void logProtocolHeaders(
+        Level   level,
+        Message message
+    ) {
+        Map<String, List<String>> headers =
+            getSetProtocolHeaders(message);
+        for (String header : headers.keySet()) {
+            List<String> headerList = headers.get(header);
+            for (String value : headerList) {
+                LOG.log(level, header + ": " + value);
+            }
+        }
+    }
+    
+    /**
+     * Put the headers from Message.PROTOCOL_HEADERS headers into the URL
+     * connection.
+     * Note, this does not mean they immediately get written to the output
+     * stream or the wire. They just just get set on the HTTP request.
+     * 
+     * @param message The outbound message.
      * @throws IOException
      */
-    protected void flushHeaders(Message message) throws IOException {
-        URLConnection connection = (URLConnection)message.get(HTTP_CONNECTION);
-        String ct = (String) message.get(Message.CONTENT_TYPE);
-        String enc = (String) message.get(Message.ENCODING);
+    private void setURLRequestHeaders(Message message) throws IOException {
+        HttpURLConnection connection = 
+            (HttpURLConnection)message.get(KEY_HTTP_CONNECTION);
 
+        String ct = (String) message.get(Message.CONTENT_TYPE);
         if (null != ct) {
-            if (enc != null && ct.indexOf("charset=") == -1) {
-                ct = ct + "; charset=" + enc;
-            }
-            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, ct);
-        } else if (enc != null) {
-            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, "text/xml; charset=" + enc);
+            connection.setRequestProperty(
+                    HttpHeaderHelper.CONTENT_TYPE, ct);
         } else {
-            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
+            connection.setRequestProperty(
+                    HttpHeaderHelper.CONTENT_TYPE, "text/xml");
         }
         
-        Map<String, List<String>> headers = 
-            CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
-        if (null != headers) {
-            for (String header : headers.keySet()) {
-                List<String> headerList = headers.get(header);
-                for (String value : headerList) {
-                    connection.addRequestProperty(header, value);
-                }
-            }
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Sending "
+                + connection.getRequestMethod() 
+                + " Message with Headers to " 
+                           + connection.getURL()
+                + " Conduit :"
+                + getConduitName());
+            logProtocolHeaders(Level.FINE, message);
         }
+        
+        transferProtocolHeadersToURLConnection(message, connection);
+        
     }
-   
-    /**
-     * Retrieve the respons code.
-     * 
-     * @param connection the URLConnection
-     * @return the response code
-     * @throws IOException
-     */
-    private int getResponseCode(URLConnection connection) throws IOException {
-        int responseCode = HttpURLConnection.HTTP_OK;
-        if (connection instanceof HttpURLConnection) {
-            HttpURLConnection hc = (HttpURLConnection)connection;
-            responseCode = hc.getResponseCode();
-        } else {
-            if (connection.getHeaderField(Message.RESPONSE_CODE) != null) {
-                responseCode =
-                    Integer.parseInt(connection.getHeaderField(Message.RESPONSE_CODE));
-            }
-        }
-        return responseCode;
-    }
-
+    
     /**
      * Set up the decoupled Destination if necessary.
      */
@@ -348,7 +774,8 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
                 duplicateDecoupledDestination();
             } catch (Exception e) {
                 // REVISIT move message to localizable Messages.properties
-                LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
+                LOG.log(Level.WARNING, 
+                        "decoupled endpoint creation failed: ", e);
             }
         }
     }
@@ -392,8 +819,10 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
     }
     
     /**
-     * @param exchange the exchange in question
-     * @return true iff the exchange indicates a oneway MEP
+     * This predicate returns true iff the exchange indicates 
+     * a oneway MEP.
+     * 
+     * @param exchange The exchange in question
      */
     private boolean isOneway(Exchange exchange) {
         return exchange != null && exchange.isOneWay();
@@ -404,44 +833,66 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
      * @param responseCode the response code
      * @return true if a partial response is pending on the connection 
      */
-    private boolean isPartialResponse(URLConnection connection,
-                                      int responseCode) {
+    private boolean isPartialResponse(
+        HttpURLConnection connection,
+        int responseCode
+    ) {
         return responseCode == HttpURLConnection.HTTP_ACCEPTED
                && connection.getContentLength() != 0;
     }
 
-    private void initConfig() {
-        //Initialize some default values for the configuration
-        
-        // wsdl extensors are superseded by policies which in turn are superseded by injection
-
-        PolicyEngine pe = bus.getExtension(PolicyEngine.class);
-        if (null != pe && pe.isEnabled()) {
-            client = PolicyUtils.getClient(pe, endpointInfo, this);            
-        }
-        
-        if (null == client) {
-            client = endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class);
-        }
-        
-        authorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
-                                                          AuthorizationPolicy.class);
-        proxyAuthorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
-                                                               AuthorizationPolicy.class);
-    }
-
+    /**
+     * This method returns the Proxy server should it be set on the 
+     * Client Side Policy.
+     * 
+     * @return The proxy server or null, if not set.
+     */
     private Proxy getProxy(HTTPClientPolicy policy) {
         Proxy proxy = null; 
-        if (policy.isSetProxyServer()) {
-            proxy = new Proxy(Proxy.Type.valueOf(policy.getProxyServerType().toString()),
-                              new InetSocketAddress(policy.getProxyServer(),
-                                                    policy.getProxyServerPort()));
+        if (policy != null && policy.isSetProxyServer()) {
+            proxy = new Proxy(
+                    Proxy.Type.valueOf(policy.getProxyServerType().toString()),
+                    new InetSocketAddress(policy.getProxyServer(),
+                                          policy.getProxyServerPort()));
         }
         return proxy;
     }
 
-    private void setPolicies(Message message, Map<String, List<String>> headers) {
+    /**
+     * This call places HTTP Header strings into the headers that are relevant
+     * to the Authorization policies that are set on this conduit by 
+     * configuration.
+     * <p> 
+     * An AuthorizationPolicy may also be set on the message. If so, those 
+     * policies are merged. A user name or password set on the messsage 
+     * overrides settings in the AuthorizationPolicy is retrieved from the
+     * configuration.
+     * <p>
+     * The precedence is as follows:
+     * 1. AuthorizationPolicy that is set on the Message, if exists.
+     * 2. Preemptive UserPass from BasicAuthSupplier, if exists.
+     * 3. AuthorizationPolicy set/configured for conduit.
+     * 
+     * REVISIT: Since the AuthorizationPolicy is set on the message by class, then
+     * how does one override the ProxyAuthorizationPolicy which is the same 
+     * type?
+     * 
+     * @param message
+     * @param headers
+     */
+    private void setHeadersByAuthorizationPolicy(
+            Message message,
+            URL url,
+            Map<String, List<String>> headers
+    ) {
         AuthorizationPolicy authPolicy = getAuthorization();
+        
+        HttpBasicAuthSupplier.UserPass userpass = null;
+        if (basicAuthSupplier != null) {
+            userpass = basicAuthSupplier.getPreemptiveUserPass(
+                    getConduitName(), url, message);
+        }
+        
         AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
         String userName = null;
         String passwd = null;
@@ -449,21 +900,24 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
             userName = newPolicy.getUserName();
             passwd = newPolicy.getPassword();
         }
-        if (userName == null && authPolicy.isSetUserName()) {
+        if (userName == null
+            && userpass != null) {
+            userName = userpass.getUserid();
+            passwd   = userpass.getPassword();
+        }
+        if (userName == null 
+            && authPolicy != null && authPolicy.isSetUserName()) {
             userName = authPolicy.getUserName();
         }
         if (userName != null) {
-            if (passwd == null && authPolicy.isSetPassword()) {
+            if (passwd == null 
+                && authPolicy != null && authPolicy.isSetPassword()) {
                 passwd = authPolicy.getPassword();
             }
-            userName += ":";
-            if (passwd != null) {
-                userName += passwd;
-            }
-            userName = Base64Utility.encode(userName.getBytes());
-            headers.put("Authorization",
-                        Arrays.asList(new String[] {"Basic " + userName}));
-        } else if (authPolicy.isSetAuthorizationType() && authPolicy.isSetAuthorization()) {
+            setBasicAuthHeader(userName, passwd, headers);
+        } else if (authPolicy != null 
+                && authPolicy.isSetAuthorizationType() 
+                && authPolicy.isSetAuthorization()) {
             String type = authPolicy.getAuthorizationType();
             type += " ";
             type += authPolicy.getAuthorization();
@@ -471,21 +925,16 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
                         Arrays.asList(new String[] {type}));
         }
         AuthorizationPolicy proxyAuthPolicy = getProxyAuthorization();
-        if (proxyAuthPolicy.isSetUserName()) {
+        if (proxyAuthPolicy != null && proxyAuthPolicy.isSetUserName()) {
             userName = proxyAuthPolicy.getUserName();
             if (userName != null) {
                 passwd = "";
                 if (proxyAuthPolicy.isSetPassword()) {
                     passwd = proxyAuthPolicy.getPassword();
                 }
-                userName += ":";
-                if (passwd != null) {
-                    userName += passwd;
-                }
-                userName = Base64Utility.encode(userName.getBytes());
-                headers.put("Proxy-Authorization",
-                            Arrays.asList(new String[] {"Basic " + userName}));
-            } else if (proxyAuthPolicy.isSetAuthorizationType() && proxyAuthPolicy.isSetAuthorization()) {
+                setProxyBasicAuthHeader(userName, passwd, headers);
+            } else if (proxyAuthPolicy.isSetAuthorizationType() 
+                       && proxyAuthPolicy.isSetAuthorization()) {
                 String type = proxyAuthPolicy.getAuthorizationType();
                 type += " ";
                 type += proxyAuthPolicy.getAuthorization();
@@ -493,49 +942,88 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
                             Arrays.asList(new String[] {type}));
             }
         }
+    }
+    
+    /**
+     * This call places HTTP Header strings into the headers that are relevant
+     * to the ClientPolicy that is set on this conduit by configuration.
+     * 
+     * REVISIT: A cookie is set statically from configuration? 
+     */
+    private void setHeadersByClientPolicy(
+        Message message,
+        Map<String, List<String>> headers
+    ) {
         HTTPClientPolicy policy = getClient(message);
+        if (policy == null) {
+            return;
+        }
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
-                        Arrays.asList(new String[] {policy.getCacheControl().value()}));
+                Arrays.asList(new String[] {policy.getCacheControl().value()}));
         }
         if (policy.isSetHost()) {
             headers.put("Host",
-                        Arrays.asList(new String[] {policy.getHost()}));
+                Arrays.asList(new String[] {policy.getHost()}));
         }
         if (policy.isSetConnection()) {
             headers.put("Connection",
-                        Arrays.asList(new String[] {policy.getConnection().value()}));
+                Arrays.asList(new String[] {policy.getConnection().value()}));
         }
         if (policy.isSetAccept()) {
             headers.put("Accept",
-                        Arrays.asList(new String[] {policy.getAccept()}));
+                Arrays.asList(new String[] {policy.getAccept()}));
         }
         if (policy.isSetAcceptEncoding()) {
             headers.put("Accept-Encoding",
-                        Arrays.asList(new String[] {policy.getAcceptEncoding()}));
+                Arrays.asList(new String[] {policy.getAcceptEncoding()}));
         }
         if (policy.isSetAcceptLanguage()) {
             headers.put("Accept-Language",
-                        Arrays.asList(new String[] {policy.getAcceptLanguage()}));
+                Arrays.asList(new String[] {policy.getAcceptLanguage()}));
         }
         if (policy.isSetContentType()) {
             headers.put(HttpHeaderHelper.CONTENT_TYPE,
-                        Arrays.asList(new String[] {policy.getContentType()}));
+                Arrays.asList(new String[] {policy.getContentType()}));
         }
         if (policy.isSetCookie()) {
             headers.put("Cookie",
-                        Arrays.asList(new String[] {policy.getCookie()}));
+                Arrays.asList(new String[] {policy.getCookie()}));
         }
         if (policy.isSetBrowserType()) {
             headers.put("BrowserType",
-                        Arrays.asList(new String[] {policy.getBrowserType()}));
+                Arrays.asList(new String[] {policy.getBrowserType()}));
         }
         if (policy.isSetReferer()) {
             headers.put("Referer",
-                        Arrays.asList(new String[] {policy.getReferer()}));
+                Arrays.asList(new String[] {policy.getReferer()}));
         }
     }
 
+    /**
+     * This call places HTTP Header strings into the headers that are relevant
+     * to the polices that are set on this conduit by configuration for the
+     * ClientPolicy and AuthorizationPolicy.
+     * 
+     * 
+     * @param message The outgoing message.
+     * @param url     The URL the message is going to.
+     * @param headers The headers in the outgoing message.
+     */
+    private void setHeadersByPolicy(
+        Message message,
+        URL     url,
+        Map<String, List<String>> headers
+    ) {
+        setHeadersByAuthorizationPolicy(message, url, headers);
+        setHeadersByClientPolicy(message, headers);
+    }
+    
+    /**
+     * This is part of the Configurable interface which retrieves the 
+     * configuration from spring injection.
+     */
+    // REVISIT:What happens when the endpoint/bean name is null?
     public String getBeanName() {
         if (endpointInfo.getName() != null) {
             return endpointInfo.getName().toString() + ".http-conduit";
@@ -543,52 +1031,533 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
         return null;
     }
 
+    /**
+     * This method gets the Authorization Policy that was configured or 
+     * explicitly set for this HTTPConduit.
+     */
     public AuthorizationPolicy getAuthorization() {
-        return authorization;
+        return authorizationPolicy;
     }
 
+    /**
+     * This method is used to set the Authorization Policy for this conduit.
+     * Using this method will override any Authorization Policy set in 
+     * configuration.
+     */
     public void setAuthorization(AuthorizationPolicy authorization) {
-        this.authorization = authorization;
+        this.authorizationPolicy = authorization;
     }
     
     public HTTPClientPolicy getClient(Message message) {
-        return PolicyUtils.getClient(message, client);
+        return PolicyUtils.getClient(message, clientSidePolicy);
     }
 
+    /**
+     * This method retrieves the Client Side Policy set/configured for this
+     * HTTPConduit.
+     */
     public HTTPClientPolicy getClient() {
-        return client;
+        return clientSidePolicy;
     }
 
+    /**
+     * This method sets the Client Side Policy for this HTTPConduit. Using this
+     * method will override any HTTPClientPolicy set in configuration.
+     */
     public void setClient(HTTPClientPolicy client) {
-        this.client = client;
+        this.clientSidePolicy = client;
     }
 
+    /**
+     * This method retrieves the Authorization Policy for a proxy that is
+     * set/configured for this HTTPConduit.
+     */
     public AuthorizationPolicy getProxyAuthorization() {
-        return proxyAuthorization;
+        return proxyAuthorizationPolicy;
     }
 
+    /**
+     * This method sets the Authorization Policy for a specified proxy. 
+     * Using this method overrides any Authorization Policy for the proxy 
+     * that is set in the configuration.
+     */
     public void setProxyAuthorization(AuthorizationPolicy proxyAuthorization) {
-        this.proxyAuthorization = proxyAuthorization;
+        this.proxyAuthorizationPolicy = proxyAuthorization;
     }
 
+    /**
+     * This method returns the SSL Client Side Policy that is set/configured
+     * for this HTTPConduit.
+     */
     public SSLClientPolicy getSslClient() {
-        return sslClient;
+        return sslClientSidePolicy;
     }
 
-    public void setSslClient(SSLClientPolicy sslClient) {
-        this.sslClient = sslClient;
-    }  
+    /**
+     * This method sets the SSL Client Side Policy for this HTTPConduit.
+     * Using this method overrides any SSL Client Side Policy that is configured
+     * for this HTTPConduit.
+     */
+    public void setSslClient(SSLClientPolicy sslClientPolicy) {
+        this.sslClientSidePolicy = sslClientPolicy;
+        // If this is called after the HTTPTransportFactory called 
+        // finalizeConfig, we need to update the connection factory.
+        if (configFinalized) {
+            retrieveConnectionFactory();
+        }
+    }
+
+    /**
+     * This method gets the Trust Decider that was set/configured for this 
+     * HTTPConduit.
+     * @return The Message Trust Decider or null.
+     */
+    public MessageTrustDecider getTrustDecider() {
+        return this.trustDecider;
+    }
+    
+    /**
+     * This method sets the Trust Decider for this HTTP Conduit.
+     * Using this method overrides any trust decider configured for this 
+     * HTTPConduit.
+     */
+    public void setTrustDecider(MessageTrustDecider decider) {
+        this.trustDecider = decider;
+    }
+
+    /**
+     * This method gets the Basic Auth Supplier that was set/configured for this 
+     * HTTPConduit.
+     * @return The Basic Auth Supplier or null.
+     */
+    public HttpBasicAuthSupplier getBasicAuthSupplier() {
+        return this.basicAuthSupplier;
+    }
+    
+    /**
+     * This method sets the Trust Decider for this HTTP Conduit.
+     * Using this method overrides any trust decider configured for this 
+     * HTTPConduit.
+     */
+    public void setBasicAuthSupplier(HttpBasicAuthSupplier supplier) {
+        this.basicAuthSupplier = supplier;
+    }
+    
+    /**
+     * This function processes any retransmits at the direction of redirections
+     * or "unauthorized" responses.
+     * <p>
+     * If the request was not retransmitted, it returns the given connection. 
+     * If the request was retransmitted, it returns the new connection on
+     * which the request was sent.
+     * 
+     * @param connection   The active URL connection.
+     * @param message      The outgoing message.
+     * @param cachedStream The cached request.
+     * @return
+     * @throws IOException
+     */
+    private HttpURLConnection processRetransmit(
+        HttpURLConnection connection,
+        Message message,
+        CachedOutputStream cachedStream
+    ) throws IOException {
+
+        int responseCode = connection.getResponseCode();
+        
+        // Process Redirects first.
+        switch(responseCode) {
+        case HttpURLConnection.HTTP_MOVED_PERM:
+        case HttpURLConnection.HTTP_MOVED_TEMP:
+            connection = 
+                redirectRetransmit(connection, message, cachedStream);
+            break;
+        case HttpURLConnection.HTTP_UNAUTHORIZED:
+            connection = 
+                authorizationRetransmit(connection, message, cachedStream);
+            break;
+        default:
+            break;
+        }
+        return connection;
+    }
+
+    /**
+     * This method performs a redirection retransmit in response to
+     * a 302 or 305 response code.
+     * 
+     * @param connection   The active URL connection
+     * @param message      The outbound message.
+     * @param cachedStream The cached request.
+     * @return This method returns the new HttpURLConnection if
+     *         redirected. If it cannot be redirected for some reason
+     *         the same connection is returned.
+     *         
+     * @throws IOException
+     */
+    private HttpURLConnection redirectRetransmit(
+        HttpURLConnection connection,
+        Message message,
+        CachedOutputStream cachedStream
+    ) throws IOException {
+        
+        // If we are not redirecting by policy, then we don't.
+        if (!getClient().isAutoRedirect()) {
+            return connection;
+        }
+
+        // We keep track of the redirections for redirect loop protection.
+        Set<String> visitedURLs = getSetVisitedURLs(message);
+        
+        String lastURL = connection.getURL().toString();
+        visitedURLs.add(lastURL);
+        
+        String newURL = extractLocation(connection.getHeaderFields());
+        if (newURL != null) {
+            // See if we are being redirected in a loop as best we can,
+            // using string equality on URL.
+            if (visitedURLs.contains(newURL)) {
+                // We are in a redirect loop; -- bail
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.log(Level.INFO, "Redirect loop detected on Conduit \"" 
+                        + getConduitName() 
+                        + "\" on '" 
+                        + newURL
+                        + "'");
+                }
+                return connection;
+            }
+            // We are going to redirect.
+            // Remove any Server Authentication Information for the previous
+            // URL.
+            Map<String, List<String>> headers = 
+                                getSetProtocolHeaders(message);
+            headers.remove("Authorization");
+            headers.remove("Proxy-Authorization");
+            
+            URL url = new URL(newURL);
+            
+            // If user configured this Conduit with preemptive authorization
+            // it is meant to make it to the end. (Too bad that information
+            // went to every URL along the way, but that's what the user 
+            // wants!
+            // TODO: Make this issue a security release note.
+            setHeadersByAuthorizationPolicy(message, url, headers);
+            
+            connection = retransmit(
+                    connection, url, message, cachedStream);
+        }
+        return connection;
+    }
+
+    /**
+     * This function gets the Set of URLs on the message that is used to 
+     * keep track of the URLs that were used in getting authorization 
+     * information.
+     *
+     * @param message The message where the Set of URLs is stored.
+     * @return The modifiable set of URLs that were visited.
+     */
+    private Set<String> getSetAuthoriationURLs(Message message) {
+        @SuppressWarnings("unchecked")
+        Set<String> authURLs = (Set<String>) message.get(KEY_AUTH_URLS);
+        if (authURLs == null) {
+            authURLs = new HashSet<String>();
+            message.put(KEY_AUTH_URLS, authURLs);
+        }
+        return authURLs;
+    }
+
+    /**
+     * This function get the set of URLs on the message that is used to keep
+     * track of the URLs that were visited in redirects.
+     * 
+     * If it is not set on the message, an new empty set is stored.
+     * @param message The message where the Set is stored.
+     * @return The modifiable set of URLs that were visited.
+     */
+    private Set<String> getSetVisitedURLs(Message message) {
+        @SuppressWarnings("unchecked")
+        Set<String> visitedURLs = (Set<String>) message.get(KEY_VISITED_URLS);
+        if (visitedURLs == null) {
+            visitedURLs = new HashSet<String>();
+            message.put(KEY_VISITED_URLS, visitedURLs);
+        }
+        return visitedURLs;
+    }
+    
+    /**
+     * This method performs a retransmit for authorization information.
+     * 
+     * @param connection The currently active connection.
+     * @param message The outbound message.
+     * @param cachedStream The cached request.
+     * @return A new connection if retransmitted. If not retransmitted
+     *         then this method returns the same connection.
+     * @throws IOException
+     */
+    private HttpURLConnection authorizationRetransmit(
+        HttpURLConnection connection,
+        Message message, 
+        CachedOutputStream cachedStream
+    ) throws IOException {
+
+        // If we don't have a dynamic supply of user pass, then
+        // we don't retransmit. We just die with a Http 401 response.
+        if (basicAuthSupplier == null) {
+            return connection;
+        }
+        
+        URL currentURL = connection.getURL();
+        
+        String realm = extractAuthorizationRealm(connection.getHeaderFields());
+        
+        Set<String> authURLs = getSetAuthoriationURLs(message);
+        
+        // If we have been here (URL & Realm) before for this particular message
+        // retransmit, it means we have already supplied information
+        // which must have been wrong, or we wouldn't be here again.
+        // Otherwise, the server may be 401 looping us around the realms.
+        if (authURLs.contains(currentURL.toString() + realm)) {
+
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "Authorization loop detected on Conduit \""
+                    + getConduitName()
+                    + "\" on URL \""
+                    + "\" with realm \""
+                    + realm
+                    + "\"");
+            }
+                    
+            return connection;
+        }
+        
+        HttpBasicAuthSupplier.UserPass up = 
+            basicAuthSupplier.getUserPassForRealm(
+                getConduitName(), currentURL, message, realm);
+        
+        // No user pass combination. We give up.
+        if (up == null) {
+            return connection;
+        }
+        
+        // Register that we have been here before we go.
+        authURLs.add(currentURL.toString() + realm);
+        
+        Map<String, List<String>> headers = getSetProtocolHeaders(message);
+        
+        setBasicAuthHeader(up.getUserid(), up.getPassword(), headers);
+        
+        return retransmit(
+                connection, currentURL, message, cachedStream);
+    }
+    
+    /**
+     * This method retransmits the request.
+     * 
+     * @param connection The currently active connection.
+     * @param newURL     The newURL to connection to.
+     * @param message    The outbound message.
+     * @param stream     The cached request.
+     * @return           This function returns a new connection if
+     *                   retransmitted, otherwise it returns the given
+     *                   connection.
+     *                   
+     * @throws IOException
+     */
+    private HttpURLConnection retransmit(
+            HttpURLConnection  connection,
+            URL                newURL,
+            Message            message, 
+            CachedOutputStream stream
+    ) throws IOException {
+        
+        // Disconnect the old, and in with the new.
+        connection.disconnect();
+        
+        connection = 
+                connectionFactory.createConnection(
+                          getProxy(clientSidePolicy), newURL);
+
+        connection.setDoOutput(true);        
+        // TODO: using Message context to deceided HTTP send properties        
+        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
+        connection.setReadTimeout((int)getClient().getReceiveTimeout());
+        connection.setUseCaches(false);
+        connection.setInstanceFollowRedirects(false);
+
+        // If the HTTP_REQUEST_METHOD is not set, the default is "POST".
+        String httpRequestMethod = 
+            (String)message.get(Message.HTTP_REQUEST_METHOD);
+
+        if (null != httpRequestMethod) {
+            connection.setRequestMethod(httpRequestMethod);
+        } else {
+            connection.setRequestMethod("POST");
+        }
+        message.put(KEY_HTTP_CONNECTION, connection);
+
+        // Need to set the headers before the trust decision
+        // because they are set before the connect().
+        setURLRequestHeaders(message);
+        
+        //
+        // This point is where the trust decision is made because the
+        // Sun implementation of URLConnection will not let us 
+        // set/addRequestProperty after a connect() call, and 
+        // makeTrustDecision needs to make a connect() call to
+        // make sure the proper information is available.
+        // 
+        makeTrustDecision(message);
+
+        // If this is a GET method we must not touch the output
+        // stream as this automagically turns the request into a POST.
+        if (connection.getRequestMethod().equals("GET")) {
+            return connection;
+        }
+        
+        // Trust is okay, write the cached request.
+        OutputStream out = connection.getOutputStream();
+        
+        CachedOutputStream.copyStream(stream.getInputStream(), out, 2048);
+        out.close();
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            StringBuffer sbuf = new StringBuffer();
+            StringBufferOutputStream sout =
+                new StringBufferOutputStream(sbuf);
+            CachedOutputStream.copyStream(stream.getInputStream(), 
+                    sout, 2048);
+            sout.close();
+
+            LOG.fine("Conduit \""
+                     + getConduitName() 
+                     + "\" Retransmit message to: " 
+                     + connection.getURL()
+                     + ": "
+                     + sbuf);
+        }
+        return connection;
+    }
+
+    /**
+     * This function extracts the authorization realm from the 
+     * "WWW-Authenticate" Http response header.
+     * 
+     * @param headers The Http Response Headers
+     * @return The realm, or null if it is non-existent.
+     */
+    private String extractAuthorizationRealm(
+            Map<String, List<String>> headers
+    ) {
+        List<String> auth = headers.get("WWW-Authenticate");
+        if (auth != null) {
+            for (String a : auth) {
+                if (a.startsWith("Basic realm=")) {
+                    return a.substring(a.indexOf("=") + 1);
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * This method extracts the value of the "Location" Http
+     * Response header.
+     * 
+     * @param headers The Http response headers.
+     * @return The value of the "Location" header, null if non-existent.
+     */
+    private String extractLocation(
+            Map<String, List<String>> headers
+    ) {
+        List<String> locs = headers.get("Location");
+        if (locs != null && locs.size() > 0) {
+            return locs.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * This procedure sets the "Authorization" header with the 
+     * BasicAuth token, which is Base64 encoded.
+     * 
+     * @param userid   The user's id, which cannot be null.
+     * @param password The password, it may be null.
+     * 
+     * @param headers  The headers map that gets the "Authorization" header set.
+     */
+    private void setBasicAuthHeader(
+        String                    userid,
+        String                    password,
+        Map<String, List<String>> headers
+    ) {
+        String userpass = userid;
+
+        userpass += ":";
+        if (password != null) {
+            userpass += password;
+        }
+        String token = Base64Utility.encode(userpass.getBytes());
+        headers.put("Authorization",
+                    Arrays.asList(new String[] {"Basic " + token}));
+    }
+
+    /**
+     * This procedure sets the "ProxyAuthorization" header with the 
+     * BasicAuth token, which is Base64 encoded.
+     * 
+     * @param userid   The user's id, which cannot be null.
+     * @param password The password, it may be null.
+     * 
+     * @param headers The headers map that gets the "Proxy-Authorization" 
+     *                header set.
+     */
+    private void setProxyBasicAuthHeader(
+        String                    userid,
+        String                    password,
+        Map<String, List<String>> headers
+    ) {
+        String userpass = userid;
+
+        userpass += ":";
+        if (password != null) {
+            userpass += password;
+        }
+        String token = Base64Utility.encode(userpass.getBytes());
+        headers.put("Proxy-Authorization",
+                    Arrays.asList(new String[] {"Basic " + token}));
+    }
     
     /**
      * Wrapper output stream responsible for flushing headers and handling
      * the incoming HTTP-level response (not necessarily the MEP response).
      */
     private class WrappedOutputStream extends AbstractWrappedOutputStream {
-        protected URLConnection connection;
+        /**
+         * This field contains the currently active connection.
+         */
+        private HttpURLConnection connection;
         
-        WrappedOutputStream(Message m, URLConnection c) {
+        /**
+         * This boolean is true if the request must be cached.
+         */
+        private boolean cachingForRetransmision;
+        
+        /**
+         * This field contains the output stream with which we cache
+         * the request. It maybe null if we are not caching.
+         */
+        private CachedOutputStream cachedStream;
+        
+        WrappedOutputStream(
+                Message m, 
+                HttpURLConnection c, 
+                boolean possibleRetransmit
+        ) {
             super(m);
             connection = c;
+            cachingForRetransmision = possibleRetransmit;
         }
 
         /**
@@ -596,15 +1565,40 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
          * reset output stream ... etc.)
          */
         protected void doFlush() throws IOException {
-            if (!alreadyFlushed()) {                
-                flushHeaders(outMessage);
-                if (connection instanceof HttpURLConnection) {            
-                    HttpURLConnection hc = (HttpURLConnection)connection;                    
-                    if (hc.getRequestMethod().equals("GET")) {
-                        return;
-                    }
+            if (!alreadyFlushed()) {
+
+                // Need to set the headers before the trust decision
+                // because they are set before the connect().
+                setURLRequestHeaders(outMessage);
+                
+                //
+                // This point is where the trust decision is made because the
+                // Sun implementation of URLConnection will not let us 
+                // set/addRequestProperty after a connect() call, and 
+                // makeTrustDecision needs to make a connect() call to
+                // make sure the proper information is available.
+                // 
+                makeTrustDecision(outMessage);
+                
+                // Trust is okay, set up for writing the request.
+                
+                // If this is a GET method we must not touch the output
+                // stream as this automagically turns the reqest into a POST.
+                if (connection.getRequestMethod().equals("GET")) {
+                    return;
                 }
-                resetOut(connection.getOutputStream(), true);
+                
+                // This replaces the AbstractCachedOutputStream.currentStream
+                // with the connection's output stream directly presumably
+                // to forgoe copying. If we are caching this output, then 
+                // we need to cache the output stream here.
+                if (cachingForRetransmision) {
+                    cachedStream =
+                        new CachedOutputStream(connection.getOutputStream());
+                    resetOut(cachedStream, true);
+                } else {
+                    resetOut(connection.getOutputStream(), true);
+                }
             }
         }
 
@@ -618,10 +1612,87 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
         protected void onWrite() throws IOException {
             
         }
+        
+        /**
+         * This procedure handles all retransmits, if any.
+         *
+         * @throws IOException
+         */
+        private void handleRetransmits() throws IOException {
+            // If we have a cachedStream, we are caching the request.
+            if (cachedStream != null) {
 
+                if (LOG.isLoggable(Level.FINE)) {
+                    StringBuffer sbuf = new StringBuffer();
+                    StringBufferOutputStream sout =
+                        new StringBufferOutputStream(sbuf);
+                    CachedOutputStream.copyStream(cachedStream.getInputStream(), 
+                            sout, 2048);
+                    sout.close();
+
+                    LOG.fine("Conduit \""
+                             + getConduitName() 
+                             + "\" Transmit cached message to: " 
+                             + connection.getURL()
+                             + ": "
+                             + sbuf);
+                }
+
+                HttpURLConnection oldcon = connection;
+                
+                HTTPClientPolicy policy = getClient();
+                
+                // Default MaxRetransmits is -1 which means unlimited.
+                int maxRetransmits = (policy == null)
+                                     ? -1
+                                     : policy.getMaxRetransmits();
+                
+                // MaxRetransmits of zero means zero.
+                if (maxRetransmits == 0) {
+                    return;
+                }
+                
+                int nretransmits = 0;
+                
+                connection = 
+                    processRetransmit(connection, outMessage, cachedStream);
+                
+                while (connection != oldcon) {
+                    nretransmits++;
+                    oldcon = connection;
+
+                    // A negative max means unlimited.
+                    if (maxRetransmits < 0 || nretransmits < maxRetransmits) {
+                        connection = 
+                            processRetransmit(
+                                    connection, outMessage, cachedStream);
+                    }
+                }
+            }
+        }
+        
+        /**
+         * This procedure is called on the close of the output stream so
+         * we are ready to handle the response from the connection. 
+         * We may retransmit until we finally get a response.
+         * 
+         * @throws IOException
+         */
         private void handleResponse() throws IOException {
+            
+            // Process retransmits until we fall out.
+            handleRetransmits();
+            
+            int responseCode = connection.getResponseCode();
+            
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Response Code: " 
+                        + responseCode
+                        + " Conduit: " + getConduitName());
+            }
+            
             Exchange exchange = outMessage.getExchange();
-            int responseCode = getResponseCode(connection);
+            
             if (isOneway(exchange)
                 && !isPartialResponse(connection, responseCode)) {
                 // oneway operation without partial response
@@ -632,24 +1703,24 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
             Message inMessage = new MessageImpl();
             inMessage.setExchange(exchange);
             InputStream in = null;
-            Map<String, List<String>> headers = new HashMap<String, List<String>>();
+            Map<String, List<String>> headers = 
+                new HashMap<String, List<String>>();
             for (String key : connection.getHeaderFields().keySet()) {
-                headers.put(HttpHeaderHelper.getHeaderKey(key), connection.getHeaderFields().get(key));
+                headers.put(HttpHeaderHelper.getHeaderKey(key), 
+                        connection.getHeaderFields().get(key));
             }
             inMessage.put(Message.PROTOCOL_HEADERS, headers);
             inMessage.put(Message.RESPONSE_CODE, responseCode);
-            inMessage.put(Message.CONTENT_TYPE, connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
+            inMessage.put(Message.CONTENT_TYPE, 
+                    connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
 
-            if (connection instanceof HttpURLConnection) {
-                HttpURLConnection hc = (HttpURLConnection)connection;
-                in = hc.getErrorStream();
-                if (null == in) {
-                    in = connection.getInputStream();
-                }
-            } else {
+            in = connection.getErrorStream();
+            if (null == in) {
                 in = connection.getInputStream();
             }
-            
+            if (in == null) {
+                LOG.log(Level.WARNING, "Input Stream is null!");
+            }
             inMessage.setContent(InputStream.class, in);
             
             incomingObserver.onMessage(inMessage);
@@ -674,7 +1745,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
             inMessage.put(DECOUPLED_CHANNEL_MESSAGE, Boolean.TRUE);
             // REVISIT: how to get response headers?
             //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
-            setHeaders(inMessage);
+            getSetProtocolHeaders(inMessage);
             inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
 
             // remove server-specific properties
@@ -687,7 +1758,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable, Assert
     }
     
     public void assertMessage(Message message) {
-        PolicyUtils.assertClientPolicy(message, client);
+        PolicyUtils.assertClientPolicy(message, clientSidePolicy);
     }
     
     public boolean canAssert(QName type) {

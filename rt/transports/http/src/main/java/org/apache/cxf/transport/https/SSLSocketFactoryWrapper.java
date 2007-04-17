@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,12 +40,14 @@ class SSLSocketFactoryWrapper extends SSLSocketFactory {
     private SSLSocketFactory sslSocketFactory;
     private String[] ciphers;
     
-    public SSLSocketFactoryWrapper(SSLSocketFactory sslSocketFactoryParam, String[] ciphersParam) {
+    public SSLSocketFactoryWrapper(
+        SSLSocketFactory sslSocketFactoryParam,
+        String[]         ciphersParam
+    ) {
         sslSocketFactory = sslSocketFactoryParam;
-        ciphers = ciphersParam;
+        ciphers          = ciphersParam;
     }
 
-    
     public String[] getDefaultCipherSuites() {
         return sslSocketFactory.getDefaultCipherSuites();
     }
@@ -52,7 +55,7 @@ class SSLSocketFactoryWrapper extends SSLSocketFactory {
     public String[] getSupportedCipherSuites() {
         return sslSocketFactory.getSupportedCipherSuites(); 
     }
-    
+        
     public Socket createSocket(Socket s, String host, int port, boolean autoClose)
         throws IOException, UnknownHostException  {
         return enableCipherSuites(sslSocketFactory.createSocket(s, host, port, autoClose),
@@ -83,6 +86,7 @@ class SSLSocketFactoryWrapper extends SSLSocketFactory {
     
     private Socket enableCipherSuites(Socket s, Object[] logParams) {
         SSLSocket socket = (SSLSocket)s;
+        
         if ((socket != null) && (ciphers != null)) {
             socket.setEnabledCipherSuites(ciphers);
         }
@@ -92,6 +96,7 @@ class SSLSocketFactoryWrapper extends SSLSocketFactory {
                          "PROBLEM_CREATING_OUTBOUND_REQUEST_SOCKET", 
                          logParams);
         }
+
         return socket;        
     }
     /*

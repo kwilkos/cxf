@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http:www.w3.org/2001/XMLSchema-instance"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:sec="http://cxf.apache.org/configuration/security"
+       xmlns:schemaLocation="
+         http://cxf.apache.org/transports/httpconfiguration
+             http://cxf.apache.org/schema/transports/http.xsd
+         http://www.springframework.org/schema/beans/
+             http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+   <http:conduit id="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit">
+    <http:sslClient>
+      <sec:Keystore>src/demo/hw/resources/Bethal.jks</sec:Keystore>
+      <sec:KeystoreType>JKS</sec:KeystoreType>
+      <sec:KeystorePassword>password</sec:KeystorePassword>
+      <sec:KeyPassword>password</sec:KeyPassword>
+      <sec:TrustStore>src/demo/hw/resources/Truststore.jks</sec:TrustStore>
+      <sec:CiphersuiteFilters>
+        <!-- these filters ensure that a ciphersuite with
+          export-suitable but non-null encryption is used,
+          and prefers the stronger SHA over MD5 message digests -->
+        <sec:include>.*_EXPORT_.*</sec:include>
+        <sec:include>.*_EXPORT1024_.*</sec:include>
+        <sec:include>.*_WITH_DES_.*</sec:include>
+        <sec:exclude>.*_WITH_NULL_.*</sec:exclude>
+        <sec:exclude>.*_MD5</sec:exclude>
+      </sec:CiphersuiteFilters>
+    </http:sslClient>
+    
+    <http:client AutoRedirect="true"/>
+    
+    <http:trustDecider
+    	class="org.apache.cxf.systest.http.TrustHandler"/>
+    	
+    <http:basicAuthSupplier 
+    	class="org.apache.cxf.systest.http.UserPassSupplier"/>
+    	
+  </http:conduit>
+
+</beans>

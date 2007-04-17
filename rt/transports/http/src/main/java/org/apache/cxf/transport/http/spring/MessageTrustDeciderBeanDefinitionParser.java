@@ -16,19 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.cxf.transport.http.spring;
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("conduit", 
-                new HttpConduitBeanDefinitionParser());        
-        registerBeanDefinitionParser("trustDecider", 
-                new MessageTrustDeciderBeanDefinitionParser());        
-        registerBeanDefinitionParser("basicAuthSupplier", 
-                new HttpBasicAuthSupplierBeanDefinitionParser()); 
-        registerBeanDefinitionParser("destination", 
-                new HttpDestinationBeanDefinitionParser());        
+import org.w3c.dom.Element;
+
+import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
+import org.apache.cxf.transport.http.MessageTrustDecider;
+
+public class MessageTrustDeciderBeanDefinitionParser extends
+        AbstractBeanDefinitionParser {
+
+    @Override
+    protected String getJaxbPackage() {
+        return "org.apache.cxf.transports.http.configuration";
     }
+    
+    @Override
+    protected Class getBeanClass(Element arg0) {
+        return MessageTrustDecider.class;
+    }
+
 }

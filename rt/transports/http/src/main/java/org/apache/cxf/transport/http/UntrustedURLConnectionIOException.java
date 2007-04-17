@@ -16,19 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.transport.http.spring;
+ 
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+package org.apache.cxf.transport.http;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("conduit", 
-                new HttpConduitBeanDefinitionParser());        
-        registerBeanDefinitionParser("trustDecider", 
-                new MessageTrustDeciderBeanDefinitionParser());        
-        registerBeanDefinitionParser("basicAuthSupplier", 
-                new HttpBasicAuthSupplierBeanDefinitionParser()); 
-        registerBeanDefinitionParser("destination", 
-                new HttpDestinationBeanDefinitionParser());        
+import java.io.IOException;
+
+/**
+ * This exception is thrown by the JSSETrustDecider when
+ * trust in the TLS cannot be established.
+ */
+public class UntrustedURLConnectionIOException extends IOException {
+
+    /**
+     * This field is for serialization.
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * This exception should mention a good reason of
+     * why this JSSE established connection is untrusted.
+     * @param message
+     */
+    public UntrustedURLConnectionIOException(String message) {
+        super(message);
     }
 }

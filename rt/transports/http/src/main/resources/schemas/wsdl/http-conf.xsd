@@ -20,9 +20,12 @@
 
 <xs:schema targetNamespace="http://cxf.apache.org/transports/http/configuration" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
            xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
            xmlns:sec="http://cxf.apache.org/configuration/security"
+  		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  		   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
@@ -30,7 +33,7 @@
 
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
     <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/configuration/security.xsd"/>
-
+    
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
     <xs:element name="authorization" type="sec:AuthorizationPolicy"/>
     <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
@@ -41,6 +44,9 @@
     <xs:element name="proxyAuthorization" type="sec:AuthorizationPolicy"/>
     <xs:element name="sslClient" type="sec:SSLClientPolicy"/>
 
+    <xs:element name="trustDecider"           type="http-conf:ClassOrBeanType"/>
+    <xs:element name="basicAuthSupplier"      type="http-conf:ClassOrBeanType"/>
+    
     <xs:element name="conduit">
         <xs:complexType>
             <xs:sequence>
@@ -48,10 +54,19 @@
                 <xs:element ref="http-conf:authorization" minOccurs="0"/>
                 <xs:element ref="http-conf:proxyAuthorization" minOccurs="0"/>
                 <xs:element ref="http-conf:sslClient" minOccurs="0"/>
+                <xs:element ref="http-conf:basicAuthSupplier" 
+                			minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="http-conf:trustDecider" 
+                			minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
             <xs:attribute name="id" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
+    
+    <xs:complexType name="ClassOrBeanType">
+       <xs:attribute name="class" type="xs:string"/>
+       <xs:attribute name="bean"  type="xs:string"/>
+    </xs:complexType>
     
     <xs:element name="destination">
       <xs:complexType>        
@@ -205,6 +220,21 @@
                         <xs:documentation>
                         Whether to automatically follow up when the server issues a redirection reply.  
                         Default is No, so calling flow would handle this condition. 
+                        (name is not part of standard)
+                        </xs:documentation>
+                    </xs:annotation>      
+                </xs:attribute>
+
+                <xs:attribute name="MaxRetransmits" type="xs:int" use="optional" default="-1">
+                    <xs:annotation>
+                        <xs:documentation>
+                        This attribute governs the amount of retransmits that 
+                        are allowed for redirects along with retransmits for 
+                        authorization. Each redirect may cause another 
+                        retransmit for a UNAUTHORIZED response code, ie. 401. 
+                        Any negative number indicates unlimited retransmits,
+                        although, loop protection is provided. 
+                        The default is unlimited. 
                         (name is not part of standard)
                         </xs:documentation>
                     </xs:annotation>      
