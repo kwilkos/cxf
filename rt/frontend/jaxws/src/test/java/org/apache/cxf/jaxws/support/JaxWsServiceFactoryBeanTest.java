@@ -183,6 +183,11 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         OperationInfo greetMeOneWayOp = si.getInterface().getOperation(new QName(ns, "greetMeOneWay"));
         assertEquals(1, greetMeOneWayOp.getInput().getMessageParts().size());
         
+        
+        //FIXME: CXF-533        
+        //Collection<SchemaInfo> schemas = si.getSchemas();
+        //assertEquals(2, schemas.size());
+        
         //FIXME: CXF-533
         //assertEquals(0, greetMeOneWayOp.getOutput().getMessageParts().size());
     }
