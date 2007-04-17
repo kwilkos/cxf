@@ -43,6 +43,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         builder.setBus(BusFactory.getDefaultBus());
     }
 
+
     @Test
     public void testGetOutputFile() {
         builder.setServiceClass(Stock.class);
@@ -68,7 +69,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
     //FIXME: CXF-519
     @Test
-    @Ignore
     public void testAsync() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
         ServiceInfo service = builder.build();

@@ -29,7 +29,7 @@
     targetNamespace="http://apache.org/hello_world_async_soap_http" 
     name="HelloWorld">
     <jaxws:bindings>
-	<enableAsyncMapping>true</enableAsyncMapping>
+	<jaxws:enableAsyncMapping>true</jaxws:enableAsyncMapping>
     </jaxws:bindings>
     <wsdl:types>
 	<schema 

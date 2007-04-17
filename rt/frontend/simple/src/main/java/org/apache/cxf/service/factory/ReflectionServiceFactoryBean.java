@@ -252,7 +252,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeWSDLOperations() {
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
-        getInterfaceInfo();
         
         InterfaceInfo intf = getInterfaceInfo();
 
@@ -264,7 +263,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
         }
             
-        
         for (OperationInfo o : intf.getOperations()) {
             Method selected = null;
             for (Map.Entry<QName, Method> m : validMethods.entrySet()) {
@@ -444,7 +442,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         // Setup the input message
         MessageInfo inMsg = op.createMessage(this.getInputMessageName(op, method));        
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
-
         for (int j = 0; j < paramClasses.length; j++) {
             if (isInParam(method, j)) {
                 final QName q = getInParameterName(op, method, j);                
@@ -522,6 +519,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (part.getElementQName() == null) {
             part.setElementQName(inMsg.getName());
         }
+        if (getRequestWrapper(method) != null) {
+            part.setTypeClass(this.getRequestWrapper(method));
+        }
     }  
     
     protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
@@ -538,6 +538,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         if (part.getElementQName() == null) {
             part.setElementQName(inMsg.getName());
+        }
+        
+        if (this.getResponseWrapper(method) != null) {
+            part.setTypeClass(this.getResponseWrapper(method));
         }
     }     
     
