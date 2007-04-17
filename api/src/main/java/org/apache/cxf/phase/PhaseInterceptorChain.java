@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
@@ -63,7 +64,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
     private MessageObserver faultObserver;
-    private Object pauseWaitObject = new Object();
     
     // currently one chain for one request/response, use below as signal to avoid duplicate fault processing
     // on nested calling of doIntercept(), which will throw same fault multi-times
@@ -117,24 +117,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
     }
 
-    public void pause() {
+    public synchronized void pause() {
         state = State.PAUSED;
     }
 
-    public void resume() {
+    public synchronized void resume() {
         if (state == State.PAUSED) {
             state = State.EXECUTING;
-            
-            if (pausedMessage == null) {
-                synchronized (pauseWaitObject) {
-                    try {
-                        pauseWaitObject.wait(1000);
-                    } catch (InterruptedException e) {
-                        // do nothing
-                    }
-                }
-            }
-            
             doIntercept(pausedMessage);
         }
     }
@@ -147,7 +136,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public boolean doIntercept(Message message) {
+    public synchronized boolean doIntercept(Message message) {
+        pausedMessage = message;
         while (state == State.EXECUTING && iterator.hasNext()) {
             try {
                 Interceptor currentInterceptor = iterator.next();
@@ -165,6 +155,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     if (LOG.isLoggable(Level.INFO)) {
                         LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
                     }
+                    if (!(ex instanceof Fault)) {
+                        ex = new Fault(ex);
+                    }
                     message.setContent(Exception.class, ex);
                     if (message.getExchange() != null) {
                         message.getExchange().put(Exception.class, ex);
@@ -180,11 +173,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
         if (state == State.EXECUTING) {
             state = State.COMPLETE;
-        } else if (state == State.PAUSED) {
-            pausedMessage = message;
-            synchronized (pauseWaitObject) {
-                pauseWaitObject.notifyAll();
-            }
         }
         return state == State.COMPLETE;
     }
@@ -198,7 +186,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public boolean doIntercept(Message message, String startingAfterInterceptorID) {
+    public synchronized boolean doIntercept(Message message, String startingAfterInterceptorID) {
         while (state == State.EXECUTING && iterator.hasNext()) {
             PhaseInterceptor currentInterceptor = (PhaseInterceptor)iterator.next();
             if (currentInterceptor.getId().equals(startingAfterInterceptorID)) {
@@ -208,7 +196,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         return doIntercept(message);
     }
 
-    public void reset() {
+    public synchronized void reset() {
         if (state == State.COMPLETE) {
             state = State.EXECUTING;
             iterator.reset();
@@ -238,7 +226,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
     
 
-    public void abort() {
+    public synchronized void abort() {
         this.state = InterceptorChain.State.ABORTED;
     }
 
