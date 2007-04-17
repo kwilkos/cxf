@@ -59,6 +59,7 @@ import org.apache.hello_world_soap_http.DocLitBare;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.apache.hello_world_soap_http.SOAPServiceBogusAddressTest;
 import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
 import org.apache.hello_world_soap_http.SOAPServiceMultiPortTypeTest;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
@@ -68,10 +69,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientServerTest extends AbstractBusClientServerTestBase {
-
-    private final QName bogusAddressServiceName = new QName(
-                                                "http://apache.org/hello_world_soap_http",
-                                                "SOAPServiceBogusAddressTest");    
+  
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
@@ -693,11 +691,10 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     
 
     @Test
-    @Ignore
     public void testBogusAddress() throws Exception {
         String realAddress = "http://localhost:9015/SoapContext/SoapPort";
-        Service service = Service.create(bogusAddressServiceName);
-        Greeter greeter = service.getPort(portName, Greeter.class);
+        SOAPServiceBogusAddressTest service = new SOAPServiceBogusAddressTest();
+        Greeter greeter = service.getSoapPort();
         BindingProvider bp = (BindingProvider)greeter;
         bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
                                    realAddress);
