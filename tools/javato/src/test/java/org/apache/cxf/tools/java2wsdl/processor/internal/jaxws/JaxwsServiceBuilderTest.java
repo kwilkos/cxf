@@ -141,21 +141,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     // TODO:
     @Test
     @Ignore
-    public void testSOAP12() throws Exception {
-        builder.setServiceClass(org.apache.hello_world_soap12_http.Greeter.class);
-        ServiceInfo service = builder.build();
-
-        generator.setServiceModel(service);
-        File file = getOutputFile("soap12.wsdl");
-        assertNotNull(output);
-        generator.generate(file);
-        assertTrue(output.exists());
-
-    }
-
-    // TODO:
-    @Test
-    @Ignore
     public void testRPCWithoutParentBindingAnnotation() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.Hello.class);
         ServiceInfo service = builder.build();
