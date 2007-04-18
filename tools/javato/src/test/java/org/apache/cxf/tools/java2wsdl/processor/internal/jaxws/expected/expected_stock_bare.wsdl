@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -17,6 +16,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
+<?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="StockService" targetNamespace="http://docbare.classnoanno.fortest.tools.cxf.apache.org/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://docbare.classnoanno.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:message name="getPriceResponse">
     <wsdl:part name="return" type="xsd:float">

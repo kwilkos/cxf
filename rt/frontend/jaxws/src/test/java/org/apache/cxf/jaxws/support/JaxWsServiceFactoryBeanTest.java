@@ -36,6 +36,7 @@ import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.junit.Test;
@@ -182,12 +183,10 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         
         OperationInfo greetMeOneWayOp = si.getInterface().getOperation(new QName(ns, "greetMeOneWay"));
         assertEquals(1, greetMeOneWayOp.getInput().getMessageParts().size());
-        
-        //FIXME: CXF-533        
-        //Collection<SchemaInfo> schemas = si.getSchemas();
-        //assertEquals(2, schemas.size());
-        
         assertNull(greetMeOneWayOp.getOutput());
+        
+        Collection<SchemaInfo> schemas = si.getSchemas();
+        assertEquals(1, schemas.size());
     }
 
 }

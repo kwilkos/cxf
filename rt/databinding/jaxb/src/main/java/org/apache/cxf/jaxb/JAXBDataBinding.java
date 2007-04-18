@@ -287,8 +287,9 @@ public final class JAXBDataBinding implements DataBinding {
                     SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
                     schema.setElement(d.getDocumentElement());
                     schema.setSystemId(r.getSystemId());
+                    XmlSchema xmlSchema = col.read(d.getDocumentElement());
+                    schema.setSchema(xmlSchema);
                     serviceInfo.addSchema(schema);
-                    col.read(d.getDocumentElement());
                 }
             } catch (IOException e) {
                 throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", BUNDLE), e);

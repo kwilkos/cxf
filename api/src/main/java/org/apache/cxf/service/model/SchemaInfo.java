@@ -19,9 +19,13 @@
 
 package org.apache.cxf.service.model;
 
+import javax.xml.namespace.QName;
+
 import org.w3c.dom.Element;
 
 import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+
 
 public final class SchemaInfo extends AbstractPropertiesHolder {
   
@@ -101,5 +105,24 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
 
     public void setSystemId(String systemId) {
         this.systemId = systemId;
+    }    
+    
+    public XmlSchemaElement getElementByQName(QName qname) {
+/*        String uri = qname.getNamespaceURI();
+        if (namespaceUri.equals(uri)) {
+            NodeList nodes = element.getElementsByTagName(qname.getLocalPart());
+            for (int i = 0; i < nodes.getLength(); i++) {
+                if (nodes.item(i) instanceof Element) {
+                    return (Element)nodes.item(i);
+                }
+
+            }
+        }
+        return null;*/
+        String uri = qname.getNamespaceURI();
+        if (schema.getTargetNamespace().equals(uri)) {
+            return schema.getElementByName(qname);
+        }
+        return null;
     }
 }

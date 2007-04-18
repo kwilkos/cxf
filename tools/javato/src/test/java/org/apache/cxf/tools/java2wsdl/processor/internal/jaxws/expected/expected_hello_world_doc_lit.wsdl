@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -17,6 +16,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
+<?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="GreeterService" targetNamespace="http://apache.org/hello_world_doc_lit" xmlns:ns1="http://apache.org/hello_world_doc_lit" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://apache.org/hello_world_doc_lit/types" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/hello_world_doc_lit/types" version="1.0">
@@ -66,51 +66,6 @@
 </xs:complexType>
 </xs:element>
 </xs:schema>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/hello_world_doc_lit" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://apache.org/hello_world_doc_lit">
-<xsd:element name="greetMe">
-<xsd:complexType>
-<xsd:sequence>
-<xsd:element name="requestType" nillable="true" type="xsd:string"/>
-</xsd:sequence>
-</xsd:complexType>
-</xsd:element>
-<xsd:element name="greetMeResponse">
-<xsd:complexType>
-<xsd:sequence>
-<xsd:element name="responseType" nillable="true" type="xsd:string"/>
-</xsd:sequence>
-</xsd:complexType>
-</xsd:element>
-<xsd:element name="greetMeOneWay">
-<xsd:complexType>
-<xsd:sequence>
-<xsd:element name="requestType" nillable="true" type="xsd:string"/>
-</xsd:sequence>
-</xsd:complexType>
-</xsd:element>
-<xsd:element name="sayHi">
-<xsd:complexType>
-<xsd:sequence/>
-</xsd:complexType>
-</xsd:element>
-<xsd:element name="sayHiResponse">
-<xsd:complexType>
-<xsd:sequence>
-<xsd:element name="responseType" nillable="true" type="xsd:string"/>
-</xsd:sequence>
-</xsd:complexType>
-</xsd:element>
-<xsd:element name="pingMe">
-<xsd:complexType>
-<xsd:sequence/>
-</xsd:complexType>
-</xsd:element>
-<xsd:element name="pingMeResponse">
-<xsd:complexType>
-<xsd:sequence/>
-</xsd:complexType>
-</xsd:element>
-</xsd:schema>
   </wsdl:types>
   <wsdl:message name="sayHiResponse">
     <wsdl:part name="sayHiResponse" element="ns2:sayHiResponse">

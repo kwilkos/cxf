@@ -336,7 +336,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 op.setInput(uOp.getInputName(), msg);
                 
                 createInputWrappedMessageParts(uOp, m, msg);
-                //msg.addMessagePart(uOp.getInput().getName());
                 
                 for (MessagePartInfo p : uOp.getInput().getMessageParts()) {                    
                     p.setConcreteName(p.getName());
@@ -350,11 +349,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 op.setOutput(uOp.getOutputName(), msg);
                 
                 createOutputWrappedMessageParts(uOp, m, msg);
-                /*                
-                                MessagePartInfo part = msg.addMessagePart(name);
-                                part.setIndex(-1);
-                */   
-                
+                 
                 for (MessagePartInfo p : uOp.getOutput().getMessageParts()) {
                     p.setConcreteName(p.getName());
                 }
@@ -370,42 +365,92 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
-        XmlSchemaCollection col = new XmlSchemaCollection();
-        XmlSchema schema = new XmlSchema(getServiceNamespace(), col);
-        schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
-        serviceInfo.setXmlSchemaCollection(col);
-        
-        NamespaceMap nsMap = new NamespaceMap();
-        nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
-        schema.setNamespaceContext(nsMap);
-        
+
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
                 if (op.hasInput()) {
-                    createWrappedMessage(op.getInput(), op.getUnwrappedOperation().getInput(), schema);
+                    QName wraperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
+                    XmlSchemaElement e = null;
+                    for (SchemaInfo s : serviceInfo.getSchemas()) {
+                        e = s.getElementByQName(wraperBeanName);
+                        if (e != null) {
+                            break;
+                        }
+                    }
+                    if (e == null) {
+                        createWrappedSchema(serviceInfo, op.getInput(),
+                                            op.getUnwrappedOperation().getInput(), wraperBeanName);
+                    }
                 }
                 if (op.hasOutput()) {
-                    createWrappedMessage(op.getOutput(), op.getUnwrappedOperation().getOutput(), schema);
+                    QName wraperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
+                    XmlSchemaElement e = null;
+                    for (SchemaInfo s : serviceInfo.getSchemas()) {
+                        e = s.getElementByQName(wraperBeanName);
+                        if (e != null) {
+                            break;
+                        }
+                    }
+                    if (e == null) {
+                        createWrappedSchema(serviceInfo, op.getOutput(), op.getUnwrappedOperation()
+                            .getOutput(), wraperBeanName);
+                    }
                 }
             }
         }
-        
-        Document[] docs;
-        try {
-            docs = XmlSchemaSerializer.serializeSchema(schema, false);
-        } catch (XmlSchemaSerializerException e1) {
-            throw new ServiceConstructionException(e1);
-        }
-        Element e = docs[0].getDocumentElement();
-        SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, getServiceNamespace());
-        schemaInfo.setElement(e);
-        schemaInfo.setSchema(schema);
-        serviceInfo.addSchema(schemaInfo);
+
     }
 
-    private void createWrappedMessage(MessageInfo wrappedMessage, 
-                                      MessageInfo unwrappedMessage, 
-                                      XmlSchema schema) {
+    protected void createWrappedSchema(ServiceInfo serviceInfo, MessageInfo wrappedMessage,
+                                       MessageInfo unwrappedMessage, QName wraperBeanName) {
+        SchemaInfo schemaInfo = null;
+        for (SchemaInfo s : serviceInfo.getSchemas()) {
+            if (s.getNamespaceURI().equals(wraperBeanName.getNamespaceURI())) {
+                schemaInfo = s;
+                break;
+            }
+        }
+
+        if (schemaInfo == null) {
+            XmlSchemaCollection col = new XmlSchemaCollection();
+            XmlSchema schema = new XmlSchema(wraperBeanName.getNamespaceURI(), col);
+            schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+            serviceInfo.setXmlSchemaCollection(col);
+
+            NamespaceMap nsMap = new NamespaceMap();
+            nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+            schema.setNamespaceContext(nsMap);
+
+            createWrappedMessageSchema(wrappedMessage, unwrappedMessage, schema);
+
+            Document[] docs;
+            try {
+                docs = XmlSchemaSerializer.serializeSchema(schema, false);
+            } catch (XmlSchemaSerializerException e1) {
+                throw new ServiceConstructionException(e1);
+            }
+            Element e = docs[0].getDocumentElement();
+            schemaInfo = new SchemaInfo(serviceInfo, wraperBeanName.getNamespaceURI());
+            schemaInfo.setElement(e);
+            schemaInfo.setSchema(schema);
+            serviceInfo.addSchema(schemaInfo);
+        } else {
+            XmlSchema schema = schemaInfo.getSchema();
+            createWrappedMessageSchema(wrappedMessage, unwrappedMessage, schema);
+
+            Document[] docs;
+            try {
+                docs = XmlSchemaSerializer.serializeSchema(schema, false);
+            } catch (XmlSchemaSerializerException e1) {
+                throw new ServiceConstructionException(e1);
+            }
+            Element e = docs[0].getDocumentElement();
+            schemaInfo.setElement(e);
+        }
+    }
+    
+    private void createWrappedMessageSchema(MessageInfo wrappedMessage, MessageInfo unwrappedMessage,
+                                            XmlSchema schema) {
         XmlSchemaElement el = new XmlSchemaElement();
         el.setQName(wrappedMessage.getName());
         el.setName(wrappedMessage.getName().getLocalPart());
@@ -435,6 +480,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             seq.getItems().add(el);
         }
     }
+
 
     protected void createMessageParts(InterfaceInfo intf, OperationInfo op, Method method) {
         final Class[] paramClasses = method.getParameterTypes();

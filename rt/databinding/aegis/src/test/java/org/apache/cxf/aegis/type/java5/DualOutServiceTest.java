@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.aegis.type.java5;
 
+
+
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
@@ -37,15 +39,16 @@ public class DualOutServiceTest extends AbstractAegisTest {
 
         Document wsdl = getWSDLDocument("DualOutService");
         assertNotNull(wsdl);
-
+ 
         addNamespace("xsd", XmlConstants.XSD);
+ 
         assertValid(
                     "//xsd:element[@name='getValuesResponse']//xsd:element"
-                    + "[@name='return'][@type='xsd:string']",
+                    + "[@name='return'][@type='string']",
                     wsdl);
         assertValid(
                     "//xsd:element[@name='getValuesResponse']//xsd:element"
-                    + "[@name='return1'][@type='xsd:string']",
+                    + "[@name='return1'][@type='string']",
                     wsdl);
     }
 }

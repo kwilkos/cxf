@@ -114,10 +114,10 @@ public class EnumTypeTest extends AbstractAegisTest {
         Document wsdl = getWSDLDocument("CurrencyService");
 
         assertValid("//xsd:element[@name='inputCurrency'][@nillable='true']", wsdl);
-        assertValid("//xsd:simpleType[@name='Currency']/xsd:restriction[@base='xsd:string']", wsdl);
-        assertValid("//xsd:restriction[@base='xsd:string']/xsd:enumeration[@value='USD']", wsdl);
-        assertValid("//xsd:restriction[@base='xsd:string']/xsd:enumeration[@value='EURO']", wsdl);
-        assertValid("//xsd:restriction[@base='xsd:string']/xsd:enumeration[@value='POUNDS']", wsdl);
+        assertValid("//xsd:simpleType[@name='Currency']/xsd:restriction[@base='string']", wsdl);
+        assertValid("//xsd:restriction[@base='string']/xsd:enumeration[@value='USD']", wsdl);
+        assertValid("//xsd:restriction[@base='string']/xsd:enumeration[@value='EURO']", wsdl);
+        assertValid("//xsd:restriction[@base='string']/xsd:enumeration[@value='POUNDS']", wsdl);
     }
 
     @Test

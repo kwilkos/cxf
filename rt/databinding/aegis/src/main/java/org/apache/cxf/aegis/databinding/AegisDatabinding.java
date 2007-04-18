@@ -55,6 +55,9 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -147,7 +150,7 @@ public class AegisDatabinding implements DataBinding {
         List classes = (List)service.get(Aegis.OVERRIDE_TYPES_KEY);
 
         this.overrideTypes = classes;
-        
+
         if (classes != null) {
             List<Type> types = new ArrayList<Type>();
             for (Iterator it = classes.iterator(); it.hasNext();) {
@@ -251,14 +254,25 @@ public class AegisDatabinding implements DataBinding {
             }
 
             try {
+                XmlSchemaCollection col = new XmlSchemaCollection();
+                NamespaceMap nsMap = new NamespaceMap();
+                nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");
+                //For Aegis types, such as org.apache.cxf.aegis.type.basic.StringType
+                nsMap.add("ns1", "http://lang.java");
+                col.setNamespaceContext(nsMap);
+
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));
 
                 for (ServiceInfo si : service.getServiceInfos()) {
                     SchemaInfo info = new SchemaInfo(si, entry.getKey());
 
                     info.setElement(schema.getDocumentElement());
+
+                    XmlSchema xmlSchema = col.read(schema.getDocumentElement());
+                    info.setSchema(xmlSchema);
+
                     info.setSystemId(entry.getKey());
-    
+
                     si.addSchema(info);
                 }
             } catch (JDOMException e1) {
