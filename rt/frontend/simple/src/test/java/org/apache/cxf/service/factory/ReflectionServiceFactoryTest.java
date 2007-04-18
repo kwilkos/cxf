@@ -137,7 +137,6 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");
-        svrBean.setTransportId("http://schemas.xmlsoap.org/wsdl/soap/");
         svrBean.setServiceFactory(serviceFactory);
         svrBean.setBus(getBus());
         

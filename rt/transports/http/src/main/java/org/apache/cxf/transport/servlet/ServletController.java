@@ -154,7 +154,15 @@ public class ServletController {
             inMessage.put(Message.PATH_INFO, request.getPathInfo());
             inMessage.put(Message.QUERY_STRING, request.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, request.getContentType());
-            inMessage.put(Message.ENCODING, request.getCharacterEncoding());
+            
+            // work around a bug with Jetty which results in the character
+            // encoding not being trimmed correctly.
+            String enc = request.getCharacterEncoding();
+            if (enc.endsWith("\"")) {
+                enc = enc.substring(0, enc.length() - 1);
+            }
+            
+            inMessage.put(Message.ENCODING, enc);
             SSLUtils.propogateSecureSession(request, inMessage);
             d.doMessage(inMessage);
         } catch (IOException e) {

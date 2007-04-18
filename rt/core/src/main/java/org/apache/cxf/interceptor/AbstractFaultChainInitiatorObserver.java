@@ -54,6 +54,10 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
 
         if (isOutboundObserver()) {
             Exception ex = message.getContent(Exception.class);
+            if (!(ex instanceof Fault)) {
+                ex = new Fault(ex);
+            }
+            
             faultMessage = exchange.getOutMessage();
             if (null == faultMessage) {
                 faultMessage = exchange.get(Endpoint.class).getBinding().createMessage();

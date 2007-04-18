@@ -19,6 +19,7 @@
 
 package org.apache.cxf.mtom_xop;
 
+import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
@@ -32,7 +33,7 @@ import org.apache.cxf.mime.TestMtom;
         
 public class TestMtomImpl implements TestMtom {
 
-    public void testXop(Holder<String> name, Holder<byte[]> attachinfo) {
+    public void testXop(Holder<String> name, Holder<DataHandler> attachinfo) {
         // TODO Auto-generated method stub
         name.value = "return detail + " + name.value;
     }

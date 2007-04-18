@@ -22,7 +22,7 @@
 <wsdl:definitions name="SOAPBuilders-mime-cr-test" xmlns:types="http://cxf.apache.org/mime/types"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://cxf.apache.org/mime"
-    xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://cxf.apache.org/mime">
+    xmlns:xmime="http://www.w3.org/2005/05/xmlmime" targetNamespace="http://cxf.apache.org/mime">
 
     <wsdl:types>
         <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://cxf.apache.org/mime/types"
@@ -30,7 +30,7 @@
             <complexType name="XopType">
                 <sequence>
                     <element name="name" type="xsd:string" />
-                    <element name="attachinfo" type="xsd:base64Binary" />
+                    <element name="attachinfo" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
                 </sequence>
             </complexType>
             <element name="testXop" type="types:XopType" />

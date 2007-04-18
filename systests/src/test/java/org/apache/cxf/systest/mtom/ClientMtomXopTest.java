@@ -23,6 +23,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import javax.activation.DataHandler;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -94,14 +96,15 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
             for (int i = pre.read(); i != -1; i = pre.read()) {
                 fileSize++;
             }
-            Holder<byte[]> param = new Holder<byte[]>();
-            param.value = new byte[(int) fileSize];
-            this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(param.value);
-            String target = new String(param.value);
+            Holder<DataHandler> param = new Holder<DataHandler>();
+            byte[] data = new byte[(int) fileSize];
+            this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(data);
+            param.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
+            
             Holder<String> name = new Holder<String>("call detail");
             mtomPort.testXop(name, param);
             assertEquals("name unchanged", "return detail + call detail", name.value);
-            assertEquals("attachinfo changed", target, new String(param.value));
+            assertNotNull(param.value);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }

@@ -41,7 +41,6 @@ public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
         
         ClientFactoryBean cfBean = new ClientFactoryBean();
         cfBean.setAddress("http://localhost/Hello");
-        cfBean.setTransportId("http://schemas.xmlsoap.org/wsdl/soap/");
         cfBean.setBus(getBus());
         cfBean.setServiceClass(HelloService.class);
         

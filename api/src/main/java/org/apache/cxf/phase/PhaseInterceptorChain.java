@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
@@ -155,9 +154,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     if (LOG.isLoggable(Level.INFO)) {
                         LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
                     }
-                    if (!(ex instanceof Fault)) {
-                        ex = new Fault(ex);
-                    }
+
                     message.setContent(Exception.class, ex);
                     if (message.getExchange() != null) {
                         message.getExchange().put(Exception.class, ex);
