@@ -36,6 +36,7 @@
         <module>http</module>
         <module>object</module>
         <module>coloc</module>
+        <module>jbi</module>
     </modules>
 
 
