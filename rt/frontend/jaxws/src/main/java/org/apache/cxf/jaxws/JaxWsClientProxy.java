@@ -95,10 +95,9 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         if (null == params) {
             params = new Object[0];
         }
-        Map<String, Object> reqContext = this.getRequestContext();        
+        Map<String, Object> reqContext = new HashMap<String, Object>(this.getRequestContext());        
         Map<String, Object> respContext = this.getResponseContext();
-        // Clear the request ThreadLocal variable        
-        clearContext(requestContext);
+        
         // Clear the response context's hold information
         // Not call the clear Context is to avoid the error 
         // that getResponseContext() could be called by Client code first
@@ -147,12 +146,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             return r;
         }
     }
-    
-    private void clearContext(ThreadLocal<Map<String, Object>> context) {
-        if (null != context.get()) {
-            context.set(null);
-        }
-    }
+
 
     public Map<String, Object> getRequestContext() {
         if (null == requestContext.get()) {

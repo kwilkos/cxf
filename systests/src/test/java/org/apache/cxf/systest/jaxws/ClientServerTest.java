@@ -700,9 +700,14 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
                                    realAddress);
         greeter.greetMe("test");
 
+        //should persist
+        greeter.greetMe("test");
+
+        bp.getRequestContext().remove(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+        
         try {
             greeter.greetMe("test");
-            fail("expected address override not to persist beyond a single invocation");
+            fail("Should fail");
         } catch (Fault f) {
             // expected
         }

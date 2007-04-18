@@ -158,7 +158,7 @@ public class ServletController {
             // work around a bug with Jetty which results in the character
             // encoding not being trimmed correctly.
             String enc = request.getCharacterEncoding();
-            if (enc.endsWith("\"")) {
+            if (enc != null && enc.endsWith("\"")) {
                 enc = enc.substring(0, enc.length() - 1);
             }
             
