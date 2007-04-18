@@ -52,8 +52,10 @@ import org.apache.header_test.types.TestHeader5;
 import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
+import org.apache.tests.type_test.all.SimpleAll;
+import org.apache.tests.type_test.choice.SimpleChoice;
+import org.apache.tests.type_test.sequence.SimpleStruct;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -101,6 +103,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     } 
 
     @Test
+    
     public void testOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -287,34 +290,27 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         }
     } 
     
+    
+
     @Test
-    @Ignore("test takes forever for what it does. Why?")
-    public void testHolderNull() {
+    public void testHolderOutIsTheFirstMessagePart() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
-        
         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
         assertNotNull(service);
         TestHeader proxy = service.getPort(portName, TestHeader.class);
-        proxy.testHeader2(null, null, null);
-        proxy.testHeader3(null, null);
-        proxy.testHeader5(null, null, null);
-        proxy.testHeaderPartBeforeBodyPart(null, null);
+        Holder<SimpleAll> simpleAll = new Holder<SimpleAll>();
+        SimpleAll sa = new SimpleAll();
+        sa.setVarAttrString("varAttrString");
+        sa.setVarInt(100);
+        sa.setVarString("varString");
+        simpleAll.value = sa;
+        SimpleChoice sc = new SimpleChoice();
+        sc.setVarString("scVarString");
+        SimpleStruct ss = proxy.sendReceiveAnyType(simpleAll, sc);
+        assertEquals(simpleAll.value.getVarString(), "scVarString");
+        assertEquals(ss.getVarInt(), 200);
+        assertEquals(ss.getVarAttrString(), "varAttrStringRet");
     }
-
-  // REVIST: This is not a valid WSDL according to WSI-BP V1.0
-  //     @Test
-  //     public void testHolderNotTheFirstMessagePart() throws Exception {
-  //         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
-  //         assertNotNull(wsdl);
-  
-  //         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
-  //         assertNotNull(service);
-  //         TestHeader proxy = service.getPort(portName, TestHeader.class);
-  //         Holder<SimpleAll> simpleAll = new Holder<SimpleAll>();
-  //         simpleAll.value = new SimpleAll();
-  //         proxy.sendReceiveAnyType(simpleAll, new SimpleChoice());    
-  
-  //     }
    
 }

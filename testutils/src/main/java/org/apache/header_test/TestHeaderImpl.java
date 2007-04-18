@@ -127,7 +127,14 @@ public class TestHeaderImpl implements TestHeader {
     }
 
     public SimpleStruct sendReceiveAnyType(Holder<SimpleAll> x, SimpleChoice y) {
-        return new SimpleStruct();
+        SimpleAll sa = new SimpleAll();
+        sa.setVarString(y.getVarString());
+        
+        SimpleStruct ss = new SimpleStruct();
+        ss.setVarAttrString(x.value.getVarAttrString() + "Ret");
+        ss.setVarInt(x.value.getVarInt() + 100);
+        x.value = sa;
+        return ss;
     }
 
 }

@@ -127,28 +127,14 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 return endedHeader;
             }
             
-            // This code is really ugly right now. Need to refactor...
-            int offset = 0;
-            int returnIdx = 0;
-            if (!client) {
-                for (int i = 0; i < parts.size(); i++) {
-                    MessagePartInfo part = parts.get(i);
-                    if (part.getIndex() == -1) {
-                        offset++;
-                        returnIdx = i;
-                        break;
-                    }
-                }
-            }
+                        
             
             for (SoapHeaderInfo header : headers) {
                 MessagePartInfo part = header.getPart();
 
                 int idx = parts.indexOf(part);
-                if (!client && idx < returnIdx) {
-                    idx += offset;
-                }
-                
+                //int idx = part.getIndex();
+                                
                 Object arg = objs.get(idx);
                 if (!(startedHeader || preexistingHeaders)) {
                     try {

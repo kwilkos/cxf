@@ -225,13 +225,10 @@
                 message="tns:testHeaderPartBeforeBodyPartResponse"/>
         </wsdl:operation>
 
-	<!-- this is not a valid operation according to WSI-BP V1.0 R2210
-	     A unit test also commented out in HeaderClientServerTest in rt/frontend/jaxws
         <operation name="send_receive_any_type">
             <input name="send_receive_any_type_request" message="tns:AnyTypeRequest"/>
             <output name="send_receive_any_type_response" message="tns:AnyTypeResponse"/>
         </operation>
-	-->
     </wsdl:portType>
     <wsdl:binding name="TestHeader_SOAPBinding" type="tns:TestHeader">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -300,7 +297,6 @@
                     part="inoutHeader" use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-	<!-- this is not a valid operation according to WSI-BP V1.0 R2210
         <operation name="send_receive_any_type">
             <soap:operation soapAction="" style="document"/>
             <input>
@@ -310,7 +306,6 @@
                 <soap:body use="literal"/>
             </output>
         </operation>
-	-->
     </wsdl:binding>
     <wsdl:service name="SOAPHeaderService">
         <wsdl:port name="SoapHeaderPort" binding="tns:TestHeader_SOAPBinding">
