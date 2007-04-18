@@ -71,7 +71,8 @@ public class ProviderFactoryTest extends TestCase {
             ph.createAndPublish(f);
             fail("expected exception did not occur");
         } catch (EvaluatorException ex) {
-            assertTrue("wrong exception", ex.getMessage().startsWith("syntax error"));
+            assertTrue("wrong exception", ex.getMessage().startsWith("syntax error")
+                                       || ex.getMessage().startsWith("erreur de syntaxe"));
         }
         EasyMock.verify(dpMock);
     }
