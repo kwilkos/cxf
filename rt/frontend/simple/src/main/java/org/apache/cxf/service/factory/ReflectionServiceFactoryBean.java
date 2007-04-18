@@ -438,7 +438,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void createMessageParts(InterfaceInfo intf, OperationInfo op, Method method) {
         final Class[] paramClasses = method.getParameterTypes();
-
         // Setup the input message
         MessageInfo inMsg = op.createMessage(this.getInputMessageName(op, method));        
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
@@ -484,7 +483,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                     final QName q = getOutPartName(op, method, j);
                     final QName q2 = getOutParameterName(op, method, j);
-                    MessagePartInfo part = outMsg.addMessagePart(q);               
+                    MessagePartInfo part = outMsg.addMessagePart(q);
                     if (!isRPC(method) && !isWrapped(method) && wrappedStyle == null) {
                         part.setElementQName(q2);
                     } 

@@ -43,6 +43,11 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         builder.setBus(BusFactory.getDefaultBus());
     }
 
+    @org.junit.After
+    public void tearDown() {
+        super.tearDown();
+    }
+
 
     @Test
     public void testGetOutputFile() {
@@ -222,9 +227,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
     }
 
-    // TODO:
+    // PASSED
     @Test
-    @Ignore
     public void testSoapHeader() throws Exception {
 
         builder.setServiceClass(org.apache.samples.headers.HeaderTester.class);
@@ -232,10 +236,12 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         generator.setServiceModel(service);
         File file = getOutputFile("soap_header.wsdl");
-        assertNotNull(output);
+        assertNotNull(file);
         generator.generate(file);
-        assertTrue(output.exists());
+        assertTrue(file.exists());
 
+        String expectedFile = this.getClass().getResource("expected/soap_header.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), file);
     }
 
     // TODO:
@@ -257,5 +263,4 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     private File getOutputFile(String fileName) {
         return new File(output, fileName);
     }
-
 }
