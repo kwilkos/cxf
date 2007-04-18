@@ -19,7 +19,10 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,7 +43,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     
     private static final String DEFAULT_CXF_CFG_FILE = "META-INF/cxf/cxf.xml";
-    private static final String DEFAULT_CXF_EXT_CFG_FILE = "classpath*:META-INF/cxf/cxf-extension-*.xml";
+    private static final String DEFAULT_CXF_EXT_CFG_FILE = "classpath*:META-INF/cxf/cxf.extension";
     private static final String CXF_PROPERTY_EDITORS_CFG_FILE = 
         "classpath*:META-INF/cxf/cxf-property-editors.xml";
     private static final Logger LOG = LogUtils.getL7dLogger(BusApplicationContext.class);
@@ -80,8 +83,20 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
                     .currentThread().getContextClassLoader());
                 
                 Collections.addAll(resources, resolver.getResources(DEFAULT_CXF_CFG_FILE));
-                Collections.addAll(resources, resolver.getResources(DEFAULT_CXF_EXT_CFG_FILE));
                 Collections.addAll(resources, resolver.getResources(CXF_PROPERTY_EDITORS_CFG_FILE));
+
+                Resource[] exts = resolver.getResources(DEFAULT_CXF_EXT_CFG_FILE);
+                for (Resource r : exts) {
+                    InputStream is = r.getInputStream();
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                    String line = rd.readLine();
+                    while (line != null) {
+                        resources.add(resolver.getResource(line));
+                        line = rd.readLine();
+                    }
+                    is.close();
+                }
+
             } catch (IOException ex) {
                 // ignore  
             }  
