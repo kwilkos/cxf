@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -35,6 +36,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -112,17 +114,16 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         }
         
         
-        Map<String, Object> reqContext = this.getRequestContext();
+        Map<String, Object> reqContext = new HashMap<String, Object>(this.getRequestContext());
         Map<String, Object> respContext = this.getResponseContext();
-        // cleanup the requestContext threadlocal variable
-        clearContext(requestContext);
         // clear the response context's hold information
         // Not call the clear Context is to avoid the error 
         // that getResponseContext() would be called by Client code first
         respContext.clear();
+        
+        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(reqContext);
         message.putAll(reqContext);
         //need to do context mapping from jax-ws to cxf message
-        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(message);
         
         Exchange exchange = new ExchangeImpl();
 
@@ -143,7 +144,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         getConduitSelector().complete(exchange);
                 
         if (message.getContent(Exception.class) != null) {
-            throw new RuntimeException(message.getContent(Exception.class));
+            throw new WebServiceException(message.getContent(Exception.class));
         }
 
         // correlate response        

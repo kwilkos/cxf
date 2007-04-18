@@ -44,6 +44,7 @@ import javax.xml.ws.http.HTTPBinding;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RestClientServerHttpBindingTest extends AbstractBusClientServerTestBase {
@@ -83,6 +84,7 @@ public class RestClientServerHttpBindingTest extends AbstractBusClientServerTest
     }
     
     @Test
+    @Ignore
     public void testHttpGETDispatchHTTPBinding() throws Exception { 
         Service service = Service.create(serviceName); 
         URI endpointURI = new URI(endpointAddress);

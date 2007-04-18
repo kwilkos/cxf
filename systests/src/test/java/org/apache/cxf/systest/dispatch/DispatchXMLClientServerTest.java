@@ -22,6 +22,7 @@ package org.apache.cxf.systest.dispatch;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
@@ -29,6 +30,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -38,6 +40,9 @@ import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_xml_http.wrapped.GreeterImpl;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
+import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
+import org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse;
+import org.apache.hello_world_xml_http.wrapped.types.ObjectFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -74,6 +79,30 @@ public class DispatchXMLClientServerTest extends AbstractBusClientServerTestBase
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
+    public void testJAXBMESSAGE() throws Exception {
+        Service service = Service.create(serviceName);       
+        assertNotNull(service);
+        service.addPort(portName, "http://cxf.apache.org/bindings/xformat", 
+                        "http://localhost:9007/XMLService/XMLDispatchPort");
+        
+        
+        GreetMe gm = new GreetMe();
+        gm.setRequestType("CXF");
+        JAXBContext ctx = JAXBContext.newInstance(ObjectFactory.class);
+        Dispatch<Object> disp = service.createDispatch(portName, ctx, Service.Mode.MESSAGE);
+        GreetMeResponse resp = (GreetMeResponse)disp.invoke(gm);
+        assertNotNull(resp);
+        assertEquals("Hello CXF", resp.getResponseType());
+        
+        try {
+            disp.invoke(null);
+            fail("Should have thrown a fault");
+        } catch (WebServiceException ex) {
+            //expected
+        }
+    }
+    
     @Test
     public void testStreamSourceMESSAGE() throws Exception {
         /*URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");

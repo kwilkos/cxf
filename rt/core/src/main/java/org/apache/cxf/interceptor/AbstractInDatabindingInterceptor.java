@@ -59,13 +59,14 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     protected <T> DataReader<T> getDataReader(Message message, Class<T> input) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReader<T> dataReader = service.getDataBinding().createReader(input);
-        dataReader.setAttachments(message.getAttachments());
-        setSchemaInMessage(service, message, dataReader);
-
         if (dataReader == null) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
                                                                    BUNDLE, service.getName()));
         }
+        dataReader.setAttachments(message.getAttachments());
+        setSchemaInMessage(service, message, dataReader);
+
+        
         return dataReader;
     }
 

@@ -50,6 +50,7 @@ import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RestClientServerTest extends AbstractBusClientServerTestBase {
@@ -110,6 +111,7 @@ public class RestClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @Ignore
     public void testHttpGETDispatchHTTPBinding() throws Exception { 
         Service service = Service.create(serviceName); 
         URI endpointURI = new URI(endpointAddress);

@@ -67,6 +67,10 @@
 </xs:element>
 </xs:schema>
   </wsdl:types>
+  <wsdl:message name="faultDetail">
+    <wsdl:part name="faultDetail" element="ns2:faultDetail">
+    </wsdl:part>
+  </wsdl:message>
   <wsdl:message name="sayHiResponse">
     <wsdl:part name="sayHiResponse" element="ns2:sayHiResponse">
     </wsdl:part>
@@ -117,6 +121,8 @@
     </wsdl:input>
       <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
     </wsdl:output>
+      <wsdl:fault name="faultDetail" message="ns2:faultDetail">
+    </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="GreeterServiceSoapBinding" type="ns1:Greeter">
@@ -153,6 +159,8 @@
       <wsdl:output name="pingMeResponse">
         <soap:body use="literal"/>
       </wsdl:output>
+      <wsdl:fault name="faultDetail">
+      </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="GreeterService">

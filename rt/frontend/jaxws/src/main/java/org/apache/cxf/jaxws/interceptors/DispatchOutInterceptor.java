@@ -22,11 +22,13 @@ package org.apache.cxf.jaxws.interceptors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
 import javax.activation.DataSource;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -36,6 +38,7 @@ import javax.xml.ws.Service;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.XMLUtils;
@@ -44,9 +47,11 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.wsdl.WSDLConstants;
 
 public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
+    private static final Logger LOG = LogUtils.getL7dLogger(DispatchOutInterceptor.class);
 
     public DispatchOutInterceptor() {
         super();
@@ -55,10 +60,14 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public void handleMessage(Message message) throws Fault {
         Service.Mode m = message.getExchange().get(Service.Mode.class);
+        OutputStream os = message.getContent(OutputStream.class);
+        Object obj = message.getContent(Object.class);
+        
+        if (obj == null) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("DISPATCH_OBJECT_CANNOT_BE_NULL", LOG));
+        }
 
         try {
-            OutputStream os = message.getContent(OutputStream.class);
-            Object obj = message.getContent(Object.class);
             if (message instanceof SoapMessage) {
                 if (m == Service.Mode.MESSAGE) {
                     if (obj instanceof SOAPMessage) {
@@ -90,12 +99,24 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     throw new RuntimeException(obj.getClass()
                                                + " is not valid in PAYLOAD mode with XML/HTTP");
                 }
-                doTransform(obj, os);
+                
+                if (obj instanceof Source || obj instanceof DataSource) {
+                    doTransform(obj, os);
+                } else {
+                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
+                    XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+                    if (xmlWriter == null) {
+                        xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");
+                    }
+                    dataWriter.write(obj, xmlWriter);
+                    
+                    xmlWriter.flush();
+                }
             }
             // Finish the message processing, do flush
             os.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
         }
     }
 

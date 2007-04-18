@@ -236,6 +236,11 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public void initialize(Service service) {
+        //context is already set, don't redo it
+        if (context != null) {
+            return;
+        }
+        
         Set<Class<?>> classes = new HashSet<Class<?>>();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             JAXBContextInitializer initializer = 

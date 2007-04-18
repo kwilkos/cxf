@@ -100,8 +100,13 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                 new StaxInInterceptor().handleMessage(message);
                 
                 DataReader<XMLStreamReader> dataReader = getDataReader(message);
-                message.setContent(Object.class, dataReader.read(null, message
-                    .getContent(XMLStreamReader.class), type));
+                Class<?> readType = type;
+                if (readType == Object.class) {
+                    readType = null;
+                }
+                Object obj = dataReader.read(null, message.getContent(XMLStreamReader.class), readType);
+                
+                message.setContent(Object.class, obj);
             }
             
             is.close();
