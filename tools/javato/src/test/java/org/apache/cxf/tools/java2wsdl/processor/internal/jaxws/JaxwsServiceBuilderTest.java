@@ -72,7 +72,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
     }
 
-    //FIXME: CXF-519
     @Test
     public void testAsync() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
@@ -121,9 +120,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
     }
 
-    //FIXME: CXF-519, CXF-533
     @Test
-    @Ignore
     public void testDocLit() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
         ServiceInfo service = builder.build();
@@ -212,7 +209,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
     }
 
-    // PASSED
     @Test
     public void testSoapHeader() throws Exception {
 
