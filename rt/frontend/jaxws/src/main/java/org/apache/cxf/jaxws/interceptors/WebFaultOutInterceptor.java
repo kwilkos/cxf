@@ -40,7 +40,6 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.service.model.UnwrappedOperationInfo;
 
 public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
@@ -89,10 +88,6 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
     }
     
     private MessagePartInfo getFaultMessagePart(QName qname, OperationInfo op) {
-        if (op.isUnwrapped()) {
-            op = ((UnwrappedOperationInfo)op).getWrappedOperation();
-        }
-        
         for (FaultInfo faultInfo : op.getFaults()) {
             for (MessagePartInfo mpi : faultInfo.getMessageParts()) {
                 String ns = null;

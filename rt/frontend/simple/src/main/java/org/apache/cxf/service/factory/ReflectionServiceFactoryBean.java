@@ -354,6 +354,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     p.setConcreteName(p.getName());
                 }
             }
+            
+            for (FaultInfo fault : uOp.getFaults()) {
+                for (MessagePartInfo p : fault.getMessageParts()) {
+                    p.setConcreteName(p.getName());
+                }
+            }
         } else {
             createMessageParts(intf, op, m);
         }
