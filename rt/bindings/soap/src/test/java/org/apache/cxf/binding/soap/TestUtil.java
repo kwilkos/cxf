@@ -19,8 +19,6 @@
 
 package org.apache.cxf.binding.soap;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -51,11 +49,8 @@ public final class TestUtil {
         xopObj.setName("hello world");        
                 
         URL url1 = clazz.getResource("my.wav");
-        File file = new File(url1.toURI().getPath());
-        FileInputStream fi = new FileInputStream(file);
-        byte[] buffer = new byte[(int) file.length()];
-        fi.read(buffer);
-        xopObj.setAttachinfo(buffer);
+        
+        xopObj.setAttachinfo(new DataHandler(url1));
         
         return xopObj;        
     }
