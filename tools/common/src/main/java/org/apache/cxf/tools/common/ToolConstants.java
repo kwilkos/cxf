@@ -188,5 +188,8 @@ public final class ToolConstants {
     public static final String FRONTEND_PLUGIN = "frontend";
     public static final String DATABINDING_PLUGIN = "databinding";
     
-    public static final String CFG_WSDL_VERSION = "wsdlversion";    
+    public static final String CFG_WSDL_VERSION = "wsdlversion";
+
+    // Suppress the code generation, in this case you can just get the generated code model
+    public static final String CFG_SUPPRESS_GEN = "suppress";
 }

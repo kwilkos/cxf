@@ -62,23 +62,23 @@ public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
 
     private S2JJAXBModel rawJaxbModelGenCode;
-    private ToolContext env;
+    private ToolContext context;
 
     @SuppressWarnings("unchecked")
-    private void initialize(ToolContext penv) throws ToolException {
-        env = penv;
+    private void initialize(ToolContext c) throws ToolException {
+        this.context = c;
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-        ClassCollector classCollector = env.get(ClassCollector.class);
+        ClassCollector classCollector = context.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
 
         schemaCompiler.setClassNameAllocator(allocator);
 
-        JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
+        JAXBBindErrorListener listener = new JAXBBindErrorListener(context);
         schemaCompiler.setErrorListener(listener);
         // Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
-        List<InputSource> jaxbBindings = env.getJaxbBindingFile();
-        Map<String, Element> schemaLists = (Map<String, Element>)env.get(ToolConstants.SCHEMA_MAP);
+        List<InputSource> jaxbBindings = context.getJaxbBindingFile();
+        Map<String, Element> schemaLists = (Map<String, Element>)context.get(ToolConstants.SCHEMA_MAP);
 
         Set<String> keys = schemaLists.keySet();
         for (String key : keys) {
@@ -89,12 +89,12 @@ public class JAXBDataBinding implements DataBindingProfile {
                 continue;
             }
             String excludePkg = null;
-            if (env.hasExcludeNamespace(tns)) {
-                excludePkg = env.getExcludePackageName(tns);
+            if (context.hasExcludeNamespace(tns)) {
+                excludePkg = context.getExcludePackageName(tns);
                 if (excludePkg != null) {
-                    env.getExcludePkgList().add(excludePkg);
+                    context.getExcludePkgList().add(excludePkg);
                 } else {
-                    env.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
+                    context.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
                 }
             }
             schemaCompiler.parseSchema(key, ele);
@@ -107,10 +107,10 @@ public class JAXBDataBinding implements DataBindingProfile {
         }
         
         
-        if (env.getPackageName() != null) {
-            schemaCompiler.forcePackageName(env.getPackageName());
+        if (context.getPackageName() != null) {
+            schemaCompiler.forcePackageName(context.getPackageName());
         } else {
-            Map<String, String> nsPkgMap = env.getNamespacePackageMap();
+            Map<String, String> nsPkgMap = context.getNamespacePackageMap();
             for (String ns : nsPkgMap.keySet()) {
                 File file = getCustomizedSchemaElement(ns, nsPkgMap.get(ns));
                 InputSource ins = new InputSource(file.toURI().toString());
@@ -135,7 +135,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
             }
-            String packageName = env.mapPackageName(targetNamespace);
+            String packageName = context.mapPackageName(targetNamespace);
             if (!addedToClassCollector(packageName)) {
                 allocator.assignClassName(packageName, "*");
             }
@@ -143,7 +143,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     }
 
     private boolean addedToClassCollector(String packageName) {
-        ClassCollector classCollector = env.get(ClassCollector.class);
+        ClassCollector classCollector = context.get(ClassCollector.class);
         List<String> files = (List<String>)classCollector.getGeneratedFileInfo();
         for (String file : files) {
             int dotIndex = file.lastIndexOf(".");
@@ -155,26 +155,33 @@ public class JAXBDataBinding implements DataBindingProfile {
         return false;
     }
 
-    public void generate(ToolContext context) throws ToolException {
-        initialize(context);
+    private boolean isSuppressCodeGen() {
+        return context.optionSet(ToolConstants.CFG_SUPPRESS_GEN);
+    }
+    
+    public void generate(ToolContext c) throws ToolException {
+        initialize(c);
         if (rawJaxbModelGenCode == null) {
             return;
         }
 
         try {
-            String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+            String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
 
-            TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), env.getExcludePkgList());
+            TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), context.getExcludePkgList());
 
             if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
                 // TODO : enable jaxb plugin
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
 
-                jcodeModel.build(fileCodeWriter);
-                env.put(JCodeModel.class, jcodeModel);
+                if (!isSuppressCodeGen()) {
+                    jcodeModel.build(fileCodeWriter);
+                }
+
+                context.put(JCodeModel.class, jcodeModel);
                 for (String str : fileCodeWriter.getExcludeFileList()) {
-                    env.getExcludeFileList().add(str);
+                    context.getExcludeFileList().add(str);
                 }
             }
             return;

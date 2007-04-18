@@ -106,12 +106,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 throw new ToolException(msg);
             }
 
-            DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
-            if (dataBindingProfile == null) {
-                Message msg = new Message("FOUND_NO_DATABINDING", LOG);
-                throw new ToolException(msg);
-            }
-
             WSDLConstants.WSDLVersion version = getWSDLVersion();
 
             String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
@@ -182,9 +176,12 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 processor.setEnvironment(context);
                 processor.process();
 
-                // Generate artifacts
-                for (FrontEndGenerator generator : frontend.getGenerators()) {
-                    generator.generate(context);
+
+                if (!isSuppressCodeGen()) {
+                    // Generate artifacts
+                    for (FrontEndGenerator generator : frontend.getGenerators()) {
+                        generator.generate(context);
+                    }
                 }
             }
 
@@ -202,6 +199,10 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             }
         }
 
+    }
+
+    private boolean isSuppressCodeGen() {
+        return context.optionSet(ToolConstants.CFG_SUPPRESS_GEN);
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {
@@ -463,7 +464,12 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (passthrough()) {
             return;
         }
+
         DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
+        if (dataBindingProfile == null) {
+            Message msg = new Message("FOUND_NO_DATABINDING", LOG);
+            throw new ToolException(msg);
+        }
         dataBindingProfile.generate(context);
     }
 

@@ -46,7 +46,6 @@ import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToProcessor.class);
-    //private static final String DEFAULT_TRANSPORT_ID = WSDLConstants.SOAP11_NAMESPACE;
     private static final String DEFAULT_ADDRESS = "http://localhost:9090/hello";
     private ToolContext context;
 

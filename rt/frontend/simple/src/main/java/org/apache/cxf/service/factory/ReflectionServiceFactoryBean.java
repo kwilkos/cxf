@@ -66,6 +66,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -375,7 +376,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         serviceInfo.setXmlSchemaCollection(col);
         
         NamespaceMap nsMap = new NamespaceMap();
-        nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");
+        nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
         schema.setNamespaceContext(nsMap);
         
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
