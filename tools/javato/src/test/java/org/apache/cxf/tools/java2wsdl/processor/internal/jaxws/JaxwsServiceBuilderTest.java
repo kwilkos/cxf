@@ -60,9 +60,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     @Test
-    @Ignore
     public void testDocLitWrappedWithWrapperClass() {
-        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Hello.class);
+        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.StockWrapped.class);
         ServiceInfo service = builder.build();
         generator.setServiceModel(service);
         File output = getOutputFile("doc_lit_wrapped_with_wrapperclass.wsdl");
@@ -71,7 +70,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
         String expectedFile = this.getClass()
-            .getResource("expected/expected_doc_lit_wrapped_no_wrapperclass.wsdl").getFile();
+            .getResource("expected/expected_doc_lit_wrapped_with_wrapperclass.wsdl").getFile();
         assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 

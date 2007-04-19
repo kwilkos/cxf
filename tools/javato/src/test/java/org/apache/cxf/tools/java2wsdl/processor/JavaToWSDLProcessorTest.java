@@ -320,6 +320,25 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         } catch (Exception e) {
             fail("Should not happen other exception " + e.getMessage());
         }
+    }    
+    
+    @Test
+    public void testDocWrappedWithWrapperClass() {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_no_anno_nowrapper11.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.Hello");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        j2wProcessor.setEnvironment(env);
+        try {
+            j2wProcessor.process();
+            File wsdlFile = new File(output, "doc_lit_wrapped_no_anno_nowrapper11.wsdl");
+            assertTrue(wsdlFile.exists());
+            assertTrue("WSDL file: " + wsdlFile.toString() + " is empty", wsdlFile.length() > 0);
+        } catch (ToolException e) {
+            String expected = "org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHi";
+            assertTrue(e.getMessage().contains(expected));
+        } catch (Exception e) {
+            fail("Should not happen other exception " + e.getMessage());
+        }
     }
     
     @Test

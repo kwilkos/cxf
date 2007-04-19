@@ -48,8 +48,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {"responseType" })
-@XmlRootElement(name = "getPrice")
+@XmlType(name = "", propOrder = {"responseType" }, namespace = "http://cxf.com/")
+@XmlRootElement(name = "getPrice", namespace = "http://cxf.com/")
 public class GetPrice {
 
     @XmlElement(required = true)

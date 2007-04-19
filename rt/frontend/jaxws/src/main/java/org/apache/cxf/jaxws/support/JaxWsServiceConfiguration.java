@@ -47,6 +47,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
@@ -381,16 +382,25 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         Method m = getDeclaredMethod(selected);
 
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
+        String clsName = "";
+        boolean isWrapperSpecifiedByAnno = true;
         if (rw == null) {
-            return null;
+            clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName())
+                      + "Response";
+            isWrapperSpecifiedByAnno = false;
+        } else {
+            clsName = rw.className();
         }
-
-        String clsName = rw.className();
+        
         if (clsName.length() > 0) {
             try {
                 return ClassLoaderUtils.loadClass(clsName, getClass());
             } catch (ClassNotFoundException e) {
-                throw new ServiceConstructionException(e);
+                if (isWrapperSpecifiedByAnno) {
+                    throw new ServiceConstructionException(e);
+                } else {
+                    //do nothing, we will mock a schema for wrapper bean later on
+                }
             }
         }
 
@@ -402,23 +412,34 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         Method m = getDeclaredMethod(selected);
 
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
+        String clsName = "";
+        boolean isWrapperSpecifiedByAnno = true;
         if (rw == null) {
-            return null;
+            clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName());
+            isWrapperSpecifiedByAnno = false;
+        } else {
+            clsName = rw.className();
         }
-
-        String clsName = rw.className();
 
         if (clsName.length() > 0) {
             try {
                 return ClassLoaderUtils.loadClass(clsName, getClass());
             } catch (ClassNotFoundException e) {
-                throw new ServiceConstructionException(e);
+                if (isWrapperSpecifiedByAnno) {
+                    throw new ServiceConstructionException(e);
+                } else {
+                    //do nothing, we will mock a schema for wrapper bean later on
+                }
             }
         }
 
         return null;
     }
-
+    
+    private static String getPackageName(Method method) {
+        return method.getDeclaringClass().getPackage().getName();
+    }
+    
     @Override
     public QName getFaultName(InterfaceInfo service, OperationInfo o, Class<?> exClass, Class<?> beanClass) {
         WebFault fault = exClass.getAnnotation(WebFault.class);

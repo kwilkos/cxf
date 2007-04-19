@@ -47,8 +47,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {"responseType" })
-@XmlRootElement(name = "getPriceResponse")
+@XmlType(name = "", propOrder = {"responseType" }, namespace = "http://cxf.com/")
+@XmlRootElement(name = "getPriceResponse", namespace = "http://cxf.com/")
 public class GetPriceResponse {
 
     protected float responseType;

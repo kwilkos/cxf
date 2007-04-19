@@ -129,4 +129,5 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/hello_soap12.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
     }
+
 }
