@@ -97,6 +97,14 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     }
 
     public Assertion buildCompatible(Assertion a, Assertion b) {
+        if (a.equal(b)) {
+            JaxbAssertion<T> ja = (JaxbAssertion<T>)a;
+            JaxbAssertion<T> compatible = buildAssertion();
+            compatible.setName(a.getName());
+            compatible.setOptional(a.isOptional() && b.isOptional());
+            compatible.setData(ja.getData());
+            return compatible;
+        }
         return null;
     }
     

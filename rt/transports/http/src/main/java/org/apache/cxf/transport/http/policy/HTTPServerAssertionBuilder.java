@@ -25,6 +25,7 @@ import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertionBuilder;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.Constants;
 import org.apache.neethi.PolicyComponent;
 
 /**
@@ -63,12 +64,13 @@ public class HTTPServerAssertionBuilder extends JaxbAssertionBuilder<HTTPServerP
     
     class HTTPServerPolicyAssertion extends JaxbAssertion<HTTPServerPolicy> {
         HTTPServerPolicyAssertion() {
-            super(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, false);
+            super(PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME, false);            
         }
 
         @Override
         public boolean equal(PolicyComponent policyComponent) {
-            if (!super.equal(policyComponent)) {
+            if (policyComponent.getType() != Constants.TYPE_ASSERTION
+                || !getName().equals(((Assertion)policyComponent).getName())) {
                 return false;
             }
             JaxbAssertion<HTTPServerPolicy> other = JaxbAssertion.cast((Assertion)policyComponent);

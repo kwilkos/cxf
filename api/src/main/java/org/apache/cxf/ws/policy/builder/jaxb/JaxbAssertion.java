@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.PolicyComponent;
 
 
 /**
@@ -38,7 +39,16 @@ public class JaxbAssertion<T> extends PrimitiveAssertion {
     public JaxbAssertion(QName qn, boolean optional) {
         super(qn, optional);
     }
-    
+      
+    @Override
+    public boolean equal(PolicyComponent policyComponent) {
+        if (!super.equal(policyComponent)) {
+            return false;
+        }
+        JaxbAssertion<T> a = (JaxbAssertion<T>)policyComponent;
+        return data.equals(a.getData());
+    }
+
     public void setData(T d) {
         data = d;
     }

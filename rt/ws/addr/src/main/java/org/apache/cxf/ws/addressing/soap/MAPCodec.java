@@ -123,7 +123,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
     private void mediate(SoapMessage message) {
         if (ContextUtils.isOutbound(message)) {
             encode(message, ContextUtils.retrieveMAPs(message, false, true));
-        } else if (null == ContextUtils.retrieveMAPs(message, false, false)) {            
+        } else if (null == ContextUtils.retrieveMAPs(message, false, false, false)) {            
             AddressingProperties maps = decode(message);
             ContextUtils.storeMAPs(maps, message, false);
             markPartialResponse(message, maps);

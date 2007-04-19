@@ -224,8 +224,7 @@ public final class ContextUtils {
             message.put(mapProperty, maps);
         }
     }
-
-
+    
     /**
      * @param message the current message
      * @param isProviderContext true if the binding provider request context
@@ -238,6 +237,23 @@ public final class ContextUtils {
                                                    Message message, 
                                                    boolean isProviderContext,
                                                    boolean isOutbound) {
+        return retrieveMAPs(message, isProviderContext, isOutbound, true);
+    }
+
+    /**
+     * @param message the current message
+     * @param isProviderContext true if the binding provider request context
+     * available to the client application as opposed to the message context
+     * visible to handlers
+     * @param isOutbound true iff the message is outbound
+     * @param warnIfMissing log a warning  message if properties cannot be retrieved
+     * @return the current addressing properties
+     */
+    public static AddressingPropertiesImpl retrieveMAPs(
+                                                   Message message, 
+                                                   boolean isProviderContext,
+                                                   boolean isOutbound,
+                                                   boolean warnIfMissing) {
         boolean isRequestor = ContextUtils.isRequestor(message);
         String mapProperty =
             ContextUtils.getMAPProperty(isProviderContext, 
@@ -251,7 +267,8 @@ public final class ContextUtils {
         if (maps != null) {
             LOG.log(Level.INFO, "current MAPs {0}", maps);
         } else if (!isProviderContext) {
-            LOG.warning("MAPS_RETRIEVAL_FAILURE_MSG");
+            LogUtils.log(LOG, warnIfMissing ? Level.WARNING : Level.INFO, 
+                "MAPS_RETRIEVAL_FAILURE_MSG");         
         }
         return maps;
     }
@@ -391,7 +408,7 @@ public final class ContextUtils {
             } catch (Exception e) {
                 LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);
             }
-        } 
+        }
     }
 
     

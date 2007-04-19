@@ -57,9 +57,11 @@ public class HTTPClientAssertionBuilderTest extends Assert {
     @Test
     public void testHTTPCLientPolicyAssertionEqual() throws Exception {
         HTTPClientAssertionBuilder ab = new HTTPClientAssertionBuilder();
-        JaxbAssertion<HTTPClientPolicy>  a = ab.buildAssertion();        
+        JaxbAssertion<HTTPClientPolicy>  a = ab.buildAssertion();
+        a.setData(new HTTPClientPolicy());
         assertTrue(a.equal(a));        
         JaxbAssertion<HTTPClientPolicy> b = ab.buildAssertion();
+        b.setData(new HTTPClientPolicy());
         assertTrue(a.equal(b));
         HTTPClientPolicy pa = new HTTPClientPolicy();
         a.setData(pa);

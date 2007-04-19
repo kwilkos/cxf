@@ -43,7 +43,6 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.workqueue.OneShotAsyncExecutor;
 
 public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implements
     InvocationHandler, BindingProvider {
@@ -133,8 +132,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         FutureTask<Object> f = new FutureTask<Object>(new JAXWSAsyncCallable(this, method, oi, params,
                                                                              context));
 
-        endpoint.getService().setExecutor(OneShotAsyncExecutor.getInstance());
-        endpoint.getService().getExecutor().execute(f);
+        endpoint.getExecutor().execute(f);
         Response<?> r = new AsyncResponse<Object>(f, Object.class);
         if (params.length > 0 && params[params.length - 1] instanceof AsyncHandler) {
             // callback style

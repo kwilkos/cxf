@@ -215,6 +215,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderInboundInvalidMAPs() throws Exception {
         aggregator.messageIDs.put("urn:uuid:12345", "urn:uuid:12345");
         Message message = setUpMessage(false, false, false);
+        aggregator.setAllowDuplicates(false);
         aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, false /*check*/);
@@ -223,6 +224,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderInboundInvalidMAPsFault() throws Exception {
         aggregator.messageIDs.put("urn:uuid:12345", "urn:uuid:12345");
         Message message = setUpMessage(false, false, false);
+        aggregator.setAllowDuplicates(false);
         aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, false, false, false /*check*/);

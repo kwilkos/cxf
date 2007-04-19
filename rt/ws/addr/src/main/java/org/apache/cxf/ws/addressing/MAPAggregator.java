@@ -71,10 +71,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
 
     private Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
     
-    /**
-     * REVISIT allow this policy to be configured.
-     */
-    private final boolean allowDuplicates = true;
+    private boolean allowDuplicates = true;
     
     /**
      * Constructor.
@@ -83,6 +80,23 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         super();
         setPhase(Phase.PRE_LOGICAL);
     }
+    
+    /**
+     * Indicates if duplicate messageIDs are allowed.
+     * @return true iff duplicate messageIDs are allowed
+     */
+    public boolean allowDuplicates() {
+        return allowDuplicates;
+    }
+
+    /**
+     * Allows/disallows duplicate messageIdDs.  
+     * @param ad whether duplicate messageIDs are allowed
+     */
+    public void setAllowDuplicates(boolean ad) {
+        allowDuplicates = ad;
+    }
+
 
     /**
      * Invoked for normal processing of inbound and outbound messages.
@@ -419,7 +433,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean validateIncomingMAPs(AddressingProperties maps,
                                          Message message) {
         boolean valid = true;
-        if (allowDuplicates && maps != null) {
+        if (!allowDuplicates && maps != null) {
             AttributedURIType messageID = maps.getMessageID();
             if (messageID != null
                 && messageIDs.put(messageID.getValue(), 

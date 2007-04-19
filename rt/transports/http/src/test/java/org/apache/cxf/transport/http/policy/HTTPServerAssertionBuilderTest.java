@@ -57,9 +57,11 @@ public class HTTPServerAssertionBuilderTest extends Assert {
     @Test
     public void testHTTPServerPolicyAssertionEqual() throws Exception {
         HTTPServerAssertionBuilder ab = new HTTPServerAssertionBuilder();
-        JaxbAssertion<HTTPServerPolicy>  a = ab.buildAssertion();        
+        JaxbAssertion<HTTPServerPolicy>  a = ab.buildAssertion(); 
+        a.setData(new HTTPServerPolicy());
         assertTrue(a.equal(a));        
         JaxbAssertion<HTTPServerPolicy> b = ab.buildAssertion();
+        b.setData(new HTTPServerPolicy());
         assertTrue(a.equal(b));
         HTTPServerPolicy pa = new HTTPServerPolicy();
         a.setData(pa);

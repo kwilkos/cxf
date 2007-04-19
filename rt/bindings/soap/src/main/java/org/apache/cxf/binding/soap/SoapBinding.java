@@ -46,6 +46,10 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
     public void setSoapVersion(SoapVersion v) {
         this.version = v;
     }
+
+    public SoapVersion getSoapVersion() {
+        return version;
+    }
     
     public Message createMessage() {
         return createMessage(new MessageImpl());
