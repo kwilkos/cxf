@@ -57,7 +57,7 @@ public class WrapperUtilTest extends TestCase {
     public void testWrapperClassNotExists() throws Exception {
         Class helloClass = Class.forName("org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
         assertNotNull(helloClass);
-        Method helloMethod = helloClass.getMethod("sayHi");
+        Method helloMethod = helloClass.getMethod("sayHiWithoutWrapperClass");
         assertNotNull(helloMethod);
         assertFalse(WrapperUtil.isWrapperClassExists(helloMethod));
     }

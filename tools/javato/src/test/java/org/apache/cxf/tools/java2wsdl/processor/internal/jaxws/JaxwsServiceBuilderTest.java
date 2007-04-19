@@ -48,7 +48,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         super.tearDown();
     }
 
-
     @Test
     public void testGetOutputFile() {
         builder.setServiceClass(Stock.class);
@@ -62,16 +61,52 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
     @Test
     @Ignore
-    public void testWrapped() {
+    public void testDocLitWrappedWithWrapperClass() {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Hello.class);
         ServiceInfo service = builder.build();
         generator.setServiceModel(service);
-        File output = getOutputFile("hello_wrapped.wsdl");
+        File output = getOutputFile("doc_lit_wrapped_with_wrapperclass.wsdl");
         assertNotNull(output);
         generator.generate(output);
         assertTrue(output.exists());
+
+        String expectedFile = this.getClass()
+            .getResource("expected/expected_doc_lit_wrapped_no_wrapperclass.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
+    @Test
+    public void testDocLitWrappedWithoutWrapperClass() throws Exception {
+        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped.class);
+        ServiceInfo service = builder.build();
+
+        generator.setServiceModel(service);
+        File output = getOutputFile("doc_lit_wrapped_no_wrapperclass.wsdl");
+        assertNotNull(output);
+        generator.generate(output);
+        assertTrue(output.exists());
+
+        String expectedFile = this.getClass()
+            .getResource("expected/expected_doc_lit_wrapped_no_wrapperclass.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
+    }
+    
+
+    @Test
+    public void testDocLit() throws Exception {
+        builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
+        ServiceInfo service = builder.build();
+        generator.setServiceModel(service);
+        File output = getOutputFile("hello_doc_lit.wsdl");
+        assertNotNull(output);
+        generator.generate(output);
+        assertTrue(output.exists());
+
+        String expectedFile = this.getClass().getResource("expected/expected_hello_world_doc_lit.wsdl")
+            .getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
+    }
+    
     @Test
     public void testAsync() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
@@ -120,21 +155,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
     }
 
-    @Test
-    public void testDocLit() throws Exception {
-        builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
-        ServiceInfo service = builder.build();
-        generator.setServiceModel(service);
-        File output = getOutputFile("hello_doc_lit.wsdl");
-        assertNotNull(output);
-        generator.generate(output);
-        assertTrue(output.exists());
-
-        String expectedFile = this.getClass().getResource("expected/expected_hello_world_doc_lit.wsdl")
-            .getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
-    }
-
     // TODO:
     @Test
     @Ignore
@@ -144,21 +164,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         generator.setServiceModel(service);
         File file = getOutputFile("rpc_lit_service_no_anno.wsdl");
-        assertNotNull(output);
-        generator.generate(file);
-        assertTrue(output.exists());
-
-    }
-
-    // TODO:
-    @Test
-    @Ignore
-    public void testDocWrappedWithoutWrapperClass() throws Exception {
-        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped.class);
-        ServiceInfo service = builder.build();
-
-        generator.setServiceModel(service);
-        File file = getOutputFile("doc_lit_wrapped_no_anno.wsdl");
         assertNotNull(output);
         generator.generate(file);
         assertTrue(output.exists());

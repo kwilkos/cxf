@@ -27,7 +27,7 @@ import javax.jws.soap.SOAPBinding;
 @WebService(name = "Hello", targetNamespace = "http://cxf.com/", wsdlLocation = "file:///c:/tmp.wsdl")
 public class Hello {
     @WebMethod(operationName = "sayHi", exclude = false)
-    String sayHi() {
+    public String sayHi() {
         return "hi";
     }
 }

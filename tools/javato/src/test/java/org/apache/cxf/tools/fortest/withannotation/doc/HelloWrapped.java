@@ -26,6 +26,6 @@ import javax.jws.soap.SOAPBinding;
 @SOAPBinding(style = SOAPBinding.Style.DOCUMENT, use = SOAPBinding.Use.LITERAL)
 @WebService(name = "Hello", targetNamespace = "http://cxf.com/")
 public interface HelloWrapped {
-    @WebMethod(operationName = "sayHi", exclude = false)
-    String sayHi();
+    @WebMethod(operationName = "sayHiWithoutWrapperClass", exclude = false)
+    String sayHiWithoutWrapperClass();
 }
