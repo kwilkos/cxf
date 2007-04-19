@@ -18,8 +18,12 @@
  */
 package org.apache.cxf.systest.swa;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.activation.DataHandler;
 import javax.jws.WebService;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.Holder;
 
 import org.apache.cxf.swa.SwAServiceInterface;
@@ -32,6 +36,21 @@ import org.apache.cxf.swa.types.DataStruct;
 public class SwAServiceImpl implements SwAServiceInterface {
 
     public void echoData(Holder<DataStruct> text, Holder<DataHandler> data) {
+
+        try {
+            InputStream bis = null;
+            bis = data.value.getDataSource().getInputStream();
+            byte b[] = new byte[6];
+            bis.read(b, 0, 6);
+            String string = new String(b);
+            
+            ByteArrayDataSource source = 
+                new ByteArrayDataSource(("test" + string).getBytes(), "text/xml");
+            data.value = new DataHandler(source);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+
+        }
 
     }
 

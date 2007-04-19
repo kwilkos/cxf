@@ -139,6 +139,10 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             }
 
             MessagePartInfo p = (MessagePartInfo)msgInfo.getMessageParts().get(index);
+            if (name.getNamespaceURI() == null || name.getNamespaceURI().length() == 0) {
+                // message part has same namespace with the message
+                name = new QName(p.getMessageInfo().getName().getNamespaceURI(), name.getLocalPart());
+            }
             if (name.equals(p.getConcreteName())) {
                 exchange.put(BindingOperationInfo.class, boi);
                 exchange.put(OperationInfo.class, boi.getOperationInfo());

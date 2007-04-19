@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.systest.swa;
 
+import java.io.InputStream;
+
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.BindingProvider;
@@ -57,8 +59,14 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
         data.value = handler;
         
         structHolder.value = struct;
-        // TODO: Fails currently...
-//         port.echoData(structHlder, data);
+
+        port.echoData(structHolder, data);
+        InputStream bis = null;
+        bis = data.value.getDataSource().getInputStream();
+        byte b[] = new byte[10];
+        bis.read(b, 0, 10);
+        String string = new String(b);
+        assertEquals("testfoobar", string);
         
     }
 
