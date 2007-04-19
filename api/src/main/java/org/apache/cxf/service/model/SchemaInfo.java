@@ -120,7 +120,9 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
         }
         return null;*/
         String uri = qname.getNamespaceURI();
-        if (schema.getTargetNamespace().equals(uri)) {
+        if (schema != null 
+            && schema.getTargetNamespace() != null
+            && schema.getTargetNamespace().equals(uri)) {
             return schema.getElementByName(qname);
         }
         return null;

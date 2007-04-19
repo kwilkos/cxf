@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -120,7 +121,8 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
         try {
             greeter.sayHi();
             fail("Did not receive expected PolicyException.");
-        } catch (PolicyException ex) {
+        } catch (WebServiceException wex) {
+            PolicyException ex = (PolicyException)wex.getCause();
             assertEquals("INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS", ex.getCode());
         }
 

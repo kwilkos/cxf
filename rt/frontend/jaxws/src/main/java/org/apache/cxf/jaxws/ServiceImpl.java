@@ -67,6 +67,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.workqueue.OneShotAsyncExecutor;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 public class ServiceImpl extends ServiceDelegate {
@@ -291,11 +292,10 @@ public class ServiceImpl extends ServiceDelegate {
         service.setExecutor(new Executor() {
             public void execute(Runnable command) {
                 Executor ex = getExecutor();
-                if (ex != null) {
-                    ex.execute(command);
-                } else {
-                    command.run();
-                }
+                if (ex == null) {
+                    ex = OneShotAsyncExecutor.getInstance();
+                } 
+                ex.execute(command);
             }
         });
         configureObject(service);

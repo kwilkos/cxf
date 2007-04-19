@@ -115,10 +115,23 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         boolean isAsync = method.getName().endsWith("Async");
 
         Object result = null;
-        if (isAsync) {
-            result = invokeAsync(method, oi, params, context);
-        } else {
-            result = invokeSync(method, oi, params, context);
+        try {
+            if (isAsync) {
+                result = invokeAsync(method, oi, params, context);
+            } else {
+                result = invokeSync(method, oi, params, context);
+            }
+        } catch (WebServiceException wex) {
+            throw wex.fillInStackTrace();
+        } catch (Exception ex) {
+            //TODO - map to SoapFaultException and HTTPException
+            
+            for (Class<?> excls : method.getExceptionTypes()) {
+                if (excls.isInstance(ex)) {
+                    throw ex.fillInStackTrace();
+                }
+            }
+            throw new WebServiceException(ex);
         }
         // need to do context mapping from cxf message to jax-ws
         ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
@@ -138,7 +151,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             // callback style
             AsyncCallbackFuture callback = 
                 new AsyncCallbackFuture(r, (AsyncHandler)params[params.length - 1]);
-            endpoint.getService().getExecutor().execute(callback);
+            endpoint.getExecutor().execute(callback);
             return callback;
         } else {
             return r;

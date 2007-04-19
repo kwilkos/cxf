@@ -22,6 +22,7 @@ package org.apache.cxf.systest.ws.policy;
 import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapFault;
@@ -114,7 +115,8 @@ public class HTTPServerPolicyTest extends AbstractBusClientServerTestBase {
         try {
             greeter.sayHi();
             fail("Did not receive expected Exception.");
-        } catch (SoapFault sf) {
+        } catch (WebServiceException wse) {
+            SoapFault sf = (SoapFault)wse.getCause();
             assertEquals("Server", sf.getFaultCode().getLocalPart());
             assertEquals("None of the policy alternatives can be satisfied.", sf.getMessage());
             // assertEquals("INCOMPATIBLE_HTTPSERVERPOLICY_ASSERTIONS", ex.getCode());

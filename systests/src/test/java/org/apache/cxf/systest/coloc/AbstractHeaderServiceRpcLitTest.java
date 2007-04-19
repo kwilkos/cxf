@@ -22,10 +22,10 @@ package org.apache.cxf.systest.coloc;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceException;
 
 import static junit.framework.Assert.assertEquals;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.headers.coloc.types.FaultDetailT;
 import org.apache.headers.coloc.types.HeaderInfo;
@@ -210,7 +210,7 @@ public abstract class AbstractHeaderServiceRpcLitTest extends AbstractColocTest 
             in.setFaultType("SYSTEM");
             ht.pingMe(in);
             fail("Should throw a CXF Fault exception");
-        } catch (Fault fault) {
+        } catch (WebServiceException fault) {
             assertFalse(-1 == fault.getMessage().lastIndexOf(HeaderTesterUtil.EX_STRING));
             if (isFaultCodeCheckEnabled()) {
                 verifyFaultCode(port);
@@ -224,7 +224,7 @@ public abstract class AbstractHeaderServiceRpcLitTest extends AbstractColocTest 
             in.setFaultType("RUNTIME");
             ht.pingMe(in);
             fail("Should throw a CXF Fault exception");
-        } catch (Fault fault) {
+        } catch (WebServiceException fault) {
             assertFalse(-1 == fault.getMessage().lastIndexOf(HeaderTesterUtil.EX_STRING));
             if (isFaultCodeCheckEnabled()) {
                 verifyFaultCode(port);

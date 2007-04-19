@@ -38,6 +38,7 @@ import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
 import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
@@ -50,7 +51,6 @@ import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
 //import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
-import org.apache.cxf.interceptor.Fault;
 //import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -554,9 +554,9 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
             // trigger runtime exception throw of implementor method
             greeter.testDocLitFault("");
             fail("Should have thrown Runtime exception");
-        } catch (Exception e) {
-            assertEquals("can't get back original message", "Unknown source", e.getMessage());
-            assertTrue(e.getStackTrace().length > 0);            
+        } catch (WebServiceException e) {
+            assertEquals("can't get back original message", "Unknown source", e.getCause().getMessage());
+            assertTrue(e.getCause().getStackTrace().length > 0);            
         }
     }
     
@@ -708,7 +708,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         try {
             greeter.greetMe("test");
             fail("Should fail");
-        } catch (Fault f) {
+        } catch (WebServiceException f) {
             // expected
         }
 
