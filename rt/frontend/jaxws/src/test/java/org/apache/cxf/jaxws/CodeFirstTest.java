@@ -54,9 +54,22 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertValid("/wsdl:definitions/wsdl:service[@name='HelloService']", wsdl);
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
         assertValid("//wsdl:portType[@name='Hello']", wsdl);
+
+        assertValid("/wsdl:definitions/wsdl:types/xsd:schema" 
+                    + "[@targetNamespace='http://service.jaxws.cxf.apache.org/']" 
+                    + "/xsd:import[@namespace='http://jaxb.dev.java.net/array']", wsdl);
+        
+        assertValid("/wsdl:definitions/wsdl:types/xsd:schema" 
+                    + "[@targetNamespace='http://service.jaxws.cxf.apache.org/']" 
+                    + "/xsd:element[@type='ns0:stringArray']", wsdl);
+        
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@type='xsd:string'][@name='arg0']",
+                    + "/wsdl:part[@element='ns1:sayHi'][@name='arg0']",
                     wsdl);
+
+        assertValid("/wsdl:definitions/wsdl:message[@name='getGreetingsResponse']"
+                    + "/wsdl:part[@element='ns1:getGreetingsResponse'][@name='return']",
+                    wsdl);        
     }
 
     @Test

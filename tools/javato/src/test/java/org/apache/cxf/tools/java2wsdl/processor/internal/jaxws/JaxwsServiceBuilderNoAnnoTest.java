@@ -39,17 +39,10 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         builder.setBus(BusFactory.getDefaultBus());
     }
 
-//     @org.junit.After
-//     public void tearDown() {
-//     }
-
-    // Revisit:
-    // * Missing wsdl:types
-    // * getPrice MUST refeter to schema element
-    //     <wsdl:message name="getPrice">
-    //        <wsdl:part name="arg0" type="xsd:string"/>
-    //     </wsdl:message>
-    // CXF-521
+    public void tearDown() {
+        
+    }
+    
     @Test
     public void testGeneratedWithElementryClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docbare.Stock.class);
@@ -59,10 +52,12 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         File output = getOutputFile("stock_noanno_bare.wsdl");
         generator.generate(output);
         assertTrue(output.exists());
+        
+        String expectedFile = getClass().getResource("expected/stock_noanno_bare.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
 
-    // Passed
     @Test
     public void testGeneratedWithDocWrappedClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docwrapped.Stock.class);

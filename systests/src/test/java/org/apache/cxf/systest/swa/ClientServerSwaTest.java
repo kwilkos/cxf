@@ -26,21 +26,21 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 
-
 import org.apache.cxf.swa.SwAService;
 import org.apache.cxf.swa.SwAServiceInterface;
 import org.apache.cxf.swa.types.DataStruct;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-
+@Ignore
 public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
-   
+    
     @Test
     public void testSwa() throws Exception {
         SwAService service = new SwAService();
