@@ -69,6 +69,7 @@ public class Base64Type extends Type {
             }
 
             if (reader.isEndElement()) {
+                reader.next();
                 return new byte[0];
             }
 

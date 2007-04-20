@@ -33,18 +33,17 @@ import org.xml.sax.SAXException;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.apache.ws.security.WSConstants;
 
 public abstract class AbstractSecurityTest extends AbstractCXFTest {
     public AbstractSecurityTest() {
         super();
 
-        addNamespace("wsse",
-                     "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-        addNamespace("ds", "http://www.w3.org/2000/09/xmldsig#");
+        addNamespace("wsse", WSConstants.WSSE_NS);
+        addNamespace("ds", WSConstants.SIG_NS);
         addNamespace("s", Soap11.getInstance().getNamespace());
-        addNamespace("xenc", "http://www.w3.org/2001/04/xmlenc#");
-        addNamespace("wsu",
-                     "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+        addNamespace("xenc", WSConstants.ENC_NS);
+        addNamespace("wsu", WSConstants.WSU_NS);
     }
 
     protected Document readDocument(String name) throws SAXException, IOException,

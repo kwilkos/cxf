@@ -31,13 +31,13 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -51,7 +51,6 @@ import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.Relationship;
-
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -160,10 +159,10 @@ public class MAPCodecTest extends TestCase {
         try {
             codec.handleMessage(message);
             fail("expected SOAPFaultException on invalid MAP");
-        } catch (SOAPFaultException sfe) {
+        } catch (SoapFault sfe) {
             assertEquals("unexpected fault string",
                          "Duplicate Message ID urn:uuid:12345", 
-                         sfe.getFault().getFaultString());
+                         sfe.getMessage());
         }
         control.verify();
         verifyMessage(message, false, true, true);

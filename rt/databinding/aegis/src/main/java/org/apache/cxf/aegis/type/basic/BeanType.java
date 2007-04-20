@@ -27,13 +27,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
@@ -63,16 +62,6 @@ public class BeanType extends Type {
         this.info = info;
         this.typeClass = info.getTypeClass();
         this.isInterface = typeClass.isInterface();
-    }
-
-    private QName getXsiType(MessageReader reader) {
-        XMLStreamReader xsr = reader.getXMLStreamReader();
-        String value = xsr.getAttributeValue(XmlConstants.XSI_NS, "type");
-        if (value == null) {
-            return null;
-        } else {
-            return NamespaceHelper.createQName(xsr.getNamespaceContext(), value);
-        }
     }
 
     /*
@@ -108,9 +97,9 @@ public class BeanType extends Type {
                                                        + " for class " + clazz.getName());
                     }
                 }
-            //} else if (isException) {
-            // object = createFromFault(context);
-            // }
+                // } else if (isException) {
+                // object = createFromFault(context);
+                // }
             } else {
                 object = clazz.newInstance();
             }
@@ -136,16 +125,18 @@ public class BeanType extends Type {
             while (reader.hasMoreElementReaders()) {
                 MessageReader childReader = reader.getNextElementReader();
                 QName name = childReader.getName();
-                QName qn = getXsiType(childReader);
 
-                BeanType parent;
-                Type type = null;
-
-                // If an xsi:type has been specified, try to look it up
-                if (qn != null) {
-                    type = getTypeMapping().getType(qn);
+                BeanType parent = getBeanTypeWithProperty(name);
+                Type defaultType = null;
+                if (parent != null) {
+                    info = parent.getTypeInfo();
+                    defaultType = info.getType(name);
+                } else {
+                    defaultType = null;
                 }
 
+                Type type = TypeUtil.getReadType(childReader.getXMLStreamReader(), context, defaultType);
+                
                 // If the xsi:type lookup didn't work or there was none, use the
                 // normal Type.
                 if (type == null) {
@@ -169,7 +160,7 @@ public class BeanType extends Type {
                         }
                     } else {
                         if (!inf.isNillable(name)) {
-                            throw new DatabindingException(name.getLocalPart()
+                            throw new DatabindingException(name.getLocalPart() 
                                                            + " is nil, but not nillable.");
 
                         }
@@ -195,8 +186,7 @@ public class BeanType extends Type {
     /**
      * Write the specified property to a field.
      */
-    protected void writeProperty(QName name, Object object,
-                                 Object property, Class impl, BeanTypeInfo inf)
+    protected void writeProperty(QName name, Object object, Object property, Class impl, BeanTypeInfo inf)
         throws DatabindingException {
         try {
             PropertyDescriptor desc = inf.getPropertyDescriptorFromMappedName(name);
@@ -245,8 +235,8 @@ public class BeanType extends Type {
      *      org.apache.cxf.aegis.Context)
      */
     @Override
-    public void writeObject(Object object, MessageWriter writer,
-                            Context context) throws DatabindingException {
+    public void writeObject(Object object, MessageWriter writer, Context context) 
+        throws DatabindingException {
         if (object == null) {
             return;
         }
@@ -293,7 +283,7 @@ public class BeanType extends Type {
             Object value = readProperty(object, name);
 
             Type type = getType(inf, name);
-            type = Aegis.getWriteType(context, value, type);
+            type = TypeUtil.getWriteType(context, value, type);
             MessageWriter cwriter;
 
             // Write the value if it is not null.
@@ -364,12 +354,6 @@ public class BeanType extends Type {
 
         Type sooperType = getSuperType();
 
-        if (inf.isExtension() && sooperType != null) {
-            Element complexContent = new Element("complexContent", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
-            complex.addContent(complexContent);
-            complex = complexContent;
-        }
-
         /*
          * See Java Virtual Machine specification:
          * http://java.sun.com/docs/books/vmspec/2nd-edition/html/ClassFile.doc.html#75734
@@ -377,6 +361,12 @@ public class BeanType extends Type {
         if (((inf.getTypeClass().getModifiers() & Modifier.ABSTRACT) != 0)
             && !inf.getTypeClass().isInterface()) {
             complex.setAttribute(new Attribute("abstract", "true"));
+        }
+
+        if (inf.isExtension() && sooperType != null) {
+            Element complexContent = new Element("complexContent", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            complex.addContent(complexContent);
+            complex = complexContent;
         }
 
         /*
@@ -455,8 +445,7 @@ public class BeanType extends Type {
             String nameNS = name.getNamespaceURI();
             String nameWithPrefix = getNameWithPrefix(root, nameNS, name.getLocalPart());
 
-            String prefix = NamespaceHelper.getUniquePrefix(root, type.getSchemaType()
-                .getNamespaceURI());
+            String prefix = NamespaceHelper.getUniquePrefix(root, type.getSchemaType().getNamespaceURI());
             element.setAttribute(new Attribute("name", nameWithPrefix));
             element.setAttribute(new Attribute("type", prefix + ':' + type.getSchemaType().getLocalPart()));
         }
@@ -617,12 +606,8 @@ public class BeanType extends Type {
             info = createTypeInfo();
         }
 
-        // Delay initialization so things work in recursive scenarios
-        // (XFIRE-117)
-        if (!info.isInitialized()) {
-            info.initialize();
-        }
-
+        info.initialize();
+        
         return info;
     }
 

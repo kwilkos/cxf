@@ -54,7 +54,7 @@ public class BeanTypeInfo {
 
     private TypeMapping typeMapping;
 
-    private boolean initialized;
+    private volatile boolean initialized;
 
     private String defaultNamespace;
 
@@ -94,7 +94,7 @@ public class BeanTypeInfo {
         this.defaultNamespace = defaultNamespace;
 
         initializeProperties();
-        setInitialized(!initialize);
+        initialized = !initialize;
     }
 
     public String getDefaultNamespace() {
@@ -103,11 +103,8 @@ public class BeanTypeInfo {
 
     public void initialize() {
         try {
-            for (int i = 0; i < descriptors.length; i++) {
-                // Don't map the property unless there is a read property
-                if (isMapped(descriptors[i])) {
-                    mapProperty(descriptors[i]);
-                }
+            if (!initialized) {
+                initializeSync();
             }
         } catch (Exception e) {
             if (e instanceof DatabindingException) {
@@ -115,8 +112,18 @@ public class BeanTypeInfo {
             }
             throw new DatabindingException("Couldn't create TypeInfo.", e);
         }
+    }
 
-        setInitialized(true);
+    private synchronized void initializeSync() {
+        if (!initialized) {
+            for (int i = 0; i < descriptors.length; i++) {
+                // Don't map the property unless there is a read property
+                if (isMapped(descriptors[i])) {
+                    mapProperty(descriptors[i]);
+                }
+            }
+            initialized = true;
+        }
     }
 
     public boolean isMapped(PropertyDescriptor pd) {
@@ -125,14 +132,6 @@ public class BeanTypeInfo {
         }
 
         return true;
-    }
-
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    private void setInitialized(boolean initialized) {
-        this.initialized = initialized;
     }
 
     protected void mapProperty(PropertyDescriptor pd) {

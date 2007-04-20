@@ -28,10 +28,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
@@ -75,7 +75,7 @@ public class ArrayType extends Type {
 
         while (reader.hasMoreElementReaders()) {
             MessageReader creader = reader.getNextElementReader();
-            Type compType = Aegis.getReadType(creader.getXMLStreamReader(), context,
+            Type compType = TypeUtil.getReadType(creader.getXMLStreamReader(), context,
                                                              getComponentType());
 
             if (creader.isXsiNil()) {
@@ -238,9 +238,14 @@ public class ArrayType extends Type {
 
     protected void writeValue(Object value, MessageWriter writer, Context context, Type type, String name,
                               String ns) throws DatabindingException {
-        type = Aegis.getWriteType(context, value, type);
-        MessageWriter cwriter = writer.getElementWriter(name, ns);
-
+        type = TypeUtil.getWriteType(context, value, type);
+        MessageWriter cwriter;
+        if (type.isWriteOuter()) {
+            cwriter = writer.getElementWriter(name, ns);
+        } else {
+            cwriter = writer;
+        }
+        
         if (value == null && type.isNillable()) {
             cwriter.writeXsiNil();
         } else {

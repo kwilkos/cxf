@@ -45,8 +45,28 @@ public abstract class AbstractTypeCreator implements TypeCreator {
 
     private Configuration typeConfiguration;
 
+    private TypeCreator parent;
+
     public TypeMapping getTypeMapping() {
         return tm;
+    }
+
+    public TypeCreator getTopCreator() {
+        TypeCreator top = this;
+        TypeCreator next = top;
+        while (next != null) {
+            top = next;
+            next = top.getParent();
+        }
+        return top;
+    }
+
+    public TypeCreator getParent() {
+        return parent;
+    }
+
+    public void setParent(TypeCreator parent) {
+        this.parent = parent;
     }
 
     public void setTypeMapping(TypeMapping typeMapping) {
@@ -59,15 +79,16 @@ public abstract class AbstractTypeCreator implements TypeCreator {
 
     public void setNextCreator(AbstractTypeCreator creator) {
         this.nextCreator = creator;
+        nextCreator.parent = this;
     }
 
-    protected TypeClassInfo createClassInfo(Field f) {
+    public TypeClassInfo createClassInfo(Field f) {
         TypeClassInfo info = createBasicClassInfo(f.getType());
         info.setDescription("field " + f.getName() + " in  " + f.getDeclaringClass());
         return info;
     }
 
-    protected TypeClassInfo createBasicClassInfo(Class typeClass) {
+    public TypeClassInfo createBasicClassInfo(Class typeClass) {
         TypeClassInfo info = new TypeClassInfo();
         info.setDescription("class '" + typeClass.getName() + '\'');
         info.setTypeClass(typeClass);

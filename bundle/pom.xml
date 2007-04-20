@@ -181,31 +181,13 @@
 			<version>${pom.version}</version>
 		    <optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>cxf-rt-databinding-aegis</artifactId>
+			<version>${pom.version}</version>
+		    <optional>true</optional>
+		</dependency>
 
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>cxf-rt-ws-addr</artifactId>
-			<version>${pom.version}</version>
-		    <optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>cxf-rt-ws-rm</artifactId>
-			<version>${pom.version}</version>
-		    <optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>cxf-rt-ws-policy</artifactId>
-			<version>${pom.version}</version>
-		    <optional>true</optional>
-		</dependency>
-		<dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-rt-ws-security</artifactId>
-            <version>${pom.version}</version>
-            <optional>true</optional>
-		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -224,12 +206,32 @@
 			<version>${pom.version}</version>
 		    <optional>true</optional>
 		</dependency>
+
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>cxf-rt-databinding-aegis</artifactId>
-			<version>${pom.version}</version>
-		    <optional>true</optional>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
 		</dependency>
+		<dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-policy</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+		</dependency>
+		<dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-addr</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+		</dependency>
+		<dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-rm</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+		</dependency>
+		
     </dependencies>
 
 	<build>

@@ -34,16 +34,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPFault;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
@@ -70,8 +66,7 @@ import org.apache.cxf.ws.addressing.RelatesToType;
 public class MAPCodec extends AbstractSoapInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
-    private static SOAPFactory soapFactory;
-
+    
     /**
      * REVISIT: map usage that the *same* interceptor instance 
      * is used in all chains.
@@ -193,8 +188,6 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                 marshaller);
                 propogateAction(maps.getAction(), message);
                 applyMAPValidation(message);
-            } catch (SOAPException se) {
-                LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
             } catch (JAXBException je) {
                 LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", je);
             }
@@ -418,7 +411,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @param header the SOAP header
      * @param maps the current MAPs
      */
-    private void discardMAPs(Element header, AddressingProperties maps) throws SOAPException {
+    private void discardMAPs(Element header, AddressingProperties maps) {
         NodeList headerElements =
             header.getElementsByTagNameNS(maps.getNamespaceURI(), "*");        
         for (int i = 0; i < headerElements.getLength(); i++) {
@@ -464,12 +457,11 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @exception SOAPFaultException if the MAPs are invalid
      * @exception SOAPException if SOAPFault cannot be constructed
      */
-    private void applyMAPValidation(SoapMessage message)
-        throws SOAPException {
+    private void applyMAPValidation(SoapMessage message) {
         String faultName = ContextUtils.retrieveMAPFaultName(message);
         if (faultName != null) {
             String reason = ContextUtils.retrieveMAPFaultReason(message);
-            throw createSOAPFaultException(faultName, 
+            throw createSOAPFaut(faultName, 
                                            Names.WSA_NAMESPACE_PREFIX,
                                            Names.WSA_NAMESPACE_NAME,
                                            reason);
@@ -477,35 +469,16 @@ public class MAPCodec extends AbstractSoapInterceptor {
     }
 
     /**
-     * @return SOAPFactory
-     */
-    private static synchronized SOAPFactory getSOAPFactory() throws SOAPException {
-        if (soapFactory == null) {
-            soapFactory = SOAPFactory.newInstance();
-        }
-        return soapFactory;
-    }
-
-    /**
-     * Create a SOAPFaultException.
+     * Create a SoapFault.
      *
      * @param localName the fault local name
      * @param prefix the fault prefix
      * @param namespace the fault namespace
      * @param reason the fault reason
-     * @return a new SOAPFaultException
+     * @return a new SoapFault
      */ 
-    private SOAPFaultException createSOAPFaultException(String localName,
-                                                        String prefix,
-                                                        String namespace,
-                                                        String reason) 
-        throws SOAPException {
-        SOAPFactory factory = getSOAPFactory();
-        SOAPFault fault = factory.createFault();
-        Name qname = factory.createName(localName, prefix, namespace);
-        fault.setFaultCode(qname);
-        fault.setFaultString(reason);
-        return new SOAPFaultException(fault);
+    private SoapFault createSOAPFaut(String localName, String prefix, String namespace, String reason) {
+        return new SoapFault(reason, new QName(namespace, localName, prefix));
     }
     
     /**

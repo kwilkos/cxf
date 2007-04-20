@@ -27,10 +27,10 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
@@ -158,8 +158,8 @@ public class MapType extends Type {
     private void writeEntry(MessageWriter writer, Context context,
                             Type kType, Type vType,
                             Map.Entry entry) throws DatabindingException {
-        kType = Aegis.getWriteType(context, entry.getKey(), kType);
-        vType = Aegis.getWriteType(context, entry.getValue(), vType);
+        kType = TypeUtil.getWriteType(context, entry.getKey(), kType);
+        vType = TypeUtil.getWriteType(context, entry.getValue(), vType);
 
         MessageWriter entryWriter = writer.getElementWriter(getEntryName());
 

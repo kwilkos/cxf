@@ -33,12 +33,12 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeMappingRegistry;
+import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
@@ -64,7 +64,19 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.output.DOMOutputter;
 
+/**
+ * Handles DataBidning functions for Aegis.
+ * <p>
+ * NOTE: There is an assumed 1:1 mapping between an AegisDatabidning and a Service!
+ */
 public class AegisDatabinding implements DataBinding {
+    
+    public static final String CURRENT_MESSAGE_PART = "currentMessagePart";
+    public static final String TYPE_MAPPING_KEY = "type.mapping";
+    public static final String ENCODING_URI_KEY = "type.encodingUri";
+    public static final String WRITE_XSI_TYPE_KEY = "writeXsiType";
+    public static final String OVERRIDE_TYPES_KEY = "overrideTypesList";
+    public static final String READ_XSI_TYPE_KEY = "readXsiType";
 
     protected static final int IN_PARAM = 0;
     protected static final int OUT_PARAM = 1;
@@ -73,6 +85,7 @@ public class AegisDatabinding implements DataBinding {
     private TypeMappingRegistry typeMappingRegistry;
     private Map<MessagePartInfo, Type> part2Type;
     private List overrideTypes;
+    private Service service;
 
     public AegisDatabinding() {
         super();
@@ -114,26 +127,28 @@ public class AegisDatabinding implements DataBinding {
         this.typeMappingRegistry = typeMappingRegistry;
     }
 
-    public void initialize(Service service) {
-        QName serviceName = service.getServiceInfos().get(0).getName();
+    public void initialize(Service s) {
+        this.service = s;
+        
+        QName serviceName = s.getServiceInfos().get(0).getName();
         TypeMapping serviceTM = typeMappingRegistry.createTypeMapping(XmlConstants.XSD, true);
         typeMappingRegistry.register(serviceName.getNamespaceURI(), serviceTM);
 
-        service.put(TypeMapping.class.getName(), serviceTM);
+        s.put(TypeMapping.class.getName(), serviceTM);
 
         Set<Type> deps = new HashSet<Type>();
 
-        for (ServiceInfo info : service.getServiceInfos()) {
+        for (ServiceInfo info : s.getServiceInfos()) {
             for (OperationInfo opInfo : info.getInterface().getOperations()) {
                 if (opInfo.isUnwrappedCapable()) {
-                    initializeOperation(service, serviceTM, opInfo.getUnwrappedOperation(), deps);
+                    initializeOperation(s, serviceTM, opInfo.getUnwrappedOperation(), deps);
                 } else {
-                    initializeOperation(service, serviceTM, opInfo, deps);
+                    initializeOperation(s, serviceTM, opInfo, deps);
                 }
             }
         }
 
-        List<Type> additional = getAdditionalTypes(service, serviceTM);
+        List<Type> additional = getAdditionalTypes(s, serviceTM);
 
         if (additional != null) {
             for (Type t : additional) {
@@ -143,11 +158,11 @@ public class AegisDatabinding implements DataBinding {
             }
         }
 
-        createSchemas(service, deps);
+        createSchemas(s, deps);
     }
 
-    List<Type> getAdditionalTypes(Service service, TypeMapping tm) {
-        List classes = (List)service.get(Aegis.OVERRIDE_TYPES_KEY);
+    List<Type> getAdditionalTypes(Service s, TypeMapping tm) {
+        List classes = (List)s.get(OVERRIDE_TYPES_KEY);
 
         this.overrideTypes = classes;
 
@@ -157,7 +172,7 @@ public class AegisDatabinding implements DataBinding {
                 String typeName = (String)it.next();
                 Class c;
                 try {
-                    c = ClassLoaderUtils.loadClass(typeName, Aegis.class);
+                    c = ClassLoaderUtils.loadClass(typeName, TypeUtil.class);
                 } catch (ClassNotFoundException e) {
                     throw new DatabindingException("Could not find override type class: " + typeName, e);
                 }
@@ -178,17 +193,17 @@ public class AegisDatabinding implements DataBinding {
         return null;
     }
 
-    private void initializeOperation(Service service, TypeMapping serviceTM, OperationInfo opInfo,
+    private void initializeOperation(Service s, TypeMapping serviceTM, OperationInfo opInfo,
                                      Set<Type> deps) {
         try {
-            initializeMessage(service, serviceTM, opInfo.getInput(), IN_PARAM, deps);
+            initializeMessage(s, serviceTM, opInfo.getInput(), IN_PARAM, deps);
 
             if (opInfo.hasOutput()) {
-                initializeMessage(service, serviceTM, opInfo.getOutput(), OUT_PARAM, deps);
+                initializeMessage(s, serviceTM, opInfo.getOutput(), OUT_PARAM, deps);
             }
 
             for (FaultInfo info : opInfo.getFaults()) {
-                initializeMessage(service, serviceTM, info, FAULT_PARAM, deps);
+                initializeMessage(s, serviceTM, info, FAULT_PARAM, deps);
             }
 
         } catch (DatabindingException e) {
@@ -197,12 +212,12 @@ public class AegisDatabinding implements DataBinding {
         }
     }
 
-    protected void initializeMessage(Service service, TypeMapping serviceTM,
+    protected void initializeMessage(Service s, TypeMapping serviceTM,
                                      AbstractMessageContainer container, int partType, Set<Type> deps) {
         for (Iterator itr = container.getMessageParts().iterator(); itr.hasNext();) {
             MessagePartInfo part = (MessagePartInfo)itr.next();
 
-            Type type = getParameterType(service, serviceTM, part, partType);
+            Type type = getParameterType(s, serviceTM, part, partType);
 
             if (type.isAbstract()) {
                 part.setTypeQName(type.getSchemaType());
@@ -226,7 +241,7 @@ public class AegisDatabinding implements DataBinding {
         }
     }
 
-    private void createSchemas(Service service, Set<Type> deps) {
+    private void createSchemas(Service s, Set<Type> deps) {
         Map<String, Set<Type>> tns2Type = new HashMap<String, Set<Type>>();
         for (Type t : deps) {
             String ns = t.getSchemaType().getNamespaceURI();
@@ -263,7 +278,7 @@ public class AegisDatabinding implements DataBinding {
 
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));
 
-                for (ServiceInfo si : service.getServiceInfos()) {
+                for (ServiceInfo si : s.getServiceInfos()) {
                     SchemaInfo info = new SchemaInfo(si, entry.getKey());
 
                     info.setElement(schema.getDocumentElement());
@@ -282,8 +297,8 @@ public class AegisDatabinding implements DataBinding {
 
     }
 
-    public QName getSuggestedName(Service service, TypeMapping tm, OperationInfo op, int param) {
-        Method m = getMethod(service, op);
+    public QName getSuggestedName(Service s, TypeMapping tm, OperationInfo op, int param) {
+        Method m = getMethod(s, op);
         if (m == null) {
             return null;
         }
@@ -303,7 +318,7 @@ public class AegisDatabinding implements DataBinding {
         return name;
     }
 
-    private Type getParameterType(Service service, TypeMapping tm, MessagePartInfo param, int paramtype) {
+    private Type getParameterType(Service s, TypeMapping tm, MessagePartInfo param, int paramtype) {
         Type type = tm.getType(param.getTypeQName());
 
         /*
@@ -314,7 +329,7 @@ public class AegisDatabinding implements DataBinding {
         if (type == null) {
             OperationInfo op = param.getMessageInfo().getOperation();
 
-            Method m = getMethod(service, op);
+            Method m = getMethod(s, op);
             if (paramtype != FAULT_PARAM && m != null) {
 
                 /*
@@ -336,8 +351,8 @@ public class AegisDatabinding implements DataBinding {
         return type;
     }
 
-    private Method getMethod(Service service, OperationInfo op) {
-        MethodDispatcher md = (MethodDispatcher)service.get(MethodDispatcher.class.getName());
+    private Method getMethod(Service s, OperationInfo op) {
+        MethodDispatcher md = (MethodDispatcher)s.get(MethodDispatcher.class.getName());
         SimpleMethodDispatcher smd = (SimpleMethodDispatcher)md;
         return smd.getPrimaryMethod(op);
     }
@@ -349,4 +364,9 @@ public class AegisDatabinding implements DataBinding {
     public List getOverrideTypes() {
         return overrideTypes;
     }
+
+    public Service getService() {
+        return service;
+    }
+    
 }

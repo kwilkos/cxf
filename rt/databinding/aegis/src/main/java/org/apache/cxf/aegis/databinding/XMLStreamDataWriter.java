@@ -24,14 +24,15 @@ import java.util.logging.Logger;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -67,15 +68,19 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         Context context = new Context();
         // I'm not sure that this is the right type mapping
         context.setTypeMapping(type.getTypeMapping());
-        context.put(Aegis.OVERRIDE_TYPES_KEY, 
-                    databinding.getOverrideTypes());
+        context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));
         context.setAttachments(attachments);
-        type = Aegis.getWriteType(context, obj, type);
+        Object val = databinding.getService().get(AegisDatabinding.WRITE_XSI_TYPE_KEY);
+        if ("true".equals(val) || Boolean.TRUE.equals(val)) {
+            context.setWriteXsiTypes(true);
+        }
+        
+        type = TypeUtil.getWriteType(context, obj, type);
         
         try {
             ElementWriter writer = new ElementWriter(output);
             MessageWriter w2 = writer.getElementWriter(part.getConcreteName());
-            if (type.isNillable() && obj == null) {
+            if (type.isNillable() && type.isWriteOuter() && obj == null) {
                 w2.writeXsiNil();
                 return;
             }

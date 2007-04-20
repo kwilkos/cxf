@@ -1,0 +1,4 @@
+<b:bean xmlns:b="urn:Bean">
+  <b:bleh>bleh</b:bleh>
+  <b:howdy>howdy</b:howdy>
+</b:bean>

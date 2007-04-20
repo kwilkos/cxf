@@ -131,8 +131,14 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
             } catch (XMLStreamException e) {
                 throw new DatabindingException("Could not read XML stream.", e);
             }
+            
+            if (value == null) {
+                value = "";
+            } else {
+                value = value.trim();
+            }
         }
-        return value.trim();
+        return value;
     }
 
     public String getValue(String ns, String attr) {

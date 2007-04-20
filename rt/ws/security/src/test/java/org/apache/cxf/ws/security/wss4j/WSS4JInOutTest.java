@@ -113,6 +113,72 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
         X509Certificate certificate = result.getCertificate();
         assertNotNull(certificate);
     }
+    
+    @Test
+    public void testDirectReferenceSignature() throws Exception {
+        Document doc = readDocument("wsse-request-clean.xml");
+
+        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+
+        SoapMessage msg = new SoapMessage(new MessageImpl());
+        Exchange ex = new ExchangeImpl();
+        ex.setInMessage(msg);
+        
+        SOAPMessage saajMsg = MessageFactory.newInstance().createMessage();
+        SOAPPart part = saajMsg.getSOAPPart();
+        part.setContent(new DOMSource(doc));
+        saajMsg.saveChanges();
+
+        msg.setContent(SOAPMessage.class, saajMsg);
+
+        msg.put(WSHandlerConstants.ACTION, WSHandlerConstants.SIGNATURE);
+        msg.put(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
+        msg.put(WSHandlerConstants.USER, "myalias");
+        msg.put(WSHandlerConstants.SIG_KEY_ID, "DirectReference");
+        msg.put("password", "myAliasPassword");
+        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
+
+        handler.handleMessage(msg);
+
+        doc = part;
+        
+        assertValid("//wsse:Security", doc);
+        // Check to see that the binary security token was inserted in the header
+        assertValid("//wsse:Security/wsse:BinarySecurityToken", doc);
+        assertValid("//wsse:Security/ds:Signature", doc);
+
+        byte[] docbytes = getMessageBytes(doc);
+        XMLStreamReader reader = StaxUtils.createXMLStreamReader(new ByteArrayInputStream(docbytes));
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new NullResolver());
+        doc = StaxUtils.read(db, reader, false);
+
+        WSS4JInInterceptor inHandler = new WSS4JInInterceptor();
+
+        SoapMessage inmsg = new SoapMessage(new MessageImpl());
+        ex.setInMessage(inmsg);
+        inmsg.setContent(SOAPMessage.class, saajMsg);
+
+        inHandler.setProperty(WSHandlerConstants.ACTION, WSHandlerConstants.SIGNATURE);
+        inHandler.setProperty(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/insecurity.properties");
+
+        inHandler.handleMessage(inmsg);
+        
+        WSSecurityEngineResult result = 
+            (WSSecurityEngineResult) inmsg.get(WSS4JInInterceptor.SIGNATURE_RESULT);
+        assertNotNull(result);
+        X509Certificate certificate = result.getCertificate();
+        assertNotNull(certificate);
+    }
+
 
     private byte[] getMessageBytes(Document doc) throws Exception {
         // XMLOutputFactory factory = XMLOutputFactory.newInstance();

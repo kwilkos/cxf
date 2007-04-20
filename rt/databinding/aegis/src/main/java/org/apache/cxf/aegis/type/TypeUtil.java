@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis;
+package org.apache.cxf.aegis.type;
 
 import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.util.XmlConstants;
 
@@ -32,24 +32,18 @@ import org.apache.cxf.aegis.util.XmlConstants;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public final class Aegis {
-    public static final Log LOG = LogFactory.getLog(Aegis.class);
+public final class TypeUtil {
+    public static final Log LOG = LogFactory.getLog(TypeUtil.class);
 
-    public static final String CURRENT_MESSAGE_PART = "currentMessagePart";
-
-    public static final String TYPE_MAPPING_KEY = "type.mapping";
-
-    public static final String ENCODING_URI_KEY = "type.encodingUri";
-
-    public static final String WRITE_XSI_TYPE_KEY = "writeXsiType";
-
-    public static final String OVERRIDE_TYPES_KEY = "overrideTypesList";
-
-    private Aegis() {
+    private TypeUtil() {
         //utility class
     }
     
     public static Type getReadType(XMLStreamReader xsr, Context context, Type type) {
+        if (!context.isReadXsiTypes()) {
+            return type;
+        }
+    
         String overrideType = xsr.getAttributeValue(XmlConstants.XSI_NS, "type");
         if (overrideType != null) {
             QName overrideTypeName = NamespaceHelper.createQName(xsr.getNamespaceContext(), overrideType);
@@ -69,7 +63,7 @@ public final class Aegis {
 
     public static Type getWriteType(Context context, Object value, Type type) {
         if (value != null && type != null && type.getTypeClass() != value.getClass()) {
-            List l = (List) context.get(OVERRIDE_TYPES_KEY);
+            List<String> l = context.getOverrideTypes();
             if (l != null && l.contains(value.getClass().getName())) {
                 type = type.getTypeMapping().getType(value.getClass());
             }

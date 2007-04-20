@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.Aegis;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.junit.Before;
@@ -48,12 +48,12 @@ public class InheritancePOJOTest extends AbstractAegisTest {
                                                     new QName("urn:xfire:inheritance", "InheritanceService"));
 
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(Aegis.WRITE_XSI_TYPE_KEY, "true");
+        props.put(AegisDatabinding.WRITE_XSI_TYPE_KEY, "true");
 
         List<String> l = new ArrayList<String>();
         l.add(Employee.class.getName());
 
-        props.put(Aegis.OVERRIDE_TYPES_KEY, l);
+        props.put(AegisDatabinding.OVERRIDE_TYPES_KEY, l);
 
         sf.getServiceFactory().setProperties(props);
         sf.create();

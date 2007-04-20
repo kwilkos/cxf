@@ -219,7 +219,7 @@ public final class Base64Utility {
                                      int o,
                                      int l) {
         if (l <= 0) {
-            return null;
+            return new char[0];
         }
 
         char[] out;

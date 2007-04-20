@@ -25,13 +25,14 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.Schema;
 
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
+import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -51,7 +52,7 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     public Object read(MessagePartInfo part, XMLStreamReader input) {
         Type type = databinding.getType(part);
 
-        type = Aegis.getReadType(input, context, type);
+        type = TypeUtil.getReadType(input, context, type);
         
         if (type == null) {
             throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG));
@@ -59,7 +60,12 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
 
          // I don't think this is the right type mapping
         context.setTypeMapping(type.getTypeMapping());
-
+        context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));
+        Object val = databinding.getService().get(AegisDatabinding.READ_XSI_TYPE_KEY);
+        if ("false".equals(val) || Boolean.FALSE.equals(val)) {
+            context.setReadXsiTypes(false);
+        }
+        
         ElementReader elReader = new ElementReader(input);
         if (elReader.isXsiNil()) {
             elReader.readToEnd();

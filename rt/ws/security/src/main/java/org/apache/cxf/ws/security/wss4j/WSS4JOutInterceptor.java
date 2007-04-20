@@ -39,10 +39,12 @@ import org.apache.ws.security.handler.RequestData;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.util.WSSecurityUtil;
 
-
 public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
-    private static final Logger LOG = Logger.getLogger(WSS4JOutInterceptor.class.getName());
-    private static final Logger TIME_LOG = Logger.getLogger(WSS4JOutInterceptor.class.getName() + "-Time");
+    private static final Logger LOG = Logger
+            .getLogger(WSS4JOutInterceptor.class.getName());
+
+    private static final Logger TIME_LOG = Logger
+            .getLogger(WSS4JOutInterceptor.class.getName() + "-Time");
 
     public WSS4JOutInterceptor() {
         super();
@@ -87,7 +89,8 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
             Vector actions = new Vector();
             String action = getString(WSHandlerConstants.ACTION, mc);
             if (action == null) {
-                throw new SoapFault(new Message("NO_ACTION", LOG), version.getReceiver());
+                throw new SoapFault(new Message("NO_ACTION", LOG), version
+                        .getReceiver());
             }
 
             int doAction = WSSecurityUtil.decodeAction(action, actions);
@@ -99,9 +102,11 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
              * For every action we need a username, so get this now. The
              * username defined in the deployment descriptor takes precedence.
              */
-            reqData.setUsername((String)getOption(WSHandlerConstants.USER));
-            if (reqData.getUsername() == null || reqData.getUsername().equals("")) {
-                String username = (String)getProperty(reqData.getMsgContext(), WSHandlerConstants.USER);
+            reqData.setUsername((String) getOption(WSHandlerConstants.USER));
+            if (reqData.getUsername() == null
+                    || reqData.getUsername().equals("")) {
+                String username = (String) getProperty(reqData.getMsgContext(),
+                        WSHandlerConstants.USER);
                 if (username != null) {
                     reqData.setUsername(username);
                 }
@@ -113,12 +118,14 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
              * username is available and then get a passowrd.
              */
             if ((doAction & (WSConstants.SIGN | WSConstants.UT | WSConstants.UT_SIGN)) != 0
-                && reqData.getUsername() == null || reqData.getUsername().equals("")) {
+                    && reqData.getUsername() == null
+                    || reqData.getUsername().equals("")) {
                 /*
                  * We need a username - if none throw an SoapFault. For
                  * encryption there is a specific parameter to get a username.
                  */
-                throw new SoapFault(new Message("NO_USERNAME", LOG), version.getReceiver());
+                throw new SoapFault(new Message("NO_USERNAME", LOG), version
+                        .getReceiver());
             }
             if (doDebug) {
                 LOG.fine("Action: " + doAction);
@@ -140,7 +147,8 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
 
             if (saaj == null) {
                 LOG.warning("SAAJOutHandler must be enabled for WS-Security!");
-                throw new SoapFault(new Message("NO_SAAJ_DOC", LOG), version.getReceiver());
+                throw new SoapFault(new Message("NO_SAAJ_DOC", LOG), version
+                        .getReceiver());
             }
 
             Document doc = saaj.getSOAPPart();
@@ -157,7 +165,7 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
             }
 
             doSenderAction(doAction, doc, reqData, actions, !Boolean.TRUE
-                .equals(org.apache.cxf.message.Message.REQUESTOR_ROLE));
+                    .equals(getProperty(mc, org.apache.cxf.message.Message.REQUESTOR_ROLE)));
 
             if (doTimeDebug) {
                 t2 = System.currentTimeMillis();
@@ -165,16 +173,18 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
 
             if (doTimeDebug) {
                 t3 = System.currentTimeMillis();
-                TIME_LOG
-                    .fine("Send request: total= " + (t3 - t0) + " request preparation= " + (t1 - t0)
-                          + " request processing= " + (t2 - t1) + " request to CXF= " + (t3 - t2) + "\n");
+                TIME_LOG.fine("Send request: total= " + (t3 - t0)
+                        + " request preparation= " + (t1 - t0)
+                        + " request processing= " + (t2 - t1)
+                        + " request to CXF= " + (t3 - t2) + "\n");
             }
 
             if (doDebug) {
                 LOG.fine("WSDoAllSender: exit invoke()");
             }
         } catch (WSSecurityException e) {
-            throw new SoapFault(new Message("SECURITY_FAILED", LOG), e, version.getSender());
+            throw new SoapFault(new Message("SECURITY_FAILED", LOG), e, version
+                    .getSender());
         } finally {
             reqData.clear();
             reqData = null;

@@ -156,7 +156,9 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
 
     @Override
     public String getElementText() throws XMLStreamException {
-        return DOMUtils.getContent(content);
+        String result = DOMUtils.getContent(content);
+        // we should not return null according to the StAx API javadoc
+        return result != null ? result : "";
     }
 
     @Override

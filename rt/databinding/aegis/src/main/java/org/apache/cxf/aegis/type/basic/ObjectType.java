@@ -19,10 +19,7 @@
 package org.apache.cxf.aegis.type.basic;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.Set;
 
@@ -30,7 +27,6 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Document;
 
-import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
@@ -111,7 +107,7 @@ public class ObjectType extends Type {
             typeQName = reader.getName();
         }
 
-        TypeMapping tm = (TypeMapping)context.get(Aegis.TYPE_MAPPING_KEY);
+        TypeMapping tm = context.getTypeMapping();
         if (tm == null) {
             tm = getTypeMapping();
         }
@@ -164,9 +160,8 @@ public class ObjectType extends Type {
     }
 
     @Override
-    public void writeObject(Object object,
-                            MessageWriter writer,
-                            Context context) throws DatabindingException {
+    public void writeObject(Object object, MessageWriter writer, Context context) 
+        throws DatabindingException {
         if (null == object) {
             MessageWriter nilWriter = writer.getAttributeWriter(XSI_NIL);
 
@@ -177,18 +172,24 @@ public class ObjectType extends Type {
             Type type = determineType(context, object.getClass());
 
             if (null == type) {
-                handleNullType(object, writer);
-            } else {
-                String prefix = writer.getPrefixForNamespace(type.getSchemaType().getNamespaceURI());
-
-                if (null == prefix || prefix.length() == 0) {
-                    addXsiType(writer, type.getSchemaType().getLocalPart());
-                } else {
-                    addXsiType(writer, prefix + ":" + type.getSchemaType().getLocalPart());
+                TypeMapping tm = context.getTypeMapping();
+                if (tm == null) {
+                    tm = getTypeMapping();
                 }
 
-                type.writeObject(object, writer, context);
+                type = tm.getTypeCreator().createType(object.getClass());
+                tm.register(type);
             }
+
+            String prefix = writer.getPrefixForNamespace(type.getSchemaType().getNamespaceURI());
+
+            if (null == prefix || prefix.length() == 0) {
+                addXsiType(writer, type.getSchemaType().getLocalPart());
+            } else {
+                addXsiType(writer, prefix + ":" + type.getSchemaType().getLocalPart());
+            }
+
+            type.writeObject(object, writer, context);
         }
     }
 
@@ -230,32 +231,6 @@ public class ObjectType extends Type {
         typeWriter.writeValue(prefixedType);
 
         typeWriter.close();
-    }
-
-    private void handleNullType(Object object, MessageWriter writer) throws DatabindingException {
-        if (!serializedWhenUnknown) {
-            throw new DatabindingException("Unable to write '" + object + "' [" + object.getClass().getName()
-                                           + "]. Type is unknown.");
-        }
-
-        addXsiType(writer, "serializedJavaObject"); // TODO not sure what
-                                                    // namespace to put
-                                                    // here..should match what
-                                                    // is put in writeSchema
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
-
-        try {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(out);
-
-            objectOutputStream.writeObject(object);
-            objectOutputStream.close();
-        } catch (IOException e) {
-            throw new DatabindingException("Unable to serialize '" + object + "' ["
-                                           + object.getClass().getName() + "]", e);
-        }
-
-        writer.writeValue(Base64Utility.encode(out.toByteArray()));
     }
 
     public boolean isReadToDocument() {

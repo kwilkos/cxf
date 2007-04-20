@@ -90,7 +90,7 @@ public class RoundTripTest extends AbstractSecurityTest {
     }
 
     @Test
-    public void testEncyprtionPlusSig() throws Exception {
+    public void testEncryptionPlusSig() throws Exception {
         wsIn.setProperty(WSHandlerConstants.ACTION, WSHandlerConstants.ENCRYPT + " "
                                                     + WSHandlerConstants.SIGNATURE);
         wsOut.setProperty(WSHandlerConstants.ACTION, WSHandlerConstants.ENCRYPT + " "

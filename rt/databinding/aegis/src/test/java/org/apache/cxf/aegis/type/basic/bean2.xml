@@ -1,0 +1,6 @@
+<b:bean xmlns:b="urn:Bean" nonsattribute="hi">
+  <b:bleh>bleh</b:bleh>
+  <b:howdy>howdy</b:howdy>
+  <another>asdf</another>
+  <b:yetanother></b:yetanother>
+</b:bean>

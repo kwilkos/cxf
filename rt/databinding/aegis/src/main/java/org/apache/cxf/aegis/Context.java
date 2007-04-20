@@ -20,6 +20,7 @@ package org.apache.cxf.aegis;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.message.Attachment;
@@ -34,6 +35,8 @@ public class Context extends HashMap<String, Object> {
     private TypeMapping typeMapping;
     private Collection<Attachment> attachments;
     private boolean writeXsiTypes;
+    private boolean readXsiTypes = true;
+    private List<String> overrideTypes;
     
     public Context() {
     }
@@ -61,4 +64,21 @@ public class Context extends HashMap<String, Object> {
     public void setWriteXsiTypes(boolean writeXsiTypes) {
         this.writeXsiTypes = writeXsiTypes;
     }
+
+    public boolean isReadXsiTypes() {
+        return readXsiTypes;
+    }
+
+    public void setReadXsiTypes(boolean readXsiTypes) {
+        this.readXsiTypes = readXsiTypes;
+    }
+
+    public List<String> getOverrideTypes() {
+        return overrideTypes;
+    }
+
+    public void setOverrideTypes(List<String> overrideTypes) {
+        this.overrideTypes = overrideTypes;
+    }
+    
 }

@@ -19,6 +19,7 @@
 package org.apache.cxf.ws.security.wss4j;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -171,7 +172,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
                 X509Certificate returnCert = actionResult.getCertificate();
 
                 if (returnCert != null && !verifyTrust(returnCert, reqData)) {
-                    LOG.warning("WThe certificate used for the signature is not trusted");
+                    LOG.warning("The certificate used for the signature is not trusted");
                     throw new SoapFault(new Message("UNTRUSTED_CERT", LOG), version.getSender());
                 }
                 msg.put(SIGNATURE_RESULT, actionResult);
@@ -241,7 +242,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
          * All ok up to this point. Now construct and setup the security result
          * structure. The service may fetch this and check it.
          */
-        Vector<Object> results = (Vector<Object>)msg.get(WSHandlerConstants.RECV_RESULTS);
+        List<Object> results = (Vector<Object>)msg.get(WSHandlerConstants.RECV_RESULTS);
         if (results == null) {
             results = new Vector<Object>();
             msg.put(WSHandlerConstants.RECV_RESULTS, results);
@@ -254,13 +255,10 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(new DOMSource(body));
         // advance just past body
         int evt = reader.next();
-        int i = 0;
-        while (reader.hasNext() && i < 1
-               && (evt != XMLStreamConstants.END_ELEMENT || evt != XMLStreamConstants.START_ELEMENT)) {
-            reader.next();
-            i++;
+        while (reader.hasNext() 
+             && (evt == XMLStreamConstants.END_ELEMENT || evt == XMLStreamConstants.START_ELEMENT)) {
+            evt = reader.next();
         }
-
         msg.setContent(XMLStreamReader.class, reader);
     }
 
@@ -271,7 +269,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
         }
         if (action == null) {
             LOG.warning("No security action was defined!");
-            throw new SoapFault("No securityaction was defined!", version.getReceiver());
+            throw new SoapFault("No security action was defined!", version.getReceiver());
         }
         return action;
     }
