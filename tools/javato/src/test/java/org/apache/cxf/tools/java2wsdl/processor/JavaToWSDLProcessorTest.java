@@ -86,6 +86,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testAsync() throws Exception {
 
         env.put(ToolConstants.CFG_COMPILE, "compile");
@@ -115,6 +116,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testDocWrapparBare() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -143,6 +145,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testDocLitUseClassPathFlag() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -172,6 +175,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testRPCLit() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -225,6 +229,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSOAP12() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -277,6 +282,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
     
     @Test
+    @Ignore
     public void testRPCWithoutParentBindingAnnotation() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc_lit_service_no_anno.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.rpc.Hello");
@@ -308,6 +314,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
     
     @Test
+    @Ignore
     public void testDocWrappedWithoutWrapperClass() {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_no_anno.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
@@ -324,6 +331,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }    
     
     @Test
+    @Ignore
     public void testDocWrappedWithWrapperClass() {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_no_anno_nowrapper11.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.Hello");
@@ -343,6 +351,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
     
     @Test
+    @Ignore
     public void testSOAPBindingRPCOnMethod() {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc_on_method.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, 
@@ -361,6 +370,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testDocWrappedWithLocalName() {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("xsd", "http://www.w3.org/2001/XMLSchema");
@@ -387,6 +397,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testDocWrappedNoWebParam() {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("xsd", "http://www.w3.org/2001/XMLSchema");
@@ -411,6 +422,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSoapHeader() throws Exception {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("wsdl", "http://schemas.xmlsoap.org/wsdl/");
@@ -471,6 +483,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     }
     
     @Test
+    @Ignore
     public void testCXF188() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/cxf188.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf188.Demo");

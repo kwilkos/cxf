@@ -31,9 +31,7 @@ import org.apache.cxf.tools.common.toolspec.ToolRunner;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
-import org.apache.cxf.tools.java2wsdl.processor.FrontendFactory;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToProcessor;
-import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToWSDL extends AbstractCXFToolContainer {
@@ -56,19 +54,8 @@ public class JavaToWSDL extends AbstractCXFToolContainer {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
 
-                // REVISIT: We keep the previous java2wsdl tool for the jaxws generation
-                //          due to there are bugs in JaxWsServiceFactoryBean
-                //          if we fix those bugs, then safely remove the following condition
-                //          just use processor = new JavaToProcessor();
-                
-                FrontendFactory frontend = FrontendFactory.getInstance();
-                frontend.setServiceClass(getServiceClass(env));
-                if (FrontendFactory.Style.Simple == frontend.discoverStyle()) {
-                    processor = new JavaToProcessor();
-                } else {
-                    processor = new JavaToWSDLProcessor();
-                }
-                
+                processor = new JavaToProcessor();
+
                 processor.setEnvironment(env);
                 processor.process();
             }
