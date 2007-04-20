@@ -22,7 +22,6 @@ package org.apache.cxf.transport.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -75,8 +74,6 @@ public abstract class AbstractHTTPDestination extends AbstractDestination
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
-    protected String name;
-    protected URL nurl;
 
     // Configuration values
     protected HTTPServerPolicy server;
@@ -104,9 +101,6 @@ public abstract class AbstractHTTPDestination extends AbstractDestination
         conduitInitiator = ci;
         
         initConfig();
- 
-        nurl = new URL(ei.getAddress());
-        name = nurl.getPath();
     }
     
     

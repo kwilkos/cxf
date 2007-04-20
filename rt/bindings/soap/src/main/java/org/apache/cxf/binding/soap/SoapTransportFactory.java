@@ -185,10 +185,15 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
             Object extensor = itr.next();
 
             if (SOAPBindingUtil.isSOAPAddress(extensor)) {
-                SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
+                final SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
 
                 SoapBindingInfo sbi = (SoapBindingInfo)b;
-                EndpointInfo info = new EndpointInfo(serviceInfo, sbi.getTransportURI());
+                EndpointInfo info = new EndpointInfo(serviceInfo, sbi.getTransportURI()) {
+                    public void setAddress(String s) {
+                        super.setAddress(s);
+                        sa.setLocationURI(s);
+                    }
+                };
                 info.setAddress(sa.getLocationURI());
                 return info;
             }

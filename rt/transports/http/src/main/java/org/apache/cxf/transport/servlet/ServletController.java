@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,52 +46,75 @@ public class ServletController {
 
     private ServletTransportFactory transport;
     private CXFServlet cxfServlet;
+    private String lastBase = "";
  
     public ServletController(ServletTransportFactory df, CXFServlet servlet) {
         this.transport = df;
         this.cxfServlet = servlet;
     }
+    
+    private synchronized void updateDests(HttpServletRequest request) {
+        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
+        String base = request.getRequestURL().toString();
+        base = base.substring(0, base.length() - pathInfo.length());
+        
+        if (base.equals(lastBase)) {
+            return;
+        }
+        Set<String> paths = transport.getDestinationsPaths();
+        for (String path : paths) {
+            ServletDestination d2 = transport.getDestinationForPath(path);
+            String ad = d2.getEndpointInfo().getAddress();
+            if (ad.equals(path)
+                || ad.equals(lastBase + path)) {
+                d2.getEndpointInfo().setAddress(base + path);
+            }
+        }
+        lastBase = base;
+    }
 
     public void invoke(HttpServletRequest request, HttpServletResponse res) throws ServletException {
         try {
             EndpointInfo ei = new EndpointInfo();
-            String address = "http://localhost" 
-                + (request.getPathInfo() == null ? "" : request.getPathInfo());
+            String address = request.getPathInfo() == null ? "" : request.getPathInfo();
 
             ei.setAddress(address);
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
+                updateDests(request);
                 if (request.getRequestURI().endsWith("services")
                     || request.getRequestURI().endsWith("services/")
-                    || StringUtils.isEmpty(request.getPathInfo())) {
+                    || StringUtils.isEmpty(request.getPathInfo())
+                    || "/".equals(request.getPathInfo())) {
                     generateServiceList(request, res);
                 } else {
-                    LOG.warning("Can't find the the request for " + request.getRequestURI() + "'s Observer ");
+                    LOG.warning("Can't find the the request for " + request.getRequestURL() + "'s Observer ");
                     generateNotFound(request, res);
                 }
             } else {
+                updateDests(request);
                 ei = d.getEndpointInfo();
                 Bus bus = cxfServlet.getBus();
-                if (bus.getExtension(QueryHandlerRegistry.class) != null) { 
+                if (null != request.getQueryString() 
+                    && request.getQueryString().length() > 0
+                    && bus.getExtension(QueryHandlerRegistry.class) != null) {
+                    
+                    String ctxUri = request.getPathInfo();
+                    String baseUri = request.getRequestURL().toString() 
+                        + "?" + request.getQueryString();
+
                     for (QueryHandler qh : bus.getExtension(QueryHandlerRegistry.class).getHandlers()) {
-                        if (null != request.getQueryString() && request.getQueryString().length() > 0) {
-                            String ctxUri = request.getPathInfo();
-                            String baseUri = request.getRequestURL().toString() 
-                                + "?" + request.getQueryString();
+                        if (qh.isRecognizedQuery(baseUri, ctxUri, ei)) {
                             
-                            if (qh.isRecognizedQuery(baseUri, ctxUri, ei)) {
-                                
-                                res.setContentType(qh.getResponseContentType(baseUri, ctxUri));
-                                OutputStream out = res.getOutputStream();
-                                try {
-                                    qh.writeResponse(baseUri, ctxUri, ei, out);
-                                    out.flush();
-                                    return;
-                                } catch (Exception e) {
-                                    throw new ServletException(e);
-                                }
-                                
+                            res.setContentType(qh.getResponseContentType(baseUri, ctxUri));
+                            OutputStream out = res.getOutputStream();
+                            try {
+                                qh.writeResponse(baseUri, ctxUri, ei, out);
+                                out.flush();
+                                return;
+                            } catch (Exception e) {
+                                throw new ServletException(e);
                             }
                         }   
                     }
@@ -109,20 +133,14 @@ public class ServletController {
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
         
-        String reqPerfix = request.getScheme() + "://" + request.getServerName();
-        if (request.getServerPort() != 80 && request.getServerPort() != 0) {
-            reqPerfix += ":" + request.getServerPort();
-        }
-        reqPerfix += request.getContextPath() + request.getServletPath() + "/";
+        String reqPerfix = request.getRequestURL().toString();
+        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
+        reqPerfix = reqPerfix.substring(0, reqPerfix.length() - pathInfo.length());
         
         if (destinations.size() > 0) {  
             for (ServletDestination sd : destinations) {
                 if (null != sd.getEndpointInfo().getName()) {
-                    String address = sd.getAddress().getAddress().getValue();
-                    
-                    address = reqPerfix
-                        + address.substring("http://localhost/".length());
-                    
+                    String address = sd.getEndpointInfo().getAddress();
                     response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
                     response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");
                 }    

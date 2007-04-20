@@ -180,19 +180,29 @@ public abstract class AbstractHTTPTransportFactory
             Object extensor = itr.next();
 
             if (extensor instanceof HTTPAddress) {
-                HTTPAddress httpAdd = (HTTPAddress)extensor;
+                final HTTPAddress httpAdd = (HTTPAddress)extensor;
 
                 EndpointInfo info = 
                     new EndpointInfo(serviceInfo, 
-                            "http://schemas.xmlsoap.org/wsdl/http/");
+                            "http://schemas.xmlsoap.org/wsdl/http/") {
+                        public void setAddress(String a) {
+                            super.setAddress(a);
+                            httpAdd.setLocationURI(a);
+                        }
+                    };
                 info.setAddress(httpAdd.getLocationURI());
                 return info;
             } else if (extensor instanceof AddressType) {
-                AddressType httpAdd = (AddressType)extensor;
+                final AddressType httpAdd = (AddressType)extensor;
 
                 EndpointInfo info = 
                     new EndpointInfo(serviceInfo, 
-                            "http://schemas.xmlsoap.org/wsdl/http/");
+                            "http://schemas.xmlsoap.org/wsdl/http/") {
+                        public void setAddress(String a) {
+                            super.setAddress(a);
+                            httpAdd.setLocation(a);
+                        }
+                    };
                 info.setAddress(httpAdd.getLocation());
                 return info;
             }

@@ -154,7 +154,7 @@ public class WSDLQueryHandler implements QueryHandler {
                 Element el = (Element)nl.item(x);
                 String sl = el.getAttribute("schemaLocation");
                 if (smp.containsKey(sl)) {
-                    el.setAttribute("schemaLocation", smp.get(sl).getSchemaLocationURI());
+                    el.setAttribute("schemaLocation", base + "?xsd=" + sl);
                 }
             }
             nl = doc.getDocumentElement()
@@ -164,7 +164,17 @@ public class WSDLQueryHandler implements QueryHandler {
                 Element el = (Element)nl.item(x);
                 String sl = el.getAttribute("schemaLocation");
                 if (smp.containsKey(sl)) {
-                    el.setAttribute("schemaLocation", smp.get(sl).getSchemaLocationURI());
+                    el.setAttribute("schemaLocation", base + "?xsd=" + sl);
+                }
+            }
+            nl = doc.getDocumentElement()
+                .getElementsByTagNameNS("http://schemas.xmlsoap.org/wsdl/",
+                                    "import");
+            for (int x = 0; x < nl.getLength(); x++) {
+                Element el = (Element)nl.item(x);
+                String sl = el.getAttribute("location");
+                if (mp.containsKey(sl)) {
+                    el.setAttribute("location", base + "?wsdl=" + sl);
                 }
             }
             
@@ -201,11 +211,6 @@ public class WSDLQueryHandler implements QueryHandler {
                     //check to see if it's aleady in a URL format.  If so, leave it.
                     new URL(start);
                 } catch (MalformedURLException e) {
-                    String uri = start;
-                    if (!uri.startsWith(base)) {
-                        uri = base + "?wsdl=" + uri;
-                    }
-                    imp.setLocationURI(uri);
                     done.put(start, imp.getDefinition());
                     updateDefinition(imp.getDefinition(), done, doneSchemas, base, ei);
                 }
@@ -241,12 +246,6 @@ public class WSDLQueryHandler implements QueryHandler {
                         //check to see if it's aleady in a URL format.  If so, leave it.
                         new URL(start);
                     } catch (MalformedURLException e) {
-                    
-                        String uri = start;
-                        if (!uri.startsWith(base)) {
-                            uri = base + "?xsd=" + uri;
-                        }
-                        imp.setSchemaLocationURI(uri);
                         doneSchemas.put(start, imp);
                         updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
                     }
@@ -261,11 +260,6 @@ public class WSDLQueryHandler implements QueryHandler {
                     //check to see if it's aleady in a URL format.  If so, leave it.
                     new URL(start);
                 } catch (MalformedURLException e) {
-                    String uri = start;
-                    if (!uri.startsWith(base)) {
-                        uri = base + "?xsd=" + uri;
-                    }
-                    included.setSchemaLocationURI(uri);
                     doneSchemas.put(start, included);
                     updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
                 }

@@ -48,6 +48,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected ServerEngine engine;
     protected ServerEngine alternateEngine;
     protected JettyHTTPTransportFactory transportFactory;
+    protected URL nurl;
     
     /**
      * Constructor, using Jetty server engine.
@@ -60,7 +61,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     public JettyHTTPDestination(Bus b, JettyHTTPTransportFactory ci, 
                                 EndpointInfo endpointInfo) throws IOException {
         this(b, ci, endpointInfo, null);
-        this.transportFactory = ci;
     }
 
     /**
@@ -79,6 +79,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         super(b, ci, endpointInfo, true);
         alternateEngine = eng;
         this.transportFactory = ci;
+        nurl = new URL(endpointInfo.getAddress());
     }
 
     protected Logger getLogger() {

@@ -38,7 +38,7 @@ import org.apache.cxf.transport.DestinationFactory;
 public class ServletTransportFactory extends AbstractTransportFactory
     implements DestinationFactory {
 
-    private Bus bus;    
+    private Bus bus;
     private Map<String, ServletDestination> destinations = 
         new ConcurrentHashMap<String, ServletDestination>();
     
@@ -48,7 +48,7 @@ public class ServletTransportFactory extends AbstractTransportFactory
 
     public ServletTransportFactory() {
     }
-    
+
     public Bus getBus() {
         return bus;
     }
@@ -60,14 +60,16 @@ public class ServletTransportFactory extends AbstractTransportFactory
     
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
-        //String origAddress = endpointInfo.getAddress();
         ServletDestination d = destinations.get(endpointInfo.getAddress());
         if (d == null) { 
             d = new ServletDestination(bus, null, endpointInfo);
-            //destinations.put(origAddress, d);
             destinations.put(endpointInfo.getAddress(), d);
         }
         return d;
+    }
+    
+    public ServletDestination getDestinationForPath(String path) {
+        return destinations.get(path);
     }
     
     public Collection<ServletDestination> getDestinations() {
