@@ -50,6 +50,7 @@ import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
+import org.apache.cxf.transport.AbstractMultiplexDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.http.policy.PolicyUtils;
@@ -57,12 +58,13 @@ import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.policy.Assertor;
 import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 /**
  * Common base for HTTP Destination implementations.
  */
-public abstract class AbstractHTTPDestination extends AbstractDestination 
-    implements Configurable, Assertor {
+public abstract class AbstractHTTPDestination extends AbstractMultiplexDestination implements Configurable,
+    Assertor {
     
     public static final String HTTP_REQUEST = "HTTP.REQUEST";
     public static final String HTTP_RESPONSE = "HTTP.RESPONSE";
@@ -81,7 +83,8 @@ public abstract class AbstractHTTPDestination extends AbstractDestination
     protected SSLServerPolicy sslServer;
     protected String contextMatchStrategy = "stem";
     protected boolean fixedParameterOrder;
-    
+    protected boolean multiplexWithAddress;
+
     /**
      * Constructor
      * 
@@ -417,6 +420,54 @@ public abstract class AbstractHTTPDestination extends AbstractDestination
         return beanName;
     }
 
+    /*
+     * Implement multiplex via the address URL to avoid the need for ws-a.
+     * Requires contextMatchStrategy of stem.
+     * 
+     * @see org.apache.cxf.transport.AbstractMultiplexDestination#getAddressWithId(java.lang.String)
+     */
+    public EndpointReferenceType getAddressWithId(String id) {
+        EndpointReferenceType ref = null;
+
+        if (isMultiplexWithAddress()) {
+            String address = EndpointReferenceUtils.getAddress(reference);
+            ref = EndpointReferenceUtils.duplicate(reference);
+            if (address.endsWith("/")) {
+                EndpointReferenceUtils.setAddress(ref, address + id);
+            } else {
+                EndpointReferenceUtils.setAddress(ref, address + "/" + id);
+            }
+        } else {
+            ref = super.getAddressWithId(id);
+        }
+        return ref;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.cxf.transport.AbstractMultiplexDestination#getId(java.util.Map)
+     */
+    public String getId(Map context) {
+        String id = null;
+
+        if (isMultiplexWithAddress()) {
+            String address = (String)context.get(Message.PATH_INFO);
+            if (null != address) {
+                int afterLastSlashIndex = address.lastIndexOf("/") + 1;
+                if (afterLastSlashIndex > 0 && afterLastSlashIndex < address.length()) {
+                    id = address.substring(afterLastSlashIndex);
+                }
+            } else {
+                getLogger().log(Level.WARNING,
+                                new org.apache.cxf.common.i18n.Message("MISSING_PATH_INFO", LOG).toString());
+            }
+        } else {
+            return super.getId(context);
+        }   
+        return id;
+    }
+
     public AuthorizationPolicy getAuthorization() {
         return authorization;
     }
@@ -439,6 +490,14 @@ public abstract class AbstractHTTPDestination extends AbstractDestination
 
     public void setFixedParameterOrder(boolean fixedParameterOrder) {
         this.fixedParameterOrder = fixedParameterOrder;
+    }
+
+    public boolean isMultiplexWithAddress() {
+        return multiplexWithAddress;
+    }
+
+    public void setMultiplexWithAddress(boolean multiplexWithAddress) {
+        this.multiplexWithAddress = multiplexWithAddress;
     }
 
     public HTTPServerPolicy getServer() {

@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -54,6 +55,7 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.workqueue.OneShotAsyncExecutor;
 import org.apache.cxf.workqueue.SynchronousExecutor;
 import org.apache.cxf.workqueue.WorkQueueManager;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 import static org.apache.cxf.message.Message.ASYNC_POST_RESPONSE_DISPATCH;
 import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
@@ -74,6 +76,9 @@ public final class ContextUtils {
 
     private static final String WS_ADDRESSING_PACKAGE = 
         PackageUtils.getPackageName(EndpointReferenceType.class);
+    private static final EndpointReferenceType NONE_ENDPOINT_REFERENCE = 
+        EndpointReferenceUtils.getEndpointReference(Names.WSA_NONE_ADDRESS);
+    
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
     
     
@@ -456,7 +461,7 @@ public final class ContextUtils {
         // partial response that contains appropriate To and ReplyTo
         // properties (i.e. anonymous & none respectively)
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-        maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
+        maps.setTo(EndpointReferenceUtils.getAnonymousEndpointReference());
         maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
         maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
         maps.setAction(getAttributedURI(""));
@@ -747,7 +752,18 @@ public final class ContextUtils {
         }
         return method;
     }
-    
+
+    public static EndpointReferenceType getNoneEndpointReference() {
+        return NONE_ENDPOINT_REFERENCE;
+    }
+
+    public static void applyReferenceParam(EndpointReferenceType toEpr, JAXBElement<String> el) {
+        if (null == toEpr.getReferenceParameters()) {
+            toEpr.setReferenceParameters(WSA_OBJECT_FACTORY.createReferenceParametersType());
+        }
+        toEpr.getReferenceParameters().getAny().add(el);
+    }
+
     /**
      * Create a Binding specific Message.
      * 

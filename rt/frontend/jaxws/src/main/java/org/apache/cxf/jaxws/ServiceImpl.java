@@ -68,6 +68,8 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.workqueue.OneShotAsyncExecutor;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 public class ServiceImpl extends ServiceDelegate {
@@ -214,7 +216,7 @@ public class ServiceImpl extends ServiceDelegate {
 
     public <T> T getPort(Class<T> type) {
         try {
-            return createPort(null, type);
+            return createPort(null, null, type);
         } catch (ServiceConstructionException e) {
             throw new WebServiceException(e);
         }  
@@ -225,11 +227,24 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(BUNDLE.getString("PORT_NAME_NULL_EXC"));
         }
         try {
-            return createPort(portName, type);
+            return createPort(portName, null, type);
         } catch (ServiceConstructionException e) {
             throw new WebServiceException(e);
         }  
     }
+    
+    public <T> T getPort(EndpointReferenceType endpointReference,
+                            Class<T> type) {
+        QName serviceQName = EndpointReferenceUtils.getServiceName(endpointReference);
+        String portName = EndpointReferenceUtils.getPortName(endpointReference);
+        
+        QName portQName = null;
+        if (portName != null && serviceQName != null) {
+            portQName = new QName(serviceQName.getNamespaceURI(), portName);
+        }
+        
+        return createPort(portQName, endpointReference, type);
+    }    
 
     public Iterator<QName> getPorts() {
         return ports.iterator();
@@ -255,8 +270,9 @@ public class ServiceImpl extends ServiceDelegate {
         return bus;
     }
 
-    protected <T> T createPort(QName portName, Class<T> serviceEndpointInterface) {
+    protected <T> T createPort(QName portName, EndpointReferenceType epr, Class<T> serviceEndpointInterface) {
         LOG.log(Level.FINE, "creating port for portName", portName);
+        LOG.log(Level.FINE, "endpoint reference:", epr);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
 
         JaxWsProxyFactoryBean proxyFac = new JaxWsProxyFactoryBean();
@@ -278,6 +294,9 @@ public class ServiceImpl extends ServiceDelegate {
             serviceFactory.setEndpointName(portName);
         }
         
+        if (epr != null) {
+            clientFac.setEndpointReference(epr);
+        }
         PortInfoImpl portInfo = portInfos.get(portName);
         if (portInfo != null) {
             clientFac.setBindingId(portInfo.getBindingID());

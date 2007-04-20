@@ -26,6 +26,7 @@ import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
@@ -50,7 +51,9 @@ public class ApplicationContextTest extends Assert {
         
         ConfigurerImpl cfg = new ConfigurerImpl(ctx);
         
-        EndpointInfo info = new EndpointInfo();
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setName(new QName("bla", "Service"));        
+        EndpointInfo info = new EndpointInfo(serviceInfo, "");
         info.setName(new QName("urn:test:ns", "Foo"));
         info.setAddress("http://localhost:9000");
         

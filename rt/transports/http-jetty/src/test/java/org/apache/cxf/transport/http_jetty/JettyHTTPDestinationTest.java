@@ -19,7 +19,6 @@
 
 package org.apache.cxf.transport.http_jetty;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,6 +30,8 @@ import java.util.Map;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusImpl;
@@ -46,6 +47,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.security.transport.TLSSessionInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
@@ -53,6 +55,7 @@ import org.apache.cxf.transport.http.WSDLQueryHandler;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
@@ -63,6 +66,7 @@ import org.junit.Test;
 import org.mortbay.jetty.HttpFields;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
+import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 
 public class JettyHTTPDestinationTest extends Assert {
     protected static final String AUTH_HEADER = "Authorization";
@@ -123,6 +127,12 @@ public class JettyHTTPDestinationTest extends Assert {
         assertEquals("unexpected address",
                      EndpointReferenceUtils.getAddress(ref),
                      StringUtils.addDefaultPortIfMissing(EndpointReferenceUtils.getAddress(address)));
+        assertEquals("unexpected service name local part",
+                     EndpointReferenceUtils.getServiceName(ref).getLocalPart(),
+                     "Service");
+        assertEquals("unexpected portName",
+                     EndpointReferenceUtils.getPortName(ref),
+                     "Port");
     }
     
     @Test
@@ -130,7 +140,10 @@ public class JettyHTTPDestinationTest extends Assert {
         transportFactory = new JettyHTTPTransportFactory();
         transportFactory.setBus(new CXFBusImpl());
         
-        EndpointInfo ei = new EndpointInfo();
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setName(new QName("bla", "Service"));        
+        EndpointInfo ei = new EndpointInfo(serviceInfo, "");
+        ei.setName(new QName("bla", "Port"));
         ei.setAddress("http://foo");
         Destination d1 = transportFactory.getDestination(ei);
         
@@ -296,7 +309,11 @@ public class JettyHTTPDestinationTest extends Assert {
         bus = new CXFBusImpl();
         
         transportFactory = new JettyHTTPTransportFactory();
-        endpointInfo = new EndpointInfo();
+        
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setName(new QName("bla", "Service"));        
+        endpointInfo = new EndpointInfo(serviceInfo, "");
+        endpointInfo.setName(new QName("bla", "Port"));
         endpointInfo.addExtensor(policy); 
         endpointInfo.addExtensor(new SSLServerPolicy()); 
         
@@ -311,6 +328,70 @@ public class JettyHTTPDestinationTest extends Assert {
         assertEquals(policy, dest.getServer());
     }
         
+    @Test
+    public void testMultiplexGetAddressWithId() throws Exception {
+        destination = setUpDestination();
+        final String id = "ID2";
+        EndpointReferenceType refWithId = destination.getAddressWithId(id);
+        assertNotNull(refWithId);
+        assertNotNull(refWithId.getReferenceParameters());
+        assertNotNull(refWithId.getReferenceParameters().getAny());
+        assertTrue("it is an element", 
+                   refWithId.getReferenceParameters().getAny().get(0) instanceof JAXBElement);
+        JAXBElement el = (JAXBElement) refWithId.getReferenceParameters().getAny().get(0);
+        assertEquals("match our id", el.getValue(), id);
+    }
+    
+    @Test
+    public void testMultiplexGetAddressWithIdForAddress() throws Exception {
+        destination = setUpDestination();
+        destination.setMultiplexWithAddress(true);
+        
+        final String id = "ID3";
+        EndpointReferenceType refWithId = destination.getAddressWithId(id);
+        assertNotNull(refWithId);
+        assertNull(refWithId.getReferenceParameters());
+        assertTrue("match our id", EndpointReferenceUtils.getAddress(refWithId).indexOf(id) != -1);
+    }
+    
+    @Test
+    public void testMultiplexGetIdForAddress() throws Exception {
+        destination = setUpDestination();
+        destination.setMultiplexWithAddress(true);
+        
+        final String id = "ID3";
+        EndpointReferenceType refWithId = destination.getAddressWithId(id);
+        String pathInfo = EndpointReferenceUtils.getAddress(refWithId);
+        
+        Map<String, Object> context = new HashMap<String, Object>();
+        assertNull("fails with no context", destination.getId(context));
+        
+        context.put(Message.PATH_INFO, pathInfo);
+        String result = destination.getId(context);
+        assertNotNull(result);
+        assertEquals("match our id", result, id);
+    }
+    
+    @Test
+    public void testMultiplexGetId() throws Exception {
+        destination = setUpDestination();
+        
+        final String id = "ID3";
+        EndpointReferenceType refWithId = destination.getAddressWithId(id);
+        
+        Map<String, Object> context = new HashMap<String, Object>();
+        assertNull("fails with no context", destination.getId(context));
+        
+        AddressingProperties maps = EasyMock.createMock(AddressingProperties.class);
+        maps.getToEndpointReference();
+        EasyMock.expectLastCall().andReturn(refWithId);
+        EasyMock.replay(maps);      
+        context.put(SERVER_ADDRESSING_PROPERTIES_INBOUND, maps);
+        String result = destination.getId(context);
+        assertNotNull(result);
+        assertEquals("match our id", result, id);
+    }
+    
     private JettyHTTPDestination setUpDestination()
         throws Exception {
         return setUpDestination(false, false);
@@ -341,7 +422,10 @@ public class JettyHTTPDestinationTest extends Assert {
         transportFactory.setBus(bus);
         
         engine = EasyMock.createMock(ServerEngine.class);
-        endpointInfo = new EndpointInfo();
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setName(new QName("bla", "Service"));        
+        endpointInfo = new EndpointInfo(serviceInfo, "");
+        endpointInfo.setName(new QName("bla", "Port"));
         endpointInfo.setAddress(NOWHERE + "bar/foo");
        
         endpointInfo.addExtensor(policy);

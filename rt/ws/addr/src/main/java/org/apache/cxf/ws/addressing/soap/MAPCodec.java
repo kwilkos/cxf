@@ -22,6 +22,7 @@ package org.apache.cxf.ws.addressing.soap;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -54,9 +56,9 @@ import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.ContextUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.Names;
+import org.apache.cxf.ws.addressing.ReferenceParametersType;
 import org.apache.cxf.ws.addressing.RelatesToType;
-
-
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 
 /**
@@ -66,7 +68,8 @@ import org.apache.cxf.ws.addressing.RelatesToType;
 public class MAPCodec extends AbstractSoapInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
-    
+    private static final String IS_REFERENCE_PARAM_ATTR_NAME = "isReferenceParameter";
+
     /**
      * REVISIT: map usage that the *same* interceptor instance 
      * is used in all chains.
@@ -186,12 +189,52 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                 AttributedURIType.class, 
                                 header, 
                                 marshaller);
+                encodeReferenceParameters(maps, header, marshaller);
                 propogateAction(maps.getAction(), message);
                 applyMAPValidation(message);
             } catch (JAXBException je) {
                 LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", je);
             }
         }
+    }
+
+    private void encodeReferenceParameters(AddressingProperties maps, Element header, 
+                                           Marshaller marshaller) throws JAXBException {
+        EndpointReferenceType toEpr = maps.getToEndpointReference();
+        if (null != toEpr) {
+            ReferenceParametersType params = toEpr.getReferenceParameters();
+            if (null != params) {
+                for (Object o : params.getAny()) {
+                    if (o instanceof Element || o instanceof JAXBElement) {
+                        JAXBElement jaxbEl = null;
+                        if (o instanceof Element) {
+                            Element e = (Element)o;
+                            QName elQn = new QName(e.getNamespaceURI(), e.getLocalName());
+                            jaxbEl = new JAXBElement<String>(elQn,
+                                String.class, 
+                                e.getTextContent());
+                        } else {
+                            jaxbEl = (JAXBElement) o;
+                        }
+
+                        marshaller.marshal(jaxbEl, header);
+                        Element lastAdded = (Element)header.getLastChild();
+                        addIsReferenceParameterMarkerAttribute(lastAdded);
+                    } else {
+                        LOG.log(Level.WARNING, "IGNORE_NON_ELEMENT_REF_PARAM_MSG", o);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addIsReferenceParameterMarkerAttribute(Element lastAdded) {
+        Attr isRefParamAttr = 
+            lastAdded.getOwnerDocument().createAttributeNS(Names.WSA_NAMESPACE_PREFIX, 
+                                                           IS_REFERENCE_PARAM_ATTR_NAME);
+        isRefParamAttr.setTextContent("1");
+        isRefParamAttr.setPrefix(Names.WSA_NAMESPACE_PREFIX);
+        lastAdded.setAttributeNodeNS(isRefParamAttr);
     }
     
     /**
@@ -239,6 +282,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
             if (header != null) {
                 LOG.log(Level.INFO, "Inbound WS-Addressing headers");
                 Unmarshaller unmarshaller = null;
+                Set<Element> referenceParameterHeaders = null;
                 NodeList headerElements = header.getChildNodes();
                 int headerCount = headerElements.getLength();
                 for (int i = 0; i < headerCount; i++) {
@@ -264,11 +308,12 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                                        headerElement, 
                                                        unmarshaller));
                             } else if (Names.WSA_TO_NAME.equals(localName)) {
-                                maps.setTo(decodeAsNative(
+                                AttributedURIType addr = decodeAsNative(
                                                        headerURI,
                                                        AttributedURIType.class,
                                                        headerElement, 
-                                                       unmarshaller));
+                                                       unmarshaller);
+                                maps.setTo(EndpointReferenceUtils.getEndpointReference(addr));
                             } else if (Names.WSA_REPLYTO_NAME.equals(localName)) {
                                 maps.setReplyTo(decodeAsNative(
                                                        headerURI,
@@ -294,13 +339,23 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                                        headerElement, 
                                                        unmarshaller));
                             }
+                        } else if (null != headerElement.getAttribute(IS_REFERENCE_PARAM_ATTR_NAME)) {
+                            if (null == referenceParameterHeaders) {
+                                referenceParameterHeaders = new HashSet<Element>();
+                            }
+                            referenceParameterHeaders.add(headerElement); 
                         } else if (headerURI.contains(Names.WSA_NAMESPACE_PATTERN)) {
                             LOG.log(Level.WARNING, 
                                     "UNSUPPORTED_VERSION_MSG",
                                     headerURI);
                         }
                     }
-                }                
+                }
+                if (null != referenceParameterHeaders) {
+                    decodeReferenceParameters(referenceParameterHeaders, maps, unmarshaller);
+                }
+                restoreExchange(message, maps);
+                markPartialResponse(message, maps);
             }
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
@@ -308,6 +363,19 @@ public class MAPCodec extends AbstractSoapInterceptor {
         return maps;
     }
     
+    private void decodeReferenceParameters(Set<Element> referenceParameterHeaders, 
+                                           AddressingPropertiesImpl maps, 
+                                           Unmarshaller unmarshaller) 
+        throws JAXBException {
+        EndpointReferenceType toEpr = maps.getToEndpointReference();
+        if (null != toEpr) {
+            for (Element e : referenceParameterHeaders) {
+                JAXBElement<String> el = unmarshaller.unmarshal(e, String.class);
+                ContextUtils.applyReferenceParam(toEpr, el);
+            }
+        }
+    }
+
     /**
      * Decodes a MAP from a exposed version.
      *

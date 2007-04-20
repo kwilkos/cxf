@@ -55,7 +55,7 @@ public class JMSTransportFactory extends AbstractTransportFactory
     }
         
     public Conduit getConduit(EndpointInfo targetInfo) throws IOException {        
-        return getConduit(targetInfo, null);
+        return getConduit(targetInfo, targetInfo.getTarget());
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {

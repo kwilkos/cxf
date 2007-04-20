@@ -48,6 +48,7 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.ws.AbstractWSFeature;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
 public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorProvider {
@@ -65,6 +66,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private Map<String, Object> properties;
     private List<AbstractWSFeature> features;
     private BindingConfiguration bindingConfig;
+    private EndpointReferenceType endpointReference;
     private ConduitSelector conduitSelector;
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {
@@ -103,6 +105,9 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ei.setAddress(getAddress()); 
         }
 
+        if (endpointReference != null) {
+            ei.setAddress(endpointReference);
+        }
         Endpoint ep = service.getEndpoints().get(ei.getName());
         
         if (ep == null) {
@@ -318,6 +323,10 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         this.endpointName = endpointName;
     }
 
+    public void setEndpointReference(EndpointReferenceType epr) {
+        endpointReference = epr;
+    }
+    
     public Map<String, Object> getProperties() {
         return properties;
     }

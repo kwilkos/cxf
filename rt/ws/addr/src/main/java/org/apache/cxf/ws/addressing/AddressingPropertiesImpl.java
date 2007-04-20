@@ -23,7 +23,7 @@ package org.apache.cxf.ws.addressing;
  * Abstraction of Message Addressing Properties. 
  */
 public class AddressingPropertiesImpl implements AddressingProperties {
-    private AttributedURIType to;
+    private EndpointReferenceType to;
     private AttributedURIType messageID;
     private EndpointReferenceType replyTo;
     private EndpointReferenceType faultTo;
@@ -47,20 +47,24 @@ public class AddressingPropertiesImpl implements AddressingProperties {
         namespaceURI = uri;
     }
 
+    public EndpointReferenceType getToEndpointReference() {
+        return to;
+    }
+
     /**
      * Accessor for the <b>To</b> property.
      * @return To property
      */
     public AttributedURIType getTo() {
-        return to;
+        return null != to ? to.getAddress() : null;
     }
-
+    
     /**
      * Mutator for the <b>To</b> property.
      * @param iri new value for To property
      */
-    public void setTo(AttributedURIType iri) {
-        to = iri;
+    public void setTo(EndpointReferenceType epr) {
+        to = epr;
     }
 
     /**
@@ -184,7 +188,7 @@ public class AddressingPropertiesImpl implements AddressingProperties {
                 buf.append(", ");
             }
             buf.append("To: ");
-            buf.append(to.getValue()); 
+            buf.append(to.getAddress().getValue()); 
         }
         if (null != replyTo) {
             AttributedURIType address = replyTo.getAddress();

@@ -73,7 +73,7 @@ public abstract class AbstractObservable implements Observable {
     }
     
     /**
-     * Get the target reference .
+     * Get the target endpoint reference.
      * 
      * @param ei the corresponding EndpointInfo
      * @param t the given target EPR if available
@@ -89,11 +89,15 @@ public abstract class AbstractObservable implements Observable {
             AttributedURIType address = new AttributedURIType();
             address.setValue(ei.getAddress());
             ref.setAddress(address);
+            if (ei.getService() != null) {
+                EndpointReferenceUtils.setServiceAndPortName(ref, 
+                                                             ei.getService().getName(), 
+                                                             ei.getName().getLocalPart());
+            }
         } else {
             ref = t;
         }
         return EndpointReferenceUtils.resolve(ref, bus);
-        //return ref;
     }
     
     /**

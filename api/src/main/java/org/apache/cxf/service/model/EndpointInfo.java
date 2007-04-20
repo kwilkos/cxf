@@ -21,12 +21,15 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
+
 public class EndpointInfo extends AbstractDescriptionElement {
     String transportId;
     ServiceInfo service;
     BindingInfo binding;
     QName name;
-    String address;
+    EndpointReferenceType address;
     
     public EndpointInfo() {
     }
@@ -60,11 +63,18 @@ public class EndpointInfo extends AbstractDescriptionElement {
     }    
     
     public String getAddress() {
-        return address;
+        return (null != address) ? address.getAddress().getValue() : null;
     }
     
-    public void setAddress(String a) {
-        address = a;
+    public void setAddress(String addr) {
+        if (null == address) {
+            address = EndpointReferenceUtils.getEndpointReference(addr);
+        } else {
+            EndpointReferenceUtils.setAddress(address, addr);
+        }
+    }
+    public void setAddress(EndpointReferenceType endpointReference) {
+        address = endpointReference;
     }
     
     @Override
@@ -86,5 +96,9 @@ public class EndpointInfo extends AbstractDescriptionElement {
         }
         
         return value;
+    }
+
+    public EndpointReferenceType getTarget() {
+        return address;
     }
 }

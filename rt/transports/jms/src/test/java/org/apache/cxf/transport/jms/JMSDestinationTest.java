@@ -32,6 +32,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.MultiplexDestination;
 import org.easymock.classextension.EasyMock;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -317,5 +318,16 @@ public class JMSDestinationTest extends AbstractJMSTester {
         // wait for a while for the jms session recycling
         Thread.sleep(1000);
         destination.shutdown();
+    }
+    
+    @Test
+    public void testIsMultiplexCapable() throws Exception {
+        inMessage = null;
+        setupServiceInfo("http://cxf.apache.org/hello_world_jms", 
+                         "/wsdl/jms_test.wsdl", 
+                         "HelloWorldService", 
+                         "HelloWorldPort");
+        final JMSDestination destination = setupJMSDestination(true);
+        assertTrue("is multiplex", destination instanceof MultiplexDestination);
     }
 }

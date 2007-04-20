@@ -28,13 +28,19 @@ public interface AddressingProperties extends AddressingType {
      * Accessor for the <b>To</b> property.
      * @return current value of To property
      */
+    EndpointReferenceType getToEndpointReference();
+    
+    /**
+     * Accessor for the <b>To</b> property.
+     * @return current value of To property
+     */
     AttributedURIType getTo();
 
     /**
      * Mutator for the <b>To</b> property.
-     * @param iri new value for To property
+     * @param epr new value for To property
      */
-    void setTo(AttributedURIType iri);
+    void setTo(EndpointReferenceType epr);
 
     /**
      * Accessor for the <b>MessageID</b> property.

@@ -51,6 +51,7 @@ import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.Relationship;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -427,7 +428,8 @@ public class MAPCodecTest extends TestCase {
         maps.setMessageID(id);
         AttributedURIType to =
             ContextUtils.getAttributedURI("foobar");
-        maps.setTo(to);
+        EndpointReferenceType toEpr = EndpointReferenceUtils.getEndpointReference(to);
+        maps.setTo(toEpr);
         EndpointReferenceType replyTo = new EndpointReferenceType();
         String anonymous = 
             exposeAsNative

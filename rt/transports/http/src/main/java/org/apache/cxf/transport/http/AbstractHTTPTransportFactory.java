@@ -144,7 +144,7 @@ public abstract class AbstractHTTPTransportFactory
      * to calling getConduit without an EndpointReferenceType.
      */
     public Conduit getConduit(EndpointInfo endpointInfo) throws IOException {
-        return getConduit(endpointInfo, null);
+        return getConduit(endpointInfo, endpointInfo.getTarget());
     }
 
     /**

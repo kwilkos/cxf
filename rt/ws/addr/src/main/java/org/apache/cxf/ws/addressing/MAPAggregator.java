@@ -340,10 +340,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 }
                 EndpointReferenceType reference = conduit != null
                                                   ? conduit.getTarget()
-                                                  : null;
-                maps.setTo(reference != null 
-                           ? reference.getAddress()
-                           : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));                
+                                                  : ContextUtils.getNoneEndpointReference();
+                maps.setTo(reference);
             }
 
             // ReplyTo, set if null in MAPs or if set to a generic address
@@ -378,7 +376,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             maps.exposeAs(inMAPs.getNamespaceURI());
             // To taken from ReplyTo in incoming MAPs
             if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
-                maps.setTo(inMAPs.getReplyTo().getAddress());
+                maps.setTo(inMAPs.getReplyTo());
             }
             // RelatesTo taken from MessageID in incoming MAPs
             if (inMAPs.getMessageID() != null

@@ -30,7 +30,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.MAPAggregator;
@@ -124,14 +123,7 @@ public class RMOutInterceptorTest extends Assert {
     
     private AddressingPropertiesImpl createMAPs(String action, String to, String replyTo) {
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-        org.apache.cxf.ws.addressing.ObjectFactory factory = 
-            new org.apache.cxf.ws.addressing.ObjectFactory();
-        AttributedURIType uri = factory.createAttributedURIType();
-        uri.setValue(action);
-        maps.setAction(uri);
-        uri = factory.createAttributedURIType();
-        uri.setValue(to);
-        maps.setTo(uri);
+        maps.setTo(RMUtils.createReference(to));
         EndpointReferenceType epr = RMUtils.createReference(replyTo);
         maps.setReplyTo(epr);
         return maps;

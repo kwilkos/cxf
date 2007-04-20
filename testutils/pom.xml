@@ -362,10 +362,13 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/header_rpc_lit.wsdl</wsdl>
                                 </wsdlOption>
-				<wsdlOption>
-		                    <wsdl>${basedir}/src/main/resources/wsdl/any.wsdl</wsdl>
-                		</wsdlOption>
-		            </wsdlOptions>
+                                <wsdlOption>
+    	                            <wsdl>${basedir}/src/main/resources/wsdl/any.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/factory_pattern.wsdl</wsdl>
+                                </wsdlOption>
+    	                    </wsdlOptions>
                         </configuration>
                         <goals>
                             <goal>wsdl2java</goal>

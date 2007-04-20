@@ -32,7 +32,6 @@ import org.apache.cxf.transport.Destination;
 
 public class MessageImpl extends StringMapImpl implements Message {
     private Collection<Attachment> attachments;
-    private Destination destination;
     private Exchange exchange;
     private String id;
     private InterceptorChain interceptorChain;
@@ -52,7 +51,7 @@ public class MessageImpl extends StringMapImpl implements Message {
     }
     
     public Destination getDestination() {
-        return destination;
+        return get(Destination.class);
     }
 
     public Exchange getExchange() {
@@ -80,7 +79,7 @@ public class MessageImpl extends StringMapImpl implements Message {
     }
 
     public void setDestination(Destination d) {
-        this.destination = d;
+        put(Destination.class, d);
     }
 
     public void setExchange(Exchange e) {

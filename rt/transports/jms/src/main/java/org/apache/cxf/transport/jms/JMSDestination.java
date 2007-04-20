@@ -49,7 +49,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractConduit;
-import org.apache.cxf.transport.AbstractDestination;
+import org.apache.cxf.transport.AbstractMultiplexDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
@@ -59,7 +59,7 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 
 
-public class JMSDestination extends AbstractDestination implements Configurable, JMSTransport {
+public class JMSDestination extends AbstractMultiplexDestination implements Configurable, JMSTransport {
         
     protected static final String BASE_BEAN_NAME_SUFFIX = ".jms-destination-base";
 

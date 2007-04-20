@@ -217,14 +217,15 @@ public class Proxy {
                 public Conduit selectConduit(Message message) {
                     Conduit conduit = null;
                     EndpointInfo endpointInfo = getEndpoint().getEndpointInfo();
-                    String originalAddress = endpointInfo.getAddress();
+                    org.apache.cxf.ws.addressing.EndpointReferenceType original = 
+                        endpointInfo.getTarget();
                     try {
                         if (null != address) {
-                            endpointInfo.setAddress(address.getAddress().getValue());
+                            endpointInfo.setAddress(address);
                         }
                         conduit = super.selectConduit(message);
                     } finally {
-                        endpointInfo.setAddress(originalAddress);
+                        endpointInfo.setAddress(original);
                     }
                     return conduit;
                 }
