@@ -115,6 +115,8 @@ public class Base64Type extends Type {
 
         byte[] data = (byte[])object;
 
-        writer.writeValue(Base64Utility.encode(data));
+        if (data != null && data.length > 0) {
+            writer.writeValue(Base64Utility.encode(data));
+        }
     }
 }
