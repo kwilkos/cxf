@@ -34,6 +34,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 
 public class ColocInInterceptor extends AbstractPhaseInterceptor<Message> {
 //    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ColocInInterceptor.class);
@@ -51,7 +53,7 @@ public class ColocInInterceptor extends AbstractPhaseInterceptor<Message> {
         if (ex.isOneWay()) {
             return;
         }
-       
+
         Bus bus = ex.get(Bus.class);
         List<Phase> phases = new ArrayList<Phase>(bus.getExtension(PhaseManager.class).getOutPhases());
 
@@ -64,8 +66,14 @@ public class ColocInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
 
         //Initiate OutBound Processing
+        BindingOperationInfo boi = ex.get(BindingOperationInfo.class);
         Message outBound = ex.getOutMessage();
-        outBound.put(Message.INBOUND_MESSAGE, Boolean.FALSE);        
+        if (boi != null) {
+            outBound.put(MessageInfo.class, 
+                         boi.getOperationInfo().getOutput());
+        }
+
+        outBound.put(Message.INBOUND_MESSAGE, Boolean.FALSE);
         outBound.setInterceptorChain(chain);
         chain.doIntercept(outBound);
     }

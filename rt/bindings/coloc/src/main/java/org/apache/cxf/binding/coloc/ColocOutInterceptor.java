@@ -100,8 +100,14 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
             message.put(Message.WSDL_OPERATION, boi.getName());
             message.put(Message.WSDL_INTERFACE, boi.getBinding().getInterface().getName());
             invokeColocObserver(message, srv.getEndpoint(), bus);
-            invokeInboundChain(exchange, senderEndpoint);
+            if (!exchange.isOneWay()) {
+                invokeInboundChain(exchange, senderEndpoint);
+            }
         } else {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Operation:" + boi.getName() + " dispatched as remote call.");
+            }
+            
             message.put(COLOCATED, Boolean.FALSE);
         }
     }
@@ -111,7 +117,7 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
             colocObserver = new ColocMessageObserver(inboundEndpoint, bus);
         }
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.finest("Invoke on Coloc Observer.");
+            LOG.fine("Invoke on Coloc Observer.");
         }
 
         colocObserver.onMessage(outMsg);

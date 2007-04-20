@@ -38,6 +38,7 @@ import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 
@@ -66,6 +67,10 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         inMsg.put(COLOCATED, Boolean.TRUE);
         inMsg.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
         inMsg.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
+        OperationInfo oi = ex.get(OperationInfo.class);
+        if (oi != null) {
+            inMsg.put(MessageInfo.class, oi.getInput());
+        }
         ex.setInMessage(inMsg);
         inMsg.setExchange(ex);
         
@@ -80,7 +85,7 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         inMsg.setInterceptorChain(chain);
 
         chain.doIntercept(inMsg);
-        
+
         //Set Server OutBound Message onto InBound Exchange.
         setOutBoundMessage(ex, m.getExchange());
     }
@@ -103,9 +108,12 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         QName opName = (QName) m.get(Message.WSDL_OPERATION);
         BindingInfo bi = endpoint.getEndpointInfo().getBinding();
         BindingOperationInfo boi = bi.getOperation(opName);
+        if (boi != null && boi.isUnwrapped()) {
+            boi = boi.getWrappedOperation();
+        }
+        
         exchange.put(BindingInfo.class, bi);
         exchange.put(BindingOperationInfo.class, boi);
         exchange.put(OperationInfo.class, boi.getOperationInfo());
     }
-    
 }

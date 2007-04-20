@@ -19,7 +19,7 @@
 
 package org.apache.cxf.jaxws.interceptors;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
@@ -76,7 +76,8 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                     i++;
                 }
                 
-                objs = Arrays.asList((Object)wrapperType);
+                objs = new ArrayList<Object>(1);
+                objs.add(wrapperType);
                 message.setContent(List.class, objs);
             } catch (Exception ex) {
                 throw new Fault(ex);
