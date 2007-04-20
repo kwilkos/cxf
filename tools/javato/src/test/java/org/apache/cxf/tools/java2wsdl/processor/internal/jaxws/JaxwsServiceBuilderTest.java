@@ -92,7 +92,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     
 
     @Test
-    public void testDocLit() throws Exception {
+    public void testDocLitWrapped() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
         ServiceInfo service = builder.build();
         generator.setServiceModel(service);
@@ -103,6 +103,42 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass().getResource("expected/expected_hello_world_doc_lit.wsdl")
             .getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
+    }
+ 
+    @Test
+    //FIXME CXF-561: generated duplicate scheams because @RequestWrapper does not
+    //contain namespace
+    public void testDocWrappedWithLocalName() throws Exception {
+        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Stock.class);
+        ServiceInfo service = builder.build();
+
+        generator.setServiceModel(service);
+        File output = getOutputFile("doc_lit_wrapped_localName.wsdl");
+        assertNotNull(output);
+        generator.generate(output);
+        assertTrue(output.exists());
+
+        String expectedFile = this.getClass().getResource("expected/expected_doc_lit_wrapped_localName.wsdl")
+            .getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
+    }
+
+    @Test
+    //FIXME CXF-561: generated duplicate scheams because @RequestWrapper does not
+    //contain namespace
+    public void testDocWrappedNoWebParam() throws Exception {
+        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWithNoWebParam.class);
+        ServiceInfo service = builder.build();
+
+        generator.setServiceModel(service);
+        File output = getOutputFile("doc_lit_wrapped_no_webparam.wsdl");
+        assertNotNull(output);
+        generator.generate(output);
+        assertTrue(output.exists());
+
+        String expectedFile = this.getClass()
+            .getResource("expected/expected_doc_lit_wrapped_no_webparam.wsdl").getFile();
         assertFileEquals(expectedFile, output.getAbsolutePath());
     }
     
@@ -182,35 +218,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(file);
         assertTrue(output.exists());
 
-    }
-
-    // TODO:
-    @Test
-    @Ignore
-    public void testDocWrappedWithLocalName() throws Exception {
-        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Stock.class);
-        ServiceInfo service = builder.build();
-
-        generator.setServiceModel(service);
-        File file = getOutputFile("doc_lit_wrapped_localName.wsdl");
-        assertNotNull(output);
-        generator.generate(file);
-        assertTrue(output.exists());
-
-    }
-
-    // TODO:
-    @Test
-    @Ignore
-    public void testDocWrappedNoWebParam() throws Exception {
-        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWithNoWebParam.class);
-        ServiceInfo service = builder.build();
-
-        generator.setServiceModel(service);
-        File file = getOutputFile("doc_lit_wrapped_webparam.wsdl");
-        assertNotNull(output);
-        generator.generate(file);
-        assertTrue(output.exists());
     }
 
     @Test
