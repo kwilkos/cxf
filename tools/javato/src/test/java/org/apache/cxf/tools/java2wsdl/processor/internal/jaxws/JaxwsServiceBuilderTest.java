@@ -137,8 +137,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(output);
         assertTrue(output.exists());
 
-        String expectedFile = this.getClass()
-            .getResource("expected/expected_doc_lit_wrapped_no_webparam.wsdl").getFile();
+        //String expectedFile = this.getClass()
+        //    .getResource("expected/expected_doc_lit_wrapped_no_webparam.wsdl").getFile();
         //assertFileEquals(expectedFile, output.getAbsolutePath());
     }
     
