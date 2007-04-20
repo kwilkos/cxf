@@ -24,6 +24,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public abstract class AbstractGenerator<T> {
     private ServiceInfo service;
+    private boolean allowImports;
 
     public void setServiceModel(ServiceInfo s) {
         this.service = s;
@@ -31,6 +32,13 @@ public abstract class AbstractGenerator<T> {
 
     public ServiceInfo getServiceModel() {
         return this.service;
+    }
+    
+    public void setAllowImports(boolean b) {
+        allowImports = b;
+    }
+    public boolean allowImports() {
+        return allowImports;
     }
 
     public abstract T generate(File file);

@@ -46,6 +46,14 @@ java2wsdl -o hello.wsdl -t http://cxf.apache.org org.apache.hello_world_soap_htt
 		</associatedArgument>
 	    </option>
 	    
+        <option id="outputdir" maxOccurs="1">
+            <annotation>The directory in which the output files are placed</annotation>
+            <switch>d</switch>
+            <associatedArgument placement="afterSpace">
+                <annotation>output-directory</annotation>
+            </associatedArgument>
+        </option>
+            	    
 	    <option id="classpath" maxOccurs="1">
 		<annotation>
 		            Specify the SEI and types class search path of directories 
@@ -83,6 +91,14 @@ java2wsdl -o hello.wsdl -t http://cxf.apache.org org.apache.hello_world_soap_htt
 		    <annotation>service-name</annotation>
 		</associatedArgument>
 	    </option>
+	    
+	    <option id="createxsdimports" maxOccurs="1">
+		<annotation>
+		      Output schemas to separate files and use imports to load them instead of 
+		      inlining them into the wsdl.      
+		</annotation>
+		<switch>createxsdimports</switch>
+	    </option>	    
 	      
 	</optionGroup>
 

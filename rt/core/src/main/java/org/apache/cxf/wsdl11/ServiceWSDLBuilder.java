@@ -46,10 +46,16 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -70,6 +76,9 @@ public final class ServiceWSDLBuilder {
     private Map<String, String> ns2prefix;
     private Definition definition;
     private List<ServiceInfo> services;
+    private boolean useSchemaImports;
+    private String baseFileName;
+    private int xsdCount;
     
     public ServiceWSDLBuilder(List<ServiceInfo> services) {
         this.services = services;
@@ -78,8 +87,18 @@ public final class ServiceWSDLBuilder {
     public ServiceWSDLBuilder(ServiceInfo ... services) {
         this(Arrays.asList(services));
     }
-
+    public void setUseSchemaImports(boolean b) {
+        useSchemaImports = b;
+    }
+    public void setBaseFileName(String s) {
+        baseFileName = s;
+    }
+    
     public Definition build() throws WSDLException {
+        useSchemaImports = false;
+        return build(null);
+    }
+    public Definition build(Map<String, SchemaInfo> imports) throws WSDLException {
         try {
             definition = services.get(0).getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
         } catch (ClassCastException e) {
@@ -98,7 +117,7 @@ public final class ServiceWSDLBuilder {
             definition.setTargetNamespace(si.getTargetNamespace());
             addExtensibiltyElements(definition, getWSDL11Extensors(si));
             if (si.getSchemas() != null && si.getSchemas().size() > 0) {
-                buildTypes(si.getSchemas());
+                buildTypes(si.getSchemas(), imports);
             }
             for (ServiceInfo service : services) {
                 buildPortType(service.getInterface());
@@ -123,16 +142,47 @@ public final class ServiceWSDLBuilder {
         }
     }
 
-    protected void buildTypes(Collection<SchemaInfo> schemas) {
+    protected void buildTypes(Collection<SchemaInfo> schemas, Map<String, SchemaInfo> imports) {
         Types types = definition.createTypes();
+        
+        Document doc = null;
+        try {
+            doc = XMLUtils.newDocument();
+        } catch (ParserConfigurationException e) {
+            //should not happen
+        }
+        Element nd = XMLUtils.createElementNS(doc, new QName("http://www.w3.org/2001/XMLSchema",
+                                                             "schema"));
+        nd.setAttribute("xmlns", "http://www.w3.org/2001/XMLSchema");
+        doc.appendChild(nd);
+        
         for (SchemaInfo schemaInfo : schemas) {
+            if (!useSchemaImports) {
+                SchemaImpl schemaImpl = new SchemaImpl();
+                schemaImpl.setRequired(true);
+                schemaImpl.setElementType(WSDLConstants.SCHEMA_QNAME);
+                schemaImpl.setElement(schemaInfo.getElement());
+                types.addExtensibilityElement(schemaImpl);
+            } else {
+                //imports
+                String name = baseFileName + "_schema" + (++xsdCount) + ".xsd";
+                Element imp = XMLUtils.createElementNS(doc, 
+                                                       new QName("http://www.w3.org/2001/XMLSchema",
+                                                                  "import"));
+                imp.setAttribute("schemaLocation", name);
+                imp.setAttribute("namespace", schemaInfo.getNamespaceURI());
+                nd.appendChild(imp);
+                               
+                imports.put(name, schemaInfo);
+            }
+        }
+        if (useSchemaImports) {
             SchemaImpl schemaImpl = new SchemaImpl();
             schemaImpl.setRequired(true);
             schemaImpl.setElementType(WSDLConstants.SCHEMA_QNAME);
-            schemaImpl.setElement(schemaInfo.getElement());
+            schemaImpl.setElement(nd);
             types.addExtensibilityElement(schemaImpl);
         }
-        
         definition.setTypes(types);
     }
 

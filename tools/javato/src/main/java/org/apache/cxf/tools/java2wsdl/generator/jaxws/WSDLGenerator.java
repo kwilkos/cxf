@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.jaxws;
 
+import java.io.File;
+
 import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
@@ -72,9 +74,23 @@ public class WSDLGenerator {
     }
 
     private void preGenerate() {
-        Object obj = env.get(ToolConstants.CFG_OUTPUTFILE);
-        wsdlFile = obj == null ? "./" + wmodel.getServiceName() + ".wsdl" : (String)obj;
-        obj = env.get(ToolConstants.CFG_TNS);
+        String wsdl = (String)env.get(ToolConstants.CFG_OUTPUTFILE);
+        String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+        if (dir == null) {
+            dir = "./";
+        }
+        File dirFile = new File(dir);
+        if (wsdl == null) {
+            wsdlFile = new File(dirFile, wmodel.getServiceName() + ".wsdl").toString();
+        } else {
+            File f = new File(wsdl);
+            if (!f.isAbsolute()) {
+                f = new File(dirFile, wsdl);
+            }
+            wsdlFile = f.toString();
+        }
+        
+        Object obj = env.get(ToolConstants.CFG_TNS);
         String targetNameSpace;
         targetNameSpace = obj == null ? wmodel.getTargetNameSpace() : (String)obj;
         wmodel.setTargetNameSpace(targetNameSpace);

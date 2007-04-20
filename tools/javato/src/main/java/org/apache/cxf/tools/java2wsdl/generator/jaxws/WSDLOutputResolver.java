@@ -47,18 +47,32 @@ public class WSDLOutputResolver extends SchemaOutputResolver {
     }
 
     private File getFile(String filename) {
-        Object obj = env.get(ToolConstants.CFG_OUTPUTFILE);
-        String wsdlFile = obj == null ? "./" : (String)obj;
+        String wsdlFile = (String)env.get(ToolConstants.CFG_OUTPUTFILE);
+        String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+        if (dir == null) {
+            dir = "./";
+        }
+        File dirFile = new File(dir);
         File file = null;
+        
         if (wsdlFile != null) {
-            file = new File(wsdlFile);
-            if (file.isDirectory()) {
-                file = new File(file, filename);
+            dirFile = new File(wsdlFile);
+            if (dirFile.isAbsolute()) {
+                if (!dirFile.isDirectory()) {
+                    file = dirFile;
+                    dirFile = dirFile.getParentFile();
+                }
             } else {
-                file = new File(file.getParent(), filename);
+                file = new File(dir, wsdlFile);
+                dirFile = file.getParentFile();
             }
-        } else {
-            file = new File(".", filename);
+        }
+        if (!dirFile.exists()) {
+            dirFile.mkdirs();
+        }
+        
+        if (file == null) {
+            file = new File(dirFile, filename);
         }
         return file;
     }

@@ -64,12 +64,13 @@ public class JavaToProcessor implements Processor {
         ServiceInfo service = builder.build();
 
         File output = getOutputFile(builder.getOutputFile(),
-                                    new File(service.getName().getLocalPart() + ".wsdl"));
+                                    service.getName().getLocalPart() + ".wsdl");
 
         WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
         factory.setWSDLVersion(getWSDLVersion());
 
         AbstractGenerator generator = factory.newGenerator();
+        generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
         generator.setServiceModel(service);
         generator.generate(output);
     }
@@ -103,11 +104,21 @@ public class JavaToProcessor implements Processor {
         return true;
     }
 
-    protected File getOutputFile(File nameFromClz, File defaultOutputFile) {
-        File result = defaultOutputFile;
+    protected File getOutputFile(File nameFromClz, String defaultOutputFile) {
         String output = (String) context.get(ToolConstants.CFG_OUTPUTFILE);
+        String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
+        if (dir == null) {
+            dir = "./";
+        }
+        
+        File result;
         if (output != null) {
             result = new File(output);
+            if (!result.isAbsolute()) {
+                result = new File(new File(dir), output);
+            }
+        } else {
+            result = new File(new File(dir), defaultOutputFile);
         }
         if (nameFromClz != null) {
             result = nameFromClz;

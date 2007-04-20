@@ -56,6 +56,7 @@ public final class ToolConstants {
     public static final String CFG_DEFAULT_EX = "defaultex";
 
     public static final String CFG_VALIDATE_WSDL = "validate";
+    public static final String CFG_CREATE_XSD_IMPORTS = "createxsdimports";
     
     public static final String CFG_FRONTEND = "frontend";
     
