@@ -14,7 +14,7 @@ install the Apache ant 1.6 build utility.
 
 To build and run the demos provided in the Apache CXF binary
 distribution using either ant or wsdl2java, javac and java,
-you need to set the environment so that the file cxf-incubator.jar
+you need to set the environment so that the file cxf-manifest-incubator.jar
 is on the CLASSPATH and to insure that the JDK, ant and
 CXF_HOME/bin directories are on the PATH.
 
@@ -38,7 +38,7 @@ For UNIX:
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
   export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$CXF_HOME/bin:$PATH
-  export CLASSPATH=.:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
+  export CLASSPATH=.:$CXF_HOME/modules/cxf-manifest-incubator.jar:./build/classes
 
 For Windows:
   set CXF_HOME=C:\<installation_directory>\cxf
@@ -46,7 +46,7 @@ For Windows:
   set ANT_HOME=C:\<ant_installation_directory>\apache-ant-1.6.5
 
   set PATH=%JAVA_HOME%\bin;%ANT_HOME%\bin;%CXF_HOME%\bin;%PATH%
-  set CLASSPATH=.;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
+  set CLASSPATH=.;%CXF_HOME%\modules\cxf-manifest-incubator.jar;.\build\classes
 
 Save a copy of this script in CXF_HOME/samples.  Run the
 script prior to building and running the demos.

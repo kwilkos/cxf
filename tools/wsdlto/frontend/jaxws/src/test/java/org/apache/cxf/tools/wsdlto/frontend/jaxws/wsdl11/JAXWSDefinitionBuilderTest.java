@@ -200,4 +200,24 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
             .getJaxwsPara().getMessageName());
         assertEquals("customized parameter name does not parsered", "num1", binding.getJaxwsPara().getName());
     }
+
+    // tests the error case described in JIRA CXF-556
+    public void testCustomizationWhereURINotAnExactStringMatch() {
+        // set up a URI with ./../wsdl11/hello_world.wsdl instead of
+        // ./hello_world.wsdl 
+        env.put(ToolConstants.CFG_WSDLURL, 
+            getClass().getResource(".").toString() + "../wsdl11/hello_world.wsdl");
+        env.put(ToolConstants.CFG_BINDING, 
+            getClass().getResource("./cxf556_binding.xml").toString());
+
+        JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
+        builder.setContext(env);
+        builder.build();
+        
+        // this call will fail before CXF-556
+        builder.customize();
+
+        assertTrue(true);
+    }
+
 }

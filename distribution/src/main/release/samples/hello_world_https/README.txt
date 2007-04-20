@@ -12,7 +12,7 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes cxf-incubator.jar on the
+If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
 it is not necessary to run the environment script described in
 the samples directory README.  If your environment is not

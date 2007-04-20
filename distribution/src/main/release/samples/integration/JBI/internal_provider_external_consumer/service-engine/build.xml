@@ -27,8 +27,8 @@
 
   <property environment="env"/>  
   <path id="build.classpath">
-    <fileset dir="${env.CXF_HOME}/lib">
-      <include name="cxf-incubator.jar"/>
+    <fileset dir="${env.CXF_HOME}/modules">
+      <include name="cxf-manifest-incubator.jar"/>
     </fileset>
     <pathelement location="./build/classes"/>
   </path>

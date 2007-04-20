@@ -395,7 +395,12 @@ public final class CustomizationParser {
 
             }
 
-            if (wsdlURI.toString().equals(this.wsdlURL)) {
+            String normalizedURL = null;
+            if (this.wsdlURL != null) {
+                normalizedURL = URI.create(this.wsdlURL).normalize().toString();
+            }
+
+            if (wsdlURI.toString().equals(normalizedURL)) {
                 jaxwsBindings.add(root);
             } else {
                 String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);

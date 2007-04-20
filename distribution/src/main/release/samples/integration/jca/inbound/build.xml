@@ -114,7 +114,7 @@
     <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true" fork="yes">
       <include name="**/*.java"/>
       <classpath>
-	<pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
+	<pathelement location="${cxf.home}/modules/cxf-manifest-incubator.jar"/>
 	<pathelement location="${build.classes.dir}"/>
 	<!--path refid="cxf.classpath"/-->
 	<path refid="other.classpath"/>
@@ -171,7 +171,7 @@
 	<arg value="${wsdl.location}"/> 
 	<classpath> 
 	  <pathelement location="${build.classes.dir}"/>
-	  <pathelement path="${cxf.home}/lib/cxf-incubator.jar"/>
+	  <pathelement path="${cxf.home}/modules/cxf-manifest-incubator.jar"/>
 	</classpath>
       </java> 
     </target> 

@@ -252,7 +252,7 @@
     <target name="validate-tomcat">
 	<fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
 	
-	<available property="cxf.jars.present.in.tomcat" file="${env.CATALINA_HOME}/shared/lib/cxf-incubator.jar" type="file"/>
+	<available property="cxf.jars.present.in.tomcat" file="${env.CATALINA_HOME}/shared/modules/cxf-manifest-incubator.jar" type="file"/>
 	<fail unless="cxf.jars.present.in.tomcat" message="In order to run Apache CXF service under TOMCAT, 
 							   you MUST copy jars under ${cxf.home}/lib/ into ${env.CATALINA_HOME}/shared/lib/ first"/>
 	

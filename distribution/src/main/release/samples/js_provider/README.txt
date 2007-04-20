@@ -19,7 +19,7 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes cxf-incubator.jar on the
+If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
 it is not necessary to set the environment as described in
 the samples directory's README.  If your environment is not
@@ -75,13 +75,13 @@ Now compile both the generated code and the provided client
 application with the commands:
 
 For UNIX:
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/modules/cxf-manifest-incubator.jar:
 	$CXF_HOME/lib/js-1.6R5.jar:$CXF_HOME/lib/xbean-2.2.0.jar:
 	build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
 
 For Windows:
-  set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-incubator.jar;
+  set CLASSPATH=%CLASSPATH%;%CXF_HOME%\modules\cxf-manifest-incubator.jar;
 	%CXF_HOME%\lib\js-1.6R5.jar;%CXF_HOME%\lib\xbean-2.2.0.jar;
 	build\classes
   javac -d build\classes src\demo\hwDispatch\client\*.java

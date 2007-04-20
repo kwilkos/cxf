@@ -32,9 +32,9 @@ if not defined JAVA_HOME goto no_java_home
 
 set SUN_TOOL_PATH=%JAVA_HOME%\lib\tools.jar;
 
-if not exist "%CXF_HOME%\lib\cxf-incubator.jar" goto no_cxf_jar
+if not exist "%CXF_HOME%\modules\cxf-manifest-incubator.jar" goto no_cxf_jar
 
-set CXF_JAR=%CXF_HOME%\lib\cxf-incubator.jar
+set CXF_JAR=%CXF_HOME%\modules\cxf-manifest-incubator.jar
 
 "%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" org.apache.cxf.tools.misc.XSDToWSDL %*
 
@@ -43,7 +43,7 @@ set CXF_JAR=%CXF_HOME%\lib\cxf-incubator.jar
 goto end
 
 :no_cxf_jar
-echo ERROR: Unable to find cxf-incubator.jar in %cxf_home/lib
+echo ERROR: Unable to find cxf-manifest-incubator.jar in %cxf_home/modules
 goto end
 
 :no_java_home

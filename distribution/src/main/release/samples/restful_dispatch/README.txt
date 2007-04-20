@@ -56,7 +56,7 @@ continuing.
 Prerequisites
 ------------
 
-If your environment already includes cxf-incubator.jar on the
+If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
 it is not necessary to set the environment as described in
 the samples directory README.  If your environment is not
@@ -96,7 +96,7 @@ and server applications with the commands:
 For UNIX:  
   mkdir -p build/classes
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/modules/cxf-manifest-incubator.jar:./build/classes
   javac -d build/classes src/demo/restful/client/*.java
   javac -d build/classes src/demo/restful/server/*.java
 
@@ -104,7 +104,7 @@ For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\modules\cxf-manifest-incubator.jar;.\build\classes
   javac -d build\classes src\demo\restful\client\*.java
   javac -d build\classes src\demo\restful\server\*.java
 

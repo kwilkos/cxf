@@ -47,8 +47,8 @@
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java
             file="FaultServiceSOAP_HTTP.wsdl"
-            dir="${basedir}/../wsdl/transport/http"
-            package="ws.v1.tmf854.fault.http -p tmf854.v1=v1.tmf854.fault"
+            dir="${wsdl.dir}/transport/http"
+            package="tmf854.v1.ws=ws.v1.tmf854.fault.http -p tmf854.v1=v1.tmf854.fault"
             bindingfile="${basedir}/build/async_binding.xml"/>
     </target>
 </project>

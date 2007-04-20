@@ -51,7 +51,7 @@ public class StreamInterceptor extends AbstractPhaseInterceptor<Message> {
             CachedStream cs = new CachedStream();
             message.setContent(OutputStream.class, cs);
             
-            message.getInterceptorChain().doInterceptInSubChain(message);
+            message.getInterceptorChain().doIntercept(message);
 
             try {
                 cs.flush();
