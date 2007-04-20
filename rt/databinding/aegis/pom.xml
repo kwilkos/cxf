@@ -106,12 +106,12 @@
                     <groupId>dom4j</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>xerces</artifactId>
-                    <groupId>xmlParserAPIs</groupId>
+                    <artifactId>xmlParserAPIs</artifactId>
+                    <groupId>xerces</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>xerces</artifactId>
-                    <groupId>xercesImpl</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>xom</artifactId>

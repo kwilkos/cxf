@@ -94,11 +94,11 @@
 			<directory>target/additional-libs</directory>
 			<outputDirectory>cxf-${cxf.version}/modules</outputDirectory>
 			<includes>
-				<include>**/cxf-integration*</include>
+				<include>**/*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>target</directory>
+			<directory>manifest/target</directory>
 			<outputDirectory>cxf-${cxf.version}/modules</outputDirectory>
 			<includes>
 				<include>cxf-manifest-incubator.jar</include>
@@ -203,10 +203,7 @@
 		        <exclude>org.apache.cxf:cxf-rt-frontend-jaxws</exclude>
 		        <exclude>org.apache.cxf:cxf-rt-frontend-js</exclude>
 		        <exclude>org.apache.cxf:cxf-rt-frontend-simple</exclude>
-		        <exclude>org.apache.cxf:cxf-integration-jbi</exclude>
-		        <exclude>org.apache.cxf:cxf-integration-jca</exclude>
-		        <exclude>org.apache.cxf:cxf-distribution</exclude>
-		        <exclude>org.apache.cxf:cxf-bundle</exclude>
+		        <exclude>org.apache.cxf:cxf-distribution-bundle</exclude>
 		    </excludes>
 			<scope>runtime</scope>
 		</dependencySet>
@@ -245,12 +242,9 @@
 		        <include>org.apache.cxf:cxf-rt-frontend-jaxws</include>
 		        <include>org.apache.cxf:cxf-rt-frontend-js</include>
 		        <include>org.apache.cxf:cxf-rt-frontend-simple</include>
-		        <include>org.apache.cxf:cxf-integration-jbi</include>
-		        <include>org.apache.cxf:cxf-integration-jca</include>
 		    </includes>
 		    <excludes>
-		        <exclude>org.apache.cxf:cxf-distribution</exclude>
-		        <exclude>org.apache.cxf:cxf-bundle</exclude>
+		        <exclude>org.apache.cxf:cxf-distribution-bundle</exclude>
 		    </excludes>
 		    <scope>runtime</scope>
 		</dependencySet>
@@ -258,7 +252,7 @@
 		    <outputDirectory>cxf-${cxf.version}/</outputDirectory>
 		    <unpack>false</unpack>
 		    <includes>
-		        <include>org.apache.cxf:cxf-bundle</include>
+		        <include>org.apache.cxf:cxf-distribution-bundle</include>
 		    </includes>
 		    <scope>runtime</scope>
 		    <outputFileNameMapping>cxf-${version}.${extension}</outputFileNameMapping>
