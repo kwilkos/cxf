@@ -33,8 +33,9 @@ import org.junit.Test;
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
 public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
+    
     @Test
-    public void testUsernameToken() throws Exception {
+    public void testUsernameTokenText() throws Exception {
         SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
 
         WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
@@ -49,12 +50,42 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
         msg.put(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         msg.put(WSHandlerConstants.USER, "username");
         msg.put("password", "myAliasPassword");
+        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_TEXT);
         handler.handleMessage(msg);
 
         SOAPPart doc = saaj.getSOAPPart();
         assertValid("//wsse:Security", doc);
         assertValid("//wsse:Security/wsse:UsernameToken", doc);
         assertValid("//wsse:Security/wsse:UsernameToken/wsse:Username[text()='username']", doc);
+        // Test to see that the plaintext password is used in the header
+        assertValid("//wsse:Security/wsse:UsernameToken/wsse:Password[text()='myAliasPassword']", doc);
+    }
+    
+    @Test
+    public void testUsernameTokenDigest() throws Exception {
+        SOAPMessage saaj = readSAAJDocument("wsse-request-clean.xml");
+
+        WSS4JOutInterceptor handler = new WSS4JOutInterceptor();
+
+        SoapMessage msg = new SoapMessage(new MessageImpl());
+        Exchange ex = new ExchangeImpl();
+        ex.setInMessage(msg);
+
+        msg.setContent(SOAPMessage.class, saaj);
+
+        msg.put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN);
+        msg.put(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
+        msg.put(WSHandlerConstants.USER, "username");
+        msg.put("password", "myAliasPassword");
+        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PW_DIGEST);
+        handler.handleMessage(msg);
+
+        SOAPPart doc = saaj.getSOAPPart();
+        assertValid("//wsse:Security", doc);
+        assertValid("//wsse:Security/wsse:UsernameToken", doc);
+        assertValid("//wsse:Security/wsse:UsernameToken/wsse:Username[text()='username']", doc);
+        // Test to see that the password digest is used in the header
+        assertInvalid("//wsse:Security/wsse:UsernameToken/wsse:Password[text()='myAliasPassword']", doc);
     }
 
     @Test
@@ -74,7 +105,6 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
         msg.put(WSHandlerConstants.ENC_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         msg.put(WSHandlerConstants.USER, "myalias");
         msg.put("password", "myAliasPassword");
-        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
 
         handler.handleMessage(msg);
 
@@ -99,7 +129,6 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
         msg.put(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         msg.put(WSHandlerConstants.USER, "myAlias");
         msg.put("password", "myAliasPassword");
-        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
 
         handler.handleMessage(msg);
 
@@ -124,7 +153,6 @@ public class WSS4JOutInterceptorTest extends AbstractSecurityTest {
         handler.setProperty(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         msg.put(WSHandlerConstants.USER, "myalias");
         msg.put("password", "myAliasPassword");
-        handler.setProperty(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
 
         handler.handleMessage(msg);
 

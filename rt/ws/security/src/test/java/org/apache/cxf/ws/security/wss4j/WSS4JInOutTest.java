@@ -39,7 +39,6 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.junit.Test;
@@ -73,7 +72,6 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
         msg.put(WSHandlerConstants.SIG_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         msg.put(WSHandlerConstants.USER, "myalias");
         msg.put("password", "myAliasPassword");
-        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
 
         handler.handleMessage(msg);
 
@@ -136,7 +134,6 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
         msg.put(WSHandlerConstants.USER, "myalias");
         msg.put(WSHandlerConstants.SIG_KEY_ID, "DirectReference");
         msg.put("password", "myAliasPassword");
-        msg.put(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
 
         handler.handleMessage(msg);
 

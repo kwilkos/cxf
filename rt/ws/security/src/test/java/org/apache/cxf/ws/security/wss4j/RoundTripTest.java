@@ -27,7 +27,6 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.transport.local.LocalTransportFactory;
-import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +61,6 @@ public class RoundTripTest extends AbstractSecurityTest {
         wsOut.setProperty(WSHandlerConstants.ENC_PROP_FILE, "META-INF/cxf/outsecurity.properties");
         wsOut.setProperty(WSHandlerConstants.USER, "myalias");
         wsOut.setProperty("password", "myAliasPassword");
-        wsOut.setProperty(WSHandlerConstants.PASSWORD_TYPE, WSConstants.PASSWORD_TEXT);
         wsOut.setProperty(WSHandlerConstants.PW_CALLBACK_CLASS, TestPwdCallback.class.getName());
         service.getOutInterceptors().add(wsOut);
 
