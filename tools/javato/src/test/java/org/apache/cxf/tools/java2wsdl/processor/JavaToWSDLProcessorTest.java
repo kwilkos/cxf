@@ -53,6 +53,7 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToWSDLProcessorTest extends ProcessorTestBase {
@@ -485,5 +486,24 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, output.getCanonicalPath() + "/cxf188.wsdl");
         wj2Processor.setContext(env);
         wj2Processor.execute();
+    }
+
+    @Test
+    @Ignore
+    public void testHolder() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/holder.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.holder.HolderService");
+        j2wProcessor.setEnvironment(env);
+        try {
+            j2wProcessor.process();
+            File wsdlFile = new File(output, "holder.wsdl");
+            assertTrue(wsdlFile.exists());
+            assertTrue("WSDL file: " + wsdlFile.toString() + " is empty", wsdlFile.length() > 0);
+        } catch (ToolException e) {
+            String expected = "org.apache.cxf.tools.fortest.holder.HolderService";
+            assertTrue(e.getMessage().contains(expected));
+        } catch (Exception e) {
+            fail("Should not happen other exception " + e.getMessage());
+        }
     }
 }

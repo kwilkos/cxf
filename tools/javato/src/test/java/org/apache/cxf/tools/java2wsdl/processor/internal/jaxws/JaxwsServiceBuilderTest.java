@@ -143,6 +143,24 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
     
     @Test
+    //FIXME: CXF-564, generated wsdl is invalid -
+    //"invalid XML schema: "header" must refer to an existing element"
+    public void testHolder() throws Exception {
+        builder.setServiceClass(org.apache.cxf.tools.fortest.holder.HolderService.class);
+        ServiceInfo service = builder.build();
+
+        generator.setServiceModel(service);
+        File output = getOutputFile("holder.wsdl");
+        assertNotNull(output);
+        generator.generate(output);
+        assertTrue(output.exists());
+
+        String expectedFile = this.getClass()
+            .getResource("expected/expected_holder.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
+    }
+    
+    @Test
     public void testAsync() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
         ServiceInfo service = builder.build();
