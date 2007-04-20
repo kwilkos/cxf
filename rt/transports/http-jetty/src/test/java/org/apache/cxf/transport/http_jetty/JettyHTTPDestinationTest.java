@@ -531,8 +531,8 @@ public class JettyHTTPDestinationTest extends Assert {
         EasyMock.expectLastCall().andReturn(queryHandlerRegistry);
         queryHandlerRegistry.getHandlers();
         EasyMock.expectLastCall().andReturn(queryHandlerList);       
-        request.getRequestURI();
-        EasyMock.expectLastCall().andReturn("http://localhost/bar/foo");
+        request.getRequestURL();
+        EasyMock.expectLastCall().andReturn(new StringBuffer("http://localhost/bar/foo"));
         request.getPathInfo();
         EasyMock.expectLastCall().andReturn("/bar/foo");
         request.getQueryString();

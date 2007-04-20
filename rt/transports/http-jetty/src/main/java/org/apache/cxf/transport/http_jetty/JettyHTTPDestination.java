@@ -142,7 +142,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         }
         QueryHandlerRegistry queryHandlerRegistry = bus.getExtension(QueryHandlerRegistry.class);
         if (queryHandlerRegistry != null) { 
-            String requestURL = req.getRequestURI() + "?" + req.getQueryString();
+            String requestURL = req.getRequestURL() + "?" + req.getQueryString();
             String pathInfo = req.getPathInfo();
             for (QueryHandler qh : queryHandlerRegistry.getHandlers()) {
                 if (qh.isRecognizedQuery(requestURL, pathInfo, endpointInfo)) {
