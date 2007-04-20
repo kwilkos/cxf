@@ -35,6 +35,13 @@
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
+<xsd:element name="AddException">
+<xsd:complexType>
+<xsd:sequence>
+<xsd:element name="message" nillable="true" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
 </xsd:schema>
   </wsdl:types>
   <wsdl:message name="add">
@@ -46,7 +53,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="AddException">
-    <wsdl:part name="AddException">
+    <wsdl:part name="fault" element="ns1:AddException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="CalculatorPortType">

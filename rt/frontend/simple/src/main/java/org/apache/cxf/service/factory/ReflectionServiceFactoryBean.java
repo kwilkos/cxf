@@ -57,6 +57,7 @@ import org.apache.cxf.service.invoker.ApplicationScopePolicy;
 import org.apache.cxf.service.invoker.FactoryInvoker;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.invoker.LocalFactory;
+import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -350,7 +351,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             createMessageParts(intf, uOp, m);
             
             if (uOp.hasInput()) {
-                MessageInfo msg = new MessageInfo(op, uOp.getInput().getName());                
+                MessageInfo msg = new MessageInfo(op, uOp.getInput().getName());
                 op.setInput(uOp.getInputName(), msg);
                 
                 createInputWrappedMessageParts(uOp, m, msg);
@@ -374,6 +375,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
             
             for (FaultInfo fault : uOp.getFaults()) {
+                Class expClz = (Class) fault.getProperty(Class.class.getName());
+                if (Exception.class.isAssignableFrom(getBeanClass(expClz))) {
+                    QName name = uOp.getFault(fault.getFaultName()).getName();
+                    FaultInfo faultInfo = new FaultInfo(name, name, op);
+                    faultInfo.setProperty("unwrapped.fault.info", fault);
+                    faultInfo.setProperty(Class.class.getName(), fault.getProperty(Class.class.getName()));
+                    op.addFault(faultInfo);
+                    
+                    createFaultWrappedMessageParts(faultInfo);
+                }
                 for (MessagePartInfo p : fault.getMessageParts()) {
                     p.setConcreteName(p.getName());
                 }
@@ -419,13 +430,27 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             .getOutput(), wraperBeanName);
                     }
                 }
+                
+                if (!op.getFaults().isEmpty()) {
+                    for (FaultInfo faultInfo : op.getFaults()) {
+                        Class expClz = (Class) faultInfo.getProperty(Class.class.getName());
+                        if (Exception.class.isAssignableFrom(getBeanClass(expClz))) {
+                            createWrappedSchema(serviceInfo,
+                                                faultInfo,
+                                                (FaultInfo) faultInfo.getProperty("unwrapped.fault.info"),
+                                                faultInfo.getFaultName());
+                        }
+                    }
+                }                
             }
         }
 
     }
 
-    protected void createWrappedSchema(ServiceInfo serviceInfo, MessageInfo wrappedMessage,
-                                       MessageInfo unwrappedMessage, QName wraperBeanName) {
+    protected void createWrappedSchema(ServiceInfo serviceInfo,
+                                       AbstractMessageContainer wrappedMessage,
+                                       AbstractMessageContainer unwrappedMessage,
+                                       QName wraperBeanName) {
         SchemaInfo schemaInfo = null;
         for (SchemaInfo s : serviceInfo.getSchemas()) {
             if (s.getNamespaceURI().equals(wraperBeanName.getNamespaceURI())) {
@@ -556,8 +581,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         
     }
- 
-    private void createWrappedMessageSchema(MessageInfo wrappedMessage, MessageInfo unwrappedMessage,
+    
+    private void createWrappedMessageSchema(AbstractMessageContainer wrappedMessage,
+                                            AbstractMessageContainer unwrappedMessage,
                                             XmlSchema schema) {
         XmlSchemaElement el = new XmlSchemaElement();
         el.setQName(wrappedMessage.getName());
@@ -662,6 +688,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         initializeFaults(intf, op, method);
     }
 
+    protected void createFaultWrappedMessageParts(FaultInfo fault) {
+        MessagePartInfo part = fault.addMessagePart("fault");
+        part.setElement(true);
+        if (part.getElementQName() == null) {
+            part.setElementQName(fault.getFaultName());
+        }
+    }
+        
     protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
         MessagePartInfo part = inMsg.addMessagePart(op.getInputName());
         part.setElement(true);
@@ -905,12 +939,21 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected FaultInfo addFault(final InterfaceInfo service, final OperationInfo op, Class exClass) {
         Class beanClass = getBeanClass(exClass);
-        
+
         QName faultName = getFaultName(service, op, exClass, beanClass);
         FaultInfo fi = op.addFault(faultName, faultName);
         fi.setProperty(Class.class.getName(), exClass);
+
         
         MessagePartInfo mpi = fi.addMessagePart(faultName);
+
+        if (Exception.class.isAssignableFrom(beanClass)) {
+            beanClass = String.class;
+            mpi.setName(new QName(faultName.getNamespaceURI(), "message"));
+            mpi.setTypeQName(new QName("http://www.w3.org/2001/XMLSchema", "string"));
+            fi.setProperty("unwrapped.fault.info", fi);
+        }
+        
         mpi.setTypeClass(beanClass);
         
         return fi;
