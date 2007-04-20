@@ -17,19 +17,11 @@
   specific language governing permissions and limitations
   under the License.
 -->
+<extensions xmlns="http://cxf.apache.org/bus/extension">
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:foo="http://cxf.apache.org/configuration/foo"
-       xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <extension class="org.apache.cxf.binding.http.HttpBindingFactory" 
+      interface="org.apache.cxf.binding.BindingFactory" deferred="true">
+        <namespace>http://apache.org/cxf/binding/http</namespace>
+    </extension>
     
-    <bean class="org.apache.cxf.binding.http.HttpBindingFactory" lazy-init="true">
-        <property name="activationNamespaces">
-            <set>
-                <value>http://apache.org/cxf/binding/http</value>
-            </set>
-        </property>
-	<property name="bus" ref="cxf"/>
-    </bean>
-</beans>
+</extensions>

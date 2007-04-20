@@ -86,16 +86,16 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         if (getBindingConfig() instanceof JaxWsSoapBindingConfiguration) {
             JaxWsSoapBindingConfiguration conf = (JaxWsSoapBindingConfiguration)getBindingConfig();
             
-            if (jaxBid.equals(binding.equals(SOAPBinding.SOAP12HTTP_BINDING))) {
+            if (jaxBid.equals(SOAPBinding.SOAP12HTTP_BINDING)) {
                 conf.setVersion(Soap12.getInstance());
             }
             
-            if (jaxBid.equals(binding.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING))) {
+            if (jaxBid.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING)) {
                 conf.setVersion(Soap12.getInstance());
                 conf.setMtomEnabled(true);
             }
             
-            if (jaxBid.equals(binding.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING))) {
+            if (jaxBid.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
                 conf.setMtomEnabled(true);
             }
             
