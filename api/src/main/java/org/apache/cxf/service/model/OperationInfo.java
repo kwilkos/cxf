@@ -151,7 +151,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
      *
      * @param fault the fault.
      */
-    synchronized void addFault(FaultInfo fault) {
+    public synchronized void addFault(FaultInfo fault) {
         if (faults == null) { 
             faults = new ConcurrentHashMap<QName, FaultInfo>(4);
         }

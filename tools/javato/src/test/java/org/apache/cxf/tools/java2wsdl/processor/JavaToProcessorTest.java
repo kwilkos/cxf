@@ -70,11 +70,14 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     @Test
     public void testCalculator() throws Exception {
         ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator_rpc.wsdl");
+        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator.wsdl");
         context.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
         processor.setEnvironment(context);
         processor.process();
+
+        String expectedFile = getClass().getResource("expected/calculator.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "calculator.wsdl"));
 
         // Test for CXF-337
         // FIXME - check for existence and correctness of faults
@@ -115,7 +118,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
     }
 
-    // FIXME CXF-534
     @Test
     public void testSOAP12() throws Exception {
         ToolContext context = new ToolContext();

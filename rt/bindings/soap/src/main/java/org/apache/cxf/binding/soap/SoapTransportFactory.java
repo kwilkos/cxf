@@ -40,6 +40,7 @@ import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -48,6 +49,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapFault;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -108,6 +110,12 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
             bi.addExtensor(soapBinding);
 
             for (BindingOperationInfo b : bi.getOperations()) {
+                for (BindingFaultInfo faultInfo : b.getFaults()) {
+                    SoapFault soapFault = SOAPBindingUtil.createSoapFault(extensionRegistry, isSoap12);
+                    soapFault.setUse("literal");
+                    soapFault.setName(faultInfo.getFaultInfo().getFaultName().getLocalPart());
+                    faultInfo.addExtensor(soapFault);
+                }
                 SoapOperationInfo soi = b.getExtensor(SoapOperationInfo.class);
                 
                 SoapOperation soapOperation = SOAPBindingUtil.createSoapOperation(extensionRegistry,

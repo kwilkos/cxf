@@ -160,6 +160,7 @@
         <soap:body use="literal"/>
       </wsdl:output>
       <wsdl:fault name="faultDetail">
+        <soap:fault name="faultDetail" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
