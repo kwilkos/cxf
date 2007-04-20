@@ -759,10 +759,18 @@ public class HTTPConduit
         HttpURLConnection connection = 
             (HttpURLConnection)message.get(KEY_HTTP_CONNECTION);
 
-        String ct = (String) message.get(Message.CONTENT_TYPE);
+        String ct  = (String) message.get(Message.CONTENT_TYPE);
+        String enc = (String) message.get(Message.ENCODING);
+        
         if (null != ct) {
+            if (enc != null && ct.indexOf("charset=") == -1) {
+                ct = ct + "; charset=" + enc;
+            }
             connection.setRequestProperty(
                     HttpHeaderHelper.CONTENT_TYPE, ct);
+        } else if (enc != null) {
+            connection.setRequestProperty(
+                    HttpHeaderHelper.CONTENT_TYPE, "text/xml; charset=" + enc);
         } else {
             connection.setRequestProperty(
                     HttpHeaderHelper.CONTENT_TYPE, "text/xml");
