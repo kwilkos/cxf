@@ -37,18 +37,30 @@ import org.springframework.beans.factory.xml.ParserContext;
 public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     @Override
+    protected String getSuffix() {
+        return ".jaxws-client";
+    }
+
+    @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder clientBean) {
         
         BeanDefinitionBuilder bean = BeanDefinitionBuilder.rootBeanDefinition(JaxWsProxyFactoryBean.class);
 
         NamedNodeMap atts = element.getAttributes();
         String id = null;
+        boolean createdFromAPI = false;
+        
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
             String pre = node.getPrefix();
             String name = node.getLocalName();
-            if (!"id".equals(name) && isAttribute(pre, name)) {
+            
+            if ("createdFromAPI".equals(name)) {
+                bean.setAbstract(true);
+                clientBean.setAbstract(true);
+                createdFromAPI = true;
+            } else if (!"id".equals(name) && isAttribute(pre, name)) {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
@@ -73,7 +85,8 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
                     Map map = ctx.getDelegate().parseMapElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue("properties", map);
                 } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
-                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)) {
+                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
+                    || "features".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue(n.getLocalName(), list);
                 } else {
@@ -81,8 +94,11 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
                 }
             }
         }
+        if (createdFromAPI) {
+            id = id + getSuffix();
+        }
+        String factoryId = id + ".proxyFactory";
         
-        String factoryId = id + ".jaxwsProxyFactory";
         ctx.getRegistry().registerBeanDefinition(factoryId, bean.getBeanDefinition());
         
         clientBean.getBeanDefinition().setAttribute("id", id);

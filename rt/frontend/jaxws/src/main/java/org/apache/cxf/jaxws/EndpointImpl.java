@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws;
 
 import java.security.AccessController;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,13 +42,13 @@ import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.jaxws.context.WebServiceContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
-import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
@@ -84,6 +85,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private QName endpointName;
     private QName serviceName;
     
+    private List<AbstractFeature> features;
     private List<Interceptor> in = new CopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> out = new CopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> outFault  = new CopyOnWriteArrayList<Interceptor>();
@@ -91,30 +93,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public EndpointImpl(Object implementor) {
         this(BusFactory.getDefaultBus(), implementor);
-    }
-    
-    @Deprecated
-    public EndpointImpl(Bus b, Object implementor, JaxWsServiceFactoryBean serviceFactory) {
-        this(b, implementor, serviceFactory, null);
-    }
-    
-    /**
-     * If you're using this method you should switch to passing in a JaxWsServerFactoryBean
-     * or using the new getters/setters on EndpointImpl before our next release.
-     * @param b
-     * @param implementor
-     * @param serviceFactory
-     * @param bindingUri
-     */
-    @Deprecated
-    public EndpointImpl(Bus b, Object implementor, 
-                        JaxWsServiceFactoryBean serviceFactory, String bindingUri) {
-        this.bus = b;
-        this.bindingUri = bindingUri;
-        this.serverFactory = new JaxWsServerFactoryBean(serviceFactory);
-        this.implementor = implementor;
-        
-        doInit = true;
     }
    
     public EndpointImpl(Bus b, Object implementor, 
@@ -246,7 +224,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     
     public String getBeanName() {
-        return endpointName.toString();
+        return endpointName.toString() + ".jaxws-endpoint";
     }
 
     protected void checkProperties() {
@@ -281,6 +259,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         serverFactory.setEndpointName(endpointName);
         serverFactory.setServiceBean(implementor);
         serverFactory.setBus(bus);
+        serverFactory.setFeatures(features);
         
         // Be careful not to override any serverfactory settings as a user might
         // have supplied their own.
@@ -451,6 +430,17 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public void setOutFaultInterceptors(List<Interceptor> interceptors) {
         outFault = interceptors;
+    }
+
+    public List<AbstractFeature> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<AbstractFeature> features) {
+        if (features == null) {
+            features = new ArrayList<AbstractFeature>();
+        }
+        this.features = features;
     }
     
     /*

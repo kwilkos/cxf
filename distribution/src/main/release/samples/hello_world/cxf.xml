@@ -16,7 +16,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     </bean>
 
     <jaxws:endpoint id="{http://apache.org/hello_world_soap_http}SoapPort"
-		abstract="true">
+		createdFromAPI="true">
 		<jaxws:properties>
 			<entry key="schema-validation-enabled" value="true" />
 		</jaxws:properties>

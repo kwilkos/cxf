@@ -27,7 +27,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.xsd
 http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 
-    <jaxws:endpoint id="{http://apache.org/schema_validation}SoapPort" abstract="true">
+    <jaxws:endpoint id="{http://apache.org/schema_validation}SoapPort" createdFromAPI="true">
 		<jaxws:properties>
 			<entry key="schema-validation-enabled" value="true" />
 		</jaxws:properties>

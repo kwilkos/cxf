@@ -18,10 +18,12 @@
  */
 package org.apache.cxf.frontend;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
@@ -37,6 +39,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -47,7 +50,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
-import org.apache.cxf.ws.AbstractWSFeature;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
@@ -64,7 +66,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private ReflectionServiceFactoryBean serviceFactory;
     private QName endpointName;
     private Map<String, Object> properties;
-    private List<AbstractWSFeature> features;
+    private List<AbstractFeature> features;
     private BindingConfiguration bindingConfig;
     private EndpointReferenceType endpointReference;
     private ConduitSelector conduitSelector;
@@ -335,11 +337,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         this.properties = properties;
     }
 
-    public List<AbstractWSFeature> getFeatures() {
+    public List<AbstractFeature> getFeatures() {
+        if (features == null) {
+            features = new ArrayList<AbstractFeature>();
+        }
         return features;
     }
 
-    public void setFeatures(List<AbstractWSFeature> features) {
+    public void setFeatures(List<AbstractFeature> features) {
         this.features = features;
     }
 

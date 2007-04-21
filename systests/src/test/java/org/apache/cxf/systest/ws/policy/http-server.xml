@@ -31,7 +31,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     
     <jaxws:endpoint 
         id="{http://cxf.apache.org/greeter_control}GreeterPort" 
-        abstract="true"
+        createdFromAPI="true"
         wsdlLocation="org/apache/cxf/systest/ws/policy/http_server_greeter.wsdl"/>
         
     <!--<jaxws:endpoint 

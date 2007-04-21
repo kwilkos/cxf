@@ -33,6 +33,8 @@ public interface PolicyEngine {
 
     boolean isEnabled();
     
+    void setEnabled(boolean e);
+    
     // available throughout the outbound path
     
     EffectivePolicy getEffectiveClientRequestPolicy(EndpointInfo ei, BindingOperationInfo boi, Conduit c);

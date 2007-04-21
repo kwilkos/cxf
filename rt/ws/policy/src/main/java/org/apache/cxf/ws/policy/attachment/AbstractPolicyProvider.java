@@ -29,6 +29,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.cxf.ws.policy.PolicyProvider;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.neethi.Policy;
@@ -38,7 +39,7 @@ import org.apache.neethi.PolicyRegistry;
 /**
  * 
  */
-public class AbstractPolicyProvider {
+public abstract class AbstractPolicyProvider implements PolicyProvider {
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AbstractPolicyProvider.class);
     

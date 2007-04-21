@@ -25,11 +25,11 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.ws.AbstractWSFeature;
 
 /**
  * This class helps take a {@link org.apache.cxf.service.Service} and 
@@ -109,8 +109,8 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
 
     protected void applyFeatures() {
         if (getFeatures() != null) {
-            for (AbstractWSFeature feature : getFeatures()) {
-                feature.initialize(server);
+            for (AbstractFeature feature : getFeatures()) {
+                feature.initialize(server, getBus());
             }
         }
     }

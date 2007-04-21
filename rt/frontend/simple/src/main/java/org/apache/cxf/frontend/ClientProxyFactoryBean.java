@@ -19,7 +19,9 @@
 package org.apache.cxf.frontend;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
@@ -28,6 +30,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 
@@ -50,6 +53,7 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     private String password;
     private Map<String, Object> properties;
     private Bus bus;
+    private List<AbstractFeature> features;
     
     public ClientProxyFactoryBean() {
         super();
@@ -68,6 +72,7 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
             properties.put(AuthorizationPolicy.class.getName(), authPolicy);
         }
         
+        clientFactoryBean.setFeatures(features);
         clientFactoryBean.setProperties(properties);
         
         if (bus != null) {
@@ -189,4 +194,16 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
+
+    public List<AbstractFeature> getFeatures() {
+        if (features == null) {
+            features = new ArrayList<AbstractFeature>();
+        }
+        return features;
+    }
+
+    public void setFeatures(List<AbstractFeature> features) {
+        this.features = features;
+    }
+    
 }

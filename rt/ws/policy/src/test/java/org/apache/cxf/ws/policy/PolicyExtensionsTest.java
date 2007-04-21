@@ -30,6 +30,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.ws.policy.attachment.ServiceModelPolicyProvider;
 import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilder;
 import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilderRegistry;
 import org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider;
@@ -84,18 +85,22 @@ public class PolicyExtensionsTest extends Assert {
             assertNotNull(engine.getRegistry());
             
             Collection<PolicyProvider> pps = engine.getPolicyProviders();
-            assertEquals(2, pps.size());
+            assertEquals(3, pps.size());
             boolean wsdlProvider = false;
             boolean externalProvider = false;
+            boolean serviceProvider = false;
             for (PolicyProvider pp : pps) {
                 if (pp instanceof Wsdl11AttachmentPolicyProvider) {
                     wsdlProvider = true;
                 } else if (pp instanceof ExternalAttachmentProvider) {
                     externalProvider = true;
+                } else if (pp instanceof ServiceModelPolicyProvider) {
+                    serviceProvider = true;
                 }
             }
             assertTrue(wsdlProvider);
             assertTrue(externalProvider);
+            assertTrue(serviceProvider);
             
             
             PolicyBuilder builder = bus.getExtension(PolicyBuilder.class);

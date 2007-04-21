@@ -45,11 +45,16 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
+            String name = node.getLocalName();
             
-            if (IMPLEMENTOR.equals(node.getLocalName())) {
+            if ("createdFromAPI".equals(name)) {
+                bean.setAbstract(true);
+            } else if (IMPLEMENTOR.equals(name)) {
                 loadImplementor(bean, val);
+            } else if ("abstract".equals(name)) {
+                bean.setAbstract(true);
             } else {
-                mapToProperty(bean, node.getLocalName(), val);
+                mapToProperty(bean, name, val);
             }
         }
         
@@ -68,7 +73,8 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
                 } else if ("binding".equals(n.getLocalName())) {
                     setFirstChildAsProperty((Element) n, ctx, bean, "bindingConfig");
                 }  else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
-                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)) {
+                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
+                    || "features".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue(n.getLocalName(), list);
                 } else {

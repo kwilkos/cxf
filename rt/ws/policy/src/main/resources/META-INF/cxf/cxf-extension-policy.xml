@@ -63,5 +63,9 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean class="org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider">
         <constructor-arg ref="cxf"/>
     </bean>
+        
+    <bean class="org.apache.cxf.ws.policy.attachment.ServiceModelPolicyProvider">
+        <constructor-arg ref="cxf"/>
+    </bean>
     
 </beans>

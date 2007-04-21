@@ -57,7 +57,8 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     private PolicyRegistry registry;
     private Collection<PolicyProvider> policyProviders;
     private boolean enabled;
-
+    private boolean addedBusInterceptors;
+    
     private Map<BindingOperation, EffectivePolicy> clientRequestInfo;
     
     private Map<BindingOperation, EffectivePolicy> clientResponseInfo;
@@ -106,8 +107,12 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         return registry;
     }
 
-    public void setEnabled(boolean e) {
+    public synchronized void setEnabled(boolean e) {
         enabled = e;
+        
+        if (!addedBusInterceptors) {
+            addBusInterceptors();
+        }
     }
     
     // BusExtension interface
@@ -326,6 +331,8 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         PolicyVerificationInFaultInterceptor verifyInFault = new PolicyVerificationInFaultInterceptor();
         verifyInFault.setBus(bus);
         bus.getInFaultInterceptors().add(verifyInFault);
+        
+        addedBusInterceptors = true;
     }  
     
     Policy getAggregatedServicePolicy(ServiceInfo si) {
@@ -334,7 +341,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             Policy p = pp.getEffectivePolicy(si);
             if (null == aggregated) {
                 aggregated = p;
-            } else {
+            } else if (p != null) {
                 aggregated = aggregated.merge(p);
             }
         }
@@ -347,7 +354,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             Policy p = pp.getEffectivePolicy(ei);
             if (null == aggregated) {
                 aggregated = p;
-            } else {
+            } else if (p != null) {
                 aggregated = aggregated.merge(p);
             }
         }
@@ -360,7 +367,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             Policy p = pp.getEffectivePolicy(boi);
             if (null == aggregated) {
                 aggregated = p;
-            } else {
+            } else if (p != null) {
                 aggregated = aggregated.merge(p);
             }
         }
@@ -373,7 +380,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             Policy p = pp.getEffectivePolicy(bmi);
             if (null == aggregated) {
                 aggregated = p;
-            } else {
+            } else if (p != null) {
                 aggregated = aggregated.merge(p);
             }
         }
@@ -386,7 +393,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             Policy p = pp.getEffectivePolicy(bfi);
             if (null == aggregated) {
                 aggregated = p;
-            } else {
+            } else if (p != null) {
                 aggregated = aggregated.merge(p);
             }
         }

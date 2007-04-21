@@ -43,8 +43,12 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
     private static final String IMPLEMENTOR = "implementor";
 
     @Override
-    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+    protected String getSuffix() {
+        return ".jaxws-endpoint";
+    }
 
+    @Override
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         NamedNodeMap atts = element.getAttributes();
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
@@ -52,7 +56,9 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
             String pre = node.getPrefix();
             String name = node.getLocalName();
 
-            if (isAttribute(pre, name) && !"publish".equals(name)) {
+            if ("createdFromAPI".equals(name)) {
+                bean.setAbstract(true);
+            } else if (isAttribute(pre, name) && !"publish".equals(name)) {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
@@ -75,14 +81,15 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                     Map map = ctx.getDelegate().parseMapElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue("properties", map);
                 } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
-                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)) {
+                    || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
+                    || "features".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
-                    bean.addPropertyValue(n.getLocalName(), list);
+                    bean.addPropertyValue(name, list);
                 } else if (IMPLEMENTOR.equals(name)) {
                     ctx.getDelegate()
                         .parseConstructorArgElement(getFirstChild(element), bean.getBeanDefinition());
                 } else {
-                    setFirstChildAsProperty((Element) n, ctx, bean, n.getLocalName());
+                    setFirstChildAsProperty((Element) n, ctx, bean, name);
                 }
             }
         }

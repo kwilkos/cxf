@@ -16,22 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.ws;
+package org.apache.cxf.feature;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.interceptor.InterceptorProvider;
 
-public abstract class AbstractWSFeature {
-    public void initialize(Server server) {
-        
+public abstract class AbstractFeature {
+    public void initialize(Server server, Bus bus) {
+        initializeProvider(server.getEndpoint(), bus);
     }
     
-    public void initialize(Client client) {
-        
+    public void initialize(Client client, Bus bus) {
+        initializeProvider(client, bus);
     }
     
     public void initialize(Bus bus) {
+        initializeProvider(bus, bus);
+    }
+    
+    protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         
     }
 }

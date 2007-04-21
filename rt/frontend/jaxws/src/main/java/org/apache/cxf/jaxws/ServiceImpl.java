@@ -302,7 +302,7 @@ public class ServiceImpl extends ServiceDelegate {
             clientFac.setBindingId(portInfo.getBindingID());
             clientFac.setAddress(portInfo.getAddress());
         }
-        configureObject(portName.toString() + ".jaxwsProxyFactory", proxyFac);
+        configureObject(portName.toString() + ".jaxws-client.proxyFactory", proxyFac);
         
         Object obj = proxyFac.create();
         

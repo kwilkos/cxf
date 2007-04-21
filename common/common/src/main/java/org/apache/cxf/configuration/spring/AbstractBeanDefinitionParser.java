@@ -29,8 +29,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
@@ -38,6 +40,23 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
 
 public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    @Override
+    protected String resolveId(Element el, AbstractBeanDefinition arg1, 
+                               ParserContext arg2) throws BeanDefinitionStoreException {
+        String id = el.getAttribute("id");
+        String createdFromAPI = el.getAttribute("createdFromAPI");
+        
+        if (createdFromAPI != null && "true".equals(createdFromAPI.toLowerCase())) {
+            return id + getSuffix();
+        }
+        
+        return super.resolveId(el, arg1, arg2);
+    }
+
+    protected String getSuffix() {
+        return "";
+    }
 
     protected void setFirstChildAsProperty(Element element, ParserContext ctx, 
                                          BeanDefinitionBuilder bean, String propertyName) {
@@ -58,9 +77,23 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         String id;
         BeanDefinition child;
         if (first.getNamespaceURI().equals(BeanDefinitionParserDelegate.BEANS_NAMESPACE_URI)) {
-            BeanDefinitionHolder bdh = ctx.getDelegate().parseBeanDefinitionElement(first);
-            child = bdh.getBeanDefinition();
-            id = bdh.getBeanName();
+            String name = first.getLocalName();
+            if ("ref".equals(name)) {
+                id = first.getAttribute("bean");
+                if (id == null) {
+                    throw new IllegalStateException("<ref> elements must have a \"bean\" attribute!");
+                }
+                return id;
+            } else if ("bean".equals(name)) {
+                BeanDefinitionHolder bdh = ctx.getDelegate().parseBeanDefinitionElement(first);
+                child = bdh.getBeanDefinition();
+                id = bdh.getBeanName();
+            } else {
+                throw new UnsupportedOperationException("Elements with the name " + name  
+                                                        + " are not currently "
+                                                        + "supported as sub elements of " 
+                                                        + element.getLocalName());
+            }
             
         } else {
             child = ctx.getDelegate().parseCustomElement(first, bean.getBeanDefinition());

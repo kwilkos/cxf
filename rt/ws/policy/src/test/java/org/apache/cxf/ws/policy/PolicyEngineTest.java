@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.phase.PhaseInterceptor;
@@ -73,7 +74,8 @@ public class PolicyEngineTest extends Assert {
         assertNull(engine.getBus());
         assertNull(engine.getPolicyProviders()); 
         assertTrue(!engine.isEnabled());
-        Bus bus = control.createMock(Bus.class);
+        Bus bus = new CXFBusImpl();
+        
         engine.setBus(bus);
         List<PolicyProvider> providers = CastUtils.cast(Collections.EMPTY_LIST, PolicyProvider.class);
         engine.setPolicyProviders(providers);

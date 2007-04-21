@@ -142,7 +142,7 @@ public class SpringBeansTest extends Assert {
         ClassPathXmlApplicationContext ctx = 
             new ClassPathXmlApplicationContext(new String[] {"/org/apache/cxf/jaxws/spring/clients.xml"});
 
-        Object bean = ctx.getBean("client1.jaxwsProxyFactory");
+        Object bean = ctx.getBean("client1.proxyFactory");
         assertNotNull(bean);
         
         Greeter greeter = (Greeter) ctx.getBean("client1");
