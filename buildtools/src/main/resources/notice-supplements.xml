@@ -86,7 +86,7 @@
       <artifactId>xalan</artifactId>
       <name>Apache Xalan-Java</name>
       <organization>
-        <name>Apache Software Foundation</name>
+        <name>The Apache Software Foundation</name>
         <url>http://www.apache.org</url>
       </organization>
       <licenses>
@@ -110,7 +110,7 @@
       <artifactId>wss4j</artifactId>
       <name>Apache WSS4J</name>
       <organization>
-        <name>Apache Software Foundation</name>
+        <name>The Apache Software Foundation</name>
         <url>http://www.apache.org</url>
       </organization>
       <licenses>
@@ -144,7 +144,7 @@
       <artifactId>xmlsec</artifactId>
       <name>XML Security</name>
       <organization>
-        <name>Apache Software Foundation</name>
+        <name>The Apache Software Foundation</name>
         <url>http://www.apache.org</url>
       </organization>
       <licenses>
@@ -161,7 +161,7 @@
       <artifactId>xml-apis</artifactId>
       <name>XML APIs</name>
       <organization>
-        <name>Apache Software Foundation</name>
+        <name>The Apache Software Foundation</name>
         <url>http://www.apache.org</url>
       </organization>
       <licenses>
@@ -185,6 +185,40 @@
         <license>
           <name>Bouncy Castle License</name>
           <url>http://www.bouncycastle.org/licence.html</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+  <supplement>
+    <project>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <name>Apache Ant</name>
+      <organization>
+        <name>The Apache Software Foundation</name>
+        <url>http://www.apache.org</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>The Apache Software License, Version 2.0</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+  <supplement>
+    <project>
+      <groupId>ant</groupId>
+      <artifactId>ant-nodeps</artifactId>
+      <name>Apache Ant (nodeps)</name>
+      <organization>
+        <name>The Apache Software Foundation</name>
+        <url>http://www.apache.org</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>The Apache Software License, Version 2.0</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
       </licenses>
     </project>

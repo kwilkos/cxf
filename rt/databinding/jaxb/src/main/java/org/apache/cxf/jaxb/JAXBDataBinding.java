@@ -249,7 +249,7 @@ public final class JAXBDataBinding implements DataBinding {
     
         }
         try {
-            setContext(createJAXBContext(classes));
+            setContext(createJAXBContext(classes, service.getName().getNamespaceURI()));
         } catch (JAXBException e1) {
             throw new ServiceConstructionException(e1);
         }
@@ -337,8 +337,12 @@ public final class JAXBDataBinding implements DataBinding {
     }
     
 
-
     public static JAXBContext createJAXBContext(Set<Class<?>> classes) throws JAXBException {
+        return createJAXBContext(classes, null);
+    }
+    
+    public static JAXBContext createJAXBContext(Set<Class<?>> classes,
+                                                   String defaultNs) throws JAXBException {
         Iterator it = classes.iterator();
         String className = "";
         Object remoteExceptionObject = null;
@@ -350,6 +354,13 @@ public final class JAXBDataBinding implements DataBinding {
             }
         }
 
+        for (Class<?> cls : classes) {
+            if (cls.getName().endsWith("ObjectFactory")) {
+                //kind of a hack, but ObjectFactories may be created with empty namespaces
+                defaultNs = null;
+            }
+        }
+        
         try {
             classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
             classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
@@ -360,7 +371,12 @@ public final class JAXBDataBinding implements DataBinding {
             // context?
         }
        
-        return JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (defaultNs != null) {
+            map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
+        }
+        
+        return JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
     }
 
 }
