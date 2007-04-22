@@ -25,6 +25,8 @@ import java.util.Collection;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.ws.addressing.MAPAggregator;
+import org.apache.cxf.ws.addressing.soap.MAPCodec;
 import org.apache.cxf.ws.policy.PolicyInterceptorProvider;
 
 /**
@@ -36,6 +38,8 @@ public class AddressingPolicyInterceptorProvider  extends AbstractAttributedInte
     implements PolicyInterceptorProvider {
 
     private static final Collection<QName> ASSERTION_TYPES;
+    private static final MAPAggregator MAP_AGGREGATOR = new MAPAggregator();
+    private static final MAPCodec MAP_CODEC = new MAPCodec();
     
     static {
         Collection<QName> types = new ArrayList<QName>();
@@ -45,6 +49,21 @@ public class AddressingPolicyInterceptorProvider  extends AbstractAttributedInte
         ASSERTION_TYPES = types;
     }
     
+    public AddressingPolicyInterceptorProvider() {
+        super();
+        getInInterceptors().add(MAP_AGGREGATOR);
+        getInInterceptors().add(MAP_CODEC);
+        
+        getOutInterceptors().add(MAP_AGGREGATOR);
+        getOutInterceptors().add(MAP_CODEC);
+        
+        getInFaultInterceptors().add(MAP_AGGREGATOR);
+        getInFaultInterceptors().add(MAP_CODEC);
+        
+        getOutFaultInterceptors().add(MAP_AGGREGATOR);
+        getOutFaultInterceptors().add(MAP_CODEC);
+    }
+
     public Collection<QName> getAssertionTypes() {
         return ASSERTION_TYPES;
     }

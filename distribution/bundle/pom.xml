@@ -277,9 +277,6 @@
 							  <transformer implementation="org.codehaus.mojo.shade.resource.XmlAppendingTransformer">
 							    <resource>META-INF/bus-extensions.xml</resource>
 							  </transformer>
-							  <transformer implementation="org.codehaus.mojo.shade.resource.XmlAppendingTransformer">
-							    <resource>META-INF/cxf/cxf-property-editors.xml</resource>
-							  </transformer>
 							  <transformer implementation="org.apache.cxf.maven.PluginTransformer">
 							    <resource>META-INF/tools-plugin.xml</resource>
 							  </transformer>

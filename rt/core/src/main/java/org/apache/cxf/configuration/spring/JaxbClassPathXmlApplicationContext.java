@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -43,6 +44,7 @@ public class JaxbClassPathXmlApplicationContext extends ClassPathXmlApplicationC
     private static final Logger LOG = LogUtils.getL7dLogger(JaxbClassPathXmlApplicationContext.class);
     
     String[] cfgFileLocations;
+    private DefaultNamespaceHandlerResolver nsHandlerResolver;
     
     public JaxbClassPathXmlApplicationContext(String location) throws BeansException {
         super(new String[]{location});
@@ -66,12 +68,19 @@ public class JaxbClassPathXmlApplicationContext extends ClassPathXmlApplicationC
     
     @Override
     protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
+        // Spring always creates a new one of these, which takes a fair amount
+        // of time on startup (nearly 1/2 second) as it gets created for every
+        // spring context on the classpath
+        if (nsHandlerResolver == null) {
+            nsHandlerResolver = new DefaultNamespaceHandlerResolver();
+        }
+        reader.setNamespaceHandlerResolver(nsHandlerResolver);
+        
         reader.setDocumentReaderClass(JaxbBeanDefinitionDocumentReader.class);
         // TODO: check why VALIDATION_XSD complains about mixed content in
         // value elements - this should be legal according to the xsd
         reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
         reader.setNamespaceAware(true);  
-              
     }
     
     @Override

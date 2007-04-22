@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.neethi.Assertion;
@@ -44,6 +45,7 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxbAssertionBuilder.class);
     private Unmarshaller unmarshaller;
     private Collection<QName> supportedTypes;
+    private Class<T> type;
     
     /**
      * Constructs a JAXBAssertionBuilder from the QName of the schema type
@@ -76,12 +78,31 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     * @throws ClassNotFoundException
     */
     public JaxbAssertionBuilder(Class<T> type, QName qn) throws JAXBException {
-
-        JAXBContext context = JAXBContext.newInstance(type.getPackage().getName());
-        unmarshaller = context.createUnmarshaller();
+        this.type = type;
         supportedTypes = Collections.singletonList(qn);
     }
        
+    protected Unmarshaller getUnmarshaller() {
+        if (unmarshaller == null) {
+            try {
+                createUnmarhsaller();
+            } catch (JAXBException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+        return unmarshaller;
+    }
+    
+    protected synchronized void createUnmarhsaller()  throws JAXBException {
+        if (unmarshaller != null) {
+            return;
+        }
+        
+        JAXBContext context = JAXBContext.newInstance(PackageUtils.getPackageName(type), 
+                                                      type.getClassLoader());
+        unmarshaller = context.createUnmarshaller();
+    }
     
     public Assertion build(Element element) {
         QName name = new QName(element.getNamespaceURI(), element.getLocalName());
@@ -127,7 +148,7 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     protected T getData(Element element) {
         Object obj = null;
         try {
-            obj = unmarshaller.unmarshal(element);
+            obj = getUnmarshaller().unmarshal(element);
         } catch (JAXBException ex) {
             LogUtils.log(LOG, Level.SEVERE, "UNMARSHAL_ELEMENT_EXC", ex);
         }

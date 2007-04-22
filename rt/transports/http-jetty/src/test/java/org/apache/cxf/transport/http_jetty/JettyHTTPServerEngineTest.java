@@ -39,13 +39,16 @@ public class JettyHTTPServerEngineTest extends Assert {
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
+        
+        Configurer configurer = new ConfigurerImpl(); 
+        
+        bus.getExtension(Configurer.class);                        
+        EasyMock.expectLastCall().andReturn(configurer).anyTimes();    
+        control.replay();   
     }
     
     @Test
     public void testEngineEquality() {
-
-        setUpConfigurer(null);
-        
         JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234);
         assertTrue("Engine references for the same port should point to the same instance",
                    engine == JettyHTTPServerEngine.getForPort(bus, "http", 1234));
@@ -57,9 +60,6 @@ public class JettyHTTPServerEngineTest extends Assert {
     
     @Test
     public void testNoSSLServerPolicySet() {
-        
-        setUpConfigurer(null);
-        
         JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234);
         assertFalse("SSLServerPolicy must not be set", engine.isSetSslServer());
         engine = JettyHTTPServerEngine.getForPort(bus, "http", 1235, null);
@@ -74,9 +74,6 @@ public class JettyHTTPServerEngineTest extends Assert {
     
     @Test
     public void testDestinationSSLServerPolicy() {
-        
-        setUpConfigurer(null);
-        
         SSLServerPolicy policy = new SSLServerPolicy();
         JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234, 
                                                                         policy);
@@ -90,25 +87,5 @@ public class JettyHTTPServerEngineTest extends Assert {
         
         JettyHTTPServerEngine.destroyForPort(1234);
     }
-    
-    @Test
-    public void testSSLServerPolicySetFromConfig() {
-        
-        setUpConfigurer("/org/apache/cxf/transport/http_jetty/cxfcfg.xml");
-        
-        JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234);
-        assertTrue("SSLServerPolicy must be set", engine.isSetSslServer());
-        
-        JettyHTTPServerEngine.destroyForPort(1234);
-    }
-    
-    private void setUpConfigurer(String cxfFile) {
-        Configurer configurer = cxfFile == null 
-                                ? new ConfigurerImpl() : new ConfigurerImpl(cxfFile); 
-                                
-                                
-        bus.getExtension(Configurer.class);                        
-        EasyMock.expectLastCall().andReturn(configurer).anyTimes();    
-        control.replay();   
-    }
+
 }

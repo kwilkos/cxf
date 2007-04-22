@@ -44,8 +44,7 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     
     private static final String DEFAULT_CXF_CFG_FILE = "META-INF/cxf/cxf.xml";
     private static final String DEFAULT_CXF_EXT_CFG_FILE = "classpath*:META-INF/cxf/cxf.extension";
-    private static final String CXF_PROPERTY_EDITORS_CFG_FILE = 
-        "classpath*:META-INF/cxf/cxf-property-editors.xml";
+
     private static final Logger LOG = LogUtils.getL7dLogger(BusApplicationContext.class);
     
     private boolean includeDefaults;
@@ -61,7 +60,7 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     }
 
     BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
-        super((String[])null, parent, false);
+        super((String[])null, parent);
         cfgFile = cf;
         includeDefaults = include;
     }
@@ -83,7 +82,6 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
                     .currentThread().getContextClassLoader());
                 
                 Collections.addAll(resources, resolver.getResources(DEFAULT_CXF_CFG_FILE));
-                Collections.addAll(resources, resolver.getResources(CXF_PROPERTY_EDITORS_CFG_FILE));
 
                 Resource[] exts = resolver.getResources(DEFAULT_CXF_EXT_CFG_FILE);
                 for (Resource r : exts) {
@@ -149,6 +147,5 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
         res = resources.toArray(res);
         return res;
     }
-
 
 }

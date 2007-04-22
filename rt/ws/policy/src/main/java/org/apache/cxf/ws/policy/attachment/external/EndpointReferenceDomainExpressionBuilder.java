@@ -50,13 +50,7 @@ public class EndpointReferenceDomainExpressionBuilder implements DomainExpressio
     private Unmarshaller unmarshaller;
     
     EndpointReferenceDomainExpressionBuilder() {
-        try {
-            JAXBContext context = JAXBContext.newInstance(EndpointReferenceType.class.getPackage().getName());
-            unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException ex) {
-            throw new PolicyException(new Message("EPR_DOMAIN_EXPRESSION_BUILDER_INIT_EXC", BUNDLE, 
-                                                  (Object[])null), ex);
-        }
+
     }  
     
     public Collection<QName> getDomainExpressionTypes() {
@@ -66,7 +60,7 @@ public class EndpointReferenceDomainExpressionBuilder implements DomainExpressio
     public DomainExpression build(Element e) {
         Object obj = null;
         try {
-            obj = unmarshaller.unmarshal(e);
+            obj = getUnmarshaller().unmarshal(e);
         } catch (JAXBException ex) {
             throw new PolicyException(new Message("EPR_DOMAIN_EXPRESSION_BUILD_EXC", BUNDLE, 
                                                   (Object[])null), ex);
@@ -81,5 +75,25 @@ public class EndpointReferenceDomainExpressionBuilder implements DomainExpressio
         return eprde;
     }
 
+    protected Unmarshaller getUnmarshaller() {
+        if (unmarshaller == null) {
+            createUnmarshaller();
+        }
+        
+        return unmarshaller;
+    }
     
+    protected synchronized void createUnmarshaller() {
+        if (unmarshaller != null) {
+            return;
+        }
+        
+        try {
+            JAXBContext context = JAXBContext.newInstance(EndpointReferenceType.class.getPackage().getName());
+            unmarshaller = context.createUnmarshaller();
+        } catch (JAXBException ex) {
+            throw new PolicyException(new Message("EPR_DOMAIN_EXPRESSION_BUILDER_INIT_EXC", BUNDLE, 
+                                                  (Object[])null), ex);
+        }
+    }
 }

@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
-
 import java.util.List;
 
 import javax.wsdl.Definition;
@@ -32,7 +31,6 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
@@ -40,8 +38,6 @@ import junit.framework.TestCase;
 import org.apache.cxf.abc.test.AnotherPolicyType;
 import org.apache.cxf.abc.test.NewServiceType;
 import org.apache.cxf.abc.test.TestPolicyType;
-
-import org.apache.cxf.common.util.PackageUtils;
 
 public class JAXBExtensionHelperTest extends TestCase {
 
@@ -135,9 +131,7 @@ public class JAXBExtensionHelperTest extends TestCase {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        JAXBContext context = JAXBContext.newInstance(PackageUtils.getPackageName(NewServiceType.class),
-                                                      NewServiceType.class.getClassLoader());
-        JAXBExtensionHelper helper = new JAXBExtensionHelper(context, NewServiceType.class);
+        JAXBExtensionHelper helper = new JAXBExtensionHelper(NewServiceType.class);
         helper.marshall(javax.wsdl.Definition.class,
                         new QName("http://cxf.apache.org/test/hello_world", "newService"),
                         newService,

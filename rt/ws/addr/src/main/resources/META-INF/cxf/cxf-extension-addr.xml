@@ -26,34 +26,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <constructor-arg ref="cxf"/>
     </bean>
 
-    <bean class="org.apache.cxf.ws.addressing.MAPAggregator"/>
-    <bean class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-    
-    <bean class="org.apache.cxf.ws.addressing.policy.AddressingPolicyInterceptorProvider">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.addressing.MAPAggregator"/>
-                <ref bean="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-                <ref bean="org.apache.cxf.ws.addressing.MAPAggregator"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.addressing.MAPAggregator"/>
-                <ref bean="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.addressing.MAPAggregator"/>
-                <ref bean="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-            </list>
-        </property>
-    </bean>
+    <bean class="org.apache.cxf.ws.addressing.policy.AddressingPolicyInterceptorProvider"/>
  
 </beans>

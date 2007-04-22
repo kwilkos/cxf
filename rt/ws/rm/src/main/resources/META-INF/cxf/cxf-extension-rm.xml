@@ -26,50 +26,9 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
         <property name="bus" ref="cxf"/>
     </bean>
-    
-    <!-- global definition of interceptors, may need to switch qualified names -->
-    
-    <bean class="org.apache.cxf.ws.rm.RMOutInterceptor">
-        <property name="bus" ref="cxf"/>
-    </bean>
-    <bean class="org.apache.cxf.ws.rm.RMInInterceptor">
-        <property name="bus" ref="cxf"/>
-    </bean>    
-    <bean class="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
-    
-    <bean class="org.apache.cxf.ws.policy.PolicyInterceptorProviderImpl">
-        <constructor-arg>
-            <list>
-                <bean class="javax.xml.namespace.QName">
-                    <constructor-arg value="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"/>
-                    <constructor-arg value="RMAssertion"/>
-                </bean>
-            </list>
-        </constructor-arg>
-        <property name="inInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.rm.RMInInterceptor"/>
-                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.rm.RMInInterceptor"/>
-                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.rm.RMOutInterceptor"/>
-                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="org.apache.cxf.ws.rm.RMOutInterceptor"/>
-                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
-            </list>
-        </property>
+
+    <bean class="org.apache.cxf.ws.rm.policy.RMPolicyInterceptorProvider">
+     	<constructor-arg><ref bean="cxf"/></constructor-arg>
     </bean>
     
     <bean id="org.apache.cxf.ws.rm.RMAssertionBuilder" class="org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertionBuilder">
@@ -82,4 +41,28 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </constructor-arg>
     </bean>
     
+    <bean id="org.apache.cxf.ws.rm.customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="propertyEditorRegistrars">
+            <list>
+                <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
+                    <property name="packageName" value="org.apache.cxf.ws.rm.manager"/>
+                    <property name="propertyClassNames">
+                        <list>
+                            <value>SourcePolicyType</value>
+                            <value>DestinationPolicyType</value>
+                            <value>DeliveryAssuranceType</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
+                    <property name="packageName" value="org.apache.cxf.ws.rm.policy"/>
+                    <property name="propertyClassNames">
+                        <list>
+                            <value>RMAssertion</value>
+                        </list>
+                    </property>
+                </bean>
+           </list>
+        </property>
+    </bean>
 </beans>

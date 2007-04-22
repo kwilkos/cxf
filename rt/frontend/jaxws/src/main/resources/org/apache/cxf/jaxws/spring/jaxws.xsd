@@ -26,6 +26,7 @@
             <xsd:element name="properties" type="beans:mapType" minOccurs="0"/>
             <xsd:element name="serviceFactory" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
+          <xsd:attribute name="abstract" type="xsd:boolean" />
           <xsd:attribute name="address" type="xsd:string" />
           <xsd:attribute name="createdFromAPI" type="xsd:string" />
           <xsd:attribute name="bindingUri" type="xsd:string" />
@@ -58,6 +59,7 @@
             <xsd:element name="serviceBean" type="xsd:anyType" minOccurs="0"/>
             <xsd:element name="serviceFactory" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
+          <xsd:attribute name="abstract" type="xsd:boolean" />
           <xsd:attribute name="address" type="xsd:string" />
           <xsd:attribute name="bus" type="xsd:string" />
           <xsd:attribute name="createdFromAPI" type="xsd:string" />
@@ -85,6 +87,7 @@
             <xsd:element name="properties" type="beans:mapType" minOccurs="0"/>
             <xsd:element name="conduitSelector" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
+          <xsd:attribute name="abstract" type="xsd:boolean" />
           <xsd:attribute name="address" type="xsd:string" />
           <xsd:attribute name="bindingUri" type="xsd:string" />
           <xsd:attribute name="bus" type="xsd:string" />

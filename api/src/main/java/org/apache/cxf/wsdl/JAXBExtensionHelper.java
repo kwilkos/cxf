@@ -50,11 +50,10 @@ import org.apache.cxf.common.util.PackageUtils;
  *
  */
 public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeserializer {
-    final JAXBContext context;
+    JAXBContext context;
     final Class<? extends TExtensibilityElementImpl> typeClass;
       
-    public JAXBExtensionHelper(JAXBContext c, Class<? extends TExtensibilityElementImpl> cls) {
-        context = c;
+    public JAXBExtensionHelper(Class<? extends TExtensibilityElementImpl> cls) {
         typeClass = cls;
     }
     
@@ -71,8 +70,7 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
                                      Class<?> parentType,
                                      Class<? extends TExtensibilityElementImpl> cls) throws JAXBException {
         
-        JAXBContext context = JAXBContext.newInstance(PackageUtils.getPackageName(cls), cls.getClassLoader());
-        JAXBExtensionHelper helper = new JAXBExtensionHelper(context, cls);
+        JAXBExtensionHelper helper = new JAXBExtensionHelper(cls);
         
         try {
             Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(cls) + ".ObjectFactory");
@@ -102,6 +100,26 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
         }        
     }
 
+    protected JAXBContext getJAXBContext() {
+        if (context == null) {
+            try {
+                createJAXBContext();
+            } catch (JAXBException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return context;
+    }
+    
+    protected synchronized void createJAXBContext() throws JAXBException {
+        if (context != null) {
+            return;
+        }
+        
+        context = JAXBContext.newInstance(PackageUtils.getPackageName(typeClass), 
+                                          typeClass.getClassLoader());
+    }
+    
     /* (non-Javadoc)
      * @see javax.wsdl.extensions.ExtensionSerializer#marshall(java.lang.Class,
      *  javax.xml.namespace.QName, javax.wsdl.extensions.ExtensibilityElement,
@@ -111,7 +129,7 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
                          final Definition wsdl, ExtensionRegistry registry) throws WSDLException {
         // TODO Auto-generated method stub
         try {
-            Marshaller u = context.createMarshaller();
+            Marshaller u = getJAXBContext().createMarshaller();
             u.setProperty("jaxb.encoding", "UTF-8");
             u.setProperty("jaxb.fragment", Boolean.TRUE);
             u.setProperty("jaxb.formatted.output", Boolean.TRUE);
@@ -171,7 +189,7 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
     public ExtensibilityElement unmarshall(Class parent, QName qname, Element element, Definition wsdl,
                                            ExtensionRegistry registry) throws WSDLException {
         try {
-            Unmarshaller u = context.createUnmarshaller();
+            Unmarshaller u = getJAXBContext().createUnmarshaller();
         
             Object o = u.unmarshal(element);
             if (o instanceof JAXBElement<?>) {
