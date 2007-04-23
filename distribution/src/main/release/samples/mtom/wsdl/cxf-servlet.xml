@@ -30,6 +30,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
         id="mtom"
         implementor="demo.mtom.server.TestMtomImpl"
         wsdlLocation="WEB-INF/wsdl/mtom_xop.wsdl"
-        address="/services/mtom" />
+        address="/mtom" />
 
 </beans>
