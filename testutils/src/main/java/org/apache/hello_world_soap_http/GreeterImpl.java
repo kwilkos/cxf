@@ -63,8 +63,11 @@ public class GreeterImpl implements Greeter {
 
     public String greetMe(String me) {
         if ("secure".equals(me)) {
-            MessageContext ctx = context.getMessageContext();
+            MessageContext ctx = getContext().getMessageContext();
             return "Hello " + ctx.get(BindingProvider.USERNAME_PROPERTY);
+        }
+        if ("principal".equals(me)) {
+            return "Hello " + getContext().getUserPrincipal().getName();
         }
         
         

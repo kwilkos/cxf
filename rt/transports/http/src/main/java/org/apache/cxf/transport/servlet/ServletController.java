@@ -21,6 +21,7 @@ package org.apache.cxf.transport.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Set;
 import java.util.logging.Level;
@@ -34,6 +35,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.https.SSLUtils;
@@ -160,7 +162,7 @@ public class ServletController {
         res.getWriter().write("<html><body>No service was found.</body></html>");
     }
 
-    public void invokeDestination(HttpServletRequest request, HttpServletResponse response,
+    public void invokeDestination(final HttpServletRequest request, HttpServletResponse response,
                                   ServletDestination d) throws ServletException {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Service http request on thread: " + Thread.currentThread());
@@ -175,6 +177,14 @@ public class ServletController {
             inMessage.put(Message.PATH_INFO, request.getPathInfo());
             inMessage.put(Message.QUERY_STRING, request.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, request.getContentType());
+            inMessage.put(SecurityContext.class, new SecurityContext() {
+                public Principal getUserPrincipal() {
+                    return request.getUserPrincipal();
+                }
+                public boolean isUserInRole(String role) {
+                    return request.isUserInRole(role);
+                }
+            });
             
             // work around a bug with Jetty which results in the character
             // encoding not being trimmed correctly.

@@ -24,6 +24,8 @@ import java.security.Principal;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.security.SecurityContext;
+
 
 public class WebServiceContextImpl implements WebServiceContext {
 
@@ -43,11 +45,19 @@ public class WebServiceContextImpl implements WebServiceContext {
     }
 
     public final Principal getUserPrincipal() {
-        return null;
+        SecurityContext ctx = (SecurityContext)getMessageContext().get(SecurityContext.class.getName());
+        if (ctx == null) {
+            return null;
+        }
+        return ctx.getUserPrincipal();
     }
 
-    public final boolean isUserInRole(final String string) {
-        return false;
+    public final boolean isUserInRole(final String role) {
+        SecurityContext ctx = (SecurityContext)getMessageContext().get(SecurityContext.class.getName());
+        if (ctx == null) {
+            return false;
+        }
+        return ctx.isUserInRole(role);
     }
     
     //  TODO JAX-WS 2.1

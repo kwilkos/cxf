@@ -21,6 +21,7 @@ package org.apache.cxf.transport.http_jetty;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -181,6 +183,15 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             }
             inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE);
+            inMessage.put(SecurityContext.class, new SecurityContext() {
+                public Principal getUserPrincipal() {
+                    return req.getUserPrincipal();
+                }
+                public boolean isUserInRole(String role) {
+                    return req.isUserInRole(role);
+                }
+            });
+            
             setHeaders(inMessage);
             inMessage.setDestination(this);
             
