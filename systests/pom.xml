@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-systests</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-incubator-RC-SNAPSHOT</version>
+    <version>2.0-incubator-RC</version>
     <name>Apache CXF System Tests</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0-incubator-RC-SNAPSHOT</version>
+        <version>2.0-incubator-RC</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -330,8 +330,9 @@
     </profiles>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/systests</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/systests</developerConnection>
-    </scm>
+        <connection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator-RC</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator-RC</developerConnection>
+      <url>https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator-RC</url>
+  </scm>
 
 </project>
