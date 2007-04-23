@@ -206,6 +206,11 @@
             <artifactId>cxf-bundle</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <version>1.0-RC1</version>
+        </dependency>
     </dependencies>
 
     <build>
