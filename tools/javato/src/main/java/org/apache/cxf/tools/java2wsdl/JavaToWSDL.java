@@ -16,92 +16,75 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.tools.java2wsdl;
 
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.List;
 
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.tools.common.AbstractCXFToolContainer;
-import org.apache.cxf.tools.common.Processor;
-import org.apache.cxf.tools.common.ToolConstants;
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.toolspec.ToolRunner;
-import org.apache.cxf.tools.common.toolspec.ToolSpec;
-import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
-import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
-import org.apache.cxf.tools.java2wsdl.processor.JavaToProcessor;
-import org.apache.cxf.tools.util.AnnotationUtil;
 
-public class JavaToWSDL extends AbstractCXFToolContainer {
-   
-    private static final String TOOL_NAME = "java2wsdl";
+public class JavaToWSDL {
 
-    public JavaToWSDL(ToolSpec toolspec) throws Exception {
-        super(TOOL_NAME, toolspec);
+    private String[] args;
+
+    public JavaToWSDL() {
+        args = new String[0];
     }
 
-    public void execute(boolean exitOnFinish) throws ToolException {
-        Processor processor = null;
+    public JavaToWSDL(String pargs[]) {
+        args = pargs;
+    }
 
+    public static void main(String[] args) {
+        JavaToWSDL j2w = new JavaToWSDL(args);
         try {
-            super.execute(exitOnFinish);
-            if (!hasInfoOption()) {
-                ToolContext env = new ToolContext();
-                env.setParameters(getParametersMap(new HashSet()));
-                if (isVerboseOn()) {
-                    env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
-                }
-
-                processor = new JavaToProcessor();
-
-                processor.setEnvironment(env);
-                processor.process();
-            }
-        } catch (ToolException ex) {            
-            if (ex.getCause() instanceof BadUsageException) {
-                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
-                if (isVerboseOn()) {
-                    ex.printStackTrace();
-                }
-            }
-            throw ex;
+            j2w.run();
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
-            if (isVerboseOn()) {
+            if (j2w.isVerbose()) {
                 ex.printStackTrace();
             }
-            
-            throw new ToolException(ex.getMessage(), ex.getCause());
-        }
-    }
-
-    public Class getServiceClass(ToolContext context) {
-        return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME),
-                                        getClass().getClassLoader());
-    }
-
-    public static void main(String[] pargs) { 
-        try {
-            runTool(pargs);
-        } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
-            System.err.println();
-            ex.printStackTrace();
+            if (j2w.isExitOnFinish()) {
+                System.exit(1);
+            }
         }
     }
     
-    public static void runTool(String[] pargs) throws Exception {
-        ToolRunner.runTool(JavaToWSDL.class, JavaToWSDL.class
-                .getResourceAsStream("java2wsdl.xml"), false, pargs);
+    private boolean isVerbose() {
+        return isSet(new String[]{"-V", "-verbose"});
+    }
+    
+    private boolean isSet(String[] keys) {
+        if (args == null) {
+            return false;
+        }
+        List<String> pargs = Arrays.asList(args);
+        
+        for (String key : keys) {
+            if (pargs.contains(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private void run() throws Exception {
+        ToolRunner.runTool(JavaToWSDLContainer.class, JavaToWSDLContainer.class
+                           .getResourceAsStream("java2wsdl.xml"), false, args);
+    }
+    
+    
+    private boolean isExitOnFinish() {
+        String exit = System.getProperty("exitOnFinish");
+        if (StringUtils.isEmpty(exit)) {
+            return false;
+        }
+        return "YES".equalsIgnoreCase(exit) || "TRUE".equalsIgnoreCase(exit);
     }
 
-    public void checkParams(ErrorVisitor errors) throws ToolException {
-        if (errors.getErrors().size() > 0) {
-            Message msg = new Message("PARAMETER_MISSSING", LOG);
-            throw new ToolException(msg, new BadUsageException(getUsage(), errors));
-        }
-    }
+
 }
+    
+

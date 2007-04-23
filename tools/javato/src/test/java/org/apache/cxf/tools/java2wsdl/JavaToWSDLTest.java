@@ -69,5 +69,11 @@ public class JavaToWSDLTest extends ToolTestBase {
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
+    
+    public void testNoArg() {
+        String[] args = new String[] {};
+        JavaToWSDL.main(args);
+        assertEquals(-1, getStdOut().indexOf("Caused by:"));
+    }
 
 }
