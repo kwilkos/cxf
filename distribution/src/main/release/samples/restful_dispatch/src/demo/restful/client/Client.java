@@ -69,7 +69,7 @@ public final class Client {
         source = new StreamSource(in);
         printSource(source);
 
-        // Sent HTTP GET request to query customer info using JAX-WS Dispatch
+        // Sent HTTP POST request to update customer info using JAX-WS Dispatch
         URI endpointURI = new URI(endpointAddress.toString());
         String path = null;
         if (endpointURI != null) {
@@ -78,18 +78,10 @@ public final class Client {
 
         Service service = Service.create(serviceName);
         service.addPort(portName, HTTPBinding.HTTP_BINDING,  endpointAddress);
-        Dispatch<DOMSource> dispatcher = service.createDispatch(portName, 
+        Dispatch<DOMSource> dispatcher = service.createDispatch(portName,
                                                                 DOMSource.class, Service.Mode.PAYLOAD);
         Map<String, Object> requestContext = dispatcher.getRequestContext();
 
-        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
-        requestContext.put(MessageContext.QUERY_STRING, "id=1234");
-        requestContext.put(MessageContext.PATH_INFO, path);
-        System.out.println("Invoking through HTTP GET to query customer using JAX-WS Dispatch");
-        DOMSource returnSource = dispatcher.invoke(null);
-        printSource(returnSource);
-
-        // Sent HTTP POST request to update customer info using JAX-WS Dispatch
         Client client = new Client();
         InputStream is = client.getClass().getResourceAsStream("CustomerJohnReq.xml");
         Document doc = XMLUtils.parse(is);

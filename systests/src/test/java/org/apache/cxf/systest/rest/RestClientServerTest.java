@@ -112,6 +112,7 @@ public class RestClientServerTest extends AbstractBusClientServerTestBase {
     
     @Test
     @Ignore
+    //This test should be removed, as JAX-WS Dispatch is not appropriate for being used by HTTP GET. 
     public void testHttpGETDispatchHTTPBinding() throws Exception { 
         Service service = Service.create(serviceName); 
         URI endpointURI = new URI(endpointAddress);
