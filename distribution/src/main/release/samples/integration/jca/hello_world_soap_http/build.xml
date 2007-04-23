@@ -49,7 +49,7 @@
         <pathelement location="${cxf.home}/lib/geronimo-servlet_2.5_spec-1.1-M1.jar"/>
         <pathelement location="${basedir}/../common/common.jar"/>
         <pathelement location="${jboss.home}/client/jboss-j2ee.jar"/>
-        <fileset dir="${cxf.home}/modules" >  
+        <fileset dir="${cxf.home}/modules/integration" >  
              <include name="cxf-integration-jca-*.jar"/>
         </fileset>
     </path>
@@ -91,12 +91,15 @@
         <copy todir="${build.classes.dir}/cxf-rar">
             <fileset dir="${cxf.home}/lib">
                 <include name="*.jar"/>
-                <exclude name="*manifest*.jar"/>
+                <exclude name="cxf*.jar"/>
             </fileset>
             <fileset dir="${cxf.home}/modules">
                 <include name="*.jar"/>
-                <exclude name="*-jbi-*.jar"/>
                 <exclude name="*manifest*.jar"/>
+            </fileset>
+            <fileset dir="${cxf.home}/modules/integration">
+                <include name="*.jar"/>
+                <exclude name="*-jbi-*.jar"/>
             </fileset>
         </copy>
         <jar destfile="${build.classes.dir}/lib/cxf.rar"

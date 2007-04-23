@@ -34,8 +34,11 @@
 
   <path id="build.classpath">
     <pathelement location="${build.classes.dir}"/>
-    <pathelement location="${env.SERVICEMIX_HOME}/lib/servicemix-jbi-3.0-incubating.jar"/lib<fileset dir="${env.CXF_HOME}/modules">
+    <pathelement location="${env.SERVICEMIX_HOME}/lib/servicemix-jbi-3.0-incubating.jar"/>
+    <fileset dir="${env.CXF_HOME}/lib">
       <include name="cxf-manifest-incubator.jar"/>
+    </fileset>
+    <fileset dir="${env.CXF_HOME}/modules/integration">
       <include name="cxf-integration-jbi-${cxf.version}.jar"/>
     </fileset>
   </path>

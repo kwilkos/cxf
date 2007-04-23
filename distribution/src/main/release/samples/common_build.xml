@@ -31,12 +31,12 @@
     <property name="port" value="8080"/>
     <property name="base.url" value="http://${host}:${port}"/>
 
-    <available property="wsdl.dir" value="${basedir}/wsdl" 
+    <available property="wsdl.dir" value="${basedir}/wsdl"
         file="${basedir}/wsdl"/>
     <property name="wsdl.dir" location="."/>
 
     <!-- Setup for building in a source build-->
-    <available property="srcbuild_paths.file" 
+    <available property="srcbuild_paths.file"
         value="../../../../target/srcbuild_paths.xml"
         file="target/srcbuild_paths.xml"
         filepath="../../../.."/>
@@ -88,7 +88,9 @@
         <pathelement location="${cxf.home}/lib/cxf-manifest-incubator.jar"/>
     </path>
     <condition property="thirdparty.classpath" value="">
-        <not> <isset property="thirdparty.classpath"/> </not>
+        <not>
+            <isset property="thirdparty.classpath"/>
+        </not>
     </condition>
 
     <target name="maybe.generate.code" unless="codegen.notrequired">
@@ -97,8 +99,8 @@
     </target>
 
     <target name="compile" depends="maybe.generate.code">
-            <mkdir dir="${build.classes.dir}"/>
-            <mkdir dir="${build.src.dir}"/>
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.src.dir}"/>
 
         <javac destdir="${build.classes.dir}" debug="true">
             <src path="${build.src.dir}"/>
@@ -192,13 +194,13 @@
                 </not>
             </condition>
             <property name="package.arg.@{file}" value=""/>
-	    <condition property="binding.arg" value='-b "@{bindingfile}"'> 
+            <condition property="binding.arg" value='-b "@{bindingfile}"'>
                 <not>
                     <equals arg1="@{bindingfile}" arg2=""/>
                 </not>
             </condition>
             <property name="binding.arg" value=""/>
-            
+
             <java failonerror="true" classname="org.apache.cxf.tools.wsdlto.WSDLToJava" fork="yes">
                 <classpath>
                     <path refid="cxf.classpath" />
@@ -236,60 +238,59 @@
     </macrodef>
 
     <target name="prepare.tomcat" unless="cxf.jars.present.in.tomcat">
-	<copy todir="${env.CATALINA_HOME}/shared/lib">
-	    <fileset dir="${cxf.home}/modules">
-		<include name="*.jar"/>
-		<exclude name="*jbi*.jar"/>
-	    </fileset>	    
-	</copy>
-	<copy todir="${env.CATALINA_HOME}/shared/lib">
-	    <fileset dir="${cxf.home}/lib">
-		<include name="*.jar"/>
-		<exclude name="*jbi*.jar"/>
-	    </fileset>
-	</copy>
+        <copy todir="${env.CATALINA_HOME}/shared/lib">
+            <fileset dir="${cxf.home}/modules">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="${env.CATALINA_HOME}/shared/lib">
+            <fileset dir="${cxf.home}/lib">
+                <include name="*.jar"/>
+                <exclude name="cxf-*.jar"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="deploy" depends="war, deploy-tomcat" description="deploy the application into the container"/>
     <target name="undeploy" depends="undeploy-tomcat" description="undeploy the application from the container"/>
-    
+
     <target name="deploy-tomcat" if="tomcat">
-	<antcall target="validate-tomcat"/>
-	<antcall target="prepare.tomcat"/>
-	<copy file="${war.dir}/${cxf.war.file.name}.war"
-	      todir="${env.CATALINA_HOME}/webapps"/>
+        <antcall target="validate-tomcat"/>
+        <antcall target="prepare.tomcat"/>
+        <copy file="${war.dir}/${cxf.war.file.name}.war"
+              todir="${env.CATALINA_HOME}/webapps"/>
     </target>
 
     <target name="undeploy-tomcat" if="tomcat">
-	<antcall target="validate-tomcat"/>
-	<delete file="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}.war"/>
-	<delete dir="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}"/>
+        <antcall target="validate-tomcat"/>
+        <delete file="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}.war"/>
+        <delete dir="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}"/>
     </target>
 
     <target name="validate-tomcat">
-	<fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
+        <fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
 
-	<condition property="cxf.jars.present.in.tomcat">
-	    <and>
-		<available classname="org.apache.cxf.version.Version">
-		    <classpath>
-			<fileset dir="${env.CATALINA_HOME}/shared/lib">
-			    <include name="*.jar"/>
-			</fileset>
-		    </classpath>
-		</available>
-		<available file="${env.CATALINA_HOME}/shared/lib/cxf-manifest-incubator.jar" type="file"/>
-	    </and>
-	</condition>
+        <condition property="cxf.jars.present.in.tomcat">
+            <and>
+                <available classname="org.apache.cxf.version.Version">
+                    <classpath>
+                        <fileset dir="${env.CATALINA_HOME}/shared/lib">
+                            <include name="*.jar"/>
+                        </fileset>
+                    </classpath>
+                </available>
+                <available file="${env.CATALINA_HOME}/shared/lib/cxf-manifest-incubator.jar" type="file"/>
+            </and>
+        </condition>
 
-	<available property="cxf.jbi.present" classname="org.apache.cxf.jbi.transport.JBIConduit">
-	    <classpath>
-		<fileset dir="${env.CATALINA_HOME}/shared/lib">
-		    <include name="*.jar"/>
-		</fileset>
-	    </classpath>
-	</available>
-	<fail if="cxf.jbi.present" message="JBI API is not shipped with Apache CXF, so you should remove all jars start with the cxf-integration-jbi from ${env.CATALINA_HOME}/shared/lib"/>
+        <available property="cxf.jbi.present" classname="org.apache.cxf.jbi.transport.JBIConduit">
+            <classpath>
+                <fileset dir="${env.CATALINA_HOME}/shared/lib">
+                    <include name="*.jar"/>
+                </fileset>
+            </classpath>
+        </available>
+        <fail if="cxf.jbi.present" message="JBI API is not shipped with Apache CXF, so you should remove all jars start with the cxf-integration-jbi from ${env.CATALINA_HOME}/shared/lib"/>
     </target>
 
 </project>
