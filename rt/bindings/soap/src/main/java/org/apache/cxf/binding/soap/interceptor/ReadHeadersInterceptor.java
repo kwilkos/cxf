@@ -78,7 +78,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
                 if (soapVersion == null) {
                     throw new SoapFault(new Message("INVALID_VERSION", BUNDLE, ns),
-                                            Soap11.getInstance().getSender());
+                                            Soap11.getInstance().getVersionMismatch());
                 }
                 message.setVersion(soapVersion);
 
