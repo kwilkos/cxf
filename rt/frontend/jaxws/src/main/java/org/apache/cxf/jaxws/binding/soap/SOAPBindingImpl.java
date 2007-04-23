@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws.binding.soap;
 
+import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -51,7 +52,11 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     }
     
     public Set<String> getRoles() {
-        return this.roles;
+        if (this.roles == null) {
+            return Collections.emptySet();
+        } else {
+            return this.roles;
+        }
     }
 
     public void setRoles(Set<String> set) {

@@ -53,7 +53,8 @@ public class SOAPBindingTest extends AbstractJaxWsTest {
         assertTrue(bindingProvider.getBinding() instanceof SOAPBinding);
         SOAPBinding binding = (SOAPBinding)bindingProvider.getBinding();
         
-        assertNull(binding.getRoles());
+        assertNotNull(binding.getRoles());
+        assertEquals(0, binding.getRoles().size());
         
         Set<String> roles = new HashSet<String>();
         roles.add(Soap11.getInstance().getNextRole());
