@@ -66,10 +66,10 @@ and the JAVA_HOME bin directory is included in the system PATH.
 Preparing deploy to APACHE TOMCAT
 
 * set CATALINA_HOME environment to your TOMCAT home directory
-* Copied all jars (EXCEPT cxf-integration-jbi* jars)  from 
-  CXF_HOME/lib to <CATALINA_HOME>/shared/lib
     
 Deploy the application into APACHE TOMCAT with the commond:
+[NOTE] This step will check if the cxf jars present in Tomcat, 
+       if not, it will automatically copy all the jars into CATALINA_HOME/shared/lib
   
   ant deploy -Dtomcat=true
 
