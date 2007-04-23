@@ -9,16 +9,16 @@ features and enhancement:
     * WS-policy framework
     * WS-Security
     * HTTP transport enhancement, including upgrade to jetty 6.1.2 with
-      async http support, and HTTPS improvemen
-    * Service routing (simple case)
+      async http support, and HTTPS improvements
+    * Service routing
     * Aegis databinding support
     * Colocated and Object binding support
     * Configuration refactoring and improvement, including support of 
       Spring 2.0 config syntax
-    * Tooling (mainly wsdl2java, java2wsdl) refactoring and improvement
+    * Tooling (mainly wsdl2java, java2wsdl) refactoring and improvements
     * Many JAX-WS issues fixes
     * Support for stateful service
-    * Gazillion JIRA issues and code cleanup 
+    * Many other JIRA issues and code cleanup 
 
 Features also available since Apache CXF M1 release:
     * JAX-WS 2.0 API's - Apache CXF uses/implements the JAX-WS API's but makes no 
@@ -82,31 +82,23 @@ Building the samples included in the binary distribution is easy. Change to
 the samples directory and follow the build instructions in the README.txt file 
 included with each sample.
 
-4. Known Problems
+4. Errata
 
-4.1 HTTP
-There is an issue with Jetty HTTP that prevents Apache CXF (incubating) from
-being able to shut down the actual port listener.  If you programmatically
-remove the last endpoint published on a port, the listener remains running
-on the port, but only 404 (page not found) errors are served to subsequent
-client connections.
+4.1 JAX-WS Compliance
+Since JAX-WS TCK testing has not been completed, there is still a chance our 
+internal APIs may change. We do not know of any required changes at this 
+point though.
 
-4.2 Schema Definitions
-There is no support for nillable elements in XML Schema and xsi:nil attributes
-in XML documents.
-
-4.3 Overwriting Namespace Declarations
-Due to bug 6467808 in the Java 5 JDK, you must ensure that no namespace 
-declarations are overwritten in your SOAP messages. If a namespace declaration 
-is overwritten in a SOAP message your process will fail with the following 
-error message:
-ERROR:  'NAMESPACE_ERR: An attempt is made to create or change an object 
-in a way which is incorrect with regard to namespaces.'
+4.2 WS-Security
+The WS-Security configuration mechanisms may change between this release and 
+the next one as we add in support for WS-SecurityPolicy.
 
 5. Reporting Problems
 
 If you have any problems or want to send feedback of any kind, please e-mail the
-cxf dev list, cxf-dev@incubator.apache.org. 
+cxf dev list, cxf-dev@incubator.apache.org.  You can also file issues in JIRA at:
+
+http://issues.apache.org/jira/browse/CXF
 
 6. Specific issues, features, and improvements fixed in the 
 Apache CXF 2.0 RC (incubating) release:
