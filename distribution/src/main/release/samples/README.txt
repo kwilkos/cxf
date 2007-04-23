@@ -38,7 +38,7 @@ For UNIX:
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
   export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$CXF_HOME/bin:$PATH
-  export CLASSPATH=.:$CXF_HOME/modules/cxf-manifest-incubator.jar:./build/classes
+  export CLASSPATH=.:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
 
 For Windows:
   set CXF_HOME=C:\<installation_directory>\cxf
@@ -46,7 +46,7 @@ For Windows:
   set ANT_HOME=C:\<ant_installation_directory>\apache-ant-1.6.5
 
   set PATH=%JAVA_HOME%\bin;%ANT_HOME%\bin;%CXF_HOME%\bin;%PATH%
-  set CLASSPATH=.;%CXF_HOME%\modules\cxf-manifest-incubator.jar;.\build\classes
+  set CLASSPATH=.;%CXF_HOME%\lib\cxf-manifest-incubator.jar;.\build\classes
 
 Save a copy of this script in CXF_HOME/samples.  Run the
 script prior to building and running the demos.

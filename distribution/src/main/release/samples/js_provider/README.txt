@@ -75,13 +75,13 @@ Now compile both the generated code and the provided client
 application with the commands:
 
 For UNIX:
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/modules/cxf-manifest-incubator.jar:
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest-incubator.jar:
 	$CXF_HOME/lib/js-1.6R5.jar:$CXF_HOME/lib/xbean-2.2.0.jar:
 	build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
 
 For Windows:
-  set CLASSPATH=%CLASSPATH%;%CXF_HOME%\modules\cxf-manifest-incubator.jar;
+  set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-manifest-incubator.jar;
 	%CXF_HOME%\lib\js-1.6R5.jar;%CXF_HOME%\lib\xbean-2.2.0.jar;
 	build\classes
   javac -d build\classes src\demo\hwDispatch\client\*.java

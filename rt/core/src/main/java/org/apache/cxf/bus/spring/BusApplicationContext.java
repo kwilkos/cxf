@@ -89,7 +89,9 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
                     BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                     String line = rd.readLine();
                     while (line != null) {
-                        resources.add(resolver.getResource(line));
+                        if (!"".equals(line)) {
+                            resources.add(resolver.getResource(line));
+                        }
                         line = rd.readLine();
                     }
                     is.close();

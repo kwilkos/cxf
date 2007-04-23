@@ -92,14 +92,24 @@
 		</fileSet>
 		<fileSet>
 			<directory>target/additional-libs</directory>
-			<outputDirectory>cxf-${cxf.version}/modules</outputDirectory>
+			<outputDirectory>cxf-${cxf.version}/modules/integration</outputDirectory>
 			<includes>
 				<include>**/*</include>
 			</includes>
+			<excludes>
+			    <exclude>cxf-bundle*.jar</exclude>
+			</excludes>
 		</fileSet>
 		<fileSet>
 			<directory>manifest/target</directory>
 			<outputDirectory>cxf-${cxf.version}/modules</outputDirectory>
+			<includes>
+				<include>cxf-manifest-incubator.jar</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>manifest/target</directory>
+			<outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 			<includes>
 				<include>cxf-manifest-incubator.jar</include>
 			</includes>
@@ -203,7 +213,7 @@
 		        <exclude>org.apache.cxf:cxf-rt-frontend-jaxws</exclude>
 		        <exclude>org.apache.cxf:cxf-rt-frontend-js</exclude>
 		        <exclude>org.apache.cxf:cxf-rt-frontend-simple</exclude>
-		        <exclude>org.apache.cxf:cxf-distribution-bundle</exclude>
+		        <exclude>org.apache.cxf:cxf-bundle</exclude>
 		    </excludes>
 			<scope>runtime</scope>
 		</dependencySet>
@@ -243,16 +253,13 @@
 		        <include>org.apache.cxf:cxf-rt-frontend-js</include>
 		        <include>org.apache.cxf:cxf-rt-frontend-simple</include>
 		    </includes>
-		    <excludes>
-		        <exclude>org.apache.cxf:cxf-distribution-bundle</exclude>
-		    </excludes>
 		    <scope>runtime</scope>
 		</dependencySet>
 		<dependencySet>
-		    <outputDirectory>cxf-${cxf.version}/</outputDirectory>
+		    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 		    <unpack>false</unpack>
 		    <includes>
-		        <include>org.apache.cxf:cxf-distribution-bundle</include>
+		        <include>org.apache.cxf:cxf-bundle</include>
 		    </includes>
 		    <scope>runtime</scope>
 		    <outputFileNameMapping>cxf-${version}.${extension}</outputFileNameMapping>

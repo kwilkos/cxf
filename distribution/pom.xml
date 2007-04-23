@@ -213,7 +213,7 @@
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-distribution-bundle</artifactId>
+            <artifactId>cxf-bundle</artifactId>
             <version>${pom.version}</version>
         </dependency>
     </dependencies>

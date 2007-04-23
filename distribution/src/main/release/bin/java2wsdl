@@ -24,16 +24,16 @@
 
 me=`basename $0`
 cxf_home=$CXF_HOME
-if [ ! -f  $cxf_home/modules/cxf-manifest-incubator.jar ]; then
+if [ ! -f  $cxf_home/lib/cxf-manifest-incubator.jar ]; then
     cxf_home=`dirname $0`/..
 fi
                                                                                                                                                              
-cxf_jar=$cxf_home/modules/cxf-manifest-incubator.jar
+cxf_jar=$cxf_home/lib/cxf-manifest-incubator.jar
 
 
 if [ ! -f $cxf_jar ]; then 
     if [ ! -f ${cxf_home}/../../target/srcbuild_env ]; then
-        echo "ERROR: Unable to find cxf-manifest-incubator.jar in $cxf_home/modules"
+        echo "ERROR: Unable to find cxf-manifest-incubator.jar in $cxf_home/lib"
         exit 1
     else
         . ${cxf_home}/../../target/srcbuild_env

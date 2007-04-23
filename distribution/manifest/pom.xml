@@ -201,6 +201,11 @@
             <artifactId>cxf-rt-frontend-simple</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -222,6 +227,10 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                         </manifest>
+                        <manifestEntries>
+                          <!-- Add an entry for the renamed bundle jar in the distro -->
+			              <Class-Path>cxf-${pom.version}.jar</Class-Path>
+			            </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>

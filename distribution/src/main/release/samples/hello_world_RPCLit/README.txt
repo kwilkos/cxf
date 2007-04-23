@@ -64,12 +64,12 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/modules/cxf-manifest-incubator.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
   javac -d build/classes src/demo/hwRPCLit/client/*.java
   javac -d build/classes src/demo/hwRPCLit/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\modules\cxf-manifest-incubator.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-manifest-incubator.jar;.\build\classes
   javac -d build\classes src\demo\hwRPCLit\client\*.java
   javac -d build\classes src\demo\hwRPCLit\server\*.java
 
