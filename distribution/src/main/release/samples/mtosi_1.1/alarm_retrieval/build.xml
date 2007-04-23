@@ -41,7 +41,7 @@
             tofile="${basedir}/build/async_binding.xml"
             overwrite="yes">
             <filterset>
-                <filter token="WSDL_LOCATION" value="${wsdl.dir}/transport/http/FaultServiceSOAP_HTTP.wsdl"/>
+                <filter token="WSDL_LOCATION" value="../../wsdl/transport/http/FaultServiceSOAP_HTTP.wsdl"/>
             </filterset>
         </copy>
         <echo level="info" message="Generating code using wsdl2java..."/>
