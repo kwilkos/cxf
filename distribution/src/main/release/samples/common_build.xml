@@ -27,6 +27,10 @@
     <property name="codegen.timestamp.file" value="${build.src.dir}/.CODEGEN_DONE"/>
     <property name="war.dir" location="${build.dir}/war"/>
 
+    <property name="host" value="localhost"/>
+    <property name="port" value="8080"/>
+    <property name="base.url" value="http://${host}:${port}"/>
+
     <available property="wsdl.dir" value="${basedir}/wsdl" 
         file="${basedir}/wsdl"/>
     <property name="wsdl.dir" location="."/>
@@ -231,11 +235,27 @@
         </sequential>
     </macrodef>
 
-    <target name="deploy" depends="deploy-tomcat"/>
-    <target name="undeploy" depends="undeploy-tomcat"/>
+    <target name="prepare.tomcat" unless="cxf.jars.present.in.tomcat">
+	<copy todir="${env.CATALINA_HOME}/shared/lib">
+	    <fileset dir="${cxf.home}/modules">
+		<include name="*.jar"/>
+		<exclude name="*jbi*.jar"/>
+	    </fileset>	    
+	</copy>
+	<copy todir="${env.CATALINA_HOME}/shared/lib">
+	    <fileset dir="${cxf.home}/lib">
+		<include name="*.jar"/>
+		<exclude name="*jbi*.jar"/>
+	    </fileset>
+	</copy>
+    </target>
+
+    <target name="deploy" depends="war, deploy-tomcat" description="deploy the application into the container"/>
+    <target name="undeploy" depends="undeploy-tomcat" description="undeploy the application from the container"/>
     
     <target name="deploy-tomcat" if="tomcat">
 	<antcall target="validate-tomcat"/>
+	<antcall target="prepare.tomcat"/>
 	<copy file="${war.dir}/${cxf.war.file.name}.war"
 	      todir="${env.CATALINA_HOME}/webapps"/>
     </target>
@@ -248,10 +268,19 @@
 
     <target name="validate-tomcat">
 	<fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
-	
+
+	<available property="cxf.jars.present.in.tomcat" classname="org.apache.cxf.version.Version">
+	    <classpath>
+		<fileset dir="${env.CATALINA_HOME}/shared/lib">
+		    <include name="*.jar"/>
+		</fileset>
+	    </classpath>
+	</available>
+
 	<available property="cxf.jars.present.in.tomcat" file="${env.CATALINA_HOME}/shared/lib/cxf-manifest-incubator.jar" type="file"/>
 	<fail unless="cxf.jars.present.in.tomcat" message="In order to run Apache CXF service under TOMCAT, 
 							   you MUST copy jars under ${cxf.home}/lib/ into ${env.CATALINA_HOME}/shared/lib/ first"/>
+
 	
 	<available property="cxf.jbi.present" classname="org.apache.cxf.jbi.transport.JBIConduit">
 	    <classpath>

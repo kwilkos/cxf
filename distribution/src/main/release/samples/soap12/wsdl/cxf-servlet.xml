@@ -30,6 +30,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
         id="hello_world_soap12"       
         implementor="demo.hw.server.GreeterImpl"
         wsdlLocation="WEB-INF/wsdl/hello_world_soap12.wsdl"
-        address="/server/hello_world_soap12" />
+        address="/hello_world_soap12" />
 
 </beans>

@@ -30,6 +30,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
         id="hello_world_rpclit"
         implementor="demo.hwRPCLit.server.GreeterRPCLitImpl"
         wsdlLocation="WEB-INF/wsdl/hello_world_RPCLit.wsdl"
-        address="/services/hello_world_rpclit" />
+        address="/hello_world_rpclit" />
 
 </beans>

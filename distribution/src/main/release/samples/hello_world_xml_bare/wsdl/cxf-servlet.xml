@@ -30,5 +30,5 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
         id="hello_world"       
         implementor="demo.hw.server.GreeterImpl"
         wsdlLocation="WEB-INF/wsdl/hello_world.wsdl"
-        address="/services/hello_world"/>
+        address="/hello_world"/>
 </beans>
