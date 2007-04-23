@@ -251,7 +251,10 @@
         </copy>
     </target>
 
-    <target name="deploy" depends="war, deploy-tomcat" description="deploy the application into the container"/>
+    <target name="deploy" description="deploy the application into the container">
+        <antcall target="war"/>
+        <antcall target="deploy-tomcat"/>
+    </target>
     <target name="undeploy" depends="undeploy-tomcat" description="undeploy the application from the container"/>
 
     <target name="deploy-tomcat" if="tomcat">
