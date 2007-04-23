@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,10 +46,29 @@ public class ServletController {
 
     private ServletTransportFactory transport;
     private CXFServlet cxfServlet;
+    private String lastBase = "";
  
     public ServletController(ServletTransportFactory df, CXFServlet servlet) {
         this.transport = df;
         this.cxfServlet = servlet;
+    }
+    
+    private synchronized void updateDests(HttpServletRequest request) {
+        String base = getBaseURL(request);
+        
+        if (base.equals(lastBase)) {
+            return;
+        }
+        Set<String> paths = transport.getDestinationsPaths();
+        for (String path : paths) {
+            ServletDestination d2 = transport.getDestinationForPath(path);
+            String ad = d2.getEndpointInfo().getAddress();
+            if (ad.equals(path)
+                || ad.equals(lastBase + path)) {
+                d2.getEndpointInfo().setAddress(base + path);
+            }
+        }
+        lastBase = base;
     }
 
     public void invoke(HttpServletRequest request, HttpServletResponse res) throws ServletException {
@@ -58,6 +78,10 @@ public class ServletController {
 
             ei.setAddress(address);
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
+            
+            if ("GET".equals(request.getMethod())) {
+                updateDests(request);
+            }
 
             if (d.getMessageObserver() == null) {
                 if (request.getRequestURI().endsWith("services")
@@ -109,20 +133,10 @@ public class ServletController {
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
         
-        String reqPerfix = getBaseURL(request);
-        
         if (destinations.size() > 0) {  
             for (ServletDestination sd : destinations) {
                 if (null != sd.getEndpointInfo().getName()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(reqPerfix);
-                    String path = sd.getAddressPath();
-                    if (reqPerfix.endsWith("/")) {
-                        path = path.substring(1);
-                    }
-                    sb.append(path);
-                    
-                    String address = sb.toString();
+                    String address = sd.getEndpointInfo().getAddress();
                     response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
                     response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");
                 }    
