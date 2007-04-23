@@ -39,8 +39,8 @@ public final class Soap11 implements SoapVersion {
     private final String noneRole = namespace + "/role/none";
 
     private final String ultimateReceiverRole = namespace + "/role/ultimateReceiver";
-
-    private final String nextRole = namespace + "/role/next";
+    
+    private final String nextRole = "http://schemas.xmlsoap.org/soap/actor/next";
 
     private final String soapEncodingStyle = "http://schemas.xmlsoap.org/soap/encoding/";
 
