@@ -34,7 +34,6 @@
 				<include>DISCLAIMER</include>
 				<include>LICENSE</include>
 				<include>licenses/*.*</include>
-				<include>modules/*</include>
 				<include>lib/*</include>
 				<include>README</include>
 			</includes>
@@ -100,13 +99,6 @@
 			<excludes>
 			    <exclude>cxf-bundle*.jar</exclude>
 			</excludes>
-		</fileSet>
-		<fileSet>
-			<directory>manifest/target</directory>
-			<outputDirectory>cxf-${cxf.version}/modules</outputDirectory>
-			<includes>
-				<include>cxf-manifest-incubator.jar</include>
-			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>manifest/target</directory>
