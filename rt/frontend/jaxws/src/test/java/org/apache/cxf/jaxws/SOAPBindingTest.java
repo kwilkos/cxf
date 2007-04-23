@@ -27,7 +27,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.calculator.CalculatorPortType;
 import org.junit.Test;
 
@@ -54,18 +54,23 @@ public class SOAPBindingTest extends AbstractJaxWsTest {
         SOAPBinding binding = (SOAPBinding)bindingProvider.getBinding();
         
         assertNotNull(binding.getRoles());
-        assertEquals(0, binding.getRoles().size());
+        assertEquals(2, binding.getRoles().size());
+        assertTrue(binding.getRoles().contains(Soap12.getInstance().getNextRole()));
+        assertTrue(binding.getRoles().contains(Soap12.getInstance().getUltimateReceiverRole()));
         
+        String myrole = "http://myrole";
         Set<String> roles = new HashSet<String>();
-        roles.add(Soap11.getInstance().getNextRole());
+        roles.add(myrole);
         
         binding.setRoles(roles);
         
         assertNotNull(binding.getRoles());
-        assertEquals(1, binding.getRoles().size());
-        assertEquals(Soap11.getInstance().getNextRole(), binding.getRoles().iterator().next());
+        assertEquals(3, binding.getRoles().size());
+        assertTrue(binding.getRoles().contains(myrole));
+        assertTrue(binding.getRoles().contains(Soap12.getInstance().getNextRole()));
+        assertTrue(binding.getRoles().contains(Soap12.getInstance().getUltimateReceiverRole()));
                 
-        roles.add(Soap11.getInstance().getNoneRole());
+        roles.add(Soap12.getInstance().getNoneRole());
         
         try {        
             binding.setRoles(roles);
