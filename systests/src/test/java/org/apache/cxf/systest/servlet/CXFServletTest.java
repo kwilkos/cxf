@@ -51,7 +51,6 @@ public class CXFServletTest extends AbstractServletTest {
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         svr.getServiceFactory().setWsdlURL(resource.toString());
-//        svr.setBus(getBus());
         svr.setServiceClass(GreeterImpl.class);
         svr.setAddress("http://localhost/services/Greeter");
         GreeterImpl greeter = new GreeterImpl();

@@ -41,8 +41,6 @@ public class SpringServletTest extends AbstractServletTest {
         return null;
     }
 
-
-
     @Test
     public void testInvokingSpringBeans() throws Exception {
 

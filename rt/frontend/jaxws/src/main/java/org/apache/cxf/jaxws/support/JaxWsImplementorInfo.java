@@ -97,10 +97,10 @@ public class JaxWsImplementorInfo {
         String namespace = null;
 
         for (WebService service : wsAnnotations) {
-            if (!StringUtils.isEmpty(service.serviceName())) {
+            if (!StringUtils.isEmpty(service.serviceName()) && serviceName == null) {
                 serviceName = service.serviceName();
             }
-            if (!StringUtils.isEmpty(service.targetNamespace())) {
+            if (!StringUtils.isEmpty(service.targetNamespace()) && namespace == null) {
                 namespace = service.targetNamespace();
             }
         }
@@ -131,10 +131,10 @@ public class JaxWsImplementorInfo {
         String portName = null;
         String namespace = null;
         for (WebService service : wsAnnotations) {
-            if (!StringUtils.isEmpty(service.portName())) {
+            if (!StringUtils.isEmpty(service.portName()) && portName == null) {
                 portName = service.portName();
             }
-            if (!StringUtils.isEmpty(service.targetNamespace())) {
+            if (!StringUtils.isEmpty(service.targetNamespace()) && namespace == null) {
                 namespace = service.targetNamespace();
             }
             
@@ -175,10 +175,10 @@ public class JaxWsImplementorInfo {
             }
         } else {
             for (WebService service : wsAnnotations) {
-                if (!StringUtils.isEmpty(service.name())) {
+                if (!StringUtils.isEmpty(service.name()) && name == null) {
                     name = service.name();
                 }
-                if (!StringUtils.isEmpty(service.targetNamespace())) {
+                if (!StringUtils.isEmpty(service.targetNamespace()) && namespace == null) {
                     namespace = service.targetNamespace();
                 }
             }

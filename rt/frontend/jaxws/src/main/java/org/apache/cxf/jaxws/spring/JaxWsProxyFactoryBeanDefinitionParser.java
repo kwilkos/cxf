@@ -49,7 +49,7 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
         NamedNodeMap atts = element.getAttributes();
         String id = null;
         boolean createdFromAPI = false;
-        
+        boolean setBus = false;
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
@@ -65,6 +65,9 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
                 } else {
+                    if ("bus".equals(name)) {
+                        setBus = true;
+                    }
                     mapToProperty(bean, name, val);
                 }
             } else if ("id".equals(name)) {
@@ -73,7 +76,10 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
                 bean.setAbstract(true);
                 clientBean.setAbstract(true);
             }
-            
+        }
+        
+        if (!setBus && ctx.getRegistry().containsBeanDefinition("cxf")) {
+            bean.addPropertyReference("bus", "cxf");
         }
         
         NodeList children = element.getChildNodes();

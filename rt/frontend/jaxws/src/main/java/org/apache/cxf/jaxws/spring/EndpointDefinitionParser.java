@@ -50,6 +50,11 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         NamedNodeMap atts = element.getAttributes();
+        String bus = element.getAttribute("bus");
+        if (bus == null && ctx.getRegistry().containsBeanDefinition("cxf")) {
+            bean.addConstructorArgReference("cxf");
+        } 
+        
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
@@ -58,7 +63,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
 
             if ("createdFromAPI".equals(name)) {
                 bean.setAbstract(true);
-            } else if (isAttribute(pre, name) && !"publish".equals(name)) {
+            } else if (isAttribute(pre, name) && !"publish".equals(name) && !"bus".equals(name)) {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);

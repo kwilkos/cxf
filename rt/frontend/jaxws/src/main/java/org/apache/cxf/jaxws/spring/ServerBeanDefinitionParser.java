@@ -42,6 +42,7 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         NamedNodeMap atts = element.getAttributes();
+        boolean setBus = false;
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
@@ -54,8 +55,15 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
             } else if ("abstract".equals(name)) {
                 bean.setAbstract(true);
             } else {
+                if ("bus".equals(name)) {
+                    setBus = true;
+                }
                 mapToProperty(bean, name, val);
             }
+        }
+        
+        if (!setBus && ctx.getRegistry().containsBeanDefinition("cxf")) {
+            bean.addPropertyReference("bus", "cxf");
         }
         
         NodeList children = element.getChildNodes();

@@ -32,7 +32,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 	<jaxws:endpoint 
 	  id="helloWorld" 
 	  implementor="demo.spring.HelloWorldImpl" 
-	  address="http://localhost/HelloWorld" />
+	  address="/HelloWorld" />
 	  
 </beans>
 <!-- END SNIPPET: beans -->
