@@ -74,12 +74,13 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
         if (message.getExchange().get(BindingOperationInfo.class) == null) {
             operation = getOperation(message, new QName(xmlReader.getNamespaceURI(), opName));
-            message.getExchange().put(BindingOperationInfo.class, operation);
-            message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
-
             if (operation == null) {
                 // it's doc-lit-bare
                 new BareInInterceptor().handleMessage(message);
+                return;
+            } else {
+                message.getExchange().put(BindingOperationInfo.class, operation);
+                message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
             }
         } else {
             operation = message.getExchange().get(BindingOperationInfo.class);
