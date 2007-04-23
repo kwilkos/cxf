@@ -1,0 +1,3 @@
+<h:conduit xmlns:h="http://cxf.apache.org/transports/http/configuration">
+  <h:client ConnectionTimeout="97"/>
+</h:conduit>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   xmlns="http://cxf.apache.org/tools/plugin" 
+	   targetNamespace="http://cxf.apache.org/tools/plugin" 
+	   elementFormDefault="qualified">
+
+    <xs:complexType name="DataBinding">
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="package" type="xs:string" use="required"/>
+	<xs:attribute name="profile" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:complexType name="FrontEnd">
+	<xs:sequence>
+	    <xs:element name="generators" type="Generators"/>
+	    <xs:element name="processor" type="Processor" maxOccurs="1" minOccurs="1"/>
+	    <xs:element name="container" type="Container" maxOccurs="1" minOccurs="1"/>
+	    <xs:element name="builder" type="Builder" maxOccurs="1"/>
+	</xs:sequence>
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="package" type="xs:string" use="required"/>
+	<xs:attribute name="profile" type="xs:string" use="required"/>
+    </xs:complexType>
+    
+    <xs:element name="generator" type="Generator"/>
+    <xs:complexType name="Generator">
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="package" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="Processor">
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="package" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="Builder">
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="package" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="Container">
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="package" type="xs:string"/>
+	<xs:attribute name="toolspec" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="Generators">
+	<xs:sequence>
+	    <xs:element ref="generator" maxOccurs="unbounded"/>
+	</xs:sequence>
+	<xs:attribute name="package" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:element name="plugin" type="Plugin"/>
+    <xs:complexType name="Plugin">
+	<xs:sequence>
+	    <xs:element name="frontend" type="FrontEnd" maxOccurs="unbounded"/>
+	    <xs:element name="databinding" type="DataBinding" maxOccurs="unbounded"/>
+	</xs:sequence>
+	<xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="version" type="xs:string" use="required"/>
+	<xs:attribute name="provider" type="xs:string" use="required"/>
+    </xs:complexType>
+
+</xs:schema>

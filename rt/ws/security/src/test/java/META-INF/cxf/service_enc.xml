@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns:tns="http://xfire.codehaus.org/config/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  >
+  <tns:service
+    name="echo"
+    serviceClass="org.codehaus.xfire.security.UsernamePasswordEchoService"
+    implementationClass="org.codehaus.xfire.security.UsernamePasswordEchoServiceImpl"
+    namespace="urn:Echo">
+    
+    <tns:inHandlers>
+      <tns:handler handlerClass="org.codehaus.xfire.util.LoggingHandler"/>
+      <tns:handler handlerClass="org.codehaus.xfire.util.dom.DOMInHandler" />
+      <bean id="org.codehaus.xfire.security.wssecurity.WSS4JInSecurityHandler" class="org.codehaus.xfire.security.wssecurity.WSS4JInSecurityHandler">
+        <property name="configFile"  value="META-INF/xfire/insecurity_enc.properties"  />
+      </bean>
+    </tns:inHandlers>
+
+  </tns:service>
+</beans>

@@ -1,0 +1,4 @@
+<h:destination xmlns:h="http://cxf.apache.org/transports/http/configuration">
+  <h:server ContentEncoding="foobar"/>
+  <h:contextMatchStrategy>exact</h:contextMatchStrategy>
+</h:destination>

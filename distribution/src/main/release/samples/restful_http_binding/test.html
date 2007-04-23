@@ -1,0 +1,80 @@
+<html>
+ <head>
+   <title>Jettison/CXF AJAX Demo</title>
+   <script>
+function getCustomers() {
+    var xmlhttp = null;
+	if (window.XMLHttpRequest) {
+	  xmlhttp = new XMLHttpRequest();
+	  if ( typeof xmlhttp.overrideMimeType != 'undefined') {
+	    xmlhttp.overrideMimeType('text/plain');
+	  }
+	} else if (window.ActiveXObject) {
+	  xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	} else {
+	  alert('Perhaps your browser does not support xmlhttprequests?');
+	}
+	
+	xmlhttp.onreadystatechange = function() {
+	  if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	    var res = '(' + xmlhttp.responseText + ')';
+	    var customers = eval(res);
+	    customers = customers['acme.customers'];
+	    
+	    var customer = customers['acme.customer'];
+		if (customer.length) {
+		  for (var i = 0; i < customer.length; i++) {
+		    addCustomer(customer[i]);
+		  }
+		} else {
+		  addCustomer(customer);
+		  
+        }
+	  } else {
+	    // wait for the call to complete
+	  }
+	};
+	
+	xmlhttp.open('GET', "http://localhost:8080/json/customers", true);
+    xmlhttp.send(null);
+}
+
+function addCustomer(c) {
+  var t = document.getElementById('customertable');
+  
+  var tr = document.createElement("tr");
+  var td = document.createElement("td");
+  var id = document.createTextNode(c['acme.id']);
+  td.appendChild(id);
+  tr.appendChild(td);
+  td = document.createElement("td");
+  var name = document.createTextNode(c['acme.name']);
+  td.appendChild(name);
+  tr.appendChild(td);
+  t.appendChild(tr);
+}
+   </script>
+ </head>
+ <body>
+   <h1>Jettison/CXF AJAX Demo</h1>
+   <p>
+     The button below will go and hit the URL 
+     <a href="http://localhost:8080/json/customers">http://localhost:8080/json/customers</a>
+     and list the customers below in a table.
+   <p>
+   <p>
+     <input type="button" value="Get Customers!" onClick="javascript: getCustomers();" />
+   <p>
+   <p>
+     <h1>Customers</h1>
+     <!-- Yes, this is using a table because I'm incompotent with HTML! -->
+     <table style="border: 1px black solid;" cellspacing="5" id="customertable>
+       <tr>
+         <th><strong>ID</strong></th>
+         <th><strong>Customer Name</strong></th>
+       </tr>
+     </table>
+     </div>
+   </p>
+ </body>
+</html>

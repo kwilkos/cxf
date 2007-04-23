@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:jaxws="http://cxf.apache.org/jaxws"
+      xmlns:soap="http://cxf.apache.org/bindings/soap"
+      xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
+
+    <bean id="{http://apache.org/hello_world_soap_http}SOAPService" abstract="true">
+        <property name="properties">
+        	<map>
+        		<entry key="schema-validation-enabled" value="true" />
+        	</map>
+        </property>
+    </bean>
+
+    <jaxws:endpoint id="{http://apache.org/hello_world_soap_http}SoapPort"
+		createdFromAPI="true">
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="true" />
+		</jaxws:properties>
+	</jaxws:endpoint>
+</beans>
+

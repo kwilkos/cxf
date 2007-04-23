@@ -1,0 +1,6 @@
+<b:bean xmlns:b="urn:Bean" xsi:type="b:SimpleBean"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <b:bleh xsi:type="xsd:foo">bleh</b:bleh>
+  <b:howdy xsi:type="xsd:int">howdy</b:howdy>
+</b:bean>

@@ -1,0 +1,257 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+package org.apache.cxf.transport.https;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.security.SSLClientPolicy;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.HttpURLConnectionFactory;
+import org.apache.cxf.transport.http.HttpURLConnectionInfo;
+
+/**
+ * This HttpsURLConnectionFactory implements the HttpURLConnectionFactory
+ * for using the given SSL Policy to configure TLS connections for "https:"
+ * URLs.
+ * 
+ */
+public final class HttpsURLConnectionFactory 
+    implements HttpURLConnectionFactory {
+    
+    /**
+     * This constant holds the URL Protocol Identifier for HTTPS
+     */
+    public static final String HTTPS_URL_PROTOCOL_ID = "https";
+
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG =
+        LogUtils.getL7dLogger(HttpsURLConnectionFactory.class);
+    
+    /*
+     *  For development and testing only
+     */
+    private static final String[] UNSUPPORTED =
+    {"SessionCaching", "SessionCacheKey", "MaxChainLength",
+     "CertValidator", "ProxyHost", "ProxyPort"};
+    
+    /*
+     *  For development and testing only
+     */
+    private static final String[] DERIVATIVE = {"CiphersuiteFilters"};
+    
+    /**
+     * This field holds the conduit to which this connection factory
+     * is a slave.
+     */
+    HTTPConduit conduit;
+    
+    /**
+     * This field contains the TLS configuration for URLs created
+     * by this factory.
+     */
+    SSLClientPolicy sslPolicy;
+    
+   
+    /**
+     * This constructor initialized the factory with the configured SSL Client
+     * Side Policy for the HTTPConduit for which this factory is used.
+     * 
+     * @param policy The SSL Client Side Policy. This parameter is guaranteed 
+     *               to be non-null.
+     */
+    public HttpsURLConnectionFactory(SSLClientPolicy policy) {
+        sslPolicy        = policy;
+    }
+    
+    /**
+     * Create a HttpURLConnection, proxified if neccessary.
+     * 
+     * 
+     * @param proxy This parameter is non-null if connection should be proxied.
+     * @param url   The target URL. This parameter must be an https url.
+     * 
+     * @return The HttpsURLConnection for the given URL.
+     * @throws IOException This exception is thrown if 
+     *         the "url" is not "https" or other IOException
+     *         is thrown. 
+     *                     
+     */
+    public HttpURLConnection createConnection(Proxy proxy, URL url)
+        throws IOException {
+
+        if (!url.getProtocol().equals(HTTPS_URL_PROTOCOL_ID)) {
+            throw new IOException("Illegal Protocol " 
+                    + url.getProtocol() 
+                    + " for HTTPS URLConnection Factory.");
+        }
+        
+        HttpsURLConnection connection =
+            (HttpsURLConnection) (proxy != null 
+                                   ? url.openConnection(proxy)
+                                   : url.openConnection());
+                                   
+        decorate(connection);
+        
+        return connection;
+    }
+
+    /**
+     * This class is the default hostname verifier that the
+     * HttpsURLConnection implementation uses to verify that
+     * a hostname belongs to a particular verified key/certificate
+     * pair. 
+     * <p>
+     * The default is to make sure that "CN=<hostname>", which
+     * isn't always desired. The MessageTrustDecider is
+     * the point at which an application can place trust in the
+     * certificate and target URL. We use this default of always
+     * returning true, delegate the trust decision to the 
+     * MessageTrustDecider.
+     */
+    private class AlwaysTrueHostnameVerifier implements HostnameVerifier {
+
+        public boolean verify(
+            String      hostname,
+            SSLSession  sslSession
+        ) {
+            return true;
+        }
+
+    }
+
+    /**
+     * Decorate connection with applicable SSL settings.
+     * 
+     * @param secureConnection the secure connection
+     */
+    protected void decorate(HttpsURLConnection secureConnection) {
+        String keyStoreLocation =
+            SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG);
+        String keyStoreType =
+            SSLUtils.getKeystoreType(sslPolicy.getKeystoreType(), LOG);
+        String keyStorePassword =
+            SSLUtils.getKeystorePassword(sslPolicy.getKeystorePassword(), LOG);
+        String keyPassword =
+            SSLUtils.getKeyPassword(sslPolicy.getKeyPassword(), LOG);
+        String keyStoreMgrFactoryAlgorithm =
+            SSLUtils.getKeystoreAlgorithm(
+                    sslPolicy.getKeystoreAlgorithm(), LOG);
+        String trustStoreMgrFactoryAlgorithm =
+            SSLUtils.getTrustStoreAlgorithm(
+                    sslPolicy.getTrustStoreAlgorithm(), LOG);
+        String trustStoreLocation =
+            SSLUtils.getTrustStore(sslPolicy.getTrustStore(), LOG);
+        String trustStoreType =
+            SSLUtils.getTrustStoreType(sslPolicy.getTrustStoreType(), LOG);
+        String secureSocketProtocol =
+            SSLUtils.getSecureSocketProtocol(
+                    sslPolicy.getSecureSocketProtocol(), LOG);
+        
+        secureConnection.setHostnameVerifier(
+                    new AlwaysTrueHostnameVerifier());
+        
+        try {
+            // There is something special about the keystore being a pkcs12
+            // that governs the trust store. I don't know what that is.
+            
+            boolean pkcs12 =
+                keyStoreType.equalsIgnoreCase(SSLUtils.PKCS12_TYPE);
+            SSLContext ctx = SSLUtils.getSSLContext(
+                secureSocketProtocol,
+                SSLUtils.getKeyStoreManagers(keyStoreLocation,
+                                             keyStoreType,
+                                             keyStorePassword,
+                                             keyPassword,
+                                             keyStoreMgrFactoryAlgorithm,
+                                             secureSocketProtocol,
+                                             LOG),
+                SSLUtils.getTrustStoreManagers(pkcs12,
+                                               trustStoreType,
+                                               trustStoreLocation,
+                                               trustStoreMgrFactoryAlgorithm,
+                                               LOG));
+            
+            String[] cipherSuites =
+                SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
+                                         SSLUtils.getSupportedCipherSuites(ctx),
+                                         sslPolicy.getCiphersuiteFilters(),
+                                         LOG, false);
+            
+            // The SSLSocketFactoryWrapper enables certain cipher suites
+            // from the policy.
+            secureConnection.setSSLSocketFactory(
+                new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
+                                            cipherSuites));
+            
+           
+        } catch (Exception e) {
+            LogUtils.log(LOG, Level.SEVERE, "SSL_CONTEXT_INIT_FAILURE", e);
+        }
+        
+        SSLUtils.logUnSupportedPolicies(sslPolicy,
+                                        true,
+                                        UNSUPPORTED,
+                                        LOG);
+    }
+    
+    /*
+     *  For development and testing only
+     */
+    protected void addLogHandler(Handler handler) {
+        LOG.addHandler(handler);
+    }
+       
+    protected String[] getUnSupported() {
+        return UNSUPPORTED;
+    }
+    
+    protected String[] getDerivative() {
+        return DERIVATIVE;
+    }
+
+    /**
+     * This operation returns an HttpsURLConnectionInfo for the 
+     * given HttpsURLConnection. 
+     * 
+     * @param connection The HttpsURLConnection
+     * @return The HttpsURLConnectionInfo object for the given 
+     *         HttpsURLConnection.
+     * @throws IOException Normal IO Exceptions.
+     * @throws ClassCastException If "connection" is not an HttpsURLConnection.
+     */
+    public HttpURLConnectionInfo getConnectionInfo(
+            HttpURLConnection connection
+    ) throws IOException {  
+        return new HttpsURLConnectionInfo((HttpsURLConnection)connection);
+    }
+}
+

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+  targetNamespace="http://cxf.apache.org/bindings/soap" 
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified"  >
+
+  <xsd:import namespace="http://www.springframework.org/schema/beans" />
+
+  <xsd:element name="soapBinding">
+    <xsd:complexType>
+      <xsd:complexContent>
+        <xsd:extension base="beans:identifiedType">
+          <xsd:sequence>
+            <xsd:element name="implementor" type="xsd:anyType" minOccurs="0"/>
+            <xsd:element name="invoker" type="xsd:anyType" minOccurs="0"/>
+            <xsd:element name="binding" type="xsd:anyType" minOccurs="0"/>
+            <xsd:element name="serviceFactory" type="xsd:anyType" minOccurs="0"/>
+          </xsd:sequence>
+          <xsd:attribute name="version" type="xsd:string" />
+          <xsd:attribute name="mtomEnabled" type="xsd:string" />
+          <xsd:attribute name="style" type="xsd:string" />
+          <xsd:attribute name="use" type="xsd:string" />
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

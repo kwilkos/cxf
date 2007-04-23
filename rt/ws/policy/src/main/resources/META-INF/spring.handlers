@@ -1,0 +1,2 @@
+http\://www.w3.org/2006/07/ws-policy=org.apache.cxf.ws.policy.spring.NamespaceHandler
+http\://schemas.xmlsoap.org/ws/2004/09/policy=org.apache.cxf.ws.policy.spring.NamespaceHandler

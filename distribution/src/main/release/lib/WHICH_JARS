@@ -1,0 +1,57 @@
+This directory includes the CXF jar, the CXF manifest jar, the required
+dependencies, and many optional dependencies. The "modules" directory
+contains the cxf.jar split up into smaller pieces if you wish to use only
+specific parts of CXF.
+
+The following jars are required for all CXF usage:
+- cxf.jar
+- commons-logging.jar
+- geronimo-activation.jar (Or the Sun equivalent)
+- geronimo-annotation.jar (Or the Sun equivalent)
+- geronimo-javamail.jar (Or the Sun equivalent)
+- neethi.jar
+- jaxb-api.jar
+- jaxb-impl.jar
+- stax-api.jar
+- XmlSchema.jar
+- wstx-asl.jar
+
+For Java2WSDL and WSDL2Java:
+- The above jars
+- jaxb-xjc.jar
+- veliocity.jar
+- velocity-dep.jar
+
+For JAX-WS support:
+- jaxws-api.jar
+- saaj-api.jar
+- saaj-impl.jar
+
+For XML Configuration support:
+- aopalliance.jar
+- spring-beans.jar
+- spring-context.jar
+- spring-core.jar
+- spring.web.jar
+
+For standalone HTTP support:
+- geronimo-servlet.jar
+- jetty.jar
+- jetty-sslengine.jar
+- jetty-util.jar
+- sl4j.jar & sl4j-jdk14.jar (optional - but improves logging)
+ 
+For Aegis support:
+- jaxen.jar
+- jdom.jar
+- stax-utils.jar
+
+For WS-Security support:
+- bcprov-jdk14.jar
+- wss4j.jar
+- xalan.jar
+- xmlsec.jar
+
+For HTTP Binding support:
+- jra.jar
+- jettison.jar (Needed for JSON services only)
