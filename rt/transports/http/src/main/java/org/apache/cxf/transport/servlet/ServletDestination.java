@@ -101,7 +101,20 @@ public class ServletDestination extends AbstractHTTPDestination {
             }
         }        
     }
-   
+
+    public String getAddressPath() {
+        String path = endpointInfo.getAddress();
+        String lh = "http://localhost/";
+        String lhs = "https://localhost/";
+        
+        if (path.startsWith(lh)) {
+            path = "/" + path.substring(lh.length());
+        } else if (path.startsWith(lhs)) {
+            path = "/" + path.substring(lhs.length());
+        }
+        return path;
+    }
+    
     public MessageObserver getMessageObserver() {
         return this.incomingObserver;
     }

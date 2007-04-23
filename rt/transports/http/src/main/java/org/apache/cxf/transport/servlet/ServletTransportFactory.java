@@ -60,16 +60,28 @@ public class ServletTransportFactory extends AbstractTransportFactory
     
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
-        ServletDestination d = destinations.get(endpointInfo.getAddress());
+        ServletDestination d = getDestinationForPath(endpointInfo.getAddress());
         if (d == null) { 
             d = new ServletDestination(bus, null, endpointInfo);
-            destinations.put(endpointInfo.getAddress(), d);
+            destinations.put(getTrimmedPath(endpointInfo.getAddress()), d);
         }
         return d;
     }
     
     public ServletDestination getDestinationForPath(String path) {
-        return destinations.get(path);
+        return destinations.get(getTrimmedPath(path));
+    }
+
+    private String getTrimmedPath(String path) {
+        String lh = "http://localhost/";
+        String lhs = "https://localhost/";
+        
+        if (path.startsWith(lh)) {
+            path = "/" + path.substring(lh.length());
+        } else if (path.startsWith(lhs)) {
+            path = "/" + path.substring(lhs.length());
+        }
+        return path;
     }
     
     public Collection<ServletDestination> getDestinations() {

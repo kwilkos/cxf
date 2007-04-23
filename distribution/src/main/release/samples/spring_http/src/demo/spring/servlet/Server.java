@@ -46,7 +46,7 @@ public class Server {
         WebAppContext webappcontext = new WebAppContext();
         webappcontext.setContextPath("/");
 
-        webappcontext.setWar("src/webapp");
+        webappcontext.setWar("webapp");
 
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(new Handler[] {webappcontext, new DefaultHandler()});

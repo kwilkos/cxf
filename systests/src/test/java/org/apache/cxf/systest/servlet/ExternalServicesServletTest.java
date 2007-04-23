@@ -24,11 +24,18 @@ import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.junit.Test;
 
 public class ExternalServicesServletTest extends AbstractServletTest {
     
+    @Override
+    protected Bus createBus() throws BusException {
+        return null;
+    }
+
     @Override
     protected String getConfiguration() {
         return "/org/apache/cxf/systest/servlet/web-external.xml";

@@ -29,6 +29,8 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.servletunit.ServletUnitClient;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
@@ -38,13 +40,18 @@ import org.junit.Test;
 
 public class CXFServletTest extends AbstractServletTest {
     
+    @Override
+    protected Bus createBus() throws BusException {
+        return null;
+    }
+
     // Create the JaxWsService with the JaxWsServerFactoryBean
     protected void setupJaxwsService() {
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         svr.getServiceFactory().setWsdlURL(resource.toString());
-        svr.setBus(getBus());
+//        svr.setBus(getBus());
         svr.setServiceClass(GreeterImpl.class);
         svr.setAddress("http://localhost/services/Greeter");
         GreeterImpl greeter = new GreeterImpl();

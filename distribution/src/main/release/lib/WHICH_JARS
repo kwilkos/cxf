@@ -47,6 +47,11 @@ For Aegis support:
 - stax-utils.jar
 
 For WS-Security support:
+- bcprov-jdk14.jar
 - wss4j.jar
 - xalan.jar
 - xmlsec.jar
+
+For HTTP Binding support:
+- jra.jar
+- jettison.jar (Needed for JSON services only)

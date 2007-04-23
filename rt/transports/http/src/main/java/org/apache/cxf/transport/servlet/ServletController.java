@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,31 +45,10 @@ public class ServletController {
 
     private ServletTransportFactory transport;
     private CXFServlet cxfServlet;
-    private String lastBase = "";
  
     public ServletController(ServletTransportFactory df, CXFServlet servlet) {
         this.transport = df;
         this.cxfServlet = servlet;
-    }
-    
-    private synchronized void updateDests(HttpServletRequest request) {
-        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
-        String base = request.getRequestURL().toString();
-        base = base.substring(0, base.length() - pathInfo.length());
-        
-        if (base.equals(lastBase)) {
-            return;
-        }
-        Set<String> paths = transport.getDestinationsPaths();
-        for (String path : paths) {
-            ServletDestination d2 = transport.getDestinationForPath(path);
-            String ad = d2.getEndpointInfo().getAddress();
-            if (ad.equals(path)
-                || ad.equals(lastBase + path)) {
-                d2.getEndpointInfo().setAddress(base + path);
-            }
-        }
-        lastBase = base;
     }
 
     public void invoke(HttpServletRequest request, HttpServletResponse res) throws ServletException {
@@ -82,7 +60,6 @@ public class ServletController {
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
-                updateDests(request);
                 if (request.getRequestURI().endsWith("services")
                     || request.getRequestURI().endsWith("services/")
                     || StringUtils.isEmpty(request.getPathInfo())
@@ -93,7 +70,6 @@ public class ServletController {
                     generateNotFound(request, res);
                 }
             } else {
-                updateDests(request);
                 ei = d.getEndpointInfo();
                 Bus bus = cxfServlet.getBus();
                 if (null != request.getQueryString() 
@@ -133,14 +109,20 @@ public class ServletController {
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
         
-        String reqPerfix = request.getRequestURL().toString();
-        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
-        reqPerfix = reqPerfix.substring(0, reqPerfix.length() - pathInfo.length());
+        String reqPerfix = getBaseURL(request);
         
         if (destinations.size() > 0) {  
             for (ServletDestination sd : destinations) {
                 if (null != sd.getEndpointInfo().getName()) {
-                    String address = sd.getEndpointInfo().getAddress();
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(reqPerfix);
+                    String path = sd.getAddressPath();
+                    if (reqPerfix.endsWith("/")) {
+                        path = path.substring(1);
+                    }
+                    sb.append(path);
+                    
+                    String address = sb.toString();
                     response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
                     response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");
                 }    
@@ -149,6 +131,13 @@ public class ServletController {
             response.getWriter().write("No service was found.");
         }
         response.getWriter().write("</body></html>");
+    }
+
+    private String getBaseURL(HttpServletRequest request) {
+        String reqPerfix = request.getRequestURL().toString();
+        String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
+        reqPerfix = reqPerfix.substring(0, reqPerfix.length() - pathInfo.length());
+        return reqPerfix;
     }
 
     protected void generateNotFound(HttpServletRequest request, HttpServletResponse res) throws IOException {
