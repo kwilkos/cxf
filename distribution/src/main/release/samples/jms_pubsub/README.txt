@@ -28,14 +28,20 @@ environment.
 This demo requires ActiveMQ 4.1.X. Before you run this
 demo, please make sure you had installed the ActiveMQ 4.1.X and
 set ACTIVEMQ_HOME and ACTIVEMQ_VERSION environment variables.
-Also, the ACTIVEMQ_VERSION environment variable should include the 
-'-incubator' suffix. For example,
+ActiveMQ 4.1.0 the version variable should be
 
 For Unix:
 export ACTIVEMQ_VERSION=4.1.0-incubator
 
 For Windows:
 set ACTIVEMQ_VERSION=4.1.0-incubator
+
+ActiveMQ 4.1.1 the version variable should be
+For Unix:
+export ACTIVEMQ_VERSION=4.1.1
+
+For Windows:
+set ACTIVEMQ_VERSION=4.1.1
  
 
 Before you run this demo, start up the JMS message broker.
