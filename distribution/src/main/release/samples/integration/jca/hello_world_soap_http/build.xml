@@ -60,6 +60,7 @@
 
     <target name="init">
         <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.src.dir}"/> 
         <mkdir dir="${build.classes.dir}/lib"/>
     </target>
 
@@ -101,9 +102,7 @@
         <jar destfile="${build.classes.dir}/lib/cxf.rar"
          basedir="${build.classes.dir}/cxf-rar"/>
     </target>
-
-
-
+  
     <target name="j2ee.compile" depends="maybe.generate.code">
         <javac destdir="${build.classes.dir}" debug="true">
             <src path="${build.src.dir}"/>
@@ -120,6 +119,8 @@
             <fileset dir="${build.src.dir}" includes="**/*.wsdl" />
         </copy>
     </target>
+
+    <target name="war" />
    
     <target name="build" description="compile the code" depends="clean,init,j2ee.compile,build-war"/>
 
