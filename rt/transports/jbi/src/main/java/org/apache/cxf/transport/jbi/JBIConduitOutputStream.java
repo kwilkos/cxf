@@ -22,7 +22,6 @@ package org.apache.cxf.transport.jbi;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
@@ -33,6 +32,7 @@ import javax.jbi.messaging.MessageExchangeFactory;
 import javax.jbi.messaging.NormalizedMessage;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
@@ -41,6 +41,7 @@ import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
@@ -111,8 +112,6 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
             LOG.info(new org.apache.cxf.common.i18n.Message("EXCHANGE.ENDPOINT", LOG).toString()
                      + xchng.getEndpoint());
 
-            InputStream ins = null;
-
             if (inMsg != null) {
                 LOG.info("setup message contents on " + inMsg);
                 inMsg.setContent(getMessageContent(message));
@@ -129,19 +128,10 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
                     channel.sendSync(xchng);
                     NormalizedMessage outMsg = ((InOut)xchng).getOutMessage();
                     
-                    //revisit later
-                    /*Source content = outMsg.getContent();
-                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(content);
-                    message.setContent(XMLStreamReader.class, reader);*/
-                    
-                    ins = JBIMessageHelper.convertMessageToInputStream(outMsg.getContent());
-                    if (ins == null) {
-                        throw new IOException(new org.apache.cxf.common.i18n.Message(
-                            "UNABLE.RETRIEVE.MESSAGE", LOG).toString());
-                    }
                     Message inMessage = new MessageImpl();
                     message.getExchange().setInMessage(inMessage);
-                    inMessage.setContent(InputStream.class, ins);
+                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(outMsg.getContent());
+                    inMessage.setContent(XMLStreamReader.class, reader);
                     conduit.getMessageObserver().onMessage(inMessage);
                     
                 } else {

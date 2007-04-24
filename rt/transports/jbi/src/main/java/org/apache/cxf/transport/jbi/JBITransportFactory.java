@@ -51,7 +51,7 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
 
     private static final Logger LOG = LogUtils.getL7dLogger(JBITransportFactory.class);
 
-    private DeliveryChannel deliveryChannel;
+    private static final ThreadLocal<DeliveryChannel> DELIVERY_CHANNEL = new ThreadLocal<DeliveryChannel>();
     private Bus bus;
     private final Map<String, JBIDestination> destinationMap =  new HashMap<String, JBIDestination>();
     
@@ -97,14 +97,14 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     }
 
     
-    public DeliveryChannel getDeliveryChannel() {
-        return deliveryChannel;
+    public static DeliveryChannel getDeliveryChannel() {
+        return DELIVERY_CHANNEL.get();
     }
 
-    public void setDeliveryChannel(DeliveryChannel newDeliverychannel) {
+    public static void setDeliveryChannel(DeliveryChannel newDeliverychannel) {
         LOG.info(new org.apache.cxf.common.i18n.Message(
             "CONFIG.DELIVERY.CHANNEL", LOG).toString() + newDeliverychannel);
-        deliveryChannel = newDeliverychannel;
+        DELIVERY_CHANNEL.set(newDeliverychannel);
     }
 
     public Conduit getConduit(EndpointInfo targetInfo) throws IOException {
@@ -112,7 +112,7 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
-        Conduit conduit = new JBIConduit(target, deliveryChannel);
+        Conduit conduit = new JBIConduit(target, getDeliveryChannel());
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(conduit);
@@ -121,7 +121,7 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     }
 
     public Destination getDestination(EndpointInfo ei) throws IOException {
-        JBIDestination destination = new JBIDestination(ei, deliveryChannel);
+        JBIDestination destination = new JBIDestination(ei, getDeliveryChannel());
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(destination);
@@ -146,4 +146,5 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     public JBIDestination getDestination(String epName) {
         return destinationMap.get(epName);
     }
+    
 }

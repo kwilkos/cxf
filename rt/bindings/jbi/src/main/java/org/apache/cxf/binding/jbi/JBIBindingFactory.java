@@ -26,7 +26,6 @@ import org.apache.cxf.binding.jbi.interceptor.JBIFaultOutInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIOperationInInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIWrapperInInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIWrapperOutInterceptor;
-import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -38,12 +37,9 @@ public class JBIBindingFactory extends AbstractBindingFactory {
     public Binding createBinding(BindingInfo binding) {
         JBIBinding jb = new JBIBinding((JBIBindingInfo) binding);
         jb.getInInterceptors().add(new JBIOperationInInterceptor());
-        jb.getInInterceptors().add(new StaxInInterceptor());
         jb.getInInterceptors().add(new JBIWrapperInInterceptor());
-        
         jb.getOutInterceptors().add(new StaxOutInterceptor());
         jb.getOutInterceptors().add(new JBIWrapperOutInterceptor());
-
         jb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         jb.getOutFaultInterceptors().add(new JBIFaultOutInterceptor());
         return jb;

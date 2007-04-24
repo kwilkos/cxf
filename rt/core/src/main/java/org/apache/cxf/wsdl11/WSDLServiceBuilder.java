@@ -48,11 +48,11 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
+import javax.wsdl.extensions.soap.SOAPBinding;
+import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
-
-import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -425,10 +425,20 @@ public class WSDLServiceBuilder {
             
         if (factory == null) { // get the transport id from bindingInfo
             elements = port.getBinding().getExtensibilityElements();
-            for (ExtensibilityElement el : CastUtils.cast(elements, ExtensibilityElement.class)) {
-                if (el instanceof SOAPBindingImpl) {
-                    ns = (String)((SOAPBindingImpl)el).getTransportURI();
-                    break;
+            if (null != elements && elements.size() > 0) {
+                for (ExtensibilityElement el : CastUtils.cast(elements, ExtensibilityElement.class)) {
+                    if (el instanceof SOAPBinding) {
+                        ns = (String)((SOAPBinding)el).getTransportURI();
+                        break;
+                    } else if (el instanceof SOAP12Binding) {
+                        ns = (String)((SOAP12Binding)el).getTransportURI();
+                        break;
+                    // TODO: this is really ugly, but how to link between this binding and this transport ?
+                    } else if ("http://cxf.apache.org/bindings/jbi"
+                                    .equals(el.getElementType().getNamespaceURI())) {
+                        ns = "http://cxf.apache.org/transports/jbi";
+                        break;
+                    }
                 }
             }
             try {

@@ -39,6 +39,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -86,8 +87,10 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
             BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
             DataReader<XMLStreamReader> dr = getDataReader(message);
             List<Object> parameters = new ArrayList<Object>();
-            for (MessagePartInfo part : bop.getInput().getMessageParts()) {
-                if (reader.nextTag() != XMLStreamConstants.START_ELEMENT) {
+            reader.next();
+            BindingMessageInfo messageInfo = isRequestor(message) ? bop.getInput() : bop.getOutput();
+            for (MessagePartInfo part : messageInfo.getMessageParts()) {
+                if (!StaxUtils.skipToStartOfElement(reader)) {
                     throw new Fault(new org.apache.cxf.common.i18n.Message(
                             "NO_ENOUGH_PARTS", BUNDLE));
                 }
@@ -110,7 +113,14 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
                 }
                 reader.next();
             }
-            if (reader.getEventType() != XMLStreamConstants.END_DOCUMENT) {
+            int ev = reader.getEventType();
+            while (ev != XMLStreamConstants.END_ELEMENT 
+                    && ev != XMLStreamConstants.START_ELEMENT
+                    && ev != XMLStreamConstants.END_DOCUMENT) {
+                ev = reader.next();
+            }
+            if (ev == XMLStreamConstants.START_ELEMENT) {
+                System.err.println(reader.getEventType());
                 throw new Fault(new org.apache.cxf.common.i18n.Message("TOO_MUCH_PARTS", BUNDLE));
             }
             message.setContent(List.class, parameters);

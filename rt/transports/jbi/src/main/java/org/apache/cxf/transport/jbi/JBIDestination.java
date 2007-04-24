@@ -20,7 +20,6 @@
 package org.apache.cxf.transport.jbi;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,11 +28,13 @@ import javax.jbi.messaging.DeliveryChannel;
 import javax.jbi.messaging.MessageExchange;
 import javax.jbi.messaging.NormalizedMessage;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.transport.AbstractConduit;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
@@ -94,9 +95,13 @@ public class JBIDestination extends AbstractDestination {
          */
         public void prepare(Message message) throws IOException {
             // setup the message to be send back
+            DeliveryChannel dc = channel;
+            if (dc == null) {
+                dc = JBITransportFactory.getDeliveryChannel();
+            }
             message.put(MessageExchange.class, inMessage.get(MessageExchange.class));
             message.setContent(OutputStream.class,
-                               new JBIDestinationOutputStream(inMessage, channel));
+                               new JBIDestinationOutputStream(inMessage, dc));
         }        
 
         protected Logger getLogger() {
@@ -110,11 +115,12 @@ public class JBIDestination extends AbstractDestination {
         
         NormalizedMessage nm = exchange.getMessage("in");
         try {
-            final InputStream in = JBIMessageHelper.convertMessageToInputStream(nm.getContent());
             //get the message to be interceptor
             MessageImpl inMessage = new MessageImpl();
             inMessage.put(MessageExchange.class, exchange);
-            inMessage.setContent(InputStream.class, in);
+            XMLStreamReader reader = StaxUtils.createXMLStreamReader(nm.getContent());
+            inMessage.setContent(XMLStreamReader.class, reader);
+            inMessage.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
                                            
             //dispatch to correct destination in case of multiple endpoint
             inMessage.setDestination(this);

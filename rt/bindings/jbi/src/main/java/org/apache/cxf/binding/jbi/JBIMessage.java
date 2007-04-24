@@ -25,7 +25,7 @@ import org.apache.cxf.message.Message;
 
 public class JBIMessage extends AbstractWrappedMessage {
 
-    protected JBIMessage(Message msg) {
+    public JBIMessage(Message msg) {
         super(msg);
     }
     
