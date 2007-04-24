@@ -223,4 +223,21 @@
       </licenses>
     </project>
   </supplement>
+  <supplement>
+    <project>
+      <groupId>org.codehaus.jettison</groupId>
+      <artifactId>jettison</artifactId>
+      <name>Jettison</name>
+      <organization>
+        <name>Envoi Solutions LLC</name>
+        <url>http://www.envoisolutions.com</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>The Apache Software License, Version 2.0</name>
+          <url>http://jettison.codehaus.org/License</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
 </supplementalDataModels>
