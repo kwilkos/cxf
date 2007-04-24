@@ -57,7 +57,6 @@
         <replace file="${cxf.home}/etc/ra.xml" token="CXF_HOME" value="${cxf.home}"/>
     </target>
 
-    <target name="war"/>
 
     <target name="init">
         <!--mkdir dir="${build.classes.dir}"/-->
@@ -69,6 +68,8 @@
     <target name="update.jboss.endorsed">
         <copy todir="${jboss.home}/lib/endorsed">
             <fileset dir="${cxf.home}/lib">
+                <include name="*annotation*" />
+                <include name="*ws-metadata*" />
                 <include name="activation*" />
                 <include name="jaxb*" />
                 <include name="stax*" />
@@ -106,7 +107,7 @@
     </target>
 
 
-    <target name="build" description="compile the code" depends="clean,init,j2ee.compile,build.ejb.jar"/>
+    <target name="build" description="compile the code" depends="init,j2ee.compile,build.ejb.jar"/>
 
 
     <target name="j2ee.compile">
@@ -123,9 +124,9 @@
 
     <target name="clean">
         <delete failonerror="no">
-            <fileset dir="./src" includes="**/*.class"/>
-            <fileset dir="." includes="**/*.jar"/>
-            <fileset dir="." includes="**/*.rar"/>
+            <fileset dir="./build" includes="**/*.class"/>
+            <fileset dir="./build" includes="**/*.jar"/>
+            <fileset dir="./build/lib" includes="**/*.rar"/>
             <fileset dir="${build.classes.dir}/cxf-rar" includes="**/*"/>
         </delete>
     </target>

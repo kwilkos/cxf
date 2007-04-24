@@ -69,6 +69,8 @@
         <copy todir="${jboss.home}/lib/endorsed">
             <fileset dir="${cxf.home}/lib">
                 <include name="*activation*" />
+                <include name="*annotation*" />
+                <include name="*ws-metadata*" />
                 <include name="jaxb*" />
                 <include name="stax*" />
                 <include name="jsr181*" />
@@ -123,14 +125,23 @@
         </copy>
     </target>
 
-    <target name="war" />
    
-    <target name="build" description="compile the code" depends="clean,init,j2ee.compile,build-war"/>
+    <target name="build" description="compile the code" depends="init,j2ee.compile,build-war"/>
 
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java file="hello_world.wsdl"/>
     </target>
+
+     <target name="clean">
+        <delete failonerror="no">
+            <fileset dir="./build" includes="**/*.class"/>
+            <fileset dir="./build" includes="**/*.jar"/>
+            <fileset dir="./build" includes="**/*.rar"/>
+            <fileset dir="${build.classes.dir}/cxf-rar" includes="**/*"/>
+        </delete>
+    </target>
+
 
     <!--target name="server" description="run demo server" depends="build">
       <property name="param" value=""/>
