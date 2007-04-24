@@ -128,7 +128,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
                         mustUnderstandHeaders.add(header);
                     } else {
                         for (URI roleFromBinding : serviceRoles) {
-                            if (role.equals(roleFromBinding)) {
+                            if (role.equals(roleFromBinding.toString())) {
                                 mustUnderstandHeaders.add(header);
                             }
                         }
