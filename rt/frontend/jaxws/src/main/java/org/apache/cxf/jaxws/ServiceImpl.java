@@ -54,6 +54,7 @@ import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
+import org.apache.cxf.jaxws.support.BindingID;
 import org.apache.cxf.jaxws.support.DummyImpl;
 import org.apache.cxf.jaxws.support.JaxWsClientEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
@@ -109,7 +110,8 @@ public class ServiceImpl extends ServiceDelegate {
         for (ServiceInfo si : service.getServiceInfos()) { 
             for (EndpointInfo ei : si.getEndpoints()) {
                 this.ports.add(ei.getName());
-                addPort(ei.getName(), ei.getTransportId(), ei.getAddress());
+                String bindingID = BindingID.getJaxwsBindingID(ei.getTransportId());
+                addPort(ei.getName(), bindingID, ei.getAddress());
             }
         }
     }
@@ -336,16 +338,15 @@ public class ServiceImpl extends ServiceDelegate {
     private EndpointInfo createEndpointInfo(AbstractServiceFactoryBean serviceFactory, 
                                             QName portName,
                                             PortInfoImpl portInfo) throws BusException {
-        EndpointInfo ei = null;
+        EndpointInfo ei = null;               
         String address = portInfo.getAddress();
-
+       
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
         DestinationFactory df = dfm.getDestinationFactoryForUri(portInfo.getAddress());
 
         String transportId = df.getTransportIds().get(0);
-        String bindingID = portInfo.getBindingID();
-
-        
+        String bindingID = BindingID.getBindingID(portInfo.getBindingID());
+                
         Object config = null;
         if (serviceFactory instanceof JaxWsServiceFactoryBean) {
             config = new JaxWsSoapBindingConfiguration((JaxWsServiceFactoryBean)serviceFactory);
@@ -357,7 +358,6 @@ public class ServiceImpl extends ServiceDelegate {
         Service service = serviceFactory.getService();
         service.getServiceInfos().get(0).addBinding(bindingInfo);
 
-        // TODO we may need to get the transportURI from Address
         ei = new EndpointInfo(service.getServiceInfos().get(0), transportId);
         ei.setName(portName);
         ei.setAddress(address);
