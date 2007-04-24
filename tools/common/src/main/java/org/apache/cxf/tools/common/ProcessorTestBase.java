@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.cxf.helpers.FileUtils;
@@ -88,14 +90,34 @@ public class ProcessorTestBase extends Assert {
         StringTokenizer st1 = new StringTokenizer(str1);
         StringTokenizer st2 = new StringTokenizer(str2);
 
-        while (st1.hasMoreTokens() && st2.hasMoreTokens()) {
+        // namespace declarations and wsdl message parts can be ordered
+        // differently in the generated wsdl between the ibm and sun jdks.
+        // So, when we encounter a mismatch, put the unmatched token in a
+        // list and check this list when matching subsequent tokens.
+        // It would be much better to do a proper xml comparison.
+        List<String> unmatched = new ArrayList<String>();
+        while (st1.hasMoreTokens()) {
             String tok1 = st1.nextToken();
-            String tok2 = st2.nextToken();
+            String tok2 = null;
+            if (unmatched.contains(tok1)) {
+                unmatched.remove(tok1);
+                continue;
+            }
+            while (st2.hasMoreTokens()) {
+                tok2 = st2.nextToken();
 
+                if (tok1.equals(tok2)) {
+                    break;
+                } else {
+                    unmatched.add(tok2);
+                }
+            }
             assertEquals("Compare failed", tok1, tok2);
         }
 
         assertTrue(!st1.hasMoreTokens());
+        assertTrue(!st2.hasMoreTokens());
+        assertTrue("Files did not match", unmatched.isEmpty());
     }
 
     public String getStringFromFile(File location) {

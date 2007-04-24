@@ -89,7 +89,7 @@ public abstract class BusFactory {
     
     /**
      * Gets the default bus for the thread.
-     * @retur the default bus.
+     * @return the default bus.
      */
     public static synchronized Bus getThreadDefaultBus() {
         if (localBus.get() == null) {

@@ -493,6 +493,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 throw new ServiceConstructionException(e1);
             }
             Element e = docs[0].getDocumentElement();
+            // XXX A problem can occur with the ibm jdk when the XmlSchema
+            // object is serialized.  The xmlns declaration gets incorrectly
+            // set to the same value as the targetNamespace attribute.
+            // The aegis databinding tests demonstrate this particularly.
+            if (e.getPrefix() == null && !WSDLConstants.NU_SCHEMA_XSD.equals(
+                e.getAttributeNS(WSDLConstants.NU_XMLNS, WSDLConstants.NP_XMLNS))) {
+                e.setAttributeNS(WSDLConstants.NU_XMLNS, 
+                    WSDLConstants.NP_XMLNS, WSDLConstants.NU_SCHEMA_XSD);
+            }
             schemaInfo.setElement(e);
         }
     }
