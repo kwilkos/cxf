@@ -20,21 +20,18 @@ package org.apache.cxf.jaxws.support;
 
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.binding.soap.SoapTransportFactory;
+
 public final class BindingID {
-    
-    private static final String SOAP_11 = "http://schemas.xmlsoap.org/wsdl/soap/";
-    private static final String SOAP_12 = "http://schemas.xmlsoap.org/wsdl/soap12/";
-    
-    private static final String SOAP_11_HTTP_BINDING = "http://schemas.xmlsoap.org/soap/http";
-    private static final String SOAP_12_HTTP_BINDING = "http://www.w3.org/2003/05/soap/bindings/HTTP/";
-    
+           
     private BindingID() {
     }
     
     public static String getJaxwsBindingID(String transportID) {
-        if (SOAP_11_HTTP_BINDING.equals(transportID)) {
+        if (SoapTransportFactory.SOAP_11_HTTP_BINDING.equals(transportID)) {
             return SOAPBinding.SOAP11HTTP_BINDING;
-        } else if (SOAP_12_HTTP_BINDING.equals(transportID)) {
+        } else if (SoapTransportFactory.SOAP_12_HTTP_BINDING.equals(transportID)) {
             return SOAPBinding.SOAP12HTTP_BINDING;
         } else {
             return transportID;
@@ -44,10 +41,10 @@ public final class BindingID {
     public static String getBindingID(String jaxwsBindingID) {
         if (SOAPBinding.SOAP11HTTP_BINDING.equals(jaxwsBindingID) 
                 || SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(jaxwsBindingID)) {
-            return SOAP_11;
+            return SoapBindingFactory.SOAP_11_BINDING;
         } else if (SOAPBinding.SOAP12HTTP_BINDING.equals(jaxwsBindingID)
                 || SOAPBinding.SOAP12HTTP_MTOM_BINDING.equals(jaxwsBindingID)) {
-            return SOAP_12;
+            return SoapBindingFactory.SOAP_12_BINDING;
         } else {
             return jaxwsBindingID;
         } 

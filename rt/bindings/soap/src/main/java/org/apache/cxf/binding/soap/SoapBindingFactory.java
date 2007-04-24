@@ -78,6 +78,9 @@ import org.apache.cxf.transport.MultipleEndpointObserver;
 
 public class SoapBindingFactory extends AbstractBindingFactory {
 
+    public static final String SOAP_11_BINDING = "http://schemas.xmlsoap.org/wsdl/soap/";
+    public static final String SOAP_12_BINDING = "http://schemas.xmlsoap.org/wsdl/soap12/";
+    
     public static final String MESSAGE_PROCESSING_DISABLED = "disable.header.processing";
     
     private boolean mtomEnabled = true;

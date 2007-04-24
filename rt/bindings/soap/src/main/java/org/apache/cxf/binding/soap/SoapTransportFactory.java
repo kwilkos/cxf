@@ -65,9 +65,15 @@ import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
 public class SoapTransportFactory extends AbstractTransportFactory implements DestinationFactory,
     WSDLEndpointFactory, ConduitInitiator {
+    
+    public static final String SOAP_11_HTTP_BINDING = "http://schemas.xmlsoap.org/soap/http";
+    public static final String SOAP_12_HTTP_BINDING = "http://www.w3.org/2003/05/soap/bindings/HTTP/";
+    
     public static final String TRANSPORT_ID = "http://schemas.xmlsoap.org/soap/";
+    
     private Bus bus;
     private Collection<String> activationNamespaces;
+    
     public SoapTransportFactory() {
         super();
     }
