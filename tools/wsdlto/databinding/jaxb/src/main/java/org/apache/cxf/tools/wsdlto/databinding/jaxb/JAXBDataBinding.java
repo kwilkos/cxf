@@ -55,7 +55,6 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 
 public class JAXBDataBinding implements DataBindingProfile {
@@ -88,25 +87,15 @@ public class JAXBDataBinding implements DataBindingProfile {
             if (StringUtils.isEmpty(tns)) {
                 continue;
             }
-            String excludePkg = null;
-            if (context.hasExcludeNamespace(tns)) {
-                excludePkg = context.getExcludePackageName(tns);
-                if (excludePkg != null) {
-                    context.getExcludePkgList().add(excludePkg);
-                } else {
-                    context.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
-                }
-            }
+
             schemaCompiler.parseSchema(key, ele);
 
         }
-       
-        
+
         for (InputSource binding : jaxbBindings) {
             schemaCompiler.parseSchema(binding);
         }
-        
-        
+
         if (context.getPackageName() != null) {
             schemaCompiler.forcePackageName(context.getPackageName());
         } else {
@@ -118,7 +107,6 @@ public class JAXBDataBinding implements DataBindingProfile {
                 FileUtils.delete(file);
             }
         }
-        
 
         rawJaxbModelGenCode = schemaCompiler.bind();
 
@@ -128,7 +116,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
     // class is an enum. We need to use this method to add the missed file
     // to classCollector.
-    private void addedEnumClassToCollector(Map<String, Element> schemaList,
+    private void addedEnumClassToCollector(Map<String, Element> schemaList, 
                                            ClassNameAllocatorImpl allocator) {
         for (Element schemaElement : schemaList.values()) {
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
@@ -158,7 +146,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     private boolean isSuppressCodeGen() {
         return context.optionSet(ToolConstants.CFG_SUPPRESS_GEN);
     }
-    
+
     public void generate(ToolContext c) throws ToolException {
         initialize(c);
         if (rawJaxbModelGenCode == null) {
@@ -199,7 +187,7 @@ public class JAXBDataBinding implements DataBindingProfile {
                 typeAnno = mapping.getType();
             }
         }
-                
+
         if (typeAnno != null && typeAnno.getTypeClass() != null) {
             return typeAnno.getTypeClass().fullName();
         }
@@ -287,7 +275,6 @@ public class JAXBDataBinding implements DataBindingProfile {
      * @param namespace
      * @param pkgName
      * @return file
-     *         
      */
     public File getCustomizedSchemaElement(String namespace, String pkgName) {
         Document doc = DOMUtils.createDocument();
@@ -314,7 +301,7 @@ public class JAXBDataBinding implements DataBindingProfile {
         } catch (Exception e) {
             Message msg = new Message("FAIL_TO_CREATE_JAXBBINIDNG_FILE", LOG);
             throw new ToolException(msg, e);
-        } 
+        }
         return tmpFile;
     }
 

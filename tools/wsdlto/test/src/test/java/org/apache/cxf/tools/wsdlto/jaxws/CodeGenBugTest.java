@@ -175,6 +175,9 @@ public class CodeGenBugTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
+    
+    
+    
 
     @Test
     public void testBug305772() throws Exception {
@@ -201,7 +204,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
                                       "http://apache.org/test/types=com.iona", "-nexclude",
-                                      "http://apache.org/Invoice",
+                                      "http://apache.org/Invoice", "-compile",
+                                      "-classdir", output.getCanonicalPath() + "/classes",
                                       getLocation("/wsdl2java_wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
 
@@ -210,13 +214,18 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", com.exists());
         File iona = new File(com, "iona");
         assertFalse("Generated file has been excluded", iona.exists());
-
+        
+        File implFile = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
+        String str = getStringFromFile(implFile);
+        assertTrue(str.indexOf("com.iona.BareDocumentResponse") > 0);
+        
         File org = new File(output, "org");
         File apache = new File(org, "apache");
         File invoice = new File(apache, "Invoice");
         assertFalse("Generated file has been excluded", invoice.exists());
 
     }
+
 
     @Test
     public void testExcludeNSWithoutPackageName() throws Exception {
@@ -231,7 +240,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", com.exists());
 
     }
-
+     
     @Test
     public void testCommandLine() throws Exception {
         String[] args = new String[] {"-compile", "-d", output.getCanonicalPath(), "-classdir",
@@ -414,6 +423,27 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue(ws.exists());
         File address = new File(ws, "addressing");
         assertTrue(address.exists());
+    }
+    
+    
+    @Test
+    public void testDefatultNsMapExclude() throws Exception {
+        env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
+        env.put(ToolConstants.CFG_NEXCLUDE, 
+                "http://www.w3.org/2005/08/addressing=org.apache.cxf.ws.addressing");
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf492/locator.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        
+        File org = new File(output, "org");
+        assertTrue("org directory is not exist", org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File ws = new File(output, "org/apache/cxf/ws/addressing");
+        assertFalse(ws.exists());
+        
+        File orginal = new File(output, "org.w3._2005._08.addressing");
+        assertFalse(orginal.exists());
     }
     
     @Test

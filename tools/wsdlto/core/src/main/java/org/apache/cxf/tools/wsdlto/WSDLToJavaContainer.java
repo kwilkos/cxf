@@ -258,7 +258,14 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     public void setExcludePackageAndNamespaces(ToolContext env) {
         if (env.get(ToolConstants.CFG_NEXCLUDE) != null) {
-            String[] pns = (String[])env.get(ToolConstants.CFG_NEXCLUDE);
+            String[] pns = null;
+            try {
+                pns = (String[])env.get(ToolConstants.CFG_NEXCLUDE);
+            } catch (ClassCastException e) {
+                pns = new String[1];
+                pns[0] = (String)env.get(ToolConstants.CFG_NEXCLUDE);
+            }
+
             for (int j = 0; j < pns.length; j++) {
                 int pos = pns[j].indexOf("=");
                 String excludePackagename = pns[j];
@@ -266,8 +273,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     String ns = pns[j].substring(0, pos);
                     excludePackagename = pns[j].substring(pos + 1);
                     env.addExcludeNamespacePackageMap(ns, excludePackagename);
+                    env.addNamespacePackageMap(ns, excludePackagename);
                 } else {
-                    env.addExcludeNamespacePackageMap(pns[j], null);
+                    env.addExcludeNamespacePackageMap(pns[j], env.mapPackageName(pns[j]));
                 }
             }
         }
@@ -387,10 +395,10 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (!context.containsKey(ToolConstants.CFG_WSDL_VERSION)) {
             context.put(ToolConstants.CFG_WSDL_VERSION, WSDLConstants.WSDL11);
         }
-
-        setExcludePackageAndNamespaces(context);
+        
         loadDefaultNSPackageMapping(context);
         setPackageAndNamespaces(context);
+        setExcludePackageAndNamespaces(context);
     }
 
     protected static InputStream getResourceAsStream(String file) {

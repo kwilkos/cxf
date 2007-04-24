@@ -62,6 +62,7 @@ public class ToolContext {
         try {
             PropertyUtil properties = new PropertyUtil();
             properties.load(ins);
+            namespacePackageMap.putAll(properties.getMaps());
             excludeNamespacePackageMap.putAll(properties.getMaps());
         } catch (IOException e) {
             e.printStackTrace();
@@ -161,11 +162,12 @@ public class ToolContext {
     }
 
     public void addExcludeNamespacePackageMap(String namespace, String pn) {
-        this.excludeNamespacePackageMap.put(namespace, pn);
+        excludeNamespacePackageMap.put(namespace, pn);
+        excludePkgList.add(pn);
     }
 
     public boolean hasExcludeNamespace(String ns) {
-        return this.excludeNamespacePackageMap.containsKey(ns);
+        return excludeNamespacePackageMap.containsKey(ns);
     }
 
     public String getExcludePackageName(String ns) {

@@ -98,7 +98,7 @@ public class ProcessorTestBase extends Assert {
         assertTrue(!st1.hasMoreTokens());
     }
 
-    private String getStringFromFile(File location) {
+    public String getStringFromFile(File location) {
         InputStream is = null;
         String result = null;
 
