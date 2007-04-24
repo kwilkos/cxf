@@ -36,7 +36,7 @@ public class JavaServiceClass extends JavaClass {
         ports.add(port);
     }
 
-    public List getPorts() {
+    public List<JavaPort> getPorts() {
         return ports;
     }
     

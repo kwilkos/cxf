@@ -32,6 +32,8 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.common.model.JavaPort;
+import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
@@ -149,8 +151,9 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             assertEquals(1, interfaces.size());
 
             JavaInterface intf = interfaces.values().iterator().next();
+            String interfaceName = intf.getName();
+            assertEquals("Greeter", interfaceName);
             assertEquals("http://apache.org/hello_world_soap_http", intf.getNamespace());
-            assertEquals("Greeter", intf.getName());
             assertEquals("org.apache.hello_world_soap_http", intf.getPackageName());
 
             List<JavaMethod> methods = intf.getMethods();
@@ -161,6 +164,22 @@ public class JAXWSContainerTest extends ProcessorTestBase {
             assertEquals(2, m1.getExceptions().size());
             assertEquals("BadRecordLitFault", m1.getExceptions().get(0).getName());
             assertEquals("NoSuchCodeLitFault", m1.getExceptions().get(1).getName());
+
+            String address = null;
+
+            for (JavaServiceClass service : javaModel.getServiceClasses().values()) {
+                List<JavaPort> ports = (List<JavaPort>) service.getPorts();
+                for (JavaPort port : ports) {
+                    if (interfaceName.equals(port.getPortType())) {
+                        address = port.getBindingAdress();
+                        break;
+                    }
+                }
+                if (!"".equals(address)) {
+                    break;
+                }
+            }
+            assertEquals("http://localhost:9000/SoapContext/SoapPort", address);
         } catch (Exception e) {
             e.printStackTrace();
         }
