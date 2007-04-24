@@ -433,13 +433,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     }
 
     public List<AbstractFeature> getFeatures() {
+        if (features == null) {
+            features = new ArrayList<AbstractFeature>();
+        }
         return features;
     }
 
     public void setFeatures(List<AbstractFeature> features) {
-        if (features == null) {
-            features = new ArrayList<AbstractFeature>();
-        }
         this.features = features;
     }
     

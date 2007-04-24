@@ -59,7 +59,12 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
         
         getTransportAssertions(message);
         
-        aim.check();
+        EffectivePolicy policy = message.get(EffectivePolicy.class);
+        if (policy == null) {
+            return;
+        }
+        
+        aim.checkEffectivePolicy(policy.getPolicy());
         
         LOG.fine("Verified policies for outbound message.");
     }

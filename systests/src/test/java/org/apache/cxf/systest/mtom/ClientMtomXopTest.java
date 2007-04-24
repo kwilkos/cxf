@@ -89,7 +89,7 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
     
     @Test
     public void testMtomXop() throws Exception {
-        TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class);
+        TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class, true);
         try {
             InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
             long fileSize = 0;
@@ -110,7 +110,10 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
         }
     }
 
-    private static <T> T createPort(QName serviceName, QName portName, Class<T> serviceEndpointInterface)
+    private static <T> T createPort(QName serviceName, 
+                                    QName portName, 
+                                    Class<T> serviceEndpointInterface,
+                                    boolean enableMTOM)
         throws Exception {
         Bus bus = BusFactory.getDefaultBus();
         ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
@@ -122,7 +125,7 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
         EndpointInfo ei = service.getEndpointInfo(portName);
         JaxWsEndpointImpl jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
         SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding());
-        jaxWsSoapBinding.setMTOMEnabled(true);
+        jaxWsSoapBinding.setMTOMEnabled(enableMTOM);
         
         jaxwsEndpoint.getBinding().getInInterceptors().add(new TestMultipartMessageInterceptor());
         jaxwsEndpoint.getBinding().getOutInterceptors().add(new TestAttachmentOutInterceptor());

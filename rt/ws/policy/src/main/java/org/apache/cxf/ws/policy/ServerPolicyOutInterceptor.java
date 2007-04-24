@@ -77,6 +77,7 @@ public class ServerPolicyOutInterceptor extends AbstractPolicyInterceptor {
         
         Destination destination = exchange.getDestination();
         EffectivePolicy effectivePolicy = pe.getEffectiveServerResponsePolicy(ei, boi, destination);
+        msg.put(EffectivePolicy.class, effectivePolicy);
         
         List<Interceptor> interceptors = effectivePolicy.getInterceptors();
         for (Interceptor oi : interceptors) {

@@ -80,6 +80,7 @@ public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
         // add the required interceptors
         
         EffectivePolicy effectivePolicy = pe.getEffectiveClientRequestPolicy(ei, boi, conduit);
+        msg.put(EffectivePolicy.class, effectivePolicy);
         PolicyUtils.logPolicy(LOG, Level.FINEST, "Using effective policy: ", effectivePolicy.getPolicy());
         
         List<Interceptor> interceptors = effectivePolicy.getInterceptors();

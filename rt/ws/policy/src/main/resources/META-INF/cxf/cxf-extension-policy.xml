@@ -68,4 +68,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <constructor-arg ref="cxf"/>
     </bean>
     
+    <!-- MTOM Policy Support -->
+    <bean class="org.apache.cxf.ws.policy.mtom.MTOMAssertionBuilder" />
+    <bean class="org.apache.cxf.ws.policy.mtom.MTOMPolicyInterceptorProvider"/>
 </beans>

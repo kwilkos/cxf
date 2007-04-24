@@ -118,6 +118,9 @@ public class WSPolicyFeature extends AbstractFeature {
     }
 
     public Collection<Policy> getPolicies() {
+        if (policies == null) {
+            policies = new ArrayList<Policy>();
+        }
         return policies;
     }
 
@@ -126,6 +129,9 @@ public class WSPolicyFeature extends AbstractFeature {
     }
 
     public Collection<Element> getPolicyElements() {
+        if (policyElements == null) {
+            policyElements = new ArrayList<Element>();
+        }
         return policyElements;
     }
 

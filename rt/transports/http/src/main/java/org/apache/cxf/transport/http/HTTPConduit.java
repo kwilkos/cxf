@@ -307,7 +307,7 @@ public class HTTPConduit
         // turn are superseded by injection                          
 
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);      
-        if (null != pe && pe.isEnabled()) {                          
+        if (null != pe && pe.isEnabled() && endpointInfo.getService() != null) {                          
             clientSidePolicy =                                       
                 PolicyUtils.getClient(pe, endpointInfo, this);              
         }                                                            

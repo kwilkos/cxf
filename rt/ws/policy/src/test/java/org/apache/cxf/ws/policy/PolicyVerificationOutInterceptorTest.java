@@ -66,7 +66,12 @@ public class PolicyVerificationOutInterceptorTest extends Assert {
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
         interceptor.getTransportAssertions(message);
         EasyMock.expectLastCall();
-        aim.check();
+        EffectivePolicy ep = control.createMock(EffectivePolicy.class);
+        EasyMock.expect(message.get(EffectivePolicy.class)).andReturn(ep);
+        EasyMock.expect(ep.getPolicy()).andReturn(null);
+
+        aim.checkEffectivePolicy(null);
+        
         EasyMock.expectLastCall();
         
         control.replay();        
