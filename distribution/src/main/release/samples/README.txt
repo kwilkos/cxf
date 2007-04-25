@@ -33,7 +33,7 @@ You may find it convenient to use a script to set the required
 environment variables.
 
 For UNIX:
-  CXF_HOME=/<installation_directory>/cxf
+  CXF_HOME=/<installation_directory>
   JAVA_HOME=/<jdk_installation_directory>
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
@@ -41,7 +41,7 @@ For UNIX:
   export CLASSPATH=.:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
 
 For Windows:
-  set CXF_HOME=C:\<installation_directory>\cxf
+  set CXF_HOME=C:\<installation_directory>
   set JAVA_HOME=C:\<jdk_installation_directory>
   set ANT_HOME=C:\<ant_installation_directory>\apache-ant-1.6.5
 
