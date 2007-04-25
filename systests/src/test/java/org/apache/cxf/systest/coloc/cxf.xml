@@ -101,13 +101,13 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <!-- Avoid upfront Conduit creation, as client-side transport resources
          are not required in the coloc case -->
     <jaxws:client id="{http://apache.org/headers/rpc_lit}SoapPort" 
-                  abstract="true">
+                  createdFromAPI="true">
         <jaxws:conduitSelector>
             <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
         </jaxws:conduitSelector>
     </jaxws:client>
     <jaxws:client id="{http://apache.org/headers/doc_lit}SoapPort9000" 
-                  abstract="true">
+                  createdFromAPI="true">
         <jaxws:conduitSelector>
             <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
         </jaxws:conduitSelector>

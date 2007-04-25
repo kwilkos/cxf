@@ -61,7 +61,7 @@
     <!-- Avoid upfront Conduit creation, as client-side transport resources
          are not required in the coloc case -->
     <jaxws:client id="{http://apache.org/hello_world_soap_http}SoapPort"
-                  abstract="true">
+                  createdFromAPI="true">
         <jaxws:conduitSelector>
             <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
         </jaxws:conduitSelector>
