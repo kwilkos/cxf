@@ -267,7 +267,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(file);
         assertTrue(output.exists());
     }
-
+   
     private File getOutputFile(String fileName) {
         return new File(output, fileName);
     }

@@ -20,6 +20,7 @@
 package org.apache.cxf.tools.java2wsdl.processor;
 
 import java.io.File;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.xml.namespace.QName;
@@ -33,14 +34,17 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
     private WSDLHelper wsdlHelper = new WSDLHelper();
 
-    @org.junit.After
+    @After
     public void tearDown() {
+        env = new ToolContext();
         super.tearDown();
     }
         
@@ -52,10 +56,9 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testSimpleClass() throws Exception {
-        ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped_bare.wsdl");
-        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.simple.Hello");
-        processor.setEnvironment(context);
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped_bare.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.simple.Hello");
+        processor.setEnvironment(env);
         processor.process();
 
         File wsdlFile = new File(output, "doc_wrapped_bare.wsdl");
@@ -70,11 +73,10 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testCalculator() throws Exception {
-        ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator.wsdl");
-        context.put(ToolConstants.CFG_CLASSNAME,
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
-        processor.setEnvironment(context);
+        processor.setEnvironment(env);
         processor.process();
 
         String expectedFile = getClass().getResource("expected/calculator.wsdl").getFile();
@@ -84,55 +86,74 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testIsSOAP12() throws Exception {
-        ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_CLASSNAME,
+        env.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
-        processor.setEnvironment(context);
+        processor.setEnvironment(env);
         assertTrue(processor.isSOAP12());
 
-        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         assertFalse(processor.isSOAP12());
 
-        context.put(ToolConstants.CFG_SOAP12, "soap12");
+        env.put(ToolConstants.CFG_SOAP12, "soap12");
         assertTrue(processor.isSOAP12());
     }
 
     @Test
     public void testGetBindingConfig() throws Exception {
-        ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_CLASSNAME,
+        env.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
-        processor.setEnvironment(context);
+        processor.setEnvironment(env);
         BindingConfiguration config = processor.getBindingConfig();
         assertTrue(config instanceof SoapBindingConfiguration);
         
         assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
 
-        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         config = processor.getBindingConfig();
         assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap11);
 
-        context.put(ToolConstants.CFG_SOAP12, "soap12");
+        env.put(ToolConstants.CFG_SOAP12, "soap12");
         config = processor.getBindingConfig();
         assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
     }
 
     @Test
     public void testSOAP12() throws Exception {
-        ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
-        context.put(ToolConstants.CFG_SOAP12, "soap12");
-        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello_soap12.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        env.put(ToolConstants.CFG_SOAP12, "soap12");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello_soap12.wsdl");
         
-        processor.setEnvironment(context);
+        processor.setEnvironment(env);
         processor.process();
 
         String expectedFile = getClass().getResource("expected/hello_soap12.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
     }
+    
+    @Ignore
+    public void testDocLitUseClassPathFlag() throws Exception {
+        String tns = "org.apache.asyn_lit";
+        String serviceName = "cxfService";
+
+        System.setProperty("java.class.path", "");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_doc_lit.Greeter");
+        env.put(ToolConstants.CFG_TNS, tns);
+        //env.put(ToolConstants.CFG_CLASSPATH, classFile.getCanonicalPath());
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        processor.setEnvironment(env);
+        processor.process();
+        File wsdlFile = new File(output, "doc_lit.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+
+        Definition def = wsdlHelper.getDefinition(wsdlFile);
+        Service wsdlService = def.getService(new QName(tns, serviceName));
+        assertNotNull("Generate WSDL Service Error", wsdlService);
+
+    }
 
     @Test
-    public void testDatBase() throws Exception {
+    public void testDataBase() throws Exception {
         ToolContext context = new ToolContext();
         context.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf523.Database");
         context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/db.wsdl");
