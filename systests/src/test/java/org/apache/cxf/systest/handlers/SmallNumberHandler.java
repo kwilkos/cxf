@@ -24,8 +24,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.transform.Source;
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.ProtocolException;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
@@ -87,6 +89,13 @@ public class SmallNumberHandler extends TestHandlerBase implements LogicalHandle
                         AddNumbersResponse resp = new AddNumbersResponse();
                         resp.setReturn(answer);
                         msg.setPayload(resp, jaxbContext);
+                        
+                        Source src = msg.getPayload();
+                        msg.setPayload(src);
+                        AddNumbersResponse resp2 = (AddNumbersResponse)msg.getPayload(jaxbContext);
+                        if (resp2 == resp) {
+                            throw new WebServiceException("Shouldn't be the same object");
+                        }
 
                         // finally, return false, indicating that request
                         // processing stops here and our answer will be

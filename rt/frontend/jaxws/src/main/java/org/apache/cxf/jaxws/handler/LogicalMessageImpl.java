@@ -24,10 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.LogicalMessage;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPFaultException;
 
+
+import org.apache.cxf.interceptor.BareInInterceptor;
+import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 
 public class LogicalMessageImpl implements LogicalMessage {
@@ -39,21 +50,58 @@ public class LogicalMessageImpl implements LogicalMessage {
     }
 
     public Source getPayload() {
-        return msgContext.getWrappedMessage().getContent(Source.class);
+        Source source = msgContext.getWrappedMessage().getContent(Source.class);
+        if (source == null) {
+            //need to convert
+            Exception ex = msgContext.getWrappedMessage().getContent(Exception.class);
+            if (ex instanceof SOAPFaultException) {
+                List<Object> list = new ArrayList<Object>();
+                list.add(((SOAPFaultException)ex).getFault());
+                msgContext.getWrappedMessage().setContent(List.class, list);
+            }
+            
+            W3CDOMStreamWriter writer;
+            try {
+                writer = new W3CDOMStreamWriter();
+            } catch (ParserConfigurationException e) {
+                throw new WebServiceException(e);
+            }
+            XMLStreamWriter orig = msgContext.getWrappedMessage().getContent(XMLStreamWriter.class);
+            try {
+                msgContext.getWrappedMessage().setContent(XMLStreamWriter.class, writer);
+                BareOutInterceptor bi = new BareOutInterceptor();
+                bi.handleMessage(msgContext.getWrappedMessage());
+            } finally {
+                msgContext.getWrappedMessage().setContent(XMLStreamWriter.class, orig); 
+            }
+            
+            source = new DOMSource(writer.getDocument().getDocumentElement());
+            msgContext.getWrappedMessage().setContent(Source.class, source);
+        }
+        return source;
     }
 
     public void setPayload(Source s) {
-        msgContext.getWrappedMessage().setContent(Source.class, s);
+        msgContext.getWrappedMessage().setContent(Source.class, null);
+        XMLStreamReader orig = msgContext.getWrappedMessage().getContent(XMLStreamReader.class);
+        try {
+            XMLStreamReader reader = StaxUtils.createXMLStreamReader(s);
+            msgContext.getWrappedMessage().setContent(XMLStreamReader.class, reader);
+            BareInInterceptor bin = new BareInInterceptor();
+            bin.handleMessage(msgContext.getWrappedMessage());
+        } finally {
+            msgContext.getWrappedMessage().setContent(XMLStreamReader.class, orig);
+        }
     }
 
     public Object getPayload(JAXBContext arg0) {
-        // TODO - what to do with JAXB context?
         Message msg = msgContext.getWrappedMessage();
         if (msg.getContent(List.class) != null) {
             return msg.getContent(List.class).get(0);
         } else if (msg.getContent(Object.class) != null) {
             return msg.getContent(Object.class);
         }
+        // TODO - what to do with JAXB context?
         return null;
     }
 
