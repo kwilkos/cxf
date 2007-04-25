@@ -29,6 +29,10 @@ public class ColocHeaderRpcLitTest extends AbstractHeaderServiceRpcLitTest {
 
     private Log logger = LogFactory.getLog(ColocHeaderRpcLitTest.class);
 
+    protected String getCxfConfig() {
+        return "org/apache/cxf/systest/coloc/coloc_rpc.xml";
+    }
+
     protected Log getLogger() {
         return logger;
     }

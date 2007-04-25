@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -82,6 +83,7 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         List<Phase> phases = new ArrayList<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
         ColocUtil.setPhases(phases, Phase.USER_LOGICAL, Phase.INVOKE);
         InterceptorChain chain = ColocUtil.getInInterceptorChain(ex, phases);
+        chain.add(addColocInterceptors());
         inMsg.setInterceptorChain(chain);
 
         chain.doIntercept(inMsg);
@@ -115,5 +117,11 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         exchange.put(BindingInfo.class, bi);
         exchange.put(BindingOperationInfo.class, boi);
         exchange.put(OperationInfo.class, boi.getOperationInfo());
+    }
+    
+    protected List<Interceptor> addColocInterceptors() {
+        List<Interceptor> list = new ArrayList<Interceptor>();
+        list.add(new ColocInInterceptor());
+        return list;
     }
 }

@@ -53,16 +53,23 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = LogUtils.getL7dLogger(ClientImpl.class);
     private static final String COLOCATED = Message.class.getName() + ".COLOCATED";
     private MessageObserver colocObserver;
+    private Bus bus; 
     
     public ColocOutInterceptor() {
         super();
         setPhase(Phase.POST_LOGICAL);
     }
 
+    public void setBus(Bus bus) {
+        this.bus = bus; 
+    }
+    
     public void handleMessage(Message message) throws Fault {
-        Bus bus = BusFactory.getDefaultBus(false);
         if (bus == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("BUS_NOT_FOUND", BUNDLE));
+            bus = BusFactory.getDefaultBus(false);
+            if (bus == null) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("BUS_NOT_FOUND", BUNDLE));
+            }
         }
         
         ServerRegistry registry = bus.getExtension(ServerRegistry.class);
@@ -99,7 +106,7 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
             message.put(COLOCATED, Boolean.TRUE);
             message.put(Message.WSDL_OPERATION, boi.getName());
             message.put(Message.WSDL_INTERFACE, boi.getBinding().getInterface().getName());
-            invokeColocObserver(message, srv.getEndpoint(), bus);
+            invokeColocObserver(message, srv.getEndpoint());
             if (!exchange.isOneWay()) {
                 invokeInboundChain(exchange, senderEndpoint);
             }
@@ -112,7 +119,7 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
         }
     }
     
-    protected void invokeColocObserver(Message outMsg, Endpoint inboundEndpoint, Bus bus) {
+    protected void invokeColocObserver(Message outMsg, Endpoint inboundEndpoint) {
         if (colocObserver == null) {
             colocObserver = new ColocMessageObserver(inboundEndpoint, bus);
         }
@@ -136,7 +143,6 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
         inMsg.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
         inMsg.setExchange(ex);
         
-        Bus bus = ex.get(Bus.class);        
         Exception exc = inMsg.getContent(Exception.class);
         if (exc != null) {
             ex.setInFaultMessage(inMsg);

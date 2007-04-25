@@ -70,6 +70,7 @@ public class ColocOutInterceptorTest extends Assert {
 
     @After
     public void tearDown() throws Exception {
+        colocOut.setBus(null);
         BusFactory.setDefaultBus(null);
     }
 
@@ -217,6 +218,7 @@ public class ColocOutInterceptorTest extends Assert {
         //Reset Exchange on msg
         msg.setExchange(null);
         Bus bus = setupBus();
+        colocOut.setBus(bus);
         PhaseManager pm = new PhaseManagerImpl();
         EasyMock.expect(bus.getExtension(PhaseManager.class)).andReturn(pm).times(2);
 
@@ -416,7 +418,7 @@ public class ColocOutInterceptorTest extends Assert {
     }
     
     class TestColocOutInterceptor1 extends ColocOutInterceptor {
-        public void invokeColocObserver(Message outMsg, Endpoint inboundEndpoint, Bus bus) {
+        public void invokeColocObserver(Message outMsg, Endpoint inboundEndpoint) {
             //No Op
         }
         

@@ -62,51 +62,29 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </http:conduit>
     -->
 
-    <!-- Logging Interceptor-->
-    <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
-    <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
-
     <!-- Coloc Interceptor-->
-    <bean id="colocInbound" class="org.apache.cxf.binding.coloc.ColocInInterceptor"/>
     <bean id="colocOutbound" class="org.apache.cxf.binding.coloc.ColocOutInterceptor"/>
     <bean id="faultOutbound" class="org.apache.cxf.systest.coloc.ThrowFaultInterceptor"/>
 
     <!-- Adding interceptors to the bus will add it to all services/endpoints-->
     <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="logInbound"/>
-                <ref bean="colocInbound"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="logInbound"/>
-            </list>
-        </property>
         <property name="outInterceptors">
             <list>
-                <ref bean="logOutbound"/>
                 <ref bean="colocOutbound"/>
                 <ref bean="faultOutbound"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="logOutbound"/>
             </list>
         </property>
     </bean>
 
     <!-- Avoid upfront Conduit creation, as client-side transport resources
          are not required in the coloc case -->
-    <jaxws:client id="{http://apache.org/headers/rpc_lit}SoapPort" 
+    <jaxws:client id="{http://apache.org/headers/rpc_lit}SoapPort"
                   createdFromAPI="true">
         <jaxws:conduitSelector>
             <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
         </jaxws:conduitSelector>
     </jaxws:client>
-    <jaxws:client id="{http://apache.org/headers/doc_lit}SoapPort9000" 
+    <jaxws:client id="{http://apache.org/headers/doc_lit}SoapPort9000"
                   createdFromAPI="true">
         <jaxws:conduitSelector>
             <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>

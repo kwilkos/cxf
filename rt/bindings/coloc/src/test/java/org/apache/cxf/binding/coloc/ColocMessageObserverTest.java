@@ -19,6 +19,7 @@
 package org.apache.cxf.binding.coloc;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -160,6 +161,10 @@ public class ColocMessageObserverTest extends Assert {
             exchange.put(Endpoint.class, ep);
             exchange.put(Service.class, srv);
             exchange.put(OperationInfo.class, oi);
+        }
+        
+        protected List<Interceptor> addColocInterceptors() {
+            return new ArrayList<Interceptor>();
         }
     }
 }
