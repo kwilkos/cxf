@@ -46,28 +46,38 @@ public final class WrapperHelper {
             }
 
             XmlElement el = null;
+            Field elField = null;
             for (Field field : wrapperType.getClass().getDeclaredFields()) {
 
                 if (field.getName().equals(fieldName)) {
                     // JAXB Type get XmlElement Annotation
                     el = field.getAnnotation(XmlElement.class);
-                    // assert el != null;
+                    elField = field;
+                    break;
                 }
             }
 
             if (part == null) {
-                if (el != null && !el.nillable()) {
+                if (el != null 
+                    && !el.nillable() 
+                    && elField.getType().isPrimitive()) {
                     throw new IllegalArgumentException("null value for field not permitted.");
                 }
                 return;
             }
 
             String modifier = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.SETTER);
+            String modifier2 = modifier;
+            if ("return".equals(partName)) {
+                //some versions of jaxb map "return" to "set_return" instead of "setReturn"
+                modifier2 = "set_return";
+            }
 
             boolean setInvoked = false;
             for (Method method : wrapperType.getClass().getMethods()) {
                 if (method.getParameterTypes() != null && method.getParameterTypes().length == 1
-                    && modifier.equals(method.getName())) {
+                    && (modifier.equals(method.getName())
+                        || modifier2.equals(method.getName()))) {
                     if ("javax.xml.bind.JAXBElement".equals(method.getParameterTypes()[0].getName())) {
                         if (!setJAXBElementValueIntoWrapType(method, wrapperType, part)) {
                             throw new RuntimeException("Failed to set the part value (" + part 
@@ -80,7 +90,14 @@ public final class WrapperHelper {
                     break;
                 }
             }
-
+            if (!setInvoked
+                && elField != null
+                && el != null
+                && partName.equals(el.name())) {
+                elField.setAccessible(true);
+                elField.set(wrapperType, part);
+                setInvoked = true;
+            }
             if (!setInvoked) {
                 throw new IllegalArgumentException("Could not find a modifier method on Wrapper Type for "
                                                    + partName);
@@ -148,19 +165,51 @@ public final class WrapperHelper {
     public static Object getWrappedPart(String partName, Object wrapperType, String elementType)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
+        String fieldName = partName;
+        if (JAXBUtils.isJavaKeyword(partName)) {
+            fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
+        }
+
+        XmlElement el = null;
+        Field elField = null;
+        for (Field field : wrapperType.getClass().getDeclaredFields()) {
+
+            if (field.getName().equals(fieldName)) {
+                // JAXB Type get XmlElement Annotation
+                el = field.getAnnotation(XmlElement.class);
+                elField = field;
+                break;
+            }
+        }        
+        
         String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
+        String accessor2 = accessor;
+        if ("return".equals(partName)) {
+            accessor2 = "get_return";
+        }
 
         if (elementType != null && "boolean".equals(elementType.toLowerCase())) {
             // JAXB Exception to get the Boolean property
             accessor = accessor.replaceFirst("get", "is");
+            accessor2 = accessor2.replaceFirst("get", "is");
         }
 
         for (Method method : wrapperType.getClass().getMethods()) {
-            if (method.getParameterTypes().length == 0 && accessor.equals(method.getName())) {
+            if (method.getParameterTypes().length == 0 
+                && (accessor.equals(method.getName())
+                    || accessor2.equals(method.getName()))) {
 
                 return getValue(method, wrapperType);
             }
         }
+        
+        if (elField != null
+            && el != null
+            && partName.equals(el.name())) {
+            elField.setAccessible(true);
+            return elField.get(wrapperType);
+        }
+        
         return null;
     }
 
