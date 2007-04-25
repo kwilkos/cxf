@@ -80,8 +80,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/calculator.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "calculator.wsdl"));
 
-        // Test for CXF-337
-        // FIXME - check for existence and correctness of faults
     }
 
     @Test
@@ -131,6 +129,19 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
         String expectedFile = getClass().getResource("expected/hello_soap12.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
+    }
+
+    @Test
+    public void testDatBase() throws Exception {
+        ToolContext context = new ToolContext();
+        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf523.Database");
+        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/db.wsdl");
+        
+        processor.setEnvironment(context);
+        processor.process();
+
+        String expectedFile = getClass().getResource("expected/db.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "db.wsdl"));
     }
 
 }
