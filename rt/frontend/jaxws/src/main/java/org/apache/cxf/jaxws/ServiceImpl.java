@@ -228,6 +228,11 @@ public class ServiceImpl extends ServiceDelegate {
         if (portName == null) {
             throw new WebServiceException(BUNDLE.getString("PORT_NAME_NULL_EXC"));
         }
+        
+        if (!ports.contains(portName) && !portInfos.containsKey(portName)) {
+            throw new WebServiceException(new Message("INVALID_PORT", BUNDLE, portName).toString());
+        }
+        
         try {
             return createPort(portName, null, type);
         } catch (ServiceConstructionException e) {

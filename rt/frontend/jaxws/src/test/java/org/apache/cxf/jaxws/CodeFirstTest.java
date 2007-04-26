@@ -158,12 +158,13 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         EndpointImpl ep = new EndpointImpl(getBus(), serviceImpl, (String) null);
         ep.publish("local://localhost:9090/hello");
         
-        QName serviceName = new QName("http://service.jaxws.cxf.apache.org", "Hello");
-        QName portName = new QName("http://service.jaxws.cxf.apache.org", "HelloPortType");
+        QName serviceName = new QName("http://service.jaxws.cxf.apache.org/", "HelloService");
+        QName portName = new QName("http://service.jaxws.cxf.apache.org/", "HelloPort");
         
         // need to set the same bus with service , so use the ServiceImpl
         ServiceImpl service = new ServiceImpl(getBus(), (URL)null, serviceName, null);
         service.addPort(portName, "http://schemas.xmlsoap.org/soap/", "local://localhost:9090/hello"); 
+        
         HelloInterface proxy = service.getPort(portName, HelloInterface.class);
         assertEquals("Get the wrong result", "hello", proxy.sayHi("hello"));
         //now the client side can't unmarshal the complex type without binding types annoutation 

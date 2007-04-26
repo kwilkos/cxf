@@ -28,6 +28,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 
+import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.factory_pattern.IsEvenResponse;
 import org.apache.cxf.factory_pattern.Number;
 import org.apache.cxf.factory_pattern.NumberFactory;
@@ -39,7 +40,6 @@ import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -85,13 +85,13 @@ public class ManualHttpMulitplexClientServerTest extends AbstractBusClientServer
         // use the epr info only
         // no wsdl so default generated soap/http binding will be used
         // address url must come from the calling context
-        //
         QName serviceName = EndpointReferenceUtils.getServiceName(epr);
         Service numService = Service.create(serviceName);
         
         String portString = EndpointReferenceUtils.getPortName(epr);
         QName portName = new QName(serviceName.getNamespaceURI(), portString);                
-        Number num =  (Number)numService.getPort(portName, Number.class);
+        numService.addPort(portName, SoapBindingFactory.SOAP_11_BINDING, "http://foo");
+        Number num = (Number)numService.getPort(portName, Number.class);
 
         setupContextWithEprAddress(epr, num);
         

@@ -41,7 +41,6 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ServiceImplTest extends AbstractJaxWsTest {
@@ -61,7 +60,7 @@ public class ServiceImplTest extends AbstractJaxWsTest {
         Client client = ClientProxy.getClient(proxy);
         assertEquals("bar", client.getEndpoint().get("foo"));
     }
-
+    
     @Override
     protected Bus createBus() throws BusException {
         SpringBusFactory bf = new SpringBusFactory();
@@ -98,7 +97,6 @@ public class ServiceImplTest extends AbstractJaxWsTest {
     }
 
     @Test
-    @Ignore
     public void testGetBadPort() {
         URL wsdl1 = getClass().getResource("/wsdl/calculator.wsdl");
         assertNotNull(wsdl1);
