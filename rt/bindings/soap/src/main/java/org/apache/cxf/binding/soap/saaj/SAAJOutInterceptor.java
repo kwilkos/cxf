@@ -30,6 +30,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamWriter;
+import com.sun.xml.messaging.saaj.packaging.mime.MessagingException;
+
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -40,6 +42,8 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
+
+
 
 /**
  * Sets up the outgoing chain to build a SAAJ tree instead of writing
@@ -89,8 +93,10 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
             SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
 
             if (soapMessage != null) {
+                
                 OutputStream os = message.getContent(OutputStream.class);
                 try {
+                    setMessageContent(message, soapMessage);
                     soapMessage.writeTo(os);
                     os.flush();
                 } catch (IOException e) {
@@ -99,8 +105,28 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
                 } catch (SOAPException e) {
                     throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, message.getVersion()
                         .getSender());
+                } catch (MessagingException e) {
+                    throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, message.getVersion()
+                        .getSender());
                 }
             }
+        }
+
+        private void setMessageContent(SoapMessage message, SOAPMessage soapMessage) 
+            throws MessagingException, SOAPException {
+            
+            if (soapMessage.getAttachments().hasNext()) {
+                StringBuffer sb = new StringBuffer();
+                for (String str : soapMessage.getMimeHeaders().getHeader("Content-Type")) {
+                    sb.append(str);
+                }
+                String contentType = sb.toString();
+                if (contentType != null && contentType.length() > 0) {
+                    message.put(org.apache.cxf.message.Message.CONTENT_TYPE, contentType);
+                }
+                    
+            }
+            
         }
 
     }

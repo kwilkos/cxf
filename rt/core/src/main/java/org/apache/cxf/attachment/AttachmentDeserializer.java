@@ -19,6 +19,8 @@
 
 package org.apache.cxf.attachment;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -32,6 +34,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -75,31 +78,21 @@ public class AttachmentDeserializer {
             throw new IllegalStateException("Content-Type can not be empty!");
         }
         
-        InputStream input = message.getContent(InputStream.class);
-        if (input == null) {
-            throw new IllegalStateException("An InputStream must be provided!");
-        }
+        
 
         if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-            int i = contentType.indexOf("boundary=\"");
-            int end;
-            int len;
-            if (i == -1) {
-                i = contentType.indexOf("boundary=");
-                end = contentType.indexOf(";", i + 9);
-                if (end == -1) {
-                    end = contentType.length();
-                }
-                len = 9;
-            } else {
-                end = contentType.indexOf("\"", i + 10);
-                len = 10;
+            boundary = findBoundry();
+            boundary = "--" + boundary;
+            
+            
+            InputStream input = message.getContent(InputStream.class);
+            if (input == null) {
+                throw new IllegalStateException("An InputStream must be provided!");
             }
-            if (i == -1 || end == -1) {
-                throw new IOException("Invalid content type: missing boundary! " + contentType);
-            }
-            boundary = "--" + contentType.substring(i + len, end);
-            stream = new PushbackInputStream(input, boundary.length());
+            stream = new PushbackInputStream(input, boundary.getBytes().length);
+            
+            
+            
             if (!readTillFirstBoundary(stream, boundary.getBytes())) {
                 throw new IOException("Couldn't find MIME boundary: " + boundary);
             }
@@ -116,6 +109,30 @@ public class AttachmentDeserializer {
         }
     }
 
+    private String findBoundry() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            InputStream is = message.getContent(InputStream.class);
+            IOUtils.copy(is, bos);
+
+            is.close();
+            bos.close();
+            String msg = bos.toString();
+            message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
+            if (msg.indexOf("----=_Part_") == -1) {
+                return null;
+            } else {
+                int begin = msg.indexOf("----=_Part_");
+                int end = msg.indexOf(".", begin) + 14;
+                return msg.substring(begin, end);
+            }
+
+        } catch (IOException e) {
+            throw new Fault(e);
+        }
+
+    }
+    
     public AttachmentImpl readNext() throws IOException {
         // Cache any mime parts that are currently being streamed
         cacheStreamedAttachments();
