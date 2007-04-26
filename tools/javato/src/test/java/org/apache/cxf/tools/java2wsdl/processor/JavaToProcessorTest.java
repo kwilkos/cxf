@@ -34,8 +34,11 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -130,20 +133,41 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
     }
     
-    @Ignore
+    @Test
     public void testDocLitUseClassPathFlag() throws Exception {
-        String tns = "org.apache.asyn_lit";
+        File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
+        classFile.mkdir();
+        
+        System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
+                           + File.separatorChar);
+        
+        env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.apache.cxf.classpath");
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_doc_lit.wsdl"));
+        JAXWSContainer w2jProcessor = new JAXWSContainer(null);
+        w2jProcessor.setContext(env);
+        w2jProcessor.execute();
+        
+        
+        String tns = "http://apache.org/hello_world_doc_lit";
         String serviceName = "cxfService";
 
         System.setProperty("java.class.path", "");
-        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_doc_lit.Greeter");
+        
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_classpath.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.classpath.Greeter");
         env.put(ToolConstants.CFG_TNS, tns);
-        //env.put(ToolConstants.CFG_CLASSPATH, classFile.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSPATH, classFile.getCanonicalPath());
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
         processor.setEnvironment(env);
         processor.process();
-        File wsdlFile = new File(output, "doc_lit.wsdl");
+        
+        File wsdlFile = new File(output, "doc_lit_classpath.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
 
         Definition def = wsdlHelper.getDefinition(wsdlFile);

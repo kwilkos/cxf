@@ -394,7 +394,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         
         if (clsName.length() > 0) {
             try {
-                return ClassLoaderUtils.loadClass(clsName, getClass());
+                return ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
             } catch (ClassNotFoundException e) {
                 if (isWrapperSpecifiedByAnno) {
                     throw new ServiceConstructionException(e);
@@ -423,7 +423,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
         if (clsName.length() > 0) {
             try {
-                return ClassLoaderUtils.loadClass(clsName, getClass());
+                return ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
             } catch (ClassNotFoundException e) {
                 if (isWrapperSpecifiedByAnno) {
                     throw new ServiceConstructionException(e);
