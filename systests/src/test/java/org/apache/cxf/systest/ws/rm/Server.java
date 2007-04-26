@@ -39,6 +39,8 @@ public class Server extends AbstractBusTestServerBase {
         setBus(bus);
 
         ControlImpl implementor = new ControlImpl();
+        GreeterImpl greeterImplementor = new GreeterImpl();
+        implementor.setImplementor(greeterImplementor);
         Endpoint.publish(ADDRESS, implementor);
     }
 

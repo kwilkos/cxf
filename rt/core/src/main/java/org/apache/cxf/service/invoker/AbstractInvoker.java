@@ -29,6 +29,7 @@ import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
@@ -80,8 +81,10 @@ public abstract class AbstractInvoker implements Invoker {
             if (t == null) {
                 t = e;
             }
+            exchange.getInMessage().put(FaultMode.class, FaultMode.CHECKED_APPLICATION_FAULT);
             throw new Fault(t);
         } catch (Exception e) {
+            exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
             throw new Fault(e);
         }
     }

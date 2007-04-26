@@ -20,51 +20,27 @@
 
 package org.apache.cxf.systest.ws.rm;
 
-import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
-import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.Response;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.greeter_control.Control;
-import org.apache.cxf.greeter_control.types.StartGreeterResponse;
-import org.apache.cxf.greeter_control.types.StopGreeterResponse;
-import org.apache.cxf.systest.ws.util.InMessageRecorder;
-import org.apache.cxf.systest.ws.util.OutMessageRecorder;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.ws.rm.RMManager;
-
 
 @WebService(serviceName = "ControlService", 
             portName = "ControlPort", 
             endpointInterface = "org.apache.cxf.greeter_control.Control", 
             targetNamespace = "http://cxf.apache.org/greeter_control")
-public class ControlImpl implements Control {
+public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
     
     private static final Logger LOG = Logger.getLogger(ControlImpl.class.getName());
-    private Endpoint endpoint;
-    private Bus greeterBus;
     
-    public boolean startGreeter(String cfgResource) {
-       
-        SpringBusFactory bf = new SpringBusFactory();
-        greeterBus = bf.createBus(cfgResource);
-        BusFactory.setDefaultBus(greeterBus);
-        LOG.info("Initialised bus with cfg file resource: " + cfgResource);
-        greeterBus.getOutInterceptors().add(new OutMessageRecorder());
-        greeterBus.getInInterceptors().add(new InMessageRecorder());
-        
-        GreeterImpl implementor = new GreeterImpl();
-        String address = "http://localhost:9020/SoapContext/GreeterPort";
-        endpoint = Endpoint.publish(address, implementor);
-        LOG.info("Published greeter endpoint.");
-        return true;        
-    }
-
+    @Override
     public boolean stopGreeter() {  
         
         if (null != endpoint) {
@@ -81,27 +57,24 @@ public class ControlImpl implements Control {
         }
         return true;
     }
-    
-    public Future<?> startGreeterAsync(String requestType, AsyncHandler<StartGreeterResponse> asyncHandler) {
-        // never called
-        return null;
-    }
 
-    public Response<StartGreeterResponse> startGreeterAsync(String requestType) {
-        // never called
-        return null;
+    @Override
+    public boolean startGreeter(String cfgResource) {
+        SpringBusFactory bf = new SpringBusFactory();
+        greeterBus = bf.createBus(cfgResource);
+        BusFactory.setDefaultBus(greeterBus);
+        LOG.info("Initialised bus with cfg file resource: " + cfgResource);
+        
+        Interceptor logIn = new LoggingInInterceptor();
+        Interceptor logOut = new LoggingOutInterceptor();
+        greeterBus.getInInterceptors().add(logIn);
+        greeterBus.getOutInterceptors().add(logOut);
+        greeterBus.getOutFaultInterceptors().add(logOut);
+        
+        Endpoint.publish(address, implementor);
+        LOG.info("Published greeter endpoint.");
+        
+        return true;        
     }
-
-    public Response<StopGreeterResponse> stopGreeterAsync() {
-        // never called
-        return null;
-    }
-
-    public Future<?> stopGreeterAsync(AsyncHandler<StopGreeterResponse> asyncHandler) {
-        // never called
-        return null;
-    }
-    
-    
     
 }

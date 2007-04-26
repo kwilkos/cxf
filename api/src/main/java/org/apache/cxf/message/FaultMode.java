@@ -17,14 +17,21 @@
  * under the License.
  */
 
-package org.apache.cxf.phase;
+package org.apache.cxf.message;
 
-import java.util.Comparator;
-
-public class PhaseComparator implements Comparator<Phase> {
-
-    public int compare(Phase o1, Phase o2) {
-        return o1.getPriority() - o2.getPriority();
-    }
+/**
+ * 
+ */
+public enum FaultMode {
     
+    RUNTIME_FAULT ("org.apache.cxf.runtime.fault"),
+    LOGICAL_RUNTIME_FAULT ("org.apache.cxf.runtime.fault.logical"),
+    CHECKED_APPLICATION_FAULT ("org.apache.cxf.application.fault.checked"),
+    UNCHECKED_APPLICATION_FAULT ("org.apache.cxf.application.fault.unchecked");
+    
+    String mode;
+    
+    FaultMode(String m) {
+        mode = m;
+    }
 }

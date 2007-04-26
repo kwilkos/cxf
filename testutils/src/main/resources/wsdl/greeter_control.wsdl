@@ -97,6 +97,15 @@
                     </sequence>
                 </complexType>
             </element>
+            <element name="faultLocation">
+                <complexType>
+                    <sequence>
+                        <element name="phase" type="xsd:string"/>
+                        <element name="before" type="xsd:string"/>
+                        <element name="after" type="xsd:string"/>
+                    </sequence>
+                </complexType>
+            </element>
 
         </schema>
     </wsdl:types>
@@ -139,6 +148,9 @@
     <wsdl:message name="stopGreeterResponse">
         <wsdl:part element="x1:stopGreeterResponse" name="out"/>
     </wsdl:message>
+    <wsdl:message name="setFaultLocationRequest">
+        <wsdl:part element="x1:faultLocation" name="in"/>
+    </wsdl:message>
     
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
@@ -171,6 +183,10 @@
         <wsdl:operation name="stopGreeter">
             <wsdl:input message="tns:stopGreeterRequest" name="stopGreeterRequest"/>
             <wsdl:output message="tns:stopGreeterResponse" name="stopGreeterResponse"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="setFaultLocation">
+            <wsdl:input message="tns:setFaultLocationRequest" name="setFaultLocationRequest"/>
         </wsdl:operation>
     </wsdl:portType>
 
@@ -238,6 +254,12 @@
             <wsdl:output name="stopGreeterResponse">
                 <soap:body use="literal"/>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="setFaultLocation">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="setFaultLocationRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
         </wsdl:operation>
     </wsdl:binding>
 

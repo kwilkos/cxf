@@ -27,6 +27,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -44,7 +45,7 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
 
     public void onMessage(Message message) {
       
-        assert  null != message;
+        assert null != message;
         Exchange exchange = message.getExchange();
 
         Message faultMessage = null;
@@ -57,12 +58,16 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
             if (!(ex instanceof Fault)) {
                 ex = new Fault(ex);
             }
+            FaultMode mode = (FaultMode)message.get(FaultMode.class);
             
             faultMessage = exchange.getOutMessage();
             if (null == faultMessage) {
                 faultMessage = exchange.get(Endpoint.class).getBinding().createMessage();
             }
             faultMessage.setContent(Exception.class, ex);
+            if (null != mode) {
+                faultMessage.put(FaultMode.class, mode);
+            }
             assert exchange.get(Exception.class) == ex;
             exchange.setOutMessage(null);
             exchange.setOutFaultMessage(faultMessage);

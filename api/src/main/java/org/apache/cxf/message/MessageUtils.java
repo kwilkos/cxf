@@ -19,6 +19,7 @@
 
 package org.apache.cxf.message;
 
+
 /**
  * Holder for utility methods relating to messages.
  */
@@ -53,6 +54,27 @@ public final class MessageUtils {
                && message.getExchange() != null
                && (message == message.getExchange().getInFaultMessage() || message == message.getExchange()
                    .getOutFaultMessage());
+    }
+    
+    /**
+     * Determine the fault mode for the underlying (fault) message 
+     * (for use on server side only).
+     * 
+     * @param message the fault message
+     * @return the FaultMode
+     */
+    public static FaultMode getFaultMode(Message message) {
+        if (message != null
+            && message.getExchange() != null
+            && message == message.getExchange().getOutFaultMessage()) {
+            FaultMode mode = message.get(FaultMode.class);
+            if (null != mode) {
+                return mode;
+            } else {
+                return FaultMode.RUNTIME_FAULT;
+            }
+        }
+        return null;    
     }
 
     /**

@@ -17,14 +17,20 @@
  * under the License.
  */
 
-package org.apache.cxf.phase;
+package org.apache.cxf.systest.interceptor;
 
-import java.util.Comparator;
+import javax.jws.WebService;
 
-public class PhaseComparator implements Comparator<Phase> {
+import org.apache.cxf.greeter_control.AbstractGreeterImpl;
 
-    public int compare(Phase o1, Phase o2) {
-        return o1.getPriority() - o2.getPriority();
-    }
-    
+/**
+ * 
+ */
+
+@WebService(serviceName = "BasicGreeterService",
+            portName = "GreeterPort",
+            endpointInterface = "org.apache.cxf.greeter_control.Greeter",
+            targetNamespace = "http://cxf.apache.org/greeter_control",
+            wsdlLocation = "testutils/greeter_control.wsdl")
+public class GreeterImpl extends AbstractGreeterImpl {
 }
