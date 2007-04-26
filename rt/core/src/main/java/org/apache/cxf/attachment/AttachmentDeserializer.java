@@ -156,7 +156,8 @@ public class AttachmentDeserializer {
         if (id != null && id.startsWith("<")) {
             id = id.substring(1, id.length() - 1);
         } else {
-            return null;
+            //no Content-ID, set cxf default ID
+            id = "Content-ID: <root.message@cxf.apache.org";
         }
         
         id = URLDecoder.decode(id.startsWith("cid:") ? id.substring(4) : id, "UTF-8");
