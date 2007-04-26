@@ -531,5 +531,15 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         return !method.isAnnotationPresent(Oneway.class);
     }
     
-    
+    @Override 
+    public String getAction(OperationInfo op, Method method) {
+        method = getDeclaredMethod(method);
+        WebMethod wm = method.getAnnotation(WebMethod.class);
+        if (wm != null) {
+            return wm.action();
+        } else {
+            return "";
+        }
+    }
+           
 }

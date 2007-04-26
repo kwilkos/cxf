@@ -69,6 +69,10 @@ public class CodeFirstTest extends AbstractJaxWsTest {
 
         assertValid("/wsdl:definitions/wsdl:message[@name='getGreetingsResponse']"
                     + "/wsdl:part[@element='ns1:getGreetingsResponse'][@name='return']",
+                    wsdl);    
+
+        assertValid("/wsdl:definitions/wsdl:binding/wsdl:operation[@name='getGreetings']"
+                    + "/wsdlsoap:operation[@soapAction='myaction']",
                     wsdl);        
     }
 

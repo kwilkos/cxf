@@ -42,7 +42,12 @@ public class SoapBindingConfiguration extends BindingConfiguration {
     }
 
     public String getSoapAction(OperationInfo op) {
-        return defaultSoapAction;
+        String action = (String)op.getProperty("action");
+        if (action == null) {
+            return defaultSoapAction;
+        } else {
+            return action;
+        }
     }
 
     public String getTransportURI() {

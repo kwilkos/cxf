@@ -89,7 +89,7 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public String getAction(OperationInfo op) {
+    public String getAction(OperationInfo op, Method method) {
         return null;
     }
 

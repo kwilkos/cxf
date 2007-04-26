@@ -344,6 +344,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected OperationInfo createOperation(ServiceInfo serviceInfo, InterfaceInfo intf, Method m) {
         OperationInfo op = intf.addOperation(getOperationName(intf, m));
+        op.setProperty("action", getAction(op, m));
+        
         if (isWrapped(m)) {
             UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
             op.setUnwrappedOperation(uOp);
@@ -983,15 +985,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-    protected String getAction(OperationInfo op) {
+    protected String getAction(OperationInfo op, Method method) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            String s = c.getAction(op);
+            String s = c.getAction(op, method);
             if (s != null) {
                 return s;
             }
         }
-        throw new IllegalStateException("ServiceConfiguration must provide a value!");
+        return "";
     }
 
     public boolean isHeader(Method method, int j) {

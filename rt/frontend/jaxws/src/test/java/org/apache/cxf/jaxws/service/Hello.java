@@ -32,7 +32,7 @@ public class Hello {
         return text;
     }
     
-    @WebMethod
+    @WebMethod(action = "myaction")
     public List<String> getGreetings() {
         List<String> strings = new ArrayList<String>();
         strings.add("Hello");
