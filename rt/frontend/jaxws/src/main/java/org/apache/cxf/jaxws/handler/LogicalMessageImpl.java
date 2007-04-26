@@ -25,6 +25,8 @@ import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
@@ -60,22 +62,32 @@ public class LogicalMessageImpl implements LogicalMessage {
                 msgContext.getWrappedMessage().setContent(List.class, list);
             }
             
-            W3CDOMStreamWriter writer;
-            try {
-                writer = new W3CDOMStreamWriter();
-            } catch (ParserConfigurationException e) {
-                throw new WebServiceException(e);
+            SOAPMessage msg = msgContext.getWrappedMessage().getContent(SOAPMessage.class);
+            if (msg != null) {
+                try {
+                    source = new DOMSource(msg.getSOAPBody().getFirstChild());
+                } catch (SOAPException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else {
+                W3CDOMStreamWriter writer;
+                try {
+                    writer = new W3CDOMStreamWriter();
+                } catch (ParserConfigurationException e) {
+                    throw new WebServiceException(e);
+                }
+                XMLStreamWriter orig = msgContext.getWrappedMessage().getContent(XMLStreamWriter.class);
+                try {
+                    msgContext.getWrappedMessage().setContent(XMLStreamWriter.class, writer);
+                    BareOutInterceptor bi = new BareOutInterceptor();
+                    bi.handleMessage(msgContext.getWrappedMessage());
+                } finally {
+                    msgContext.getWrappedMessage().setContent(XMLStreamWriter.class, orig); 
+                }
+                
+                source = new DOMSource(writer.getDocument().getDocumentElement());
             }
-            XMLStreamWriter orig = msgContext.getWrappedMessage().getContent(XMLStreamWriter.class);
-            try {
-                msgContext.getWrappedMessage().setContent(XMLStreamWriter.class, writer);
-                BareOutInterceptor bi = new BareOutInterceptor();
-                bi.handleMessage(msgContext.getWrappedMessage());
-            } finally {
-                msgContext.getWrappedMessage().setContent(XMLStreamWriter.class, orig); 
-            }
-            
-            source = new DOMSource(writer.getDocument().getDocumentElement());
             msgContext.getWrappedMessage().setContent(Source.class, source);
         }
         return source;

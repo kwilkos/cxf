@@ -19,6 +19,8 @@
 
 package org.apache.cxf.interceptor;
 
+import javax.xml.namespace.QName;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -30,19 +32,24 @@ import org.apache.cxf.helpers.DOMUtils;
  * A Fault that occurs during invocation processing.
  */
 public class Fault extends UncheckedException {
-
+    public static final QName FAULT_CODE_CLIENT = new QName("http://cxf.apache.org/faultcode", "client");
+    public static final QName FAULT_CODE_SERVER = new QName("http://cxf.apache.org/faultcode", "server");
+    
     public static final String STACKTRACE = "stackTrace";
     private Element detail;
     private String message;
+    private QName code;
     
     public Fault(Message message, Throwable throwable) {
         super(message, throwable);
         this.message = message.toString();
+        code = FAULT_CODE_SERVER;
     }
     
     public Fault(Message message) {
         super(message);
         this.message = message.toString();
+        code = FAULT_CODE_SERVER;
     }
 
     public Fault(Throwable t) {
@@ -52,7 +59,30 @@ public class Fault extends UncheckedException {
         } else {
             message = t == null ? null : t.getMessage();
         }
+        code = FAULT_CODE_SERVER;
     }
+    
+    public Fault(Message message, Throwable throwable, QName fc) {
+        super(message, throwable);
+        this.message = message.toString();
+        code = fc;
+    }
+    
+    public Fault(Message message, QName fc) {
+        super(message);
+        this.message = message.toString();
+        code = fc;
+    }
+
+    public Fault(Throwable t, QName fc) {
+        super(t);
+        if (super.getMessage() != null) {
+            message = super.getMessage();
+        } else {
+            message = t == null ? null : t.getMessage();
+        }
+        code = fc;
+    }    
 
     public String getMessage() {
         return message;
@@ -60,6 +90,15 @@ public class Fault extends UncheckedException {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+    
+    public QName getFaultCode() {
+        return code;
+    }
+    
+    public Fault setFaultCode(QName c) {
+        code = c;
+        return this;
     }
 
     /**

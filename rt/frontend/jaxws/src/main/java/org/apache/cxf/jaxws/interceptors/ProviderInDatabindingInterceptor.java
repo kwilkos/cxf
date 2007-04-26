@@ -24,6 +24,8 @@ import java.util.List;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
 
+import org.w3c.dom.Node;
+
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
@@ -34,6 +36,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.staxutils.W3CDOMStreamReader;
 
 public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
@@ -62,21 +65,29 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
         }
         
         Service s = ex.get(Service.class);
-        SOAPMessage sm = message.getContent(SOAPMessage.class);
-        if (sm != null) {
-            params.add(sm);
+        
+        if (SOAPMessage.class.equals(type)) {
+            SOAPMessage msg = message.getContent(SOAPMessage.class);
+            params.add(msg);
         } else {
+
             XMLStreamReader r = message.getContent(XMLStreamReader.class);
-            
             if (r != null) {
-                DataReader<XMLStreamReader> reader = 
-                    s.getDataBinding().createReader(XMLStreamReader.class);
-                
-                Object object = reader.read(null, r, type);
-                params.add(object);
+                if (r instanceof W3CDOMStreamReader) {
+                    Node nd = ((W3CDOMStreamReader)r).getCurrentElement();
+                    DataReader<Node> reader = 
+                        s.getDataBinding().createReader(Node.class);
+                    Object object = reader.read(null, nd, type);
+                    params.add(object);
+                } else {
+                    DataReader<XMLStreamReader> reader = 
+                        s.getDataBinding().createReader(XMLStreamReader.class);
+                    
+                    Object object = reader.read(null, r, type);
+                    params.add(object);
+                }
             }
         }
-        
         message.setContent(Object.class, params);
 
     }

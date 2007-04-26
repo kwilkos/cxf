@@ -46,38 +46,27 @@ public class SoapFault extends Fault {
      * FaultHandler) be mapped to "Sender" instead.
      */ 
 
-    private QName faultCode;
     private QName subCode;
     private String role;
     private String node;
     private Map<String, String> namespaces = new HashMap<String, String>();
 
     public SoapFault(Message message, Throwable throwable, QName faultCode) {
-        super(message, throwable);
-        this.faultCode = faultCode;
+        super(message, throwable, faultCode);
     }
 
     public SoapFault(Message message, QName faultCode) {
-        super(message);
-        this.faultCode = faultCode;
+        super(message, faultCode);
     }
 
     public SoapFault(String message, QName faultCode) {
-        super(new Message(message, (ResourceBundle)null));
-        this.faultCode = faultCode;
+        super(new Message(message, (ResourceBundle)null), faultCode);
     }
 
-    /**
-     * Returns the fault code of this fault.
-     * 
-     * @return the fault code.
-     */
-    public QName getFaultCode() {
-        return faultCode;
-    }
+
     
     public String getCodeString(String prefix, String defaultPrefix) {
-        return getFaultCodeString(prefix, defaultPrefix, faultCode);
+        return getFaultCodeString(prefix, defaultPrefix, getFaultCode());
     }
     
     public String getSubCodeString(String prefix, String defaultPrefix) {
@@ -96,15 +85,6 @@ public class SoapFault extends Fault {
         }
         
         return prefix + ":" + fCode.getLocalPart();        
-    }
-
-    /**
-     * Sets the fault code of this fault.
-     * 
-     * @param faultCode the fault code.
-     */
-    public void setFaultCode(QName faultCode) {
-        this.faultCode = faultCode;
     }
 
     public String getReason() {
@@ -168,8 +148,15 @@ public class SoapFault extends Fault {
             return (SoapFault)f;
         }
 
-        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null), f.getCause(),
-                                            v.getReceiver());
+        QName fc = f.getFaultCode();
+        if (Fault.FAULT_CODE_CLIENT.equals(fc)) {
+            fc = v.getSender();
+        } else if (Fault.FAULT_CODE_SERVER.equals(fc)) { 
+            fc = v.getReceiver();
+        }
+        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null),
+                                            f.getCause(),
+                                            fc);
         
         soapFault.setDetail(f.getDetail());
         return soapFault;

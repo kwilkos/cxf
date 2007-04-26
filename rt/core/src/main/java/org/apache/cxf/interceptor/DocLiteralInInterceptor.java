@@ -177,7 +177,8 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 }
 
                 if (p == null) {
-                    throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName),
+                                    Fault.FAULT_CODE_CLIENT);
                 }
 
                 o = dr.read(p, xmlReader);

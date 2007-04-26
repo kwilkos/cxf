@@ -82,7 +82,8 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             // TODO: Allow overridden methods.
             operation = ServiceModelUtil.getOperation(message.getExchange(), local);
             if (operation == null) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", BUNDLE, local));
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", BUNDLE, local),
+                                Fault.FAULT_CODE_CLIENT);
             }
 
         }

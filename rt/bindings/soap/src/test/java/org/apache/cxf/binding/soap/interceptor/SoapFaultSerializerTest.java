@@ -33,6 +33,7 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -134,4 +135,23 @@ public class SoapFaultSerializerTest extends AbstractCXFTest {
         assertEquals(fault.getMessage(), fault2.getMessage());        
     }
     
+    @Test
+    public void testFaultToSoapFault() throws Exception {
+        Exception ex = new Exception();
+        Fault fault = new Fault(ex, Fault.FAULT_CODE_CLIENT);
+        
+        SoapFault sf = SoapFault.createFault(fault, Soap11.getInstance());
+        assertEquals(Soap11.getInstance().getSender(), sf.getFaultCode());
+        
+        sf = SoapFault.createFault(fault, Soap12.getInstance());
+        assertEquals(Soap12.getInstance().getSender(), sf.getFaultCode());
+        
+        fault = new Fault(ex, Fault.FAULT_CODE_SERVER);
+        sf = SoapFault.createFault(fault, Soap11.getInstance());
+        assertEquals(Soap11.getInstance().getReceiver(), sf.getFaultCode());
+        
+        sf = SoapFault.createFault(fault, Soap12.getInstance());
+        assertEquals(Soap12.getInstance().getReceiver(), sf.getFaultCode());
+        
+    }
 }
