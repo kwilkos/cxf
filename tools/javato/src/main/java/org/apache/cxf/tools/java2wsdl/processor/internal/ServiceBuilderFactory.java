@@ -51,6 +51,7 @@ public final class ServiceBuilderFactory {
             throw new ToolException("Can not find the ServiceBulider for style: " + s, e);
         }
         builder.setServiceClass(serviceClass);
+        builder.getServiceFactory().setServiceClass(serviceClass);
         return builder;
     }
 

@@ -21,6 +21,7 @@ package org.apache.cxf.tools.java2wsdl.processor;
 
 import java.io.File;
 import java.util.logging.Logger;
+import javax.xml.namespace.QName;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -32,6 +33,8 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -50,6 +53,25 @@ public class JavaToProcessor implements Processor {
     private ToolContext context;
 
     public void process() throws ToolException {
+        ServiceBuilder builder = getServiceBuilder();
+        ServiceInfo service = builder.build();
+        
+        File output = getOutputFile(builder.getOutputFile(),
+                                    service.getName().getLocalPart() + ".wsdl");
+        generate(service, output);
+    }
+
+    public void generate(ServiceInfo service, File output) throws ToolException {
+        WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
+        factory.setWSDLVersion(getWSDLVersion());
+
+        AbstractGenerator generator = factory.newGenerator();
+        generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
+        generator.setServiceModel(service);
+        generator.generate(output);
+    }
+
+    public ServiceBuilder getServiceBuilder() throws ToolException {
         init();
         ServiceBuilderFactory builderFactory = ServiceBuilderFactory.getInstance();
         builderFactory.setServiceClass(getServiceClass());
@@ -61,18 +83,16 @@ public class JavaToProcessor implements Processor {
         builder.setBus(getBus());
         builder.setBindingConfig(getBindingConfig());
 
-        ServiceInfo service = builder.build();
+        ReflectionServiceFactoryBean serviceFactory = builder.getServiceFactory();
 
-        File output = getOutputFile(builder.getOutputFile(),
-                                    service.getName().getLocalPart() + ".wsdl");
-
-        WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
-        factory.setWSDLVersion(getWSDLVersion());
-
-        AbstractGenerator generator = factory.newGenerator();
-        generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
-        generator.setServiceModel(service);
-        generator.generate(output);
+        if (!StringUtils.isEmpty(getServiceName())) {
+            QName serviceQName = serviceFactory.getServiceQName();
+            if (serviceQName != null) {
+                serviceFactory.setServiceName(new QName(serviceQName.getNamespaceURI(), getServiceName()));
+            }
+        }
+        
+        return builder;
     }
 
     protected String getTransportId() {
@@ -146,6 +166,10 @@ public class JavaToProcessor implements Processor {
         return wsVersion;
     }
 
+    public String getServiceName() {
+        return (String) this.context.get(ToolConstants.CFG_SERVICENAME);
+    }
+    
     public Bus getBus() {
         return BusFactory.getDefaultBus();
     }

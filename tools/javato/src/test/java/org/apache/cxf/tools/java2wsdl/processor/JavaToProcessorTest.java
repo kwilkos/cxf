@@ -154,15 +154,37 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testDataBase() throws Exception {
-        ToolContext context = new ToolContext();
-        context.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf523.Database");
-        context.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/db.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf523.Database");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/db.wsdl");
         
-        processor.setEnvironment(context);
+        processor.setEnvironment(env);
         processor.process();
 
         String expectedFile = getClass().getResource("expected/db.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "db.wsdl"));
     }
 
+    @Test
+    public void testGetServiceName() throws Exception {
+        processor.setEnvironment(env);
+        assertNull(processor.getServiceName());
+
+        env.put(ToolConstants.CFG_SERVICENAME, "myservice");
+        processor.setEnvironment(env);
+        assertEquals("myservice", processor.getServiceName());
+    }
+
+    @Test
+    public void testSetServiceName() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
+        env.put(ToolConstants.CFG_SOAP12, "soap12");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_hello_soap12.wsdl");
+        env.put(ToolConstants.CFG_SERVICENAME, "MyService");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        String expectedFile = getClass().getResource("expected/my_hello_soap12.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "my_hello_soap12.wsdl"));
+    }
 }

@@ -406,6 +406,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             setDataBinding(new SourceDataBinding());
         } else {
             jaxWsConfiguration = new JaxWsServiceConfiguration();
+            jaxWsConfiguration.setServiceFactory(this);
             getServiceConfigurations().add(0, jaxWsConfiguration);
         }
         methodDispatcher = new JAXWSMethodDispatcher(implInfo);
