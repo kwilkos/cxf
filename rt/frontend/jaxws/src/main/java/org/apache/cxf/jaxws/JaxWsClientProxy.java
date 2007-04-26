@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,6 +36,8 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.http.HTTPBinding;
+import javax.xml.ws.http.HTTPException;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -131,7 +134,14 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                     throw ex.fillInStackTrace();
                 }
             }
-            throw new WebServiceException(ex);
+            
+            if (getBinding() instanceof HTTPBinding) {
+                HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                exception.initCause(ex);
+                throw exception;
+            } else {
+                throw new WebServiceException(ex);
+            }
         }
         // need to do context mapping from cxf message to jax-ws
         ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);

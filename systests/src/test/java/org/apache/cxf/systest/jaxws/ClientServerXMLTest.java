@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.Service;
+import javax.xml.ws.http.HTTPException;
 import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
@@ -272,8 +273,8 @@ public class ClientServerXMLTest extends AbstractBusClientServerTestBase {
         try {
             greeterFault.pingMe();
             fail("did not catch expected runtime exception");
-        } catch (Exception ex) {
-            assertTrue("check expected message of exception", ex.getMessage().indexOf(
+        } catch (HTTPException ex) {
+            assertTrue("check expected message of exception", ex.getCause().getMessage().indexOf(
                     GreeterFaultImpl.RUNTIME_EXCEPTION_MESSAGE) >= 0);
         }
     }

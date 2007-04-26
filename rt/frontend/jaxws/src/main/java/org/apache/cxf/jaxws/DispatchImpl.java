@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.http.HTTPBinding;
+import javax.xml.ws.http.HTTPException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -144,7 +147,13 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         getConduitSelector().complete(exchange);
                 
         if (message.getContent(Exception.class) != null) {
-            throw new WebServiceException(message.getContent(Exception.class));
+            if (getBinding() instanceof HTTPBinding) {
+                HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                exception.initCause(message.getContent(Exception.class));
+                throw exception;
+            } else {
+                throw new WebServiceException(message.getContent(Exception.class));
+            }
         }
 
         // correlate response        
