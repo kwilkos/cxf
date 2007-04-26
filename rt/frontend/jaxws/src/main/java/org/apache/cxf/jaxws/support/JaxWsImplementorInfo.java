@@ -96,13 +96,10 @@ public class JaxWsImplementorInfo {
         String serviceName = null;
         String namespace = null;
 
-        for (WebService service : wsAnnotations) {
-            if (!StringUtils.isEmpty(service.serviceName()) && serviceName == null) {
-                serviceName = service.serviceName();
-            }
-            if (!StringUtils.isEmpty(service.targetNamespace()) && namespace == null) {
-                namespace = service.targetNamespace();
-            }
+        // serviceName cannot be specified on SEI so check impl class only
+        if (wsAnnotations.size() > 0) {
+            serviceName = wsAnnotations.get(0).serviceName();
+            namespace = wsAnnotations.get(0).targetNamespace();
         }
         
         if ((serviceName == null || namespace == null) 
@@ -130,21 +127,14 @@ public class JaxWsImplementorInfo {
     public QName getEndpointName() {
         String portName = null;
         String namespace = null;
-        for (WebService service : wsAnnotations) {
-            if (!StringUtils.isEmpty(service.portName()) && portName == null) {
-                portName = service.portName();
-            }
-            if (!StringUtils.isEmpty(service.targetNamespace()) && namespace == null) {
-                namespace = service.targetNamespace();
-            }
-            
-            if (!StringUtils.isEmpty(portName)
-                && !StringUtils.isEmpty(namespace)) {
-                break;
-            }
+
+        // portName cannot be specified on SEI so check impl class only
+        if (wsAnnotations.size() > 0) {
+            portName = wsAnnotations.get(0).portName();
+            namespace = wsAnnotations.get(0).targetNamespace();
         }
-        if ((StringUtils.isEmpty(portName) 
-            || StringUtils.isEmpty(namespace)) 
+
+        if ((portName == null || namespace == null)
             && wsProviderAnnotation != null) {
             portName = wsProviderAnnotation.portName();
             namespace = wsProviderAnnotation.targetNamespace();
