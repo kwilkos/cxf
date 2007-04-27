@@ -211,6 +211,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                     final SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
     
                     EndpointInfo info = new SoapEndpointInfo(serviceInfo, sbi.getTransportURI());
+                    info.addExtensor(sa);
                     info.setAddress(sa.getLocationURI());
                     return info;
                 }
