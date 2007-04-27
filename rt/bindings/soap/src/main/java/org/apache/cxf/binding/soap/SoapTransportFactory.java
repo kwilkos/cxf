@@ -128,6 +128,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                                                                                   isSoap12);
                 soapOperation.setSoapActionURI(soi.getAction());
                 soapOperation.setStyle(soi.getStyle());
+                boolean isRpc = "rpc".equals(soapOperation.getStyle());
 
                 b.addExtensor(soapOperation);
 
@@ -151,6 +152,9 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                                                                    BindingInput.class,
                                                                    isSoap12);
                     body.setUse("literal");
+                    if (isRpc) {
+                        body.setNamespaceURI(b.getName().getNamespaceURI());
+                    }
 
                     if (!StringUtils.isEmpty(bodyParts)) {
                         body.setParts(bodyParts);
@@ -179,6 +183,9 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                                                                    BindingOutput.class,
                                                                    isSoap12);
                     body.setUse("literal");
+                    if (isRpc) {
+                        body.setNamespaceURI(b.getName().getNamespaceURI());
+                    }
 
                     if (!StringUtils.isEmpty(bodyParts)) {
                         body.setParts(bodyParts);
@@ -194,26 +201,22 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
     }
     
     public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {
-        List ees = port.getExtensibilityElements();
-        for (Iterator itr = ees.iterator(); itr.hasNext();) {
-            Object extensor = itr.next();
-
-            if (SOAPBindingUtil.isSOAPAddress(extensor)) {
-                final SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
-
-                SoapBindingInfo sbi = (SoapBindingInfo)b;
-                EndpointInfo info = new EndpointInfo(serviceInfo, sbi.getTransportURI()) {
-                    public void setAddress(String s) {
-                        super.setAddress(s);
-                        sa.setLocationURI(s);
-                    }
-                };
-                info.setAddress(sa.getLocationURI());
-                return info;
+        SoapBindingInfo sbi = (SoapBindingInfo)b;
+        if (port != null) {
+            List ees = port.getExtensibilityElements();
+            for (Iterator itr = ees.iterator(); itr.hasNext();) {
+                Object extensor = itr.next();
+    
+                if (SOAPBindingUtil.isSOAPAddress(extensor)) {
+                    final SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
+    
+                    EndpointInfo info = new SoapEndpointInfo(serviceInfo, sbi.getTransportURI());
+                    info.setAddress(sa.getLocationURI());
+                    return info;
+                }
             }
         }
-
-        return null;
+        return new SoapEndpointInfo(serviceInfo, sbi.getTransportURI());
     }
 
 
@@ -262,6 +265,25 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
             }
         }
     }
+    
+    private static class SoapEndpointInfo extends EndpointInfo {
+        SoapAddress saddress;
+        SoapEndpointInfo(ServiceInfo serv, String trans) {
+            super(serv, trans);
+        }
+        public void setAddress(String s) {
+            super.setAddress(s);
+            if (saddress != null) {
+                saddress.setLocationURI(s);
+            }
+        }
 
+        public void addExtensor(Object el) {
+            super.addExtensor(el);
+            if (el instanceof SoapAddress) {
+                saddress = (SoapAddress)el;
+            }
+        }
+    }
 
 }

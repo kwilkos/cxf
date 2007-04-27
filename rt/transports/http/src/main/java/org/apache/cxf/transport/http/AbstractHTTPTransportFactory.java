@@ -30,6 +30,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.http.HTTPAddress;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
@@ -175,40 +176,38 @@ public abstract class AbstractHTTPTransportFactory
         BindingInfo b, 
         Port        port
     ) {
-        List ees = port.getExtensibilityElements();
-        for (Iterator itr = ees.iterator(); itr.hasNext();) {
-            Object extensor = itr.next();
-
-            if (extensor instanceof HTTPAddress) {
-                final HTTPAddress httpAdd = (HTTPAddress)extensor;
-
-                EndpointInfo info = 
-                    new EndpointInfo(serviceInfo, 
-                            "http://schemas.xmlsoap.org/wsdl/http/") {
-                        public void setAddress(String a) {
-                            super.setAddress(a);
-                            httpAdd.setLocationURI(a);
-                        }
-                    };
-                info.setAddress(httpAdd.getLocationURI());
-                return info;
-            } else if (extensor instanceof AddressType) {
-                final AddressType httpAdd = (AddressType)extensor;
-
-                EndpointInfo info = 
-                    new EndpointInfo(serviceInfo, 
-                            "http://schemas.xmlsoap.org/wsdl/http/") {
-                        public void setAddress(String a) {
-                            super.setAddress(a);
-                            httpAdd.setLocation(a);
-                        }
-                    };
-                info.setAddress(httpAdd.getLocation());
-                return info;
+        if (port != null) {
+            List ees = port.getExtensibilityElements();
+            for (Iterator itr = ees.iterator(); itr.hasNext();) {
+                Object extensor = itr.next();
+    
+                if (extensor instanceof HTTPAddress) {
+                    final HTTPAddress httpAdd = (HTTPAddress)extensor;
+    
+                    EndpointInfo info = new HttpEndpointInfo(serviceInfo, 
+                                "http://schemas.xmlsoap.org/wsdl/http/");
+                    info.setAddress(httpAdd.getLocationURI());
+                    info.addExtensor(httpAdd);
+                    return info;
+                } else if (extensor instanceof AddressType) {
+                    final AddressType httpAdd = (AddressType)extensor;
+    
+                    EndpointInfo info = 
+                        new HttpEndpointInfo(serviceInfo, 
+                                "http://schemas.xmlsoap.org/wsdl/http/");
+                    info.setAddress(httpAdd.getLocation());
+                    info.addExtensor(httpAdd);
+                    return info;
+                }
             }
         }
-
-        return null;
+        HttpEndpointInfo hei = new HttpEndpointInfo(serviceInfo, 
+            "http://schemas.xmlsoap.org/wsdl/http/");
+        AddressType at = new AddressType();
+        at.setElementType(new QName("http://schemas.xmlsoap.org/wsdl/http/", "address"));
+        hei.addExtensor(at);
+        
+        return hei;
     }
 
     public void createPortExtensors(EndpointInfo ei, Service service) {
@@ -244,6 +243,26 @@ public abstract class AbstractHTTPTransportFactory
         } else {
             return new HttpsURLConnectionFactory(
                              configuredConduit.getSslClient());
+        }
+    }   
+    
+    private static class HttpEndpointInfo extends EndpointInfo {
+        AddressType saddress;
+        HttpEndpointInfo(ServiceInfo serv, String trans) {
+            super(serv, trans);
+        }
+        public void setAddress(String s) {
+            super.setAddress(s);
+            if (saddress != null) {
+                saddress.setLocation(s);
+            }
+        }
+
+        public void addExtensor(Object el) {
+            super.addExtensor(el);
+            if (el instanceof AddressType) {
+                saddress = (AddressType)el;
+            }
         }
     }    
 

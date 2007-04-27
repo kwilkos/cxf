@@ -24,7 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
@@ -40,6 +44,7 @@ import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class SOAPHandlerInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
@@ -97,6 +102,24 @@ public class SOAPHandlerInterceptor extends
             });
         } else {
             super.handleMessage(message);
+            SOAPMessage msg = message.getContent(SOAPMessage.class);
+            if (msg != null) {
+                DOMSource bodySource;
+                try {
+                    bodySource = new DOMSource(msg.getSOAPPart().getEnvelope().getBody());
+                    XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(bodySource);
+                    xmlReader.nextTag();
+                    xmlReader.nextTag(); // move past body tag
+                    message.setContent(XMLStreamReader.class, xmlReader);
+                } catch (SOAPException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (XMLStreamException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
         }
     }
 

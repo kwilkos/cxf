@@ -112,7 +112,8 @@ public class ProcessorTestBase extends Assert {
                     unmatched.add(tok2);
                 }
             }
-            assertEquals("Compare failed", tok1, tok2);
+            assertEquals("Compare failed " + location1.getAbsolutePath() 
+                         + " != " + location2.getAbsolutePath(), tok1, tok2);
         }
 
         assertTrue(!st1.hasMoreTokens());

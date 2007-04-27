@@ -195,7 +195,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             destinationFactory = dfm.getDestinationFactory(transportId);
         }
         
-        EndpointInfo ei = new EndpointInfo(service.getServiceInfos().get(0), transportId);
+        EndpointInfo ei;
+        if (destinationFactory instanceof WSDLEndpointFactory) {
+            ei = ((WSDLEndpointFactory)destinationFactory)
+                .createEndpointInfo(service.getServiceInfos().get(0), bindingInfo, null);
+            ei.setTransportId(transportId);
+        } else {
+            ei = new EndpointInfo(service.getServiceInfos().get(0), transportId);
+        }
         int count = 1;
         while (service.getEndpointInfo(endpointName) != null) {
             endpointName = new QName(endpointName.getNamespaceURI(), 

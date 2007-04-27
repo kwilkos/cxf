@@ -41,6 +41,9 @@ public class EndpointInfo extends AbstractDescriptionElement {
     public String getTransportId() {
         return transportId;
     }    
+    public void setTransportId(String tid) {
+        transportId = tid;
+    }
     public InterfaceInfo getInterface() {
         return service.getInterface();
     }

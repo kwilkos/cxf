@@ -39,10 +39,10 @@
     <wsdl:operation name="getPrice">
       <soap:operation soapAction="" style="rpc"/>
       <wsdl:input name="getPrice">
-        <soap:body use="literal"/>
+        <soap:body use="literal" namespace="http://rpc.classnoanno.fortest.tools.cxf.apache.org/"/>
       </wsdl:input>
       <wsdl:output name="getPriceResponse">
-        <soap:body use="literal"/>
+        <soap:body use="literal" namespace="http://rpc.classnoanno.fortest.tools.cxf.apache.org/"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>

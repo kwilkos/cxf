@@ -82,8 +82,7 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             
             XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
             StaxUtils.readDocElements(soapMessage.getSOAPBody(), xmlReader, true);
-            
-            DOMSource bodySource = new DOMSource(soapMessage.getSOAPBody());
+            DOMSource bodySource = new DOMSource(soapMessage.getSOAPPart().getEnvelope().getBody());
             xmlReader = StaxUtils.createXMLStreamReader(bodySource);
             xmlReader.nextTag();
             xmlReader.nextTag(); // move past body tag
