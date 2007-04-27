@@ -21,6 +21,7 @@
        xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:coloc="http://cxf.apache.org/binding/coloc"
        xsi:schemaLocation="
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
@@ -53,7 +54,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <jaxws:client id="{http://apache.org/headers/rpc_lit}SoapPort"
                   createdFromAPI="true">
         <jaxws:features>
-            <bean class="org.apache.cxf.binding.coloc.feature.ColocFeature"/>
+            <coloc:enableColoc/>
         </jaxws:features>
         <jaxws:conduitSelector>
             <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
