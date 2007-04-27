@@ -166,7 +166,7 @@ public class JavaToProcessor implements Processor {
         return true;
     }
 
-    private File getOutputDir(File wsdlLocation) {
+    protected File getOutputDir(File wsdlLocation) {
         String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
         if (dir == null) {
             if (wsdlLocation == null) {
@@ -178,7 +178,7 @@ public class JavaToProcessor implements Processor {
         return new File(dir);
     }
     
-    private File getOutputFile(File nameFromClz, String defaultOutputFile) {
+    protected File getOutputFile(File nameFromClz, String defaultOutputFile) {
         String output = (String) context.get(ToolConstants.CFG_OUTPUTFILE);
         String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
         if (dir == null) {
