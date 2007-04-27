@@ -27,27 +27,30 @@ import org.apache.cxf.tools.common.ToolException;
 
 public class JAXBBindErrorListener implements ErrorListener {
     private ToolContext env;
+    private String prefix = "Thrown by JAXB : ";
 
     public JAXBBindErrorListener(ToolContext penv) {
         env = penv;
     }
 
     public void error(org.xml.sax.SAXParseException exception) {
-        throw new ToolException(exception.getLocalizedMessage());
+        throw new ToolException(prefix + exception.getLocalizedMessage(), exception);
 
     }
 
     public void fatalError(org.xml.sax.SAXParseException exception) {
-        throw new ToolException(exception.getLocalizedMessage());
+        throw new ToolException(prefix + exception.getLocalizedMessage(), exception);
     }
 
     public void info(org.xml.sax.SAXParseException exception) {
-
+        if (this.env.isVerbose()) {
+            System.out.println("JAXB Info: " + exception.toString());
+        }
     }
 
     public void warning(org.xml.sax.SAXParseException exception) {
         if (this.env.isVerbose()) {
-            System.err.println("Parsing schema warning " + exception.toString());
+            System.err.println("JAXB parsing schema warning " + exception.toString());
         }
     }
 }

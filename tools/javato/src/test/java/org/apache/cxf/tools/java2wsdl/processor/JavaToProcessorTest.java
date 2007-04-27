@@ -154,7 +154,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         w2jProcessor.execute();
         
         
-        String tns = "http://apache.org/hello_world_doc_lit";
+        String tns = "http://apache.org/sepecifiedTns";
         String serviceName = "cxfService";
 
         System.setProperty("java.class.path", "");

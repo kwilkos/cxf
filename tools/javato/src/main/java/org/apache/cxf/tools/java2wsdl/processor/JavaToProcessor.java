@@ -67,6 +67,10 @@ public class JavaToProcessor implements Processor {
 
         AbstractGenerator generator = factory.newGenerator();
         generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
+        if (context.containsKey(ToolConstants.CFG_TNS)) {
+            String ns = (String)context.get(ToolConstants.CFG_TNS);
+            service.setTargetNamespace(ns);
+        }
         generator.setServiceModel(service);
         generator.generate(output);
     }
