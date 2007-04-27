@@ -23,8 +23,36 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Compiler {
+    public boolean compileFiles(String[] files, File outputDir) {
+        List<String> list = new ArrayList<String>();
+        list.add("javac");
+        
+        if (outputDir != null) {
+            list.add("-d");
+            list.add(outputDir.getAbsolutePath().replace(File.pathSeparatorChar, '/'));
+        }
+        
+        String javaClasspath = System.getProperty("java.class.path");
+        boolean classpathSetted = javaClasspath != null ? true : false;
+        if (!classpathSetted) {
+            list.add("-extdirs");
+            list.add(getClass().getClassLoader().getResource(".").getFile() + "../lib/");
+        } else {
+            list.add("-classpath");
+            list.add(javaClasspath);
+        }
+        
+        int idx = list.size();
+        list.addAll(Arrays.asList(files));
+        
+        return internalCompile(list.toArray(new String[list.size()]), idx);
+    }
+    
     public boolean internalCompile(String[] args, int sourceFileIndex) {
         Process p = null;
         String cmdArray[] = null;

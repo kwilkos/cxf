@@ -43,6 +43,7 @@ import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.RequestWrapper;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.ResponseWrapper;
+import org.apache.cxf.tools.util.Compiler;
 import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.wsdlto.databinding.jaxb.JAXBBindErrorListener;
 import org.apache.cxf.tools.wsdlto.databinding.jaxb.TypesCodeWriter;
@@ -51,6 +52,7 @@ import org.apache.cxf.tools.wsdlto.databinding.jaxb.TypesCodeWriter;
 public final class WrapperBeanGenerator extends AbstractGenerator<File> {
 
     private Class<?> serviceClass;
+    private File compileToDir;
     
     public File generate(final File sourcedir) {
         File dir = getOutputBase();
@@ -62,6 +64,10 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
         }
         generateWrapperBeanClasses(getServiceModel(), dir);
         return sourcedir;
+    }
+    
+    public void setCompileToDir(File f) {
+        compileToDir = f;
     }
 
 
@@ -152,11 +158,29 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
         filter.include(wrapperClasses);
         
         try {
+            TypesCodeWriter writer = new TypesCodeWriter(dir, new ArrayList<String>());
             createOutputDir(dir);
-            jcodeModel.build(new TypesCodeWriter(dir, new ArrayList<String>()));
+            jcodeModel.build(writer);
+            
+            if (compileToDir != null) {
+                //compile the classes
+                Compiler compiler = new Compiler();
+
+                List<String> files = new ArrayList<String>(writer.getGeneratedFiles().size());
+                for (File file : writer.getGeneratedFiles()) {
+                    files.add(file.getAbsolutePath());
+                }
+                if (!compiler.compileFiles(files.toArray(new String[files.size()]),
+                                           compileToDir)) {
+                    //TODO - compile issue
+                }
+
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
     }
     
 }

@@ -92,6 +92,7 @@ public class JavaToProcessor implements Processor {
         WrapperBeanGenerator generator = new WrapperBeanGenerator();
         generator.setOutputBase(getSourceDir());
         generator.setServiceClass(getServiceClass());
+        generator.setCompileToDir(getClassesDir());
         return generator;
     }
 
@@ -223,8 +224,15 @@ public class JavaToProcessor implements Processor {
         return (String) this.context.get(ToolConstants.CFG_SERVICENAME);
     }
 
-    public File getSourceDir() {
+    File getSourceDir() {
         String dir = (String) this.context.get(ToolConstants.CFG_SOURCEDIR);
+        if (StringUtils.isEmpty(dir)) {
+            return null;
+        }
+        return new File(dir);
+    }
+    File getClassesDir() {
+        String dir = (String) this.context.get(ToolConstants.CFG_CLASSDIR);
         if (StringUtils.isEmpty(dir)) {
             return null;
         }

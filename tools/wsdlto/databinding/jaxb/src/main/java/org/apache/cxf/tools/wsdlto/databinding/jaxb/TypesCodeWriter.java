@@ -36,6 +36,8 @@ public class TypesCodeWriter extends CodeWriter {
     
     private List<String> excludeFileList = new ArrayList<String>();
     private List<String> excludePkgList;
+    
+    private List<File> generatedFiles = new ArrayList<File>();
 
     public TypesCodeWriter(File ftarget, List<String> excludePkgs) throws IOException {
         target = ftarget;
@@ -43,9 +45,15 @@ public class TypesCodeWriter extends CodeWriter {
     }
 
     public OutputStream openBinary(JPackage pkg, String fileName) throws IOException {
+        File f = getFile(pkg, fileName);
+        generatedFiles.add(f);
         return new FileOutputStream(getFile(pkg, fileName));
     }
 
+    public List<File> getGeneratedFiles() {
+        return generatedFiles;
+    }
+    
     protected File getFile(JPackage pkg, String fileName) throws IOException {
         String dirName = pkg.name().replace('.', File.separatorChar);
         File dir = pkg.isUnnamed() ? target : new File(target, dirName);

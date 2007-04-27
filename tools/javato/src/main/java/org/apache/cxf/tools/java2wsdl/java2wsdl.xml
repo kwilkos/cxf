@@ -64,6 +64,14 @@
 				<annotation>source-directory</annotation>
 			    </associatedArgument>
 			</option>
+			<option id="classdir" maxOccurs="1">
+			    <annotation>The directory in which the generated sources are compiled into.  If not 
+			    specified, the files are not compiled.</annotation>
+                <switch>classdir</switch>
+                <associatedArgument placement="afterSpace">
+                    <annotation>compile-classes-directory</annotation>
+                </associatedArgument>
+			</option>
 			
 			<option id="classpath" maxOccurs="1">
 				<annotation>
