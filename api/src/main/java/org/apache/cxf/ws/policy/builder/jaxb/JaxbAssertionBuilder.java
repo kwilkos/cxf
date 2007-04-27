@@ -117,6 +117,7 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
         return supportedTypes;
     }
 
+    @SuppressWarnings("unchecked")
     public Assertion buildCompatible(Assertion a, Assertion b) {
         if (a.equal(b)) {
             JaxbAssertion<T> ja = (JaxbAssertion<T>)a;
