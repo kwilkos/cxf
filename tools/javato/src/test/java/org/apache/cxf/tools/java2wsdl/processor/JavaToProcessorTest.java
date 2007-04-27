@@ -22,6 +22,7 @@ package org.apache.cxf.tools.java2wsdl.processor;
 import java.io.File;
 
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
@@ -34,6 +35,7 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.tools.java2wsdl.JavaToWSDL;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
@@ -156,24 +158,35 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         
         String tns = "http://apache.org/sepecifiedTns";
         String serviceName = "cxfService";
+        String portName = "cxfPort";
 
         System.setProperty("java.class.path", "");
         
-        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_classpath.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.classpath.Greeter");
-        env.put(ToolConstants.CFG_TNS, tns);
-        env.put(ToolConstants.CFG_CLASSPATH, classFile.getCanonicalPath());
-        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
-        processor.setEnvironment(env);
-        processor.process();
-        
-        File wsdlFile = new File(output, "doc_lit_classpath.wsdl");
+//      test flag
+        String[] args = new String[] {"-o",
+                                      "java2wsdl.wsdl",
+                                      "-cp",
+                                      classFile.getCanonicalPath(),
+                                      "-t",
+                                      tns,
+                                      "-servicename",
+                                      serviceName,
+                                      "-portname",
+                                      portName,
+                                      "-soap12",
+                                      "-d",
+                                      output.getPath(),
+                                      "org.apache.cxf.classpath.Greeter"};
+        JavaToWSDL.main(args);
+        File wsdlFile = new File(output, "java2wsdl.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
-
         Definition def = wsdlHelper.getDefinition(wsdlFile);
         Service wsdlService = def.getService(new QName(tns, serviceName));
         assertNotNull("Generate WSDL Service Error", wsdlService);
-
+        
+        Port wsdlPort = wsdlService.getPort(portName);
+        assertNotNull("Generate service port error ", wsdlPort);
+        
     }
 
     @Test
@@ -211,4 +224,5 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/my_hello_soap12.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "my_hello_soap12.wsdl"));
     }
+        
 }

@@ -35,6 +35,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -70,6 +71,13 @@ public class JavaToProcessor implements Processor {
         if (context.containsKey(ToolConstants.CFG_TNS)) {
             String ns = (String)context.get(ToolConstants.CFG_TNS);
             service.setTargetNamespace(ns);
+        }
+        
+        if (context.containsKey(ToolConstants.CFG_PORT)) {
+            String portName = (String)context.get(ToolConstants.CFG_PORT);
+            EndpointInfo einfo = service.getEndpoints().iterator().next();
+            QName qn = new QName(einfo.getName().getNamespaceURI(), portName); 
+            einfo.setName(qn);
         }
         generator.setServiceModel(service);
         generator.generate(output);
