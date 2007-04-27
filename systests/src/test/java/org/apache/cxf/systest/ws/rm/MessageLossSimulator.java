@@ -59,7 +59,7 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
         if (maps != null && null != maps.getAction()) {
             action = maps.getAction().getValue();
         }
-        if (!RMContextUtils.isAplicationMessage(action)) {
+        if (RMContextUtils.isRMProtocolMessage(action)) {
             return;
         }
         appMessageCount++;

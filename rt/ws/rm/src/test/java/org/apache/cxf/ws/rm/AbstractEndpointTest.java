@@ -63,16 +63,4 @@ public class AbstractEndpointTest extends Assert {
         assertSame(ae, tested.getEndpoint());
         assertSame(mgr, tested.getManager());
     }
-    
-    @Test
-    public void testGenerateSequenceIdentifier() {
-        AbstractEndpoint tested = new AbstractEndpoint(null);
-        Identifier id1 = tested.generateSequenceIdentifier();
-        assertNotNull(id1);
-        assertNotNull(id1.getValue());
-        Identifier id2 = tested.generateSequenceIdentifier();
-        assertTrue(id1 != id2);
-        assertTrue(!id1.getValue().equals(id2.getValue()));     
-        control.replay();
-    }
 }

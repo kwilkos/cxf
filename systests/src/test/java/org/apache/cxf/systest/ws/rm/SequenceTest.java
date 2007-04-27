@@ -26,8 +26,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+import javax.xml.ws.WebServiceException;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -36,6 +40,9 @@ import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.MessageRecorder;
@@ -44,11 +51,12 @@ import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.rm.RMConstants;
+import org.apache.cxf.ws.rm.RMContextUtils;
 import org.apache.cxf.ws.rm.RMInInterceptor;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMOutInterceptor;
+import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.soap.RMSoapInterceptor;
-
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -94,6 +102,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     private boolean doTestTwowayNonAnonymousEndpointSpecific = testAll;
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
+    private boolean doTestTwowayAtMostOnce = testAll;
+    private boolean doTestInvalidSequence = testAll;
     private boolean doTestOnewayMessageLoss = testAll;
     private boolean doTestOnewayMessageLossAsyncExecutor = testAll;
     private boolean doTestTwowayMessageLoss = testAll;
@@ -103,13 +113,6 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        /*
-        // special case handling for WS-Addressing system test to avoid
-        // UUID related issue when server is run as separate process
-        // via maven on Win2k
-        boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
-        assertTrue("server did not launch correctly", launchServer(Server.class, inProcess));
-        */
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
             
@@ -623,6 +626,114 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         expected[1] = true;
         expected[5] = true;
         mf.verifyAcknowledgements(expected, false);
+    }
+    
+    @Test
+    public void testTwowayAtMostOnce() throws Exception {
+        if (!doTestTwowayAtMostOnce) {
+            return;
+        }
+        
+        setupGreeter("org/apache/cxf/systest/ws/rm/atmostonce.xml");
+        
+        class MessageNumberInterceptor extends AbstractPhaseInterceptor {
+            public MessageNumberInterceptor() {
+                setPhase(Phase.USER_LOGICAL);
+            }
+            
+            public void handleMessage(Message m) {
+                RMProperties rmps = RMContextUtils.retrieveRMProperties(m, true);
+                if (null != rmps && null != rmps.getSequence()) {
+                    rmps.getSequence().setMessageNumber(BigInteger.ONE);
+                }
+            }
+        }
+        greeterBus.getOutInterceptors().add(new MessageNumberInterceptor());
+        RMManager manager = greeterBus.getExtension(RMManager.class);
+        manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
+        
+        assertEquals("ONE", greeter.greetMe("one"));
+        try {
+            greeter.greetMe("two");
+            fail("Expected fault.");
+        } catch (WebServiceException ex) {
+            SoapFault sf = (SoapFault)ex.getCause();
+            assertEquals("Unexpected fault code.", Soap11.getInstance().getReceiver(), sf.getFaultCode());
+            assertNull("Unexpected sub code.", sf.getSubCode());
+            assertTrue("Unexpected reason.", sf.getReason().endsWith("has already been delivered."));
+        }
+        
+        // wait for resend to occur 
+        
+        awaitMessages(3, 3, 5000);
+         
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+
+        // Expected outbound:
+        // CreateSequence 
+        // + two requests
+       
+        String[] expectedActions = new String[3];
+        expectedActions[0] = RMConstants.getCreateSequenceAction();        
+        for (int i = 1; i < expectedActions.length; i++) {
+            expectedActions[i] = GREETME_ACTION;
+        }
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "1"}, true);
+        mf.verifyLastMessage(new boolean[3], true);
+        mf.verifyAcknowledgements(new boolean[3], true);
+ 
+        // Expected inbound:
+        // createSequenceResponse
+        // + 1 response without acknowledgement
+        // + 1 fault
+        
+        mf.verifyMessages(3, false);
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", null}, false);
+        mf.verifyAcknowledgements(new boolean[3] , false);
+        
+    }
+    
+    @Test
+    public void testInvalidSequence() throws Exception {
+        if (!doTestInvalidSequence) {
+            return;
+        }
+        
+        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
+        
+        class SequenceIdInterceptor extends AbstractPhaseInterceptor {
+            public SequenceIdInterceptor() {
+                setPhase(Phase.USER_LOGICAL);
+            }
+            
+            public void handleMessage(Message m) {
+                RMProperties rmps = RMContextUtils.retrieveRMProperties(m, true);
+                if (null != rmps && null != rmps.getSequence()) {
+                    rmps.getSequence().getIdentifier().setValue("UNKNOWN");
+                }
+            }
+        }
+        greeterBus.getOutInterceptors().add(new SequenceIdInterceptor());
+        RMManager manager = greeterBus.getExtension(RMManager.class);
+        manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
+       
+        try {
+            greeter.greetMe("one");
+            fail("Expected fault.");
+        } catch (WebServiceException ex) {
+            SoapFault sf = (SoapFault)ex.getCause();
+            assertEquals("Unexpected fault code.", Soap11.getInstance().getSender(), sf.getFaultCode());
+            assertNull("Unexpected sub code.", sf.getSubCode());
+            assertTrue("Unexpected reason.", sf.getReason().endsWith("is not a known Sequence identifier."));
+        }   
+        
+        // the third inbound message has a SequenceFault header
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        mf.verifySequenceFault(RMConstants.getUnknownSequenceFaultCode(), false, 1);
     }
 
     @Test    

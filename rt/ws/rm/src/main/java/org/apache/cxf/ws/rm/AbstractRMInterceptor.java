@@ -24,7 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -41,7 +43,7 @@ import org.apache.cxf.ws.policy.AssertionInfoMap;
  */
 public abstract class AbstractRMInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(AbstractRMInterceptor.class);      
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractRMInterceptor.class); 
     private RMManager manager;
     private Bus bus;
     
@@ -74,8 +76,25 @@ public abstract class AbstractRMInterceptor<T extends Message> extends AbstractP
         
         try {
             handle(msg);
-        } catch (SequenceFault ex) {
-            LOG.log(Level.SEVERE, "SequenceFault", ex);
+        } catch (SequenceFault sf) {
+            
+            // log the fault as it may not be reported back to the client
+            
+            Endpoint e = msg.getExchange().get(Endpoint.class);
+            Binding b = null;
+            if (null != e) {
+                b = e.getBinding();
+            }
+            if (null != b) {
+                RMManager m = getManager();
+                LOG.fine("Manager: " + m);
+                BindingFaultFactory bff = m.getBindingFaultFactory(b);
+                Fault f = bff.createFault(sf);
+                LogUtils.log(LOG, Level.SEVERE, "SEQ_FAULT_MSG", bff.toString(f));
+                throw f;
+            }
+            throw new Fault(sf);
+        }  catch (RMException ex) {
             throw new Fault(ex);
         }
     }
@@ -102,6 +121,6 @@ public abstract class AbstractRMInterceptor<T extends Message> extends AbstractP
         }
     }
     
-    protected abstract void handle(Message message) throws SequenceFault;
+    protected abstract void handle(Message message) throws SequenceFault, RMException;
 
 }

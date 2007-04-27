@@ -62,9 +62,6 @@ public class AbstractEndpoint {
      * @return the sequence identifier.
      */
     public Identifier generateSequenceIdentifier() {
-        String sequenceID = RMContextUtils.generateUUID();
-        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
-        sid.setValue(sequenceID);        
-        return sid;
+        return reliableEndpoint.getManager().getIdGenerator().generateSequenceIdentifier();
     }
 }

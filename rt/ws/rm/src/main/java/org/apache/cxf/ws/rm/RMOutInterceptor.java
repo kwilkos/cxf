@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -45,9 +46,22 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
     
     protected void handle(Message message) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleMessage");
+        
+        if (isRuntimeFault(message)) {
+            LogUtils.log(LOG, Level.WARNING, "RUNTIME_FAULT_MSG");
+            // TODO: in case of a SequenceFault need to set action
+            // to http://schemas.xmlsoap.org/ws/2004/a08/addressing/fault
+            // but: need to defer propagation of received MAPS to oubound chain            
+            return;
+        }
        
         AddressingProperties maps =
             RMContextUtils.retrieveMAPs(message, false, true);
+        if (null == maps) {
+            LogUtils.log(LOG, Level.WARNING, "MAPS_RETRIEVAL_FAILURE_MSG");
+            return;
+        }
+        
         RMContextUtils.ensureExposedVersion(maps);
         
         Source source = getManager().getSource(message);
@@ -62,7 +76,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             LOG.fine("Action: " + action);
         }
 
-        boolean isApplicationMessage = RMContextUtils.isAplicationMessage(action);
+        boolean isApplicationMessage = !RMContextUtils.isRMProtocolMessage(action);
         boolean isPartialResponse = MessageUtils.isPartialResponse(message);
         LOG.fine("isApplicationMessage: " + isApplicationMessage);
         LOG.fine("isPartialResponse: " + isPartialResponse);
@@ -179,5 +193,13 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
                 LOG.fine("Added " + acks.size() + " acknowledgements.");
             }
         }
+    }
+    
+    boolean isRuntimeFault(Message message) {
+        FaultMode mode = MessageUtils.getFaultMode(message);
+        if (null == mode) {
+            return false;
+        }
+        return FaultMode.CHECKED_APPLICATION_FAULT != mode;
     }
 }

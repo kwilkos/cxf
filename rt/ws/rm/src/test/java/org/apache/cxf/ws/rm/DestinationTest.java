@@ -100,7 +100,7 @@ public class DestinationTest extends Assert {
     }
     
     @Test
-    public void testAcknowledgeNoSequence() throws SequenceFault {
+    public void testAcknowledgeNoSequence() throws SequenceFault, RMException {
         Message message = setupMessage();
         RMProperties rmps = control.createMock(RMProperties.class);
         EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_INBOUND)).andReturn(rmps);
@@ -110,7 +110,7 @@ public class DestinationTest extends Assert {
     }
     
     @Test
-    public void testAcknowledgeUnknownSequence() {
+    public void testAcknowledgeUnknownSequence() throws RMException {
         Message message = setupMessage();
         RMProperties rmps = control.createMock(RMProperties.class);
         EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_INBOUND)).andReturn(rmps);
@@ -119,18 +119,48 @@ public class DestinationTest extends Assert {
         Identifier id = control.createMock(Identifier.class);
         EasyMock.expect(st.getIdentifier()).andReturn(id).times(2);
         String sid = "sid";
-        EasyMock.expect(id.getValue()).andReturn(sid).times(2); 
+        EasyMock.expect(id.getValue()).andReturn(sid); 
         control.replay();
         try {
             destination.acknowledge(message);   
             fail("Expected SequenceFault not thrown.");
         } catch (SequenceFault ex) {
-            assertEquals(RMConstants.getUnknownSequenceFaultCode(), ex.getFaultInfo().getFaultCode());
+            assertEquals(RMConstants.getUnknownSequenceFaultCode(), ex.getSequenceFault().getFaultCode());
         }
     }
     
     @Test
-    public void testAcknowledgeLastMessage() throws NoSuchMethodException, SequenceFault, IOException {
+    public void testAcknowledgeAlreadyAcknowledgedMessage() throws SequenceFault, RMException, 
+    NoSuchMethodException {
+        
+        Method m1 = Destination.class.getDeclaredMethod("getSequence", new Class[] {Identifier.class});
+        destination = control.createMock(Destination.class, new Method[] {m1});
+        Message message = setupMessage();
+        RMProperties rmps = control.createMock(RMProperties.class);
+        EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_INBOUND)).andReturn(rmps);
+        SequenceType st = control.createMock(SequenceType.class);
+        EasyMock.expect(rmps.getSequence()).andReturn(st);
+        Identifier id = control.createMock(Identifier.class);
+        EasyMock.expect(st.getIdentifier()).andReturn(id);
+        DestinationSequence ds = control.createMock(DestinationSequence.class);
+        EasyMock.expect(destination.getSequence(id)).andReturn(ds);
+        BigInteger nr = BigInteger.TEN;
+        EasyMock.expect(st.getMessageNumber()).andReturn(nr);  
+        RMException ex = new RMException(new RuntimeException("already acknowledged"));
+        ds.applyDeliveryAssurance(nr);
+        EasyMock.expectLastCall().andThrow(ex);
+        control.replay();
+        try {
+            destination.acknowledge(message); 
+            fail("Expected RMEcception not thrown.");
+        } catch (RMException e) {
+            assertSame(ex, e);
+        }
+        
+    }
+    
+    @Test
+    public void testAcknowledgeLastMessage() throws Exception {
         
         Method m1 = Destination.class.getDeclaredMethod("getSequence", new Class[] {Identifier.class});
         Method m2 = Destination.class.getMethod("getReliableEndpoint", new Class[] {});
@@ -143,14 +173,16 @@ public class DestinationTest extends Assert {
         EasyMock.expect(rmps.getSequence()).andReturn(st);
         Identifier id = control.createMock(Identifier.class);
         EasyMock.expect(st.getIdentifier()).andReturn(id); 
+        BigInteger nr = BigInteger.TEN;
+        EasyMock.expect(st.getMessageNumber()).andReturn(nr).times(2);
         DestinationSequence ds = control.createMock(DestinationSequence.class);
-        EasyMock.expect(destination.getSequence(id)).andReturn(ds);        
+        EasyMock.expect(destination.getSequence(id)).andReturn(ds);   
+        ds.applyDeliveryAssurance(nr);
+        EasyMock.expectLastCall();
         ds.acknowledge(message);
         EasyMock.expectLastCall();
         SequenceType.LastMessage lm = control.createMock(SequenceType.LastMessage.class);
         EasyMock.expect(st.getLastMessage()).andReturn(lm);
-        BigInteger nr = BigInteger.TEN;
-        EasyMock.expect(st.getMessageNumber()).andReturn(nr);
         ds.setLastMessageNumber(nr);
         EasyMock.expectLastCall();
         ds.scheduleImmediateAcknowledgement();

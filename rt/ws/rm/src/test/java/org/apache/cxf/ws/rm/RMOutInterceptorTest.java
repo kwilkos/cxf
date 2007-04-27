@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -63,21 +64,52 @@ public class RMOutInterceptorTest extends Assert {
         assertSame("Unexpected order.", rmi, it.next());                      
     } 
     
+    @Test 
+    public void testHandleRuntimeFault() throws NoSuchMethodException, SequenceFault {
+        Method[] mocked = new Method[] {                                                
+            RMOutInterceptor.class.getDeclaredMethod("isRuntimeFault", new Class[] {Message.class})
+        };
+        RMOutInterceptor interceptor = control.createMock(RMOutInterceptor.class, mocked);
+        Message message = control.createMock(Message.class);        
+        EasyMock.expect(interceptor.isRuntimeFault(message)).andReturn(true);
+        control.replay();
+        interceptor.handle(message);
+        control.verify();
+    }
+    
+    @Test 
+    public void testHandleNoMAPs() throws NoSuchMethodException, SequenceFault {
+        Method[] mocked = new Method[] {                                                
+            RMOutInterceptor.class.getDeclaredMethod("isRuntimeFault", new Class[] {Message.class})
+        };
+        RMOutInterceptor interceptor = control.createMock(RMOutInterceptor.class, mocked);
+        Message message = control.createMock(Message.class);        
+        EasyMock.expect(interceptor.isRuntimeFault(message)).andReturn(false);
+        EasyMock.expect(message.get(Message.REQUESTOR_ROLE)).andReturn(Boolean.FALSE).anyTimes();        
+        EasyMock.expect(message.get(JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND))
+            .andReturn(null);
+        control.replay();
+        interceptor.handle(message);
+        control.verify();
+    }
+    
     @Test
     public void testHandleApplicationMessage() throws NoSuchMethodException, SequenceFault {
         AddressingPropertiesImpl maps = createMAPs("greetMe", "localhost:9000/GreeterPort", 
             org.apache.cxf.ws.addressing.Names.WSA_NONE_ADDRESS);
         Method[] mocked = new Method[] {
             AbstractRMInterceptor.class.getDeclaredMethod("getManager", new Class[]{}),
+            RMOutInterceptor.class.getDeclaredMethod("isRuntimeFault", new Class[] {Message.class}),
             RMOutInterceptor.class.getDeclaredMethod("addAcknowledgements",
                 new Class[] {Destination.class, RMProperties.class, Identifier.class, 
                              AttributedURI.class})            
         };
-        RMOutInterceptor interceptor = control.createMock(RMOutInterceptor.class, mocked); 
+        RMOutInterceptor interceptor = control.createMock(RMOutInterceptor.class, mocked);         
         RMManager manager = control.createMock(RMManager.class);
         EasyMock.expect(interceptor.getManager()).andReturn(manager).times(5);
         
         Message message = control.createMock(Message.class);
+        EasyMock.expect(interceptor.isRuntimeFault(message)).andReturn(false);
         Exchange ex = control.createMock(Exchange.class);
         EasyMock.expect(message.getExchange()).andReturn(ex).times(3);
         EasyMock.expect(ex.getOutMessage()).andReturn(message).times(1);       
@@ -118,6 +150,25 @@ public class RMOutInterceptorTest extends Assert {
         assertSame(sid, rmpsOut.getSequence().getIdentifier());        
         assertEquals(BigInteger.TEN, rmpsOut.getSequence().getMessageNumber());
         assertNull(rmpsOut.getSequence().getLastMessage());
+        control.verify();
+    }
+    
+    @Test
+    public void testIsRuntimeFault() {
+        Message message = control.createMock(Message.class);
+        Exchange exchange = control.createMock(Exchange.class);
+        EasyMock.expect(message.getExchange()).andReturn(exchange).times(2);
+        EasyMock.expect(exchange.getOutFaultMessage()).andReturn(message);
+        EasyMock.expect(message.get(FaultMode.class)).andReturn(FaultMode.RUNTIME_FAULT);
+        control.replay();
+        RMOutInterceptor rmi = new RMOutInterceptor();
+        assertTrue(rmi.isRuntimeFault(message));
+        control.verify();
+        control.reset();
+        EasyMock.expect(message.getExchange()).andReturn(exchange).times(2);
+        EasyMock.expect(exchange.getOutFaultMessage()).andReturn(null);
+        control.replay();
+        assertTrue(!rmi.isRuntimeFault(message));
         control.verify();
     }
     

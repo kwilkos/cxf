@@ -71,16 +71,16 @@ public class RMContextUtilsTest extends Assert {
     }
     
     @Test
-    public void testIsApplicationMessage() {
+    public void testIsRmPrtocolMessage() {
         control.replay();
         String action = null;
-        assertTrue(RMContextUtils.isAplicationMessage(action));
+        assertTrue(!RMContextUtils.isRMProtocolMessage(action));
         action = "";
-        assertTrue(RMContextUtils.isAplicationMessage(action));
+        assertTrue(!RMContextUtils.isRMProtocolMessage(action));
         action = "greetMe";
-        assertTrue(RMContextUtils.isAplicationMessage(action));
+        assertTrue(!RMContextUtils.isRMProtocolMessage(action));
         action = RMConstants.getCreateSequenceAction();
-        assertTrue(!RMContextUtils.isAplicationMessage(action));        
+        assertTrue(RMContextUtils.isRMProtocolMessage(action));        
     }
     
     @Test

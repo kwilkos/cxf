@@ -36,18 +36,21 @@ public class RMInInterceptor extends AbstractRMInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(RMInInterceptor.class);
   
     public RMInInterceptor() {
+ 
         addBefore(MAPAggregator.class.getName());
     }
    
-    protected void handle(Message message) throws SequenceFault {
+    protected void handle(Message message) throws SequenceFault, RMException {
         LOG.entering(getClass().getName(), "handleMessage");
         
         RMProperties rmps = RMContextUtils.retrieveRMProperties(message, false);
         
-        // message.getExchange().put(Bus.class, getBus());
-        
+        // message addressing properties may be null, e.g. in case of a runtime fault 
+        // on the server side
         final AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
-        assert null != maps;
+        if (null == maps) {
+            return;
+        }
 
         String action = null;
         if (null != maps.getAction()) {
@@ -70,7 +73,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         
         boolean isServer = RMContextUtils.isServerSide(message);
         LOG.fine("isServerSide: " + isServer);
-        boolean isApplicationMessage = RMContextUtils.isAplicationMessage(action);       
+        boolean isApplicationMessage = !RMContextUtils.isRMProtocolMessage(action);       
         LOG.fine("isApplicationMessage: " + isApplicationMessage);
         
         // for application AND out of band messages
@@ -119,7 +122,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
     }
     
     void processSequence(Destination destination, Message message) 
-        throws SequenceFault {
+        throws SequenceFault, RMException {
 
         destination.acknowledge(message);
     }

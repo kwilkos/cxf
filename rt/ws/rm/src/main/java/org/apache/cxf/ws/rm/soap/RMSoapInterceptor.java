@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
@@ -73,6 +74,8 @@ import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
+import org.apache.cxf.ws.rm.SequenceFault;
+import org.apache.cxf.ws.rm.SequenceFaultType;
 import org.apache.cxf.ws.rm.SequenceType;
 
 
@@ -157,11 +160,15 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     
     void encode(SoapMessage message) {
         RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);
-        if (null == rmps) {
-            // nothing to encode
-            return;
+        if (null != rmps) {
+            encode(message, rmps);
+        } else if (MessageUtils.isFault(message)) {
+            Exception ex = message.getContent(Exception.class);
+            if (ex instanceof SoapFault && ex.getCause() instanceof SequenceFault) {
+                encodeFault(message, (SequenceFault)ex.getCause());
+            }
         }
-        encode(message, rmps);
+        
     }
 
     /**
@@ -170,7 +177,6 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
      * @param message the SOAP message.
      * @param rmps the current RM properties.
      */
-
     public static void encode(SoapMessage message, RMProperties rmps) {
         if (null == rmps) {
             return;
@@ -225,6 +231,41 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     }
     
     /**
+     * Encode the SeuqnceFault in protocol-specific header.
+     *
+     * @param message the SOAP message.
+     * @param sf the SequenceFault.
+     */
+    public static void encodeFault(SoapMessage message, SequenceFault sf) {
+        if (null == sf.getSequenceFault()) {
+            return;
+        }
+        LOG.log(Level.FINE, "Encoding SequenceFault in SOAP header");
+        try {
+            Element header = message.getHeaders(Element.class);
+            discardRMHeaders(header);
+            
+            // add WSRM namespace declaration to header, instead of
+            // repeating in each individual child node
+            header.setAttributeNS("http://www.w3.org/2000/xmlns/",
+                                  "xmlns:" + RMConstants.getNamespacePrefix(),
+                                 RMConstants.getNamespace());
+            Marshaller marshaller = getJAXBContext().createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+
+            encodeProperty(sf.getSequenceFault(), 
+                           RMConstants.getSequenceFaultQName(), 
+                           SequenceFaultType.class, 
+                           header, 
+                           marshaller);
+        } catch (SOAPException se) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
+        } catch (JAXBException je) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", je);
+        }        
+    }
+    
+    /**
      * Decode the RM properties from protocol-specific headers
      * and store them in the message.
      *  
@@ -233,6 +274,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     void decode(SoapMessage message) {
         RMProperties rmps = unmarshalRMProperties(message);
         RMContextUtils.storeRMProperties(message, rmps, false);
+        // TODO: decode SequenceFault ?
     }
     
     /**

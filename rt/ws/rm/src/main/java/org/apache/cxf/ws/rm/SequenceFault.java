@@ -19,6 +19,8 @@
 
 package org.apache.cxf.ws.rm;
 
+import javax.xml.namespace.QName;
+
 /**
  * 
  */
@@ -26,22 +28,46 @@ package org.apache.cxf.ws.rm;
 public class SequenceFault extends Exception {
     
     private SequenceFaultType sequenceFault;
+    private boolean sender;
+    private Object detail;
 
     public SequenceFault(String message) {
         super(message);
     }
 
-    public SequenceFault(String message, SequenceFaultType sequenceFault) {
-        super(message);
-        this.sequenceFault = sequenceFault;
-    }
-
-    public SequenceFault(String message, SequenceFaultType sequenceFault, Throwable cause) {
+    public SequenceFault(String message, Throwable cause) {
         super(message, cause);
-        this.sequenceFault = sequenceFault;
     }
 
-    public SequenceFaultType getFaultInfo() {
-        return this.sequenceFault;
+    public SequenceFaultType getSequenceFault() {
+        return sequenceFault;
+    }
+    
+    public void setSequenceFault(SequenceFaultType sf) {
+        sequenceFault = sf;
+    }
+    
+    public boolean isSender() {
+        return sender;
+    }
+    
+    public void setSender(boolean s) {
+        sender = s;
+    }
+    
+    public QName getSubCode() {
+        return sequenceFault.faultCode;
+    }
+    
+    public String getReason() {
+        return getMessage();
+    }
+    
+    public void setDetail(Object d) {
+        detail = d;
+    }
+    
+    public Object getDetail() {
+        return detail;
     }
 }

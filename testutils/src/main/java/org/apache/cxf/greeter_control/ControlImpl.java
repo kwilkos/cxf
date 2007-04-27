@@ -86,6 +86,10 @@ public class ControlImpl implements Control {
                 System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME, cfgResource);
             }
         }
+        if (implementor instanceof AbstractGreeterImpl) {
+            ((AbstractGreeterImpl)implementor).setGreeting(null);
+        }
+        
         return null != greeterBus; 
     }
 

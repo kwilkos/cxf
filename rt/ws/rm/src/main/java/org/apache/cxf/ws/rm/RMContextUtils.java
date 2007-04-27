@@ -53,23 +53,20 @@ public final class RMContextUtils {
     public static boolean isServerSide(Message message) {
         return message.getExchange().getDestination() != null;
     }
-
+    
     /**
-     * Checks if the action String belongs to an application message.
+     * Checks if the action String belongs to an RM protocol message.
      * 
      * @param action the action
      * @return true iff the action is not one of the RM protocol actions.
      */
-    public static boolean isAplicationMessage(String action) {
-        if (RMConstants.getCreateSequenceAction().equals(action)
+    public static boolean isRMProtocolMessage(String action) {
+        return RMConstants.getCreateSequenceAction().equals(action)
             || RMConstants.getCreateSequenceResponseAction().equals(action)
             || RMConstants.getTerminateSequenceAction().equals(action)
             || RMConstants.getLastMessageAction().equals(action)
             || RMConstants.getSequenceAcknowledgmentAction().equals(action)
-            || RMConstants.getSequenceInfoAction().equals(action)) {
-            return false;
-        }
-        return true;
+            || RMConstants.getSequenceInfoAction().equals(action);
     }
 
     /**

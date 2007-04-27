@@ -253,5 +253,21 @@ public class RMManagerTest extends Assert {
             // expected
         }
     }
+    
+    @Test
+    public void testDefaultSequenceIdentifierGenerator() {
+        RMManager manager = new RMManager();
+        assertNull(manager.getIdGenerator());
+        SequenceIdentifierGenerator generator = manager.new DefaultSequenceIdentifierGenerator();
+        manager.setIdGenerator(generator);
+        assertSame(generator, manager.getIdGenerator());
+        Identifier id1 = generator.generateSequenceIdentifier();
+        assertNotNull(id1);
+        assertNotNull(id1.getValue());
+        Identifier id2 = generator.generateSequenceIdentifier();
+        assertTrue(id1 != id2);
+        assertTrue(!id1.getValue().equals(id2.getValue()));     
+        control.replay();
+    }
      
 } 

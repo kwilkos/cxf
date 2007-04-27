@@ -29,7 +29,6 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
@@ -111,12 +110,8 @@ public class DestinationSequence extends AbstractSequence {
         BigInteger messageNumber = st.getMessageNumber();
         LOG.fine("Acknowledging message: " + messageNumber);
         if (null != lastMessageNumber && messageNumber.compareTo(lastMessageNumber) > 0) {
-            SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
-            sf.setFaultCode(RMConstants.getLastMessageNumberExceededFaultCode());
-            org.apache.cxf.common.i18n.Message msg = 
-                new org.apache.cxf.common.i18n.Message("LAST_MESSAGE_NUMBER_EXCEEDED_EXC", LOG, this);
-            throw new SequenceFault(msg.toString(), sf);
-        }
+            throw new SequenceFaultFactory().createLastMessageNumberExceededFault(st.getIdentifier());
+        }        
         
         monitor.acknowledgeMessage();
         
@@ -213,14 +208,15 @@ public class DestinationSequence extends AbstractSequence {
      * delivered.
      * 
      * @param s the SequenceType object including identifier and message number
+     * @throws Fault if message had already been acknowledged
      */
-    boolean applyDeliveryAssurance(BigInteger mn) {
+    void applyDeliveryAssurance(BigInteger mn) throws RMException {
         DeliveryAssuranceType da = destination.getManager().getDeliveryAssurance();
-        if (da.isSetAtMostOnce() && isAcknowledged(mn)) {
+        if (da.isSetAtMostOnce() && isAcknowledged(mn)) {            
             org.apache.cxf.common.i18n.Message msg = new org.apache.cxf.common.i18n.Message(
-                "MESSAGE_ALREADY_DELIVERED", LOG, mn, getIdentifier().getValue());
+                "MESSAGE_ALREADY_DELIVERED_EXC", LOG, mn, getIdentifier().getValue());
             LOG.log(Level.SEVERE, msg.toString());
-            return false;
+            throw new RMException(msg);
         } 
         if (da.isSetInOrder() && da.isSetAtLeastOnce()) {
             synchronized (this) {
@@ -235,7 +231,6 @@ public class DestinationSequence extends AbstractSequence {
                 }
             }
         }
-        return true;
     }
     
     synchronized boolean allPredecessorsAcknowledged(BigInteger mn) {

@@ -47,10 +47,16 @@ public final class RMConstants {
     
   
     private static final String WSRM_SEQUENCE_NAME =
-        "Sequence";
+        "Sequence";    
     
     private static final QName WSRM_SEQUENCE_QNAME =
         new QName(WSRM_NAMESPACE_NAME, WSRM_SEQUENCE_NAME);
+    
+    private static final String WSRM_SEQUENCE_FAULT_NAME =
+        "SequenceFault";
+    
+    private static final QName WSRM_SEQUENCE_FAULT_QNAME =
+        new QName(WSRM_NAMESPACE_NAME, WSRM_SEQUENCE_FAULT_NAME);
     
     private static final String WSRM_SEQUENCE_ACK_NAME =
         "SequenceAcknowledgement";
@@ -182,6 +188,14 @@ public final class RMConstants {
     
     public static QName getSequenceQName() {
         return WSRM_SEQUENCE_QNAME;
+    }
+    
+    public static String getSequenceFaultName() {
+        return WSRM_SEQUENCE_FAULT_NAME;
+    }
+    
+    public static QName getSequenceFaultQName() {
+        return WSRM_SEQUENCE_FAULT_QNAME;
     }
     
     public static String getSequenceAckName() {

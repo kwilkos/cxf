@@ -23,7 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.Binding;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.policy.AssertionInfo;
@@ -75,15 +78,29 @@ public class AbstractRMInterceptorTest extends Assert {
     public void testHandleMessage() {
         RMInterceptor interceptor = new RMInterceptor();
         Message message = control.createMock(Message.class);
+        SequenceFault sf = control.createMock(SequenceFault.class);
+        interceptor.setSequenceFault(sf);
+        Exchange ex = control.createMock(Exchange.class);
+        EasyMock.expect(message.getExchange()).andReturn(ex);
+        Endpoint e = control.createMock(Endpoint.class);
+        EasyMock.expect(ex.get(Endpoint.class)).andReturn(e);
+        Binding b = control.createMock(Binding.class);
+        EasyMock.expect(e.getBinding()).andReturn(b);        
+        RMManager mgr = control.createMock(RMManager.class);
+        interceptor.setManager(mgr);
+        BindingFaultFactory bff = control.createMock(BindingFaultFactory.class);
+        EasyMock.expect(mgr.getBindingFaultFactory(b)).andReturn(bff);
+        Fault fault = control.createMock(Fault.class);
+        EasyMock.expect(bff.createFault(sf)).andReturn(fault);
+        EasyMock.expect(bff.toString(fault)).andReturn("f");
         control.replay();
-        interceptor.handleMessage(message);
-        interceptor.setThrow(true);
         try {
             interceptor.handleMessage(message);
             fail("Expected Fault not thrown.");
         } catch (Fault f) {
-            assertTrue(f.getCause() instanceof SequenceFault);
+            assertSame(f, fault);            
         }
+        control.verify();
     }
     
     @Test
@@ -109,16 +126,16 @@ public class AbstractRMInterceptorTest extends Assert {
 
     class RMInterceptor extends AbstractRMInterceptor {
 
-        private boolean doThrow;
+        private SequenceFault sequenceFault;
         
-        void setThrow(boolean t) {
-            doThrow = t;
+        void setSequenceFault(SequenceFault sf) {
+            sequenceFault = sf;
         }
         
         @Override
         protected void handle(Message msg) throws SequenceFault {
-            if (doThrow) {
-                throw new SequenceFault("");
+            if (null != sequenceFault) { 
+                throw sequenceFault;
             }
         }     
     }

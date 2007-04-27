@@ -310,6 +310,11 @@ public class MessageFlow extends Assert {
         }
         assertTrue("expected AckRequested", found);
     }
+    
+    public void verifySequenceFault(QName code, boolean outbound, int index) throws Exception {
+        Document d = outbound ? outboundMessages.get(index) : inboundMessages.get(index);
+        assert null != getRMHeaderElement(d, RMConstants.getSequenceFaultName());
+    }
    
     protected String getAction(Document document) throws Exception {
         Element e = getHeaderElement(document, RMConstants.getAddressingNamespace(), "Action");
@@ -362,6 +367,9 @@ public class MessageFlow extends Assert {
                 headerElement = (Element)nd;
                 break;
             }
+        }
+        if (null == headerElement) {
+            return null;
         }
         for (Node nd = headerElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) { 
             if (Node.ELEMENT_NODE != nd.getNodeType()) {

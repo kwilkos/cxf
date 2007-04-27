@@ -176,7 +176,7 @@ public class DestinationSequenceTest extends Assert {
             seq.acknowledge(message2);
             fail("Expected SequenceFault not thrown.");
         } catch (SequenceFault sf) {
-            assertEquals("LastMessageNumberExceeded", sf.getFaultInfo().getFaultCode().getLocalPart());
+            assertEquals("LastMessageNumberExceeded", sf.getSequenceFault().getFaultCode().getLocalPart());
         }
         
         control.verify();
@@ -437,7 +437,7 @@ public class DestinationSequenceTest extends Assert {
     }
     
     @Test
-    public void testApplyDeliveryAssuranceAtMostOnce() {
+    public void testApplyDeliveryAssuranceAtMostOnce() throws RMException {
         setUpDestination();
         
         BigInteger mn = BigInteger.TEN;        
@@ -452,7 +452,7 @@ public class DestinationSequenceTest extends Assert {
         control.replay();        
         DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
-        assertTrue("message had already been delivered", ds.applyDeliveryAssurance(mn));
+        ds.applyDeliveryAssurance(mn);
         control.verify();
         
         control.reset();
@@ -463,14 +463,20 @@ public class DestinationSequenceTest extends Assert {
         EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         EasyMock.expect(r.getLower()).andReturn(new BigInteger("5"));
         EasyMock.expect(r.getUpper()).andReturn(new BigInteger("15"));
-        control.replay();        
-        assertTrue("message has not yet been delivered", !ds.applyDeliveryAssurance(mn));
+        control.replay();     
+        try {
+            ds.applyDeliveryAssurance(mn);
+            fail("Expected Fault not thrown.");
+        } catch (RMException ex) {
+            assertEquals("MESSAGE_ALREADY_DELIVERED_EXC", ex.getCode());
+        }
+          
         control.verify();
 
     }
     
     @Test
-    public void testInOrderNoWait() {
+    public void testInOrderNoWait() throws RMException {
         setUpDestination();
 
         BigInteger mn = BigInteger.TEN;
@@ -493,7 +499,7 @@ public class DestinationSequenceTest extends Assert {
         
         DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
-        assertTrue(ds.applyDeliveryAssurance(mn));
+        ds.applyDeliveryAssurance(mn);
         control.verify();
     }
     
@@ -534,7 +540,7 @@ public class DestinationSequenceTest extends Assert {
                 try {
                     ds.acknowledge(message);
                     ds.applyDeliveryAssurance(messageNr);
-                } catch (SequenceFault ex) {
+                } catch (Exception ex) {
                     // ignore
                 }
             }            

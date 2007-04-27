@@ -34,23 +34,30 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.rm.AckRequestedType;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMContextUtils;
 import org.apache.cxf.ws.rm.RMProperties;
+import org.apache.cxf.ws.rm.RMUtils;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
+import org.apache.cxf.ws.rm.SequenceFault;
+import org.apache.cxf.ws.rm.SequenceFaultType;
 import org.apache.cxf.ws.rm.SequenceType;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 
 
 public class RMSoapInterceptorTest extends Assert {
@@ -188,6 +195,51 @@ public class RMSoapInterceptorTest extends Assert {
         verifyHeaders(message, new String[] {RMConstants.getAckRequestedName(), 
                                              RMConstants.getAckRequestedName()});
     }
+    
+    @Test
+    public void testEncodeFault() throws Exception {
+        RMSoapInterceptor codec = new RMSoapInterceptor();
+        setUpOutbound();
+        SoapMessage message = setupOutboundFaultMessage();
+
+        // no RM headers and no fault
+   
+        codec.encode(message);
+        verifyHeaders(message, new String[] {});
+
+        // fault is not a SoapFault
+
+        message = setupOutboundFaultMessage();
+        assertTrue(MessageUtils.isFault(message));
+        Exception ex = new RuntimeException("");
+        message.setContent(Exception.class, ex);      
+        codec.encode(message);
+        verifyHeaders(message, new String[] {});
+        
+        // fault is a SoapFault but does not have a SequenceFault cause
+
+        message = setupOutboundFaultMessage();
+        SoapFault f = new SoapFault("REASON", RMConstants.getUnknownSequenceFaultCode());
+        message.setContent(Exception.class, f);      
+        codec.encode(message);
+        verifyHeaders(message, new String[] {});
+
+        // fault is a SoapFault and has a SequenceFault cause
+        
+        message = setupOutboundFaultMessage();
+        SequenceFaultType sft = RMUtils.getWSRMFactory().createSequenceFaultType();
+        sft.setFaultCode(RMConstants.getUnknownSequenceFaultCode());
+        SequenceFault sf = new SequenceFault("REASON");
+        sf.setSequenceFault(sft);
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue("SID");
+        sf.setSender(true);
+        f.initCause(sf);
+        message.setContent(Exception.class, f);      
+        codec.encode(message);
+        verifyHeaders(message, new String[] {RMConstants.getSequenceFaultName()});
+
+    }
 
     @Test
     public void testDecodeSequence() throws XMLStreamException {
@@ -284,6 +336,15 @@ public class RMSoapInterceptorTest extends Assert {
         RMProperties rmps = new RMProperties();
         RMContextUtils.storeRMProperties(soapMessage, rmps, true);
         
+        return soapMessage;
+    }
+    
+    private SoapMessage setupOutboundFaultMessage() throws Exception {
+        Exchange ex = new ExchangeImpl();        
+        Message message = new MessageImpl();
+        SoapMessage soapMessage = new SoapMessage(message);         
+        ex.setOutFaultMessage(soapMessage);
+        soapMessage.setExchange(ex);        
         return soapMessage;
     }
 

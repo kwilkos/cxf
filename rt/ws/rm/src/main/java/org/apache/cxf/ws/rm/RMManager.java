@@ -33,6 +33,7 @@ import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
@@ -49,6 +50,7 @@ import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
 import org.apache.cxf.ws.rm.soap.RetransmissionQueueImpl;
+import org.apache.cxf.ws.rm.soap.SoapFaultFactory;
 
 /**
  * 
@@ -59,6 +61,7 @@ public class RMManager extends RMManagerConfigBean {
     
     private Bus bus;
     private RMStore store;
+    private SequenceIdentifierGenerator idGenerator;
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
     private Map<String, SourceSequence> sourceSequences;
@@ -95,9 +98,21 @@ public class RMManager extends RMManagerConfigBean {
     public void setRetransmissionQueue(RetransmissionQueue rq) {
         retransmissionQueue = rq;
     }
+    
+    public SequenceIdentifierGenerator getIdGenerator() {
+        return idGenerator;
+    }
+
+    public void setIdGenerator(SequenceIdentifierGenerator generator) {
+        idGenerator = generator;
+    }
 
     public Timer getTimer() {
         return timer;
+    }
+    
+    public BindingFaultFactory getBindingFaultFactory(Binding binding) {
+        return new SoapFaultFactory(binding);
     }
     
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
@@ -256,6 +271,9 @@ public class RMManager extends RMManagerConfigBean {
         if (null == retransmissionQueue) {
             retransmissionQueue = new RetransmissionQueueImpl(this);
         }
+        if (null == idGenerator) {
+            idGenerator = new DefaultSequenceIdentifierGenerator();
+        }
     }
     
     void addSourceSequence(SourceSequence ss) {
@@ -269,5 +287,15 @@ public class RMManager extends RMManagerConfigBean {
         if (null != sourceSequences) {
             sourceSequences.remove(id.getValue());
         }
-    }  
+    } 
+    
+    class DefaultSequenceIdentifierGenerator implements SequenceIdentifierGenerator {
+
+        public Identifier generateSequenceIdentifier() {
+            String sequenceID = RMContextUtils.generateUUID();
+            Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+            sid.setValue(sequenceID);        
+            return sid;
+        }   
+    }
 }

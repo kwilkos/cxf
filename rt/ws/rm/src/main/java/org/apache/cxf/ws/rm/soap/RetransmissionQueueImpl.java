@@ -291,7 +291,8 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             c.prepare(message);
 
             os = message.getContent(OutputStream.class);
-            if (os instanceof AbstractCachedOutputStream && callbacks.size() > 1) {
+            if (os instanceof AbstractCachedOutputStream
+                && null != callbacks && callbacks.size() > 1) {
                 for (CachedOutputStreamCallback cb : callbacks) {
                     if (!(cb instanceof RetransmissionCallback)) {
                         ((AbstractCachedOutputStream)os).registerCallback(cb);
@@ -356,8 +357,11 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             Executor executor = ep.getExecutor();
             if (null == executor) {
                 executor = ep.getService().getExecutor();
+                LOG.log(Level.FINE, "Using service executor {0}", executor.getClass().getName());
+            } else {
+                LOG.log(Level.FINE, "Using endpoint executor {0}", executor.getClass().getName());
             }
-            LOG.log(Level.FINE, "Using executor {0}", executor.getClass().getName());
+            
             try {
                 executor.execute(this);
             } catch (RejectedExecutionException ex) {
