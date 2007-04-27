@@ -32,6 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
@@ -40,12 +43,15 @@ import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.http.HTTPException;
+import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.UpfrontConduitSelector;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
@@ -147,7 +153,18 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         getConduitSelector().complete(exchange);
                 
         if (message.getContent(Exception.class) != null) {
-            if (getBinding() instanceof HTTPBinding) {
+            if (getBinding() instanceof SOAPBinding) {
+                try {
+                    SOAPFault soapFault = SOAPFactory.newInstance().createFault();
+                    Fault fault = (Fault)message.getContent(Exception.class);
+                    soapFault.setFaultCode(fault.getFaultCode());
+                    soapFault.setFaultString(fault.getMessage());
+                    SOAPFaultException exception = new SOAPFaultException(soapFault);
+                    throw exception;
+                } catch (SOAPException e) {
+                    throw new WebServiceException(e);
+                }
+            } else if (getBinding() instanceof HTTPBinding) {
                 HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
                 exception.initCause(message.getContent(Exception.class));
                 throw exception;

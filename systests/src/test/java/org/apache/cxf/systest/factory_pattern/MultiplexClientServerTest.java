@@ -37,9 +37,11 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
+@Ignore
 public class MultiplexClientServerTest extends AbstractBusClientServerTestBase {
     
     public static class Server extends AbstractBusTestServerBase {        
