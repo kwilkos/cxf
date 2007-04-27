@@ -57,6 +57,14 @@
 				</associatedArgument>
 			</option>
 
+			<option id="sourcedir" maxOccurs="1">
+			    <annotation>The directory in which the generated source files are placed</annotation>
+			    <switch>s</switch>
+			    <associatedArgument placement="afterSpace">
+				<annotation>source-directory</annotation>
+			    </associatedArgument>
+			</option>
+			
 			<option id="classpath" maxOccurs="1">
 				<annotation>
 					Specify the SEI and types class search path of

@@ -19,7 +19,16 @@
 
 package org.apache.cxf.tools.util;
 
-import org.w3c.dom.*;
+import java.io.File;
+import java.io.FileOutputStream;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 
@@ -81,5 +90,40 @@ public final class JAXBUtils {
         schemaBindings.appendChild(packagename);
 
         return schemaBindings.getParentNode().getParentNode();
+    }
+
+    /**
+     * Create the jaxb binding file to customize namespace to package mapping
+     * 
+     * @param namespace
+     * @param pkgName
+     * @return file
+     */
+    public static File getPackageMappingSchemaBindingFile(String namespace, String pkgName) {
+        Document doc = DOMUtils.createDocument();
+        Element rootElement = doc.createElement("schema");
+        rootElement.setAttribute("xmlns", ToolConstants.SCHEMA_URI);
+        rootElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+        rootElement.setAttribute("jaxb:version", "1.0");
+        rootElement.setAttribute("targetNamespace", namespace);
+        Element annoElement = doc.createElement("annotation");
+        Element appInfo = doc.createElement("appinfo");
+        Element schemaBindings = doc.createElement("jaxb:schemaBindings");
+        Element pkgElement = doc.createElement("jaxb:package");
+        pkgElement.setAttribute("name", pkgName);
+        annoElement.appendChild(appInfo);
+        appInfo.appendChild(schemaBindings);
+        schemaBindings.appendChild(pkgElement);
+        rootElement.appendChild(annoElement);
+        File tmpFile = null;
+        try {
+            tmpFile = FileUtils.createTempFile("customzied", ".xsd");
+            FileOutputStream fout = new FileOutputStream(tmpFile);
+            DOMUtils.writeXml(rootElement, fout);
+            fout.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tmpFile;
     }
 }

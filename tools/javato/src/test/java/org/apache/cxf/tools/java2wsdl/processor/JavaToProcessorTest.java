@@ -224,5 +224,53 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/my_hello_soap12.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "my_hello_soap12.wsdl"));
     }
+    @Test
+    public void testGenWrapperBeanClasses() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME,
+                "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_calculator.wsdl");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        String pkgBase = "org/apache/cxf/tools/fortest/classnoanno/docwrapped/jaxws";
+        File requestWrapperClass = new File(output, pkgBase + "/Add.java");
+        File responseWrapperClass = new File(output, pkgBase + "/AddResponse.java");
+        assertTrue(requestWrapperClass.exists());
+        assertTrue(responseWrapperClass.exists());
+    }
+
+    @Test
+    public void testNoNeedGenWrapperBeanClasses() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.Stock");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_stock.wsdl");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        String pkgBase = "org/apache/cxf/tools/fortest/classnoanno/docwrapped/jaxws";
+        File requestWrapperClass = new File(output, pkgBase + "/Add.java");
+        File responseWrapperClass = new File(output, pkgBase + "/AddResponse.java");
+        assertFalse(requestWrapperClass.exists());
+        assertFalse(responseWrapperClass.exists());
+    }
+
+    @Test
+    public void testSetSourceDir() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME,
+                "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_stock.wsdl");
+        env.put(ToolConstants.CFG_SOURCEDIR, output.getPath() + "/beans");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        String pkgBase = "beans/org/apache/cxf/tools/fortest/classnoanno/docwrapped/jaxws";
+        File requestWrapperClass = new File(output, pkgBase + "/Add.java");
+        File responseWrapperClass = new File(output, pkgBase + "/AddResponse.java");
+        assertTrue(requestWrapperClass.exists());
+        assertTrue(responseWrapperClass.exists());
+    }
+
         
 }

@@ -35,7 +35,18 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 public class WSDL11Generator extends AbstractGenerator<Definition> {
 
-    public Definition generate(File file) {
+    public Definition generate(final File dir) {
+        File file = getOutputBase();
+        if (file == null && dir != null) {
+            if (dir.isDirectory()) {
+                file = new File(dir, getServiceModel().getName().getLocalPart() + ".wsdl");
+            } else {
+                file = dir;
+            }
+        } else if (dir == null) {
+            file = new File(getServiceModel().getName().getLocalPart() + ".wsdl");
+        }
+
         createOutputDir(file);
         Definition def = null;
         try {

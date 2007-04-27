@@ -20,11 +20,15 @@
 package org.apache.cxf.helpers;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Locale;
+import java.util.Random;
 
 public final class FileUtils {
     private static final int RETRY_SLEEP_MILLIS = 10;
-    
+    private static Random rand = new Random(System.currentTimeMillis()
+                                            + Runtime.getRuntime().freeMemory());
+
     private FileUtils() {
         
     }
@@ -102,5 +106,30 @@ public final class FileUtils {
     private static boolean isWindows() {
         String osName = System.getProperty("os.name").toLowerCase(Locale.US);
         return osName.indexOf("windows") > -1;
+    }
+
+    public static File createTempFile(String prefix, String suffix) {
+        return createTempFile(prefix, suffix, null, true);
+    }
+
+    public static File createTempFile(String prefix, String suffix, File parentDir,
+                               boolean deleteOnExit) {
+        File result = null;
+        String parent = (parentDir == null)
+            ? System.getProperty("java.io.tmpdir")
+            : parentDir.getPath();
+
+        DecimalFormat fmt = new DecimalFormat("#####");
+        synchronized (rand) {
+            do {
+                result = new File(parent,
+                                  prefix + fmt.format(Math.abs(rand.nextInt()))
+                                  + suffix);
+            } while (result.exists());
+        }
+        if (deleteOnExit) {
+            result.deleteOnExit();
+        }
+        return result;
     }
 }

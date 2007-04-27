@@ -344,6 +344,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected OperationInfo createOperation(ServiceInfo serviceInfo, InterfaceInfo intf, Method m) {
         OperationInfo op = intf.addOperation(getOperationName(intf, m));
+        op.setProperty(m.getClass().getName(), m);
         op.setProperty("action", getAction(op, m));
         
         if (isWrapped(m)) {

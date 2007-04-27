@@ -25,6 +25,15 @@ import org.apache.cxf.service.model.ServiceInfo;
 public abstract class AbstractGenerator<T> {
     private ServiceInfo service;
     private boolean allowImports;
+    private File outputdir;
+
+    public void setOutputBase(File out) {
+        this.outputdir = out;
+    }
+
+    public File getOutputBase() {
+        return this.outputdir;
+    }
 
     public void setServiceModel(ServiceInfo s) {
         this.service = s;

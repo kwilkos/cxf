@@ -20,6 +20,8 @@
 package org.apache.cxf.tools.java2wsdl.processor;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingType;
@@ -44,6 +46,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.WSDLGeneratorFactory;
+import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WrapperBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilderFactory;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -52,22 +55,9 @@ public class JavaToProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToProcessor.class);
     private static final String DEFAULT_ADDRESS = "http://localhost:9090/hello";
     private ToolContext context;
+    private final List<AbstractGenerator> generators = new ArrayList<AbstractGenerator>();
 
-    public void process() throws ToolException {
-        ServiceBuilder builder = getServiceBuilder();
-        ServiceInfo service = builder.build();
-        
-        File output = getOutputFile(builder.getOutputFile(),
-                                    service.getName().getLocalPart() + ".wsdl");
-        generate(service, output);
-    }
-
-    public void generate(ServiceInfo service, File output) throws ToolException {
-        WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
-        factory.setWSDLVersion(getWSDLVersion());
-
-        AbstractGenerator generator = factory.newGenerator();
-        generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
+    private void customize(ServiceInfo service) {
         if (context.containsKey(ToolConstants.CFG_TNS)) {
             String ns = (String)context.get(ToolConstants.CFG_TNS);
             service.setTargetNamespace(ns);
@@ -79,8 +69,47 @@ public class JavaToProcessor implements Processor {
             QName qn = new QName(einfo.getName().getNamespaceURI(), portName); 
             einfo.setName(qn);
         }
-        generator.setServiceModel(service);
-        generator.generate(output);
+    }
+    
+    public void process() throws ToolException {
+        ServiceBuilder builder = getServiceBuilder();
+        ServiceInfo service = builder.build();
+
+        customize(service);
+
+        File wsdlFile = getOutputFile(builder.getOutputFile(),
+                                      service.getName().getLocalPart() + ".wsdl");
+
+        File outputDir = getOutputDir(wsdlFile);
+        
+        generators.add(getWSDLGenerator(wsdlFile));
+        generators.add(getWrapperBeanGenerator());
+        
+        generate(service, outputDir);
+    }
+
+    private AbstractGenerator getWrapperBeanGenerator() {
+        WrapperBeanGenerator generator = new WrapperBeanGenerator();
+        generator.setOutputBase(getSourceDir());
+        generator.setServiceClass(getServiceClass());
+        return generator;
+    }
+
+    private AbstractGenerator getWSDLGenerator(final File wsdlFile) {
+        WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
+        factory.setWSDLVersion(getWSDLVersion());
+
+        AbstractGenerator generator = factory.newGenerator();
+        generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
+        generator.setOutputBase(wsdlFile);
+        return generator;
+    }
+
+    public void generate(ServiceInfo service, File output) throws ToolException {
+        for (AbstractGenerator generator : generators) {
+            generator.setServiceModel(service);
+            generator.generate(output);
+        }
     }
 
     public ServiceBuilder getServiceBuilder() throws ToolException {
@@ -136,7 +165,19 @@ public class JavaToProcessor implements Processor {
         return true;
     }
 
-    protected File getOutputFile(File nameFromClz, String defaultOutputFile) {
+    private File getOutputDir(File wsdlLocation) {
+        String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
+        if (dir == null) {
+            if (wsdlLocation == null) {
+                dir = "./";
+            } else {
+                dir = wsdlLocation.getParent();
+            }
+        }
+        return new File(dir);
+    }
+    
+    private File getOutputFile(File nameFromClz, String defaultOutputFile) {
         String output = (String) context.get(ToolConstants.CFG_OUTPUTFILE);
         String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
         if (dir == null) {
@@ -181,6 +222,14 @@ public class JavaToProcessor implements Processor {
     public String getServiceName() {
         return (String) this.context.get(ToolConstants.CFG_SERVICENAME);
     }
+
+    public File getSourceDir() {
+        String dir = (String) this.context.get(ToolConstants.CFG_SOURCEDIR);
+        if (StringUtils.isEmpty(dir)) {
+            return null;
+        }
+        return new File(dir);
+    }
     
     public Bus getBus() {
         return BusFactory.getDefaultBus();
@@ -201,4 +250,5 @@ public class JavaToProcessor implements Processor {
             System.setProperty("java.class.path", newCp + File.pathSeparator + classpath);
         }
     }
+
 }

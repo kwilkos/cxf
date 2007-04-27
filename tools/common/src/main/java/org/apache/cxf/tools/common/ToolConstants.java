@@ -94,6 +94,7 @@ public final class ToolConstants {
     public static final String CFG_USETYPES = "usetypes";
     public static final String CFG_CLASSNAME = "classname";
     public static final String CFG_PORTTYPE = "porttype";
+    public static final String CFG_SOURCEDIR = "sourcedir";
 
 
     // WSDL2Service Constants

@@ -20,17 +20,14 @@
 package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 import com.sun.tools.xjc.api.ErrorListener;
 
-import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
-
-
 public class JAXBBindErrorListener implements ErrorListener {
-    private ToolContext env;
+    private boolean isVerbose;
     private String prefix = "Thrown by JAXB : ";
 
-    public JAXBBindErrorListener(ToolContext penv) {
-        env = penv;
+    public JAXBBindErrorListener(boolean verbose) {
+        isVerbose = verbose;
     }
 
     public void error(org.xml.sax.SAXParseException exception) {
@@ -43,13 +40,13 @@ public class JAXBBindErrorListener implements ErrorListener {
     }
 
     public void info(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
+        if (this.isVerbose) {
             System.out.println("JAXB Info: " + exception.toString());
         }
     }
 
     public void warning(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
+        if (this.isVerbose) {
             System.err.println("JAXB parsing schema warning " + exception.toString());
         }
     }

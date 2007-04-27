@@ -199,5 +199,18 @@ public class JavaInterface implements JavaAnnotatable {
     public void setHandlerChains(Element elem) {
         this.handlerChains = elem;
     }
-    
+
+    public void setFullClassName(String fullName) {
+        int index = fullName.lastIndexOf(".");
+        setPackageName(fullName.substring(0, index));
+        setName(fullName.substring(index + 1, fullName.length()));
+    }
+
+    public String getFullClassName() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(getPackageName());
+        sb.append(".");
+        sb.append(getName());
+        return sb.toString();
+    }
 }

@@ -21,6 +21,7 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
 import junit.framework.TestCase;
+import org.junit.Test;
 
 public class WrapperUtilTest extends TestCase {
     String pkgName = "org.apache.cxf.tools.fortest.classnoanno.docwrapped";
@@ -34,26 +35,12 @@ public class WrapperUtilTest extends TestCase {
         assertNotNull(method);
     }
 
-    public void testGetRequestWrapper() {
-        Wrapper wrapper = WrapperUtil.getRequestWrapper(method);
-        assertNotNull(wrapper);
-        assertEquals(pkgName + ".jaxws.GetPrice", wrapper.className);
-        assertEquals("getPrice", wrapper.localName);
-        assertNull(wrapper.targetNamespace);
-    }
-
-    public void testGetResponseWrapper() {
-        Wrapper wrapper = WrapperUtil.getResponseWrapper(method);
-        assertNotNull(wrapper);
-        assertEquals(pkgName + ".jaxws.GetPriceResponse", wrapper.className);
-        assertEquals("getPriceResponse", wrapper.localName);
-        assertNull(wrapper.targetNamespace);
-    }
-
+    @Test
     public void testIsWrapperClassExists() {
         assertTrue(WrapperUtil.isWrapperClassExists(method));
     }
 
+    @Test
     public void testWrapperClassNotExists() throws Exception {
         Class helloClass = Class.forName("org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
         assertNotNull(helloClass);
