@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.systest.servlet;
 
-import java.net.URL;
 
 import org.w3c.dom.Document;
 
@@ -32,9 +31,6 @@ import com.meterware.servletunit.ServletUnitClient;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.apache.cxf.service.invoker.BeanInvoker;
-import org.apache.hello_world_soap_http.GreeterImpl;
 import org.junit.Test;
 
 
@@ -44,26 +40,9 @@ public class CXFServletTest extends AbstractServletTest {
     protected Bus createBus() throws BusException {
         return null;
     }
-
-    // Create the JaxWsService with the JaxWsServerFactoryBean
-    protected void setupJaxwsService() {
-        JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
-        URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
-        assertNotNull(resource);
-        svr.getServiceFactory().setWsdlURL(resource.toString());
-        svr.setServiceClass(GreeterImpl.class);
-        svr.setAddress("http://localhost/services/Greeter");
-        GreeterImpl greeter = new GreeterImpl();
-        BeanInvoker invoker = new BeanInvoker(greeter);
-        svr.getServiceFactory().setInvoker(invoker);
-
-        svr.create();
-        
-    }
     
     @Test
-    public void testPostInvokeServices() throws Exception {
-        setupJaxwsService();
+    public void testPostInvokeServices() throws Exception {        
         
         //Thread.sleep(6000000);
         //newClient();        
