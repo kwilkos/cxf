@@ -26,7 +26,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.SchemaFactory;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -36,6 +39,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.sun.codemodel.JCodeModel;
 import com.sun.tools.xjc.api.Mapping;
@@ -86,7 +90,9 @@ public class JAXBDataBinding implements DataBindingProfile {
             if (StringUtils.isEmpty(tns)) {
                 continue;
             }
-
+            if (context.get(ToolConstants.CFG_VALIDATE_WSDL) != null) {
+                validateSchema(ele);
+            }
             schemaCompiler.parseSchema(key, ele);
 
         }
@@ -268,5 +274,19 @@ public class JAXBDataBinding implements DataBindingProfile {
         return clone;
     }
 
+    
+    public void validateSchema(Element ele) throws ToolException {
+        SchemaFactory schemaFact = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        DOMSource domSrc = new DOMSource(ele);
+        try {
+            schemaFact.newSchema(domSrc);
+        } catch (SAXException e) {
+            if (e.getLocalizedMessage().indexOf("src-resolve.4.2") > -1)  {
+                //Ignore schema resolve error and do nothing
+            } else {
+                throw new ToolException("Schema Error : " + e.getLocalizedMessage(), e);
+            }
+        }
+    }
 
 }

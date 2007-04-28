@@ -59,7 +59,6 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
             if (m.getName().startsWith("check") || m.getModifiers() == Member.PUBLIC) {
                 try {
-                    System.err.println("invoking" + m.getName());
                     res = (Boolean)m.invoke(this, new Object[] {});
                 } catch (Exception e) {
                     e.printStackTrace();

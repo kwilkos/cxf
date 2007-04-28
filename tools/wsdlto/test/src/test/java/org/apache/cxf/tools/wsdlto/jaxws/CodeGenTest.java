@@ -853,4 +853,21 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("http://www.w3.org/2001/XMLSchema", webFault.targetNamespace());
 
     }
+    
+    @Test
+    public void testWsdlWithInvalidSchema() {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL, 
+                    getLocation("/wsdl2java_wsdl/hello_world_with_invalid_schema.wsdl"));
+            env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
+            processor.setContext(env);
+            processor.execute();
+        } catch (Exception e) {
+            assertTrue("Jaxb databinding can not find the schema error ", 
+                       e.getLocalizedMessage().indexOf(" cos-st-restricts.1.1: " 
+                                                       + "The type 'TpAny' is atomic") > -1);
+        }
+    }
+    
+    
 }
