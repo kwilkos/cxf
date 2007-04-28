@@ -97,13 +97,11 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
             if (op.getUnwrappedOperation() != null) {
                 if (op.hasInput()) {
                     QName wrapperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
-                    
                     RequestWrapper requestWrapper = new RequestWrapper();
                     requestWrapper.setName(wrapperBeanName);
                     requestWrapper.setMethod((Method) op.getProperty(Method.class.getName()));
                     JavaClass jClass = requestWrapper.getJavaClass();
-
-                    if (requestWrapper.isWrapperAbsent()) {
+                    if (requestWrapper.isWrapperAbsent() || requestWrapper.isToDifferentPackage()) {
                         nsPkgMapping.put(wrapperBeanName.getNamespaceURI(), jClass.getPackageName());
                     }
 
@@ -118,7 +116,7 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
                     responseWrapper.setMethod((Method) op.getProperty(Method.class.getName()));
                     JavaClass jClass = responseWrapper.getJavaClass();
 
-                    if (responseWrapper.isWrapperAbsent()) {
+                    if (responseWrapper.isWrapperAbsent() || responseWrapper.isToDifferentPackage()) {
                         nsPkgMapping.put(wrapperBeanName.getNamespaceURI(), jClass.getPackageName());
                     }
 
@@ -132,7 +130,6 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
         if (wrapperClasses.isEmpty()) {
             return;
         }
-
         
         Map<String, Element> schemas = new HashMap<String, Element>();
         for (SchemaInfo s : serviceInfo.getSchemas()) {

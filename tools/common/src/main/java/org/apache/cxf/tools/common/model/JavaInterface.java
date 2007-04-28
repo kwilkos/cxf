@@ -213,4 +213,14 @@ public class JavaInterface implements JavaAnnotatable {
         sb.append(getName());
         return sb.toString();
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (String anno : annotations) {
+            sb.append(anno);
+            sb.append("\n");
+        }
+        sb.append(getFullClassName());
+        return sb.toString();
+    }
 }

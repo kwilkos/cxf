@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -37,6 +38,7 @@ public class Wrapper {
     private QName name;
     private JavaClass javaClass;
     private Method mehtod;
+    private boolean isSamePackage;
 
     public void setMethod(Method m) {
         this.mehtod = m;
@@ -55,7 +57,6 @@ public class Wrapper {
         if (wrapperBeanName == null) {
             return jClass;
         }
-
         String ns = wrapperBeanName.getNamespaceURI();
         jClass.setNamespace(ns);
         jClass.setPackageName(URIParserUtil.getPackageName(ns));
@@ -64,15 +65,18 @@ public class Wrapper {
     }
 
     private JavaClass merge(final JavaClass c1, final JavaClass c2) {
-        if (c1.getNamespace() == null) {
+        if (StringUtils.isEmpty(c1.getNamespace())) {
             c1.setNamespace(c2.getNamespace());
         }
 
-        if (c1.getPackageName() == null) {
+        if (StringUtils.isEmpty(c1.getPackageName())) {
             c1.setPackageName(c2.getPackageName());
+        } else {
+            this.isSamePackage = c1.getPackageName().equals(c2.getPackageName());
         }
 
-        if (c1.getName() == null) {
+
+        if (StringUtils.isEmpty(c1.getName())) {
             c1.setName(c2.getName());
         }
         return c1;
@@ -108,6 +112,10 @@ public class Wrapper {
         } catch (ToolException e) {
             return true;
         }
+    }
+
+    public boolean isToDifferentPackage() {
+        return !isSamePackage;
     }
 
     public Class getWrapperClass() {

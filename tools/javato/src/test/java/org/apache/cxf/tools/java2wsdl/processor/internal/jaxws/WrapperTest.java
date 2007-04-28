@@ -75,6 +75,7 @@ public class WrapperTest extends TestCase {
         Wrapper wrapper = new RequestWrapper();
         wrapper.setMethod(method);
         assertTrue(wrapper.isWrapperAbsent());
+        assertTrue(wrapper.isToDifferentPackage());
         assertFalse(wrapper.isWrapperBeanClassNotExist());
         assertEquals(pkgName + ".jaxws", wrapper.getJavaClass().getPackageName());
         assertEquals("GetPrice", wrapper.getJavaClass().getName());
@@ -86,6 +87,7 @@ public class WrapperTest extends TestCase {
         wrapper = new RequestWrapper();
         wrapper.setMethod(method);
         assertFalse(wrapper.isWrapperAbsent());
+        assertTrue(wrapper.isToDifferentPackage());
         assertFalse(wrapper.isWrapperBeanClassNotExist());
         assertEquals(pkgName + ".jaxws", wrapper.getJavaClass().getPackageName());
         assertEquals("GetPrice", wrapper.getJavaClass().getName());
@@ -97,6 +99,7 @@ public class WrapperTest extends TestCase {
         wrapper = new RequestWrapper();
         wrapper.setMethod(method);
         assertFalse(wrapper.isWrapperAbsent());
+        assertTrue(wrapper.isToDifferentPackage());
         assertFalse(wrapper.isWrapperBeanClassNotExist());
         assertEquals(pkgName, wrapper.getJavaClass().getPackageName());
         assertEquals("SayHi", wrapper.getJavaClass().getName());
