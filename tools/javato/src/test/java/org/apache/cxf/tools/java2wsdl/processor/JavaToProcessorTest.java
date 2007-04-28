@@ -287,4 +287,20 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
     }
+
+    @Test
+    public void testGenWrapperWithStringArray() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME,
+                "org.apache.cxf.tools.fortest.withannotation.doc.GreeterStringArray");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_greeter_string_array.wsdl");
+        
+        processor.setEnvironment(env);
+        processor.process();
+
+        String pkgBase = "org/apache/cxf/tools/fortest/withannotation/doc/jaxws";
+        File requestWrapperClass = new File(output, pkgBase + "/SayHi.java");
+        File responseWrapperClass = new File(output, pkgBase + "/SayHiResponse.java");
+        assertTrue(requestWrapperClass.exists());
+        assertTrue(responseWrapperClass.exists());        
+    }
 }

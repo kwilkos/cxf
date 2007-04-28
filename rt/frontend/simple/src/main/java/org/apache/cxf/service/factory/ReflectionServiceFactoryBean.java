@@ -593,6 +593,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         
     }
+
+    private boolean isArrayType(MessagePartInfo part) {
+        Type type = (Type) part.getProperty(GENERIC_TYPE);
+        if (type instanceof Class) {
+            return ((Class<?>)type).isArray();
+        }
+        return false;
+    }
     
     private void createWrappedMessageSchema(AbstractMessageContainer wrappedMessage,
                                             AbstractMessageContainer unwrappedMessage,
@@ -614,10 +622,17 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             el = new XmlSchemaElement();
             el.setName(mpi.getName().getLocalPart());
             el.setQName(mpi.getName());
-            el.setMinOccurs(1);
-            el.setMaxOccurs(1);
-            el.setNillable(true);
-            
+
+
+            if (isArrayType(mpi)) {
+                el.setMinOccurs(0);
+                el.setMaxOccurs(Long.MAX_VALUE);
+            } else {
+                el.setMinOccurs(1);
+                el.setMaxOccurs(1);
+                el.setNillable(true);
+            }
+
             if (mpi.isElement()) {
                 el.setRefName(mpi.getElementQName());
             } else {
@@ -636,7 +651,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
         for (int j = 0; j < paramClasses.length; j++) {
             if (isInParam(method, j)) {
-                final QName q = getInParameterName(op, method, j);                
+                final QName q = getInParameterName(op, method, j);
                 final QName q2 = getInPartName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q2);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
@@ -756,9 +771,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             ParameterizedType paramType = (ParameterizedType)type;
             rawClass = getHolderClass(paramType);
         }
+        if (rawClass.isArray()) {
+            rawClass = rawClass.getComponentType();
+        }
+
         part.setProperty(GENERIC_TYPE, type);
         part.setTypeClass(rawClass);
-        
     }
 
     protected Class getHolderClass(ParameterizedType paramType) {

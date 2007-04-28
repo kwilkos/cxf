@@ -63,7 +63,7 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
             dir = new File("./");
         }
         generateWrapperBeanClasses(getServiceModel(), dir);
-        return sourcedir;
+        return dir;
     }
     
     public void setCompileToDir(File f) {
