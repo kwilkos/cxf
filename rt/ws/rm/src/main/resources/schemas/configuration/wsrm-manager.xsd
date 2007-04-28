@@ -198,4 +198,5 @@
         </xs:sequence>
     </xs:complexType>
 
+	<xs:element name="rmManager" type="tns:RMManagerConfigBean"/>
  </xs:schema>

@@ -23,6 +23,15 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.interceptor.InterceptorProvider;
 
+/**
+ * A Feature is something that is able to customize a Server, Client, or Bus, typically
+ * adding capabilities. For instance, there may be a LoggingFeature which configures
+ * one of the above to log each of their messages.
+ * <p>
+ * By default the initialize methods all delegate to initializeProvider(InterceptorProvider). 
+ * If you're simply adding interceptors to a Server, Client, or Bus, this allows you to add
+ * them easily.
+ */
 public abstract class AbstractFeature {
     public void initialize(Server server, Bus bus) {
         initializeProvider(server.getEndpoint(), bus);

@@ -16,21 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.ws.rm.spring;
 
-package org.apache.cxf.configuration.spring;
+import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-import org.w3c.dom.Element;
-
-import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
-import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
-import org.springframework.beans.factory.xml.XmlReaderContext;
-
-public class JaxbBeanDefinitionDocumentReader extends DefaultBeanDefinitionDocumentReader {
-
-    @Override
-    protected BeanDefinitionParserDelegate createHelper(XmlReaderContext readerContext, Element root) {
-        BeanDefinitionParserDelegate delegate = new JaxbBeanDefinitionParserDelegate(readerContext);
-        delegate.initDefaults(root);
-        return delegate;
+public class NamespaceHandler extends NamespaceHandlerSupport {
+    public void init() {
+        registerBeanDefinitionParser("rmManager", new RMManagerBeanDefinitionParser());        
     }
 }

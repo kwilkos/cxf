@@ -33,39 +33,42 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
+import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
+public class BusApplicationContext extends ClassPathXmlApplicationContext {
     
     private static final String DEFAULT_CXF_CFG_FILE = "META-INF/cxf/cxf.xml";
     private static final String DEFAULT_CXF_EXT_CFG_FILE = "classpath*:META-INF/cxf/cxf.extension";
 
     private static final Logger LOG = LogUtils.getL7dLogger(BusApplicationContext.class);
     
+    private DefaultNamespaceHandlerResolver nsHandlerResolver;
     private boolean includeDefaults;
     private String cfgFile;
     private URL cfgFileURL;
     
-    BusApplicationContext(String cf, boolean include) {
+    public BusApplicationContext(String cf, boolean include) {
         this(cf, include, null);
     }
     
-    BusApplicationContext(URL url, boolean include) {
+    public BusApplicationContext(URL url, boolean include) {
         this(url, include, null);
     }
 
-    BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
+    public BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
         super((String[])null, parent);
         cfgFile = cf;
         includeDefaults = include;
     }
     
-    BusApplicationContext(URL url, boolean include, ApplicationContext parent) {
+    public BusApplicationContext(URL url, boolean include, ApplicationContext parent) {
         super((String[])null, parent);
         cfgFileURL = url;
         includeDefaults = include;
@@ -149,5 +152,20 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
         res = resources.toArray(res);
         return res;
     }
-
+    
+    @Override
+    protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
+        // Spring always creates a new one of these, which takes a fair amount
+        // of time on startup (nearly 1/2 second) as it gets created for every
+        // spring context on the classpath
+        if (nsHandlerResolver == null) {
+            nsHandlerResolver = new DefaultNamespaceHandlerResolver();
+        }
+        reader.setNamespaceHandlerResolver(nsHandlerResolver);
+        
+        // TODO: check why VALIDATION_XSD complains about mixed content in
+        // value elements - this should be legal according to the xsd
+        reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
+        reader.setNamespaceAware(true);  
+    }
 }

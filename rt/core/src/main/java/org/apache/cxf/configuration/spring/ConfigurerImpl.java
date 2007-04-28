@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.bus.spring.BusApplicationContext;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
@@ -55,7 +56,8 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         ClassPathResource cpr = new ClassPathResource(cfgFile);
         if (cpr.exists()) {
             try {
-                ApplicationContext ac = new JaxbClassPathXmlApplicationContext(cfgFile);
+                BusApplicationContext ac = new BusApplicationContext(cfgFile, false);
+                ac.refresh();
                 setApplicationContext(ac);
             } catch (BeansException ex) {
                 LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);

@@ -20,8 +20,10 @@
 package org.apache.cxf.binding.soap.saaj;
 
 
+import java.util.Collection;
 import java.util.ResourceBundle;
 
+import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
@@ -40,6 +42,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -72,7 +75,15 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             DOMSource source = new DOMSource(node);
             part.setContent(source);
             
-            // TODO: add attachments and mime headers
+            // TODO: setup mime headers
+            Collection<Attachment> atts = message.getAttachments();
+            if (atts != null) {
+                for (Attachment a : atts) {
+                    AttachmentPart ap = soapMessage.createAttachmentPart(a.getDataHandler());
+                    
+                    soapMessage.addAttachmentPart(ap);
+                }
+            }
             
             //replace header element if necessary
             if (message.hasHeaders(Element.class)) {

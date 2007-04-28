@@ -20,11 +20,9 @@ package org.apache.cxf.transport.http_jetty.spring;
 
 import javax.xml.namespace.QName;
 
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
-import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -46,8 +44,10 @@ public class ApplicationContextTest extends Assert {
         String s4 = getClass()
             .getResource("/org/apache/cxf/transport/http_jetty/spring/beans.xml").toString();
         
-        ClassPathXmlApplicationContext ctx = new JaxbClassPathXmlApplicationContext(
-            new String[] {s1, s2, s3, s4});
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
+            new String[] {s1, s2, s3, s4}, false);
+        
+        ctx.refresh();
         
         ConfigurerImpl cfg = new ConfigurerImpl(ctx);
         

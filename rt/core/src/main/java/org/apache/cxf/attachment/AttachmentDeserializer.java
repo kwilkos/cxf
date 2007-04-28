@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -34,7 +36,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -46,8 +47,15 @@ public class AttachmentDeserializer {
 
     public static final int THRESHHOLD = 1024 * 100;
 
+    private static final Pattern CONTENT_TYPE_BOUNDARY_PATTERN = Pattern.compile("boundary=\"?([^\";]*)");
+
+    // TODO: Is there a better way to detect boundaries in the message content?
+    // It seems constricting to assume the boundary will start with ----=_Part_
+    private static final Pattern INPUT_STREAM_BOUNDARY_PATTERN =
+            Pattern.compile("^--(----=_Part_\\S*)", Pattern.MULTILINE);
+
     private boolean lazyLoading = true;
-    
+
     private PushbackInputStream stream;
 
     private String boundary;
@@ -66,7 +74,7 @@ public class AttachmentDeserializer {
 
     public void initializeAttachments() throws IOException {
         initializeRootMessage();
-        
+
         attachments = new LazyAttachmentCollection(this);
         message.setAttachments(attachments);
     }
@@ -74,25 +82,28 @@ public class AttachmentDeserializer {
     protected void initializeRootMessage() throws IOException {
         contentType = (String) message.get(Message.CONTENT_TYPE);
 
-        if (contentType == null) { 
+        if (contentType == null) {
             throw new IllegalStateException("Content-Type can not be empty!");
         }
-        
-        
+
+        if (message.getContent(InputStream.class) == null) {
+            throw new IllegalStateException("An InputStream must be provided!");
+        }
 
         if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-            boundary = findBoundry();
-            boundary = "--" + boundary;
-            
-            
-            InputStream input = message.getContent(InputStream.class);
-            if (input == null) {
-                throw new IllegalStateException("An InputStream must be provided!");
+            // First try to find the boundary from the content-type
+            boundary = findBoundaryFromContentType(contentType);
+            // If a boundary wasn't found, try the InputStream
+            if (null == boundary) {
+                boundary = findBoundaryFromInputStream();
             }
-            stream = new PushbackInputStream(input, boundary.getBytes().length);
-            
-            
-            
+            // If a boundary still wasn't found, throw an exception
+            if (null == boundary) {
+                throw new IOException("Couldn't determine the boundary from the message!");
+            }
+
+            stream = new PushbackInputStream(message.getContent(InputStream.class),
+                    boundary.getBytes().length);
             if (!readTillFirstBoundary(stream, boundary.getBytes())) {
                 throw new IOException("Couldn't find MIME boundary: " + boundary);
             }
@@ -103,47 +114,47 @@ public class AttachmentDeserializer {
             } catch (MessagingException e) {
                 throw new RuntimeException(e);
             }
-            
+
             body = new DelegatingInputStream(new MimeBodyPartInputStream(stream, boundary.getBytes()));
             message.setContent(InputStream.class, body);
         }
     }
 
-    private String findBoundry() {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            InputStream is = message.getContent(InputStream.class);
-            IOUtils.copy(is, bos);
-
-            is.close();
-            bos.close();
-            String msg = bos.toString();
-            message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
-            if (msg.indexOf("----=_Part_") == -1) {
-                return null;
-            } else {
-                int begin = msg.indexOf("----=_Part_");
-                int end = msg.indexOf(".", begin) + 14;
-                return msg.substring(begin, end);
-            }
-
-        } catch (IOException e) {
-            throw new Fault(e);
-        }
-
+    private String findBoundaryFromContentType(String ct) throws IOException {
+        // Use regex to get the boundary and return null if it's not found
+        Matcher m = CONTENT_TYPE_BOUNDARY_PATTERN.matcher(ct);
+        return m.find() ? "--" + m.group(1) : null;
     }
-    
+
+    private String findBoundaryFromInputStream() throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        InputStream is = message.getContent(InputStream.class);
+        IOUtils.copy(is, bos);
+
+        is.close();
+        bos.close();
+        String msg = bos.toString();
+
+        // Reset the input stream since we'll need it again later
+        message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
+
+        // Use regex to get the boundary and return null if it's not found
+        Matcher m = INPUT_STREAM_BOUNDARY_PATTERN.matcher(msg);
+        return m.find() ? "--" + m.group(1) : null;
+    }
+
     public AttachmentImpl readNext() throws IOException {
         // Cache any mime parts that are currently being streamed
         cacheStreamedAttachments();
-        
+
         int v = stream.read();
         if (v == -1) {
             return null;
         }
         stream.unread(v);
-        
-        
+
+
         InternetHeaders headers;
         try {
             headers = new InternetHeaders(stream);
@@ -151,7 +162,7 @@ public class AttachmentDeserializer {
             // TODO create custom IOException
             throw new RuntimeException(e);
         }
-        
+
         String id = headers.getHeader("Content-ID", null);
         if (id != null && id.startsWith("<")) {
             id = id.substring(1, id.length() - 1);
@@ -159,22 +170,22 @@ public class AttachmentDeserializer {
             //no Content-ID, set cxf default ID
             id = "Content-ID: <root.message@cxf.apache.org";
         }
-        
+
         id = URLDecoder.decode(id.startsWith("cid:") ? id.substring(4) : id, "UTF-8");
-        
+
         AttachmentImpl att = new AttachmentImpl(id);
         setupAttachment(att, headers);
         return att;
     }
-    
+
     private void cacheStreamedAttachments() throws IOException {
-        if (body instanceof DelegatingInputStream 
+        if (body instanceof DelegatingInputStream
             && !((DelegatingInputStream) body).isClosed()) {
-            
+
             cache((DelegatingInputStream) body, true);
             message.setContent(InputStream.class, body);
         }
-        
+
         for (Attachment a : attachments.getLoadedAttachments()) {
             DataSource s = a.getDataHandler().getDataSource();
             cache((DelegatingInputStream) s.getInputStream(), false);
@@ -186,11 +197,11 @@ public class AttachmentDeserializer {
         IOUtils.copy(input, out);
         input.setInputStream(out.getInputStream());
     }
-    
+
     /**
      * Move the read pointer to the begining of the first part read till the end
      * of first boundary
-     * 
+     *
      * @param pushbackInStream
      * @param boundary
      * @throws MessagingException
@@ -215,8 +226,10 @@ public class AttachmentDeserializer {
                     boundaryIndex++;
                 }
                 if (boundaryIndex == bp.length) {
-                    // boundary found
-                    pbs.read();
+                    // boundary found, read the newline
+                    if (value == 13) {
+                        pbs.read();
+                    }
                     return true;
                 }
             }
@@ -227,17 +240,17 @@ public class AttachmentDeserializer {
     /**
      * Create an Attachment from the MIME stream. If there is a previous attachment
      * that is not read, cache that attachment.
-     * 
+     *
      * @return
      * @throws IOException
      */
     private void setupAttachment(AttachmentImpl att, InternetHeaders headers) throws IOException {
         MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary.getBytes());
-        
+
         final String ct = headers.getHeader("Content-Type", null);
         DataSource source = new AttachmentDataSource(ct, new DelegatingInputStream(partStream));
         att.setDataHandler(new DataHandler(source));
-        
+
         for (Enumeration<?> e = headers.getAllHeaders(); e.hasMoreElements();) {
             Header header = (Header) e.nextElement();
             if (header.getName().equalsIgnoreCase("Content-Transfer-Encoding")

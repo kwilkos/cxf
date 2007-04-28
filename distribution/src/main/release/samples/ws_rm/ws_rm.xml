@@ -23,6 +23,7 @@
        xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
        xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
        xsi:schemaLocation="http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
+       http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/ws/rm/manager.xsd
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
     <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
@@ -82,24 +83,14 @@
       <http:client DecoupledEndpoint="http://localhost:9990/decoupled_endpoint"/>
     </http:conduit>
 
-    <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
-        <property name="bus" ref="cxf"/>  
-        <property name="RMAssertion">
-            <value>
-                <wsrm-policy:RMAssertion>         
-                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="4000"/>           
-                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>                                                        
-                </wsrm-policy:RMAssertion>
-            </value>
-        </property>  
-        <property name="destinationPolicy">
-            <value>
-                <wsrm-mgmt:destinationPolicy>
-                    <wsrm-mgmt:acksPolicy intraMessageThreshold="0"/>                    
-                </wsrm-mgmt:destinationPolicy>
-            </value>
-        </property>
-    </bean>
-
-
+	<wsrm-mgmt:rmManager id="org.apache.cxf.ws.rm.RMManager">
+		<wsrm-mgmt:destinationPolicy>
+			<wsrm-mgmt:acksPolicy intraMessageThreshold="0" />
+		</wsrm-mgmt:destinationPolicy>
+		<wsrm-policy:RMAssertion>
+			<wsrm-policy:BaseRetransmissionInterval Milliseconds="4000"/>           
+            <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>          
+		</wsrm-policy:RMAssertion>
+	</wsrm-mgmt:rmManager>
+	
 </beans>

@@ -22,18 +22,15 @@
        xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
        xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
        xsi:schemaLocation="
+http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/ws/rm/manager.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-    <import resource="rminterceptors.xml"/>
-    
-    <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
-        <property name="bus" ref="cxf"/>          
-        <property name="sourcePolicy">
-            <value>
-                <wsrm-mgmt:sourcePolicy>
-                    <wsrm-mgmt:sequenceTerminationPolicy maxLength="1"/>                    
-                </wsrm-mgmt:sourcePolicy>
-            </value>
-        </property>  
-    </bean>   
+
+	<import resource="rminterceptors.xml" />
+
+	<wsrm-mgmt:rmManager id="org.apache.cxf.ws.rm.RMManager">
+		<wsrm-mgmt:sourcePolicy>
+			<wsrm-mgmt:sequenceTerminationPolicy maxLength="1" />
+		</wsrm-mgmt:sourcePolicy>
+	</wsrm-mgmt:rmManager>
+
 </beans>

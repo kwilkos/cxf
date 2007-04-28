@@ -78,6 +78,53 @@ public class AttachmentDeserializerTest extends TestCase {
 //        
 //        assertTrue(attIs instanceof ByteArrayInputStream);
     }
+
+    public void testDeserializerMtomWithAxis2StyleBoundaries() throws Exception {
+        InputStream is = getClass().getResourceAsStream("axis2_mimedata");
+        String ct = "multipart/related; type=\"application/xop+xml\"; "
+                    + "start=\"<soap.xml@xfire.codehaus.org>\"; "
+                    + "start-info=\"text/xml; charset=utf-8\"; "
+                    + "boundary=MIMEBoundaryurn_uuid_6BC4984D5D38EB283C1177616488109";
+
+        MessageImpl msg = new MessageImpl();
+        msg.put(Message.CONTENT_TYPE, ct);
+        msg.setContent(InputStream.class, is);
+
+        AttachmentDeserializer deserializer = new AttachmentDeserializer(msg);
+        deserializer.initializeAttachments();
+
+        InputStream attBody = msg.getContent(InputStream.class);
+        assertTrue(attBody != is);
+        assertTrue(attBody instanceof DelegatingInputStream);
+
+        Collection<Attachment> atts = msg.getAttachments();
+        assertNotNull(atts);
+
+        Iterator<Attachment> itr = atts.iterator();
+        assertTrue(itr.hasNext());
+
+        Attachment a = itr.next();
+        assertNotNull(a);
+
+        InputStream attIs = a.getDataHandler().getInputStream();
+
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof ByteArrayInputStream);
+
+        // check the cached output stream
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOUtils.copy(attBody, out);
+        assertTrue(out.toString().startsWith("<env:Envelope"));
+
+        // try streaming a character off the wire
+        assertTrue(attIs.read() == '/');
+        assertTrue(attIs.read() == '9');
+
+//        Attachment invalid = atts.get("INVALID");
+//        assertNull(invalid.getDataHandler().getInputStream());
+//
+//        assertTrue(attIs instanceof ByteArrayInputStream);
+    }
     
     public void testDeserializerSwA() throws Exception {
         InputStream is = getClass().getResourceAsStream("swadata");
