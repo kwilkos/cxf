@@ -49,4 +49,18 @@ public final class IOUtils {
             n = input.read(buffer);
         }
     }
+    
+    public static String toString(final InputStream input) 
+        throws IOException {
+        
+        StringBuffer buf = new StringBuffer();
+        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        int n = 0;
+        n = input.read(buffer);
+        while (-1 != n) {
+            buf.append(new String(buffer, 0, n));
+            n = input.read(buffer);
+        }
+        return buf.toString();
+    }
 }
