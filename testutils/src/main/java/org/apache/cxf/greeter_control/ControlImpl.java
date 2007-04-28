@@ -87,7 +87,7 @@ public class ControlImpl implements Control {
             }
         }
         if (implementor instanceof AbstractGreeterImpl) {
-            ((AbstractGreeterImpl)implementor).setGreeting(null);
+            ((AbstractGreeterImpl)implementor).resetLastOnewayArg();
         }
         
         return null != greeterBus; 

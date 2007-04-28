@@ -38,8 +38,9 @@ public class AbstractGreeterImpl implements Greeter {
 
     private static final Logger LOG = Logger.getLogger(AbstractGreeterImpl.class.getName());
     private long delay;
-    private String greeting;
+    private String lastOnewayArg;
     private boolean throwAlways;
+    private boolean useLastOnewayArg;
     private int pingMeCount;
      
     public long getDelay() {
@@ -50,8 +51,12 @@ public class AbstractGreeterImpl implements Greeter {
         delay = d;
     }
 
-    public void setGreeting(String g) {
-        greeting = g;
+    public void resetLastOnewayArg() {
+        lastOnewayArg = null;
+    }
+
+    public void useLastOnewayArg(Boolean use) {
+        useLastOnewayArg = use;
     }
 
     public void setThrowAlways(boolean t) {
@@ -69,7 +74,7 @@ public class AbstractGreeterImpl implements Greeter {
         }
         String result = null;
         synchronized (this) {
-            result = null == greeting ? arg0.toUpperCase() : greeting;
+            result = useLastOnewayArg ? lastOnewayArg : arg0.toUpperCase();
         }
         LOG.fine("returning: " + result);
         return result;
@@ -87,7 +92,7 @@ public class AbstractGreeterImpl implements Greeter {
 
     public void greetMeOneWay(String arg0) {
         synchronized (this) {
-            greeting = arg0;
+            lastOnewayArg = arg0;
         }
         LOG.fine("Executing operation greetMeOneWay with parameter: " + arg0);
     }

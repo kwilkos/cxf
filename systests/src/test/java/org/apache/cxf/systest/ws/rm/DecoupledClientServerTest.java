@@ -59,6 +59,7 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
             bus.getOutFaultInterceptors().add(out);
             
             GreeterImpl implementor = new GreeterImpl();
+            implementor.useLastOnewayArg(true);
             implementor.setDelay(5000);
             String address = "http://localhost:9020/SoapContext/GreeterPort";
             Endpoint.publish(address, implementor);

@@ -339,7 +339,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                                        headerElement, 
                                                        unmarshaller));
                             }
-                        } else if (headerElement.hasAttribute(IS_REFERENCE_PARAM_ATTR_NAME)) {
+                        } else if (null != headerElement.getAttribute(IS_REFERENCE_PARAM_ATTR_NAME)) {
                             if (null == referenceParameterHeaders) {
                                 referenceParameterHeaders = new HashSet<Element>();
                             }
@@ -351,7 +351,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         }
                     }
                 }
-                if (null != referenceParameterHeaders) {
+                if (null != referenceParameterHeaders && null != maps) {
                     decodeReferenceParameters(referenceParameterHeaders, maps, unmarshaller);
                 }
                 restoreExchange(message, maps);

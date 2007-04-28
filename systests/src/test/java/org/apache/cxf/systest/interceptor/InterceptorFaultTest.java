@@ -149,7 +149,7 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
         // all interceptors pass
 
         greeter.greetMeOneWay("one");
-        assertEquals("one", greeter.greetMe("two"));
+        assertEquals("TWO", greeter.greetMe("two"));
         try {
             greeter.pingMe();
             fail("Expected PingMeFault not thrown.");
@@ -182,7 +182,7 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
         // all interceptors pass
 
         greeter.greetMeOneWay("one");
-        assertEquals("one", greeter.greetMe("two"));
+        assertEquals("TWO", greeter.greetMe("two"));
         try {
             greeter.pingMe();
             fail("Expected PingMeFault not thrown.");

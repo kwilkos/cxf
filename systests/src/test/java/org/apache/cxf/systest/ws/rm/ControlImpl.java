@@ -27,7 +27,6 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.greeter_control.AbstractGreeterImpl;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -74,10 +73,6 @@ public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
         
         Endpoint.publish(address, implementor);
         LOG.info("Published greeter endpoint.");
-        
-        if (implementor instanceof AbstractGreeterImpl) {
-            ((AbstractGreeterImpl)implementor).setGreeting(null);
-        }
         
         return true;        
     }

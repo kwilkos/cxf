@@ -652,7 +652,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         RMManager manager = greeterBus.getExtension(RMManager.class);
         manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
         
-        assertEquals("ONE", greeter.greetMe("one"));
+        greeter.greetMe("one");
         try {
             greeter.greetMe("two");
             fail("Expected fault.");

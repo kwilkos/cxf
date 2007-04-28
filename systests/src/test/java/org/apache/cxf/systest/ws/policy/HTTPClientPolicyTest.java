@@ -122,7 +122,6 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
             greeter.sayHi();
             fail("Did not receive expected PolicyException.");
         } catch (WebServiceException wex) {
-            wex.printStackTrace();
             PolicyException ex = (PolicyException)wex.getCause();
             assertEquals("INCOMPATIBLE_HTTPCLIENTPOLICY_ASSERTIONS", ex.getCode());
         }
