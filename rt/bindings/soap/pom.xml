@@ -75,7 +75,8 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-activation_1.1_spec</artifactId>
-            <scope>test</scope>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
