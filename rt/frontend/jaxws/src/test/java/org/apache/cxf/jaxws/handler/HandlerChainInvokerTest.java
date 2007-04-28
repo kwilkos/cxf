@@ -190,6 +190,8 @@ public class HandlerChainInvokerTest extends TestCase {
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
 
         continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
 
@@ -398,6 +400,14 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.isClosed());
         assertEquals(1, logicalHandlers[0].getHandleFaultCount());
         assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+
+        // JAXB spec 9.3.2.2: Throw any other runtime exception This indicates
+        // that fault message processing should cease. Fault message processing stops,
+        // close is called on each previously invoked handler in the chain, the exception is
+        // dispatched
+        //FIXME: CXF-612
+        //assertEquals(1, logicalHandlers[0].getCloseCount());
+        //assertEquals(0, logicalHandlers[1].getCloseCount());
     }
 
     private boolean doInvokeProtocolHandlers(boolean requestor) {
