@@ -218,9 +218,21 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         getDataBinding().initialize(service);
         
-        if (isWrapped()) {
+        
+        boolean overLoaded = containsOverloadedMethod();
+        boolean isWrapped = isWrapped();
+        if (isWrapped && !overLoaded) {
             initializeWrappedSchema(serviceInfo);
-        } 
+        }  else if (isWrapped && overLoaded) {
+            if (wrappedStyle != null && wrappedStyle) {
+                throw new ServiceConstructionException(new Message("COULD_NOT_SET_WRAPPER_STYLE", 
+                                                                   BUNDLE, serviceClass.getName()));
+            }
+            if (wrappedStyle == null) {
+                setWrapped(false);
+            }
+            
+        }
 
         for (OperationInfo opInfo : serviceInfo.getInterface().getOperations()) {
             Method m = (Method)opInfo.getProperty(METHOD);
@@ -236,7 +248,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         
     }
-
+    
+    private boolean containsOverloadedMethod() {
+        Method[] methods = serviceClass.getDeclaredMethods();
+        List<String> methodList = new ArrayList<String>();
+        for (int i = 0; i < methods.length; i++) {
+            String name = methods[i].getName();
+            if (!methodList.contains(name)) {
+                methodList.add(name);
+            } else if (!name.endsWith("Async")) {               
+                return true;
+            }
+            
+        }
+        return false;
+    }
+    
     protected void initializeServiceModel() {
         String wsdlurl = getWsdlURL();
 
