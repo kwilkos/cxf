@@ -98,8 +98,20 @@ public class JaxWsImplementorInfo {
 
         // serviceName cannot be specified on SEI so check impl class only
         if (wsAnnotations.size() > 0) {
-            serviceName = wsAnnotations.get(0).serviceName();
-            namespace = wsAnnotations.get(0).targetNamespace();
+            int offset = 1;
+            if (seiClass == null) {
+                offset = 0;
+            }
+            //traverse up the parent impl classes for this info as well, but
+            //not the last one which would be the sei annotation
+            for (int x = 0; x < wsAnnotations.size() - offset; x++) {
+                if (StringUtils.isEmpty(serviceName)) {
+                    serviceName = wsAnnotations.get(x).serviceName();
+                }
+                if (StringUtils.isEmpty(namespace)) {
+                    namespace = wsAnnotations.get(x).targetNamespace();
+                }
+            }
         }
         
         if ((serviceName == null || namespace == null) 
@@ -127,11 +139,27 @@ public class JaxWsImplementorInfo {
     public QName getEndpointName() {
         String portName = null;
         String namespace = null;
+        String name = null;
 
         // portName cannot be specified on SEI so check impl class only
         if (wsAnnotations.size() > 0) {
-            portName = wsAnnotations.get(0).portName();
-            namespace = wsAnnotations.get(0).targetNamespace();
+            int offset = 1;
+            if (seiClass == null) {
+                offset = 0;
+            }
+            //traverse up the parent impl classes for this info as well, but
+            //not the last one which would be the sei annotation
+            for (int x = 0; x < wsAnnotations.size() - offset; x++) {
+                if (StringUtils.isEmpty(portName)) {
+                    portName = wsAnnotations.get(x).portName();
+                }
+                if (StringUtils.isEmpty(namespace)) {
+                    namespace = wsAnnotations.get(x).targetNamespace();
+                }
+                if (StringUtils.isEmpty(name)) {
+                    name = wsAnnotations.get(x).name();
+                }
+            }
         }
 
         if ((portName == null || namespace == null)
@@ -139,7 +167,10 @@ public class JaxWsImplementorInfo {
             portName = wsProviderAnnotation.portName();
             namespace = wsProviderAnnotation.targetNamespace();
         }
-
+        if (StringUtils.isEmpty(portName)
+            && !StringUtils.isEmpty(name)) {
+            portName = name + "Port";
+        }
         if (StringUtils.isEmpty(portName)) {
             portName = implementorClass.getSimpleName() + "Port";
         }
@@ -221,7 +252,7 @@ public class JaxWsImplementorInfo {
     private void initialise() {
         Class<?> cls = implementorClass;
         while (cls != null) {
-            WebService annotation = implementorClass.getAnnotation(WebService.class);
+            WebService annotation = cls.getAnnotation(WebService.class);
             if (annotation != null) {
                 wsAnnotations.add(annotation); 
             }

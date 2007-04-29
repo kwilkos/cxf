@@ -20,8 +20,10 @@
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.fortest.classnoanno.docbare.Stock;
@@ -267,7 +269,27 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(file);
         assertTrue(output.exists());
     }
-   
+
+    @Test
+    public void testRpcLitNoSEI() throws Exception {
+        builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.EchoImpl.class);
+        ServiceInfo service = builder.build();
+        generator.setServiceModel(service);
+        
+        File output = getOutputFile("rpclist_no_sei.wsdl");
+        assertNotNull(output);
+        generator.generate(output);
+        assertTrue(output.exists());
+
+        String s = IOUtils.toString(new FileInputStream(output));
+        assertTrue(s.indexOf("EchoPort") != -1);
+        /*
+        String expectedFile = this.getClass()
+            .getResource("expected/expected_doc_lit_wrapped_with_wrapperclass.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
+        */
+    }
+    
     private File getOutputFile(String fileName) {
         return new File(output, fileName);
     }

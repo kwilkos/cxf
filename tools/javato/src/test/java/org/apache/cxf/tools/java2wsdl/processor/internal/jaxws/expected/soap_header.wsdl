@@ -168,7 +168,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="HeaderTesterService">
-    <wsdl:port name="HeaderTesterPort" binding="ns1:HeaderTesterServiceSoapBinding">
+    <wsdl:port name="headerTesterPort" binding="ns1:HeaderTesterServiceSoapBinding">
       <soap:address location="http://localhost:9090"/>
     </wsdl:port>
   </wsdl:service>

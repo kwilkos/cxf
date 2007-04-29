@@ -63,7 +63,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="HelloWrappedService">
-    <wsdl:port name="HelloWrappedPort" binding="ns1:HelloWrappedServiceSoapBinding">
+    <wsdl:port name="HelloPort" binding="ns1:HelloWrappedServiceSoapBinding">
       <soap:address location="http://localhost:9090"/>
     </wsdl:port>
   </wsdl:service>
