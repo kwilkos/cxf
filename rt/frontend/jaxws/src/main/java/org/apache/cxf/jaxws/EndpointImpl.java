@@ -298,6 +298,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         if (properties != null) {
             endpoint.putAll(properties);
         }
+
+        if (endpointName != null) {
+            serverFactory.getServiceFactory().setEndpointName(endpointName);
+        }
         
         configureObject(endpoint.getService());
         configureObject(endpoint);
