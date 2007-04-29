@@ -196,12 +196,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         if (null != server) {
             server.stop();
         }
-    }
-
-    public ServerImpl getServer() {
-        return (ServerImpl) server;
-    }
-    
+    }    
 
     /**
      * inject resources into servant.  The resources are injected
@@ -243,74 +238,87 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     
     protected void doPublish(String addr) {
         checkPublishPermission();
-        checkProperties();
+        
+        ServerImpl serv = getServer(addr);
+        if (addr != null) {
+            serv.getEndpoint().getEndpointInfo().setAddress(addr);
+        }
+        serv.start();
+    }
+    
+    public ServerImpl getServer() {
+        return getServer(null);
+    }
+    public synchronized ServerImpl getServer(String addr) {
+        if (server == null) {
+            checkProperties();
 
-        // Initialize the endpointName so we can do configureObject
-        if (endpointName == null) {
-            JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(implementor.getClass());
-            endpointName = implInfo.getEndpointName();
-        }
-        
-        configureObject(this);
-        
-        // Set up the server factory
-        serverFactory.setAddress(addr);
-        serverFactory.setStart(false);
-        serverFactory.setEndpointName(endpointName);
-        serverFactory.setServiceBean(implementor);
-        serverFactory.setBus(bus);
-        serverFactory.setFeatures(features);
-        
-        // Be careful not to override any serverfactory settings as a user might
-        // have supplied their own.
-        if (getWsdlLocation() != null) {
-            serverFactory.setWsdlURL(getWsdlLocation());
-        }
-        
-        if (bindingUri != null) {
-            serverFactory.setBindingId(bindingUri);
-        }
-        
-        if (serviceName != null) {
-            serverFactory.getServiceFactory().setServiceName(serviceName);
-        }
-        
-        configureObject(serverFactory);
-        
-        server = serverFactory.create();
-        
-        init();
-        
-        org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
-        if (getInInterceptors() != null) {
-            endpoint.getInInterceptors().addAll(getInInterceptors());
-        }
-        if (getOutInterceptors() != null) {
-            endpoint.getOutInterceptors().addAll(getOutInterceptors());
-        }
-        if (getInFaultInterceptors() != null) {
-            endpoint.getInFaultInterceptors().addAll(getInFaultInterceptors());
-        }
-        if (getOutFaultInterceptors() != null) {
-            endpoint.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
-        }
-        
-        if (properties != null) {
-            endpoint.putAll(properties);
-        }
+            // Initialize the endpointName so we can do configureObject
+            if (endpointName == null) {
+                JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(implementor.getClass());
+                endpointName = implInfo.getEndpointName();
+            }
 
-        if (endpointName != null) {
-            serverFactory.getServiceFactory().setEndpointName(endpointName);
+            if (serviceName != null) {
+                serverFactory.getServiceFactory().setServiceName(serviceName);
+            }
+
+            configureObject(this);
+            
+            // Set up the server factory
+            serverFactory.setAddress(addr);
+            serverFactory.setStart(false);
+            serverFactory.setEndpointName(endpointName);
+            serverFactory.setServiceBean(implementor);
+            serverFactory.setBus(bus);
+            serverFactory.setFeatures(features);
+            
+            // Be careful not to override any serverfactory settings as a user might
+            // have supplied their own.
+            if (getWsdlLocation() != null) {
+                serverFactory.setWsdlURL(getWsdlLocation());
+            }
+            
+            if (bindingUri != null) {
+                serverFactory.setBindingId(bindingUri);
+            }
+            
+            if (serviceName != null) {
+                serverFactory.getServiceFactory().setServiceName(serviceName);
+            }
+            
+            configureObject(serverFactory);
+            
+            server = serverFactory.create();
+            
+            init();
+            
+            org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
+            if (getInInterceptors() != null) {
+                endpoint.getInInterceptors().addAll(getInInterceptors());
+            }
+            if (getOutInterceptors() != null) {
+                endpoint.getOutInterceptors().addAll(getOutInterceptors());
+            }
+            if (getInFaultInterceptors() != null) {
+                endpoint.getInFaultInterceptors().addAll(getInFaultInterceptors());
+            }
+            if (getOutFaultInterceptors() != null) {
+                endpoint.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
+            }
+            
+            if (properties != null) {
+                endpoint.putAll(properties);
+            }
+            
+            configureObject(endpoint.getService());
+            configureObject(endpoint);            
         }
-        
-        configureObject(endpoint.getService());
-        configureObject(endpoint);
-        
-        server.start();
+        return (ServerImpl) server;
     }
     
     org.apache.cxf.endpoint.Endpoint getEndpoint() {
-        return ((ServerImpl)getServer()).getEndpoint();
+        return ((ServerImpl)getServer(null)).getEndpoint();
     }
     
     private void configureObject(Object instance) {

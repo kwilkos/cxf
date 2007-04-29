@@ -51,7 +51,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public ServiceDelegate createServiceDelegate(URL url,
                                                  QName qname,
                                                  Class cls) {
-        Bus bus = BusFactory.getDefaultBus();
+        Bus bus = BusFactory.getThreadDefaultBus();
         return new ServiceImpl(bus, url, qname, cls);
     }
 
@@ -60,7 +60,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
 
         Endpoint ep = null;
         if (EndpointUtils.isValidImplementor(implementor)) {
-            Bus bus = BusFactory.getDefaultBus();
+            Bus bus = BusFactory.getThreadDefaultBus();
             ep = new EndpointImpl(bus, implementor, bindingId);
             return ep;
         } else {

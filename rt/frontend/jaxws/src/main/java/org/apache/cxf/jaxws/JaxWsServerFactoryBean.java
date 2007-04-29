@@ -67,20 +67,20 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         String binding = getBindingId();
         if (binding == null) {
             binding = jaxBid;
-            
-            if (binding.equals(SOAPBinding.SOAP11HTTP_BINDING) 
-                || binding.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING)
-                || binding.equals(SOAPBinding.SOAP12HTTP_BINDING) 
-                || binding.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING)) {
-                binding = "http://schemas.xmlsoap.org/soap/";
-                
-                if (getBindingConfig() == null) {
-                    setBindingConfig(new JaxWsSoapBindingConfiguration(sf));
-                }
-            }
-            
             setBindingId(binding);
         }
+        
+        if (binding.equals(SOAPBinding.SOAP11HTTP_BINDING) 
+            || binding.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING)
+            || binding.equals(SOAPBinding.SOAP12HTTP_BINDING) 
+            || binding.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING)) {
+            binding = "http://schemas.xmlsoap.org/soap/";
+            setBindingId(binding);
+            if (getBindingConfig() == null) {
+                setBindingConfig(new JaxWsSoapBindingConfiguration(sf));
+            }
+        }
+            
         boolean messageMode = implInfo.getServiceMode().equals(javax.xml.ws.Service.Mode.MESSAGE);
         
         if (getBindingConfig() instanceof JaxWsSoapBindingConfiguration) {
@@ -94,7 +94,6 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
                 conf.setVersion(Soap12.getInstance());
                 conf.setMtomEnabled(true);
             }
-            
             if (jaxBid.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING)) {
                 conf.setMtomEnabled(true);
             }

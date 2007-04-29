@@ -76,6 +76,7 @@ public abstract class BusFactory {
      */
     public static synchronized void setDefaultBus(Bus bus) {
         defaultBus = bus;
+        setThreadDefaultBus(bus);
     }
     
     

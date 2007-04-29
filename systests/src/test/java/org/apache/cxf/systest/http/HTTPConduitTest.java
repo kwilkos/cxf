@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.FiltersType;
@@ -245,7 +246,8 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
     class DefaultBusFactory extends SpringBusFactory {
         public Bus createBus(URL config) {
             Bus bus = super.createBus(config, true);
-            defaultBus = bus;
+            BusFactory.setDefaultBus(bus);
+            BusFactory.setThreadDefaultBus(bus);
             return bus;
         }
     }

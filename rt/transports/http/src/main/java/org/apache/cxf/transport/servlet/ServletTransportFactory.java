@@ -73,6 +73,9 @@ public class ServletTransportFactory extends AbstractTransportFactory
     }
 
     private String getTrimmedPath(String path) {
+        if (path == null) {
+            return "/";
+        }
         final String lh = "http://localhost/";
         final String lhs = "https://localhost/";
         
