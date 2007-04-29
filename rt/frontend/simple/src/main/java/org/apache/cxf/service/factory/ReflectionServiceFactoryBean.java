@@ -594,14 +594,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
     }
 
-    private boolean isArrayType(MessagePartInfo part) {
-        Type type = (Type) part.getProperty(GENERIC_TYPE);
-        if (type instanceof Class) {
-            return ((Class<?>)type).isArray();
-        }
-        return false;
-    }
-    
     private void createWrappedMessageSchema(AbstractMessageContainer wrappedMessage,
                                             AbstractMessageContainer unwrappedMessage,
                                             XmlSchema schema) {
@@ -623,15 +615,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             el.setName(mpi.getName().getLocalPart());
             el.setQName(mpi.getName());
 
-
-            if (isArrayType(mpi)) {
-                el.setMinOccurs(0);
-                el.setMaxOccurs(Long.MAX_VALUE);
-            } else {
-                el.setMinOccurs(1);
-                el.setMaxOccurs(1);
-                el.setNillable(true);
-            }
+            el.setMinOccurs(1);
+            el.setMaxOccurs(1);
+            el.setNillable(true);
 
             if (mpi.isElement()) {
                 el.setRefName(mpi.getElementQName());
@@ -770,9 +756,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (rawClass.equals(Holder.class) && type instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType)type;
             rawClass = getHolderClass(paramType);
-        }
-        if (rawClass.isArray()) {
-            rawClass = rawClass.getComponentType();
         }
 
         part.setProperty(GENERIC_TYPE, type);

@@ -43,7 +43,7 @@
 <xs:element name="operation0Response">
 <xs:complexType>
 <xs:sequence>
-<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:operation0ResponseType"/>
+<xs:element name="return" nillable="true" type="tns:operation0ResponseTypeArray"/>
 </xs:sequence>
 </xs:complexType>
 </xs:element>

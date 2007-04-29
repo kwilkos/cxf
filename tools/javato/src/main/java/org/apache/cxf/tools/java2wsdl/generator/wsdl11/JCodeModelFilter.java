@@ -45,7 +45,6 @@ public final class JCodeModelFilter {
             includedPackages.add(clz.getPackageName());
             includedClasses.add(clz.getFullClassName());
         }
-
         for (Iterator<JPackage> iter = this.model.packages(); iter.hasNext();) {
             JPackage pkg = iter.next();
             if (!includedPackages.contains(pkg.name())) {

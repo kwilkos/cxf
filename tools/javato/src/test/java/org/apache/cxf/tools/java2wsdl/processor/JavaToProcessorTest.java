@@ -299,7 +299,11 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(contents.indexOf("org.apache.cxf.tools.fortest.withannotation.doc") != -1);
     }
 
+    // REVISIT: CXF-610
+    // Ref: DOC-LIT-WRAPPED this.testDataBase()
+    //      RPC-LIT         JaxwsServiceBuilderRPCTest.testGreeter()
     @Test
+    @Ignore
     public void testGenWrapperWithStringArray() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME,
                 "org.apache.cxf.tools.fortest.withannotation.doc.GreeterStringArray");

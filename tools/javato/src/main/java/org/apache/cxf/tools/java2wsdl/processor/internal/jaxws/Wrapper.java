@@ -20,6 +20,8 @@
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
@@ -27,6 +29,8 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -127,5 +131,27 @@ public class Wrapper {
             LOG.log(Level.WARNING, msg.toString());
             throw new ToolException(msg);
         }
+    }
+
+    private boolean isBuiltInTypes(Class<?> clz) {
+        if (clz == null || clz.isPrimitive()) {
+            return true;
+        }
+        return "java.lang".equals(clz.getPackage().getName());
+    }
+    
+    public Map<String, JavaClass> getParamtersInDifferentPackage(final MessageInfo message) {
+        Map<String, JavaClass> results = new HashMap<String, JavaClass>();
+        for (MessagePartInfo part : message.getMessageParts()) {
+            if (isBuiltInTypes(part.getTypeClass())) {
+                continue;
+            }
+            JavaClass paramClass = new JavaClass();
+            paramClass.setFullClassName(part.getTypeClass().getName());
+            if (!getJavaClass().getPackageName().equals(paramClass.getPackageName())) {
+                results.put(paramClass.getFullClassName(), paramClass);
+            }
+        }
+        return results;
     }
 }

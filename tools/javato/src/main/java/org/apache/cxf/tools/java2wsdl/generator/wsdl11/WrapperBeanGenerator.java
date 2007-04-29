@@ -35,7 +35,6 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.XJC;
 import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
-
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -92,6 +91,7 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
     private void generateWrapperBeanClasses(final ServiceInfo serviceInfo, final File dir) {
         List<JavaClass> wrapperClasses = new ArrayList<JavaClass>();
         Map<String, String> nsPkgMapping = new HashMap<String, String>();
+        Map<String, JavaClass> paramClasses = new HashMap<String, JavaClass>();
         
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
@@ -101,6 +101,11 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
                     requestWrapper.setName(wrapperBeanName);
                     requestWrapper.setMethod((Method) op.getProperty(Method.class.getName()));
                     JavaClass jClass = requestWrapper.getJavaClass();
+
+                    paramClasses.putAll(
+                        requestWrapper.getParamtersInDifferentPackage(
+                            op.getUnwrappedOperation().getInput()));
+
                     if (requestWrapper.isWrapperAbsent() || requestWrapper.isToDifferentPackage()) {
                         nsPkgMapping.put(wrapperBeanName.getNamespaceURI(), jClass.getPackageName());
                     }
@@ -116,6 +121,10 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
                     responseWrapper.setMethod((Method) op.getProperty(Method.class.getName()));
                     JavaClass jClass = responseWrapper.getJavaClass();
 
+//                     paramClasses.putAll(
+//                         requestWrapper.getParamtersInDifferentPackage(
+//                             op.getUnwrappedOperation().getOutput()));
+
                     if (responseWrapper.isWrapperAbsent() || responseWrapper.isToDifferentPackage()) {
                         nsPkgMapping.put(wrapperBeanName.getNamespaceURI(), jClass.getPackageName());
                     }
@@ -129,6 +138,9 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
 
         if (wrapperClasses.isEmpty()) {
             return;
+        }
+        if (!paramClasses.isEmpty()) {
+            wrapperClasses.addAll(paramClasses.values());
         }
         
         Map<String, Element> schemas = new HashMap<String, Element>();
