@@ -52,6 +52,12 @@ import org.apache.cxf.tools.util.AnnotationUtil;
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     private JaxWsImplementorInfo implInfo;
+    
+    
+    
+    public JaxWsServiceConfiguration() {
+        
+    }
 
     @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
@@ -383,11 +389,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
         String clsName = "";
-        boolean isWrapperSpecifiedByAnno = true;
         if (rw == null) {
             clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName())
                       + "Response";
-            isWrapperSpecifiedByAnno = false;
         } else {
             clsName = rw.className();
         }
@@ -396,11 +400,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             try {
                 return ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
             } catch (ClassNotFoundException e) {
-                if (isWrapperSpecifiedByAnno) {
-                    throw new ServiceConstructionException(e);
-                } else {
-                    //do nothing, we will mock a schema for wrapper bean later on
-                }
+                //do nothing, we will mock a schema for wrapper bean later on
             }
         }
 
@@ -413,10 +413,8 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
         String clsName = "";
-        boolean isWrapperSpecifiedByAnno = true;
         if (rw == null) {
             clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName());
-            isWrapperSpecifiedByAnno = false;
         } else {
             clsName = rw.className();
         }
@@ -425,11 +423,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             try {
                 return ClassLoaderUtils.loadClass(clsName, implInfo.getEndpointClass());
             } catch (ClassNotFoundException e) {
-                if (isWrapperSpecifiedByAnno) {
-                    throw new ServiceConstructionException(e);
-                } else {
-                    //do nothing, we will mock a schema for wrapper bean later on
-                }
+                //do nothing, we will mock a schema for wrapper bean later on
             }
         }
 

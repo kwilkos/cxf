@@ -26,7 +26,9 @@ import java.util.List;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.xml.ws.WebServiceProvider;
 
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.WrapperUtil;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -35,7 +37,9 @@ public final class FrontendFactory {
     private static FrontendFactory instance;
     private Class serviceClass;
     private List<Method> wsMethods;
-    private Class[] annotations = new Class[] {SOAPBinding.class};
+    private Class[] annotations = new Class[] {SOAPBinding.class,
+                                               WebService.class,
+                                               WebServiceProvider.class};
 
     public enum Style {
         Jaxws,
