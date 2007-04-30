@@ -102,7 +102,7 @@ public class WrapperBeanGeneratorTest extends ProcessorTestBase {
 
         requestWrapperClass = new File(output, pkgBase + "/SayTestDataBeanArray.java");
         assertTrue(requestWrapperClass.exists());
-        responseWrapperClass = new File(output, pkgBase + "/SaytestDataBeanArrayResponse.java");
+        responseWrapperClass = new File(output, pkgBase + "/SayTestDataBeanArrayResponse.java");
         assertTrue(responseWrapperClass.exists());
         contents = IOUtils.toString(new FileInputStream(requestWrapperClass));
         assertTrue(contents.indexOf("org.apache.cxf.tools.fortest.withannotation.doc.TestDataBean[]") != -1);

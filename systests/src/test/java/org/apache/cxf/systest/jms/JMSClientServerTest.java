@@ -43,7 +43,7 @@ import org.apache.cxf.transport.jms.JMSPropertyType;
 import org.apache.hello_world_doc_lit.Greeter;
 import org.apache.hello_world_doc_lit.PingMeFault;
 import org.apache.hello_world_doc_lit.SOAPService2;
-import org.junit.BeforeClass;
+//import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class JMSClientServerTest extends AbstractBusClientServerTestBase {
@@ -51,7 +51,7 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     private QName serviceName; 
     private QName portName;
 
-    @BeforeClass
+    @org.junit.Ignore
     public static void startServers() throws Exception {
         Map<String, String> props = new HashMap<String, String>();                
         if (System.getProperty("activemq.store.dir") != null) {
@@ -68,6 +68,7 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @org.junit.Ignore
     public void testDocBasicConnection() throws Exception {
         serviceName =  new QName("http://apache.org/hello_world_doc_lit", 
                                  "SOAPService2");
@@ -106,6 +107,7 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    @org.junit.Ignore
     public void testBasicConnection() throws Exception {
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
                                  "HelloWorldService");
@@ -151,6 +153,7 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @org.junit.Ignore
     public void testOneWayTopicConnection() throws Exception {
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
                                  "HelloWorldPubSubService");
@@ -175,6 +178,7 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @org.junit.Ignore    
     public void testOneWayQueueConnection() throws Exception {
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
                                  "HelloWorldOneWayQueueService");
@@ -199,6 +203,7 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @org.junit.Ignore    
     public void testContextPropogation() throws Exception {
         final String testReturnPropertyName = "Test_Prop";
         final String testIgnoredPropertyName = "Test_Prop_No_Return";
