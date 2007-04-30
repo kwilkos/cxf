@@ -40,7 +40,6 @@ import org.junit.Test;
 public class HeaderTest extends AbstractJaxWsTest {
     
     @Test
-    @org.junit.Ignore
     public void testInvocation() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 

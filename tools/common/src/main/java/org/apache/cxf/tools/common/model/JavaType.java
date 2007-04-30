@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.api.TypeReference;
-import org.apache.cxf.tools.util.URIParserUtil;
 
 public class JavaType {
     
@@ -134,9 +133,6 @@ public class JavaType {
     }
     
     public String getName() {
-        if (URIParserUtil.containsReservedKeywords(this.name)) {
-            return "_" + this.name;
-        }
         return this.name;
     }
 

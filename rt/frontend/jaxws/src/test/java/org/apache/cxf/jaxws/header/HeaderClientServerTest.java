@@ -53,7 +53,6 @@ import org.apache.tests.type_test.all.SimpleAll;
 import org.apache.tests.type_test.choice.SimpleChoice;
 import org.apache.tests.type_test.sequence.SimpleStruct;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -81,7 +80,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     }
 
     @Test
-    @Ignore
     public void testInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -102,7 +100,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     } 
 
     @Test
-    @Ignore
     public void testOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -130,7 +127,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     } 
 
     @Test
-    @Ignore
     public void testInOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -167,7 +163,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     }
 
     @Test
-    @Ignore
     public void testReturnHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -193,7 +188,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     } 
     
     @Test
-    @Ignore
     public void testHeaderPartBeforeBodyPart() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -226,7 +220,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore
     public void testHeader4() {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -243,7 +236,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     }
 
     @Test
-    @Ignore
     public void testRPCInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader_rpc.wsdl");
         assertNotNull(wsdl);
@@ -268,7 +260,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     } 
     
     @Test
-    @Ignore
     public void testRPCInOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader_rpc.wsdl");
         assertNotNull(wsdl);
@@ -298,7 +289,6 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     
 
     @Test
-    @Ignore
     public void testHolderOutIsTheFirstMessagePart() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);

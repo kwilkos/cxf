@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.common.model;
 
+import org.apache.cxf.tools.util.URIParserUtil;
+
 public class JavaField extends JavaType implements JavaAnnotatable {
     private String modifier;
     private JavaAnnotation annotation;
@@ -50,4 +52,12 @@ public class JavaField extends JavaType implements JavaAnnotatable {
     public void annotate(Annotator annotator) {
         annotator.annotate(this);
     }
+
+    public String getName() {
+        if (URIParserUtil.containsReservedKeywords(this.name)) {
+            return "_" + this.name;
+        }
+        return this.name;
+    }
+    
 }
