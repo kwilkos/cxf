@@ -19,8 +19,9 @@
 
 package org.apache.cxf.tools.common.model;
 
-public class JavaField extends JavaType {
+public class JavaField extends JavaType implements JavaAnnotatable {
     private String modifier;
+    private JavaAnnotation annotation;
 
     public JavaField() {
     }
@@ -32,5 +33,21 @@ public class JavaField extends JavaType {
 
     public String getModifier() {
         return this.modifier;
+    }
+
+    public void setModifier(String modi) {
+        this.modifier = modi;
+    }
+
+    public void setAnnotation(JavaAnnotation anno) {
+        this.annotation = anno;
+    }
+
+    public JavaAnnotation getAnnotation() {
+        return this.annotation;
+    }
+
+    public void annotate(Annotator annotator) {
+        annotator.annotate(this);
     }
 }

@@ -59,8 +59,12 @@ public class JavaAnnotation {
             sb.append("(");
             for (int i = 0; i < keys.length; i++) {
                 sb.append((String)keys[i]);
+                String value = this.arguments.get((String)keys[i]);
+                if ("null".equals(value)) {
+                    continue;
+                }
                 sb.append(" = ");
-                sb.append(this.arguments.get((String)keys[i]));
+                sb.append(value);
                 if (i != (keys.length - 1)) {
                     sb.append(", ");
                 }

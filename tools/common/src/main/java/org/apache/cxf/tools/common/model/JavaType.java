@@ -20,9 +20,12 @@
 package org.apache.cxf.tools.common.model;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.namespace.QName;
+
 import com.sun.xml.bind.api.TypeReference;
+import org.apache.cxf.tools.util.URIParserUtil;
 
 public class JavaType {
     
@@ -58,6 +61,7 @@ public class JavaType {
     protected TypeReference typeRef;
     protected boolean isHeader;
     private QName qname;
+    private JavaInterface owner;
 
     public JavaType() {
     }
@@ -125,8 +129,15 @@ public class JavaType {
         return this.targetNamespace;
     }
 
+    public String getRawName() {
+        return this.name;
+    }
+    
     public String getName() {
-        return name;
+        if (URIParserUtil.containsReservedKeywords(this.name)) {
+            return "_" + this.name;
+        }
+        return this.name;
     }
 
     public void setName(String s) {
@@ -192,5 +203,13 @@ public class JavaType {
         sb.append("\nStyle: ");
         sb.append(style);
         return sb.toString();
+    }
+
+    public JavaInterface getOwner() {
+        return this.owner;
+    }
+
+    public void setOwner(JavaInterface intf) {
+        this.owner = intf;
     }
 }

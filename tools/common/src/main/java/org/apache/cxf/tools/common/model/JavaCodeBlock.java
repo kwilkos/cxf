@@ -17,22 +17,24 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.fortest.withannotation.doc;
+package org.apache.cxf.tools.common.model;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
+import java.util.ArrayList;
+import java.util.List;
 
-@WebService(name = "Hello")
-public interface GreeterStringArray {
-    @WebMethod
-    @RequestWrapper
-    @ResponseWrapper
-    String[] sayHi(String[] array);
+public class JavaCodeBlock {
 
-    @WebMethod
-    @RequestWrapper
-    @ResponseWrapper
-    int[] sayIntArray(int[] array);
+    /**
+     * Describe expressions here.
+     */
+    private List<JavaExpression> expressions = new ArrayList<JavaExpression>();
+
+    /**
+     * Get the <code>Expressions</code> value.
+     *
+     * @return a <code>List<JavaExpression></code> value
+     */
+    public final List<JavaExpression> getExpressions() {
+        return expressions;
+    }
 }

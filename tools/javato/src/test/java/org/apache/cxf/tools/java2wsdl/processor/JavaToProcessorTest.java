@@ -20,7 +20,6 @@
 package org.apache.cxf.tools.java2wsdl.processor;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -31,7 +30,6 @@ import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -43,7 +41,6 @@ import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -273,49 +270,5 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File responseWrapperClass = new File(output, pkgBase + "/AddResponse.java");
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
-    }
-
-    @Test
-    @Ignore
-    public void testGenWrapperInAnotherPackage() throws Exception {
-        env.put(ToolConstants.CFG_CLASSNAME,
-                "org.apache.cxf.tools.fortest.withannotation.doc.GreeterNoWrapperBean");
-        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_greeter_no_wrapper.wsdl");
-        
-        processor.setEnvironment(env);
-        processor.process();
-
-        String pkgBase = "org/apache/cxf";
-        File requestWrapperClass = new File(output, pkgBase + "/SayHi.java");
-        File responseWrapperClass = new File(output, pkgBase + "/SayHiResponse.java");
-        assertTrue(requestWrapperClass.exists());
-        assertTrue(responseWrapperClass.exists());
-        
-        responseWrapperClass = new File(output, pkgBase + "/EchoDataBeanResponse.java");
-        assertTrue(requestWrapperClass.exists());
-        //The EchoDataBeanResponse object NEEDS to import the TestDataBean.  Thus, the
-        //package string should be in there someplace.
-        String contents = IOUtils.toString(new FileInputStream(responseWrapperClass));
-        assertTrue(contents.indexOf("org.apache.cxf.tools.fortest.withannotation.doc") != -1);
-    }
-
-    // REVISIT: CXF-610
-    // Ref: DOC-LIT-WRAPPED this.testDataBase()
-    //      RPC-LIT         JaxwsServiceBuilderRPCTest.testGreeter()
-    @Test
-    @Ignore
-    public void testGenWrapperWithStringArray() throws Exception {
-        env.put(ToolConstants.CFG_CLASSNAME,
-                "org.apache.cxf.tools.fortest.withannotation.doc.GreeterStringArray");
-        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_greeter_string_array.wsdl");
-        
-        processor.setEnvironment(env);
-        processor.process();
-
-        String pkgBase = "org/apache/cxf/tools/fortest/withannotation/doc/jaxws";
-        File requestWrapperClass = new File(output, pkgBase + "/SayHi.java");
-        File responseWrapperClass = new File(output, pkgBase + "/SayHiResponse.java");
-        assertTrue(requestWrapperClass.exists());
-        assertTrue(responseWrapperClass.exists());        
     }
 }

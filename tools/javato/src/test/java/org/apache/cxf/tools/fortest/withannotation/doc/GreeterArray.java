@@ -25,14 +25,19 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
 @WebService(name = "Hello")
-public interface GreeterStringArray {
+public interface GreeterArray {
     @WebMethod
     @RequestWrapper
     @ResponseWrapper
-    String[] sayHi(String[] array);
+    String[] sayStringArray(String[] array);
 
     @WebMethod
     @RequestWrapper
     @ResponseWrapper
     int[] sayIntArray(int[] array);
+
+    @WebMethod
+    @RequestWrapper
+    @ResponseWrapper
+    TestDataBean[] sayTestDataBeanArray(TestDataBean[] array);
 }

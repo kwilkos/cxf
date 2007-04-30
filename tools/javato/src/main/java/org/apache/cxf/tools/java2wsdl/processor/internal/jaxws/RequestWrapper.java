@@ -20,18 +20,64 @@
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.tools.common.model.JavaClass;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.tools.common.model.JavaField;
+import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class RequestWrapper extends Wrapper {
+    @Override
+    public void setOperationInfo(final OperationInfo op) {
+        super.setOperationInfo(op);
+        setName(op.getInput().getMessageParts().get(0).getElementQName());
+    }
+
+    @Override
     public boolean isWrapperAbsent(final Method method) {
         javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
         return reqWrapper == null || StringUtils.isEmpty(reqWrapper.className());
     }
 
-    public JavaClass getWrapperBeanClass(final Method method) {
+    @Override
+    protected List<JavaField> buildFields() {
+        return buildFields(getMethod(), getOperationInfo().getUnwrappedOperation().getInput());
+    }
+    
+    protected List<JavaField> buildFields(final Method method, final MessageInfo message) {
+        List<JavaField> fields = new ArrayList<JavaField>();
+        String name;
+        String type;
+
+        final MessagePartInfo[] messageParts = message.getMessageParts().toArray(
+            new MessagePartInfo[message.getMessageParts().size()]);
+        
+        final Class[] paramClasses = method.getParameterTypes();
+        for (int j = 0; j < paramClasses.length; j++) {
+            name = messageParts[j].getName().getLocalPart();
+            Class clz = paramClasses[j];
+            if (clz.isArray()) {
+                if (isBuiltInTypes(clz.getComponentType())) {
+                    type = clz.getComponentType().getSimpleName() + "[]";
+                } else {
+                    type = clz.getComponentType().getName() + "[]";
+                }
+            } else {
+                type = clz.getName();
+            }
+            JavaField field = new JavaField(name, type, "");
+            fields.add(field);
+        }
+        return fields;
+    }
+
+    @Override
+    public WrapperBeanClass getWrapperBeanClass(final Method method) {
         javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
         String reqClassName = "";
         String reqNs = null;
@@ -43,7 +89,7 @@ public class RequestWrapper extends Wrapper {
             reqClassName = getPackageName(method) + ".jaxws." + AnnotationUtil.capitalize(method.getName());
         }
 
-        JavaClass jClass = new JavaClass();
+        WrapperBeanClass jClass = new WrapperBeanClass();
         jClass.setFullClassName(reqClassName);
         jClass.setNamespace(reqNs);
         return jClass;

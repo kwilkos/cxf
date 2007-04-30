@@ -43,13 +43,21 @@ public class FileWriterUtil {
         }
     }
 
-    public Writer getWriter(String packageName, String fileName) throws IOException {
+    public File getFileToWrite(String packageName, String fileName) throws IOException {
         File dir = buildDir(packageName);
         File fn = new File(dir, fileName);
         if (fn.exists() && !fn.delete()) {
             throw new IOException(fn + ": Can't delete previous version");
         }
+        return fn;
+    }
+
+    public static Writer getWriter(File fn) throws IOException {
         return new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fn)), "UTF-8");
+    }
+    
+    public Writer getWriter(String packageName, String fileName) throws IOException {
+        return getWriter(getFileToWrite(packageName, fileName));
     }
 
     public boolean isCollision(String packageName, String fileName) throws ToolException {

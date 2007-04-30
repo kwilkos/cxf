@@ -17,22 +17,34 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.fortest.withannotation.doc;
+package org.apache.cxf.tools.java2wsdl.generator.wsdl11.model;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
+import javax.xml.namespace.QName;
 
-@WebService(name = "Hello")
-public interface GreeterStringArray {
-    @WebMethod
-    @RequestWrapper
-    @ResponseWrapper
-    String[] sayHi(String[] array);
+import org.apache.cxf.tools.common.model.JavaClass;
 
-    @WebMethod
-    @RequestWrapper
-    @ResponseWrapper
-    int[] sayIntArray(int[] array);
+public class WrapperBeanClass extends JavaClass {
+
+    /**
+     * Describe elementName here.
+     */
+    private QName elementName;
+
+    /**
+     * Get the <code>ElementName</code> value.
+     *
+     * @return a <code>QName</code> value
+     */
+    public final QName getElementName() {
+        return elementName;
+    }
+
+    /**
+     * Set the <code>ElementName</code> value.
+     *
+     * @param newElementName The new ElementName value.
+     */
+    public final void setElementName(final QName newElementName) {
+        this.elementName = newElementName;
+    }
 }

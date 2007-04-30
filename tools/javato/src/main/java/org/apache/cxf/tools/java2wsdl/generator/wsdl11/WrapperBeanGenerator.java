@@ -20,36 +20,20 @@
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.xml.namespace.QName;
 
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-
-import com.sun.codemodel.JCodeModel;
-import com.sun.tools.xjc.api.S2JJAXBModel;
-import com.sun.tools.xjc.api.XJC;
-import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.VelocityGenerator;
 import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.RequestWrapper;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.ResponseWrapper;
 import org.apache.cxf.tools.util.Compiler;
-import org.apache.cxf.tools.util.JAXBUtils;
-import org.apache.cxf.tools.wsdlto.databinding.jaxb.JAXBBindErrorListener;
-import org.apache.cxf.tools.wsdlto.databinding.jaxb.TypesCodeWriter;
-
+import org.apache.cxf.tools.util.FileWriterUtil;
 
 public final class WrapperBeanGenerator extends AbstractGenerator<File> {
-
     private Class<?> serviceClass;
     private File compileToDir;
     
@@ -78,56 +62,24 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
         this.serviceClass = clz;
     }
     
-    private List<InputSource> getExternalSchemaBindings(final Map<String, String> mapping) {
-        List<InputSource> externalSchemaBinding = new ArrayList<InputSource>();
-
-        for (String ns : mapping.keySet()) {
-            File file = JAXBUtils.getPackageMappingSchemaBindingFile(ns, mapping.get(ns));
-            externalSchemaBinding.add(new InputSource(file.toURI().toString()));
-        }
-        return externalSchemaBinding;
-    }
-    
     private void generateWrapperBeanClasses(final ServiceInfo serviceInfo, final File dir) {
         List<JavaClass> wrapperClasses = new ArrayList<JavaClass>();
-        Map<String, String> nsPkgMapping = new HashMap<String, String>();
-        Map<String, JavaClass> paramClasses = new HashMap<String, JavaClass>();
         
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
                 if (op.hasInput()) {
-                    QName wrapperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
                     RequestWrapper requestWrapper = new RequestWrapper();
-                    requestWrapper.setName(wrapperBeanName);
-                    requestWrapper.setMethod((Method) op.getProperty(Method.class.getName()));
-                    JavaClass jClass = requestWrapper.getJavaClass();
-
-                    paramClasses.putAll(
-                        requestWrapper.getParamtersInDifferentPackage(
-                            op.getUnwrappedOperation().getInput()));
-
-                    if (requestWrapper.isWrapperAbsent() || requestWrapper.isToDifferentPackage()) {
-                        nsPkgMapping.put(wrapperBeanName.getNamespaceURI(), jClass.getPackageName());
-                    }
+                    requestWrapper.setOperationInfo(op);
+                    JavaClass jClass = requestWrapper.buildWrapperBeanClass();
 
                     if (requestWrapper.isWrapperBeanClassNotExist()) {
                         wrapperClasses.add(jClass);
                     }
                 }
                 if (op.hasOutput()) {
-                    QName wrapperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
                     ResponseWrapper responseWrapper = new ResponseWrapper();
-                    responseWrapper.setName(wrapperBeanName);
-                    responseWrapper.setMethod((Method) op.getProperty(Method.class.getName()));
-                    JavaClass jClass = responseWrapper.getJavaClass();
-
-//                     paramClasses.putAll(
-//                         requestWrapper.getParamtersInDifferentPackage(
-//                             op.getUnwrappedOperation().getOutput()));
-
-                    if (responseWrapper.isWrapperAbsent() || responseWrapper.isToDifferentPackage()) {
-                        nsPkgMapping.put(wrapperBeanName.getNamespaceURI(), jClass.getPackageName());
-                    }
+                    responseWrapper.setOperationInfo(op);
+                    JavaClass jClass = responseWrapper.buildWrapperBeanClass();
 
                     if (responseWrapper.isWrapperBeanClassNotExist()) {
                         wrapperClasses.add(jClass);
@@ -139,44 +91,33 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
         if (wrapperClasses.isEmpty()) {
             return;
         }
-        if (!paramClasses.isEmpty()) {
-            wrapperClasses.addAll(paramClasses.values());
-        }
-        
-        Map<String, Element> schemas = new HashMap<String, Element>();
-        for (SchemaInfo s : serviceInfo.getSchemas()) {
-            schemas.put(s.getSchema().getTargetNamespace(), s.getElement());
-        }
 
-        SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-        JAXBBindErrorListener listener = new JAXBBindErrorListener(false);
-        schemaCompiler.setErrorListener(listener);
+        String templateName = "org/apache/cxf/tools/java2wsdl/generator/wsdl11/wrapperbean.vm";
+        VelocityGenerator generator = new VelocityGenerator();
+        generator.setBaseDir(dir.toString());
 
-        Set<String> keys = schemas.keySet();
-        for (String key : keys) {
-            schemaCompiler.parseSchema(key, schemas.get(key));
-        }
-        for (InputSource is : getExternalSchemaBindings(nsPkgMapping)) {
-            schemaCompiler.parseSchema(is);
-        }
-
-        S2JJAXBModel rawJaxbModelGenCode = schemaCompiler.bind();
-        JCodeModel jcodeModel = rawJaxbModelGenCode.generateCode(null, null);
-
-        JCodeModelFilter filter = new JCodeModelFilter(jcodeModel);
-        filter.include(wrapperClasses);
-        
+        List<File> generatedFiles = new ArrayList<File>();
         try {
-            TypesCodeWriter writer = new TypesCodeWriter(dir, new ArrayList<String>());
-            createOutputDir(dir);
-            jcodeModel.build(writer);
+            for (JavaClass wrapperClass : wrapperClasses) {
+                generator.setCommonAttributes();
+                generator.setAttributes("bean", wrapperClass);
             
+                File file = generator.parseOutputName(wrapperClass.getPackageName(),
+                                                      wrapperClass.getName());
+                generatedFiles.add(file);
+            
+                generator.doWrite(templateName, FileWriterUtil.getWriter(file));
+            
+                generator.clearAttributes();
+            }
+        
+
             if (compileToDir != null) {
                 //compile the classes
                 Compiler compiler = new Compiler();
 
-                List<String> files = new ArrayList<String>(writer.getGeneratedFiles().size());
-                for (File file : writer.getGeneratedFiles()) {
+                List<String> files = new ArrayList<String>(generatedFiles.size());
+                for (File file : generatedFiles) {
                     files.add(file.getAbsolutePath());
                 }
                 if (!compiler.compileFiles(files.toArray(new String[files.size()]),

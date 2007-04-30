@@ -17,22 +17,34 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.fortest.withannotation.doc;
+package org.apache.cxf.tools.common.model;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
+public class JavaExpression {
 
-@WebService(name = "Hello")
-public interface GreeterStringArray {
-    @WebMethod
-    @RequestWrapper
-    @ResponseWrapper
-    String[] sayHi(String[] array);
+    /**
+     * Describe value here.
+     */
+    private String value;
 
-    @WebMethod
-    @RequestWrapper
-    @ResponseWrapper
-    int[] sayIntArray(int[] array);
+    /**
+     * Get the <code>Value</code> value.
+     *
+     * @return a <code>String</code> value
+     */
+    public final String getValue() {
+        return value;
+    }
+
+    /**
+     * Set the <code>Value</code> value.
+     *
+     * @param newValue The new Value value.
+     */
+    public final void setValue(final String newValue) {
+        this.value = newValue;
+    }
+
+    public final String toString() {
+        return getValue() + ";";
+    }
 }

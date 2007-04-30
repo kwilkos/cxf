@@ -125,7 +125,7 @@ public final class URIParserUtil {
             token = removeIllegalIdentifierChars(token);
 
             // this will check for reserved keywords
-            if (contiansReservedKeywords(token)) {
+            if (containsReservedKeywords(token)) {
                 token = '_' + token;
             }
 
@@ -211,7 +211,7 @@ public final class URIParserUtil {
         return r;
     }
 
-    private static boolean contiansReservedKeywords(String token) {
+    public static boolean containsReservedKeywords(String token) {
         return KEYWORDS.contains(token);
     }
 

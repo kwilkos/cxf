@@ -20,8 +20,8 @@
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
@@ -29,35 +29,45 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.service.model.MessageInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.JavaClass;
+import org.apache.cxf.tools.common.model.JavaField;
+import org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator.WrapperBeanAnnotator;
+import org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator.WrapperBeanFieldAnnotator;
+import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 
+
 public class Wrapper {
     private static final Logger LOG = LogUtils.getL7dLogger(Wrapper.class);
     private QName name;
-    private JavaClass javaClass;
-    private Method mehtod;
+    private WrapperBeanClass javaClass;
+    private Method method;
     private boolean isSamePackage;
 
+    private OperationInfo operationInfo;
+
+    public void setOperationInfo(final OperationInfo op) {
+        this.operationInfo = op;
+        setMethod((Method) op.getProperty("operation.method"));
+    }
+
     public void setMethod(Method m) {
-        this.mehtod = m;
+        this.method = m;
     }
 
     public void setName(QName n) {
         this.name = n;
     }
 
-    public JavaClass getWrapperBeanClass(Method m) {
-        return new JavaClass();
+    public WrapperBeanClass getWrapperBeanClass(final Method m) {
+        return new WrapperBeanClass();
     }
     
-    protected JavaClass getWrapperBeanClass(QName wrapperBeanName) {
-        JavaClass jClass = new JavaClass();
+    protected WrapperBeanClass getWrapperBeanClass(final QName wrapperBeanName) {
+        WrapperBeanClass jClass = new WrapperBeanClass();
         if (wrapperBeanName == null) {
             return jClass;
         }
@@ -65,10 +75,15 @@ public class Wrapper {
         jClass.setNamespace(ns);
         jClass.setPackageName(URIParserUtil.getPackageName(ns));
         jClass.setName(NameUtil.mangleNameToClassName(wrapperBeanName.getLocalPart()));
+        jClass.setElementName(wrapperBeanName);
         return jClass;
     }
 
-    private JavaClass merge(final JavaClass c1, final JavaClass c2) {
+    private WrapperBeanClass merge(final WrapperBeanClass c1, final WrapperBeanClass c2) {
+        if (c1.getElementName() == null) {
+            c1.setElementName(c2.getElementName());
+        }
+
         if (StringUtils.isEmpty(c1.getNamespace())) {
             c1.setNamespace(c2.getNamespace());
         }
@@ -86,13 +101,27 @@ public class Wrapper {
         return c1;
     }
     
-    public JavaClass getJavaClass() {
+    public WrapperBeanClass getJavaClass() {
         if (javaClass == null) {
-            JavaClass jClass1 = getWrapperBeanClass(this.name);
-            JavaClass jClass2 = getWrapperBeanClass(this.mehtod);
+            WrapperBeanClass jClass1 = getWrapperBeanClass(this.name);
+            WrapperBeanClass jClass2 = getWrapperBeanClass(this.method);
             javaClass = merge(jClass2, jClass1);
         }
         return javaClass;
+    }
+
+    public WrapperBeanClass buildWrapperBeanClass() {
+        WrapperBeanClass jClass = getJavaClass();
+        List<JavaField> fields = buildFields();
+        for (JavaField field : fields) {
+            field.setOwner(jClass);
+            field.annotate(new WrapperBeanFieldAnnotator());
+            jClass.addField(field);
+            jClass.appendGetter(field);
+            jClass.appendSetter(field);
+        }
+        jClass.annotate(new WrapperBeanAnnotator());
+        return jClass;
     }
 
     protected String getPackageName(final Method m) {
@@ -100,7 +129,7 @@ public class Wrapper {
     }
 
     public boolean isWrapperAbsent() {
-        return isWrapperAbsent(this.mehtod);
+        return isWrapperAbsent(this.method);
     }
 
     public boolean isWrapperAbsent(final Method m) {
@@ -133,25 +162,22 @@ public class Wrapper {
         }
     }
 
-    private boolean isBuiltInTypes(Class<?> clz) {
+    protected boolean isBuiltInTypes(Class<?> clz) {
         if (clz == null || clz.isPrimitive()) {
             return true;
         }
         return "java.lang".equals(clz.getPackage().getName());
     }
     
-    public Map<String, JavaClass> getParamtersInDifferentPackage(final MessageInfo message) {
-        Map<String, JavaClass> results = new HashMap<String, JavaClass>();
-        for (MessagePartInfo part : message.getMessageParts()) {
-            if (isBuiltInTypes(part.getTypeClass())) {
-                continue;
-            }
-            JavaClass paramClass = new JavaClass();
-            paramClass.setFullClassName(part.getTypeClass().getName());
-            if (!getJavaClass().getPackageName().equals(paramClass.getPackageName())) {
-                results.put(paramClass.getFullClassName(), paramClass);
-            }
-        }
-        return results;
+    protected List<JavaField> buildFields() {
+        return new ArrayList<JavaField>();
+    }
+
+    public Method getMethod() {
+        return this.method;
+    }
+
+    public OperationInfo getOperationInfo() {
+        return this.operationInfo;
     }
 }

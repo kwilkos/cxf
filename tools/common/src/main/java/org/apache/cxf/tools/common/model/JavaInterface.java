@@ -172,7 +172,7 @@ public class JavaInterface implements JavaAnnotatable {
         this.annotations.add(annotation);
     }
 
-    public List getAnnotations() {
+    public List<String> getAnnotations() {
         return this.annotations;
     }
 

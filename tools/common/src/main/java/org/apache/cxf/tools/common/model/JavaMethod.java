@@ -52,13 +52,15 @@ public class JavaMethod implements JavaAnnotatable {
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
 
+    private JavaCodeBlock block;
+    
     public JavaMethod() {
-        this.javaInterface = new JavaInterface();
-        this.javaReturn = new JavaReturn();
+        this(new JavaInterface());
     }
 
     public JavaMethod(JavaInterface i) {
         this.javaInterface = i;
+        this.javaReturn = new JavaReturn();
     }
 
     public void clear() {
@@ -332,5 +334,13 @@ public class JavaMethod implements JavaAnnotatable {
 
     public void annotate(Annotator annotator) {
         annotator.annotate(this);
+    }
+
+    public void setJavaCodeBlock(JavaCodeBlock b) {
+        this.block = b;
+    }
+
+    public JavaCodeBlock getJavaCodeBlock() {
+        return this.block;
     }
 }
