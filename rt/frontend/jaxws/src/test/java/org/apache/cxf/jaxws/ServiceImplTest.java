@@ -42,6 +42,7 @@ import org.apache.cxf.endpoint.NullConduitSelector;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ServiceImplTest extends AbstractJaxWsTest {
@@ -51,6 +52,9 @@ public class ServiceImplTest extends AbstractJaxWsTest {
 
     private static final QName PORT_1 = 
         new QName("http://apache.org/cxf/calculator", "CalculatorPort");
+    
+    private static final QName SOAP_PORT =
+        new QName("http://apache.org/hello_world_soap_http", "SoapPort");
 
     @Test
     public void testServiceImpl() throws Exception {
@@ -59,6 +63,23 @@ public class ServiceImplTest extends AbstractJaxWsTest {
         Greeter proxy = service.getSoapPort();
         
         Client client = ClientProxy.getClient(proxy);
+        assertEquals("bar", client.getEndpoint().get("foo"));
+        assertNotNull("expected ConduitSelector", client.getConduitSelector());
+        assertTrue("unexpected ConduitSelector",
+                   client.getConduitSelector() instanceof NullConduitSelector);
+    }
+    
+    @Test
+    @Ignore
+    public void testNonSpecificGetPort() throws Exception {
+        SOAPService service = new SOAPService();
+        
+        Greeter proxy = service.getPort(Greeter.class);
+        
+        Client client = ClientProxy.getClient(proxy);
+        assertEquals("unexpected port selected",
+                     SOAP_PORT,
+                     client.getEndpoint().getEndpointInfo().getName());
         assertEquals("bar", client.getEndpoint().get("foo"));
         assertNotNull("expected ConduitSelector", client.getConduitSelector());
         assertTrue("unexpected ConduitSelector",
