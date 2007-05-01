@@ -22,14 +22,13 @@ package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 import org.apache.cxf.tools.common.model.Annotator;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
-import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
 
 public class WrapperBeanAnnotator implements Annotator {
 
     public void annotate(final JavaAnnotatable clz) {
         WrapperBeanClass wrapperBeanClass = null;
-        if (clz instanceof JavaInterface) {
+        if (clz instanceof WrapperBeanClass) {
             wrapperBeanClass = (WrapperBeanClass) clz;
         } else {
             throw new RuntimeException("WrapperBeanAnnotator expect JavaClass as input");

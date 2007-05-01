@@ -19,7 +19,6 @@
 
 package org.apache.cxf.tools.common.model;
 
-import com.sun.xml.bind.api.TypeReference;
 
 public class JavaParameter extends JavaType implements JavaAnnotatable {
 
@@ -33,11 +32,7 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
     
     public JavaParameter() {
     }
-    public JavaParameter(String pname, TypeReference pref , JavaType.Style pstyle) {
-        name = pname;
-        typeRef = pref;
-        style = pstyle;
-    }
+
     public JavaParameter(String n, String t, String tns) {
         super(n, t, tns);
     }

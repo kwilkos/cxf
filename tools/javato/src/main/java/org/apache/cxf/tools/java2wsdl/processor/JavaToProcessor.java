@@ -91,7 +91,6 @@ public class JavaToProcessor implements Processor {
     private AbstractGenerator getWrapperBeanGenerator() {
         WrapperBeanGenerator generator = new WrapperBeanGenerator();
         generator.setOutputBase(getSourceDir());
-        generator.setServiceClass(getServiceClass());
         generator.setCompileToDir(getClassesDir());
         return generator;
     }

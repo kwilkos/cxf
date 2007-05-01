@@ -34,7 +34,6 @@ import org.apache.cxf.tools.util.Compiler;
 import org.apache.cxf.tools.util.FileWriterUtil;
 
 public final class WrapperBeanGenerator extends AbstractGenerator<File> {
-    private Class<?> serviceClass;
     private File compileToDir;
     
     public File generate(final File sourcedir) {
@@ -53,15 +52,6 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
         compileToDir = f;
     }
 
-
-    public Class<?> getServiceClass() {
-        return this.serviceClass;
-    }
-    
-    public void setServiceClass(Class<?> clz) {
-        this.serviceClass = clz;
-    }
-    
     private void generateWrapperBeanClasses(final ServiceInfo serviceInfo, final File dir) {
         List<JavaClass> wrapperClasses = new ArrayList<JavaClass>();
         

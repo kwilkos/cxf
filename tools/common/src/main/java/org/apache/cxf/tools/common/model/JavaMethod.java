@@ -42,15 +42,12 @@ public class JavaMethod implements JavaAnnotatable {
     private String soapAction;
     private SOAPBinding.Style soapStyle;
     private SOAPBinding.Use soapUse;
-    private WSDLParameter requestParameter;
-    private WSDLParameter responseParameter;
     private boolean wrapperStyle;
     private boolean enableMime = true;
     private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
-    private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
 
     private JavaCodeBlock block;
     
@@ -244,35 +241,6 @@ public class JavaMethod implements JavaAnnotatable {
 
     public Map<String, JavaAnnotation> getAnnotationMap() {
         return this.annotations;
-    }
-
-    public void addWSDLException(WSDLException exception) {
-        if (wsdlExceptions.contains(exception)) {
-            Message message = new Message("EXCEPTION_ALREADY_EXIST", LOG, 
-                                          exception.getDetailType().getName());
-            throw new ToolException(message);
-        }
-        wsdlExceptions.add(exception);
-    }
-
-    public List<WSDLException> getWSDLExceptions() {
-        return wsdlExceptions;
-    }
-
-    public void addRequest(WSDLParameter param) {
-        this.requestParameter = param;
-    }
-
-    public WSDLParameter getRequest() {
-        return this.requestParameter;
-    }
-
-    public void addResponse(WSDLParameter param) {
-        this.responseParameter = param;
-    }
-
-    public WSDLParameter getResponse() {
-        return this.responseParameter;
     }
 
     public List<String> getParameterList() {

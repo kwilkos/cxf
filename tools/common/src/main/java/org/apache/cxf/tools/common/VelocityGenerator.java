@@ -123,23 +123,6 @@ public final class VelocityGenerator {
         }
     }
     
-//     public File parseOutputName(String packageName, String filename, String ext) throws ToolException {
-//         FileWriterUtil fw = null;
-//         Writer writer = null;
-
-//         FileUtils.mkDir(new File(this.baseDir));
-        
-//         fw = new FileWriterUtil(this.baseDir);
-//         try {
-//             writer = fw.getWriter(packageName, filename + ext);
-//         } catch (IOException ioe) {
-//             Message msg = new Message("FAIL_TO_WRITE_FILE", LOG, packageName + "." + filename + ext);
-//             throw new ToolException(msg, ioe);
-//         }
-
-//         return writer;
-//     }
-
     public void setCommonAttributes() {
         attributes.put("currentdate", Calendar.getInstance().getTime());
         attributes.put("version", Version.getCurrentVersion());
