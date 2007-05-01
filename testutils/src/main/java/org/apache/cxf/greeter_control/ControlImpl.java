@@ -93,7 +93,7 @@ public class ControlImpl implements Control {
         return null != greeterBus; 
     }
 
-    public boolean stopGreeter() {  
+    public boolean stopGreeter(String requestType) {  
         LOG.fine("Stopping greeter");
         
         if (null != endpoint) {
@@ -143,12 +143,12 @@ public class ControlImpl implements Control {
         return null;
     }
 
-    public Response<StopGreeterResponse> stopGreeterAsync() {
+    public Response<StopGreeterResponse> stopGreeterAsync(String requestType) {
         // never called
         return null;
     }
 
-    public Future<?> stopGreeterAsync(AsyncHandler<StopGreeterResponse> asyncHandler) {
+    public Future<?> stopGreeterAsync(String requestType, AsyncHandler<StopGreeterResponse> asyncHandler) {
         // never called
         return null;
     }

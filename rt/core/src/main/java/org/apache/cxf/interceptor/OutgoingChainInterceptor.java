@@ -81,7 +81,7 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
                     ex.get(EndpointReferenceType.class);
                 conduit = ex.getDestination().getBackChannel(ex.getInMessage(), null, target);
                 ex.put(ConduitSelector.class, 
-                       new PreexistingConduitSelector(conduit));
+                       new PreexistingConduitSelector(conduit, ex.get(Endpoint.class)));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

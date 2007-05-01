@@ -74,17 +74,10 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     private JAXBContext context;
     private Service.Mode mode;
 
-    private Endpoint endpoint;
     private ConduitSelector conduitSelector;
     
     DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {
-        super(((JaxWsEndpointImpl)ep).getJaxwsBinding());
-        bus = b;
-        cl = clazz;
-        executor = e;
-        mode = m;
-        endpoint = ep;
-        setupEndpointAddressContext();
+        this(b, m, null, clazz, e, ep);
     }
 
     DispatchImpl(Bus b, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e, Endpoint ep) {
@@ -94,11 +87,11 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         context = ctx;
         cl = clazz;
         mode = m;
-        endpoint = ep;
-        setupEndpointAddressContext();
+        getConduitSelector().setEndpoint(ep);
+        setupEndpointAddressContext(ep);
     }
 
-    private void setupEndpointAddressContext() {
+    private void setupEndpointAddressContext(Endpoint endpoint) {
         //NOTE for jms transport the address would be null
         if (null != endpoint
             && null != endpoint.getEndpointInfo().getAddress()) {
@@ -116,6 +109,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.info("Dispatch: invoke called");
         }
 
+        Endpoint endpoint = getEndpoint();
         Message message = endpoint.getBinding().createMessage();
 
         if (context != null) {
@@ -137,11 +131,11 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         Exchange exchange = new ExchangeImpl();
 
         exchange.setOutMessage(message);
-        setExchangeProperties(exchange);
+        setExchangeProperties(exchange, endpoint);
 
         message.setContent(Object.class, obj);
 
-        PhaseInterceptorChain chain = getDispatchOutChain();
+        PhaseInterceptorChain chain = getDispatchOutChain(endpoint);
         message.setInterceptorChain(chain);
 
         // setup conduit selector
@@ -211,7 +205,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         return inMsg;
     }
 
-    private PhaseInterceptorChain getDispatchOutChain() {
+    private PhaseInterceptorChain getDispatchOutChain(Endpoint endpoint) {
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
 
@@ -235,6 +229,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     }
 
     public void onMessage(Message message) {
+        Endpoint endpoint = getEndpoint();
         message = endpoint.getBinding().createMessage(message);
 
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
@@ -271,7 +266,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
     private Executor getExecutor() {
         if (executor == null) {
-            executor = endpoint.getService().getExecutor();
+            executor = getEndpoint().getService().getExecutor();
         }
         if (executor == null) {
             executor = Executors.newFixedThreadPool(5);
@@ -280,6 +275,10 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             System.err.println("Can't not get executor");
         }
         return executor;
+    }
+    
+    private Endpoint getEndpoint() {
+        return getConduitSelector().getEndpoint();
     }
 
     public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
@@ -313,11 +312,10 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     }
     
     protected void prepareConduitSelector(Message message) {
-        getConduitSelector().prepare(message);
         message.getExchange().put(ConduitSelector.class, getConduitSelector());
     }
     
-    protected void setExchangeProperties(Exchange exchange) {
+    protected void setExchangeProperties(Exchange exchange, Endpoint endpoint) {
         exchange.put(Service.Mode.class, mode);
         exchange.put(Class.class, cl);
         exchange.put(org.apache.cxf.service.Service.class, endpoint.getService());

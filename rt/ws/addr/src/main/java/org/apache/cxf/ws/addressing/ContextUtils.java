@@ -374,7 +374,8 @@ public final class ContextUtils {
                         : OutgoingChainInterceptor.getOutInterceptorChain(exchange);
                     partialResponse.setInterceptorChain(chain);
                     exchange.put(ConduitSelector.class,
-                                 new PreexistingConduitSelector(backChannel));
+                                 new PreexistingConduitSelector(backChannel,
+                                                                exchange.get(Endpoint.class)));
 
                     if (!partialResponse.getInterceptorChain().doIntercept(partialResponse) 
                             && partialResponse.getContent(Exception.class) != null) {

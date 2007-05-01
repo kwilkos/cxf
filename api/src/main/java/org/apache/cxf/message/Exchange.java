@@ -69,4 +69,6 @@ public interface Exchange extends StringMap {
      * @param b true if the exchange is known to be a one-way exchange
      */
     void setOneWay(boolean b);
+    
+    void clear();
 }

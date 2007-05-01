@@ -131,12 +131,12 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
     @After
     public void tearDown() {
         if (null != greeter) {
-            assertTrue("Failed to stop greeter.", control.stopGreeter());
+            assertTrue("Failed to stop greeter.", control.stopGreeter(null));
             greeterBus.shutdown(true);
             greeterBus = null;
         }
         if (null != control) {  
-            assertTrue("Failed to stop greeter", control.stopGreeter());
+            assertTrue("Failed to stop greeter", control.stopGreeter(null));
             controlBus.shutdown(true);
         }
     }

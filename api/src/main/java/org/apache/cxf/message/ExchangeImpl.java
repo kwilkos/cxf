@@ -20,6 +20,7 @@
 package org.apache.cxf.message;
 
 import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.PreexistingConduitSelector;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
@@ -85,7 +86,8 @@ public class ExchangeImpl extends StringMapImpl implements Exchange {
     }
 
     public void setConduit(Conduit c) {
-        put(ConduitSelector.class, new PreexistingConduitSelector(c));
+        put(ConduitSelector.class,
+            new PreexistingConduitSelector(c, get(Endpoint.class)));
     }
 
     public void setOutMessage(Message m) {
@@ -109,5 +111,16 @@ public class ExchangeImpl extends StringMapImpl implements Exchange {
 
     public void setSession(Session session) {
         this.session = session;
+    }
+    
+    public void clear() {
+        super.clear();
+        destination = null;
+        oneWay = false;
+        inMessage = null;
+        outMessage = null;
+        inFaultMessage = null;
+        outFaultMessage = null;
+        session = null;
     }
 }

@@ -40,7 +40,8 @@ import org.apache.cxf.transport.MessageObserver;
  */
 public abstract class AbstractConduitSelector implements ConduitSelector {
 
-    private Conduit selectedConduit;
+    protected Conduit selectedConduit;
+    protected Endpoint endpoint;
 
     /**
      * Constructor, allowing a specific conduit to override normal selection.
@@ -50,7 +51,7 @@ public abstract class AbstractConduitSelector implements ConduitSelector {
     public AbstractConduitSelector(Conduit c) {
         selectedConduit = c;
     }
-    
+        
     /**
      * Mechanics to actually get the Conduit from the ConduitInitiator
      * if necessary.
@@ -60,7 +61,6 @@ public abstract class AbstractConduitSelector implements ConduitSelector {
     protected Conduit getSelectedConduit(Message message) {
         if (selectedConduit == null) {
             Exchange exchange = message.getExchange();
-            Endpoint endpoint = exchange.get(Endpoint.class);
             EndpointInfo ei = endpoint.getEndpointInfo();
             String transportID = ei.getTransportId();
             try {
@@ -92,6 +92,20 @@ public abstract class AbstractConduitSelector implements ConduitSelector {
             }
         }
         return selectedConduit;
+    }
+
+    /**
+     * @return the encapsulated Endpoint
+     */
+    public Endpoint getEndpoint() {
+        return endpoint;
+    }
+
+    /**
+     * @param endpoint the endpoint to encapsulate
+     */
+    public void setEndpoint(Endpoint ep) {
+        endpoint = ep;
     }
     
     /**

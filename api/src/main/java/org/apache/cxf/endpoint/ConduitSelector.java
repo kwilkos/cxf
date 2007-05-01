@@ -30,7 +30,7 @@ import org.apache.cxf.transport.Conduit;
  * into the Client via config.
  */
 public interface ConduitSelector {
-    
+        
     /**
      * Called prior to the interceptor chain being traversed.
      * This is the point at which an eager strategy would retrieve
@@ -58,4 +58,14 @@ public interface ConduitSelector {
      * @param exchange represents the completed MEP
      */
     void complete(Exchange exchange);
+
+    /**
+     * @return the encapsulated Endpoint
+     */
+    Endpoint getEndpoint();
+
+    /**
+     * @param endpoint the endpoint to encapsulate
+     */
+    void setEndpoint(Endpoint endpoint);
 }

@@ -51,14 +51,30 @@ public class DeferredConduitSelector extends AbstractConduitSelector {
         super(c);
     }
 
+    /**
+     * Called prior to the interceptor chain being traversed.
+     * 
+     * @param message the current Message
+     */
     public void prepare(Message message) {
         // nothing to do
     }
 
+    /**
+     * Called when a Conduit is actually required.
+     * 
+     * @param message
+     * @return the Conduit to use for mediation of the message
+     */
     public Conduit selectConduit(Message message) {
         return getSelectedConduit(message);
     }
 
+    /**
+     * Called on completion of the MEP for which the Conduit was required.
+     * 
+     * @param exchange represents the completed MEP
+     */    
     public void complete(Exchange exchange) {
         // nothing to do
     }

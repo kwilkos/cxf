@@ -56,8 +56,7 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
     }
 
     protected void createClient(Endpoint ep) {
-        client = new ClientImpl(getBus(), ep);
-        client.setConduitSelector(getConduitSelector());
+        client = new ClientImpl(getBus(), ep, getConduitSelector());
     }
 
     protected void applyFeatures() {

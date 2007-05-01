@@ -31,7 +31,7 @@ public interface Message extends StringMap {
     String REQUESTOR_ROLE = "org.apache.cxf.client";
 
     String INBOUND_MESSAGE = "org.apache.cxf.message.inbound";
-    String INVOCATION_OBJECTS = "org.apache.cxf.invocation.objects";
+    String INVOCATION_CONTEXT = "org.apache.cxf.invocation.context";
     
     String MIME_HEADERS = "org.apache.cxf.mime.headers";
     

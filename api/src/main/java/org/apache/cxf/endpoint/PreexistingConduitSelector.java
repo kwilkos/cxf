@@ -33,6 +33,7 @@ public class PreexistingConduitSelector implements
     ConduitSelector {
 
     private Conduit selectedConduit;
+    private Endpoint endpoint;
 
     /**
      * Constructor.
@@ -40,7 +41,18 @@ public class PreexistingConduitSelector implements
      * @param c the pre-existing Conduit.
      */
     public PreexistingConduitSelector(Conduit c) {
+        this(c, null);
+    }
+    
+    /**
+     * Constructor.
+     * 
+     * @param c the pre-existing Conduit.
+     * @param e the target Endpoint
+     */
+    public PreexistingConduitSelector(Conduit c, Endpoint e) {
         selectedConduit = c;
+        endpoint = e;
     }
 
     /**
@@ -73,5 +85,19 @@ public class PreexistingConduitSelector implements
      */
     public void complete(Exchange exchange) {
         // nothing to do
+    }
+    
+    /**
+     * @return the encapsulated Endpoint
+     */
+    public Endpoint getEndpoint() {
+        return endpoint;
+    }
+
+    /**
+     * @param endpoint the endpoint to encapsulate
+     */
+    public void setEndpoint(Endpoint ep) {
+        endpoint = ep;
     }
 }

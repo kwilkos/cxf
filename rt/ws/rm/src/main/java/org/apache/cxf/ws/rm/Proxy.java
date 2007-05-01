@@ -206,13 +206,9 @@ public class Proxy {
     
     class RMClient extends ClientImpl {
 
-        org.apache.cxf.ws.addressing.EndpointReferenceType address;
-
         RMClient(Bus bus, Endpoint endpoint, Conduit conduit,
-            org.apache.cxf.ws.addressing.EndpointReferenceType a) {
-            super(bus, endpoint);  
-            address = a;
-            setConduitSelector(new DeferredConduitSelector(conduit) {
+                 final org.apache.cxf.ws.addressing.EndpointReferenceType a) {
+            super(bus, endpoint, new DeferredConduitSelector(conduit) {
                 @Override
                 public Conduit selectConduit(Message message) {
                     Conduit conduit = null;
@@ -220,8 +216,8 @@ public class Proxy {
                     org.apache.cxf.ws.addressing.EndpointReferenceType original = 
                         endpointInfo.getTarget();
                     try {
-                        if (null != address) {
-                            endpointInfo.setAddress(address);
+                        if (null != a) {
+                            endpointInfo.setAddress(a);
                         }
                         conduit = super.selectConduit(message);
                     } finally {
@@ -229,8 +225,7 @@ public class Proxy {
                     }
                     return conduit;
                 }
-            });
-
+            });  
         }
 
         @Override

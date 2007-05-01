@@ -38,6 +38,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.calculator.CalculatorPortType;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.NullConduitSelector;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
@@ -59,6 +60,9 @@ public class ServiceImplTest extends AbstractJaxWsTest {
         
         Client client = ClientProxy.getClient(proxy);
         assertEquals("bar", client.getEndpoint().get("foo"));
+        assertNotNull("expected ConduitSelector", client.getConduitSelector());
+        assertTrue("unexpected ConduitSelector",
+                   client.getConduitSelector() instanceof NullConduitSelector);
     }
     
     @Override

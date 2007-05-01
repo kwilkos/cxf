@@ -392,7 +392,6 @@
     </wsdl:service>
     <wsdl:service name="SOAPServiceBogusAddressTest">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
-            <!--<soap:address location="http://nowhere.nada.nil:45678/null/never"/>-->
             <soap:address location="FOO"/>
         </wsdl:port>
     </wsdl:service>

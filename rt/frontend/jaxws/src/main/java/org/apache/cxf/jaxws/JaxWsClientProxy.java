@@ -57,17 +57,15 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
     protected ThreadLocal <Map<String, Object>> responseContext =
             new ThreadLocal<Map<String, Object>>();
 
-    private Endpoint endpoint;
     private final Binding binding;
 
     public JaxWsClientProxy(Client c, Binding b) {
         super(c);
-        this.endpoint = c.getEndpoint();
         this.binding = b;
-        setupEndpointAddressContext();
+        setupEndpointAddressContext(getClient().getEndpoint());
     }
 
-    private void setupEndpointAddressContext() {
+    private void setupEndpointAddressContext(Endpoint endpoint) {
         // NOTE for jms transport the address would be null
         if (null != endpoint && null != endpoint.getEndpointInfo().getAddress()) {
             getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
@@ -77,6 +75,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
+        Endpoint endpoint = getClient().getEndpoint();
         MethodDispatcher dispatcher = (MethodDispatcher)endpoint.getService().get(
                                                                                   MethodDispatcher.class
                                                                                       .getName());
@@ -142,7 +141,12 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
             } else {
                 throw new WebServiceException(ex);
             }
+        } finally {
+            if (endpoint != getClient().getEndpoint()) {
+                setupEndpointAddressContext(getClient().getEndpoint());
+            }
         }
+        
         // need to do context mapping from cxf message to jax-ws
         ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
         return result;
@@ -155,6 +159,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         FutureTask<Object> f = new FutureTask<Object>(new JAXWSAsyncCallable(this, method, oi, params,
                                                                              context));
 
+        Endpoint endpoint = getClient().getEndpoint();
         endpoint.getExecutor().execute(f);
         Response<?> r = new AsyncResponse<Object>(f, Object.class);
         if (params.length > 0 && params[params.length - 1] instanceof AsyncHandler) {

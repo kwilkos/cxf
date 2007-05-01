@@ -41,7 +41,7 @@ public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
     private static final Logger LOG = Logger.getLogger(ControlImpl.class.getName());
     
     @Override
-    public boolean stopGreeter() {  
+    public boolean stopGreeter(String requestType) {  
         
         if (null != endpoint) {
             LOG.info("Stopping Greeter endpoint");

@@ -1722,6 +1722,11 @@ public class HTTPConduit
                         + " Conduit: " + getConduitName());
             }
             
+            if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                throw new IOException(connection.getResponseMessage());
+            }
+
+            
             Exchange exchange = outMessage.getExchange();
             
             if (isOneway(exchange)

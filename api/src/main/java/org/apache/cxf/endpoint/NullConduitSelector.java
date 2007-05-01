@@ -31,15 +31,47 @@ import org.apache.cxf.transport.Conduit;
  */
 public class NullConduitSelector implements ConduitSelector {
 
+    private Endpoint endpoint;
+    
+    /**
+     * Called prior to the interceptor chain being traversed.
+     * 
+     * @param message the current Message
+     */
     public void prepare(Message message) {
         // nothing to do
     }
 
+    /**
+     * Called when a Conduit is actually required.
+     * 
+     * @param message
+     * @return the Conduit to use for mediation of the message
+     */
     public Conduit selectConduit(Message message) {
         return null;
     }
 
+    /**
+     * Called on completion of the MEP for which the Conduit was required.
+     * 
+     * @param exchange represents the completed MEP
+     */
     public void complete(Exchange exchange) {
         // nothing to do
+    }
+    
+    /**
+     * @return the encapsulated Endpoint
+     */
+    public Endpoint getEndpoint() {
+        return endpoint;
+    }
+
+    /**
+     * @param endpoint the endpoint to encapsulate
+     */
+    public void setEndpoint(Endpoint ep) {
+        endpoint = ep;
     }
 }

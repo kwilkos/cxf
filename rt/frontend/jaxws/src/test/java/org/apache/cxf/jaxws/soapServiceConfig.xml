@@ -31,6 +31,9 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
      <jaxws:properties>
       <entry key="foo" value="bar"/>
     </jaxws:properties>
+    <jaxws:conduitSelector>
+      <bean class="org.apache.cxf.endpoint.NullConduitSelector"/>
+    </jaxws:conduitSelector>
   </jaxws:client>
 
 </beans>

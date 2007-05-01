@@ -60,28 +60,31 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
-public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
+public class ClientImpl
+    extends AbstractBasicInterceptorProvider
+    implements Client, Retryable, MessageObserver {
+    
     public static final String FINISHED = "exchange.finished";
     
     private static final Logger LOG = LogUtils.getL7dLogger(ClientImpl.class);
     
     protected Bus bus;
-    protected Endpoint endpoint;
     protected ConduitSelector conduitSelector;
     protected ClientOutFaultObserver outFaultObserver; 
     protected int synchronousTimeout = 10000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
-        this(b, e, null);
+        this(b, e, (ConduitSelector)null);
     }
 
     public ClientImpl(Bus b, Endpoint e, Conduit c) {
+       this(b, e, new PreexistingConduitSelector(c));
+    }
+    
+    public ClientImpl(Bus b, Endpoint e, ConduitSelector sc) {
         bus = b;
-        endpoint = e;
         outFaultObserver = new ClientOutFaultObserver(bus);
-        if (null != c) {
-            conduitSelector = new PreexistingConduitSelector(c);
-        }
+        getConduitSelector(sc).setEndpoint(e);
     }
 
     public ClientImpl(URL wsdlUrl) {
@@ -91,7 +94,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     public ClientImpl(URL wsdlUrl, QName port) {
         this(BusFactory.getDefaultBus(), wsdlUrl, null, port);
     }
-    
+
     public ClientImpl(Bus bus, URL wsdlUrl, QName service, QName port) {
         this.bus = bus;
         
@@ -102,7 +105,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         EndpointInfo epfo = findEndpoint(svc, port);
 
         try {
-            endpoint = new EndpointImpl(bus, svc, epfo);
+            getConduitSelector().setEndpoint(new EndpointImpl(bus, svc, epfo));
         } catch (EndpointException epex) {
             throw new IllegalStateException("Unable to create endpoint: " + epex.getMessage(), epex);
         }
@@ -146,7 +149,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     public Endpoint getEndpoint() {
-        return this.endpoint;
+        return getConduitSelector().getEndpoint();
     }
 
     public Object[] invoke(BindingOperationInfo oi, Object... params) throws Exception {
@@ -160,7 +163,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
     
     public Object[] invoke(QName operationName, Object... params) throws Exception {
-        BindingOperationInfo op = endpoint.getEndpointInfo().getBinding().getOperation(operationName);
+        BindingOperationInfo op = getEndpoint().getEndpointInfo().getBinding().getOperation(operationName);
         if (op == null) {
             throw new UncheckedException(
                 new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, operationName));
@@ -175,6 +178,18 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
     public Object[] invoke(BindingOperationInfo oi, Object[] params, 
                            Map<String, Object> context) throws Exception {
+        return invoke(oi, params, context, null);
+    }        
+    
+    public Object[] invoke(BindingOperationInfo oi,
+                           Object[] params, 
+                           Map<String, Object> context,
+                           Exchange exchange) throws Exception {
+        if (exchange == null) {
+            exchange = new ExchangeImpl();
+        }
+        Endpoint endpoint = getEndpoint();
+
         Map<String, Object> requestContext = null;
         Map<String, Object> responseContext = null;
         if (LOG.isLoggable(Level.FINE)) {
@@ -184,11 +199,11 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (null != context) {
             requestContext = CastUtils.cast((Map)context.get(REQUEST_CONTEXT));
             responseContext = CastUtils.cast((Map)context.get(RESPONSE_CONTEXT));
+            message.put(Message.INVOCATION_CONTEXT, context);
         }    
         //setup the message context
         setContext(requestContext, message);
         setParameters(params, message);
-        Exchange exchange = new ExchangeImpl();
 
         if (null != requestContext) {
             exchange.putAll(requestContext);
@@ -198,16 +213,16 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         exchange.setOutMessage(message);
         
         setOutMessageProperties(message, oi);
-        setExchangeProperties(exchange, oi);
+        setExchangeProperties(exchange, endpoint, oi);
         
         // setup chain
 
-        PhaseInterceptorChain chain = setupInterceptorChain();
+        PhaseInterceptorChain chain = setupInterceptorChain(endpoint);
         message.setInterceptorChain(chain);
         
         modifyChain(chain, requestContext);
         chain.setFaultObserver(outFaultObserver);
-                
+        
         // setup conduit selector
         prepareConduitSelector(message);
         
@@ -307,13 +322,22 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
     
     public void onMessage(Message message) {
+        Endpoint endpoint = message.getExchange().get(Endpoint.class);
+        if (endpoint == null) {
+            // in this case correlation will occur outside the transport,
+            // however there's a possibility that the endpoint may have been 
+            // rebased in the meantime, so that the response will be mediated
+            // via a set of in interceptors provided by a *different* endpoint
+            //
+            endpoint = getConduitSelector().getEndpoint();
+            message.getExchange().put(Endpoint.class, endpoint);            
+        }
         message = endpoint.getBinding().createMessage(message);
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         message.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getInPhases());
         message.setInterceptorChain(chain);
-        message.getExchange().put(Endpoint.class, endpoint);
         
         List<Interceptor> il = bus.getInInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
@@ -361,7 +385,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         Message message = new MessageImpl();
         Exchange exchange = new ExchangeImpl();
         message.setExchange(exchange);
-        setExchangeProperties(exchange, null);
+        setExchangeProperties(exchange, null, null);
         return getConduitSelector().selectConduit(message);
     }
 
@@ -378,26 +402,29 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
     
     protected void setExchangeProperties(Exchange exchange,
+                                         Endpoint endpoint,
                                          BindingOperationInfo boi) {
-       
-        exchange.put(Service.class, endpoint.getService());
-        exchange.put(Endpoint.class, endpoint);
-        if (endpoint.getEndpointInfo().getService() != null) {
-            exchange.put(ServiceInfo.class, endpoint.getEndpointInfo().getService());
-            exchange.put(InterfaceInfo.class, endpoint.getEndpointInfo().getService().getInterface());
+        if (endpoint != null) {
+            exchange.put(Endpoint.class, endpoint);
+            exchange.put(Service.class, endpoint.getService());
+            if (endpoint.getEndpointInfo().getService() != null) {
+                exchange.put(ServiceInfo.class, endpoint.getEndpointInfo().getService());
+                exchange.put(InterfaceInfo.class, endpoint.getEndpointInfo().getService().getInterface());
+            }
+            exchange.put(Binding.class, endpoint.getBinding());
+            exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
         }
-        exchange.put(Binding.class, endpoint.getBinding());
-        exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
         if (boi != null) {
             exchange.put(BindingOperationInfo.class, boi);
             exchange.put(OperationInfo.class, boi.getOperationInfo());
         }
                 
         exchange.put(MessageObserver.class, this);
+        exchange.put(Retryable.class, this);
         exchange.put(Bus.class, bus);
     }
 
-    protected PhaseInterceptorChain setupInterceptorChain() { 
+    protected PhaseInterceptorChain setupInterceptorChain(Endpoint endpoint) { 
 
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
@@ -430,7 +457,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     protected void setEndpoint(Endpoint e) {
-        endpoint = e;
+        getConduitSelector().setEndpoint(e);
     }
 
     public int getSynchronousTimeout() {
@@ -441,14 +468,22 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         this.synchronousTimeout = synchronousTimeout;
     }
     
-    public synchronized ConduitSelector getConduitSelector() {
+    public final ConduitSelector getConduitSelector() {
+        return getConduitSelector(null);
+    }
+    
+    protected final synchronized ConduitSelector getConduitSelector(
+        ConduitSelector override
+    ) {
         if (null == conduitSelector) {
-            conduitSelector = new UpfrontConduitSelector();
+            setConduitSelector(override != null
+                               ? override 
+                               : new UpfrontConduitSelector());
         }
         return conduitSelector;
     }
 
-    public void setConduitSelector(ConduitSelector selector) {
+    public final void setConduitSelector(ConduitSelector selector) {
         conduitSelector = selector;
     }
 
