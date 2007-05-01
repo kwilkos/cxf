@@ -23,12 +23,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.activation.URLDataSource;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 
 import org.apache.cxf.attachment.LazyDataSource;
@@ -41,7 +44,7 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBAttachmentUnmarshaller.class);
 
     private Collection<Attachment> attachments;
-
+    
     public JAXBAttachmentUnmarshaller(Collection<Attachment> attachments) {
         super();
         this.attachments = attachments;
@@ -68,7 +71,7 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     @Override
     public boolean isXOPPackage() {
-        return attachments != null && attachments.iterator().hasNext();
+        return attachments != null;
     }
 
     private DataSource getAttachmentDataSource(String contentId) {
@@ -78,7 +81,14 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
             } catch (UnsupportedEncodingException ue) {
                 contentId = contentId.substring(4);
             }
+            return new LazyDataSource(contentId, attachments);
+        } else {
+            try {
+                return new URLDataSource(new URL(contentId));
+            } catch (MalformedURLException e) {
+                throw new Fault(e);
+            }
         }
-        return new LazyDataSource(contentId, attachments);
+        
     }
 }
