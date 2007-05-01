@@ -20,27 +20,29 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:clustering="http://cxf.apache.org/clustering"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-  
+
     <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortA"
                   createdFromAPI="true">
-        <jaxws:conduitSelector>
-            <bean class="org.apache.cxf.clustering.FailoverTargetSelector"/>
-        </jaxws:conduitSelector>
+        <jaxws:features>
+            <clustering:failover/>
+        </jaxws:features>
     </jaxws:client>
 
     <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortB"
                   createdFromAPI="true">
-        <jaxws:conduitSelector>
-            <bean class="org.apache.cxf.clustering.FailoverTargetSelector"/>
-        </jaxws:conduitSelector>
+        <jaxws:features>
+            <clustering:failover/>
+        </jaxws:features>
     </jaxws:client>
     
     <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortC"
                   createdFromAPI="true">
-        <jaxws:conduitSelector>
-            <bean class="org.apache.cxf.clustering.FailoverTargetSelector"/>
-        </jaxws:conduitSelector>
+        <jaxws:features>
+            <clustering:failover/>
+        </jaxws:features>
     </jaxws:client>
+
 </beans>
