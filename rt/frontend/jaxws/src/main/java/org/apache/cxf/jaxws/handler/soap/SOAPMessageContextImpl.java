@@ -42,7 +42,7 @@ import org.apache.cxf.message.XMLMessage;
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
     private static final SAAJInInterceptor SAAJ_IN = new SAAJInInterceptor();
     
-    SOAPMessageContextImpl(Message m) {
+    public SOAPMessageContextImpl(Message m) {
         super(m);
     }
 
