@@ -51,11 +51,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage soapMessage) {
-        SoapVersion soapVersion = soapMessage.getVersion();
-        //Client-in message needs not to handle MustUnderstand
-        if (isRequestor(soapMessage)) {
-            return;
-        }                
+        SoapVersion soapVersion = soapMessage.getVersion();              
         Set<Element> mustUnderstandHeaders = new HashSet<Element>();
         Set<URI> serviceRoles = new HashSet<URI>();
         Set<QName> notUnderstandQNames = new HashSet<QName>();
@@ -80,6 +76,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
                     Set<URI> serviceRoles) {
 
         Set<QName> paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
+
         if (paramHeaders != null) {
             mustUnderstandQNames.addAll(paramHeaders);
         }
