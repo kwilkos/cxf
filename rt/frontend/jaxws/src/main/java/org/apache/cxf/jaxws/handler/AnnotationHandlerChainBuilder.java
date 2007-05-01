@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.HandlerChain;
+import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
@@ -35,6 +36,7 @@ import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 
@@ -57,7 +59,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
      */
     public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers) {
         LOG.fine("building handler chain");
-        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz);
+        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
         List<Handler> chain = null;
         if (hcAnn == null) {
             LOG.fine("no HandlerChain annotation on " + clz);
@@ -103,30 +105,51 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         return buildHandlerChainFromClass(clz, null);
     }
 
-    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz) {
-
+    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz, boolean searchSEI) {        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Checking for HandlerChain annotation on " + clz.getName());
+        }
+        HandlerChainAnnotation hcAnn = null;
         HandlerChain ann = clz.getAnnotation(HandlerChain.class);
-        Class<?> declaringClass = clz;
-
         if (ann == null) {
-            for (Class<?> iface : clz.getInterfaces()) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("checking for HandlerChain annotation on " + iface.getName());
-                }
-                ann = iface.getAnnotation(HandlerChain.class);
-                if (ann != null) {
-                    declaringClass = iface;
-                    break;
+            if (searchSEI) {
+                /* HandlerChain annotation can be specified on the SEI
+                 * but the implementation bean might not implement the SEI.          
+                 */
+                WebService ws = clz.getAnnotation(WebService.class);
+                if (ws != null && !StringUtils.isEmpty(ws.endpointInterface())) {
+                    String seiClassName = ws.endpointInterface().trim();
+                    Class seiClass = null;
+                    try {
+                        seiClass = clz.getClassLoader().loadClass(seiClassName);
+                    } catch (ClassNotFoundException e) {
+                        throw new WebServiceException(BUNDLE.getString("SEI_LOAD_FAILURE_EXC"), e);
+                    }
+
+                    // check SEI class and its interfaces for HandlerChain annotation
+                    hcAnn = findHandlerChainAnnotation(seiClass, false);
                 }
             }
-        }
-        if (ann != null) {
-            return new HandlerChainAnnotation(ann, declaringClass);
+            if (hcAnn == null) {
+                // check interfaces for HandlerChain annotation
+                for (Class<?> iface : clz.getInterfaces()) {
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Checking for HandlerChain annotation on " + iface.getName());
+                    }
+                    ann = iface.getAnnotation(HandlerChain.class);
+                    if (ann != null) {
+                        hcAnn = new HandlerChainAnnotation(ann, iface);
+                        break;
+                    }
+                }
+            }
         } else {
-            return null;
+            hcAnn = new HandlerChainAnnotation(ann, clz);
         }
+        
+        return hcAnn;
     }
-
+    
     private static class HandlerChainAnnotation {
         private final Class<?> declaringClass;
         private final HandlerChain ann;
