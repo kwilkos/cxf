@@ -218,7 +218,10 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     
     protected static EndpointInfo getAddressValue(EndpointInfo ei, boolean dp) {       
         if (dp) {
-            ei.setAddress(StringUtils.addDefaultPortIfMissing(ei.getAddress()));
+            String addr = StringUtils.addDefaultPortIfMissing(ei.getAddress());
+            if (addr != null) {
+                ei.setAddress(addr);
+            }
         } 
         return ei;
     }

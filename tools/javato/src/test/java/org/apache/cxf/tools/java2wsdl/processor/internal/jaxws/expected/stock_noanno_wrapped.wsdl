@@ -23,14 +23,14 @@
 <xsd:element name="getPrice">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="arg0" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
 <xsd:element name="getPriceResponse">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="return" nillable="true" type="xsd:float"/>
+<xsd:element name="return" type="xsd:float"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>

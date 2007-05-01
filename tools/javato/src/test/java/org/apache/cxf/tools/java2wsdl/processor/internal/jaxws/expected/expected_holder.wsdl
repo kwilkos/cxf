@@ -23,48 +23,48 @@
 <xsd:element name="echo">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="arg0" nillable="true" type="xsd:string"/>
-<xsd:element name="arg1" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
+<xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
 <xsd:element name="echoResponse">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="return" nillable="true" type="xsd:string"/>
-<xsd:element name="return1" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="return" type="xsd:string"/>
+<xsd:element minOccurs="0" name="return1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
 <xsd:element name="echo3">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element nillable="true" ref="header"/>
-<xsd:element name="arg1" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" ref="header"/>
+<xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
 <xsd:element name="echo3Response">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="return" nillable="true" type="xsd:string"/>
-<xsd:element nillable="true" ref="header"/>
+<xsd:element minOccurs="0" name="return" type="xsd:string"/>
+<xsd:element minOccurs="0" ref="header"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
 <xsd:element name="echo2">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="arg0" nillable="true" type="xsd:string"/>
-<xsd:element name="arg1" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
+<xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>
 <xsd:element name="echo2Response">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="return" nillable="true" type="xsd:string"/>
-<xsd:element name="return1" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="return" type="xsd:string"/>
+<xsd:element minOccurs="0" name="return1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>

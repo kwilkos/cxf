@@ -28,7 +28,7 @@
 <xsd:element name="sayHiWithoutWrapperClassResponse">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element name="return" nillable="true" type="xsd:string"/>
+<xsd:element minOccurs="0" name="return" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>

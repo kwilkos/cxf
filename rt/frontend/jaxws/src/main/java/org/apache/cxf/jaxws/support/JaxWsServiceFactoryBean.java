@@ -292,6 +292,11 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
     @Override
     protected Class<?> getBeanClass(Class<?> exClass) {
         try {
+            if (java.rmi.ServerException.class.isAssignableFrom(exClass)
+                || java.rmi.RemoteException.class.isAssignableFrom(exClass)) {
+                return null;
+            }
+            
             Method getFaultInfo = exClass.getMethod("getFaultInfo", new Class[0]);
 
             return getFaultInfo.getReturnType();

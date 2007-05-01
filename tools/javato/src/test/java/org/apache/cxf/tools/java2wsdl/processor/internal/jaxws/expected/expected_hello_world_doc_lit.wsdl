@@ -121,7 +121,7 @@
     </wsdl:input>
       <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
     </wsdl:output>
-      <wsdl:fault name="faultDetail" message="ns2:faultDetail">
+      <wsdl:fault name="fault" message="ns2:faultDetail">
     </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>

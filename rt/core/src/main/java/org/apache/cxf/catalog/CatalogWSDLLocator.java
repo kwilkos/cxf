@@ -64,7 +64,7 @@ public class CatalogWSDLLocator implements WSDLLocator {
     }
 
     public String getBaseURI() {
-        return baseUri;
+        return getBaseInputSource().getSystemId();
     }
 
     public String getLatestImportURI() {

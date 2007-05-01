@@ -19,7 +19,7 @@
 -->
 <wsdl:definitions name="Database" targetNamespace="http://cxf523.fortest.tools.cxf.apache.org/" xmlns:ns1="http://cxf523.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf523.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf523.fortest.tools.cxf.apache.org/">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://cxf523.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf523.fortest.tools.cxf.apache.org/">
 <xs:complexType name="operation0ResponseType">
 <xs:sequence>
 <xs:element minOccurs="0" name="birth" type="xs:dateTime"/>
@@ -30,11 +30,13 @@
 <xs:element minOccurs="0" name="species" type="xs:string"/>
 </xs:sequence>
 </xs:complexType>
-<xs:complexType final="#all" name="operation0ResponseTypeArray">
+<xs:element name="DBServiceFault">
+<xs:complexType>
 <xs:sequence>
-<xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="tns:operation0ResponseType"/>
+<xs:element name="message" nillable="true" type="xs:string"/>
 </xs:sequence>
 </xs:complexType>
+</xs:element>
 <xs:element name="operation0">
 <xs:complexType>
 <xs:sequence/>
@@ -43,21 +45,7 @@
 <xs:element name="operation0Response">
 <xs:complexType>
 <xs:sequence>
-<xs:element name="return" nillable="true" type="tns:operation0ResponseTypeArray"/>
-</xs:sequence>
-</xs:complexType>
-</xs:element>
-<xs:element name="RemoteException">
-<xs:complexType>
-<xs:sequence>
-<xs:element name="message" nillable="true" type="xs:string"/>
-</xs:sequence>
-</xs:complexType>
-</xs:element>
-<xs:element name="DBServiceFault">
-<xs:complexType>
-<xs:sequence>
-<xs:element name="message" nillable="true" type="xs:string"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="operation0ResponseType"/>
 </xs:sequence>
 </xs:complexType>
 </xs:element>
@@ -65,10 +53,6 @@
   </wsdl:types>
   <wsdl:message name="operation0">
     <wsdl:part name="operation0" element="ns1:operation0">
-    </wsdl:part>
-  </wsdl:message>
-  <wsdl:message name="RemoteException">
-    <wsdl:part name="fault" element="ns1:RemoteException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DBServiceFault">
@@ -87,8 +71,6 @@
     </wsdl:output>
       <wsdl:fault name="DBServiceFault" message="ns1:DBServiceFault">
     </wsdl:fault>
-      <wsdl:fault name="RemoteException" message="ns1:RemoteException">
-    </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="DatabaseSoapBinding" type="ns1:DatabasePortType">
@@ -103,9 +85,6 @@
       </wsdl:output>
       <wsdl:fault name="DBServiceFault">
         <soap:fault name="DBServiceFault" use="literal"/>
-      </wsdl:fault>
-      <wsdl:fault name="RemoteException">
-        <soap:fault name="RemoteException" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>

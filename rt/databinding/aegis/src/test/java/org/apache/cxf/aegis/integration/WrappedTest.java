@@ -64,9 +64,9 @@ public class WrappedTest extends AbstractAegisTest {
                     + "xsd:element[@name='getSubmitBean']",
                     doc);
         assertValid("//xsd:element[@name='getSubmitBean']/xsd:complexType/xsd:sequence"
-                    + "/xsd:element[@name='bleh'][@type='string'][@nillable='true']", doc);
+                    + "/xsd:element[@name='bleh'][@type='string'][@minOccurs='0']", doc);
         assertValid("//xsd:element[@name='getSubmitBean']/xsd:complexType/xsd:sequence"
-                    + "/xsd:element[@name='bean'][@type='SimpleBean'][@nillable='true']", doc);
+                    + "/xsd:element[@name='bean'][@type='SimpleBean'][@minOccurs='0']", doc);
 
         assertValid("/wsdl:definitions/wsdl:types"
                     + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']", doc);
@@ -77,13 +77,13 @@ public class WrappedTest extends AbstractAegisTest {
                     "/wsdl:definitions/wsdl:types"
                         + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
                         + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
-                        + "[@name=\"bleh\"][@nillable='true']",
+                        + "[@name=\"bleh\"][@minOccurs='0']",
                     doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"
                         + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
                         + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
-                        + "[@name=\"howdy\"][@nillable='true']",
+                        + "[@name=\"howdy\"][@minOccurs='0']",
                     doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"

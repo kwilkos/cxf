@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -50,8 +51,25 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             return;
         }
 
+        boolean isFromWrapper = part.getMessageInfo().getOperation().isUnwrapped();
+        if (isFromWrapper 
+            && clazz.isArray() 
+            && !Byte.TYPE.equals(clazz.getComponentType())) {
+            clazz = clazz.getComponentType();
+        }
+        
         Type genericType = (Type) part.getProperty("generic.type");
         if (genericType != null) {
+            if (isFromWrapper
+                && genericType instanceof Class
+                && ((Class)genericType).isArray()) {
+                
+                Class cl2 = (Class)genericType;
+                if (cl2.isArray()
+                    && !Byte.TYPE.equals(cl2.getComponentType())) {
+                    genericType = cl2.getComponentType();
+                }
+            }
             addType(genericType);
             
             if (Collection.class.isAssignableFrom(clazz) 
@@ -91,21 +109,28 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         if (cls.isArray() && cls.getComponentType().isPrimitive()) {
             return;
         }
-        cls = JAXBUtils.getValidClass(cls);
-        if (null != cls) {
-            if (cls.isEnum()) {
-                // The object factory stuff doesn't work for enums
-                classes.add(cls);
+        if (Exception.class.isAssignableFrom(cls)) {
+            for (Field f : cls.getDeclaredFields()) {
+                addClass(f.getType());
             }
-            String name = PackageUtils.getPackageName(cls) + ".ObjectFactory";
-            try {
-                cls = Class.forName(name, false, cls.getClassLoader());
-                if (cls != null) {
+            addClass(String.class);
+        } else {
+            cls = JAXBUtils.getValidClass(cls);
+            if (null != cls) {
+                if (cls.isEnum()) {
+                    // The object factory stuff doesn't work for enums
                     classes.add(cls);
                 }
-            } catch (ClassNotFoundException ex) {
-                // cannot add factory, just add the class
-                classes.add(cls);
+                String name = PackageUtils.getPackageName(cls) + ".ObjectFactory";
+                try {
+                    cls = Class.forName(name, false, cls.getClassLoader());
+                    if (cls != null) {
+                        classes.add(cls);
+                    }
+                } catch (ClassNotFoundException ex) {
+                    // cannot add factory, just add the class
+                    classes.add(cls);
+                }
             }
         }
     }

@@ -48,10 +48,14 @@ public class ExtendedURIResolver {
                     // imports with locations relative to it.
                     curUri = currentResolver.getURI().toString();
                 }
+                if (currentResolver.isFile()) {
+                    curUri = currentResolver.getFile().getAbsoluteFile().toURI().toString();
+                }
                 InputStream in = currentResolver.getInputStream();
                 resourceOpened.addElement(in);
                 InputSource source = new InputSource(in);               
-                source.setSystemId(curUri);                
+                source.setSystemId(curUri); 
+                source.setPublicId(lastestImportUri);
                 return source;
             }
         } catch (IOException e) {
