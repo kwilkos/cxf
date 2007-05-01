@@ -33,14 +33,16 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class AttachmentSerializerTest extends TestCase {
+public class AttachmentSerializerTest extends Assert {
+    
+    @Test
     public void testMessageWrite() throws Exception {
         MessageImpl msg = new MessageImpl();
         
@@ -102,6 +104,7 @@ public class AttachmentSerializerTest extends TestCase {
         
     }
     
+    @Test
     public void testMessageMTOM() throws Exception {
         MessageImpl msg = new MessageImpl();
         

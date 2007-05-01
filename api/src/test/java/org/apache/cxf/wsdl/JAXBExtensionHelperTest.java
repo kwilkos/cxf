@@ -33,13 +33,14 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.abc.test.AnotherPolicyType;
 import org.apache.cxf.abc.test.NewServiceType;
 import org.apache.cxf.abc.test.TestPolicyType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JAXBExtensionHelperTest extends TestCase {
+public class JAXBExtensionHelperTest extends Assert {
 
     private WSDLFactory wsdlFactory;
 
@@ -49,6 +50,7 @@ public class JAXBExtensionHelperTest extends TestCase {
 
     private ExtensionRegistry registry;
 
+    @Before
     public void setUp() throws Exception {
 
         wsdlFactory = WSDLFactory.newInstance();
@@ -60,10 +62,7 @@ public class JAXBExtensionHelperTest extends TestCase {
         }
     }
 
-    public void tearDown() {
-
-    }
-
+    @Test
     public void testAddTestExtension() throws Exception {
 
         JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Port",
@@ -107,6 +106,7 @@ public class JAXBExtensionHelperTest extends TestCase {
             Math.abs(0.1F - ap.getFloatAttr()) < 0.5E-5);
     }
 
+    @Test
     public void testPrettyPrintXMLStreamWriter() throws Exception {
         JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Definition",
                         "org.apache.cxf.abc.test.NewServiceType", Thread.currentThread()

@@ -24,14 +24,16 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class AttachmentDeserializerTest extends TestCase {
+public class AttachmentDeserializerTest extends Assert {
+    
+    @Test
     public void testDeserializerMtom() throws Exception {
         InputStream is = getClass().getResourceAsStream("mimedata");
         String ct = "multipart/related; type=\"application/xop+xml\"; "
@@ -79,6 +81,7 @@ public class AttachmentDeserializerTest extends TestCase {
 //        assertTrue(attIs instanceof ByteArrayInputStream);
     }
 
+    @Test
     public void testDeserializerMtomWithAxis2StyleBoundaries() throws Exception {
         InputStream is = getClass().getResourceAsStream("axis2_mimedata");
         String ct = "multipart/related; type=\"application/xop+xml\"; "
@@ -126,6 +129,7 @@ public class AttachmentDeserializerTest extends TestCase {
 //        assertTrue(attIs instanceof ByteArrayInputStream);
     }
     
+    @Test
     public void testDeserializerSwA() throws Exception {
         InputStream is = getClass().getResourceAsStream("swadata");
         String ct = "multipart/related; type=\"text/xml\"; "
@@ -173,6 +177,7 @@ public class AttachmentDeserializerTest extends TestCase {
         assertTrue(attIs.read() == -1);
     }
     
+    @Test
     public void testDeserializerSwAWithoutBoundryInContentType() throws Exception {
         InputStream is = getClass().getResourceAsStream("swadata");
         String ct = "multipart/related; type=\"text/xml\"; ";

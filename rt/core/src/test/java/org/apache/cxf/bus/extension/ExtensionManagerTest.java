@@ -22,20 +22,22 @@ package org.apache.cxf.bus.extension;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ExtensionManagerTest extends TestCase {
+public class ExtensionManagerTest extends Assert {
 
     private static final String EXTENSIONMANAGER_TEST_RESOURECE_NAME = "extensionManagerTest";
     private ExtensionManagerImpl manager;
     private MyService myService;
     private Map<Class, Object> extensions;
     
+    @Before
     public  void setUp() {
         ResourceResolver resolver = new SinglePropertyResolver(EXTENSIONMANAGER_TEST_RESOURECE_NAME, this);
         ResourceManager rm = new DefaultResourceManager(resolver);
@@ -48,6 +50,7 @@ public class ExtensionManagerTest extends TestCase {
         myService = null;
     }
     
+    @Test
     public void testLoadAndRegister() {
         Extension e = new Extension();
         e.setClassname("java.lang.String");
@@ -73,6 +76,7 @@ public class ExtensionManagerTest extends TestCase {
          
     }
     
+    @Test
     public void testActivateViaNS() {        
         
         Extension e = new Extension();

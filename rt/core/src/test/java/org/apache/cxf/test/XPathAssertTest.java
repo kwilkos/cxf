@@ -23,13 +23,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
-
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class XPathAssertTest extends TestCase {
+public class XPathAssertTest extends Assert {
+    
+    @Test
     public void testAssert() throws Exception {
         Document document = DOMUtils.readXml(getClass().getResourceAsStream("test.xml"));
 
@@ -53,6 +55,7 @@ public class XPathAssertTest extends TestCase {
         XPathAssert.assertXPathEquals("//b", "foo", document, null);
     }
 
+    @Test
     public void testAssertNamespace() throws Exception {
         Document document = DOMUtils.readXml(getClass().getResourceAsStream("test2.xml"));
 

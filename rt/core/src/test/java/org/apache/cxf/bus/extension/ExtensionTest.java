@@ -19,11 +19,12 @@
 
 package org.apache.cxf.bus.extension;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ExtensionTest extends TestCase {
+public class ExtensionTest extends Assert {
 
+    @Test
     public void testMutators() {
         Extension e = new Extension();
         
@@ -43,6 +44,7 @@ public class ExtensionTest extends TestCase {
         assertEquals("Unexpected size of namespace list.", 0, e.getNamespaces().size());
     }
     
+    @Test
     public void testLoad() throws ExtensionException {
         Extension e = new Extension();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -73,6 +75,7 @@ public class ExtensionTest extends TestCase {
         assertTrue("Object is not type String", obj instanceof String);        
     }
     
+    @Test
     public void testLoadInterface() {
         Extension e = new Extension();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -84,7 +87,7 @@ public class ExtensionTest extends TestCase {
                        ex.getCause() instanceof ClassNotFoundException);
         }
         
-        e.setInterfaceName(Test.class.getName());
+        e.setInterfaceName(Assert.class.getName());
         Class<?> cls = e.loadInterface(cl);
         assertTrue("Object is not type Class", cls instanceof Class); 
     }

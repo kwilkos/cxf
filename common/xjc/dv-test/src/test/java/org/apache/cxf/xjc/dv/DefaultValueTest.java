@@ -26,15 +26,16 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.configuration.foo.Foo;
 import org.apache.ws.jaxme.impl.DatatypeConverterImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 
-public class DefaultValueTest extends TestCase {
+public class DefaultValueTest extends Assert {
 
+    @Test
     public void testFooDefaultValues() throws Exception {
 
         DatatypeConverter.setDatatypeConverter(new DatatypeConverterImpl());

@@ -21,12 +21,15 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class BindingOperationInfoTest extends TestCase {
+public class BindingOperationInfoTest extends Assert {
     private static final String TEST_NS = "urn:test:ns";
     private BindingOperationInfo bindingOperationInfo;
     
+    @Before
     public void setUp() throws Exception {
         OperationInfo operationInfo = new OperationInfo(null, new QName(TEST_NS, "operationTest"));
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
@@ -41,14 +44,17 @@ public class BindingOperationInfoTest extends TestCase {
         bindingOperationInfo = new BindingOperationInfo(null, operationInfo);
     }
     
+    @Test
     public void testName() throws Exception {
         assertEquals(bindingOperationInfo.getName(), new QName(TEST_NS, "operationTest"));
     }
     
+    @Test
     public void testBinding() throws Exception {
         assertNull(bindingOperationInfo.getBinding());
     }
     
+    @Test
     public void testOperation() throws Exception {
         assertEquals(bindingOperationInfo.getOperationInfo().getName(), new QName(TEST_NS, "operationTest"));
         assertTrue(bindingOperationInfo.getOperationInfo().hasInput());
@@ -60,6 +66,7 @@ public class BindingOperationInfoTest extends TestCase {
         assertEquals(1, bindingOperationInfo.getFaults().size());
     }
     
+    @Test
     public void testInputMessage() throws Exception {
         BindingMessageInfo inputMessage = bindingOperationInfo.getInput();
         assertNotNull(inputMessage);
@@ -68,6 +75,7 @@ public class BindingOperationInfoTest extends TestCase {
                      "http://apache.org/hello_world_soap_http");
     }
     
+    @Test
     public void testOutputMessage() throws Exception {
         BindingMessageInfo outputMessage = bindingOperationInfo.getOutput();
         assertNotNull(outputMessage);
@@ -76,6 +84,7 @@ public class BindingOperationInfoTest extends TestCase {
                      "http://apache.org/hello_world_soap_http");
     }
     
+    @Test
     public void testFaultMessage() throws Exception {
         BindingFaultInfo faultMessage = bindingOperationInfo.getFaults().iterator().next();
         assertNotNull(faultMessage);

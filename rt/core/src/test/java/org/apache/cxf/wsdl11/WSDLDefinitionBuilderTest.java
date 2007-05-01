@@ -30,10 +30,12 @@ import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class WSDLDefinitionBuilderTest extends TestCase {
+public class WSDLDefinitionBuilderTest extends Assert {
 
+    @Test
     public void testBuildSimpleWSDL() throws Exception {
         String qname = "http://apache.org/hello_world_soap_http";
         String wsdlUrl = getClass().getResource("hello_world.wsdl").toString();
@@ -55,6 +57,7 @@ public class WSDLDefinitionBuilderTest extends TestCase {
         assertNotNull(port);        
     }
     
+    @Test
     public void testBuildImportedWSDL() throws Exception {
         String wsdlUrl = getClass().getResource("hello_world_services.wsdl").toString();
         

@@ -101,7 +101,7 @@ public final class MessageUtils {
     /**
      * Returns true if a value is either the String "true" or Boolean.TRUE.
      * @param value
-     * @return
+     * @return true iff value is either the String "true" or Boolean.TRUE
      */
     public static boolean isTrue(Object value) {
         if (Boolean.TRUE.equals(value) || "true".equals(value)) {

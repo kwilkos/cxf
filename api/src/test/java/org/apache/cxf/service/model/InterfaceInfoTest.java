@@ -21,17 +21,21 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class InterfaceInfoTest extends TestCase {
+public class InterfaceInfoTest extends Assert {
     
     private InterfaceInfo interfaceInfo;
 
+    @Before
     public void setUp() throws Exception {
         interfaceInfo = new InterfaceInfo(new ServiceInfo(), new QName(
             "http://apache.org/hello_world_soap_http", "interfaceTest"));
     }
     
+    @Test
     public void testName() throws Exception {
         assertEquals(interfaceInfo.getName().getLocalPart(), "interfaceTest");
         assertEquals(interfaceInfo.getName().getNamespaceURI(),
@@ -44,7 +48,7 @@ public class InterfaceInfoTest extends TestCase {
                      "http://apache.org/hello_world_soap_http1");
     }
  
-    
+    @Test
     public void testOperation() throws Exception {
         QName name = new QName("urn:test:ns", "sayHi");
         interfaceInfo.addOperation(name);

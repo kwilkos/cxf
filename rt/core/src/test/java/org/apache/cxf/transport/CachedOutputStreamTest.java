@@ -21,10 +21,12 @@ package org.apache.cxf.transport;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CachedOutputStreamTest extends TestCase {    
+public class CachedOutputStreamTest extends Assert {    
     
+    @Test
     public void testResetOut() throws IOException {
         CachedOutputStream cos = new CachedOutputStream();        
         String result = initTestData(16);

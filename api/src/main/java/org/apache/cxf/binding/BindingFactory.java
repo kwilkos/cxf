@@ -41,7 +41,7 @@ public interface BindingFactory {
      * @param service
      * @param namespace
      * @param configObject - binding specific configuration object
-     * @return
+     * @return the BindingInfo object
      */
     BindingInfo createBindingInfo(Service service, String namespace, Object configObject);
     

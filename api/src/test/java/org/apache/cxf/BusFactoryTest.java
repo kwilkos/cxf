@@ -19,22 +19,25 @@
 
 package org.apache.cxf;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 
-public class BusFactoryTest extends TestCase {
+public class BusFactoryTest extends Assert {
     
+    @After
     public void tearDown() {
         System.clearProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);        
     }
     
+    @Test
     public void testGetInstance() {
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, TestBusFactory.class.getName());
         BusFactory factory = BusFactory.newInstance();
         assertTrue(factory instanceof TestBusFactory);
     }
-    
     
     public static class TestBusFactory extends BusFactory {
 

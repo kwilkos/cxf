@@ -19,13 +19,14 @@
 
 package org.apache.cxf.buslifecycle;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CXFBusLifeCycleManagerTest extends TestCase {
+public class CXFBusLifeCycleManagerTest extends Assert {
 
+    @Test
     public void testListenerNotRegistered() {
 
         BusLifeCycleListener listener1 = EasyMock.createMock(BusLifeCycleListener.class);
@@ -47,6 +48,7 @@ public class CXFBusLifeCycleManagerTest extends TestCase {
         EasyMock.verify(listener1);
     }
     
+    @Test
     public void testSingleListenerRegistration() {
 
         BusLifeCycleListener listener1 = EasyMock.createMock(BusLifeCycleListener.class);
@@ -73,6 +75,7 @@ public class CXFBusLifeCycleManagerTest extends TestCase {
         EasyMock.verify(listener1);        
     }
     
+    @Test
     public void testDuplicateRegistration() {
         
         BusLifeCycleListener listener1 = EasyMock.createMock(BusLifeCycleListener.class);
@@ -103,6 +106,7 @@ public class CXFBusLifeCycleManagerTest extends TestCase {
         EasyMock.verify(listener1);
     }
     
+    @Test
     public void testMultipleListeners() {
        
         IMocksControl ctrl = EasyMock.createStrictControl();
@@ -136,6 +140,7 @@ public class CXFBusLifeCycleManagerTest extends TestCase {
         ctrl.verify();
     }
     
+    @Test
     public void testDeregistration() {
         
         IMocksControl ctrl = EasyMock.createStrictControl();

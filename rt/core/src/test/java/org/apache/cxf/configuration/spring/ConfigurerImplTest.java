@@ -26,19 +26,21 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import com.sun.xml.bind.DatatypeConverterImpl;
 
 import org.apache.cxf.configuration.Configurable;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class ConfigurerImplTest extends TestCase {
+
+public class ConfigurerImplTest extends Assert {
     
     static {
         DatatypeConverter.setDatatypeConverter(DatatypeConverterImpl.theInstance);
     }
-     
+    
+    @Test
     public void testConfigureSimpleNoMatchingBean() {
         SimpleBean sb = new SimpleBean("unknown");
         ConfigurerImpl configurer =
@@ -91,6 +93,7 @@ public class ConfigurerImplTest extends TestCase {
                      new Short((short)11), sb.getUnsignedByteAttr());
     }
     
+    @Test
     public void testConfigureSimple() {
         SimpleBean sb = new SimpleBean("simple");
         ConfigurerImpl configurer =
@@ -149,6 +152,7 @@ public class ConfigurerImplTest extends TestCase {
                      new Short((short)21), sb.getUnsignedByteAttr());
     }
     
+    @Test
     public void testGetBeanName() {
         ConfigurerImpl configurer = new ConfigurerImpl((String)null);
         Object beanInstance = new Configurable() {

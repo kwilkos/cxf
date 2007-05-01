@@ -25,8 +25,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -46,10 +44,12 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.workqueue.WorkQueueManager;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.easymock.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SpringBusFactoryTest extends TestCase {
+public class SpringBusFactoryTest extends Assert {
 
-    
+    @Test
     public void testDefault() {
         Bus bus = new SpringBusFactory().createBus();
         assertNotNull(bus);
@@ -78,12 +78,14 @@ public class SpringBusFactoryTest extends TestCase {
 
     }
     
+    @Test
     public void testCustomFileName() {
         String cfgFile = "org/apache/cxf/bus/spring/resources/bus-overwrite.xml";
         Bus bus = new SpringBusFactory().createBus(cfgFile, true);
         checkCustomerConfiguration(bus);
     }
     
+    @Test
     public void testCustomFileURLFromSystemProperty() {
         URL cfgFileURL = this.getClass().getResource("resources/bus-overwrite.xml");        
         System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_URL, cfgFileURL.toString());
@@ -92,6 +94,7 @@ public class SpringBusFactoryTest extends TestCase {
         System.clearProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
     }
     
+    @Test
     public void testCustomFileURL() {
         URL cfgFileURL = this.getClass().getResource("resources/bus-overwrite.xml");
         Bus bus = new SpringBusFactory().createBus(cfgFileURL, true);
@@ -115,6 +118,7 @@ public class SpringBusFactoryTest extends TestCase {
         assertEquals("Unexpected interceptor", "out", interceptors.get(0).toString());
     }
     
+    @Test
     public void testForLifeCycle() {
         BusLifeCycleListener bl = EasyMock.createMock(BusLifeCycleListener.class);
         Bus bus = new SpringBusFactory().createBus();
@@ -131,6 +135,7 @@ public class SpringBusFactoryTest extends TestCase {
         
     }
 
+    @Test
     public void testPhases() {
         Bus bus = new SpringBusFactory().createBus();
         PhaseManager cxfPM = bus.getExtension(PhaseManager.class);
@@ -149,6 +154,7 @@ public class SpringBusFactoryTest extends TestCase {
         }
     }
 
+    @Test
     public void testJsr250() {
         Bus bus = new SpringBusFactory().createBus("org/apache/cxf/bus/spring/testjsr250.xml");
         TestExtension te = bus.getExtension(TestExtension.class);

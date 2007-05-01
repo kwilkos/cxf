@@ -24,9 +24,11 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class AutomaticWorkQueueTest extends TestCase {
+public class AutomaticWorkQueueTest extends Assert {
 
     public static final int UNBOUNDED_MAX_QUEUE_SIZE = -1;
     public static final int UNBOUNDED_HIGH_WATER_MARK = -1;
@@ -41,6 +43,8 @@ public class AutomaticWorkQueueTest extends TestCase {
     public static final int TIMEOUT = 100;
 
     AutomaticWorkQueueImpl workqueue;
+    
+    @After
     public void tearDown() throws Exception {
         if (workqueue != null) {
             workqueue.shutdown(true);
@@ -48,6 +52,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         }
     }
     
+    @Test
     public void testUnboundedConstructor() {
         workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                UNBOUNDED_HIGH_WATER_MARK,
@@ -59,6 +64,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         assertEquals(UNBOUNDED_LOW_WATER_MARK, workqueue.getLowWaterMark());
     }
 
+    @Test
     public void testConstructor() {
         workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                DEFAULT_HIGH_WATER_MARK,
@@ -70,6 +76,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         assertEquals(DEFAULT_LOW_WATER_MARK, workqueue.getLowWaterMark());
     }
 
+    @Test
     public void testEnqueue() {
         workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                DEFAULT_HIGH_WATER_MARK,
@@ -104,6 +111,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         assertEquals(0, workqueue.getSize());
     }
 
+    @Test
     public void testEnqueueImmediate() {
         workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                DEFAULT_HIGH_WATER_MARK,
@@ -208,6 +216,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         }
     }
 
+    @Test
     public void testDeadLockEnqueueLoads() {
         workqueue = new AutomaticWorkQueueImpl(500, 1, 2, 2,
                                                DEFAULT_DEQUEUE_TIMEOUT);
@@ -217,6 +226,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         checkDeadLock(dead);
     }
 
+    @Test
     public void testNonDeadLockEnqueueLoads() {
         workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE,
                                                INITIAL_SIZE,
@@ -228,6 +238,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         checkDeadLock(dead);
     }
     
+    @Test
     public void testSchedule() throws Exception {
         workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                UNBOUNDED_HIGH_WATER_MARK,
@@ -260,6 +271,7 @@ public class AutomaticWorkQueueTest extends TestCase {
                    System.currentTimeMillis() - start >= 4950);
     }
 
+    @Test
     public void testThreadPoolShrink() {
         workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, 20, 20, 10, 100L);
 
@@ -287,6 +299,7 @@ public class AutomaticWorkQueueTest extends TestCase {
 //        }
     }
 
+    @Test
     public void testThreadPoolShrinkUnbounded() {
         workqueue = new AutomaticWorkQueueImpl(UNBOUNDED_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                UNBOUNDED_HIGH_WATER_MARK,
@@ -312,6 +325,7 @@ public class AutomaticWorkQueueTest extends TestCase {
         assertTrue("threads_total()", workqueue.getPoolSize() <= DEFAULT_LOW_WATER_MARK);
     }
 
+    @Test
     public void testShutdown() {
         workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                INITIAL_SIZE, INITIAL_SIZE, 250);

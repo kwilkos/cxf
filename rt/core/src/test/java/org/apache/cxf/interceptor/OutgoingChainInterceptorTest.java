@@ -22,8 +22,6 @@ package org.apache.cxf.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
@@ -40,8 +38,12 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class OutgoingChainInterceptorTest extends TestCase {
+public class OutgoingChainInterceptorTest extends Assert {
 
     private IMocksControl control;
     private Bus bus;
@@ -55,8 +57,8 @@ public class OutgoingChainInterceptorTest extends TestCase {
     private List<Interceptor> empty;
     private Binding binding;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
 
         control = EasyMock.createNiceControl();
 
@@ -93,10 +95,12 @@ public class OutgoingChainInterceptorTest extends TestCase {
 
     }
 
+    @After
     public void tearDown() {
         control.verify();
     }
 
+    @Test
     public void testInterceptor() throws Exception {
         OutgoingChainInterceptor intc = new OutgoingChainInterceptor();
 

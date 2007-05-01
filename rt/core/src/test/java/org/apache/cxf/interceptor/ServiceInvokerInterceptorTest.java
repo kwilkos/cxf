@@ -19,11 +19,10 @@
 
 package org.apache.cxf.interceptor;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-
-import junit.framework.TestCase;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -32,12 +31,14 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.junit.Assert;
+import org.junit.Test;
 
-import static org.easymock.EasyMock.createNiceControl;
-import static org.easymock.EasyMock.expect;
-
-public class ServiceInvokerInterceptorTest extends TestCase {
+public class ServiceInvokerInterceptorTest extends Assert {
+    
+    @Test
     public void testInterceptor() throws Exception {
         ServiceInvokerInterceptor intc = new ServiceInvokerInterceptor();
         
@@ -65,13 +66,13 @@ public class ServiceInvokerInterceptorTest extends TestCase {
     }
     
     Endpoint createEndpoint(Invoker i) throws Exception {
-        IMocksControl control = createNiceControl();
+        IMocksControl control = EasyMock.createNiceControl();
         Endpoint endpoint = control.createMock(Endpoint.class);
 
         ServiceImpl service = new ServiceImpl((ServiceInfo)null);
         service.setInvoker(i);
         service.setExecutor(new SimpleExecutor());
-        expect(endpoint.getService()).andReturn(service).anyTimes();
+        EasyMock.expect(endpoint.getService()).andReturn(service).anyTimes();
         
         control.replay();
 

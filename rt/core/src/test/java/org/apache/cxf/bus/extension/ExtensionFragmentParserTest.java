@@ -23,10 +23,12 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ExtensionFragmentParserTest extends TestCase {
+public class ExtensionFragmentParserTest extends Assert {
 
+    @Test
     public void testGetExtensions() {
         InputStream is = ExtensionFragmentParserTest.class.getResourceAsStream("extension1.xml");
         List<Extension> extensions = new ExtensionFragmentParser().getExtensions(is);

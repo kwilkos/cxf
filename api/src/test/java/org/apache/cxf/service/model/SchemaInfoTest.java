@@ -19,26 +19,27 @@
 
 package org.apache.cxf.service.model;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SchemaInfoTest extends TestCase {
+public class SchemaInfoTest extends Assert {
     
     private SchemaInfo schemaInfo;
     
+    @Before
     public void setUp() throws Exception {
         schemaInfo = new SchemaInfo(null, "http://apache.org/hello_world_soap_http/types");
     }
-    
-    public void tearDown() throws Exception {
-        
-    }
-    
+  
+    @Test
     public void testConstructor() throws Exception {
         assertNull(schemaInfo.getElement());
         assertEquals(schemaInfo.getNamespaceURI(),
                      "http://apache.org/hello_world_soap_http/types");
     }
     
+    @Test
     public void testNamespaceURI() throws Exception {
         schemaInfo.setNamespaceURI("http://apache.org/hello_world_soap_http/types1");
         assertEquals(schemaInfo.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types1");

@@ -562,7 +562,7 @@ public final class EndpointReferenceUtils {
     
     /**
      * Create a duplicate endpoint reference sharing all atributes
-     * @param ret to duplicate
+     * @param ref the reference to duplicate
      * @return EndpointReferenceType - the duplicate endpoint reference
      */
     public static EndpointReferenceType duplicate(EndpointReferenceType ref) {
@@ -656,7 +656,7 @@ public final class EndpointReferenceUtils {
     
     /**
      * Obtain the id String from the endpoint reference of the current dispatch. 
-     * @param contextMap the current message context 
+     * @param messageContext the current message context 
      * @return the id embedded in the current endpoint reference or null if not found
      */
     public static String getEndpointReferenceId(Map messageContext) {

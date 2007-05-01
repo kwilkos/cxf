@@ -25,14 +25,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PhaseInterceptorChainTest extends TestCase {
+public class PhaseInterceptorChainTest extends Assert {
 
     private IMocksControl control;
 
@@ -40,6 +42,7 @@ public class PhaseInterceptorChainTest extends TestCase {
 
     private Message message;
 
+    @Before
     public void setUp() {
 
         control = EasyMock.createNiceControl();
@@ -56,10 +59,12 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain = new PhaseInterceptorChain(phases);
     }
 
+    @After
     public void tearDown() {
         control.verify();
     }
 
+    @Test
     public void testAddOneInterceptor() {
         AbstractPhaseInterceptor p = setUpPhaseInterceptor("phase1", "p1");
         control.replay();
@@ -69,6 +74,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertTrue(!it.hasNext());
     }
     
+    @Test
     public void testForceAddSameInterceptor() {
 
         AbstractPhaseInterceptor p = setUpPhaseInterceptor("phase1", "p1");
@@ -85,6 +91,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertTrue(!it.hasNext()); 
     }
     
+    @Test
     public void testForceAddSameInterceptorType() {
 
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
@@ -102,6 +109,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertTrue(!it.hasNext()); 
     }
 
+    @Test
     public void testAddTwoInterceptorsSamePhase() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         Set<String> after = new HashSet<String>();
@@ -132,6 +140,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         return p;
     }
     
+    @Test
     public void testThreeInterceptorSamePhaseWithOrder() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         Set<String> before = new HashSet<String>();
@@ -153,6 +162,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertTrue(!it.hasNext());
     }
 
+    @Test
     public void testSingleInterceptorPass() {
         AbstractPhaseInterceptor p = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p, false, false);
@@ -161,6 +171,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testSingleInterceptorFail() {
         AbstractPhaseInterceptor p = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p, true, true);
@@ -169,6 +180,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testTwoInterceptorsInSamePhasePass() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p1, false, false);
@@ -180,6 +192,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testThreeInterceptorsInSamePhaseSecondFail() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p1, false, true);
@@ -193,6 +206,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testTwoInterceptorsInSamePhaseSecondFail() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p1, false, true);
@@ -204,6 +218,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testTwoInterceptorsInDifferentPhasesPass() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p1, false, false);
@@ -215,6 +230,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testTwoInterceptorsInDifferentPhasesSecondFail() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p1, false, true);
@@ -226,6 +242,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
+    @Test
     public void testInsertionInDifferentPhasePass() {
 
         AbstractPhaseInterceptor p2 = setUpPhaseInterceptor("phase2", "p2");
@@ -242,6 +259,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(0, p1.faultInvoked);
     }
 
+    @Test
     public void testInsertionInSamePhasePass() {
 
         AbstractPhaseInterceptor p2 = setUpPhaseInterceptor("phase1", "p2");
@@ -262,6 +280,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(0, p1.faultInvoked);
     }
 
+    @Test
     public void testWrappedInvocation() throws Exception {
         CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
                 "p1");
@@ -283,6 +302,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(1, p3.invoked);
     }
 
+    @Test
     public void testChainInvocationStartFromSpecifiedInterceptor() throws Exception {
         CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
                 "p1");

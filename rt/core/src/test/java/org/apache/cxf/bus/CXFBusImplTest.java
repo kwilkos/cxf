@@ -22,8 +22,6 @@ package org.apache.cxf.bus;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
@@ -37,10 +35,12 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CXFBusImplTest extends TestCase {
+public class CXFBusImplTest extends Assert {
 
-    
+    @Test
     public void testConstructionWithoutExtensions() throws BusException {
         
         CXFBusImpl bus = new ExtensionManagerBus();
@@ -51,6 +51,7 @@ public class CXFBusImplTest extends TestCase {
         assertNotNull(bus.getExtension(PhaseManager.class));
     }
     
+    @Test
     public void testConstructionWithExtensions() throws BusException {
         
         IMocksControl control;
@@ -85,6 +86,7 @@ public class CXFBusImplTest extends TestCase {
   
     }
 
+    @Test
     public void testExtensions() {
         CXFBusImpl bus = new CXFBusImpl();
         String extension = "CXF";
@@ -92,6 +94,7 @@ public class CXFBusImplTest extends TestCase {
         assertSame(extension, bus.getExtension(String.class));
     }
     
+    @Test
     public void testBusID() {
         CXFBusImpl bus = new CXFBusImpl();
         String id = bus.getId();
@@ -100,6 +103,7 @@ public class CXFBusImplTest extends TestCase {
         assertEquals("The bus id should be changed", bus.getId(), "test");
     }
     
+    @Test
     public void testRun() {
         final CXFBusImpl bus = new CXFBusImpl();
         Thread t = new Thread() {
@@ -121,6 +125,7 @@ public class CXFBusImplTest extends TestCase {
         assertEquals(BusState.RUNNING, bus.getState());
     }
     
+    @Test
     public void testShutdown() {
         final CXFBusImpl bus = new CXFBusImpl();
         Thread t = new Thread() {
@@ -144,6 +149,7 @@ public class CXFBusImplTest extends TestCase {
         
     }
     
+    @Test
     public void testShutdownWithBusLifecycle() {
         final CXFBusImpl bus = new ExtensionManagerBus();
         BusLifeCycleManager lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
