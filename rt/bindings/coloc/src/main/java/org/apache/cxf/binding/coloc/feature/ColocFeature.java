@@ -21,12 +21,23 @@ package org.apache.cxf.binding.coloc.feature;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.coloc.ColocInInterceptor;
 import org.apache.cxf.binding.coloc.ColocOutInterceptor;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
 
 public class ColocFeature extends AbstractFeature {
     private static final ColocOutInterceptor COLOC_OUT = new ColocOutInterceptor();
     private static final ColocInInterceptor COLOC_IN = new ColocInInterceptor();
+
+    @Override
+    public void initialize(Client client, Bus bus) {
+        ConduitSelector selector = new DeferredConduitSelector();
+        selector.setEndpoint(client.getEndpoint());
+        client.setConduitSelector(selector);
+        initializeProvider(client, bus);
+    }
     
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
