@@ -22,17 +22,13 @@ package org.apache.cxf.ws.rm.soap;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.cxf.message.Message;
-import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
-import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
@@ -105,68 +101,6 @@ public class RetransmissionQueueImplTest extends Assert {
         assertNull(queue.getManager());
         queue.setManager(manager);
         assertSame("Unexpected RMManager", manager, queue.getManager());        
-    }
-    
-    @Test
-    public void testGetBaseRetransmissionIntervalFromManager() {
-        Message message = createMock(Message.class);
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
-        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
-        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(null);
-        control.replay();
-        assertEquals("Unexpected value for base retransmission interval", 
-                     0L, queue.getBaseRetransmissionInterval(message));
-        control.verify();
-        control.reset();
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
-        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
-        RMAssertion.BaseRetransmissionInterval bri = createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(bri);
-        EasyMock.expect(bri.getMilliseconds()).andReturn(null);
-        control.replay();
-        assertEquals("Unexpected value for base retransmission interval", 
-                     0L, queue.getBaseRetransmissionInterval(message));
-        control.verify();
-        control.reset();
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
-        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
-        EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(bri);
-        EasyMock.expect(bri.getMilliseconds()).andReturn(new BigInteger("7000"));
-        control.replay();
-        assertEquals("Unexpected value for base retransmission interval", 
-                     7000L, queue.getBaseRetransmissionInterval(message));
-    }
-    
-    @Test
-    public void testUseExponentialBackoff() {
-        Message message = createMock(Message.class);
-        AssertionInfoMap aim = createMock(AssertionInfoMap.class);
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
-        AssertionInfo ai = createMock(AssertionInfo.class);
-        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
-        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
-        ais.add(ai);
-        JaxbAssertion ja = createMock(JaxbAssertion.class);
-        EasyMock.expect(ai.getAssertion()).andReturn(ja);
-        EasyMock.expect(ja.getData()).andReturn(rma);
-        EasyMock.expect(rma.getExponentialBackoff()).andReturn(null);
-        control.replay();
-        assertTrue("Should not use exponential backoff", !queue.useExponentialBackoff(message));
-        control.verify();
-        control.reset();
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
-        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
-        EasyMock.expect(rma.getExponentialBackoff()).andReturn(null);
-        control.replay();
-        assertTrue("Should not use exponential backoff", !queue.useExponentialBackoff(message));
-        control.verify();
-        control.reset();
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
-        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
-        RMAssertion.ExponentialBackoff eb = createMock(RMAssertion.ExponentialBackoff.class);
-        EasyMock.expect(rma.getExponentialBackoff()).andReturn(eb);
-        control.replay();
-        assertTrue("Should use exponential backoff", queue.useExponentialBackoff(message));        
     }
     
     @Test
@@ -329,7 +263,7 @@ public class RetransmissionQueueImplTest extends Assert {
         setupMessagePolicies(message1);        
         Message message2 =
             setUpMessage("sequence1", messageNumbers[1], false);
-        setupMessagePolicies(message1);
+        setupMessagePolicies(message2);
         ready(false);
         
         sequenceList.add(queue.createResendCandidate(message1));
@@ -385,7 +319,7 @@ public class RetransmissionQueueImplTest extends Assert {
     
     private void setupMessagePolicies(Message message) {
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
-        EasyMock.expect(manager.getRMAssertion()).andReturn(rma).times(2);
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma);
         RMAssertion.BaseRetransmissionInterval bri = 
             createMock(RMAssertion.BaseRetransmissionInterval.class);
         EasyMock.expect(rma.getBaseRetransmissionInterval()).andReturn(bri);

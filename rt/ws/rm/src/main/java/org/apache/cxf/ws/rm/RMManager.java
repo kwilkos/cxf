@@ -239,14 +239,7 @@ public class RMManager extends RMManagerConfigBean {
     @PostConstruct
     void initialise() {
         if (!isSetRMAssertion()) {
-            org.apache.cxf.ws.rm.policy.ObjectFactory factory = 
-                new org.apache.cxf.ws.rm.policy.ObjectFactory();
-            RMAssertion rma = factory.createRMAssertion();
-            BaseRetransmissionInterval bri = factory.createRMAssertionBaseRetransmissionInterval();
-            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
-            rma.setBaseRetransmissionInterval(bri);
-            rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
-            setRMAssertion(rma);
+            setRMAssertion(null);
         }
         org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
         if (!isSetDeliveryAssurance()) {
@@ -275,7 +268,28 @@ public class RMManager extends RMManagerConfigBean {
             idGenerator = new DefaultSequenceIdentifierGenerator();
         }
     }
-    
+       
+    @Override
+    public void setRMAssertion(RMAssertion rma) {        
+        
+        org.apache.cxf.ws.rm.policy.ObjectFactory factory = 
+            new org.apache.cxf.ws.rm.policy.ObjectFactory();
+        if (null == rma) {
+            rma = factory.createRMAssertion();
+            rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
+        }
+        BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
+        if (null == bri) {
+            bri = factory.createRMAssertionBaseRetransmissionInterval();  
+            rma.setBaseRetransmissionInterval(bri);
+        }
+        if (null == bri.getMilliseconds()) {
+            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
+        }
+                
+        super.setRMAssertion(rma);
+    }
+
     void addSourceSequence(SourceSequence ss) {
         if (null == sourceSequences) {
             sourceSequences = new HashMap<String, SourceSequence>();
@@ -298,4 +312,5 @@ public class RMManager extends RMManagerConfigBean {
             return sid;
         }   
     }
+   
 }

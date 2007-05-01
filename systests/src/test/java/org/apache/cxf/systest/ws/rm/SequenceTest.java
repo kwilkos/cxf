@@ -103,7 +103,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
     private boolean doTestTwowayAtMostOnce = testAll;
-    private boolean doTestInvalidSequence = testAll;
+    private boolean doTestUnknownSequence = testAll;
+    private boolean doTestInactivityTimeout = testAll;
     private boolean doTestOnewayMessageLoss = testAll;
     private boolean doTestOnewayMessageLossAsyncExecutor = testAll;
     private boolean doTestTwowayMessageLoss = testAll;
@@ -698,8 +699,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testInvalidSequence() throws Exception {
-        if (!doTestInvalidSequence) {
+    public void testUnknownSequence() throws Exception {
+        if (!doTestUnknownSequence) {
             return;
         }
         
@@ -734,6 +735,69 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         // the third inbound message has a SequenceFault header
         MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
         mf.verifySequenceFault(RMConstants.getUnknownSequenceFaultCode(), false, 1);
+    }
+    
+    @Test
+    public void testInactivityTimeout() throws Exception {
+        if (!doTestInactivityTimeout) {
+            return;
+        }
+        
+        setupGreeter("org/apache/cxf/systest/ws/rm/inactivity-timeout.xml");
+       
+        greeter.greetMe("one");
+        
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+            // ignore
+        }        
+        
+        try {
+            greeter.greetMe("two");
+            fail("Expected fault.");
+        } catch (WebServiceException ex) {
+            SoapFault sf = (SoapFault)ex.getCause();
+            assertEquals("Unexpected fault code.", Soap11.getInstance().getSender(), sf.getFaultCode());
+            assertNull("Unexpected sub code.", sf.getSubCode());
+            assertTrue("Unexpected reason.", sf.getReason().endsWith("is not a known Sequence identifier."));
+        }   
+        
+        awaitMessages(3, 3, 5000);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        // Expected outbound:
+        // CreateSequence 
+        // + two requests (second request does not include acknowledgement for first response as 
+        // in the meantime the client has terminated the sequence
+       
+        String[] expectedActions = new String[3];
+        expectedActions[0] = RMConstants.getCreateSequenceAction();        
+        for (int i = 1; i < expectedActions.length; i++) {
+            expectedActions[i] = GREETME_ACTION;
+        }
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, true);
+        mf.verifyLastMessage(new boolean[3], true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false}, true);
+ 
+        // Expected inbound:
+        // createSequenceResponse
+        // + 1 response with acknowledgement
+        // + 1 fault without acknowledgement
+        
+        mf.verifyMessages(3, false);
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, false} , false);
+        
+        // the third inbound message has a SequenceFault header
+        
+        mf.verifySequenceFault(RMConstants.getUnknownSequenceFaultCode(), false, 2);
+     
     }
 
     @Test    

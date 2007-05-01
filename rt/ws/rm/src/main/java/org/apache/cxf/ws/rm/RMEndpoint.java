@@ -78,8 +78,9 @@ public class RMEndpoint {
     private Endpoint endpoint;
     private Proxy proxy;
     private Servant servant;
-    
-    
+    private long lastApplicationMessage;
+    private long lastControlMessage;
+     
     public RMEndpoint(RMManager m, Endpoint ae) {
         manager = m;
         applicationEndpoint = ae;
@@ -448,6 +449,24 @@ public class RMEndpoint {
     void setManager(RMManager m) {
         manager = m;
     }
+    
+    public long getLastApplicationMessage() {
+        return lastApplicationMessage;
+    }
+
+    public void receivedApplicationMessage() {
+        lastApplicationMessage = System.currentTimeMillis();
+    }
+
+    public long getLastControlMessage() {
+        return lastControlMessage;
+    }
+
+    public void receivedControlMessage() {
+        lastControlMessage = System.currentTimeMillis();
+    }
+    
+    
     
     class EffectivePolicyImpl implements EffectivePolicy {
         

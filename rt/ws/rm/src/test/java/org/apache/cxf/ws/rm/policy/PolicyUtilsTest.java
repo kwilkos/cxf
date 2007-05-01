@@ -28,9 +28,12 @@ import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.RMConstants;
+import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
+import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
+import org.apache.cxf.ws.rm.policy.RMAssertion.ExponentialBackoff;
+import org.apache.cxf.ws.rm.policy.RMAssertion.InactivityTimeout;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,133 +50,120 @@ public class PolicyUtilsTest extends Assert {
         control = EasyMock.createNiceControl();
     }
     
-    @After
-    public void tearDown() {
-        control.verify();
-    }
-    
     @Test
-    public void testGetBaseRetranmissionInterval() {
-        Message message = control.createMock(Message.class);
-        AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
-        AssertionInfo ai1 = control.createMock(AssertionInfo.class);
-        AssertionInfo ai2 =  control.createMock(AssertionInfo.class);
-        AssertionInfo ai3 =  control.createMock(AssertionInfo.class);
-        AssertionInfo ai4 =  control.createMock(AssertionInfo.class);
-        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
-        ais.add(ai1);
-        ais.add(ai2);
-        ais.add(ai3);
-        ais.add(ai4);
-        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
-        JaxbAssertion ja1 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai1.getAssertion()).andReturn(ja1);
-        RMAssertion rma1 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja1.getData()).andReturn(rma1);
-        EasyMock.expect(rma1.getBaseRetransmissionInterval()).andReturn(null);
-        JaxbAssertion ja2 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai2.getAssertion()).andReturn(ja2);
-        RMAssertion rma2 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja2.getData()).andReturn(rma2);
-        RMAssertion.BaseRetransmissionInterval bri2 = 
-            control.createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma2.getBaseRetransmissionInterval()).andReturn(bri2);
-        EasyMock.expect(bri2.getMilliseconds()).andReturn(null);
-        JaxbAssertion ja3 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai3.getAssertion()).andReturn(ja3);
-        RMAssertion rma3 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja3.getData()).andReturn(rma3);
-        RMAssertion.BaseRetransmissionInterval bri3 = 
-            control.createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma3.getBaseRetransmissionInterval()).andReturn(bri3);
-        EasyMock.expect(bri3.getMilliseconds()).andReturn(new BigInteger("10000"));
-        JaxbAssertion ja4 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai4.getAssertion()).andReturn(ja4);
-        RMAssertion rma4 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja4.getData()).andReturn(rma4);
-        RMAssertion.BaseRetransmissionInterval bri4 = 
-            control.createMock(RMAssertion.BaseRetransmissionInterval.class);
-        EasyMock.expect(rma4.getBaseRetransmissionInterval()).andReturn(bri4);
-        EasyMock.expect(bri4.getMilliseconds()).andReturn(new BigInteger("5000"));
+    public void testRMAssertionEquals() {
+        RMAssertion a = new RMAssertion();
+        assertTrue(PolicyUtils.equals(a, a));
         
-        control.replay();
-        assertEquals("Unexpected value for base retransmission interval", 
-                     5000, PolicyUtils.getBaseRetransmissionInterval(message).intValue());
+        RMAssertion b = new RMAssertion();
+        assertTrue(PolicyUtils.equals(a, b));
+        
+        InactivityTimeout iat = new RMAssertion.InactivityTimeout();
+        iat.setMilliseconds(BigInteger.TEN);
+        a.setInactivityTimeout(iat);
+        assertTrue(!PolicyUtils.equals(a, b));
+        b.setInactivityTimeout(iat);
+        assertTrue(PolicyUtils.equals(a, b));
+        
+        ExponentialBackoff eb = new RMAssertion.ExponentialBackoff();
+        a.setExponentialBackoff(eb);
+        assertTrue(!PolicyUtils.equals(a, b));
+        b.setExponentialBackoff(eb);
+        assertTrue(PolicyUtils.equals(a, b));    
     }
     
     @Test
-    public void testUseExponentialBackoff() {
+    public void testIntersect() {
+        RMAssertion a = new RMAssertion();
+        RMAssertion b = new RMAssertion();
+        assertSame(a, PolicyUtils.intersect(a, b));
+        
+        InactivityTimeout aiat = new RMAssertion.InactivityTimeout();
+        aiat.setMilliseconds(new BigInteger("3600000"));
+        a.setInactivityTimeout(aiat);
+        InactivityTimeout biat = new RMAssertion.InactivityTimeout();
+        biat.setMilliseconds(new BigInteger("7200000"));
+        b.setInactivityTimeout(biat);
+        
+        RMAssertion c = PolicyUtils.intersect(a, b);
+        assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
+        assertNull(c.getBaseRetransmissionInterval());
+        assertNull(c.getAcknowledgementInterval());
+        assertNull(c.getExponentialBackoff());
+        
+        BaseRetransmissionInterval abri = new RMAssertion.BaseRetransmissionInterval();
+        abri.setMilliseconds(new BigInteger("10000"));
+        a.setBaseRetransmissionInterval(abri);
+        BaseRetransmissionInterval bbri = new RMAssertion.BaseRetransmissionInterval();
+        bbri.setMilliseconds(new BigInteger("20000"));
+        b.setBaseRetransmissionInterval(bbri);
+        
+        c = PolicyUtils.intersect(a, b);
+        assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
+        assertEquals(10000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertNull(c.getAcknowledgementInterval());
+        assertNull(c.getExponentialBackoff());
+       
+        AcknowledgementInterval aai = new RMAssertion.AcknowledgementInterval();
+        aai.setMilliseconds(new BigInteger("2000"));
+        a.setAcknowledgementInterval(aai);
+        
+        c = PolicyUtils.intersect(a, b);
+        assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
+        assertEquals(10000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertEquals(2000L, c.getAcknowledgementInterval().getMilliseconds().longValue());
+        assertNull(c.getExponentialBackoff());
+        
+        b.setExponentialBackoff(new RMAssertion.ExponentialBackoff());
+        c = PolicyUtils.intersect(a, b);
+        assertEquals(7200000L, c.getInactivityTimeout().getMilliseconds().longValue());
+        assertEquals(10000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertEquals(2000L, c.getAcknowledgementInterval().getMilliseconds().longValue());
+        assertNotNull(c.getExponentialBackoff());    
+    }
+    
+    @Test
+    public void testGetRMAssertion() {
+        RMAssertion a = new RMAssertion();
+        BaseRetransmissionInterval abri = new RMAssertion.BaseRetransmissionInterval();
+        abri.setMilliseconds(new BigInteger("3000"));
+        a.setBaseRetransmissionInterval(abri);
+        a.setExponentialBackoff(new RMAssertion.ExponentialBackoff());
+        
         Message message = control.createMock(Message.class);
-        AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
-        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
-        AssertionInfo ai = control.createMock(AssertionInfo.class);
-        Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
-        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
-        ais.add(ai);
-        JaxbAssertion ja = control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai.getAssertion()).andReturn(ja);
-        RMAssertion rma =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja.getData()).andReturn(rma);
-        EasyMock.expect(rma.getExponentialBackoff()).andReturn(null);
-        control.replay();
-        assertTrue("Should not use exponential backoff", !PolicyUtils.useExponentialBackoff(message));
-        control.verify();
-        control.reset();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
         control.replay();
-        assertTrue("Should use exponential backoff", PolicyUtils.useExponentialBackoff(message));    
-    }
-   
-    @Test
-    public void testGetAcknowledgmentInterval() {
-        Message message = control.createMock(Message.class);
+        assertSame(a, PolicyUtils.getRMAssertion(a, message));
+        control.verify();
+        
+        control.reset();
         AssertionInfoMap aim = control.createMock(AssertionInfoMap.class);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
-        AssertionInfo ai1 = control.createMock(AssertionInfo.class);
-        AssertionInfo ai2 =  control.createMock(AssertionInfo.class);
-        AssertionInfo ai3 =  control.createMock(AssertionInfo.class);
-        AssertionInfo ai4 =  control.createMock(AssertionInfo.class);
         Collection<AssertionInfo> ais = new ArrayList<AssertionInfo>();
-        ais.add(ai1);
-        ais.add(ai2);
-        ais.add(ai3);
-        ais.add(ai4);
         EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
-        JaxbAssertion ja1 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai1.getAssertion()).andReturn(ja1);
-        RMAssertion rma1 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja1.getData()).andReturn(rma1);
-        EasyMock.expect(rma1.getAcknowledgementInterval()).andReturn(null);
-        JaxbAssertion ja2 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai2.getAssertion()).andReturn(ja2);
-        RMAssertion rma2 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja2.getData()).andReturn(rma2);
-        RMAssertion.AcknowledgementInterval aint2 = 
-            control.createMock(RMAssertion.AcknowledgementInterval.class);
-        EasyMock.expect(rma2.getAcknowledgementInterval()).andReturn(aint2);
-        EasyMock.expect(aint2.getMilliseconds()).andReturn(null);
-        JaxbAssertion ja3 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai3.getAssertion()).andReturn(ja3);
-        RMAssertion rma3 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja3.getData()).andReturn(rma3);
-        RMAssertion.AcknowledgementInterval aint3 = 
-            control.createMock(RMAssertion.AcknowledgementInterval.class);
-        EasyMock.expect(rma3.getAcknowledgementInterval()).andReturn(aint3);
-        EasyMock.expect(aint3.getMilliseconds()).andReturn(new BigInteger("10000"));
-        JaxbAssertion ja4 =  control.createMock(JaxbAssertion.class);
-        EasyMock.expect(ai4.getAssertion()).andReturn(ja4);
-        RMAssertion rma4 =  control.createMock(RMAssertion.class);
-        EasyMock.expect(ja4.getData()).andReturn(rma4);
-        RMAssertion.AcknowledgementInterval aint4 = 
-            control.createMock(RMAssertion.AcknowledgementInterval.class);
-        EasyMock.expect(rma4.getAcknowledgementInterval()).andReturn(aint4);
-        EasyMock.expect(aint4.getMilliseconds()).andReturn(new BigInteger("5000"));
-        
         control.replay();
-        assertEquals("Unexpected value for acknowledgment interval", 
-                     5000, PolicyUtils.getAcknowledgmentInterval(message).intValue());
+        assertSame(a, PolicyUtils.getRMAssertion(a, message));
+        control.verify();
+        
+        control.reset();
+        RMAssertion b = new RMAssertion();
+        BaseRetransmissionInterval bbri = new RMAssertion.BaseRetransmissionInterval();
+        bbri.setMilliseconds(new BigInteger("2000"));
+        b.setBaseRetransmissionInterval(bbri);
+        JaxbAssertion<RMAssertion> assertion = new JaxbAssertion<RMAssertion>();
+        assertion.setName(RMConstants.getRMAssertionQName());
+        assertion.setData(b);
+        AssertionInfo ai = new AssertionInfo(assertion);
+        ais.add(ai);
+        EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
+        EasyMock.expect(aim.get(RMConstants.getRMAssertionQName())).andReturn(ais);
+        control.replay();
+        RMAssertion c = PolicyUtils.getRMAssertion(a, message);
+        assertNull(c.getAcknowledgementInterval());
+        assertNull(c.getInactivityTimeout());
+        assertEquals(2000L, c.getBaseRetransmissionInterval().getMilliseconds().longValue());
+        assertNotNull(c.getExponentialBackoff());   
+        control.verify();
     }
-    
     
 }

@@ -44,7 +44,11 @@ import org.junit.Test;
 public class RMInInterceptorTest extends Assert {
     
     private IMocksControl control;
+    private RMInInterceptor interceptor;
+    private RMManager manager;
+    private RMEndpoint rme;
     private RMProperties rmps;
+    
     
     @Before
     public void setUp() {
@@ -76,8 +80,10 @@ public class RMInInterceptorTest extends Assert {
     
     @Test
     public void testHandleCreateSequenceOnServer() throws SequenceFault, RMException {
-        RMInInterceptor interceptor = new RMInInterceptor();         
-        Message message = setupInboundMessage(RMConstants.getCreateSequenceAction(), true);   
+        interceptor = new RMInInterceptor();         
+        Message message = setupInboundMessage(RMConstants.getCreateSequenceAction(), true);  
+        rme.receivedControlMessage();
+        EasyMock.expectLastCall();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
         
         control.replay();
@@ -86,12 +92,10 @@ public class RMInInterceptorTest extends Assert {
     
     @Test
     public void testHandleCreateSequenceOnClient() throws SequenceFault, RMException {
-        RMInInterceptor interceptor = new RMInInterceptor();         
-        Message message = setupInboundMessage(RMConstants.getCreateSequenceAction(), false);       
-        RMManager manager = control.createMock(RMManager.class);
-        interceptor.setManager(manager);
-        RMEndpoint rme = control.createMock(RMEndpoint.class);
-        EasyMock.expect(manager.getReliableEndpoint(message)).andReturn(rme);
+        interceptor = new RMInInterceptor();         
+        Message message = setupInboundMessage(RMConstants.getCreateSequenceAction(), false); 
+        rme.receivedControlMessage();
+        EasyMock.expectLastCall();
         Servant servant = control.createMock(Servant.class);
         EasyMock.expect(rme.getServant()).andReturn(servant);
         CreateSequenceResponseType csr = control.createMock(CreateSequenceResponseType.class);
@@ -119,8 +123,10 @@ public class RMInInterceptorTest extends Assert {
     NoSuchMethodException {
         Method m = RMInInterceptor.class.getDeclaredMethod("processAcknowledgments",
             new Class[] {RMProperties.class});
-        RMInInterceptor interceptor = control.createMock(RMInInterceptor.class, new Method[] {m});
+        interceptor = control.createMock(RMInInterceptor.class, new Method[] {m});
         Message message = setupInboundMessage(RMConstants.getSequenceAckAction(), onServer);
+        rme.receivedControlMessage();
+        EasyMock.expectLastCall();
         interceptor.processAcknowledgments(rmps);
         EasyMock.expectLastCall();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
@@ -140,8 +146,9 @@ public class RMInInterceptorTest extends Assert {
     }
     
     private void testHandleTerminateSequence(boolean onServer) throws SequenceFault, RMException {
-        RMInInterceptor interceptor = new RMInInterceptor();
+        interceptor = new RMInInterceptor();
         Message message = setupInboundMessage(RMConstants.getTerminateSequenceAction(), onServer);
+        rme.receivedControlMessage();
         EasyMock.expectLastCall();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
 
@@ -168,11 +175,9 @@ public class RMInInterceptorTest extends Assert {
                                                             new Class[] {Destination.class, Message.class});
         Method m4 = RMInInterceptor.class.getDeclaredMethod("processDeliveryAssurance",
                                                             new Class[] {RMProperties.class});
-        RMInInterceptor interceptor = control
+        interceptor = control
             .createMock(RMInInterceptor.class, new Method[] {m1, m2, m3, m4});
         Message message = setupInboundMessage("greetMe", true);
-        RMManager manager = control.createMock(RMManager.class);
-        interceptor.setManager(manager);
         Destination d = control.createMock(Destination.class);
         EasyMock.expect(manager.getDestination(message)).andReturn(d);
         interceptor.processAcknowledgments(rmps);
@@ -184,6 +189,8 @@ public class RMInInterceptorTest extends Assert {
         interceptor.processDeliveryAssurance(rmps);
         EasyMock.expectLastCall();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
+        rme.receivedApplicationMessage();
+        EasyMock.expectLastCall();
 
         control.replay();
         interceptor.handle(message);
@@ -191,8 +198,8 @@ public class RMInInterceptorTest extends Assert {
     
     @Test
     public void testProcessAcknowledgments() {
-        RMInInterceptor interceptor = new RMInInterceptor();
-        RMManager manager = control.createMock(RMManager.class);
+        interceptor = new RMInInterceptor();
+        manager = control.createMock(RMManager.class);
         interceptor.setManager(manager);
         SequenceAcknowledgement ack1 = control.createMock(SequenceAcknowledgement.class);
         SequenceAcknowledgement ack2 = control.createMock(SequenceAcknowledgement.class);
@@ -232,7 +239,7 @@ public class RMInInterceptorTest extends Assert {
         destination.acknowledge(message);
         EasyMock.expectLastCall();        
         control.replay();
-        RMInInterceptor interceptor = new RMInInterceptor();
+        interceptor = new RMInInterceptor();
         interceptor.processSequence(destination, message);
     }
     
@@ -267,6 +274,11 @@ public class RMInInterceptorTest extends Assert {
         org.apache.cxf.transport.Destination td = 
             serverSide ? control.createMock(org.apache.cxf.transport.Destination.class) : null;
         EasyMock.expect(exchange.getDestination()).andReturn(td);
+        
+        manager = control.createMock(RMManager.class);
+        interceptor.setManager(manager);
+        rme = control.createMock(RMEndpoint.class);
+        EasyMock.expect(manager.getReliableEndpoint(message)).andReturn(rme);
         return message;
     }
     

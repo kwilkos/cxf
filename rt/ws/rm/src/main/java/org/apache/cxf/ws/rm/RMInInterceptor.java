@@ -78,7 +78,9 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         
         // for application AND out of band messages
         
-        if (isApplicationMessage) {
+        RMEndpoint rme = getManager().getReliableEndpoint(message);
+        
+        if (isApplicationMessage) {            
             Destination destination = getManager().getDestination(message);
             if (null != rmps) {
                 processAcknowledgments(rmps);
@@ -86,16 +88,19 @@ public class RMInInterceptor extends AbstractRMInterceptor {
                 processSequence(destination, message);
                 processDeliveryAssurance(rmps);
             }
-        } else if (RMConstants.getSequenceAckAction().equals(action)) {
-            processAcknowledgments(rmps);
-        } else if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
-            LOG.fine("Processing inbound CreateSequence on client side.");
-            RMEndpoint rme = getManager().getReliableEndpoint(message);
-            Servant servant = rme.getServant();
-            CreateSequenceResponseType csr = servant.createSequence(message);
-            Proxy proxy = rme.getProxy();
-            proxy.createSequenceResponse(csr);
-            return;
+            rme.receivedApplicationMessage();
+        } else {
+            rme.receivedControlMessage();
+            if (RMConstants.getSequenceAckAction().equals(action)) {
+                processAcknowledgments(rmps);
+            } else if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
+                LOG.fine("Processing inbound CreateSequence on client side.");
+                Servant servant = rme.getServant();
+                CreateSequenceResponseType csr = servant.createSequence(message);
+                Proxy proxy = rme.getProxy();
+                proxy.createSequenceResponse(csr);
+                return;
+            }
         }
         
         assertReliability(message);

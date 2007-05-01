@@ -36,6 +36,7 @@ import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
+import org.apache.cxf.ws.rm.policy.RMAssertion.InactivityTimeout;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
@@ -614,6 +615,38 @@ public class DestinationSequenceTest extends Assert {
         EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         control.replay();
         assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
+        control.verify();
+    }
+    
+    @Test
+    public void testScheduleSequenceTermination() throws SequenceFault, IOException {
+        Timer timer = new Timer();
+        setUpDestination(timer);
+        
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        destination.removeSequence(seq);
+        EasyMock.expectLastCall();
+        
+        Message message = setUpMessage("1");
+        
+        RMEndpoint rme = control.createMock(RMEndpoint.class);
+        EasyMock.expect(destination.getReliableEndpoint()).andReturn(rme);
+        long arrival = System.currentTimeMillis();
+        EasyMock.expect(rme.getLastApplicationMessage()).andReturn(arrival);
+
+        control.replay();
+        InactivityTimeout iat = new RMAssertion.InactivityTimeout();
+        iat.setMilliseconds(new BigInteger("200"));
+        rma.setInactivityTimeout(iat); 
+        
+        seq.acknowledge(message);
+        
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+        
         control.verify();
     }
     

@@ -38,6 +38,8 @@ import org.apache.cxf.ws.rm.manager.DeliveryAssuranceType;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.PolicyUtils;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
+import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
+import org.apache.cxf.ws.rm.policy.RMAssertion.InactivityTimeout;
 
 public class DestinationSequence extends AbstractSequence {
     
@@ -49,6 +51,7 @@ public class DestinationSequence extends AbstractSequence {
     private SequenceMonitor monitor;
     private boolean acknowledgeOnNextOccasion;
     private List<DeferredAcknowledgment> deferredAcknowledgments;
+    private SequenceTermination scheduledTermination;
     private String correlationID;
     
     public DestinationSequence(Identifier i, EndpointReferenceType a, Destination d) {
@@ -153,7 +156,27 @@ public class DestinationSequence extends AbstractSequence {
         
         purgeAcknowledged(messageNumber);
         
-        scheduleAcknowledgement(message);
+        RMAssertion rma = PolicyUtils.getRMAssertion(destination.getManager().getRMAssertion(), message);
+        long acknowledgementInterval = 0;
+        AcknowledgementInterval ai = rma.getAcknowledgementInterval();
+        if (null != ai) {
+            BigInteger val = ai.getMilliseconds(); 
+            if (null != val) {
+                acknowledgementInterval = val.longValue();
+            }
+        }
+        
+        scheduleAcknowledgement(acknowledgementInterval);
+       
+        long inactivityTimeout = 0;
+        InactivityTimeout iat = rma.getInactivityTimeout();
+        if (null != iat) {
+            BigInteger val = iat.getMilliseconds(); 
+            if (null != val) {
+                inactivityTimeout = val.longValue();
+            }
+        }
+        scheduleSequenceTermination(inactivityTimeout);
         
     }
     
@@ -273,24 +296,12 @@ public class DestinationSequence extends AbstractSequence {
         return correlationID;
     }
 
-    void scheduleAcknowledgement(Message message) {  
-        BigInteger interval = PolicyUtils.getAcknowledgmentInterval(message);
-        if (null == interval) {
-            RMAssertion rma = destination.getManager().getRMAssertion();
-            if (null != rma.getAcknowledgementInterval()) {
-                interval = rma.getAcknowledgementInterval().getMilliseconds();
-            }
-        }
-        
-        long delay = 0;
-        if (null != interval) {
-            delay = interval.longValue();
-        }
+    void scheduleAcknowledgement(long acknowledgementInterval) {  
         AcksPolicyType ap = destination.getManager().getDestinationPolicy().getAcksPolicy();
  
-        if (delay > 0 && getMonitor().getMPM() >= ap.getIntraMessageThreshold()) {
+        if (acknowledgementInterval > 0 && getMonitor().getMPM() >= ap.getIntraMessageThreshold()) {
             LOG.fine("Schedule deferred acknowledgment");
-            scheduleDeferredAcknowledgement(delay);
+            scheduleDeferredAcknowledgement(acknowledgementInterval);
         } else {
             LOG.fine("Schedule immediate acknowledgment");
             scheduleImmediateAcknowledgement();
@@ -300,6 +311,20 @@ public class DestinationSequence extends AbstractSequence {
 
     void scheduleImmediateAcknowledgement() {
         acknowledgeOnNextOccasion = true;
+    }
+    
+    synchronized void scheduleSequenceTermination(long inactivityTimeout) { 
+        if (inactivityTimeout <= 0) {
+            return;
+        }
+        boolean scheduled = null != scheduledTermination;
+        if (null == scheduledTermination) {
+            scheduledTermination = new SequenceTermination();
+        }
+        scheduledTermination.updateInactivityTimeout(inactivityTimeout);
+        if (!scheduled) {
+            destination.getManager().getTimer().schedule(scheduledTermination, inactivityTimeout);
+        }
     }
 
     synchronized void scheduleDeferredAcknowledgement(long delay) {
@@ -349,6 +374,43 @@ public class DestinationSequence extends AbstractSequence {
                
             }
 
+        }
+    }
+    
+    final class SequenceTermination extends TimerTask {
+        
+        private long maxInactivityTimeout;
+        
+        void updateInactivityTimeout(long timeout) {
+            maxInactivityTimeout = Math.max(maxInactivityTimeout, timeout);
+        }
+        
+        public void run() {
+            synchronized (DestinationSequence.this) {
+                DestinationSequence.this.scheduledTermination = null;
+                RMEndpoint rme = destination.getReliableEndpoint();
+                long lat = Math.max(rme.getLastControlMessage(), rme.getLastApplicationMessage());
+                if (0 == lat) {
+                    return;
+                }                
+                long now = System.currentTimeMillis();
+                if (now - lat >= maxInactivityTimeout) {
+                    
+                    // terminate regardless outstanding acknowledgments - as we assume that the client is
+                    // gone there is no point in sending a SequenceAcknowledgment
+                    
+                    LogUtils.log(LOG, Level.WARNING, "TERMINATING_INACTIVE_SEQ_MSG", 
+                                 DestinationSequence.this.getIdentifier().getValue());
+                    DestinationSequence.this.destination.removeSequence(DestinationSequence.this);
+
+                } else {
+                   // reschedule 
+                    SequenceTermination st = new SequenceTermination();
+                    st.updateInactivityTimeout(maxInactivityTimeout);
+                    DestinationSequence.this.destination.getManager().getTimer()
+                        .schedule(st, maxInactivityTimeout);
+                }
+            }
         }
     }
     

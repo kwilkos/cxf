@@ -45,6 +45,7 @@ import org.junit.Test;
 public class AbstractRMInterceptorTest extends Assert {
 
     private IMocksControl control;
+    
 
     @Before
     public void setUp() {

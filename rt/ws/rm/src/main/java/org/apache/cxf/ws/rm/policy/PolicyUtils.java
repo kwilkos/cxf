@@ -27,6 +27,9 @@ import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.RMConstants;
+import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
+import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
+import org.apache.cxf.ws.rm.policy.RMAssertion.InactivityTimeout;
 
 /**
  * 
@@ -40,94 +43,168 @@ public final class PolicyUtils {
     private PolicyUtils() {        
     }
 
-
     /**
-     * Returns the base retransmission interval for the specified message.
-     * This is obtained as the minimum base retransmission interval in all RMAssertions pertaining
-     * to the message, or null if there are no such policy assertions.
+     * Returns an RMAssertion that is compatible with the default value
+     * and all RMAssertions pertaining to the message (can never be null).
+     * 
+     * @param rma the default value
      * @param message the message
-     * @return the base retransmission interval for the message
+     * @return the compatible RMAssertion
      */
-    public static BigInteger getBaseRetransmissionInterval(Message message) {
+    public static RMAssertion getRMAssertion(RMAssertion defaultValue, Message message) {        
+        RMAssertion compatible = defaultValue;
         AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
-        BigInteger result = null;
         if (null != amap) {
             Collection<AssertionInfo> ais = amap.get(RMConstants.getRMAssertionQName());
             if (null != ais) {
+                
                 for (AssertionInfo ai : ais) {
                     JaxbAssertion<RMAssertion> ja = getAssertion(ai);
                     RMAssertion rma = ja.getData();
-                    RMAssertion.BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
-                    if (null == bri) {
-                        continue;
-                    }
-                    BigInteger val = bri.getMilliseconds();
-                    if (null == result || val.compareTo(result) < 0) {
-                        result = val;
-                    }
+                    compatible = null == defaultValue ? rma
+                        : intersect(compatible, rma);
                 }
             }
         }
-        return result;
+        return compatible;
     }
     
-    /**
-     * Determines if exponential backoff should be used in repeated attempts to
-     * resend the specified message. Returns false if there is at least one
-     * RMAssertion for this message indicating that no exponential backoff
-     * algorithm should be used, or true otherwise.
-     * 
-     * @param message the message
-     * @return true iff the exponential backoff algorithm should be used for the
-     *         message
-     */
-    public static boolean useExponentialBackoff(Message message) {
-        AssertionInfoMap amap = message.get(AssertionInfoMap.class);
-        if (null != amap) {
-            Collection<AssertionInfo> ais = amap.get(RMConstants.getRMAssertionQName());
-            if (null != ais) {
-                for (AssertionInfo ai : ais) {
-                    JaxbAssertion<RMAssertion> ja = getAssertion(ai);
-                    RMAssertion rma = ja.getData();
-                    if (null == rma.getExponentialBackoff()) {
-                        return false;
-                    }
-                }
+    public static RMAssertion intersect(RMAssertion a, RMAssertion b) {
+        if (equals(a, b)) {
+            return a;
+        }
+        RMAssertion compatible = new RMAssertion();
+        
+        // use maximum of inactivity timeout
+        
+        BigInteger aval = null;
+        if (null != a.getInactivityTimeout()) {
+            aval = a.getInactivityTimeout().getMilliseconds();
+        }
+        BigInteger bval = null;
+        if (null != b.getInactivityTimeout()) {
+            bval = b.getInactivityTimeout().getMilliseconds();            
+        }
+        if (null != aval || null != bval) {
+            InactivityTimeout ia = new RMAssertion.InactivityTimeout();
+            if (null != aval && null != bval) {
+                ia.setMilliseconds(aval.max(bval));
+            } else {
+                ia.setMilliseconds(aval != null ? aval : bval);
             }
+            compatible.setInactivityTimeout(ia);
+        }
+        
+        // use minimum of base retransmission interval
+        
+        aval = null;
+        if (null != a.getBaseRetransmissionInterval()) {
+            aval = a.getBaseRetransmissionInterval().getMilliseconds();
+        }
+        bval = null;
+        if (null != b.getBaseRetransmissionInterval()) {
+            bval = b.getBaseRetransmissionInterval().getMilliseconds();            
+        }
+        if (null != aval || null != bval) {
+            BaseRetransmissionInterval bri = new RMAssertion.BaseRetransmissionInterval();
+            if (null != aval && null != bval) {
+                bri.setMilliseconds(aval.min(bval));
+            } else {
+                bri.setMilliseconds(aval != null ? aval : bval);
+            }
+            compatible.setBaseRetransmissionInterval(bri);
+        }
+        
+        // use minimum of acknowledgement interval
+        
+        aval = null;
+        if (null != a.getAcknowledgementInterval()) {
+            aval = a.getAcknowledgementInterval().getMilliseconds();
+        }
+        bval = null;
+        if (null != b.getAcknowledgementInterval()) {
+            bval = b.getAcknowledgementInterval().getMilliseconds(); 
+        }
+        if (null != aval || null != bval) {
+            AcknowledgementInterval ai = new RMAssertion.AcknowledgementInterval();
+            if (null != aval && null != bval) {
+                ai.setMilliseconds(aval.min(bval));
+            } else {
+                ai.setMilliseconds(aval != null ? aval : bval);
+            }
+            compatible.setAcknowledgementInterval(ai);
+        }
+    
+        // backoff parameter
+        if (null != a.getExponentialBackoff() || null != b.getExponentialBackoff()) {
+            compatible.setExponentialBackoff(new RMAssertion.ExponentialBackoff());
+        }
+        return compatible;
+    }
+    
+    public static boolean equals(RMAssertion a, RMAssertion b) {
+        if (a == b) {
+            return true;
+        }
+        
+        BigInteger aval = null;
+        if (null != a.getInactivityTimeout()) {
+            aval = a.getInactivityTimeout().getMilliseconds();
+        }
+        BigInteger bval = null;
+        if (null != b.getInactivityTimeout()) {
+            bval = b.getInactivityTimeout().getMilliseconds();            
+        }
+        if (!equals(aval, bval)) {
+            return false;
+        }
+            
+        aval = null;
+        if (null != a.getBaseRetransmissionInterval()) {
+            aval = a.getBaseRetransmissionInterval().getMilliseconds();
+        }
+        bval = null;
+        if (null != b.getBaseRetransmissionInterval()) {
+            bval = b.getBaseRetransmissionInterval().getMilliseconds();            
+        }
+        if (!equals(aval, bval)) {
+            return false;
+        }
+        
+        aval = null;
+        if (null != a.getAcknowledgementInterval()) {
+            aval = a.getAcknowledgementInterval().getMilliseconds();
+        }
+        bval = null;
+        if (null != b.getAcknowledgementInterval()) {
+            bval = b.getAcknowledgementInterval().getMilliseconds(); 
+        }
+        if (!equals(aval, bval)) {
+            return false;
+        }
+        
+        return null == a.getExponentialBackoff()
+            ? null == b.getExponentialBackoff() 
+            : null != b.getExponentialBackoff();         
+    }
+        
+    private static boolean equals(BigInteger aval, BigInteger bval) {
+        if (null != aval) {
+            if (null != bval) {
+                if (!aval.equals(bval)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            if (null != bval) {
+                return false;
+            }
+            return true;
         }
         return true;
     }
-    
-    /**
-     * Returns the acknowledgment interval for the specified message.
-     * This is obtained as the minimum acknowledgment interval in all RMAssertions pertaining
-     * to the message, or null of if there are no such policy assertions.
-     * @param message the message
-     * @return the base retransmission interval for the message
-     */
-    public static BigInteger getAcknowledgmentInterval(Message message) {
-        AssertionInfoMap amap =  message.get(AssertionInfoMap.class);
-        BigInteger result = null;
-        if (null != amap) {
-            Collection<AssertionInfo> ais = amap.get(RMConstants.getRMAssertionQName());
-            if (null != ais) {
-                for (AssertionInfo ai : ais) {
-                    JaxbAssertion<RMAssertion> ja = getAssertion(ai);
-                    RMAssertion rma = ja.getData();
-                    RMAssertion.AcknowledgementInterval interval = rma.getAcknowledgementInterval();
-                    if (null == interval) {
-                        continue;
-                    }
-                    BigInteger val = interval.getMilliseconds();
-                    if (null == result || val.compareTo(result) < 0) {
-                        result = val;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
 
     @SuppressWarnings("unchecked")
     private static JaxbAssertion<RMAssertion> getAssertion(AssertionInfo ai) {

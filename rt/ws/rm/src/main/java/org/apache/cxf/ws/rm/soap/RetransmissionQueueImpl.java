@@ -81,54 +81,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         manager = m;
     }
 
-    /**
-     * Returns the base retransmission interval for the specified message. This
-     * is obtained as the minimum base retransmission interval in all
-     * RMAssertions pertaining to the message, or the default configured for the
-     * RMManager if there are no such policy assertions.
-     * 
-     * @param message the message
-     * @return the base retransmission interval for the message
-     */
-    public long getBaseRetransmissionInterval(Message message) {
-        BigInteger val = PolicyUtils.getBaseRetransmissionInterval(message);
-        if (null != val) {
-            return val.longValue();
-        } else {
-
-            RMAssertion rma = manager.getRMAssertion();
-            RMAssertion.BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
-            if (null != bri) {
-                val = bri.getMilliseconds();
-            }
-        }
-        if (null != val) {
-            return val.longValue();
-        }
-        return 0;
-    }
-
-    /**
-     * Determines if exponential backoff should be used in repeated attemprs to
-     * resend the specified message. Returns false if there is at least one
-     * RMAssertion for this message indicating that no exponential backoff
-     * algorithm should be used, or true otherwise.
-     * 
-     * @param message the message
-     * @return true iff the exponential backoff algorithm should be used for the
-     *         message
-     */
-    public boolean useExponentialBackoff(Message message) {
-        if (!PolicyUtils.useExponentialBackoff(message)) {
-            return false;
-        }
-        RMAssertion rma = manager.getRMAssertion();
-        if (null == rma.getExponentialBackoff()) {
-            return false;
-        }
-        return true;
-    }
-
     public void addUnacknowledged(Message message) {
         cacheUnacknowledged(message);
     }
@@ -335,8 +287,11 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         protected ResendCandidate(Message m) {
             message = m;
             resends = 0;
-            long baseRetransmissionInterval = getBaseRetransmissionInterval(m);
-            backoff = useExponentialBackoff(m) ? RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF : 1;
+            RMAssertion rma = PolicyUtils.getRMAssertion(manager.getRMAssertion(), message);
+            long baseRetransmissionInterval = 
+                rma.getBaseRetransmissionInterval().getMilliseconds().longValue();
+            backoff = null != rma.getExponentialBackoff() 
+                ? RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF : 1;
             next = new Date(System.currentTimeMillis() + baseRetransmissionInterval);
             nextInterval = baseRetransmissionInterval * backoff;
             if (null != manager.getTimer()) {
