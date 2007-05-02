@@ -28,8 +28,10 @@ import javax.xml.datatype.Duration;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxb.DatatypeFactory;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -242,14 +244,10 @@ public class ProxyTest extends Assert {
         Bus bus = control.createMock(Bus.class);
         Endpoint endpoint = control.createMock(Endpoint.class);
         Conduit conduit = control.createMock(Conduit.class);
-        org.apache.cxf.ws.addressing.EndpointReferenceType address = 
-            control.createMock(org.apache.cxf.ws.addressing.EndpointReferenceType.class);
-        Proxy.RMClient client = proxy.new RMClient(bus, endpoint, conduit, address);
-        EndpointInfo endpointInfo = control.createMock(EndpointInfo.class);
-        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(endpointInfo).anyTimes();
-        endpointInfo.setAddress(address);
-        EasyMock.expectLastCall();
+        ConduitSelector cs = control.createMock(ConduitSelector.class);
+        EasyMock.expect(cs.selectConduit(EasyMock.isA(Message.class))).andReturn(conduit);
         control.replay();
+        Proxy.RMClient client = proxy.new RMClient(bus, endpoint, cs);
         assertSame(conduit, client.getConduit());    
     }
     

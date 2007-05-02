@@ -31,6 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
@@ -200,32 +201,32 @@ public class Proxy {
     }
     
     protected Client createClient(Bus bus, Endpoint endpoint, Conduit conduit,
-                                  org.apache.cxf.ws.addressing.EndpointReferenceType address) {
-        return new RMClient(bus, endpoint, conduit, address);
+                                  final org.apache.cxf.ws.addressing.EndpointReferenceType address) {
+        ConduitSelector cs = new DeferredConduitSelector(conduit) {
+            @Override
+            public Conduit selectConduit(Message message) {
+                Conduit conduit = null;
+                EndpointInfo endpointInfo = getEndpoint().getEndpointInfo();
+                org.apache.cxf.ws.addressing.EndpointReferenceType original = 
+                    endpointInfo.getTarget();
+                try {
+                    if (null != address) {
+                        endpointInfo.setAddress(address);
+                    }
+                    conduit = super.selectConduit(message);
+                } finally {
+                    endpointInfo.setAddress(original);
+                }
+                return conduit;
+            }
+        };  
+        return new RMClient(bus, endpoint, cs);
     }
     
     class RMClient extends ClientImpl {
 
-        RMClient(Bus bus, Endpoint endpoint, Conduit conduit,
-                 final org.apache.cxf.ws.addressing.EndpointReferenceType a) {
-            super(bus, endpoint, new DeferredConduitSelector(conduit) {
-                @Override
-                public Conduit selectConduit(Message message) {
-                    Conduit conduit = null;
-                    EndpointInfo endpointInfo = getEndpoint().getEndpointInfo();
-                    org.apache.cxf.ws.addressing.EndpointReferenceType original = 
-                        endpointInfo.getTarget();
-                    try {
-                        if (null != a) {
-                            endpointInfo.setAddress(a);
-                        }
-                        conduit = super.selectConduit(message);
-                    } finally {
-                        endpointInfo.setAddress(original);
-                    }
-                    return conduit;
-                }
-            });  
+        RMClient(Bus bus, Endpoint endpoint, ConduitSelector cs) {
+            super(bus, endpoint, cs);  
         }
 
         @Override
