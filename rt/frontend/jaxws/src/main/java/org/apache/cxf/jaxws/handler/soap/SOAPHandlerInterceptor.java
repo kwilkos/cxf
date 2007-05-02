@@ -36,6 +36,7 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
+import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.helpers.CastUtils;
@@ -54,6 +55,7 @@ public class SOAPHandlerInterceptor extends
     public SOAPHandlerInterceptor(Binding binding) {
         super(binding);
         setPhase(Phase.PRE_PROTOCOL);
+        addAfter(MustUnderstandInterceptor.class.getName());
         addAfter(StaxOutInterceptor.class.getName());
         addAfter(SAAJOutInterceptor.class.getName());
     }
