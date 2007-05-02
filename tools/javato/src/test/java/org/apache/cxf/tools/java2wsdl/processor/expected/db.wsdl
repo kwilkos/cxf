@@ -30,29 +30,26 @@
 <xs:element minOccurs="0" name="species" type="xs:string"/>
 </xs:sequence>
 </xs:complexType>
-<xs:element name="DBServiceFault">
-<xs:complexType>
+<xs:element name="DBServiceFault" type="DBServiceFault"/>
+<xs:complexType name="DBServiceFault">
 <xs:sequence>
 <xs:element name="message" nillable="true" type="xs:string"/>
 </xs:sequence>
 </xs:complexType>
-</xs:element>
-<xs:element name="operation0">
-<xs:complexType>
+<xs:element name="operation0" type="operation0"/>
+<xs:complexType name="operation0">
 <xs:sequence/>
 </xs:complexType>
-</xs:element>
-<xs:element name="operation0Response">
-<xs:complexType>
+<xs:element name="operation0Response" type="operation0Response"/>
+<xs:complexType name="operation0Response">
 <xs:sequence>
 <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="operation0ResponseType"/>
 </xs:sequence>
 </xs:complexType>
-</xs:element>
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="operation0">
-    <wsdl:part name="operation0" element="ns1:operation0">
+    <wsdl:part name="parameters" element="ns1:operation0">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DBServiceFault">
@@ -60,7 +57,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="operation0Response">
-    <wsdl:part name="operation0Response" element="ns1:operation0Response">
+    <wsdl:part name="parameters" element="ns1:operation0Response">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="DatabasePortType">

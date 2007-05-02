@@ -76,6 +76,27 @@ public final class ResponseWrapper extends Wrapper {
             field.setType(type);
         }
         fields.add(field);
+        
+        final Class[] paramClasses = method.getParameterTypes();
+        for (MessagePartInfo mpi : message.getMessageParts()) {
+            int idx = mpi.getIndex();
+            if (idx >= 0) {
+                String name = mpi.getName().getLocalPart();
+                String type;
+                Class clz = paramClasses[idx];
+                if (clz.isArray()) {
+                    if (isBuiltInTypes(clz.getComponentType())) {
+                        type = clz.getComponentType().getSimpleName() + "[]";
+                    } else {
+                        type = clz.getComponentType().getName() + "[]";
+                    }
+                } else {
+                    type = clz.getName();
+                }
+                fields.add(new JavaField(name, type, ""));
+            }
+        }
+        
         return fields;
     }
 

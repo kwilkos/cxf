@@ -189,7 +189,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             super.initializeWSDLOperations();
         }
     }
-    
+
  
     protected void initializeWSDLOperationsForProvider() {
         Type[] genericInterfaces = getServiceClass().getGenericInterfaces();

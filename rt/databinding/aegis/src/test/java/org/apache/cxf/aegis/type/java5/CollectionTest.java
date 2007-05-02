@@ -185,8 +185,8 @@ public class CollectionTest extends AbstractAegisTest {
         Document doc = getWSDLDocument("CollectionService");
         // printNode(doc);
         assertValid(
-                    "//xsd:element[@name='getUnannotatedStringsResponse']"
-                    + "/xsd:complexType/xsd:sequence/xsd:element[@type='ArrayOfString']",
+                    "//xsd:complexType[@name='getUnannotatedStringsResponse']"
+                    + "/xsd:sequence/xsd:element[@type='ArrayOfString']",
                     doc);
     }
 

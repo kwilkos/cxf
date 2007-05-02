@@ -175,7 +175,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertEquals("greetMeResponse", greetMeOp.getOutput().getName().getLocalPart());
         
         MessagePartInfo outMessagePart = messageParts.get(0);
-        assertEquals("greetMeResponse", outMessagePart.getName().getLocalPart());
+        assertEquals("parameters", outMessagePart.getName().getLocalPart());
         assertEquals("http://apache.org/hello_world_doc_lit", outMessagePart.getName().getNamespaceURI());
         assertEquals("http://apache.org/hello_world_doc_lit/types", outMessagePart.getElementQName()
             .getNamespaceURI());

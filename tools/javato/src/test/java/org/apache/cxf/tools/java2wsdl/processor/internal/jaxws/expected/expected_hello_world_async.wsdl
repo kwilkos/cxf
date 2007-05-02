@@ -37,11 +37,11 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="greetMeSometime">
-    <wsdl:part name="greetMeSometime" element="ns2:greetMeSometime">
+    <wsdl:part name="parameters" element="ns2:greetMeSometime">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMeSometimeResponse">
-    <wsdl:part name="greetMeSometimeResponse" element="ns2:greetMeSometimeResponse">
+    <wsdl:part name="parameters" element="ns2:greetMeSometimeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="GreeterAsync">

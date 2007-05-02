@@ -63,9 +63,9 @@ public class WrappedTest extends AbstractAegisTest {
         assertValid("//xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']/"
                     + "xsd:element[@name='getSubmitBean']",
                     doc);
-        assertValid("//xsd:element[@name='getSubmitBean']/xsd:complexType/xsd:sequence"
+        assertValid("//xsd:complexType[@name='getSubmitBean']/xsd:sequence"
                     + "/xsd:element[@name='bleh'][@type='string'][@minOccurs='0']", doc);
-        assertValid("//xsd:element[@name='getSubmitBean']/xsd:complexType/xsd:sequence"
+        assertValid("//xsd:complexType[@name='getSubmitBean']/xsd:sequence"
                     + "/xsd:element[@name='bean'][@type='SimpleBean'][@minOccurs='0']", doc);
 
         assertValid("/wsdl:definitions/wsdl:types"

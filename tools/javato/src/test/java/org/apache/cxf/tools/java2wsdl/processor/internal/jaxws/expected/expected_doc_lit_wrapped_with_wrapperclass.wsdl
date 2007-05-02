@@ -37,11 +37,11 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="getPrice">
-    <wsdl:part name="getPrice" element="ns1:getPrice">
+    <wsdl:part name="parameters" element="ns1:getPrice">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getPriceResponse">
-    <wsdl:part name="getPriceResponse" element="ns1:getPriceResponse">
+    <wsdl:part name="parameters" element="ns1:getPriceResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="StockWrapped">

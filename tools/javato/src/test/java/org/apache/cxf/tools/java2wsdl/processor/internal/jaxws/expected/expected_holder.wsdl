@@ -20,78 +20,72 @@
 <wsdl:definitions name="HolderServiceService" targetNamespace="http://holder.fortest.tools.cxf.apache.org/" xmlns:ns1="http://holder.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://holder.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://holder.fortest.tools.cxf.apache.org/">
-<xsd:element name="echo">
-<xsd:complexType>
+<xsd:element name="echo" type="echo"/>
+<xsd:complexType name="echo">
 <xsd:sequence>
 <xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
 <xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
-<xsd:element name="echoResponse">
-<xsd:complexType>
+<xsd:element name="echoResponse" type="echoResponse"/>
+<xsd:complexType name="echoResponse">
 <xsd:sequence>
 <xsd:element minOccurs="0" name="return" type="xsd:string"/>
 <xsd:element minOccurs="0" name="return1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
-<xsd:element name="echo3">
-<xsd:complexType>
+<xsd:element name="echo3" type="echo3"/>
+<xsd:complexType name="echo3">
 <xsd:sequence>
-<xsd:element minOccurs="0" ref="header"/>
 <xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
-<xsd:element name="echo3Response">
-<xsd:complexType>
+<xsd:element name="echo3Response" type="echo3Response"/>
+<xsd:complexType name="echo3Response">
 <xsd:sequence>
 <xsd:element minOccurs="0" name="return" type="xsd:string"/>
-<xsd:element minOccurs="0" ref="header"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
-<xsd:element name="echo2">
-<xsd:complexType>
+<xsd:element name="echo2" type="echo2"/>
+<xsd:complexType name="echo2">
 <xsd:sequence>
 <xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
 <xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
-<xsd:element name="echo2Response">
-<xsd:complexType>
+<xsd:element name="echo2Response" type="echo2Response"/>
+<xsd:complexType name="echo2Response">
 <xsd:sequence>
 <xsd:element minOccurs="0" name="return" type="xsd:string"/>
 <xsd:element minOccurs="0" name="return1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
 </xsd:schema>
   </wsdl:types>
   <wsdl:message name="echo">
-    <wsdl:part name="echo" element="ns1:echo">
+    <wsdl:part name="parameters" element="ns1:echo">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo3Response">
-    <wsdl:part name="echo3Response" element="ns1:echo3Response">
+    <wsdl:part name="parameters" element="ns1:echo3Response">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo2">
-    <wsdl:part name="echo2" element="ns1:echo2">
+    <wsdl:part name="parameters" element="ns1:echo2">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echoResponse">
-    <wsdl:part name="echoResponse" element="ns1:echoResponse">
+    <wsdl:part name="parameters" element="ns1:echoResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo2Response">
-    <wsdl:part name="echo2Response" element="ns1:echo2Response">
+    <wsdl:part name="parameters" element="ns1:echo2Response">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo3">
-    <wsdl:part name="echo3" element="ns1:echo3">
+    <wsdl:part name="parameters" element="ns1:echo3">
+    </wsdl:part>
+    <wsdl:part name="header" element="ns1:header">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="HolderService">
@@ -139,12 +133,12 @@
       <wsdl:input name="echo3">
         <soap:header message="ns1:echo3" part="header" use="literal">
         </soap:header>
-        <soap:body parts="echo3" use="literal"/>
+        <soap:body parts="parameters" use="literal"/>
       </wsdl:input>
       <wsdl:output name="echo3Response">
         <soap:header message="ns1:echo3Response" part="header" use="literal">
         </soap:header>
-        <soap:body parts="echo3Response" use="literal"/>
+        <soap:body parts="parameters" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>

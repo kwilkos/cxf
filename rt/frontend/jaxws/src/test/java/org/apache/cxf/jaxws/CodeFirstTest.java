@@ -88,12 +88,12 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
         assertValid("//wsdl:portType[@name='Hello']", wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@element='ns1:sayHi'][@name='sayHi']",
+                    + "/wsdl:part[@element='ns1:sayHi'][@name='parameters']",
                     wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHiResponse']"
-                    + "/wsdl:part[@element='ns1:sayHiResponse'][@name='sayHiResponse']",
+                    + "/wsdl:part[@element='ns1:sayHiResponse'][@name='parameters']",
                     wsdl);
-        assertValid("//xsd:element[@name='sayHi']/xsd:complexType"
+        assertValid("//xsd:complexType[@name='sayHi']"
                     + "/xsd:sequence/xsd:element[@name='arg0']",
                     wsdl);
     }

@@ -56,13 +56,13 @@
     <fail message="Please set CXF_HOME environment variable." unless="cxf.home"/>
 
     <!-- Determine cxf.jar.file, either ${cxf.home}/build/lib/cxf.jar
-	 - in a source distribution, or ${cxf.home}/modules/cxf-manifest-incubator.jar in a binary
+	 - in a source distribution, or ${cxf.home}/lib/cxf-manifest-incubator.jar in a binary
 	 - distribution.
     -->
-    <condition property="cxf-manifest-incubator.jar.file" value="${cxf.home}/build/modules/cxf-manifest-incubator.jar">
+    <condition property="cxf-manifest-incubator.jar.file" value="${cxf.home}/build/lib/cxf-manifest-incubator.jar">
 	<available file="cxf-manifest-incubator.jar" type="file" filepath="${cxf.home}/build/lib"/>
     </condition>
-    <property name="cxf-manifest-incubator.jar.file" value="${cxf.home}/modules/cxf-manifest-incubator.jar"/>
+    <property name="cxf-manifest-incubator.jar.file" value="${cxf.home}/lib/cxf-manifest-incubator.jar"/>
 
     <fail message="The location ${cxf.home} does not seem to contain a cxf installation; if you are importing this common build file from a location other than the cxf samples directory then you need to set the cxf_HOME environment variable.">
 	<condition>

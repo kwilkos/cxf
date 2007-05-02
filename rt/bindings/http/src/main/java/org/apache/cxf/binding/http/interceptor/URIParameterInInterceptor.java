@@ -19,6 +19,7 @@
 package org.apache.cxf.binding.http.interceptor;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -45,6 +46,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
@@ -108,6 +110,8 @@ public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message>
         // TODO: If its a POST/PUT operation we probably need to merge the
         // incoming doc
         Document doc;
+        Collection<SchemaInfo> schemas = part.getMessageInfo().getOperation()
+            .getInterface().getService().getSchemas();
         if ("POST".equals(method) || "PUT".equals(method)) {
             XMLInputFactory inputFactory = StaxInInterceptor.getXMLInputFactory(message);
             try {
@@ -117,9 +121,14 @@ public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message>
             } catch (XMLStreamException e) {
                 throw new Fault(e);
             }
-            doc = IriDecoderHelper.interopolateParams(doc, (XmlSchemaElement)part.getXmlSchema(), params);
+            doc = IriDecoderHelper.interopolateParams(doc, 
+                                                      (XmlSchemaElement)part.getXmlSchema(),
+                                                      schemas,
+                                                      params);
         } else {
-            doc = IriDecoderHelper.buildDocument((XmlSchemaElement)part.getXmlSchema(), params);
+            doc = IriDecoderHelper.buildDocument((XmlSchemaElement)part.getXmlSchema(),
+                                                 schemas,
+                                                 params);
         }
 
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(new DOMSource(doc));

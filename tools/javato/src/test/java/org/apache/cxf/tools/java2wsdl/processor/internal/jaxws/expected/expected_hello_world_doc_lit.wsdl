@@ -68,35 +68,35 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="faultDetail">
-    <wsdl:part name="faultDetail" element="ns2:faultDetail">
+    <wsdl:part name="fault" element="ns2:faultDetail">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiResponse">
-    <wsdl:part name="sayHiResponse" element="ns2:sayHiResponse">
+    <wsdl:part name="parameters" element="ns2:sayHiResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMeResponse">
-    <wsdl:part name="greetMeResponse" element="ns2:greetMeResponse">
+    <wsdl:part name="parameters" element="ns2:greetMeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMe">
-    <wsdl:part name="greetMe" element="ns2:greetMe">
+    <wsdl:part name="parameters" element="ns2:greetMe">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMe">
-    <wsdl:part name="pingMe" element="ns2:pingMe">
+    <wsdl:part name="parameters" element="ns2:pingMe">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMeResponse">
-    <wsdl:part name="pingMeResponse" element="ns2:pingMeResponse">
+    <wsdl:part name="parameters" element="ns2:pingMeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHi">
-    <wsdl:part name="sayHi" element="ns2:sayHi">
+    <wsdl:part name="parameters" element="ns2:sayHi">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMeOneWay">
-    <wsdl:part name="greetMeOneWay" element="ns2:greetMeOneWay">
+    <wsdl:part name="parameters" element="ns2:greetMeOneWay">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Greeter">
@@ -121,7 +121,7 @@
     </wsdl:input>
       <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
     </wsdl:output>
-      <wsdl:fault name="fault" message="ns2:faultDetail">
+      <wsdl:fault name="faultDetail" message="ns2:faultDetail">
     </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>

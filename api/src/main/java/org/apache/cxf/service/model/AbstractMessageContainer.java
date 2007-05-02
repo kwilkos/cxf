@@ -29,8 +29,8 @@ import javax.xml.namespace.QName;
 
 
 public abstract class AbstractMessageContainer extends AbstractPropertiesHolder {
+    protected QName mName;
     private OperationInfo operation;
-    private QName mName;
     private Map<QName, MessagePartInfo> messageParts 
         = new LinkedHashMap<QName, MessagePartInfo>(4);
     

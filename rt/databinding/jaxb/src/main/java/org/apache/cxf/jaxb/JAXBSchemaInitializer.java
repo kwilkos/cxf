@@ -32,6 +32,7 @@ import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -64,6 +65,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
     public void begin(MessagePartInfo part) {
         // Check to see if the WSDL information has been filled in for us.
         if (part.getTypeQName() != null || part.getElementQName() != null) {
+            checkForExistence(part);
             return;
         }
         
@@ -78,7 +80,6 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
 
         JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
-        
         if (beanInfo == null) {
             if (Exception.class.isAssignableFrom(clazz)) {
                 QName name = part.getMessageInfo().getName();
@@ -111,12 +112,92 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             part.setXmlSchema(schemas.getTypeByQName(typeName));
         }
     } 
+    public void checkForExistence(MessagePartInfo part) {
+        QName qn = part.getElementQName();
+        if (qn != null) {
+            XmlSchemaElement el = schemas.getElementByQName(qn);
+            if (el == null) {
+                Class<?> clazz = part.getTypeClass();
+                if (clazz == null) {
+                    return;
+                }
+
+                boolean isFromWrapper = part.getMessageInfo().getOperation().isUnwrapped();
+                if (isFromWrapper && clazz.isArray() && !Byte.TYPE.equals(clazz.getComponentType())) {
+                    clazz = clazz.getComponentType();
+                }
+                JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
+                if (beanInfo == null) {
+                    return;
+                }
+                Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+                if (!itr.hasNext()) {
+                    return;
+                }
+                QName typeName = itr.next();
+
+                SchemaInfo schemaInfo = null;
+                for (SchemaInfo s : serviceInfo.getSchemas()) {
+                    if (s.getNamespaceURI().equals(qn.getNamespaceURI())) {
+                        schemaInfo = s;
+
+                        el = new XmlSchemaElement();
+                        el.setQName(part.getElementQName());
+                        el.setName(part.getElementQName().getLocalPart());
+                        el.setNillable(true);
+                        schemaInfo.getSchema().getItems().add(el);
+                        
+                        el.setSchemaTypeName(typeName);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        
+    }
+    
+    public void end(FaultInfo fault) {
+        MessagePartInfo part = fault.getMessageParts().get(0); 
+        Class<?> cls = part.getTypeClass();
+        Class<?> cl2 = (Class)fault.getProperty(Class.class.getName());
+        if (cls != cl2) {
+            QName name = part.getMessageInfo().getName();
+            part.setElementQName(name);
+            
+            JaxBeanInfo<?> beanInfo = context.getBeanInfo(cls);
+
+
+            SchemaInfo schemaInfo = null;
+            for (SchemaInfo s : serviceInfo.getSchemas()) {
+                if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())) {
+                    schemaInfo = s;
+
+                    XmlSchemaElement el = new XmlSchemaElement();
+                    el.setQName(part.getElementQName());
+                    el.setName(part.getElementQName().getLocalPart());
+                    el.setNillable(true);
+                    schemaInfo.getSchema().getItems().add(el);
+                    
+                    Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+                    if (!itr.hasNext()) {
+                        continue;
+                    }
+                    QName typeName = itr.next();
+                    el.setSchemaTypeName(typeName);
+
+                    return;
+                }
+            }
+        }
+    }
+
     
     private void buildExceptionType(MessagePartInfo part, Class cls) {
         SchemaInfo schemaInfo = null;
         for (SchemaInfo s : serviceInfo.getSchemas()) {
             if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())) {
-                schemaInfo = s;
+                schemaInfo = s;                
                 break;
             }
         }
@@ -143,7 +224,10 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         schema.getItems().add(el);
         
         XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
-        el.setSchemaType(ct);
+        ct.setName(part.getElementQName().getLocalPart());
+        schema.getItems().add(ct);
+        schema.addType(ct);
+        el.setSchemaTypeName(part.getElementQName());
         
         XmlSchemaSequence seq = new XmlSchemaSequence();
         ct.setParticle(seq);

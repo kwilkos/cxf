@@ -34,6 +34,10 @@ public class MessageInfo extends AbstractMessageContainer {
         super(op, nm);
     }
     
+    public void setName(QName qn) {
+        mName = qn;
+    }
+    
     public Map<QName, MessagePartInfo> getMessagePartsMap() {
         Map<QName, MessagePartInfo> partsMap = new HashMap<QName, MessagePartInfo>();
         for (MessagePartInfo part : getMessageParts()) {

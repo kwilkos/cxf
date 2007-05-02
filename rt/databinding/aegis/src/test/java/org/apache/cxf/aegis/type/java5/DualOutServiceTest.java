@@ -43,11 +43,11 @@ public class DualOutServiceTest extends AbstractAegisTest {
         addNamespace("xsd", XmlConstants.XSD);
  
         assertValid(
-                    "//xsd:element[@name='getValuesResponse']//xsd:element"
+                    "//xsd:complexType[@name='getValuesResponse']//xsd:element"
                     + "[@name='return'][@type='string']",
                     wsdl);
         assertValid(
-                    "//xsd:element[@name='getValuesResponse']//xsd:element"
+                    "//xsd:complexType[@name='getValuesResponse']//xsd:element"
                     + "[@name='return1'][@type='string']",
                     wsdl);
     }

@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -34,9 +35,11 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
  * @author <a href=""mailto:gnodet [at] gmail.com">Guillaume Nodet</a>
@@ -166,6 +169,16 @@ public final class IriDecoderHelper {
         }
     }
 
+    private static XmlSchemaType findSchemaType(Collection<SchemaInfo> schemas,
+                                         QName name) {
+        for (SchemaInfo inf : schemas) {
+            if (inf.getNamespaceURI().equals(name.getNamespaceURI())) {
+                return inf.getSchema().getTypeByName(name);
+            }
+        }
+        return null;
+    }
+    
     /**
      * Create a dom document conformant with the given schema element with the
      * input parameters.
@@ -174,9 +187,14 @@ public final class IriDecoderHelper {
      * @param params
      * @return
      */
-    public static Document buildDocument(XmlSchemaElement element, List<Param> params) {
+    public static Document buildDocument(XmlSchemaElement element,
+                                         Collection<SchemaInfo> schemas,
+                                         List<Param> params) {
         Document doc = DOMUtils.createDocument();
         XmlSchemaComplexType cplxType = (XmlSchemaComplexType)element.getSchemaType();
+        if (cplxType == null) {
+            cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
+        }
         XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
         Element e = doc.createElementNS(element.getQName().getNamespaceURI(), element.getQName()
             .getLocalPart());
@@ -210,8 +228,14 @@ public final class IriDecoderHelper {
         return doc;
     }
     
-    public static Document interopolateParams(Document doc, XmlSchemaElement element, List<Param> params) {
+    public static Document interopolateParams(Document doc,
+                                              XmlSchemaElement element,
+                                              Collection<SchemaInfo> schemas,
+                                              List<Param> params) {
         XmlSchemaComplexType cplxType = (XmlSchemaComplexType)element.getSchemaType();
+        if (cplxType == null) {
+            cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
+        }
         XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
         Element root = doc.getDocumentElement();
         if (root == null) {

@@ -52,7 +52,6 @@ import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.RMContextUtils;
-import org.apache.cxf.ws.rm.RMEndpoint;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
@@ -238,8 +237,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     private void serverResend(Message message) {
-        RMEndpoint reliableEndpoint = manager.getReliableEndpoint(message);
-        final Endpoint endpoint = reliableEndpoint.getEndpoint();
+        final Endpoint reliableEndpoint = manager.getReliableEndpoint(message).getEndpoint();
         
         // get the message's to address
         
@@ -260,7 +258,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             @Override
             public Conduit selectConduit(Message message) {
                 Conduit conduit = null;
-                EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+                EndpointInfo endpointInfo = reliableEndpoint.getEndpointInfo();
                 org.apache.cxf.ws.addressing.EndpointReferenceType original = 
                     endpointInfo.getTarget();
                 try {

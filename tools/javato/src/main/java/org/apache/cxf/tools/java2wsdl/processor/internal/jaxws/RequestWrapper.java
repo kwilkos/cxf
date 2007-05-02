@@ -54,13 +54,11 @@ public class RequestWrapper extends Wrapper {
         String name;
         String type;
 
-        final MessagePartInfo[] messageParts = message.getMessageParts().toArray(
-            new MessagePartInfo[message.getMessageParts().size()]);
-        
         final Class[] paramClasses = method.getParameterTypes();
-        for (int j = 0; j < paramClasses.length; j++) {
-            name = messageParts[j].getName().getLocalPart();
-            Class clz = paramClasses[j];
+        for (MessagePartInfo mpi : message.getMessageParts()) {
+            int idx = mpi.getIndex();
+            name = mpi.getName().getLocalPart();
+            Class clz = paramClasses[idx];
             if (clz.isArray()) {
                 if (isBuiltInTypes(clz.getComponentType())) {
                     type = clz.getComponentType().getSimpleName() + "[]";
@@ -72,7 +70,9 @@ public class RequestWrapper extends Wrapper {
             }
             JavaField field = new JavaField(name, type, "");
             fields.add(field);
+            
         }
+
         return fields;
     }
 

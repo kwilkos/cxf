@@ -20,26 +20,24 @@
 <wsdl:definitions name="HelloWrappedService" targetNamespace="http://cxf.com/" xmlns:ns1="http://cxf.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://cxf.com/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://cxf.com/">
-<xsd:element name="sayHiWithoutWrapperClass">
-<xsd:complexType>
+<xsd:element name="sayHiWithoutWrapperClass" type="sayHiWithoutWrapperClass"/>
+<xsd:complexType name="sayHiWithoutWrapperClass">
 <xsd:sequence/>
 </xsd:complexType>
-</xsd:element>
-<xsd:element name="sayHiWithoutWrapperClassResponse">
-<xsd:complexType>
+<xsd:element name="sayHiWithoutWrapperClassResponse" type="sayHiWithoutWrapperClassResponse"/>
+<xsd:complexType name="sayHiWithoutWrapperClassResponse">
 <xsd:sequence>
 <xsd:element minOccurs="0" name="return" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
-</xsd:element>
 </xsd:schema>
   </wsdl:types>
   <wsdl:message name="sayHiWithoutWrapperClass">
-    <wsdl:part name="sayHiWithoutWrapperClass" element="ns1:sayHiWithoutWrapperClass">
+    <wsdl:part name="parameters" element="ns1:sayHiWithoutWrapperClass">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiWithoutWrapperClassResponse">
-    <wsdl:part name="sayHiWithoutWrapperClassResponse" element="ns1:sayHiWithoutWrapperClassResponse">
+    <wsdl:part name="parameters" element="ns1:sayHiWithoutWrapperClassResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Hello">

@@ -47,11 +47,11 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="sayHi">
-    <wsdl:part name="sayHi" element="ns2:sayHi">
+    <wsdl:part name="parameters" element="ns2:sayHi">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiResponse">
-    <wsdl:part name="sayHiResponse" element="ns2:sayHiResponse">
+    <wsdl:part name="parameters" element="ns2:sayHiResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="faultDetail">
@@ -59,11 +59,11 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMeResponse">
-    <wsdl:part name="pingMeResponse" element="ns2:pingMeResponse">
+    <wsdl:part name="parameters" element="ns2:pingMeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMe">
-    <wsdl:part name="pingMe" element="ns2:pingMe">
+    <wsdl:part name="parameters" element="ns2:pingMe">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Greeter">

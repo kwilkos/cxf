@@ -123,6 +123,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean isOperation(Method method) {
+        Method origMethod = method;
         method = getDeclaredMethod(method);
         if (method.getReturnType().equals(Future.class)
             || method.getReturnType().equals(Response.class)) {
@@ -138,6 +139,10 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                     return Boolean.TRUE;
                 }
             } else {
+                if (method.getDeclaringClass().isInterface()) {
+                    return hasWebServiceAnnotation(method) 
+                        ||  hasWebServiceAnnotation(origMethod);
+                }
                 return hasWebServiceAnnotation(method);              
             }
         }
@@ -522,6 +527,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     
     @Override 
     public Boolean hasOutMessage(Method method) {
+        method = getDeclaredMethod(method);
         return !method.isAnnotationPresent(Oneway.class);
     }
     

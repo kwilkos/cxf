@@ -136,17 +136,19 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                     List<String> bodyParts = new ArrayList<String>();
                     SoapHeaderInfo headerInfo = b.getInput().getExtensor(SoapHeaderInfo.class);
                     if (headerInfo != null) {
+                        for (MessagePartInfo part : b.getInput().getMessageParts()) {
+                            bodyParts.add(part.getName().getLocalPart());
+                        }
+                        
                         SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
                                                                                  BindingInput.class,
                                                                                  isSoap12);
                         soapHeader.setMessage(b.getInput().getMessageInfo().getName());
                         soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
                         soapHeader.setUse("literal");
+                        bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
                         b.getInput().addExtensor(soapHeader);
 
-                        for (MessagePartInfo part : b.getInput().getMessageParts()) {
-                            bodyParts.add(part.getName().getLocalPart());
-                        }
                     } 
                     SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
                                                                    BindingInput.class,
@@ -167,17 +169,18 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                     List<String> bodyParts = new ArrayList<String>();
                     SoapHeaderInfo headerInfo = b.getOutput().getExtensor(SoapHeaderInfo.class);
                     if (headerInfo != null) {
+                        for (MessagePartInfo part : b.getOutput().getMessageParts()) {
+                            bodyParts.add(part.getName().getLocalPart());
+                        }
                         SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
                                                                                  BindingOutput.class,
                                                                                  isSoap12);
                         soapHeader.setMessage(b.getOutput().getMessageInfo().getName());
                         soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
                         soapHeader.setUse("literal");
+                        bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
                         b.getOutput().addExtensor(soapHeader);
 
-                        for (MessagePartInfo part : b.getOutput().getMessageParts()) {
-                            bodyParts.add(part.getName().getLocalPart());
-                        }
                     }
                     SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
                                                                    BindingOutput.class,
