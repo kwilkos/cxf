@@ -45,7 +45,7 @@ import org.junit.Test;
  */
 public class NestedPrimitiveAssertionTest extends Assert {
 
-    private static final String TEST_NAMESPACE = "http://www.w3.org/2007/01/addressing/metadata";
+    private static final String TEST_NAMESPACE = "http://cxf.apache.org/test";
     private static final QName TEST_NAME1 = new QName(TEST_NAMESPACE, "Addressing");
     private static final QName TEST_NAME2 = new QName(TEST_NAMESPACE, "AnonymousResponses");
     private static final QName TEST_NAME3 = new QName(TEST_NAMESPACE, "NonAnonymousResponses");

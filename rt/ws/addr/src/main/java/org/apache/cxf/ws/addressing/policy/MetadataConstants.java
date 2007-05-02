@@ -22,12 +22,12 @@ package org.apache.cxf.ws.addressing.policy;
 import javax.xml.namespace.QName;
 
 /**
- * 
+ *
  */
 public final class MetadataConstants {
     
     public static final String NAMESPACE_URI = 
-        "http://www.w3.org/2007/01/addressing/metadata";
+        "http://www.w3.org/2007/02/addressing/metadata";
     public static final String ADDRESSING_ELEM_NAME = "Addressing";
     public static final String ANON_RESPONSES_ELEM_NAME = "AnonymousResponses";
     public static final String NON_ANON_RESPONSES_ELEM_NAME = "NonAnonymousResponses";

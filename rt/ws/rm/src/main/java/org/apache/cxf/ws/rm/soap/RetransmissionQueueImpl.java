@@ -37,16 +37,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertion;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.RMContextUtils;
+import org.apache.cxf.ws.rm.RMEndpoint;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
@@ -228,6 +234,53 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
 
     private void clientResend(Message message) {
         Conduit c = message.getExchange().getConduit(message);
+        resend(c, message);
+    }
+
+    private void serverResend(Message message) {
+        RMEndpoint reliableEndpoint = manager.getReliableEndpoint(message);
+        final Endpoint endpoint = reliableEndpoint.getEndpoint();
+        
+        // get the message's to address
+        
+        AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, true);
+        AttributedURIType to = null;
+        if (null != maps) {
+            to = maps.getTo();
+        }
+        if (null == to) {
+            LOG.log(Level.SEVERE, "NO_ADDRESS_FOR_RESEND_MSG");
+            return;
+        }
+        
+        final String address = to.getValue();
+        LOG.fine("Resending to address: " + address);
+        
+        ConduitSelector cs = new DeferredConduitSelector() {
+            @Override
+            public Conduit selectConduit(Message message) {
+                Conduit conduit = null;
+                EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+                org.apache.cxf.ws.addressing.EndpointReferenceType original = 
+                    endpointInfo.getTarget();
+                try {
+                    if (null != address) {
+                        endpointInfo.setAddress(address);
+                    }
+                    conduit = super.selectConduit(message);
+                } finally {
+                    endpointInfo.setAddress(original);
+                }
+                return conduit;
+            }
+        };
+        
+        
+        Conduit c = cs.selectConduit(message);
+        resend(c, message);
+    }
+    
+    private void resend(Conduit c, Message message) {
         try {
 
             // get registered callbacks, create new output stream and
@@ -262,10 +315,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "RESEND_FAILED_MSG", ex);
         }
-    }
-
-    private void serverResend(Message message) {
-        // TODO
     }
 
     /**

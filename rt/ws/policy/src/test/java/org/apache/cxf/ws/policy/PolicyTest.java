@@ -39,6 +39,8 @@ import org.junit.Test;
  */
 public class PolicyTest extends Assert {
  
+    private static final String TEST_NS_URI = "http://cxf.apache.org/test";
+    
     @Test
     public void testContains() {
         List<Assertion> alt1 = new ArrayList<Assertion>();
@@ -148,24 +150,21 @@ public class PolicyTest extends Assert {
     }
     
     Policy getOneAssertion() {
-        String uri = "http://www.w3.org/2007/01/addressing/metadata";
         Policy p = new Policy();
-        p.addAssertion(new PrimitiveAssertion(new QName(uri, "AnonymousResponses"), false));
+        p.addAssertion(new PrimitiveAssertion(new QName(TEST_NS_URI, "AnonymousResponses"), false));
         return p;
     }
     
     Policy getOneOptionalAssertion() {
-        String uri = "http://www.w3.org/2007/01/addressing/metadata";
         Policy p = new Policy();
-        p.addAssertion(new PrimitiveAssertion(new QName(uri, "AnonymousResponses"), true));
+        p.addAssertion(new PrimitiveAssertion(new QName(TEST_NS_URI, "AnonymousResponses"), true));
         return p;
     }
     
     Policy getTwoOptionalAssertions() {
-        String uri = "http://www.w3.org/2007/01/addressing/metadata";
         Policy p = new Policy();
-        p.addAssertion(new PrimitiveAssertion(new QName(uri, "AnonymousResponses"), true));
-        p.addAssertion(new PrimitiveAssertion(new QName(uri, "NonAnonymousResponses"), true));
+        p.addAssertion(new PrimitiveAssertion(new QName(TEST_NS_URI, "AnonymousResponses"), true));
+        p.addAssertion(new PrimitiveAssertion(new QName(TEST_NS_URI, "NonAnonymousResponses"), true));
         return p;
     }
     

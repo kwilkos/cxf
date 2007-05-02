@@ -111,6 +111,9 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     private boolean doTestTwowayMessageLossAsyncExecutor = testAll;
     private boolean doTestTwowayNonAnonymousNoOffer = testAll;
     private boolean doTestConcurrency = testAll;
+    private boolean doTestMultiClientOneway = testAll;
+    private boolean doTestMultiClientTwoway = testAll;
+    private boolean doTestServerSideMessageLoss = testAll;
 
     @BeforeClass
     public static void startServers() throws Exception {
@@ -120,17 +123,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     
     @After
     public void tearDown() {
-        if (null != greeter) {
-            assertTrue("Failed to stop greeter.", control.stopGreeter(null));                        
-            RMManager manager = greeterBus.getExtension(RMManager.class);
-            manager.shutdown();
-            greeterBus.shutdown(true);
-            greeterBus = null;
-        }
-        if (null != control) {  
-            assertTrue("Failed to stop greeter", control.stopGreeter(null));
-            controlBus.shutdown(true);
-        }
+        stopGreeter();
+        stopControl();
     }
 
     /** 
@@ -182,7 +176,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayAnonymousAcks) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
+        init("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -214,7 +208,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayDeferredAnonymousAcks) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/deferred.xml");
+        init("org/apache/cxf/systest/ws/rm/deferred.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -253,7 +247,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayDeferredNonAnonymousAcks) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/deferred.xml", true);
+        init("org/apache/cxf/systest/ws/rm/deferred.xml", true);
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -307,7 +301,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayAnonymousAcksSequenceLength1) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/seqlength1.xml");
+        init("org/apache/cxf/systest/ws/rm/seqlength1.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -363,7 +357,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
 
     private void testOnewayAnonymousAcksSuppressed(Executor executor) throws Exception {
 
-        setupGreeter("org/apache/cxf/systest/ws/rm/suppressed.xml", false, executor);
+        init("org/apache/cxf/systest/ws/rm/suppressed.xml", false, executor);
  
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -410,7 +404,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymous) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml", true);
+        init("org/apache/cxf/systest/ws/rm/rminterceptors.xml", true);
 
         greeter.greetMe("one");
         greeter.greetMe("two");
@@ -460,7 +454,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousEndpointSpecific) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-endpoint-specific.xml", true);
+        init("org/apache/cxf/systest/ws/rm/twoway-endpoint-specific.xml", true);
 
 
         greeter.greetMe("one");
@@ -509,7 +503,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousDeferred) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/deferred.xml", true);
+        init("org/apache/cxf/systest/ws/rm/deferred.xml", true);
 
         greeter.greetMe("one");
         greeter.greetMe("two");
@@ -575,7 +569,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousMaximumSequenceLength2) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/seqlength10.xml", true);
+        init("org/apache/cxf/systest/ws/rm/seqlength10.xml", true);
         
         RMManager manager = greeterBus.getExtension(RMManager.class);
         assertEquals("Unexpected maximum sequence length.", BigInteger.TEN, 
@@ -635,7 +629,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
             return;
         }
         
-        setupGreeter("org/apache/cxf/systest/ws/rm/atmostonce.xml");
+        init("org/apache/cxf/systest/ws/rm/atmostonce.xml");
         
         class MessageNumberInterceptor extends AbstractPhaseInterceptor {
             public MessageNumberInterceptor() {
@@ -704,7 +698,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
             return;
         }
         
-        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
+        init("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
         
         class SequenceIdInterceptor extends AbstractPhaseInterceptor {
             public SequenceIdInterceptor() {
@@ -743,7 +737,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
             return;
         }
         
-        setupGreeter("org/apache/cxf/systest/ws/rm/inactivity-timeout.xml");
+        init("org/apache/cxf/systest/ws/rm/inactivity-timeout.xml");
        
         greeter.greetMe("one");
         
@@ -818,7 +812,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
 
     private void testOnewayMessageLoss(Executor executor) throws Exception {
 
-        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml", false, executor);
+        init("org/apache/cxf/systest/ws/rm/message-loss.xml", false, executor);
         
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
@@ -881,7 +875,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     
     private void testTwowayMessageLoss(Executor executor) throws Exception {
 
-        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml", true, executor);
+        init("org/apache/cxf/systest/ws/rm/message-loss.xml", true, executor);
         
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
@@ -938,7 +932,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousNoOffer) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/no-offer.xml", true);        
+        init("org/apache/cxf/systest/ws/rm/no-offer.xml", true);        
         
         greeter.greetMe("one");
         // greeter.greetMe("two");
@@ -974,7 +968,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestConcurrency) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml", true);
+        init("org/apache/cxf/systest/ws/rm/rminterceptors.xml", true);
 
         for (int i = 0; i < 5; i++) {
             greeter.greetMeAsync(Integer.toString(i));
@@ -994,27 +988,268 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         }
         mf.verifyActions(expectedActions, true);
     }
+    @Test
+    public void testMultiClientOneway() throws Exception {
+        if (!doTestMultiClientOneway) {
+            return;
+        }
+        
+        SpringBusFactory bf = new SpringBusFactory();
+        String cfgResource = "org/apache/cxf/systest/ws/rm/rminterceptors.xml";            
+        initControl(bf, cfgResource);
+    
+        class ClientThread extends Thread {
+            
+            Greeter greeter;
+            Bus greeterBus;
+            InMessageRecorder inRecorder;
+            OutMessageRecorder outRecorder;  
+            String id;
+            
+            ClientThread(SpringBusFactory bf, String cfgResource, int n) { 
+                SequenceTest.this.initGreeter(bf, cfgResource, false, null);
+                greeter = SequenceTest.this.greeter;
+                greeterBus = SequenceTest.this.greeterBus;
+                inRecorder = SequenceTest.this.inRecorder;
+                outRecorder = SequenceTest.this.outRecorder;
+                id = "client " + n;
+            }
+            
+            public void run() {
+                greeter.greetMeOneWay(id + ": once");
+                greeter.greetMeOneWay(id + ": twice");
+                greeter.greetMeOneWay(id + ": thrice");
+
+                // three application messages plus createSequence
+
+                awaitMessages(4, 4);
+            }
+        }
+        
+        ClientThread clients[] = new ClientThread[2];
+        
+        try {
+            for (int i = 0; i < clients.length; i++) {
+                clients[i] = new ClientThread(bf, cfgResource, i);
+            }
+
+            for (int i = 0; i < clients.length; i++) {
+                clients[i].start();
+            }
+
+            for (int i = 0; i < clients.length; i++) {
+                clients[i].join();
+                MessageFlow mf = new MessageFlow(clients[i].outRecorder.getOutboundMessages(),
+                                                 clients[i].inRecorder.getInboundMessages());
+
+                mf.verifyMessages(4, true);
+                String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(),
+                                                         GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION,
+                                                         GREETMEONEWAY_ACTION};
+                mf.verifyActions(expectedActions, true);
+                mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
+                // createSequenceResponse plus 3 partial responses
+
+                mf.verifyMessages(4, false);
+                expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), null, null,
+                                                null};
+                mf.verifyActions(expectedActions, false);
+                mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
+                mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
+
+            }
+        } finally {
+            for (int i = 0; i < clients.length; i++) {
+                greeter = clients[i].greeter;
+                greeterBus = clients[i].greeterBus;
+                stopGreeter();                
+            }
+            greeter = null;
+        }        
+    }
+    
+    @Test
+    public void testMultiClientTwoway() throws Exception {
+        if (!doTestMultiClientTwoway) {
+            return;
+        }
+        
+        SpringBusFactory bf = new SpringBusFactory();
+        String cfgResource = "org/apache/cxf/systest/ws/rm/rminterceptors.xml";            
+        initControl(bf, cfgResource);
+    
+        class ClientThread extends Thread {
+            
+            Greeter greeter;
+            Bus greeterBus;
+            InMessageRecorder inRecorder;
+            OutMessageRecorder outRecorder;  
+            String id;
+            
+            ClientThread(SpringBusFactory bf, String cfgResource, int n) { 
+                SequenceTest.this.initGreeter(bf, cfgResource, true, null);
+                greeter = SequenceTest.this.greeter;
+                greeterBus = SequenceTest.this.greeterBus;
+                inRecorder = SequenceTest.this.inRecorder;
+                outRecorder = SequenceTest.this.outRecorder;
+                id = "client " + n;
+            }
+            
+            public void run() {
+                greeter.greetMe(id + ": a");
+                greeter.greetMe(id + ": b");
+                greeter.greetMe(id + ": c");
+
+                // three application messages plus createSequence
+
+                awaitMessages(4, 8);
+            }
+        }
+        
+        ClientThread clients[] = new ClientThread[2];
+        
+        try {
+            for (int i = 0; i < clients.length; i++) {
+                clients[i] = new ClientThread(bf, cfgResource, i);
+            }
+
+            for (int i = 0; i < clients.length; i++) {
+                clients[i].start();
+            }
+
+            for (int i = 0; i < clients.length; i++) {
+                clients[i].join();
+                MessageFlow mf = new MessageFlow(clients[i].outRecorder.getOutboundMessages(), 
+                                                 clients[i].inRecorder.getInboundMessages());
+                                
+                mf.verifyMessages(4, true);
+                String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                         GREETME_ACTION,
+                                                         GREETME_ACTION, 
+                                                         GREETME_ACTION};
+                mf.verifyActions(expectedActions, true);
+                mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+                mf.verifyLastMessage(new boolean[] {false, false, false, false}, true);
+                mf.verifyAcknowledgements(new boolean[] {false, false, true, true}, true);
+
+                // createSequenceResponse plus 3 greetMeResponse messages plus
+                // one partial response for each of the four messages
+                // the first partial response should no include an acknowledgement, the other three should
+
+                mf.verifyMessages(8, false);
+                mf.verifyPartialResponses(4, new boolean[4]);
+
+                mf.purgePartialResponses();
+
+                expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                                GREETME_RESPONSE_ACTION, 
+                                                GREETME_RESPONSE_ACTION, 
+                                                GREETME_RESPONSE_ACTION};
+                mf.verifyActions(expectedActions, false);
+                mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);
+                mf.verifyLastMessage(new boolean[4], false);
+                mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
+
+            }
+        } finally {
+            for (int i = 0; i < clients.length; i++) {
+                greeter = clients[i].greeter;
+                greeterBus = clients[i].greeterBus;
+                stopGreeter();                
+            }
+            greeter = null;
+        }        
+    }
+    
+    @Ignore
+    @Test
+    public void testServerSideMessageLoss() throws Exception {
+        if (!doTestServerSideMessageLoss) {
+            return;
+        }
+        init("org/apache/cxf/systest/ws/rm/message-loss-server.xml", true);
+        
+        // avoid client side message loss
+        List<Interceptor> outInterceptors = greeterBus.getOutInterceptors();
+        for (Interceptor i : outInterceptors) {
+            if (i.getClass().equals(MessageLossSimulator.class)) {
+                outInterceptors.remove(i);
+                break;
+            }
+        }
+        // avoid client side resends
+        greeterBus.getExtension(RMManager.class).getRMAssertion().getBaseRetransmissionInterval()
+            .setMilliseconds(new BigInteger("60000"));
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+
+        // outbound: CreateSequence and two greetMe messages 
+
+        awaitMessages(3, 6);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        
+        mf.verifyMessages(3, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETME_ACTION, 
+                                                 GREETME_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, true);
+        mf.verifyLastMessage(new boolean[] {false, false, false}, true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true}, true);
+
+        // createSequenceResponse plus 2 greetMeResponse messages plus
+        // one partial response for each of the four messages
+        // the first partial response should no include an acknowledgement, the other three should
+
+        mf.verifyMessages(6, false);
+        mf.verifyPartialResponses(3, new boolean[3]);
+
+        mf.purgePartialResponses();
+
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, false);
+        mf.verifyLastMessage(new boolean[3], false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);
+    }
+    
+    
 
     // --- test utilities ---
 
-    private void setupGreeter(String cfgResource) {
-        setupGreeter(cfgResource, false);
+    private void init(String cfgResource) {
+        init(cfgResource, false);
     }
 
-    private void setupGreeter(String cfgResource, boolean useDecoupledEndpoint) {
-        setupGreeter(cfgResource, useDecoupledEndpoint, null);
+    private void init(String cfgResource, boolean useDecoupledEndpoint) {
+        init(cfgResource, useDecoupledEndpoint, null);
     }
     
-    private void setupGreeter(String cfgResource, boolean useDecoupledEndpoint, Executor executor) {
+    private void init(String cfgResource, boolean useDecoupledEndpoint, Executor executor) {
         
         SpringBusFactory bf = new SpringBusFactory();
-        
+        initControl(bf, cfgResource);
+        initGreeter(bf, cfgResource, useDecoupledEndpoint, executor);
+    }
+    
+    private void initControl(SpringBusFactory bf, String cfgResource) {
         controlBus = bf.createBus();
         BusFactory.setDefaultBus(controlBus);
 
         ControlService cs = new ControlService();
         control = cs.getControlPort();
         
+        assertTrue("Failed to start greeter", control.startGreeter(cfgResource));        
+    }
+    
+    private void initGreeter(SpringBusFactory bf, String cfgResource, 
+                             boolean useDecoupledEndpoint, Executor executor) {
         greeterBus = bf.createBus(cfgResource);
         BusFactory.setDefaultBus(greeterBus);
         LOG.fine("Initialised greeter bus with configuration: " + cfgResource);
@@ -1023,8 +1258,6 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         greeterBus.getOutInterceptors().add(outRecorder);
         inRecorder = new InMessageRecorder();
         greeterBus.getInInterceptors().add(inRecorder);
-
-        assertTrue("Failed to start greeter", control.startGreeter(cfgResource));
         
         GreeterService gs = new GreeterService();
 
@@ -1051,6 +1284,22 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         cp.setDecoupledEndpoint(decoupledEndpoint);
 
         LOG.fine("Using decoupled endpoint: " + cp.getDecoupledEndpoint());
+    }
+    
+    private void stopGreeter() {
+        if (null != greeter) {                       
+            RMManager manager = greeterBus.getExtension(RMManager.class);
+            manager.shutdown();
+            greeterBus.shutdown(true);
+            greeterBus = null;
+        }
+    }
+    
+    private void stopControl() {
+        if (null != control) {  
+            assertTrue("Failed to stop greeter", control.stopGreeter(null));
+            controlBus.shutdown(true);
+        }
     }
     
     private void awaitMessages(int nExpectedOut, int nExpectedIn) {

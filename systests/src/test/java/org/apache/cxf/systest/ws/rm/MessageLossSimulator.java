@@ -31,6 +31,7 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
@@ -60,6 +61,9 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
             action = maps.getAction().getValue();
         }
         if (RMContextUtils.isRMProtocolMessage(action)) {
+            return;
+        }
+        if (MessageUtils.isPartialResponse(message)) {
             return;
         }
         appMessageCount++;
