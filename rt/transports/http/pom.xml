@@ -67,21 +67,11 @@
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>6.1.2rc0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-sslengine</artifactId>
-            <version>6.1.2rc0</version>
-        </dependency>
-
+        </dependency>        
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
