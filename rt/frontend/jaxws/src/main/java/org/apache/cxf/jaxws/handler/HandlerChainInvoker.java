@@ -241,7 +241,7 @@ public class HandlerChainInvoker {
             // the next set on handlers and they will be processing in
             // the correct direction.  It would be good refactor it
             // and control all of the processing here.
-            changeMessageDirection(ctx);
+            //changeMessageDirection(ctx);
             handlerProcessingAborted = true;
 
             //TODO: reverse chain, call handlerMessage or close
@@ -287,39 +287,74 @@ public class HandlerChainInvoker {
                     continueProcessing = h.handleMessage(ctx);
                 }
                 if (!continueProcessing) {
-                    callReversedHandlers(ctx);
+                    changeMessageDirection(ctx);
+                    if (responseExpected) {
+                        invokeReversedHandlerMessage(ctx);                       
+                    } else {
+                        invokeReversedClose();
+                    }
+
                     break;
                 }
             }
         } catch (ProtocolException e) {
             LOG.log(Level.FINE, "handleMessage raised exception", e);
+            changeMessageDirection(ctx);
             if (responseExpected) {
-                if (logicalMessageContext != null) {
-                    logicalMessageContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, !isOutbound());
-                }
-                if (protocolMessageContext != null) {
-                    protocolMessageContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, !isOutbound());
-                }
-                callReversedHandlesFault();
+                invokeReversedHandleFault(ctx);
+            } else {
+                invokeReversedClose();
             }
+ 
             continueProcessing = false;
-            closeHandlers();
             setFault(e);
             throw e;
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
+            changeMessageDirection(ctx);
             continueProcessing = false;
-            closeHandlers();
+            invokeReversedClose();
 
             throw e;
         }
         return continueProcessing;
     }
 
-    // REVISIT
-    // handleFault() return true\false, throw Exception.
+
+    //The message direction is reversed, if the message is not already a fault message then it 
+    //is replaced with a fault message, and the runtime invokes handleFault on the next handler
+    //or dispatches the message if there are no further handlers.
     @SuppressWarnings("unchecked")
-    private boolean callReversedHandlesFault() {
+    private boolean invokeReversedHandleFault(MessageContext ctx) {
+        boolean continueProcessing = true;
+
+        try {
+            int index = invokedHandlers.size() - 2;
+            while (index >= 0) {
+                Handler h = invokedHandlers.get(index);
+                if (h instanceof LogicalHandler) {
+                    continueProcessing = h.handleFault(logicalMessageContext);
+                } else {
+                    continueProcessing = h.handleFault(protocolMessageContext);
+                }
+
+                if (!continueProcessing) {
+                    invokeReversedClose();
+                    break;
+                }
+                index--;
+            }
+        } catch (RuntimeException e) {
+            LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
+            invokeReversedClose();
+            continueProcessing = false;
+            closed = true;
+            
+            throw e;
+        }
+        invokeReversedClose();
+        return continueProcessing;
+/*
         int index = invokedHandlers.size() - 2;
         while (index >= 0) {
             Handler handler = invokedHandlers.get(index);
@@ -336,33 +371,31 @@ public class HandlerChainInvoker {
             }
             index--;
         }
-        return true;
+        return true;*/
     }
 
     @SuppressWarnings("unchecked")
-    private boolean callReversedHandlers(MessageContext ctx) {
+    private boolean invokeReversedHandlerMessage(MessageContext ctx) {
         int index = invokedHandlers.size() - 2;
-        if (responseExpected) {
-            while (index >= 0) {
-                Handler handler = invokedHandlers.get(index);
-                if (handler instanceof LogicalHandler) {
-                    if (Boolean.FALSE.equals(handler.
-                                             handleMessage(logicalMessageContext))) {
-                        return false;
-                    }
-                } else {
-                    if (Boolean.FALSE.equals(handler.
-                                             handleMessage(protocolMessageContext))) {
-                        return false;
-                    }
+        while (index >= 0) {
+            Handler handler = invokedHandlers.get(index);
+            if (handler instanceof LogicalHandler) {
+                if (Boolean.FALSE.equals(handler.handleMessage(logicalMessageContext))) {
+                    return false;
                 }
-                index--;
+            } else {
+                if (Boolean.FALSE.equals(handler.handleMessage(protocolMessageContext))) {
+                    return false;
+                }
             }
+            index--;
         }
         return true;
     }
 
-    private void closeHandlers() {
+    //close is called on each previously invoked handler in the chain, the close method is 
+    //only called on handlers that were previously invoked via either handleMessage or handleFault
+    private void invokeReversedClose() {
         int index = invokedHandlers.size() - 1;
         while (index >= 0) {
             Handler handler = invokedHandlers.get(index);
@@ -376,7 +409,7 @@ public class HandlerChainInvoker {
         }
         closed = true;
     }
-
+    
     private boolean invokeThisHandler(Handler h) {
         boolean ret = true;
         // when handler processing has been aborted, only invoked on
@@ -406,6 +439,12 @@ public class HandlerChainInvoker {
 
     private void setMessageOutboundProperty(MessageContext context) {
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        if (logicalMessageContext != null) {
+            logicalMessageContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        }
+        if (protocolMessageContext != null) {
+            protocolMessageContext.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
+        }
     }
 
     private <T extends Handler> List<T> reverseHandlerChain(List<T> handlerChain) {

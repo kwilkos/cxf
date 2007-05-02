@@ -39,7 +39,7 @@ import org.apache.cxf.message.MessageImpl;
 
 public class HandlerChainInvokerTest extends TestCase {
 
-    private static final int HANDLER_COUNT = 2;
+    private static final int HANDLER_COUNT = 4;
 
     HandlerChainInvoker invoker;
     Message message = new MessageImpl();
@@ -68,7 +68,7 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testInvokeEmptyHandlerChain() {
         invoker = new HandlerChainInvoker(new ArrayList<Handler>());
         assertTrue(invoker.invokeLogicalHandlers(false, lmc));
-        assertTrue(doInvokeProtocolHandlers(false));
+        assertTrue(invoker.invokeProtocolHandlers(false, pmc));
     }
 
     public void testHandlerPartitioning() {
@@ -85,42 +85,26 @@ public class HandlerChainInvokerTest extends TestCase {
 
     }
 
-    public void testInvokeHandlersOutbound() {
-
-        assertEquals(0, invoker.getInvokedHandlers().size());
-        assertTrue(invoker.isOutbound());
-
-        checkLogicalHandlersInvoked(true, false);
-
-        assertTrue(invoker.isOutbound());
-        assertEquals(2, invoker.getInvokedHandlers().size());
-        checkProtocolHandlersInvoked(true);
-        assertTrue(invoker.isOutbound());
-        assertEquals(4, invoker.getInvokedHandlers().size());
-        assertFalse(invoker.isClosed());
-
-        assertTrue(logicalHandlers[0].getInvokedOrder() < logicalHandlers[1].getInvokedOrder());
-        assertTrue(logicalHandlers[1].getInvokedOrder() < protocolHandlers[0].getInvokedOrder());
-        assertTrue(protocolHandlers[0].getInvokedOrder() < protocolHandlers[1].getInvokedOrder());
-    }
-
     public void testInvokeHandlersInbound() {
 
         invoker.setInbound();
         assertTrue(invoker.isInbound());
         checkProtocolHandlersInvoked(false);
 
-        assertEquals(2, invoker.getInvokedHandlers().size());
-        assertTrue(invoker.isInbound());
-
-        checkLogicalHandlersInvoked(false, true);
         assertEquals(4, invoker.getInvokedHandlers().size());
         assertTrue(invoker.isInbound());
 
+        checkLogicalHandlersInvoked(false, true);
+        assertEquals(8, invoker.getInvokedHandlers().size());
+        assertTrue(invoker.isInbound());
+
         assertFalse(invoker.isClosed());
-        assertTrue(logicalHandlers[0].getInvokedOrder() > logicalHandlers[1].getInvokedOrder());
-        assertTrue(logicalHandlers[1].getInvokedOrder() > protocolHandlers[0].getInvokedOrder());
-        assertTrue(protocolHandlers[0].getInvokedOrder() > protocolHandlers[1].getInvokedOrder());
+        assertTrue(logicalHandlers[0].getInvokeOrderOfHandleMessage() > logicalHandlers[1]
+            .getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage() > protocolHandlers[0]
+            .getInvokeOrderOfHandleMessage());
+        assertTrue(protocolHandlers[0].getInvokeOrderOfHandleMessage() > protocolHandlers[1]
+            .getInvokeOrderOfHandleMessage());
     }
 
     public void testLogicalHandlerOutboundProcessingStoppedResponseExpected() {
@@ -170,29 +154,352 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
         assertTrue(invoker.isOutbound());
     }
+    
+    public void testHandleMessageReturnsFalseOutbound() {
+        protocolHandlers[2].setHandleMessageRet(false);
 
+        assertTrue(invoker.isOutbound());
+        
+        boolean continueProcessing = true;
+        invoker.setLogicalMessageContext(lmc);
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+        invoker.setProtocolMessageContext(pmc);
+        continueProcessing = invoker.invokeProtocolHandlers(false, pmc);
+        
+        assertFalse((Boolean)pmc.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertTrue(invoker.isInbound());
+        assertFalse(continueProcessing);
 
-    public void testHandleMessageThrowsProtocolException() {
+        assertEquals(2, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[3].getHandleMessageCount());
+        assertEquals(2, protocolHandlers[0].getHandleMessageCount());
+        assertEquals(2, protocolHandlers[1].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[2].getHandleMessageCount());
+        assertEquals(0, protocolHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[2].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[1].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[0].getInvokeOrderOfHandleMessage());
+        assertTrue(protocolHandlers[0].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[3].getInvokeOrderOfHandleMessage());
+        assertTrue(protocolHandlers[2].getInvokeOrderOfHandleMessage()
+                   < protocolHandlers[1].getInvokeOrderOfHandleMessage());
+ 
+        assertEquals(0, logicalHandlers[0].getCloseCount());
+        assertEquals(0, logicalHandlers[1].getCloseCount());
+        assertEquals(0, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        
+        assertEquals(0, protocolHandlers[0].getCloseCount());
+        assertEquals(0, protocolHandlers[1].getCloseCount());
+        assertEquals(0, protocolHandlers[2].getCloseCount());
+        assertEquals(0, protocolHandlers[0].getHandleFaultCount());
+        assertEquals(0, protocolHandlers[1].getHandleFaultCount());
+        assertEquals(0, protocolHandlers[2].getHandleFaultCount());    
+    }
+    
+    public void testHandleMessageThrowsProtocolExceptionOutbound() {
+        ProtocolException pe = new ProtocolException("banzai");
+        protocolHandlers[2].setException(pe);
+        
+        assertTrue(invoker.isOutbound());
+        
+        boolean continueProcessing = true;
+        invoker.setLogicalMessageContext(lmc);
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+        assertTrue(continueProcessing);
+        
+        try {
+            invoker.setProtocolMessageContext(pmc);
+            continueProcessing = invoker.invokeProtocolHandlers(false, pmc);
+            fail("did not get expected exception");
+        } catch (ProtocolException e) {
+            assertEquals("banzai", e.getMessage());
+        }
+        
+        assertFalse((Boolean)pmc.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertTrue(invoker.isInbound());
+        //assertFalse(continueProcessing);
 
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[3].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[0].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[1].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[2].getHandleMessageCount());
+        assertEquals(0, protocolHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
+                   < protocolHandlers[0].getInvokeOrderOfHandleMessage());
+        assertTrue(protocolHandlers[1].getInvokeOrderOfHandleMessage()
+                   < protocolHandlers[2].getInvokeOrderOfHandleMessage());
+ 
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(1, logicalHandlers[3].getCloseCount());
+        
+        assertEquals(1, protocolHandlers[0].getCloseCount());
+        assertEquals(1, protocolHandlers[1].getCloseCount());
+        assertEquals(1, protocolHandlers[2].getCloseCount());
+        assertEquals(0, protocolHandlers[3].getCloseCount());
+        
+        assertTrue(protocolHandlers[2].getInvokeOrderOfClose()
+                   < protocolHandlers[1].getInvokeOrderOfClose());   
+        assertTrue(protocolHandlers[0].getInvokeOrderOfClose()
+                   < logicalHandlers[3].getInvokeOrderOfClose());   
+        
+        assertEquals(1, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[3].getHandleFaultCount());      
+
+        assertEquals(1, protocolHandlers[0].getHandleFaultCount());
+        assertEquals(1, protocolHandlers[1].getHandleFaultCount());
+        assertEquals(0, protocolHandlers[2].getHandleFaultCount());    
+        assertEquals(0, protocolHandlers[3].getHandleFaultCount());    
+        
+        assertTrue(protocolHandlers[0].getInvokeOrderOfHandleFault()
+                   < logicalHandlers[3].getInvokeOrderOfHandleFault());
+        assertTrue(protocolHandlers[2].getInvokeOrderOfHandleFault()
+                   < protocolHandlers[1].getInvokeOrderOfHandleFault());
+    }
+    
+    public void testHandleFaultReturnsFalseOutbound() {
+        ProtocolException pe = new ProtocolException("banzai");
+        protocolHandlers[2].setException(pe);
+        protocolHandlers[0].setHandleFaultRet(false);
+        
+        assertTrue(invoker.isOutbound());
+        
+        boolean continueProcessing = true;
+        invoker.setLogicalMessageContext(lmc);
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+        assertTrue(continueProcessing);
+        
+        try {
+            invoker.setProtocolMessageContext(pmc);
+            continueProcessing = invoker.invokeProtocolHandlers(false, pmc);
+            fail("did not get expected exception");
+        } catch (ProtocolException e) {
+            assertEquals("banzai", e.getMessage());
+        }
+        
+        assertFalse((Boolean)pmc.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertTrue(invoker.isInbound());
+        //assertFalse(continueProcessing);
+
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[3].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[0].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[1].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[2].getHandleMessageCount());
+        assertEquals(0, protocolHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
+                   < protocolHandlers[0].getInvokeOrderOfHandleMessage());
+        assertTrue(protocolHandlers[1].getInvokeOrderOfHandleMessage()
+                   < protocolHandlers[2].getInvokeOrderOfHandleMessage());
+ 
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(1, logicalHandlers[3].getCloseCount());
+        
+        assertEquals(1, protocolHandlers[0].getCloseCount());
+        assertEquals(1, protocolHandlers[1].getCloseCount());
+        assertEquals(1, protocolHandlers[2].getCloseCount());
+        assertEquals(0, protocolHandlers[3].getCloseCount());
+        
+        assertTrue(protocolHandlers[2].getInvokeOrderOfClose()
+                   < protocolHandlers[1].getInvokeOrderOfClose());   
+        assertTrue(protocolHandlers[0].getInvokeOrderOfClose()
+                   < logicalHandlers[3].getInvokeOrderOfClose());   
+        
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());      
+
+        assertEquals(1, protocolHandlers[0].getHandleFaultCount());
+        assertEquals(1, protocolHandlers[1].getHandleFaultCount());
+        assertEquals(0, protocolHandlers[2].getHandleFaultCount());    
+        assertEquals(0, protocolHandlers[3].getHandleFaultCount());    
+        
+        assertTrue(protocolHandlers[2].getInvokeOrderOfHandleFault()
+                   < protocolHandlers[1].getInvokeOrderOfHandleFault());
+    }
+   
+    public void testHandleMessageReturnsTrue() {
+        assertFalse(invoker.faultRaised());
+
+        logicalHandlers[0].setHandleMessageRet(true);
+        logicalHandlers[1].setHandleMessageRet(true);
+        logicalHandlers[2].setHandleMessageRet(true);
+        logicalHandlers[3].setHandleMessageRet(true);
+
+        boolean continueProcessing = true;
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+        
+        assertTrue(continueProcessing);
+
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[0].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[1].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[2].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[3].getInvokeOrderOfHandleMessage());
+        assertEquals(0, logicalHandlers[0].getCloseCount());
+        assertEquals(0, logicalHandlers[1].getCloseCount());
+        assertEquals(0, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());
+    }
+    
+    //JAX-WS 9.3.2.1: 
+    //Return false This indicates that normal message processing should cease. Subsequent actions 
+    //depend on whether the message exchange pattern (MEP) in use requires a response to the 
+    //message currently being processed or not: 
+    //Response The message direction is reversed, the runtime invokes handleMessage on the next
+    //handler or dispatches the message (see section 9.1.2.2) if there are no further handlers. 
+    public void testHandleMessageReturnsFalseWithResponseExpected() {
+        assertFalse(invoker.faultRaised());
+
+        logicalHandlers[0].setHandleMessageRet(true);
+        logicalHandlers[1].setHandleMessageRet(true);
+        logicalHandlers[2].setHandleMessageRet(false);
+        logicalHandlers[3].setHandleMessageRet(true);
+        invoker.setResponseExpected(true);
+        
+        boolean continueProcessing = true;
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+        
+        assertFalse(continueProcessing);
+
+        assertEquals(2, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[2].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[1].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[0].getInvokeOrderOfHandleMessage());
+ 
+        assertEquals(0, logicalHandlers[0].getCloseCount());
+        assertEquals(0, logicalHandlers[1].getCloseCount());
+        assertEquals(0, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+    }
+ 
+    //JAX-WS 9.3.2.1: 
+    //Return false This indicates that normal message processing should cease. Subsequent actions 
+    //depend on whether the message exchange pattern (MEP) in use requires a response to the 
+    //message currently being processed or not: 
+    //No response Normal message processing stops, close is called on each previously invoked handler
+    //in the chain, the message is dispatched 
+    public void testHandleMessageReturnsFalseWithNoResponseExpected() {
+        assertFalse(invoker.faultRaised());
+
+        logicalHandlers[0].setHandleMessageRet(true);
+        logicalHandlers[1].setHandleMessageRet(true);
+        logicalHandlers[2].setHandleMessageRet(false);
+        logicalHandlers[3].setHandleMessageRet(true);
+        invoker.setResponseExpected(false);
+        
+        boolean continueProcessing = true;
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+        
+        assertFalse(continueProcessing);
+
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[0].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[1].getInvokeOrderOfHandleMessage());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
+        
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfClose()
+                   < logicalHandlers[0].getInvokeOrderOfClose());
+
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());
+    }
+    
+    //JAX-WS 9.3.2.1:
+    //Throw ProtocolException or a subclass This indicates that normal message processing should cease. 
+    //Subsequent actions depend on whether the MEP in use requires a response to the message currently 
+    //being processed or not:
+    //Response Normal message processing stops, fault message processing starts. The message direction 
+    //is reversed, if the message is not already a fault message then it is replaced with a fault message, 
+    //and the runtime invokes handleFault on the next handler or dispatches the message (see 
+    //section 9.1.2.2) if there are no further handlers.
+    public void testHandleMessageThrowsProtocolExceptionWithResponseExpected() {
         assertFalse(invoker.faultRaised());
 
         ProtocolException pe = new ProtocolException("banzai");
-        logicalHandlers[1].setException(pe);
+        logicalHandlers[2].setException(pe);
 
-        boolean continueProcessing = true;
+        //boolean continueProcessing = true;
         try {
-            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            invoker.invokeLogicalHandlers(false, lmc);
             fail("did not get expected exception");
         } catch (ProtocolException e) {
             assertEquals("banzai", e.getMessage());
         }
         assertTrue(invoker.faultRaised());
+        //assertFalse(continueProcessing);
+        //assertTrue(invoker.isClosed());
+        assertSame(pe, invoker.getFault());
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
+        
         assertEquals(1, logicalHandlers[0].getHandleFaultCount());
-        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
-
+        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleFault()
+                   < logicalHandlers[0].getInvokeOrderOfHandleFault());
+        
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
+/*        
+        
         continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
 
         assertFalse(continueProcessing);
@@ -203,60 +510,94 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
         assertEquals(1, logicalHandlers[0].getHandleFaultCount());
-        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
-
-        assertTrue(logicalHandlers[1].getInvokedOrder()
-                   < logicalHandlers[0].getInvokedOrder());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());*/
     }
 
+    //JAX-WS 9.3.2.1:
+    //Throw ProtocolException or a subclass This indicates that normal message processing should cease. 
+    //Subsequent actions depend on whether the MEP in use requires a response to the message currently 
+    //being processed or not:
+    //No response Normal message processing stops, close is called on each previously invoked handler 
+    //in the chain, the exception is dispatched
+    public void testHandleMessageThrowsProtocolExceptionWithNoResponseExpected() {
+        assertFalse(invoker.faultRaised());
 
-    public void testHandleMessageThrowsRuntimeException() {
+        ProtocolException pe = new ProtocolException("banzai");
+        logicalHandlers[2].setException(pe);
+        invoker.setResponseExpected(false);
 
+        //boolean continueProcessing = true;
+        try {
+            invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (ProtocolException e) {
+            assertEquals("banzai", e.getMessage());
+        }
+        assertTrue(invoker.faultRaised());
+        //assertFalse(continueProcessing);
+        //assertTrue(invoker.isClosed());
+        assertSame(pe, invoker.getFault());
+
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
+        
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());
+        
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfClose()
+                   < logicalHandlers[0].getInvokeOrderOfClose());
+    }
+    
+    //Throw any other runtime exception This indicates that normal message processing should cease. 
+    //Subsequent actions depend on whether the MEP in use includes a response to the message currently being 
+    //processed or not: 
+    //Response Normal message processing stops, close is called on each previously invoked handler in 
+    //the chain, the message direction is reversed, and the exception is dispatched
+    public void testHandleMessageThrowsRuntimeExceptionWithResponseExpected() {
         assertFalse(invoker.faultRaised());
 
         RuntimeException re = new RuntimeException("banzai");
         logicalHandlers[1].setException(re);
 
-        boolean continueProcessing = true;
+        //boolean continueProcessing = true;
         try {
-            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            invoker.invokeLogicalHandlers(false, lmc);
             fail("did not get expected exception");
         } catch (RuntimeException e) {
             assertEquals("banzai", e.getMessage());
         }
-        assertFalse(invoker.faultRaised());
+        
+        //assertTrue(invoker.faultRaised());
+        //assertFalse(continueProcessing);
         assertTrue(invoker.isClosed());
+        //assertSame(re, invoker.getFault());
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
-
-        // should this throw exception???
-        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
-        assertFalse(continueProcessing);
-
-        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
-        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[0].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[1].getInvokeOrderOfHandleMessage());
+        
         assertEquals(0, logicalHandlers[0].getHandleFaultCount());
         assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(0, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
     }
-
-
-    public void testHandleFault() {
-
-        // put invoker into fault state
-        ProtocolException pe = new ProtocolException("banzai");
-        invoker.setFault(pe);
-
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
-        assertTrue(continueProcessing);
-        assertEquals(0, logicalHandlers[0].getHandleMessageCount());
-        assertEquals(0, logicalHandlers[1].getHandleMessageCount());
-        assertEquals(1, logicalHandlers[0].getHandleFaultCount());
-        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
-
-        assertTrue(logicalHandlers[0].getInvokedOrder() < logicalHandlers[1].getInvokedOrder());
-    }
-
 
     public void testFaultRaised() {
 
@@ -281,24 +622,186 @@ public class HandlerChainInvokerTest extends TestCase {
         invoker.setFault(new ProtocolException("test exception"));
     }
 
-
-
+    // JAXB spec 9.3.2.2: Throw ProtocolException or a subclass This indicates
+    // that fault message processing should cease. Fault message processing
+    // stops, close is called on each previously invoked handler in the chain, the
+    // exception is dispatched       
     public void testHandleFaultThrowsProtocolException() {
+        ProtocolException pe = new ProtocolException("banzai");
+        // throw exception during handleFault processing
+        logicalHandlers[2].setException(pe);
+        logicalHandlers[1].setFaultException(pe);
+ 
+        boolean continueProcessing = false;
+        try {
+            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertEquals("banzai", e.getMessage());
+        }      
+ 
+        assertFalse(continueProcessing);
+        assertTrue(invoker.isClosed());
+        
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
+                   < logicalHandlers[2].getInvokeOrderOfHandleMessage());
 
-        doHandleFaultExceptionTest(new ProtocolException("banzai"));
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
+        assertTrue(logicalHandlers[2].getInvokeOrderOfClose()
+                   < logicalHandlers[1].getInvokeOrderOfClose());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfClose()
+                   < logicalHandlers[0].getInvokeOrderOfClose());
+        
     }
 
+    // JAXB spec 9.3.2.2: Throw any other runtime exception This indicates
+    // that fault message processing should cease. Fault message processing stops,
+    // close is called on each previously invoked handler in the chain, the exception is
+    // dispatched
     public void testHandleFaultThrowsRuntimeException() {
+        ProtocolException pe = new ProtocolException("banzai");
+        RuntimeException re = new RuntimeException("banzai");
+        // throw exception during handleFault processing
+        logicalHandlers[2].setException(pe);
+        logicalHandlers[1].setFaultException(re);
 
-        doHandleFaultExceptionTest(new RuntimeException("banzai"));
+
+        boolean continueProcessing = false;
+        try {
+            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertEquals("banzai", e.getMessage());
+        } 
+        
+        assertFalse(continueProcessing);
+        assertTrue(invoker.isClosed());
+        
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+ 
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());
+        assertEquals(1, logicalHandlers[2].getCloseCount());
+        assertEquals(0, logicalHandlers[3].getCloseCount());
+        assertTrue(logicalHandlers[2].getInvokeOrderOfClose()
+                   < logicalHandlers[1].getInvokeOrderOfClose());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfClose()
+                   < logicalHandlers[0].getInvokeOrderOfClose()); 
+    }
+    
+    
+    //JAXB spec 9.3.2.2: Return true This indicates that fault message processing 
+    //should continue. The runtime invokes handle Fault on the next handler or dispatches 
+    //the fault message (see section 9.1.2.2) if there are no further handlers. 
+    public void testHandleFaultReturnsTrue() {
+        ProtocolException pe = new ProtocolException("banzai");
+        logicalHandlers[2].setException(pe);
+        
+        logicalHandlers[0].setHandleFaultRet(true);
+        logicalHandlers[1].setHandleFaultRet(true);
+        logicalHandlers[2].setHandleFaultRet(true);
+        logicalHandlers[3].setHandleFaultRet(true);
+        
+        boolean continueProcessing = false;
+        try {
+            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertEquals("banzai", e.getMessage());
+        }        
+        
+        assertFalse(continueProcessing);
+        //assertTrue(invoker.isClosed());
+        
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+        
+        assertEquals(1, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfHandleFault()
+                   < logicalHandlers[0].getInvokeOrderOfHandleFault());
+
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());    
+        assertEquals(1, logicalHandlers[2].getCloseCount());    
+        assertEquals(0, logicalHandlers[3].getCloseCount());   
     }
 
-
+    
+    //JAXB spec 9.3.2.2: Return false This indicates that fault message processing 
+    //should cease. Fault message processing stops, close is called on each previously invoked
+    //handler in the chain, the fault message is dispatched 
+    public void testHandleFaultReturnsFalse() {
+        ProtocolException pe = new ProtocolException("banzai");
+        logicalHandlers[3].setException(pe);
+        
+        logicalHandlers[0].setHandleFaultRet(true);
+        logicalHandlers[1].setHandleFaultRet(true);
+        logicalHandlers[2].setHandleFaultRet(false);
+        logicalHandlers[3].setHandleFaultRet(true);
+        
+        boolean continueProcessing = false;
+        try {
+            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertEquals("banzai", e.getMessage());
+        }    
+        
+        assertFalse(continueProcessing);
+        //assertTrue(invoker.isClosed());
+        
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[3].getHandleMessageCount());
+        
+        
+        assertEquals(0, logicalHandlers[0].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
+        assertEquals(1, logicalHandlers[2].getHandleFaultCount());
+        assertEquals(0, logicalHandlers[3].getHandleFaultCount());
+ 
+        assertEquals(1, logicalHandlers[0].getCloseCount());
+        assertEquals(1, logicalHandlers[1].getCloseCount());    
+        assertEquals(1, logicalHandlers[2].getCloseCount());    
+        assertEquals(1, logicalHandlers[3].getCloseCount());   
+        
+        assertTrue(logicalHandlers[3].getInvokeOrderOfClose()
+                   < logicalHandlers[2].getInvokeOrderOfClose());
+        assertTrue(logicalHandlers[2].getInvokeOrderOfClose()
+                   < logicalHandlers[1].getInvokeOrderOfClose());
+        assertTrue(logicalHandlers[1].getInvokeOrderOfClose()
+                   < logicalHandlers[0].getInvokeOrderOfClose());
+    }
+    
     public void testMEPComplete() {
 
         invoker.invokeLogicalHandlers(false, lmc);
-        doInvokeProtocolHandlers(false);
-        assertEquals(4, invoker.getInvokedHandlers().size());
+        invoker.invokeProtocolHandlers(false, pmc);
+        assertEquals(8, invoker.getInvokedHandlers().size());
 
         invoker.mepComplete(message);
 
@@ -307,12 +810,12 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue("close not invoked on protocolHandlers", protocolHandlers[0].isCloseInvoked());
         assertTrue("close not invoked on protocolHandlers", protocolHandlers[1].isCloseInvoked());
 
-        assertTrue("incorrect invocation order of close", protocolHandlers[1].getInvokedOrder()
-                   < protocolHandlers[0].getInvokedOrder());
-        assertTrue("incorrect invocation order of close", protocolHandlers[0].getInvokedOrder()
-                   < logicalHandlers[1].getInvokedOrder());
-        assertTrue("incorrect invocation order of close", logicalHandlers[1].getInvokedOrder()
-                   < logicalHandlers[0].getInvokedOrder());
+        assertTrue("incorrect invocation order of close", protocolHandlers[1].getInvokeOrderOfClose()
+                   < protocolHandlers[0].getInvokeOrderOfClose());
+        assertTrue("incorrect invocation order of close", protocolHandlers[0].getInvokeOrderOfClose()
+                   < logicalHandlers[1].getInvokeOrderOfClose());
+        assertTrue("incorrect invocation order of close", logicalHandlers[1].getInvokeOrderOfClose()
+                   < logicalHandlers[0].getInvokeOrderOfClose());
     }
 
 
@@ -330,11 +833,10 @@ public class HandlerChainInvokerTest extends TestCase {
         //
         logicalHandlers[1].setHandleMessageRet(false);
         invoker.setInbound();
-        //invoker.invokeProtocolHandlers(true, soapContext);
-        doInvokeProtocolHandlers(true);
+        invoker.invokeProtocolHandlers(true, pmc);
         invoker.invokeLogicalHandlers(true, lmc);
 
-        assertEquals(3, invoker.getInvokedHandlers().size());
+        assertEquals(7, invoker.getInvokedHandlers().size());
 //        assertTrue(!invoker.getInvokedHandlers().contains(logicalHandlers[1]));
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0]));
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1]));
@@ -387,33 +889,6 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1]));
     }
 
-    private void doHandleFaultExceptionTest(RuntimeException e) {
-
-        // put invoker into fault state
-        ProtocolException pe = new ProtocolException("banzai");
-        invoker.setFault(pe);
-
-        // throw exception during handleFault processing
-        logicalHandlers[0].setException(e);
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
-        assertFalse(continueProcessing);
-        assertTrue(invoker.isClosed());
-        assertEquals(1, logicalHandlers[0].getHandleFaultCount());
-        assertEquals(0, logicalHandlers[1].getHandleFaultCount());
-
-        // JAXB spec 9.3.2.2: Throw any other runtime exception This indicates
-        // that fault message processing should cease. Fault message processing stops,
-        // close is called on each previously invoked handler in the chain, the exception is
-        // dispatched
-        //FIXME: CXF-612
-        //assertEquals(1, logicalHandlers[0].getCloseCount());
-        //assertEquals(0, logicalHandlers[1].getCloseCount());
-    }
-
-    private boolean doInvokeProtocolHandlers(boolean requestor) {
-        return invoker.invokeProtocolHandlers(requestor, pmc);
-    }
-
     static class TestProtocolHandler extends AbstractHandlerBase<SOAPMessageContext> {
 
     }
@@ -428,14 +903,17 @@ public class HandlerChainInvokerTest extends TestCase {
         private static int sinvokedOrder;
         private static int sid;
 
-        private int invokeOrder;
+        private int invokeOrderOfHandleMessage;
+        private int invokeOrderOfHandleFault;
+        private int invokeOrderOfClose;
         private final int id = ++sid;
 
         private int handleMessageInvoked;
         private int handleFaultInvoked;
         private boolean handleMessageRet = true;
-        private final boolean handleFaultRet = true;
+        private boolean handleFaultRet = true;
         private RuntimeException exception;
+        private RuntimeException faultException;
 
         private int closeInvoked;
 
@@ -446,7 +924,7 @@ public class HandlerChainInvokerTest extends TestCase {
         }
 
         public boolean handleMessage(T arg0) {
-            invokeOrder = ++sinvokedOrder;
+            invokeOrderOfHandleMessage = ++sinvokedOrder;
             handleMessageInvoked++;
 
             if (exception != null) {
@@ -459,18 +937,18 @@ public class HandlerChainInvokerTest extends TestCase {
         }
 
         public boolean handleFault(T arg0) {
-            invokeOrder = ++sinvokedOrder;
+            invokeOrderOfHandleFault = ++sinvokedOrder;
             handleFaultInvoked++;
 
-            if (exception != null) {
-                throw exception;
+            if (faultException != null) {
+                throw faultException;
             }
 
             return handleFaultRet;
         }
 
         public void close(MessageContext arg0) {
-            invokeOrder = ++sinvokedOrder;
+            invokeOrderOfClose = ++sinvokedOrder;
             closeInvoked++;
         }
 
@@ -504,27 +982,39 @@ public class HandlerChainInvokerTest extends TestCase {
             return closeInvoked;
         }
 
-        public int getInvokedOrder() {
-            return invokeOrder;
+        public int getInvokeOrderOfHandleMessage() {
+            return invokeOrderOfHandleMessage;
         }
+        
+        public int getInvokeOrderOfHandleFault() {
+            return invokeOrderOfHandleFault;
+        }
+        
+        public int getInvokeOrderOfClose() {
+            return invokeOrderOfClose;
+        }  
 
         public void setHandleMessageRet(boolean ret) {
             handleMessageRet = ret;
         }
 
         public void setHandleFaultRet(boolean ret) {
-            //handleFaultRet = ret;
+            handleFaultRet = ret;
         }
-
+        
         public String toString() {
-            return "[" + super.toString() + " id: " + id + " invoke order: " + invokeOrder + "]";
+            return "[" + super.toString() + " id: " + id + " invoke order: " + invokeOrderOfHandleMessage
+                   + "]";
         }
-
 
         public void setException(RuntimeException rte) {
             exception = rte;
         }
-
+        
+        public void setFaultException(RuntimeException rte) {
+            faultException = rte;
+        }
+        
         public static void clear() {
             sinvokedOrder = 0;
             sid = 0;
