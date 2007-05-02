@@ -39,9 +39,10 @@ public class SpringBusFactory extends BusFactory {
     
     private static final Logger LOG = LogUtils.getL7dLogger(SpringBusFactory.class);
     
-    private ApplicationContext context;
+    private final ApplicationContext context;
 
     public SpringBusFactory() {
+        this.context = null;
     }
 
     public SpringBusFactory(ApplicationContext context) {
@@ -52,60 +53,49 @@ public class SpringBusFactory extends BusFactory {
         return createBus((String)null);
     }
     
-    public Bus createBus(String cfgFile) {
-        boolean includeDefaults = true;
-        if (context != null) {
-            includeDefaults = !context.containsBean("cxf");
+    private boolean defaultBusNotExists() {
+        if (null != context) {
+            context.containsBean("cxf");
+            return false;
+        } else {
+            return true;
         }
+    }
+
+    public Bus createBus(String cfgFile) {
+        return createBus(cfgFile, defaultBusNotExists());
+    }
         
-        return createBus(cfgFile, includeDefaults);
+    private Bus finishCreatingBus(BusApplicationContext bac) {
+        final Bus bus = (Bus)bac.getBean(DEFAULT_BUS_ID);
+
+        bus.setExtension(new ConfigurerImpl(bac), Configurer.class);
+
+        possiblySetDefaultBus(bus);
+        registerApplicationContextLifeCycleListener(bus, bac);
+        return bus;
     }
     
     public Bus createBus(String cfgFile, boolean includeDefaults) {
-        BusApplicationContext bac = null;
         try {      
-            bac = new BusApplicationContext(cfgFile, includeDefaults, context);           
+            return finishCreatingBus(new BusApplicationContext(cfgFile, includeDefaults, context));
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
             throw new RuntimeException(ex);
         }
-        
-        bac.refresh();
-        Bus bus = (Bus)bac.getBean(DEFAULT_BUS_ID);
-       
-        Configurer configurer = new ConfigurerImpl(bac);
-        bus.setExtension(configurer, Configurer.class);
-
-        possiblySetDefaultBus(bus);
-        registerApplicationContextLifeCycleListener(bus, bac);
-        return bus;
     }
     
     public Bus createBus(URL url) {
-        boolean includeDefaults = true;
-        if (context != null) {
-            includeDefaults = !context.containsBean("cxf");
-        }
-        return createBus(url, includeDefaults);
+        return createBus(url, defaultBusNotExists());
     }
     
     public Bus createBus(URL url, boolean includeDefaults) {
-        BusApplicationContext bac = null;
         try {      
-            bac = new BusApplicationContext(url, includeDefaults, context);           
+            return finishCreatingBus(new BusApplicationContext(url, includeDefaults, context));
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
+            throw new RuntimeException(ex);
         }
-        
-        bac.refresh();
-        Bus bus = (Bus)bac.getBean(DEFAULT_BUS_ID);
-       
-        Configurer configurer = new ConfigurerImpl(bac);
-        bus.setExtension(configurer, Configurer.class);
-
-        possiblySetDefaultBus(bus);
-        registerApplicationContextLifeCycleListener(bus, bac);
-        return bus;
     }
 
     

@@ -63,15 +63,17 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
     }
 
     public BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
-        super((String[])null, parent);
+        super((String[])null, false, parent);
         cfgFile = cf;
         includeDefaults = include;
+        refresh();
     }
     
     public BusApplicationContext(URL url, boolean include, ApplicationContext parent) {
-        super((String[])null, parent);
+        super((String[])null, false, parent);
         cfgFileURL = url;
         includeDefaults = include;
+        refresh();
     }
     
     @Override
