@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Definition;
+import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
@@ -48,6 +49,7 @@ import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
 
 /**
@@ -70,6 +72,9 @@ public class WSDLManagerImpl implements WSDLManager {
         try {
             factory = WSDLFactory.newInstance();
             registry = factory.newPopulatedExtensionRegistry();
+            registry.registerSerializer(Types.class, 
+                                        WSDLConstants.SCHEMA_QNAME,
+                                        new SchemaSerializer());
         } catch (WSDLException e) {
             throw new BusException(e);
         }

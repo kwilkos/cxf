@@ -37,6 +37,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     public void setUp() throws Exception {
         super.setUp();
         builder.setBus(BusFactory.getDefaultBus());
+        generator.setBus(builder.getBus());
     }
 
     public void tearDown() {

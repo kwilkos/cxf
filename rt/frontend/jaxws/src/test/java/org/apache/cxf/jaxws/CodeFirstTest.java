@@ -121,7 +121,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertEquals(1, bindings.size());
         
         ServiceWSDLBuilder wsdlBuilder = 
-            new ServiceWSDLBuilder(service.getServiceInfos().get(0));
+            new ServiceWSDLBuilder(bus, service.getServiceInfos().get(0));
         return wsdlBuilder.build();
     }
 

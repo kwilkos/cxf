@@ -24,9 +24,9 @@ import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
 
 public class WSDLGeneratorFactoryTest extends TestCase {
-    WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
 
     public void testNewWSDL11Generator() {
+        WSDLGeneratorFactory factory = new WSDLGeneratorFactory();
         factory.setWSDLVersion(WSDLConstants.WSDLVersion.WSDL11);
         AbstractGenerator generator = factory.newGenerator();
         assertNotNull(generator);

@@ -34,7 +34,7 @@ import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 public class WSDL11Generator extends AbstractGenerator<Definition> {
-
+    
     public Definition generate(final File dir) {
         File file = getOutputBase();
         if (file == null && dir != null) {
@@ -52,7 +52,7 @@ public class WSDL11Generator extends AbstractGenerator<Definition> {
         try {
             OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
             WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-            ServiceWSDLBuilder builder = new ServiceWSDLBuilder(getServiceModel());
+            ServiceWSDLBuilder builder = new ServiceWSDLBuilder(getBus(), getServiceModel());
             builder.setUseSchemaImports(this.allowImports());
             
             String name = file.getName();

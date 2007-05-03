@@ -20,12 +20,16 @@
 package org.apache.cxf.tools.java2wsdl.generator;
 
 import java.io.File;
+
+import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public abstract class AbstractGenerator<T> {
     private ServiceInfo service;
     private boolean allowImports;
     private File outputdir;
+    private Bus bus;
+    
 
     public void setOutputBase(File out) {
         this.outputdir = out;
@@ -41,6 +45,13 @@ public abstract class AbstractGenerator<T> {
 
     public ServiceInfo getServiceModel() {
         return this.service;
+    }
+    
+    public Bus getBus() {
+        return bus;
+    }
+    public void setBus(Bus b) {
+        bus = b;
     }
     
     public void setAllowImports(boolean b) {

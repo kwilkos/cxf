@@ -37,7 +37,6 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.extensions.schema.SchemaReference;
-import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -56,6 +55,7 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.ResourceManagerWSDLLocator;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
@@ -125,7 +125,7 @@ public class WSDLQueryHandler implements QueryHandler {
             }
             
             if (!mp.containsKey(wsdl)) {
-                Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
+                Definition def = new ServiceWSDLBuilder(bus, endpointInfo.getService()).build();
                 mp.put("", def);
                 updateDefinition(def, mp, smp, base, endpointInfo);
             }
@@ -135,7 +135,9 @@ public class WSDLQueryHandler implements QueryHandler {
             if (xsd == null) {
                 Definition def = mp.get(wsdl);
     
-                WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
+                WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class)
+                    .getWSDLFactory().newWSDLWriter();
+                def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
                 doc = wsdlWriter.getDocument(def);
             } else {
                 SchemaReference si = smp.get(xsd);

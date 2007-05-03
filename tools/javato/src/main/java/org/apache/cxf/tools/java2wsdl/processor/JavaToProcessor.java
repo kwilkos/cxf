@@ -96,7 +96,7 @@ public class JavaToProcessor implements Processor {
     }
 
     private AbstractGenerator getWSDLGenerator(final File wsdlFile) {
-        WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
+        WSDLGeneratorFactory factory = new WSDLGeneratorFactory();
         factory.setWSDLVersion(getWSDLVersion());
 
         AbstractGenerator generator = factory.newGenerator();
@@ -108,6 +108,7 @@ public class JavaToProcessor implements Processor {
     public void generate(ServiceInfo service, File output) throws ToolException {
         for (AbstractGenerator generator : generators) {
             generator.setServiceModel(service);
+            generator.setBus(getBus());
             generator.generate(output);
         }
     }

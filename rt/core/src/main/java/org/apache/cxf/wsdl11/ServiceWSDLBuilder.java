@@ -45,7 +45,6 @@ import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -54,6 +53,7 @@ import org.w3c.dom.Element;
 
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
@@ -70,6 +70,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.cxf.wsdl.WSDLManager;
 
 public final class ServiceWSDLBuilder {
     
@@ -79,13 +80,15 @@ public final class ServiceWSDLBuilder {
     private boolean useSchemaImports;
     private String baseFileName;
     private int xsdCount;
+    private Bus bus;
     
-    public ServiceWSDLBuilder(List<ServiceInfo> services) {
+    public ServiceWSDLBuilder(Bus b, List<ServiceInfo> services) {
         this.services = services;
+        bus = b;
         ns2prefix = new HashMap<String, String>();
     }
-    public ServiceWSDLBuilder(ServiceInfo ... services) {
-        this(Arrays.asList(services));
+    public ServiceWSDLBuilder(Bus b, ServiceInfo ... services) {
+        this(b, Arrays.asList(services));
     }
     public void setUseSchemaImports(boolean b) {
         useSchemaImports = b;
@@ -105,10 +108,8 @@ public final class ServiceWSDLBuilder {
             //ignore
         }
         if (definition == null) {
-            definition = WSDLFactory.newInstance().newDefinition();
-            definition.getExtensionRegistry().registerSerializer(Types.class, 
-                                                                 WSDLConstants.SCHEMA_QNAME,
-                                                                 new SchemaSerializer());
+            definition = bus.getExtension(WSDLManager.class).getWSDLFactory().newDefinition();
+            definition.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
                     
             addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
             
@@ -137,6 +138,8 @@ public final class ServiceWSDLBuilder {
         List<ExtensibilityElement> extensibilityElements) {
         if (extensibilityElements != null) {
             for (ExtensibilityElement element : extensibilityElements) {
+                QName qn = element.getElementType();
+                addNamespace(qn.getNamespaceURI());
                 elementExtensible.addExtensibilityElement(element);
             }
         }

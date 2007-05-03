@@ -43,6 +43,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void setUp() throws Exception {
         super.setUp();
         builder.setBus(BusFactory.getDefaultBus());
+        generator.setBus(builder.getBus());
     }
 
     @org.junit.After

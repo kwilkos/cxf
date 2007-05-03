@@ -30,6 +30,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.http.HTTPAddress;
+import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
@@ -203,8 +204,7 @@ public abstract class AbstractHTTPTransportFactory
         }
         HttpEndpointInfo hei = new HttpEndpointInfo(serviceInfo, 
             "http://schemas.xmlsoap.org/wsdl/http/");
-        AddressType at = new AddressType();
-        at.setElementType(new QName("http://schemas.xmlsoap.org/wsdl/http/", "address"));
+        AddressType at = new HttpAddressType();
         hei.addExtensor(at);
         
         return hei;
@@ -265,5 +265,22 @@ public abstract class AbstractHTTPTransportFactory
             }
         }
     }    
+    
+    private static class HttpAddressType extends AddressType 
+        implements HTTPAddress, SOAPAddress {
+        public HttpAddressType() {
+            super();
+            setElementType(new QName("http://schemas.xmlsoap.org/wsdl/soap/", "address"));
+        }
+        
+        public String getLocationURI() {
+            return getLocation();
+        }
+
+        public void setLocationURI(String locationURI) {
+            setLocation(locationURI);
+        }
+        
+    }
 
 }

@@ -23,18 +23,11 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 
 public final class WSDLGeneratorFactory {
-    private static WSDLGeneratorFactory instance;
     private WSDLConstants.WSDLVersion wsdlVersion;
     
-    private WSDLGeneratorFactory() {
+    public  WSDLGeneratorFactory() {
     }
 
-    public static WSDLGeneratorFactory getInstance() {
-        if (instance == null) {
-            instance = new WSDLGeneratorFactory();
-        }
-        return instance;
-    }
 
     public void setWSDLVersion(WSDLConstants.WSDLVersion v) {
         this.wsdlVersion = v;

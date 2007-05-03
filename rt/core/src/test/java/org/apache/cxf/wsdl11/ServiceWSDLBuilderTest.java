@@ -46,6 +46,7 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -95,6 +96,7 @@ public class ServiceWSDLBuilderTest extends Assert {
                 break;
             }
         }
+        EasyMock.expect(bus.getExtension(WSDLManager.class)).andReturn(new WSDLManagerImpl()).anyTimes();
         
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
         EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
@@ -109,7 +111,7 @@ public class ServiceWSDLBuilderTest extends Assert {
         serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        newDef = new ServiceWSDLBuilder(serviceInfo).build();
+        newDef = new ServiceWSDLBuilder(bus, serviceInfo).build();
         
     }
     
