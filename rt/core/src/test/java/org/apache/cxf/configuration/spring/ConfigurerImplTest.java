@@ -153,6 +153,20 @@ public class ConfigurerImplTest extends Assert {
     }
     
     @Test
+    public void testConfigureSimpleMatchingStarBeanId() {
+        SimpleBean sb = new SimpleBean("simple2");
+        ConfigurerImpl configurer =
+            new ConfigurerImpl("/org/apache/cxf/configuration/spring/test-beans.xml");
+        configurer.configureBean(sb);
+        assertTrue("Unexpected value for attribute booleanAttr", 
+                   !sb.getBooleanAttr());
+        assertEquals("Unexpected value for attribute integerAttr", 
+                     BigInteger.TEN, sb.getIntegerAttr());
+        assertEquals("Unexpected value for attribute stringAttr", 
+                     "StarHallo", sb.getStringAttr());
+    }
+    
+    @Test
     public void testGetBeanName() {
         ConfigurerImpl configurer = new ConfigurerImpl((String)null);
         Object beanInstance = new Configurable() {

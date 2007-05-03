@@ -20,6 +20,8 @@
 package org.apache.cxf.configuration.spring;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +31,9 @@ import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfo;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
@@ -41,6 +46,7 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
     private static final String DEFAULT_USER_CFG_FILE = "cxf.xml";
 
     private ApplicationContext appContext;
+    private final Map<String, String> wildCardBeanDefinitions = new HashMap<String, String>();
     
     public ConfigurerImpl() {
         this(DEFAULT_USER_CFG_FILE);
@@ -66,11 +72,36 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
             LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
         }
     }
-    
+
     public ConfigurerImpl(ApplicationContext ac) {
         setApplicationContext(ac);
     }
     
+    private void initWildcardDefinitionMap() {
+        if (null != appContext) {
+            for (String n : appContext.getBeanDefinitionNames()) {
+                if (isWildcardBeanName(n)) {
+                    AutowireCapableBeanFactory bf = appContext.getAutowireCapableBeanFactory();
+                    BeanDefinitionRegistry bdr = (BeanDefinitionRegistry) bf;
+                    BeanDefinition bd = bdr.getBeanDefinition(n);
+                    String className = bd.getBeanClassName();
+                    if (null != className) {
+                        if (!wildCardBeanDefinitions.containsKey(className)) {
+                            wildCardBeanDefinitions.put(className, n);
+                        } else {
+                            LogUtils.log(LOG, Level.WARNING, "ONE_WILDCARD_BEAN_ID_PER_CLASS_MSG", 
+                                         new String[]{wildCardBeanDefinitions.get(className),
+                                                      className,
+                                                      n});   
+                        }
+                    } else {
+                        LogUtils.log(LOG, Level.WARNING, "WILDCARD_BEAN_ID_WITH_NO_CLASS_MSG", n); 
+                    }
+                }
+            }
+        }
+    }
+
     public void configureBean(Object beanInstance) {
         configureBean(null, beanInstance);
     }
@@ -88,6 +119,8 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         if (null == bn) {
             return;
         }
+        
+        configureWithWildCard(bn, beanInstance);
         
         final String beanName = bn;
         setBeanWiringInfoResolver(new BeanWiringInfoResolver() {
@@ -114,6 +147,26 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         }
     }
     
+    private void configureWithWildCard(String bn, Object beanInstance) {
+        if (!wildCardBeanDefinitions.isEmpty() && !isWildcardBeanName(bn)) {
+            String className = beanInstance.getClass().getSimpleName();
+            if (wildCardBeanDefinitions.containsKey(className)) {
+                String wildCardBeanId = wildCardBeanDefinitions.get(className);
+                if (bn.endsWith(stripStar(wildCardBeanId))) {
+                    configureBean(wildCardBeanId, beanInstance);
+                }       
+            }
+        }
+    }
+
+    private boolean isWildcardBeanName(String bn) {
+        return bn.charAt(0) == '*';
+    }
+
+    private String stripStar(String wildCardBeanId) {
+        return wildCardBeanId.substring(1);
+    }
+
     protected String getBeanName(Object beanInstance) {
         if (beanInstance instanceof Configurable) {
             return ((Configurable)beanInstance).getBeanName();
@@ -139,5 +192,6 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
     private void setApplicationContext(ApplicationContext ac) {
         appContext = ac;
         setBeanFactory(appContext.getAutowireCapableBeanFactory());
+        initWildcardDefinitionMap();
     }
 }

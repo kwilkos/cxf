@@ -21,7 +21,27 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
- 
+
+  <bean id="*2" abstract="true" class="SimpleBean">
+      <property name="stringAttr" value="StarHallo"/>
+  </bean>
+
+  <!-- additional wildcards for class SimpleBean will be ignored with a warning -->
+  <bean id="*duplicateWildcardForClassWillBeIgnored" abstract="true" class="SimpleBean">
+      <property name="stringAttr" value="duplicateWildcardForClassWillBeIgnored"/>
+  </bean>
+  
+  <!--  wildcards bean with no class will be ignored with a warning -->
+  <bean id="*willBeIgnoredBecausOfNoClass" abstract="true" >
+      <property name="stringAttr" value="willBeIgnoredBecausOfNoClass"/>
+  </bean>
+  
+  
+  <bean id="simple2" lazy-init="true">
+      <property name="booleanAttr" value="false"/>
+      <property name="integerAttr" value="10"/>
+  </bean>
+    
   <bean id="simple" lazy-init="true">
       <property name="stringAttr" value="hallo"/>
       <property name="booleanAttr" value="false"/>

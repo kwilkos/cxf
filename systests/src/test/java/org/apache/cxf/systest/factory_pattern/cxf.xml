@@ -24,6 +24,9 @@
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     <bean name="{http://cxf.apache.org/factory_pattern}NumberPort.http-destination" abstract="true">
+      <!--  applying with wildcard to all JettyHTTPDestinations instead of this verbose method -->
+    </bean>
+    <bean name="*" abstract="true" class="JettyHTTPDestination">
       <property name="multiplexWithAddress" value="true"/>
     </bean>
 </beans>
