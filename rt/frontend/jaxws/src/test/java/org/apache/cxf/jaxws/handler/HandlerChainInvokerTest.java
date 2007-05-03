@@ -27,11 +27,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
@@ -42,6 +44,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.jaxws.handler.soap.SOAPMessageContextImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 
@@ -53,7 +56,6 @@ public class HandlerChainInvokerTest extends TestCase {
     Message message;
     LogicalMessageContext lmc;
     MessageContext pmc;
-    Source payload;
 
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
@@ -76,9 +78,9 @@ public class HandlerChainInvokerTest extends TestCase {
         message = new MessageImpl();
         lmc = new LogicalMessageContextImpl(message);
         pmc = new WrappedMessageContext(message);      
-        
+/*        
         payload = new DOMSource();
-        message.setContent(Source.class, payload);
+        message.setContent(Source.class, payload);*/
         
     }
 
@@ -233,6 +235,16 @@ public class HandlerChainInvokerTest extends TestCase {
         continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
         assertTrue(continueProcessing);
         
+        //create an empty SOAP body for testing
+        try {
+            pmc = new SOAPMessageContextImpl(message);
+            MessageFactory factory = MessageFactory.newInstance();
+            SOAPMessage soapMessage = factory.createMessage();      
+            ((SOAPMessageContext)pmc).setMessage(soapMessage);            
+        } catch (SOAPException e) {
+            //do nothing
+        }
+        
         try {
             invoker.setProtocolMessageContext(pmc);
             continueProcessing = invoker.invokeProtocolHandlers(false, pmc);
@@ -244,6 +256,12 @@ public class HandlerChainInvokerTest extends TestCase {
         assertFalse((Boolean)pmc.get(SOAPMessageContext.MESSAGE_OUTBOUND_PROPERTY));
         assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
         assertTrue(invoker.isInbound());
+        
+        //the message is replaced by fault message
+        Source responseMessage = lmc.getMessage().getPayload();
+        System.out.println(getSourceAsString(responseMessage));
+        assertTrue(getSourceAsString(responseMessage).indexOf("banzai") > -1);
+
         //assertFalse(continueProcessing);
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
@@ -412,7 +430,6 @@ public class HandlerChainInvokerTest extends TestCase {
         assertFalse(continueProcessing);
         
         assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
-        assertEquals(payload, lmc.getMessage().getPayload());
         
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(2, logicalHandlers[1].getHandleMessageCount());
@@ -504,10 +521,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertSame(pe, invoker.getFault());
                 
         assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
-        Source responseMessage = lmc.getMessage().getPayload();
-        System.out.println(getSourceAsString(responseMessage));
-        //assertTrue(getSourceAsString(responseMessage).indexOf("banzai") > -1);
-        
+         
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
         assertEquals(1, logicalHandlers[2].getHandleMessageCount());

@@ -26,11 +26,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
@@ -236,15 +242,7 @@ public class HandlerChainInvoker {
         }
 
         if (!continueProcessing) {
-            // stop processing handlers, change direction and return
-            // control to the bindng.  Then the binding will invoke on
-            // the next set on handlers and they will be processing in
-            // the correct direction.  It would be good refactor it
-            // and control all of the processing here.
-            //changeMessageDirection(ctx);
             handlerProcessingAborted = true;
-
-            //TODO: reverse chain, call handlerMessage or close
         }
         return continueProcessing;
     }
@@ -301,6 +299,7 @@ public class HandlerChainInvoker {
             LOG.log(Level.FINE, "handleMessage raised exception", e);
             changeMessageDirection(ctx);
             if (responseExpected) {
+                setFaultMessage(ctx, e);
                 invokeReversedHandleFault(ctx);
             } else {
                 invokeReversedClose();
@@ -320,10 +319,29 @@ public class HandlerChainInvoker {
         return continueProcessing;
     }
 
-
-    //The message direction is reversed, if the message is not already a fault message then it 
-    //is replaced with a fault message, and the runtime invokes handleFault on the next handler
-    //or dispatches the message if there are no further handlers.
+    //When the message direction is reversed, if the message is not already a fault message then it is 
+    //replaced with a fault message
+    private void setFaultMessage(MessageContext mc, Exception exception) {
+        if (mc instanceof LogicalMessageContext) {
+            ((WrappedMessageContext)mc).getWrappedMessage().setContent(Exception.class, exception);
+        } else if (mc instanceof SOAPMessageContext) {
+            try {
+                SOAPMessage soapMessage = ((SOAPMessageContext)mc).getMessage();
+                SOAPBody body = soapMessage.getSOAPBody();
+                // Fault f = (Fault)exception;
+                SOAPFault soapFault = body.addFault();
+                soapFault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "HandlerFault"));
+                soapFault.setFaultString(exception.getMessage());
+            } catch (SOAPException e) {
+                e.printStackTrace();
+                // do nothing
+            }
+        }
+    }
+        
+    // The message direction is reversed, if the message is not already a fault message then it
+    // is replaced with a fault message, and the runtime invokes handleFault on
+    // the next handler or dispatches the message if there are no further handlers.
     @SuppressWarnings("unchecked")
     private boolean invokeReversedHandleFault(MessageContext ctx) {
         boolean continueProcessing = true;
