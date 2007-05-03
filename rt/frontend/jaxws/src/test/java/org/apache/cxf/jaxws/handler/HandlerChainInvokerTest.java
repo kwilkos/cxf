@@ -21,10 +21,18 @@ package org.apache.cxf.jaxws.handler;
 
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
@@ -42,9 +50,10 @@ public class HandlerChainInvokerTest extends TestCase {
     private static final int HANDLER_COUNT = 4;
 
     HandlerChainInvoker invoker;
-    Message message = new MessageImpl();
-    LogicalMessageContext lmc = new LogicalMessageContextImpl(message);
-    MessageContext pmc = new WrappedMessageContext(message);
+    Message message;
+    LogicalMessageContext lmc;
+    MessageContext pmc;
+    Source payload;
 
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
@@ -63,6 +72,14 @@ public class HandlerChainInvokerTest extends TestCase {
         }
 
         invoker = new HandlerChainInvoker(handlers);
+        
+        message = new MessageImpl();
+        lmc = new LogicalMessageContextImpl(message);
+        pmc = new WrappedMessageContext(message);      
+        
+        payload = new DOMSource();
+        message.setContent(Source.class, payload);
+        
     }
 
     public void testInvokeEmptyHandlerChain() {
@@ -389,10 +406,14 @@ public class HandlerChainInvokerTest extends TestCase {
         invoker.setResponseExpected(true);
         
         boolean continueProcessing = true;
+        invoker.setLogicalMessageContext(lmc);
         continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
         
         assertFalse(continueProcessing);
-
+        
+        assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        assertEquals(payload, lmc.getMessage().getPayload());
+        
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(2, logicalHandlers[1].getHandleMessageCount());
         assertEquals(1, logicalHandlers[2].getHandleMessageCount());
@@ -470,16 +491,23 @@ public class HandlerChainInvokerTest extends TestCase {
 
         //boolean continueProcessing = true;
         try {
+            invoker.setLogicalMessageContext(lmc);
             invoker.invokeLogicalHandlers(false, lmc);
             fail("did not get expected exception");
         } catch (ProtocolException e) {
             assertEquals("banzai", e.getMessage());
         }
+        
         assertTrue(invoker.faultRaised());
         //assertFalse(continueProcessing);
         //assertTrue(invoker.isClosed());
         assertSame(pe, invoker.getFault());
-
+                
+        assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+        Source responseMessage = lmc.getMessage().getPayload();
+        System.out.println(getSourceAsString(responseMessage));
+        //assertTrue(getSourceAsString(responseMessage).indexOf("banzai") > -1);
+        
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
         assertEquals(1, logicalHandlers[2].getHandleMessageCount());
@@ -628,16 +656,17 @@ public class HandlerChainInvokerTest extends TestCase {
     // exception is dispatched       
     public void testHandleFaultThrowsProtocolException() {
         ProtocolException pe = new ProtocolException("banzai");
+        ProtocolException pe2 = new ProtocolException("banzai2");
         // throw exception during handleFault processing
         logicalHandlers[2].setException(pe);
-        logicalHandlers[1].setFaultException(pe);
+        logicalHandlers[1].setFaultException(pe2);
  
         boolean continueProcessing = false;
         try {
             continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
             fail("did not get expected exception");
-        } catch (RuntimeException e) {
-            assertEquals("banzai", e.getMessage());
+        } catch (ProtocolException e) {
+            assertEquals("banzai2", e.getMessage());
         }      
  
         assertFalse(continueProcessing);
@@ -888,7 +917,25 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0]));
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1]));
     }
+    
+    private String getSourceAsString(Source s) {
+        String result = "";
 
+        try {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            OutputStream out = new ByteArrayOutputStream();
+            StreamResult streamResult = new StreamResult();
+            streamResult.setOutputStream(out);
+            transformer.transform(s, streamResult);
+            return streamResult.getOutputStream().toString();
+        } catch (Exception e) {
+            //do nothing
+        }
+        return result;
+    }
+    
     static class TestProtocolHandler extends AbstractHandlerBase<SOAPMessageContext> {
 
     }

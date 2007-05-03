@@ -376,21 +376,19 @@ public class HandlerChainInvoker {
 
     @SuppressWarnings("unchecked")
     private boolean invokeReversedHandlerMessage(MessageContext ctx) {
+        boolean continueProcessing = true;
+
         int index = invokedHandlers.size() - 2;
         while (index >= 0) {
             Handler handler = invokedHandlers.get(index);
             if (handler instanceof LogicalHandler) {
-                if (Boolean.FALSE.equals(handler.handleMessage(logicalMessageContext))) {
-                    return false;
-                }
+                continueProcessing = handler.handleMessage(logicalMessageContext);
             } else {
-                if (Boolean.FALSE.equals(handler.handleMessage(protocolMessageContext))) {
-                    return false;
-                }
+                continueProcessing = handler.handleMessage(protocolMessageContext);
             }
             index--;
         }
-        return true;
+        return continueProcessing;
     }
 
     //close is called on each previously invoked handler in the chain, the close method is 
