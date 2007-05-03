@@ -204,7 +204,7 @@ public class Proxy {
                                   final org.apache.cxf.ws.addressing.EndpointReferenceType address) {
         ConduitSelector cs = new DeferredConduitSelector(conduit) {
             @Override
-            public Conduit selectConduit(Message message) {
+            public synchronized Conduit selectConduit(Message message) {
                 Conduit conduit = null;
                 EndpointInfo endpointInfo = getEndpoint().getEndpointInfo();
                 org.apache.cxf.ws.addressing.EndpointReferenceType original = 

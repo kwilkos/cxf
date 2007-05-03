@@ -989,7 +989,6 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         mf.verifyActions(expectedActions, true);
     }
   
-    @Ignore
     @Test
     public void testMultiClientOneway() throws Exception {
         if (!doTestMultiClientOneway) {
@@ -1164,7 +1163,6 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         }        
     }
     
-    @Ignore
     @Test
     public void testServerSideMessageLoss() throws Exception {
         if (!doTestServerSideMessageLoss) {

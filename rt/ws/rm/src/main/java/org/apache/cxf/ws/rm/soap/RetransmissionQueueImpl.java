@@ -46,6 +46,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.policy.AssertionInfo;
@@ -237,7 +238,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     private void serverResend(Message message) {
-        final Endpoint reliableEndpoint = manager.getReliableEndpoint(message).getEndpoint();
         
         // get the message's to address
         
@@ -254,9 +254,11 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         final String address = to.getValue();
         LOG.fine("Resending to address: " + address);
         
+        final Endpoint reliableEndpoint = manager.getReliableEndpoint(message).getEndpoint();
+
         ConduitSelector cs = new DeferredConduitSelector() {
             @Override
-            public Conduit selectConduit(Message message) {
+            public synchronized Conduit selectConduit(Message message) {
                 Conduit conduit = null;
                 EndpointInfo endpointInfo = reliableEndpoint.getEndpointInfo();
                 org.apache.cxf.ws.addressing.EndpointReferenceType original = 
@@ -273,8 +275,16 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             }
         };
         
-        
-        Conduit c = cs.selectConduit(message);
+        cs.setEndpoint(reliableEndpoint);
+        Conduit c = cs.selectConduit(message);   
+        // REVISIT
+        // use application endpoint message observer instead?
+        c.setMessageObserver(new MessageObserver() {
+            public void onMessage(Message message) {
+                LOG.fine("Ignoring response to resent message.");
+            }
+            
+        });
         resend(c, message);
     }
     

@@ -105,14 +105,16 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         Identifier inSeqId = null;
         BigInteger inMessageNumber = null;
         
-        if (isApplicationMessage && !isPartialResponse) {
-                        
+        if (isApplicationMessage) {
             rmpsIn = (RMProperties)RMContextUtils.retrieveRMProperties(message, false);
-            
             if (null != rmpsIn && null != rmpsIn.getSequence()) {
                 inSeqId = rmpsIn.getSequence().getIdentifier();
                 inMessageNumber = rmpsIn.getSequence().getMessageNumber();
             }
+        }
+        
+        if (isApplicationMessage && !isPartialResponse) {
+      
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
             }
@@ -166,23 +168,30 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
                              RMProperties rmpsOut, 
                              Identifier inSeqId, 
                              AttributedURI to) {
-
         for (DestinationSequence seq : destination.getAllSequences()) {
-            if (seq.sendAcknowledgement()
-                && ((seq.getAcksTo().getAddress().getValue().equals(RMUtils.getAddressingConstants()
-                    .getAnonymousURI()) && AbstractSequence.identifierEquals(seq.getIdentifier(), 
-                                                                                inSeqId))
-                    || to.getValue().equals(seq.getAcksTo().getAddress().getValue()))) {
-                rmpsOut.addAck(seq);
-            } else if (LOG.isLoggable(Level.FINE)) {
-                if (!seq.sendAcknowledgement()) {
+            if (!seq.sendAcknowledgement()) {
+                if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("no need to add acknowledgements for sequence "
-                             + seq.getIdentifier().getValue());
-                } else {
-                    LOG.fine("sequences acksTo address (" + seq.getAcksTo().getAddress().getValue()
-                             + ") does not match to address (" + to.getValue() + ")");
+                        + seq.getIdentifier().getValue()); 
                 }
+                continue;
             }
+            if (!to.getValue().equals(seq.getAcksTo().getAddress().getValue())) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("sequences acksTo address (" + seq.getAcksTo().getAddress().getValue()
+                        + ") does not match to address (" + to.getValue() + ")");
+                }
+                continue;
+            }
+            // there may be multiple sources with anonymous acksTo 
+            if (RMConstants.getAnonymousAddress().equals(seq.getAcksTo().getAddress().getValue())
+                && !AbstractSequence.identifierEquals(seq.getIdentifier(), inSeqId)) {                
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("sequence identifier does not match inbound sequence identifier");
+                }
+                continue;
+            }
+            rmpsOut.addAck(seq);
         }
 
         if (LOG.isLoggable(Level.FINE)) {
