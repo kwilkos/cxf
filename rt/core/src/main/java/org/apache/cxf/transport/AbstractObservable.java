@@ -97,7 +97,7 @@ public abstract class AbstractObservable implements Observable {
         } else {
             ref = t;
         }
-        return EndpointReferenceUtils.resolve(ref, bus);
+        return ref;
     }
     
     /**

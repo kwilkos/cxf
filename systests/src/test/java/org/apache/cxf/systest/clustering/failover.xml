@@ -23,7 +23,7 @@
        xmlns:clustering="http://cxf.apache.org/clustering"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+    
     <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortA"
                   createdFromAPI="true">
         <jaxws:features>

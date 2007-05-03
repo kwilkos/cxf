@@ -19,23 +19,46 @@
 
 package org.apache.cxf.systest.clustering;
 
+import javax.annotation.Resource;
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.greeter_control.AbstractGreeterImpl;
+import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
 
 @WebService(serviceName = "GreeterService",
-            portName = "GreeterPort",
+            portName = "ReplicatedPortA",
             endpointInterface = "org.apache.cxf.greeter_control.Greeter",
             targetNamespace = "http://cxf.apache.org/greeter_control",
             wsdlLocation = "testutils/greeter_control.wsdl")
-public class GreeterImpl extends AbstractGreeterImpl {
+public class GreeterImplA extends AbstractGreeterImpl {
+    @Resource
+    private WebServiceContext context;
+
     private String address;
     
-    GreeterImpl(String addr) {
-        address = addr;    
+    GreeterImplA() {
+        address = FailoverTest.REPLICA_A;    
     }
     
     public String greetMe(String s) {
-        return super.greetMe(s) + " from: " + address;
+        return super.greetMe(s)
+               + " on message: " + getMessageID()
+               + " from: " + address;
+    }
+ 
+    private String getMessageID() {
+        String id = null;
+        if (context.getMessageContext() != null) {
+            String property =
+                JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
+            AddressingProperties maps = (AddressingProperties)
+                context.getMessageContext().get(property);
+            id = maps != null && maps.getMessageID() != null
+                 ? maps.getMessageID().getValue()
+                 : null;
+        }
+        return id;
     }
 }

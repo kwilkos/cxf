@@ -29,12 +29,15 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 public class Server extends AbstractBusTestServerBase {
    
-    private static final String ADDRESS = "http://localhost:9001/SoapContext/ControlPort";
- 
+    private static final String ADDRESS =
+        "http://localhost:9001/SoapContext/ControlPort";
+    private static final String TARGETS_CONFIG =
+        "org/apache/cxf/systest/clustering/targets.xml";
+    
     protected void run()  {
 
         SpringBusFactory factory = new SpringBusFactory();
-        Bus bus = factory.createBus();
+        Bus bus = factory.createBus(TARGETS_CONFIG);
         BusFactory.setDefaultBus(bus);
         setBus(bus);
 

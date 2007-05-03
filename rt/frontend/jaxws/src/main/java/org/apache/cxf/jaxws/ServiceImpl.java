@@ -242,6 +242,7 @@ public class ServiceImpl extends ServiceDelegate {
     
     public <T> T getPort(EndpointReferenceType endpointReference,
                             Class<T> type) {
+        endpointReference = EndpointReferenceUtils.resolve(endpointReference, bus);
         QName serviceQName = EndpointReferenceUtils.getServiceName(endpointReference);
         String portName = EndpointReferenceUtils.getPortName(endpointReference);
         

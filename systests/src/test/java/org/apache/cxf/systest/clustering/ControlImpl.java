@@ -31,6 +31,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 
 import org.apache.cxf.greeter_control.Control;
+import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.types.FaultLocation;
 import org.apache.cxf.greeter_control.types.StartGreeterResponse;
 import org.apache.cxf.greeter_control.types.StopGreeterResponse;
@@ -43,11 +44,22 @@ import org.apache.cxf.greeter_control.types.StopGreeterResponse;
 public class ControlImpl implements Control {
     
     private static final Logger LOG = Logger.getLogger(ControlImpl.class.getName());
-    private Map<String, Endpoint> endpoints = new HashMap<String, Endpoint>();
+    
+    private Map<String, Greeter> implementors; 
+    private Map<String, Endpoint> endpoints;
+    
+    ControlImpl() {
+        implementors = new HashMap<String, Greeter>();
+        implementors.put(FailoverTest.REPLICA_A, new GreeterImplA());
+        implementors.put(FailoverTest.REPLICA_B, new GreeterImplB());
+        implementors.put(FailoverTest.REPLICA_C, new GreeterImplC());
+        implementors.put(FailoverTest.REPLICA_D, new GreeterImplD());
+        endpoints = new HashMap<String, Endpoint>();
+    }
     
     public boolean startGreeter(String address) {
-        GreeterImpl implementor = new GreeterImpl(address);
-        endpoints.put(address, Endpoint.publish(address, implementor));
+        endpoints.put(address,
+                      Endpoint.publish(address, implementors.get(address)));
         LOG.info("Published greeter endpoint on: " + address);
         return true;        
     }
@@ -89,5 +101,5 @@ public class ControlImpl implements Control {
                                       AsyncHandler<StopGreeterResponse> asyncHandler) {
         // never called
         return null;
-    }    
+    }
 }

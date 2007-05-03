@@ -210,6 +210,13 @@ public class AddressingPropertiesImpl implements AddressingProperties {
                 buf.append(address.getValue()); 
             }
         }
+        if (null != relatesTo) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("RelatesTo: ");
+            buf.append(relatesTo.getValue());
+        }
         buf.append("]");
         return buf.toString();
         

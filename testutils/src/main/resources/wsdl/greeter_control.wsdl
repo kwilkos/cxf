@@ -302,16 +302,17 @@
 
     <wsdl:service name="ClusteredGreeterService">
         <wsdl:port binding="tns:GreeterSOAPBinding" name="ReplicatedPortA">
-            <soap:address location="http://localhost:9051/SoapContext/GreeterPort"/>
+            <soap:address location="http://localhost:9051/SoapContext/ReplicatedPortA"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
         </wsdl:port>
         <wsdl:port binding="tns:GreeterSOAPBinding" name="ReplicatedPortB">
-            <soap:address location="http://localhost:9052/SoapContext/GreeterPort"/>
+            <soap:address location="http://localhost:9052/SoapContext/ReplicatedPortB"/>
         </wsdl:port>
         <wsdl:port binding="tns:GreeterSOAPBinding" name="ReplicatedPortC">
-            <soap:address location="http://localhost:9053/SoapContext/GreeterPort"/>
+            <soap:address location="http://localhost:9053/SoapContext/ReplicatedPortC"/>
         </wsdl:port>
-                <wsdl:port binding="tns:ControlSOAPBinding" name="ReplicatedPortD">
-            <soap:address location="http://localhost:9054/SoapContext/GreeterPort"/>
+        <wsdl:port binding="tns:ControlSOAPBinding" name="ReplicatedPortD">
+            <soap:address location="http://localhost:9054/SoapContext/ReplicatedPortD"/>
         </wsdl:port>
         
     </wsdl:service>

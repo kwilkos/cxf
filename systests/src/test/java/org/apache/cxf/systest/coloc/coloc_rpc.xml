@@ -56,10 +56,5 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <jaxws:features>
             <coloc:enableColoc/>
         </jaxws:features>
-        <!--
-        <jaxws:conduitSelector>
-            <bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
-        </jaxws:conduitSelector>
-        -->
     </jaxws:client>
 </beans>

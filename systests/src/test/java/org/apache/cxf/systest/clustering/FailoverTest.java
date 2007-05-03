@@ -28,12 +28,16 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.clustering.FailoverTargetSelector;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.ClusteredGreeterService;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
+import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.ws.addressing.MAPAggregator;
+import org.apache.cxf.ws.addressing.soap.MAPCodec;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,24 +50,26 @@ import org.junit.Test;
  */
 public class FailoverTest extends AbstractBusClientServerTestBase {
 
+    protected static final String REPLICA_A =
+        "http://localhost:9051/SoapContext/ReplicatedPortA";
+    protected static final String REPLICA_B =
+        "http://localhost:9052/SoapContext/ReplicatedPortB"; 
+    protected static final String REPLICA_C =
+        "http://localhost:9053/SoapContext/ReplicatedPortC"; 
+    protected static final String REPLICA_D =
+        "http://localhost:9054/SoapContext/ReplicatedPortD"; 
     private static final Logger LOG =
         Logger.getLogger(FailoverTest.class.getName());
     private static final String FAILOVER_CONFIG =
         "org/apache/cxf/systest/clustering/failover.xml";
-    private static final String REPLICA_A =
-        "http://localhost:9051/SoapContext/GreeterPort";
-    private static final String REPLICA_B =
-        "http://localhost:9052/SoapContext/GreeterPort"; 
-    private static final String REPLICA_C =
-        "http://localhost:9053/SoapContext/GreeterPort"; 
-    private static final String REPLICA_D =
-        "http://localhost:9054/SoapContext/GreeterPort"; 
-
 
     private Bus bus;
     private Control control;
     private Greeter greeter;
     private List<String> targets;
+    private MAPAggregator mapAggregator;
+    private MAPCodec mapCodec;
+
 
     @BeforeClass
     public static void startServers() throws Exception {
@@ -147,16 +153,34 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         
         response = greeter.greetMe("fred");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
         
         response = greeter.greetMe("joe");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));        
     }
+        
+    @Test
+    public void testNoFailoverOnApplicationFault() throws Exception {
+        startTarget(REPLICA_C);
+        setupGreeter();
+        
+        greeter.pingMe();
+        verifyCurrentEndpoint(REPLICA_C);
+        
+        startTarget(REPLICA_B);
 
+        try {
+            greeter.pingMe();
+        } catch (PingMeFault pmf) {
+            verifyCurrentEndpoint(REPLICA_C);
+        }
+    }
+
+        
     @Test
     public void testFailoverOnCurrentReplicaDeath() throws Exception {
         startTarget(REPLICA_C);
@@ -165,7 +189,7 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         
         response = greeter.greetMe("fred");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
         
@@ -174,7 +198,7 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         
         response = greeter.greetMe("joe");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_B));
         verifyCurrentEndpoint(REPLICA_B);
     }
@@ -187,37 +211,70 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         
         response = greeter.greetMe("fred");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
 
         startTarget(REPLICA_A);
         response = greeter.greetMe("joe");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
         
         startTarget(REPLICA_B);
         response = greeter.greetMe("bob");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
         
         stopTarget(REPLICA_B);
         response = greeter.greetMe("john");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
         
         stopTarget(REPLICA_A);
         response = greeter.greetMe("mike");
         assertNotNull("expected non-null response", response);
-        assertTrue("response unexpected unexpected target: " + response,
+        assertTrue("response from unexpected target: " + response,
                    response.endsWith(REPLICA_C));
         verifyCurrentEndpoint(REPLICA_C);
+    }
+    
+    @Test
+    public void testEndpointSpecificInterceptorsDoNotPersistAcrossFailover()
+        throws Exception {
+        startTarget(REPLICA_A);
+        setupGreeter();
+        String response = null;
+
+        enableWSAForCurrentEndpoint();
+
+        response = greeter.greetMe("fred");
+        assertNotNull("expected non-null response", response);
+        assertTrue("response from unexpected target: " + response,
+                   response.endsWith(REPLICA_A));
+        assertTrue("response expected to include WS-A messageID",
+                   response.indexOf("message: urn:uuid") != -1);
+        verifyCurrentEndpoint(REPLICA_A); 
+        assertTrue("expected WSA enabled for current endpoint",
+                   isWSAEnabledForCurrentEndpoint());
+        
+        stopTarget(REPLICA_A);
+        startTarget(REPLICA_C);
+
+        response = greeter.greetMe("mike");
+        assertNotNull("expected non-null response", response);
+        assertTrue("response from unexpected target: " + response,
+                   response.endsWith(REPLICA_C));
+        assertTrue("response not expected to include WS-A messageID",
+                   response.indexOf("message: urn:uuid") == -1);
+        verifyCurrentEndpoint(REPLICA_C);
+        assertFalse("unexpected WSA enabled for current endpoint",
+                    isWSAEnabledForCurrentEndpoint());
     }
     
     private void startTarget(String address) {
@@ -252,5 +309,37 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         assertTrue("unexpected conduit slector",
                    ClientProxy.getClient(greeter).getConduitSelector()
                    instanceof FailoverTargetSelector);
+    }
+    
+    protected void enableWSAForCurrentEndpoint() {
+        Endpoint provider = ClientProxy.getClient(greeter).getEndpoint();
+        mapAggregator = new MAPAggregator();
+        mapCodec = new MAPCodec();
+        provider.getInInterceptors().add(mapAggregator);
+        provider.getInInterceptors().add(mapCodec);
+        
+        provider.getOutInterceptors().add(mapAggregator);
+        provider.getOutInterceptors().add(mapCodec);
+        
+        provider.getInFaultInterceptors().add(mapAggregator);
+        provider.getInFaultInterceptors().add(mapCodec);
+        
+        provider.getOutFaultInterceptors().add(mapAggregator);
+        provider.getOutFaultInterceptors().add(mapCodec);
+    }
+    
+    protected boolean isWSAEnabledForCurrentEndpoint() {
+        Endpoint provider = ClientProxy.getClient(greeter).getEndpoint();
+        boolean enabledIn = 
+            provider.getInInterceptors().contains(mapAggregator)
+            && provider.getInInterceptors().contains(mapCodec)
+            && provider.getInFaultInterceptors().contains(mapAggregator)
+            && provider.getInFaultInterceptors().contains(mapCodec);
+        boolean enabledOut = 
+            provider.getOutInterceptors().contains(mapAggregator)
+            && provider.getOutInterceptors().contains(mapCodec)
+            && provider.getOutFaultInterceptors().contains(mapAggregator)
+            && provider.getOutFaultInterceptors().contains(mapCodec);
+        return enabledIn && enabledOut;
     }
 }
