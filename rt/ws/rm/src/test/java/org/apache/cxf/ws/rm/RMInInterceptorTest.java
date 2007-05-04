@@ -197,7 +197,7 @@ public class RMInInterceptorTest extends Assert {
     }  
     
     @Test
-    public void testProcessAcknowledgments() {
+    public void testProcessAcknowledgments() throws RMException {
         interceptor = new RMInInterceptor();
         manager = control.createMock(RMManager.class);
         interceptor.setManager(manager);

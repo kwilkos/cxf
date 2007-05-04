@@ -19,22 +19,16 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 
 public class Destination extends AbstractEndpoint {
-
-    private static final Logger LOG = LogUtils.getL7dLogger(Destination.class);
 
     private Map<String, DestinationSequence> map;
 
@@ -116,13 +110,8 @@ public class Destination extends AbstractEndpoint {
                     replyToAddress = maps.getReplyTo().getAddress().getValue();
                 }
                 if (!(seq.getAcksTo().getAddress().getValue().equals(replyToAddress) || seq
-                    .canPiggybackAckOnPartialResponse())) {
-                    try {
-                        getReliableEndpoint().getProxy().acknowledge(seq);
-                    } catch (IOException ex) {
-                        LogUtils.log(LOG, Level.SEVERE, "SEQ_ACK_SEND_EXC", ex, seq);
-                        // TODO
-                    }
+                    .canPiggybackAckOnPartialResponse())) {                    
+                    getReliableEndpoint().getProxy().acknowledge(seq);                    
                 }
             }
         } else {

@@ -20,7 +20,6 @@
 package org.apache.cxf.ws.rm;
 
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,7 +65,7 @@ public class Proxy {
         return reliableEndpoint;
     }
 
-    void acknowledge(DestinationSequence ds) throws IOException {        
+    void acknowledge(DestinationSequence ds) throws RMException {        
         if (RMConstants.getAnonymousAddress().equals(ds.getAcksTo().getAddress().getValue())) {
             LOG.log(Level.WARNING, "STANDALONE_ANON_ACKS_NOT_SUPPORTED");
             return;
@@ -77,7 +76,7 @@ public class Proxy {
         invoke(oi, new Object[] {}, null);
     }
     
-    void terminate(SourceSequence ss) throws IOException {
+    void terminate(SourceSequence ss) throws RMException {
         OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
             .getOperation(RMConstants.getTerminateSequenceOperationName());
         
@@ -86,7 +85,7 @@ public class Proxy {
         invoke(oi, new Object[] {ts}, null);
     }
     
-    void createSequenceResponse(final CreateSequenceResponseType createResponse) {
+    void createSequenceResponse(final CreateSequenceResponseType createResponse) throws RMException {
         LOG.fine("sending CreateSequenceResponse from client side");
         final OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
             .getOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
@@ -100,7 +99,7 @@ public class Proxy {
     public CreateSequenceResponseType createSequence(
                         EndpointReferenceType defaultAcksTo,
                         RelatesToType relatesTo,
-                        boolean isServer) throws IOException {
+                        boolean isServer) throws RMException {
         
         SourcePolicyType sp = reliableEndpoint.getManager().getSourcePolicy();
         final CreateSequenceType create = RMUtils.getWSRMFactory().createCreateSequenceType();        
@@ -146,7 +145,11 @@ public class Proxy {
             LOG.fine("sending CreateSequenceRequest from server side");
             Runnable r = new Runnable() {
                 public void run() {
-                    invoke(oi, new Object[] {create}, null);
+                    try {
+                        invoke(oi, new Object[] {create}, null);
+                    } catch (RMException ex) {
+                        // already logged
+                    }
                 }
             };
             reliableEndpoint.getApplicationEndpoint().getExecutor().execute(r);
@@ -157,7 +160,7 @@ public class Proxy {
         return (CreateSequenceResponseType)invoke(oi, new Object[] {create}, null);
     }
     
-    void lastMessage(SourceSequence s) throws IOException {
+    void lastMessage(SourceSequence s) throws RMException {
         // TODO
     }
     
@@ -171,11 +174,10 @@ public class Proxy {
         }
     }
        
-    Object invoke(OperationInfo oi, Object[] params, Map<String, Object> context) {
+    Object invoke(OperationInfo oi, Object[] params, Map<String, Object> context) throws RMException {
         
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.log(Level.INFO, "Invoking out-of-band RM protocol message {0} on thread "
-                    + Thread.currentThread(), 
+            LOG.log(Level.INFO, "Sending out-of-band RM protocol message {0}.", 
                     oi == null ? null : oi.getName());
         }
         
@@ -194,8 +196,12 @@ public class Proxy {
                 return result[0];
             }
             
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception ex) {  
+            org.apache.cxf.common.i18n.Message msg = 
+                new org.apache.cxf.common.i18n.Message("SEND_PROTOCOL_MSG_FAILED_EXC", LOG, 
+                                                       oi == null ? null : oi.getName());
+            LOG.log(Level.SEVERE, msg.toString(), ex);
+            throw new RMException(msg, ex);
         }
         return null;
     }

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -183,7 +182,7 @@ public class Servant implements Invoker {
         }
     }
 
-    public void terminateSequence(Message message) throws SequenceFault {
+    public void terminateSequence(Message message) throws SequenceFault, RMException {
         LOG.fine("Terminating sequence");
         
         TerminateSequenceType terminate = (TerminateSequenceType)getParameter(message);
@@ -214,8 +213,8 @@ public class Servant implements Invoker {
                 Proxy proxy = new Proxy(reliableEndpoint);
                 try {
                     proxy.lastMessage(outboundSeq);
-                } catch (IOException ex) {
-                    LOG.log(Level.SEVERE, "Could not terminate correlated sequence.", ex);
+                } catch (RMException ex) {
+                    LogUtils.log(LOG, Level.SEVERE, "CORRELATED_SEQ_TERMINATION_EXC", ex);
                 }
                 
                 break;

@@ -164,7 +164,7 @@ public class SourceSequenceTest extends Assert {
     }
     
     @Test
-    public void testSetAcknowledged() {
+    public void testSetAcknowledged() throws RMException {
         SourceSequence seq = new SourceSequence(id);
         setUpSource();
         seq.setSource(source);
@@ -197,7 +197,7 @@ public class SourceSequenceTest extends Assert {
     } 
 
     @Test
-    public void testAllAcknowledged() throws SequenceFault {
+    public void testAllAcknowledged() throws SequenceFault, RMException {
         
         SourceSequence seq = new SourceSequence(id, null, null, new BigInteger("4"), false);        
         setUpSource();
@@ -224,7 +224,7 @@ public class SourceSequenceTest extends Assert {
     }
     
     @Test
-    public void testNextMessageNumber() {     
+    public void testNextMessageNumber() throws RMException {     
         SourceSequence seq = null;        
         setUpSource();
         rq.purgeAcknowledged(EasyMock.isA(SourceSequence.class));
@@ -327,7 +327,7 @@ public class SourceSequenceTest extends Assert {
         return seq.isLastMessage();
     }
     
-    protected void acknowledge(SourceSequence seq, int... messageNumbers) {
+    protected void acknowledge(SourceSequence seq, int... messageNumbers) throws RMException {
         SequenceAcknowledgement ack = factory.createSequenceAcknowledgement();
         int i = 0;
         while (i < messageNumbers.length) {

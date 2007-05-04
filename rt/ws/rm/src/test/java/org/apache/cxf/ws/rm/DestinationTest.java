@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 
@@ -208,7 +207,7 @@ public class DestinationTest extends Assert {
         Proxy proxy = control.createMock(Proxy.class);
         EasyMock.expect(rme.getProxy()).andReturn(proxy);
         proxy.acknowledge(ds);
-        EasyMock.expectLastCall().andThrow(new IOException(""));
+        EasyMock.expectLastCall();
         
         control.replay();
         destination.acknowledge(message);   

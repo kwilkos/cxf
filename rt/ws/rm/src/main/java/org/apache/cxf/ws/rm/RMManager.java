@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +57,7 @@ import org.apache.cxf.ws.rm.soap.SoapFaultFactory;
 public class RMManager extends RMManagerConfigBean {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMManager.class);
-    
+
     private Bus bus;
     private RMStore store;
     private SequenceIdentifierGenerator idGenerator;
@@ -75,7 +74,7 @@ public class RMManager extends RMManagerConfigBean {
     public void setBus(Bus b) {
         bus = b;
     }
-    
+
     @PostConstruct
     public void register() {
         if (null != bus) {
@@ -98,7 +97,7 @@ public class RMManager extends RMManagerConfigBean {
     public void setRetransmissionQueue(RetransmissionQueue rq) {
         retransmissionQueue = rq;
     }
-    
+
     public SequenceIdentifierGenerator getIdGenerator() {
         return idGenerator;
     }
@@ -110,18 +109,19 @@ public class RMManager extends RMManagerConfigBean {
     public Timer getTimer() {
         return timer;
     }
-    
+
     public BindingFaultFactory getBindingFaultFactory(Binding binding) {
         return new SoapFaultFactory(binding);
     }
-    
+
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
         Endpoint endpoint = message.getExchange().get(Endpoint.class);
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Getting RMEndpoint for endpoint with info: " + endpoint.getEndpointInfo().getName());
         }
         if (endpoint.getEndpointInfo().getName().equals(
-            new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractSoapPort"))) {
+                                                        new QName(RMConstants.getWsdlNamespace(),
+                                                                  "SequenceAbstractSoapPort"))) {
             WrappedEndpoint wrappedEndpoint = (WrappedEndpoint)endpoint;
             endpoint = wrappedEndpoint.getWrappedEndpoint();
         }
@@ -133,9 +133,9 @@ public class RMManager extends RMManagerConfigBean {
             if (null != destination) {
                 AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
                 replyTo = maps.getReplyTo();
-            } 
+            }
             rme.initialise(message.getExchange().getConduit(message), replyTo);
-            reliableEndpoints.put(endpoint, rme); 
+            reliableEndpoints.put(endpoint, rme);
             LOG.fine("Created new RMEndpoint.");
         }
         return rme;
@@ -148,7 +148,7 @@ public class RMManager extends RMManagerConfigBean {
         }
         return null;
     }
-    
+
     public SourceSequence getSourceSequence(Identifier id) {
         return sourceSequences.get(id.getValue());
     }
@@ -162,7 +162,7 @@ public class RMManager extends RMManagerConfigBean {
     }
 
     public SourceSequence getSequence(Identifier inSeqId, Message message, AddressingProperties maps)
-        throws SequenceFault {
+        throws SequenceFault, RMException {
 
         Source source = getSource(message);
         SourceSequence seq = source.getCurrent(inSeqId);
@@ -170,44 +170,39 @@ public class RMManager extends RMManagerConfigBean {
             // TODO: better error handling
             org.apache.cxf.ws.addressing.EndpointReferenceType to = null;
             boolean isServer = RMContextUtils.isServerSide(message);
-            try {
-                EndpointReferenceType acksTo = null;
-                RelatesToType relatesTo = null;
-                if (isServer) {
+            EndpointReferenceType acksTo = null;
+            RelatesToType relatesTo = null;
+            if (isServer) {
 
-                    AddressingPropertiesImpl inMaps = RMContextUtils.retrieveMAPs(message, false, false);
-                    inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
-                    acksTo = RMUtils.createReference2004(inMaps.getTo().getValue());
-                    to = inMaps.getReplyTo();
-                    source.getReliableEndpoint().getServant().setUnattachedIdentifier(inSeqId);
-                    relatesTo = (new org.apache.cxf.ws.addressing.ObjectFactory()).createRelatesToType();
-                    Destination destination = getDestination(message);
-                    DestinationSequence inSeq = inSeqId == null ? null : destination.getSequence(inSeqId);
-                    relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
+                AddressingPropertiesImpl inMaps = RMContextUtils.retrieveMAPs(message, false, false);
+                inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+                acksTo = RMUtils.createReference2004(inMaps.getTo().getValue());
+                to = inMaps.getReplyTo();
+                source.getReliableEndpoint().getServant().setUnattachedIdentifier(inSeqId);
+                relatesTo = (new org.apache.cxf.ws.addressing.ObjectFactory()).createRelatesToType();
+                Destination destination = getDestination(message);
+                DestinationSequence inSeq = inSeqId == null ? null : destination.getSequence(inSeqId);
+                relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
 
-                } else {
-                    to = RMUtils.createReference(maps.getTo().getValue());
-                    acksTo = VersionTransformer.convert(maps.getReplyTo()); 
-                    if (RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
-                        org.apache.cxf.transport.Destination dest = message.getExchange()
-                            .getConduit(message).getBackChannel();
-                        if (null == dest) {
-                            acksTo = RMUtils.createAnonymousReference2004();
-                        } else {
-                            acksTo = VersionTransformer.convert(dest.getAddress());
-                        }
+            } else {
+                to = RMUtils.createReference(maps.getTo().getValue());
+                acksTo = VersionTransformer.convert(maps.getReplyTo());
+                if (RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
+                    org.apache.cxf.transport.Destination dest = message.getExchange().getConduit(message)
+                        .getBackChannel();
+                    if (null == dest) {
+                        acksTo = RMUtils.createAnonymousReference2004();
+                    } else {
+                        acksTo = VersionTransformer.convert(dest.getAddress());
                     }
                 }
+            }
 
-                Proxy proxy = source.getReliableEndpoint().getProxy();
-                CreateSequenceResponseType createResponse = 
-                    proxy.createSequence(acksTo, relatesTo, isServer);
-                if (!isServer) {
-                    Servant servant = source.getReliableEndpoint().getServant();
-                    servant.createSequenceResponse(createResponse);
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            Proxy proxy = source.getReliableEndpoint().getProxy();
+            CreateSequenceResponseType createResponse = proxy.createSequence(acksTo, relatesTo, isServer);
+            if (!isServer) {
+                Servant servant = source.getReliableEndpoint().getServant();
+                servant.createSequenceResponse(createResponse);
             }
 
             seq = source.awaitCurrent(inSeqId);
@@ -216,22 +211,24 @@ public class RMManager extends RMManagerConfigBean {
 
         return seq;
     }
-    
+
     @PreDestroy
     public void shutdown() {
         // shutdown retransmission queue
         if (null != retransmissionQueue) {
             retransmissionQueue.stop();
         }
-        
-        // cancel outstanding timer tasks (deferred acknowledgements) for all destination sequences
+
+        // cancel outstanding timer tasks (deferred acknowledgements) for all
+        // destination sequences
         for (RMEndpoint rme : reliableEndpoints.values()) {
             for (DestinationSequence ds : rme.getDestination().getAllSequences()) {
                 ds.cancelDeferredAcknowledgments();
             }
         }
-        
-        // remove references to timer tasks cancelled above to make them eligible for garbage collection
+
+        // remove references to timer tasks cancelled above to make them
+        // eligible for garbage collection
         timer.purge();
         timer.cancel();
     }
@@ -250,17 +247,16 @@ public class RMManager extends RMManagerConfigBean {
         if (!isSetSourcePolicy()) {
             SourcePolicyType sp = factory.createSourcePolicyType();
             setSourcePolicy(sp);
-            
+
         }
         if (!getSourcePolicy().isSetSequenceTerminationPolicy()) {
-            getSourcePolicy().setSequenceTerminationPolicy(
-                factory.createSequenceTerminationPolicyType());            
+            getSourcePolicy().setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
         }
         if (!isSetDestinationPolicy()) {
             DestinationPolicyType dp = factory.createDestinationPolicyType();
             dp.setAcksPolicy(factory.createAcksPolicyType());
             setDestinationPolicy(dp);
-        }    
+        }
         if (null == retransmissionQueue) {
             retransmissionQueue = new RetransmissionQueueImpl(this);
         }
@@ -268,25 +264,24 @@ public class RMManager extends RMManagerConfigBean {
             idGenerator = new DefaultSequenceIdentifierGenerator();
         }
     }
-       
+
     @Override
-    public void setRMAssertion(RMAssertion rma) {        
-        
-        org.apache.cxf.ws.rm.policy.ObjectFactory factory = 
-            new org.apache.cxf.ws.rm.policy.ObjectFactory();
+    public void setRMAssertion(RMAssertion rma) {
+
+        org.apache.cxf.ws.rm.policy.ObjectFactory factory = new org.apache.cxf.ws.rm.policy.ObjectFactory();
         if (null == rma) {
             rma = factory.createRMAssertion();
             rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
         }
         BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
         if (null == bri) {
-            bri = factory.createRMAssertionBaseRetransmissionInterval();  
+            bri = factory.createRMAssertionBaseRetransmissionInterval();
             rma.setBaseRetransmissionInterval(bri);
         }
         if (null == bri.getMilliseconds()) {
             bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
         }
-                
+
         super.setRMAssertion(rma);
     }
 
@@ -296,21 +291,21 @@ public class RMManager extends RMManagerConfigBean {
         }
         sourceSequences.put(ss.getIdentifier().getValue(), ss);
     }
-    
+
     void removeSourceSequence(Identifier id) {
         if (null != sourceSequences) {
             sourceSequences.remove(id.getValue());
         }
-    } 
-    
+    }
+
     class DefaultSequenceIdentifierGenerator implements SequenceIdentifierGenerator {
 
         public Identifier generateSequenceIdentifier() {
             String sequenceID = RMContextUtils.generateUUID();
             Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
-            sid.setValue(sequenceID);        
+            sid.setValue(sequenceID);
             return sid;
-        }   
+        }
     }
-   
+
 }

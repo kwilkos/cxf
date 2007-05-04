@@ -44,7 +44,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         addAfter(MAPAggregator.class.getName());
     }
     
-    protected void handle(Message message) throws SequenceFault {
+    protected void handle(Message message) throws SequenceFault, RMException {
         LOG.entering(getClass().getName(), "handleMessage");
         
         if (isRuntimeFault(message)) {

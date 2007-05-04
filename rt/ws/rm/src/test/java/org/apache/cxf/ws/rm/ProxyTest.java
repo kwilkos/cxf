@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class ProxyTest extends Assert {
     }
     
     @Test
-    public void testAcknowledgeNotSupported() throws IOException {
+    public void testAcknowledgeNotSupported() throws RMException {
         DestinationSequence ds = control.createMock(DestinationSequence.class);
         EndpointReferenceType acksToEPR = control.createMock(EndpointReferenceType.class);
         EasyMock.expect(ds.getAcksTo()).andReturn(acksToEPR);
@@ -104,7 +103,7 @@ public class ProxyTest extends Assert {
     }
     
     @Test
-    public void testAcknowledge() throws NoSuchMethodException, IOException {
+    public void testAcknowledge() throws NoSuchMethodException, RMException {
         Method m = Proxy.class.getDeclaredMethod("invoke", 
             new Class[] {OperationInfo.class, Object[].class, Map.class});
         Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
@@ -133,7 +132,7 @@ public class ProxyTest extends Assert {
     }
     
     @Test    
-    public void testTerminate() throws NoSuchMethodException, IOException {
+    public void testTerminate() throws NoSuchMethodException, RMException {
         Method m = Proxy.class.getDeclaredMethod("invoke", 
             new Class[] {OperationInfo.class, Object[].class, Map.class});
         Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
@@ -157,7 +156,7 @@ public class ProxyTest extends Assert {
     }
     
     @Test
-    public void testCreateSequenceResponse() throws NoSuchMethodException, IOException {
+    public void testCreateSequenceResponse() throws NoSuchMethodException, RMException {
         Method m = Proxy.class.getDeclaredMethod("invoke", 
             new Class[] {OperationInfo.class, Object[].class, Map.class});
         Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
@@ -180,12 +179,12 @@ public class ProxyTest extends Assert {
     }
     
     @Test
-    public void testCreateSequenceOnClient() throws NoSuchMethodException, IOException {
+    public void testCreateSequenceOnClient() throws NoSuchMethodException, RMException {
         testCreateSequence(false); 
     }
     
     @Test
-    public void testCreateSequenceOnServer() throws NoSuchMethodException, IOException {
+    public void testCreateSequenceOnServer() throws NoSuchMethodException, RMException {
         testCreateSequence(true); 
     }
     
@@ -253,7 +252,7 @@ public class ProxyTest extends Assert {
     
     
     
-    private void testCreateSequence(boolean isServer) throws NoSuchMethodException, IOException {
+    private void testCreateSequence(boolean isServer) throws NoSuchMethodException, RMException {
         Method m = Proxy.class.getDeclaredMethod("invoke", 
             new Class[] {OperationInfo.class, Object[].class, Map.class});
         Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
@@ -308,7 +307,7 @@ public class ProxyTest extends Assert {
     }
     
     @SuppressWarnings("unchecked")
-    private void expectInvoke(Proxy proxy, OperationInfo oi, Object expectedReturn) {
+    private void expectInvoke(Proxy proxy, OperationInfo oi, Object expectedReturn) throws RMException {
         EasyMock.expect(proxy.invoke(EasyMock.same(oi), EasyMock.isA(Object[].class), 
             (Map)EasyMock.isNull())).andReturn(expectedReturn);
     }

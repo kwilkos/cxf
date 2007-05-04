@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Date;
@@ -173,7 +172,7 @@ public class RMManagerTest extends Assert {
     }
      
     @Test
-    public void testGetExistingSequence() throws NoSuchMethodException, SequenceFault {
+    public void testGetExistingSequence() throws NoSuchMethodException, SequenceFault, RMException {
         Method m = RMManager.class
            .getDeclaredMethod("getSource", new Class[] {Message.class});
         RMManager manager = control.createMock(RMManager.class, new Method[] {m});
@@ -190,7 +189,7 @@ public class RMManagerTest extends Assert {
     }
     
     @Test
-    public void testGetNewSequence() throws NoSuchMethodException, SequenceFault, IOException {
+    public void testGetNewSequence() throws NoSuchMethodException, SequenceFault, RMException {
         Method m = RMManager.class.getDeclaredMethod("getSource", new Class[] {Message.class});
         RMManager manager = control.createMock(RMManager.class, new Method[] {m});
         Message message = control.createMock(Message.class);

@@ -65,7 +65,7 @@ public class RMOutInterceptorTest extends Assert {
     } 
     
     @Test 
-    public void testHandleRuntimeFault() throws NoSuchMethodException, SequenceFault {
+    public void testHandleRuntimeFault() throws NoSuchMethodException, SequenceFault, RMException {
         Method[] mocked = new Method[] {                                                
             RMOutInterceptor.class.getDeclaredMethod("isRuntimeFault", new Class[] {Message.class})
         };
@@ -78,7 +78,7 @@ public class RMOutInterceptorTest extends Assert {
     }
     
     @Test 
-    public void testHandleNoMAPs() throws NoSuchMethodException, SequenceFault {
+    public void testHandleNoMAPs() throws NoSuchMethodException, SequenceFault, RMException {
         Method[] mocked = new Method[] {                                                
             RMOutInterceptor.class.getDeclaredMethod("isRuntimeFault", new Class[] {Message.class})
         };
@@ -94,7 +94,7 @@ public class RMOutInterceptorTest extends Assert {
     }
     
     @Test
-    public void testHandleApplicationMessage() throws NoSuchMethodException, SequenceFault {
+    public void testHandleApplicationMessage() throws NoSuchMethodException, SequenceFault, RMException {
         AddressingPropertiesImpl maps = createMAPs("greetMe", "localhost:9000/GreeterPort", 
             org.apache.cxf.ws.addressing.Names.WSA_NONE_ADDRESS);
         Method[] mocked = new Method[] {

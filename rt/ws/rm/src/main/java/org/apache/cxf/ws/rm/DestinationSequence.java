@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -365,8 +364,8 @@ public class DestinationSequence extends AbstractSequence {
                 RMEndpoint rme = destination.getReliableEndpoint();
                 Proxy proxy = rme.getProxy();
                 proxy.acknowledge(DestinationSequence.this);
-            } catch (IOException ex) {
-                LogUtils.log(LOG, Level.SEVERE, "SEQ_ACK_SEND_EXC", ex, DestinationSequence.this);
+            } catch (RMException ex) {
+                // already logged
             } finally {
                 synchronized (DestinationSequence.this) {
                     DestinationSequence.this.deferredAcknowledgments.remove(this);

@@ -380,7 +380,7 @@ public class DestinationSequenceTest extends Assert {
     }
     
     @Test
-    public void testAcknowledgeDeferred() throws SequenceFault, IOException {
+    public void testAcknowledgeDeferred() throws SequenceFault, RMException {
         Timer timer = new Timer();
         setUpDestination(timer);
         

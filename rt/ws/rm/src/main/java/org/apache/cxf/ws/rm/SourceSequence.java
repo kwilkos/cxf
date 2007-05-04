@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.logging.Level;
@@ -27,7 +26,6 @@ import java.util.logging.Logger;
 
 import javax.xml.datatype.Duration;
 
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxb.DatatypeFactory;
 import org.apache.cxf.ws.addressing.ContextUtils;
@@ -138,24 +136,20 @@ public class SourceSequence extends AbstractSequence {
      * 
      * @param acknowledgement an acknowledgement for this sequence
      */
-    public void setAcknowledged(SequenceAcknowledgement a) {
+    public void setAcknowledged(SequenceAcknowledgement a) throws RMException {
         acknowledgement = a;
         source.getManager().getRetransmissionQueue().purgeAcknowledged(this);
         if (allAcknowledged()) {
             RMEndpoint rme = source.getReliableEndpoint();
             Proxy proxy = rme.getProxy();
-            try {
-                proxy.terminate(this);
-                source.getManager().removeSourceSequence(id);
-            } catch (IOException ex) {
-                Message msg = new Message("SEQ_TERMINATION_FAILURE", LOG, id);
-                LOG.log(Level.SEVERE, msg.toString(), ex);
-            }
+            proxy.terminate(this);
+            source.getManager().removeSourceSequence(id);
         }
     }
-    
-    /** 
+
+    /**
      * Returns the source associated with this source sequence.
+     * 
      * @return the source.
      */
     public Source getSource() {

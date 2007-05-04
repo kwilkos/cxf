@@ -106,7 +106,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         assertReliability(message);
     }
     
-    void processAcknowledgments(RMProperties rmps) throws SequenceFault {
+    void processAcknowledgments(RMProperties rmps) throws SequenceFault, RMException {
         
         Collection<SequenceAcknowledgement> acks = rmps.getAcks();
         if (null != acks) {
