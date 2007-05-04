@@ -90,6 +90,10 @@ public abstract class TestHandlerBase {
         return getMethodCallCount("handleFault");
     }
 
+    public int getCloseInvoked() {
+        return getMethodCallCount("close");
+    }
+    
     public boolean isHandleMessageInvoked() {
         return methodCallCount.containsKey("handleMessage");
     }

@@ -56,11 +56,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-
 public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
 
-    private final QName serviceName = new QName("http://apache.org/handler_test",
-                                          "HandlerTestService");
+    private final QName serviceName = new QName("http://apache.org/handler_test", "HandlerTestService");
     private final QName portName = new QName("http://apache.org/handler_test", "SoapPort");
 
     private URL wsdl;
@@ -85,7 +83,24 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
             fail(ex.toString());
         }
     }
-    
+
+    @Test
+    public void testAddHandlerThroughHandlerResolverClientSide() {
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+
+        MyHandlerResolver myHandlerResolver = new MyHandlerResolver(handler1, handler2);
+
+        service.setHandlerResolver(myHandlerResolver);
+
+        HandlerTest handlerTestNew = service.getPort(portName, HandlerTest.class);
+
+        handlerTestNew.pingOneWay();
+
+        assertEquals(1, handler1.getHandleMessageInvoked());
+        assertEquals(1, handler2.getHandleMessageInvoked());
+    }
+
     @Test
     public void testLogicalHandlerOneWay() {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
@@ -93,23 +108,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
 
         handlerTest.pingOneWay();
-
-        assertEquals(1, handler1.getHandleMessageInvoked());
-        assertEquals(1, handler2.getHandleMessageInvoked());
-    }
-    
-    @Test
-    public void testAddHandlerThroughHandlerResolverClientSide() {
-        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
-        
-        MyHandlerResolver myHandlerResolver = new MyHandlerResolver(handler1, handler2);
-         
-        service.setHandlerResolver(myHandlerResolver);
-        
-        HandlerTest handlerTestNew = service.getPort(portName, HandlerTest.class);
-
-        handlerTestNew.pingOneWay();
 
         assertEquals(1, handler1.getHandleMessageInvoked());
         assertEquals(1, handler2.getHandleMessageInvoked());
@@ -127,12 +125,49 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         assertEquals(2, handler1.getHandleMessageInvoked());
         assertEquals(2, handler2.getHandleMessageInvoked());
     }
- 
+
     @Test
-    public void testLogicalHandlerStopProcessingClientSide() throws Exception {
+    public void testSOAPHandlerHandleMessageReturnTrueClientSide() throws Exception {
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
+        TestSOAPHandler soapHandler2 = new TestSOAPHandler(false);
+
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, soapHandler1, soapHandler2);
+
+        List<String> resp = handlerTest.ping();
+        assertNotNull(resp);
+
+        assertEquals("handle message was not invoked", 2, handler1.getHandleMessageInvoked());
+        assertEquals("handle message was not invoked", 2, handler2.getHandleMessageInvoked());
+        assertEquals("handle message was not invoked", 2, soapHandler1.getHandleMessageInvoked());
+        assertEquals("handle message was not invoked", 2, soapHandler2.getHandleMessageInvoked());
+        assertTrue("close must be  called", handler1.isCloseInvoked());
+        assertTrue("close must be  called", handler2.isCloseInvoked());
+        assertTrue("close must be  called", soapHandler1.isCloseInvoked());
+        assertTrue("close must be  called", soapHandler2.isCloseInvoked());
+
+        // the server has encoded into the response the order in
+        // which the handlers have been invoked, parse it and make
+        // sure everything is ok
+
+        // expected order for inbound interceptors
+        String[] handlerNames = {"soapHandler4", "soapHandler3", "handler2", "handler1", "servant",
+                                 "handler1", "handler2", "soapHandler3", "soapHandler4"};
+
+        assertEquals(handlerNames.length, resp.size());
+
+        Iterator iter = resp.iterator();
+        for (String expected : handlerNames) {
+            assertEquals(expected, iter.next());
+        }
+    }
+    
+    @Test
+    public void testLogicalHandlerHandleMessageReturnFalseClientSide() throws Exception {
         final String clientHandlerMessage = "handler2 client side";
 
-        TestHandler<LogicalMessageContext>  handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
             public boolean handleMessage(LogicalMessageContext ctx) {
                 super.handleMessage(ctx);
@@ -141,8 +176,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                     if (outbound) {
                         LogicalMessage msg = ctx.getMessage();
                         assertNotNull("logical message is null", msg);
-                        JAXBContext jaxbCtx = 
-                            JAXBContext.newInstance(PackageUtils.getPackageName(PingOneWay.class));
+                        JAXBContext jaxbCtx = JAXBContext.newInstance(PackageUtils
+                            .getPackageName(PingOneWay.class));
                         PingResponse resp = new PingResponse();
                         resp.getHandlersInfo().add(clientHandlerMessage);
 
@@ -162,21 +197,23 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         List<String> resp = handlerTest.ping();
         assertEquals(clientHandlerMessage, resp.get(0));
 
-        //TODO: Following are commented out due to CXF-332
-        /*assertEquals("handler must be invoked for inbound & outbound message",
-                     2, handler1.getHandleMessageInvoked());*/
-        
-        assertEquals("second handler must be invoked exactly once", 1, handler2.getHandleMessageInvoked());
-        //assertTrue("close must be  called", handler1.isCloseInvoked());
-        //assertTrue("close must be called", handler2.isCloseInvoked());
+        assertEquals("handler must be invoked for inbound & outbound message", 2, handler1
+            .getHandleMessageInvoked());
+
+        assertEquals("the second handler must be invoked once", 1, handler2.getHandleMessageInvoked());
+
+        /*
+         * assertTrue("close must be called", handler1.isCloseInvoked());
+         * assertTrue("close must be called", handler2.isCloseInvoked());
+         */
     }
-    
+
     @Test
     @Ignore
     public void testLogicalHandlerStopProcessingServerSide() throws PingException {
-        //TODO: Following are commented out due to CXF-332
-        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2",
-                                     "soapHandler3", "soapHandler4"};
+        // TODO: Following are commented out due to CXF-332
+        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2", "soapHandler3",
+                                     "soapHandler4"};
 
         List<String> resp = handlerTest.pingWithArgs("handler2 inbound stop");
 
@@ -186,7 +223,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         for (String expected : expectedHandlers) {
             assertEquals(expected, resp.get(i++));
         }
-
 
         String[] expectedHandlers1 = {"soapHandler4", "soapHandler3", "soapHandler4"};
         resp = handlerTest.pingWithArgs("soapHandler3 inbound stop");
@@ -198,17 +234,17 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    public void testLogicalHandlerThrowsProtocolExceptionClientSide() throws Exception {
+    public void testLogicalHandlerHandleMessageThrowsProtocolExceptionClientSide() throws Exception {
 
         final String clientHandlerMessage = "handler1 client side";
 
-        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false) {
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
             public boolean handleMessage(LogicalMessageContext ctx) {
                 super.handleMessage(ctx);
                 throw new ProtocolException(clientHandlerMessage);
             }
         };
-        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
 
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
 
@@ -218,13 +254,15 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         } catch (ProtocolException e) {
             assertEquals(clientHandlerMessage, e.getMessage());
         }
-        assertTrue(!handler2.isHandleFaultInvoked());
-        
-        assertTrue(handler1.isCloseInvoked());
-        assertTrue(!handler2.isCloseInvoked());
+
+        assertEquals(0, handler2.getHandleFaultInvoked());
+        assertEquals(1, handler1.getHandleFaultInvoked());
+
+        assertEquals(1, handler1.getCloseInvoked());
+        assertEquals(1, handler2.getCloseInvoked());
     }
 
-    //TODO: commented out due to CXF-333
+    // TODO: commented out due to CXF-333
     @Test
     @Ignore
     public void testLogicalHandlerThrowsProtocolExceptionServerSide() throws PingException {
@@ -237,11 +275,63 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    public void testLogicalHandlerHandleMessageThrowsRuntimeExceptionClientSide() throws Exception {
+        final String clientHandlerMessage = "handler1 client side";
+
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleMessage(LogicalMessageContext ctx) {
+                super.handleMessage(ctx);
+                throw new RuntimeException(clientHandlerMessage);
+            }
+        };
+
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
+
+        try {
+            handlerTest.ping();
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains(clientHandlerMessage));
+        }
+
+        assertEquals(0, handler2.getHandleFaultInvoked());
+        assertEquals(0, handler1.getHandleFaultInvoked());
+
+        assertEquals(1, handler1.getCloseInvoked());
+        assertEquals(1, handler2.getCloseInvoked());
+    }
+
+    @Test
+    public void testSOAPHandlerHandleMessageReturnFalseClientSide() throws Exception {
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
+        TestSOAPHandler soapHandler2 = new TestSOAPHandler<SOAPMessageContext>(false) {
+            public boolean handleMessage(SOAPMessageContext ctx) {
+                super.handleMessage(ctx);
+                return false;
+            }
+        };
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, soapHandler1, soapHandler2);
+
+        handlerTest.ping();
+        //List<String> resp = handlerTest.ping();
+        // assertEquals(clientHandlerMessage, resp.get(0));
+
+        assertEquals(2, handler1.getHandleMessageInvoked());
+        assertEquals(2, handler2.getHandleMessageInvoked());
+        assertEquals(2, soapHandler1.getHandleMessageInvoked());
+        //FIXME: CXF-632:
+        //assertEquals(1, soapHandler2.getHandleMessageInvoked());
+    }
+
+    @Test
     @Ignore
     public void testLogicalHandlerHandlerFault() {
 
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
 
         try {
@@ -256,101 +346,51 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         assertEquals(1, handler1.getHandleFaultInvoked());
         assertEquals(1, handler2.getHandleFaultInvoked());
     }
-       
-    //TODO: Commented out due to CXF-334
-    @Test
-    public void testHandlersInvoked() throws Exception {
-        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
-        TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
-        TestSOAPHandler soapHandler2 = new TestSOAPHandler(false);
- 
-        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2,
-                           soapHandler1, soapHandler2);
 
-        List<String> resp = handlerTest.ping();
-        assertNotNull(resp);
-
-        assertEquals("handle message was not invoked", 2, handler1.getHandleMessageInvoked());
-        assertEquals("handle message was not invoked", 2, handler2.getHandleMessageInvoked());
-        assertEquals("handle message was not invoked", 2, soapHandler1.getHandleMessageInvoked());
-        assertEquals("handle message was not invoked", 2, soapHandler2.getHandleMessageInvoked());
-        assertTrue("close must be  called", handler1.isCloseInvoked());
-        assertTrue("close must be  called", handler2.isCloseInvoked());
-        assertTrue("close must be  called", soapHandler1.isCloseInvoked());
-        assertTrue("close must be  called", soapHandler2.isCloseInvoked());
-
-        // the server has encoded into the response the order in
-        // which the handlers have been invoked, parse it and make
-        // sure everything is ok
-
-        // expected order for inbound interceptors
-        //
-        // note: the stream handler does not add itself to the list on
-        // the way out of the server.  It compresses the message so
-        // the fact that we are here indicates that it has
-        // participated correctly in the message exchange.
-        String[] handlerNames = {"soapHandler4", "soapHandler3", "handler2", "handler1",
-                                 "servant",
-                                 "handler1", "handler2", "soapHandler3", "soapHandler4"};
-
-        assertEquals(handlerNames.length, resp.size());
-
-        Iterator iter = resp.iterator();
-        for (String expected : handlerNames) {
-            assertEquals(expected, iter.next());
-        }
-    }
-       
-    
     @Test
     @Ignore
-    public void testDescription() throws PingException { 
+    public void testDescription() throws PingException {
         TestHandler<LogicalMessageContext> handler = new TestHandler<LogicalMessageContext>(false) {
             public boolean handleMessage(LogicalMessageContext ctx) {
                 super.handleMessage(ctx);
-                assertTrue("wsdl description not found or invalid",
-                           isValidWsdlDescription(ctx.get(MessageContext.WSDL_DESCRIPTION)));
+                assertTrue("wsdl description not found or invalid", isValidWsdlDescription(ctx
+                    .get(MessageContext.WSDL_DESCRIPTION)));
                 return true;
             }
         };
         TestSOAPHandler soapHandler = new TestSOAPHandler<SOAPMessageContext>(false) {
             public boolean handleMessage(SOAPMessageContext ctx) {
                 super.handleMessage(ctx);
-                assertTrue("wsdl description not found or invalid",
-                           isValidWsdlDescription(ctx.get(MessageContext.WSDL_DESCRIPTION)));
+                assertTrue("wsdl description not found or invalid", isValidWsdlDescription(ctx
+                    .get(MessageContext.WSDL_DESCRIPTION)));
                 return true;
             }
-        };           
-                   
+        };
 
         addHandlersToChain((BindingProvider)handlerTest, handler, soapHandler);
 
         List<String> resp = handlerTest.ping();
-        assertNotNull(resp); 
-        
+        assertNotNull(resp);
+
         assertEquals("handler was not invoked", 2, handler.getHandleMessageInvoked());
         assertEquals("handle message was not invoked", 2, soapHandler.getHandleMessageInvoked());
         assertTrue("close must be  called", handler.isCloseInvoked());
         assertTrue("close must be  called", soapHandler.isCloseInvoked());
     }
-   
-    
+
     @Test
     public void testHandlersInvokedForDispatch() throws Exception {
 
-        Dispatch<SOAPMessage> disp = service.createDispatch(portName,
-                                                            SOAPMessage.class,
-                                                            Service.Mode.MESSAGE);
+        Dispatch<SOAPMessage> disp = service
+            .createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
         TestSOAPHandler soapHandler2 = new TestSOAPHandler(false);
 
-        addHandlersToChain((BindingProvider)disp, handler1, handler2,
-                           soapHandler1, soapHandler2);
+        addHandlersToChain((BindingProvider)disp, handler1, handler2, soapHandler1, soapHandler2);
 
-        InputStream is =  getClass().getResourceAsStream("PingReq.xml");
+        InputStream is = getClass().getResourceAsStream("PingReq.xml");
         SOAPMessage outMsg = MessageFactory.newInstance().createMessage(null, is);
 
         SOAPMessage inMsg = disp.invoke(outMsg);
@@ -360,19 +400,18 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         assertEquals("handle message was not invoked", 2, handler2.getHandleMessageInvoked());
         assertEquals("handle message was not invoked", 2, soapHandler1.getHandleMessageInvoked());
         assertEquals("handle message was not invoked", 2, soapHandler2.getHandleMessageInvoked());
-        //TODO: commented out, need to fix 
-        //assertTrue("close must be  called", handler1.isCloseInvoked());
-        //assertTrue("close must be  called", handler2.isCloseInvoked());
-        //assertTrue("close must be  called", soapHandler1.isCloseInvoked());
-        //assertTrue("close must be  called", soapHandler2.isCloseInvoked());
+        // TODO: commented out, need to fix
+        // assertTrue("close must be called", handler1.isCloseInvoked());
+        // assertTrue("close must be called", handler2.isCloseInvoked());
+        // assertTrue("close must be called", soapHandler1.isCloseInvoked());
+        // assertTrue("close must be called", soapHandler2.isCloseInvoked());
 
         // the server has encoded into the response the order in
         // which the handlers have been invoked, parse it and make
         // sure everything is ok
 
         // expected order for inbound interceptors
-        String[] handlerNames = {"soapHandler4", "soapHandler3", "handler2", "handler1",
-                                 "servant",
+        String[] handlerNames = {"soapHandler4", "soapHandler3", "handler2", "handler1", "servant",
                                  "handler1", "handler2", "soapHandler3", "soapHandler4"};
 
         List<String> resp = getHandlerNames(inMsg.getSOAPBody().getChildNodes());
@@ -384,7 +423,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         }
     }
 
-    void addHandlersToChain(BindingProvider bp, Handler...handlers) {
+    void addHandlersToChain(BindingProvider bp, Handler... handlers) {
         List<Handler> handlerChain = bp.getBinding().getHandlerChain();
         assertNotNull(handlerChain);
         for (Handler h : handlers) {
@@ -413,24 +452,24 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         }
         return stringList;
     }
-    
+
     public class MyHandlerResolver implements HandlerResolver {
         List<Handler> chain = new ArrayList<Handler>();
-        
-        public MyHandlerResolver(Handler...handlers) {
+
+        public MyHandlerResolver(Handler... handlers) {
             for (Handler h : handlers) {
                 chain.add(h);
             }
         }
+
         public List<Handler> getHandlerChain(PortInfo portInfo) {
             return chain;
         }
-            
+
     }
-    
+
     private boolean isValidWsdlDescription(Object wsdlDescription) {
-        return (wsdlDescription != null) 
-            && ((wsdlDescription instanceof java.net.URI)
-                || (wsdlDescription instanceof java.net.URL));
+        return (wsdlDescription != null)
+               && ((wsdlDescription instanceof java.net.URI) || (wsdlDescription instanceof java.net.URL));
     }
 }
