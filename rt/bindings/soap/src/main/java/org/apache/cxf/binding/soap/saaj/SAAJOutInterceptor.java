@@ -30,7 +30,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamWriter;
-import com.sun.xml.messaging.saaj.packaging.mime.MessagingException;
 
 
 import org.apache.cxf.binding.soap.SoapFault;
@@ -105,15 +104,12 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
                 } catch (SOAPException e) {
                     throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, message.getVersion()
                         .getSender());
-                } catch (MessagingException e) {
-                    throw new SoapFault(new Message("SOAPEXCEPTION", BUNDLE), e, message.getVersion()
-                        .getSender());
                 }
             }
         }
 
         private void setMessageContent(SoapMessage message, SOAPMessage soapMessage) 
-            throws MessagingException, SOAPException {
+            throws SOAPException {
             
             if (soapMessage.getAttachments().hasNext()) {
                 StringBuffer sb = new StringBuffer();

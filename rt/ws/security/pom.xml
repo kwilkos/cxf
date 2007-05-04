@@ -12,7 +12,6 @@
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
-
     <dependencies>
 
         <dependency>
@@ -105,8 +104,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
+            <groupId>${saaj.impl.groupId}</groupId>
+            <artifactId>${saaj.impl.artifactId}</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

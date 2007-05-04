@@ -123,8 +123,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
+            <groupId>${saaj.impl.groupId}</groupId>
+            <artifactId>${saaj.impl.artifactId}</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -132,7 +132,6 @@
             <artifactId>geronimo-activation_1.1_spec</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <scm>

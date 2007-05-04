@@ -83,8 +83,8 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
+            <groupId>${saaj.impl.groupId}</groupId>
+            <artifactId>${saaj.impl.artifactId}</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>
