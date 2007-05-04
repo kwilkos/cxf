@@ -55,6 +55,13 @@ public class FileWriterUtil {
     public static Writer getWriter(File fn) throws IOException {
         return new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fn)), "UTF-8");
     }
+
+    public static Writer getWriter(File fn, String encoding) throws IOException {
+        if (encoding == null) {
+            encoding = "UTF-8";
+        }
+        return new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(fn)), encoding);
+    }
     
     public Writer getWriter(String packageName, String fileName) throws IOException {
         return getWriter(getFileToWrite(packageName, fileName));
