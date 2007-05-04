@@ -33,6 +33,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -43,9 +44,13 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.transport.MessageObserver;
 
 public class SOAPHandlerInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
@@ -83,55 +88,76 @@ public class SOAPHandlerInterceptor extends
         if (getInvoker(message).getProtocolHandlers().isEmpty()) {
             return;
         }
-        
+
         if (getInvoker(message).isOutbound()) {
-            SOAPMessage saaj = message.getContent(SOAPMessage.class); 
+            SOAPMessage saaj = message.getContent(SOAPMessage.class);
             if (saaj == null) {
                 SAAJ_OUT.handleMessage(message);
             }
-            
-            final SOAPHandlerInterceptor handlerInterceptor = this;
-            message.getInterceptorChain().add(new AbstractSoapInterceptor() {
 
+            message.getInterceptorChain().add(new AbstractSoapInterceptor() {
                 @Override
                 public String getPhase() {
                     return Phase.USER_PROTOCOL;
                 }
 
                 public void handleMessage(SoapMessage message) throws Fault {
-                    handlerInterceptor.invokeSOAPHandlerInterceptors(message);
+                    MessageContext context = createProtocolMessageContext(message);
+                    HandlerChainInvoker invoker = getInvoker(message);
+                    invoker.setProtocolMessageContext(context);
+
+                    if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
+                        message.getInterceptorChain().abort();
+                        Message responseMsg = new MessageImpl();
+                        message.getExchange().setInMessage(responseMsg);
+
+                        MessageObserver observer = (MessageObserver)message.getExchange()
+                            .get(MessageObserver.class);
+                        responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID,
+                                        SOAPHandlerInterceptor.class.getName());
+                        // The request message becomes the response message
+                        if (observer != null) {
+                            SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
+
+                            if (soapMessage != null) {
+                                responseMsg.setContent(SOAPMessage.class, soapMessage);
+                                XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(soapMessage);
+                                responseMsg.setContent(XMLStreamReader.class, xmlReader);
+                            }
+                            observer.onMessage(responseMsg);
+                        } 
+                    }
                 }
             });
         } else {
             super.handleMessage(message);
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             if (msg != null) {
-                DOMSource bodySource;
-                try {
-                    bodySource = new DOMSource(msg.getSOAPPart().getEnvelope().getBody());
-                    XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(bodySource);
-                    xmlReader.nextTag();
-                    xmlReader.nextTag(); // move past body tag
-                    message.setContent(XMLStreamReader.class, xmlReader);
-                } catch (SOAPException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (XMLStreamException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
+                XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(msg);
+                message.setContent(XMLStreamReader.class, xmlReader);
             }
         }
-    }
-
-    protected void invokeSOAPHandlerInterceptors(SoapMessage message) {
-        super.handleMessage(message);
     }
     
     @Override
     protected MessageContext createProtocolMessageContext(Message message) {
         return new SOAPMessageContextImpl(message);
+    }
+    
+    private XMLStreamReader createXMLStreamReaderFromSOAPMessage(SOAPMessage soapMessage) {
+        // responseMsg.setContent(SOAPMessage.class, soapMessage);
+        XMLStreamReader xmlReader = null;
+        try {
+            DOMSource bodySource = new DOMSource(soapMessage.getSOAPPart().getEnvelope().getBody());
+            xmlReader = StaxUtils.createXMLStreamReader(bodySource);
+            xmlReader.nextTag();
+            xmlReader.nextTag(); // move past body tag
+        } catch (SOAPException e) {
+            e.printStackTrace();
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+        return xmlReader;
     }
 
     public void handleFault(SoapMessage message) {

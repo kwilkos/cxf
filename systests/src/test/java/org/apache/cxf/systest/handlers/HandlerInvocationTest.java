@@ -150,7 +150,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         // the server has encoded into the response the order in
         // which the handlers have been invoked, parse it and make
         // sure everything is ok
-
         // expected order for inbound interceptors
         String[] handlerNames = {"soapHandler4", "soapHandler3", "handler2", "handler1", "servant",
                                  "handler1", "handler2", "soapHandler3", "soapHandler4"};
@@ -304,31 +303,53 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
 
     @Test
     public void testSOAPHandlerHandleMessageReturnFalseClientSide() throws Exception {
+        final String clientHandlerMessage = "client side";
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleMessage(LogicalMessageContext ctx) {
+                super.handleMessage(ctx);
+                try {
+                    Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                    if (outbound) {
+                        LogicalMessage msg = ctx.getMessage();
+                        assertNotNull("logical message is null", msg);
+                        JAXBContext jaxbCtx = JAXBContext.newInstance(PackageUtils
+                            .getPackageName(PingOneWay.class));
+                        PingResponse resp = new PingResponse();
+                        resp.getHandlersInfo().add(clientHandlerMessage);
+
+                        msg.setPayload(resp, jaxbCtx);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail(e.toString());
+                }
+                return true;
+            }
+        };
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
         TestSOAPHandler soapHandler2 = new TestSOAPHandler<SOAPMessageContext>(false) {
             public boolean handleMessage(SOAPMessageContext ctx) {
                 super.handleMessage(ctx);
+
                 return false;
             }
         };
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, soapHandler1, soapHandler2);
 
-        handlerTest.ping();
-        //List<String> resp = handlerTest.ping();
-        // assertEquals(clientHandlerMessage, resp.get(0));
+        List<String> resp = handlerTest.ping();
+        assertEquals(clientHandlerMessage, resp.get(0));
 
-        assertEquals(2, handler1.getHandleMessageInvoked());
-        assertEquals(2, handler2.getHandleMessageInvoked());
+        assertEquals(3, handler1.getHandleMessageInvoked());
+        assertEquals(3, handler2.getHandleMessageInvoked());
         assertEquals(2, soapHandler1.getHandleMessageInvoked());
-        //FIXME: CXF-632:
-        //assertEquals(1, soapHandler2.getHandleMessageInvoked());
+        assertEquals(1, soapHandler2.getHandleMessageInvoked());
     }
 
     @Test
     @Ignore
-    public void testLogicalHandlerHandlerFault() {
+    public void testLogicalHandlerHandlerFaultServerSide() {
 
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);

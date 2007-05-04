@@ -26,6 +26,7 @@ import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
+
 public abstract class AbstractProtocolHandlerInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
     
@@ -38,7 +39,8 @@ public abstract class AbstractProtocolHandlerInterceptor<T extends Message>
         MessageContext context = createProtocolMessageContext(message);
         HandlerChainInvoker invoker = getInvoker(message);
         invoker.setProtocolMessageContext(context);
-        invoker.invokeProtocolHandlers(isRequestor(message), context);
+        invoker.invokeProtocolHandlers(isRequestor(message), context);      
+        
         onCompletion(message);
     }
     
