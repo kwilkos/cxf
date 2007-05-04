@@ -73,6 +73,7 @@ public class PolicyEngineTest extends Assert {
         assertNotNull(engine.getRegistry());
         assertNull(engine.getBus());
         assertNull(engine.getPolicyProviders()); 
+        assertNull(engine.getAlternativeSelector());
         assertTrue(!engine.isEnabled());
         Bus bus = new CXFBusImpl();
         
@@ -82,10 +83,13 @@ public class PolicyEngineTest extends Assert {
         PolicyRegistry reg = control.createMock(PolicyRegistry.class);
         engine.setRegistry(reg);
         engine.setEnabled(true);
+        AlternativeSelector selector = control.createMock(AlternativeSelector.class);
+        engine.setAlternativeSelector(selector);
         assertSame(bus, engine.getBus());
         assertSame(providers, engine.getPolicyProviders());
         assertSame(reg, engine.getRegistry());
-        assertTrue(engine.isEnabled());        
+        assertTrue(engine.isEnabled()); 
+        assertSame(selector, engine.getAlternativeSelector());
         assertNotNull(engine.createOutPolicyInfo());
         assertNotNull(engine.createEndpointPolicyInfo());
         
@@ -384,6 +388,7 @@ public class PolicyEngineTest extends Assert {
         if (enabled) {
             control.verify();
         }
+        assertNotNull(engine.getAlternativeSelector());
     }
     
     @Test

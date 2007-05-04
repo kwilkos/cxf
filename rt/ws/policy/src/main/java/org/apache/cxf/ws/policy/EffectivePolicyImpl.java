@@ -21,7 +21,6 @@ package org.apache.cxf.ws.policy;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -32,7 +31,6 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -120,17 +118,14 @@ public class EffectivePolicyImpl implements EffectivePolicy {
     }
 
     void chooseAlternative(PolicyEngineImpl engine, Assertor assertor) {
-        Iterator alternatives = policy.getAlternatives();
-        while (alternatives.hasNext()) {
-            List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
-            if (engine.supportsAlternative(alternative, assertor)) {
-                setChosenAlternative(alternative);
-                return;
-            }
-        }
-        PolicyUtils.logPolicy(LOG, Level.FINE, "No alternative supported.", getPolicy());
-        throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
-
+        Collection<Assertion> alternative = engine.getAlternativeSelector()
+            .selectAlternative(policy, engine, assertor);
+        if (null == alternative) {
+            PolicyUtils.logPolicy(LOG, Level.FINE, "No alternative supported.", getPolicy());
+            throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
+        } else {
+            setChosenAlternative(alternative);
+        }   
     }
 
     void initialiseInterceptors(PolicyEngineImpl engine) {

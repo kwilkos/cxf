@@ -22,7 +22,6 @@ package org.apache.cxf.ws.policy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -31,7 +30,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -92,15 +90,13 @@ public class EndpointPolicyImpl implements EndpointPolicy {
     }
 
     void chooseAlternative(PolicyEngineImpl engine, Assertor assertor) {
-        Iterator alternatives = policy.getAlternatives();
-        while (alternatives.hasNext()) {
-            List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
-            if (engine.supportsAlternative(alternative, assertor)) {
-                setChosenAlternative(alternative);
-                return;
-            }
+        Collection<Assertion> alternative = engine.getAlternativeSelector()
+            .selectAlternative(policy, engine, assertor);
+        if (null == alternative) {
+            throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
+        } else {
+            setChosenAlternative(alternative);
         }
-        throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
     }
     
     void initialiseVocabulary(EndpointInfo ei, boolean requestor, PolicyEngineImpl engine) {

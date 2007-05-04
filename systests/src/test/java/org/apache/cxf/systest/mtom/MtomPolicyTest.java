@@ -41,7 +41,9 @@ import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.WSPolicyFeature;
+import org.apache.cxf.ws.policy.selector.FirstAlternativeSelector;
 import org.junit.Test;
 
 public class MtomPolicyTest extends AbstractCXFTest {
@@ -70,6 +72,8 @@ public class MtomPolicyTest extends AbstractCXFTest {
     }
     
     public void setupServer(boolean mtomRequired) throws Exception {
+        getBus().getExtension(PolicyEngine.class).setAlternativeSelector(
+            new FirstAlternativeSelector());
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new EchoService());
         sf.setBus(getBus());
@@ -84,7 +88,7 @@ public class MtomPolicyTest extends AbstractCXFTest {
             policy.getPolicyElements().add(DOMUtils.readXml(
                 getClass().getResourceAsStream("mtom-policy-optional.xsd"))
                            .getDocumentElement());
-        }
+        }        
         
         sf.getFeatures().add(policy);
         

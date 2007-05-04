@@ -247,6 +247,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         } else if (!ContextUtils.isRequestor(message)) {
             // responder validates incoming MAPs
             AddressingPropertiesImpl maps = getMAPs(message, false, false);
+            if (null == maps) {
+                return false;
+            }
             boolean isOneway = message.getExchange().isOneWay();
             continueProcessing = validateIncomingMAPs(maps, message);
             if (continueProcessing) {

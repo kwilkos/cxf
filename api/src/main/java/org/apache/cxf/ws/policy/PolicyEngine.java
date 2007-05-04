@@ -19,11 +19,14 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.Collection;
+
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.neethi.Assertion;
 import org.apache.neethi.PolicyRegistry;
 
 /**
@@ -34,6 +37,12 @@ public interface PolicyEngine {
     boolean isEnabled();
     
     void setEnabled(boolean e);
+    
+    AlternativeSelector getAlternativeSelector();
+    
+    void setAlternativeSelector(AlternativeSelector selector);
+    
+    boolean supportsAlternative(Collection<Assertion> alterative, Assertor assertor);
     
     // available throughout the outbound path
     

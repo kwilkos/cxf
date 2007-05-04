@@ -40,6 +40,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.ws.policy.selector.MinimalAlternativeSelector;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
@@ -58,6 +59,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     private Collection<PolicyProvider> policyProviders;
     private boolean enabled;
     private boolean addedBusInterceptors;
+    private AlternativeSelector alternativeSelector;
     
     private Map<BindingOperation, EffectivePolicy> clientRequestInfo;
     
@@ -113,6 +115,14 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         if (!addedBusInterceptors) {
             addBusInterceptors();
         }
+    }
+    
+    public AlternativeSelector getAlternativeSelector() {        
+        return alternativeSelector;
+    }
+    
+    public void setAlternativeSelector(AlternativeSelector as) {
+        alternativeSelector = as;
     }
     
     // BusExtension interface
@@ -291,13 +301,18 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
             = new ConcurrentHashMap<BindingOperation, EffectivePolicy>();
     
         serverFaultInfo 
-            = new ConcurrentHashMap<BindingFault, EffectivePolicy>();
+            = new ConcurrentHashMap<BindingFault, EffectivePolicy>();        
     }
     
     
     
     @PostConstruct
     public void addBusInterceptors() {
+        
+        if (null == alternativeSelector) {
+            alternativeSelector = new MinimalAlternativeSelector();
+        }
+        
         if (null == bus || !enabled) {
             return;
         }
@@ -480,7 +495,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
      * @param Assertor the assertor
      * @return true iff the alternative can be supported
      */
-    boolean supportsAlternative(List<Assertion> alternative, Assertor assertor) {
+    public boolean supportsAlternative(Collection<Assertion> alternative, Assertor assertor) {
         PolicyInterceptorProviderRegistry pipr = bus.getExtension(PolicyInterceptorProviderRegistry.class);
         for (Assertion a : alternative) {
             if (!(a.isOptional() 

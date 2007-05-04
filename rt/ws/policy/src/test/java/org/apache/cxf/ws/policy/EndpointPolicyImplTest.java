@@ -29,7 +29,6 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
@@ -37,9 +36,7 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
-import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -142,26 +139,18 @@ public class EndpointPolicyImplTest extends Assert {
        
     @Test
     public void testChooseAlternative() {
-        EndpointPolicyImpl cpi = new EndpointPolicyImpl();
-        cpi.setPolicy(new Policy());
-        
+        EndpointPolicyImpl epi = new EndpointPolicyImpl();        
+        Policy policy = new Policy();
+        epi.setPolicy(policy);        
         PolicyEngineImpl engine = control.createMock(PolicyEngineImpl.class);
         Assertor assertor = control.createMock(Assertor.class);
-               
-        Policy policy = new Policy();
-        ExactlyOne ea = new ExactlyOne();
-        All all = new All();
-        Assertion a1 = new TestAssertion(); 
-        all.addAssertion(a1);
-        ea.addPolicyComponent(all);
-        List<Assertion> firstAlternative = CastUtils.cast(all.getPolicyComponents(), Assertion.class);
-        policy.addPolicyComponent(ea);
-        cpi.setPolicy(policy);
+        AlternativeSelector selector = control.createMock(AlternativeSelector.class);
+        EasyMock.expect(engine.getAlternativeSelector()).andReturn(selector);
+        EasyMock.expect(selector.selectAlternative(policy, engine, assertor)).andReturn(null);
         
-        EasyMock.expect(engine.supportsAlternative(firstAlternative, assertor)).andReturn(false);
         control.replay();
         try {
-            cpi.chooseAlternative(engine, assertor);  
+            epi.chooseAlternative(engine, assertor);  
             fail("Expected PolicyException not thrown.");
         } catch (PolicyException ex) {
             // expected
@@ -169,31 +158,13 @@ public class EndpointPolicyImplTest extends Assert {
         control.verify();
         
         control.reset();        
-        EasyMock.expect(engine.supportsAlternative(firstAlternative, assertor)).andReturn(true);
+        EasyMock.expect(engine.getAlternativeSelector()).andReturn(selector);
+        Collection<Assertion> alternative = new ArrayList<Assertion>();
+        EasyMock.expect(selector.selectAlternative(policy, engine, assertor)).andReturn(alternative);
         control.replay();        
-        cpi.chooseAlternative(engine, assertor); 
-        
-        Collection<Assertion> chosen = cpi.getChosenAlternative();
-        assertSame(1, chosen.size());
-        assertSame(chosen.size(), firstAlternative.size());
-        assertSame(chosen.iterator().next(), firstAlternative.get(0));
-        
-        // assertSame(cpi.getChosenAlternative(), firstAlternative);
-        control.verify();
-        
-        control.reset();
-        All other = new All();
-        other.addAssertion(a1);
-        ea.addPolicyComponent(other);
-        List<Assertion> secondAlternative = CastUtils.cast(other.getPolicyComponents(), Assertion.class);
-        EasyMock.expect(engine.supportsAlternative(firstAlternative, assertor)).andReturn(false);
-        EasyMock.expect(engine.supportsAlternative(secondAlternative, assertor)).andReturn(true);
-        control.replay();        
-        cpi.chooseAlternative(engine, assertor); 
-        chosen = cpi.getChosenAlternative();
-        assertSame(1, chosen.size());
-        assertSame(chosen.size(), secondAlternative.size());
-        assertSame(chosen.iterator().next(), secondAlternative.get(0));
+        epi.chooseAlternative(engine, assertor);
+        Collection<Assertion> choice = epi.getChosenAlternative();
+        assertSame(choice, alternative);   
         control.verify();
     }
     

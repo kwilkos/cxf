@@ -315,6 +315,20 @@ public class MessageFlow extends Assert {
         Document d = outbound ? outboundMessages.get(index) : inboundMessages.get(index);
         assert null != getRMHeaderElement(d, RMConstants.getSequenceFaultName());
     }
+    
+    public void verifyHeader(QName name, boolean outbound, int index) throws Exception {
+        Document d = outbound ? outboundMessages.get(index) : inboundMessages.get(index);
+        assertNotNull((outbound ? "Outbound" : "Inbound")
+            + " message " + index + " does not have " + name + "header.",
+            getHeaderElement(d, name.getNamespaceURI(), name.getLocalPart()));
+    }
+    
+    public void verifyNoHeader(QName name, boolean outbound, int index) throws Exception {
+        Document d = outbound ? outboundMessages.get(index) : inboundMessages.get(index);
+        assertNull((outbound ? "Outbound" : "Inbound")
+            + " message " + index + " has " + name + "header.",
+            getHeaderElement(d, name.getNamespaceURI(), name.getLocalPart()));
+    }
    
     protected String getAction(Document document) throws Exception {
         Element e = getHeaderElement(document, RMConstants.getAddressingNamespace(), "Action");

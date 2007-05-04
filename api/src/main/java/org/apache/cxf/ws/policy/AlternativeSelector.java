@@ -19,50 +19,16 @@
 
 package org.apache.cxf.ws.policy;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import java.util.Collection;
 
 import org.apache.neethi.Assertion;
-import org.apache.neethi.Constants;
-import org.apache.neethi.PolicyComponent;
+import org.apache.neethi.Policy;
 
 /**
  * 
  */
-public class TestAssertion implements Assertion {
+public interface AlternativeSelector {
+ 
+    Collection<Assertion> selectAlternative(Policy policy, PolicyEngine engine, Assertor assertor);
     
-    private QName name;
-    private boolean optional;
-    
-    public TestAssertion() {
-        this(null);
-    }
-    
-    public TestAssertion(QName n) {
-        name = n;
-    }
-    
-    public QName getName() {
-        return name;
-    }
-
-    public boolean isOptional() {
-        return optional;
-    }
-
-    public PolicyComponent normalize() {
-        return this;
-    }
-
-    public void serialize(XMLStreamWriter writer) throws XMLStreamException {
-    }
-
-    public boolean equal(PolicyComponent policyComponent) {
-        return this == policyComponent;
-    }
-
-    public short getType() {
-        return Constants.TYPE_ASSERTION;
-    }
 }
