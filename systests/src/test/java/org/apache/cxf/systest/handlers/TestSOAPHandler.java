@@ -75,7 +75,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             Object b  = ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             boolean outbound = (Boolean)b;
             SOAPMessage msg = ctx.getMessage();
-
+            
             if (isServerSideHandler()) {
                 if (outbound) {
                     continueProcessing = true;
@@ -85,13 +85,13 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         outbound = true;
                     }
                 }
-
+                
                 if (outbound) {
                     try {
                         // append handler id to SOAP response message 
                         SOAPBody body = msg.getSOAPBody(); 
                         Node resp = body.getFirstChild();
-
+                        
                         if (resp.getNodeName().contains("pingResponse")) { 
                             Node child = resp.getFirstChild();
                             Document doc = resp.getOwnerDocument();

@@ -24,8 +24,10 @@ import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.MessageObserver;
@@ -43,12 +45,10 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
             LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
             invoker.setLogicalMessageContext(lctx);
             if (!invoker.invokeLogicalHandlers(isRequestor(message), lctx)) {
-                //TODO: reverseHandlers();
-
                 message.getInterceptorChain().abort();
-                Message responseMsg = new MessageImpl();
-                message.getExchange().setInMessage(responseMsg);
-
+                Endpoint e = message.getExchange().get(Endpoint.class);
+                Message responseMsg = e.getBinding().createMessage();
+                
                 /**
                  * 1. message.setHeaders()
                  * 2. message.setAttachments()
@@ -57,25 +57,35 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
                  * message.setContent(Element.class, elementInBody);
                  * 4. invoke MessageObserver.onMessage() starting after this.getID()
                  */
+                Source inSource = message.getContent(Source.class);
+                if (inSource != null) {
+                    responseMsg.setContent(Source.class, inSource);
+                }
+                List inObj = message.getContent(List.class);
+                if (inObj != null) {
+                    responseMsg.setContent(List.class, inObj);
+                }
+                
+                
                 MessageObserver observer =
                     (MessageObserver)message.getExchange().get(MessageObserver.class);
-                responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID, this.getId());
                 if (observer != null) {
-                    Source inSource = message.getContent(Source.class);
-                    if (inSource != null) {
-                        responseMsg.setContent(Source.class, inSource);
-                    }
-                    List inObj = message.getContent(List.class);
-                    if (inObj != null) {
-                        responseMsg.setContent(List.class, inObj);
-                    }
+                    //client side outbound
+                    message.getExchange().setInMessage(responseMsg);
+
+                    responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID, this.getId());
                     observer.onMessage(responseMsg);
                 } else if (!message.getExchange().isOneWay()) {
-                    //for the server side inbound
-
-                    //InterceptorChain chain = OutgoingChainSetupInterceptor.getOutInterceptorChain(
-                    //    message.getExchange());
-                    //chain.doIntercept(message);
+                    //server side inbound
+                    message.getExchange().setOutMessage(responseMsg);
+                    
+                    InterceptorChain chain = OutgoingChainInterceptor.getOutInterceptorChain(message
+                        .getExchange());
+                    responseMsg.setInterceptorChain(chain);
+                    //so the idea of starting interceptor chain from any specified point does not work
+                    //well for outbound case, as many outbound interceptors have their ending interceptors.
+                    //For example, we can not skip MessageSenderInterceptor.               
+                    chain.doIntercept(responseMsg, this.getId());
                 }
             }
         }

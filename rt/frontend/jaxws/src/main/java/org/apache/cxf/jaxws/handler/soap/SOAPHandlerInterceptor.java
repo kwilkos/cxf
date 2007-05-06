@@ -38,15 +38,18 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -90,10 +93,8 @@ public class SOAPHandlerInterceptor extends
         }
 
         if (getInvoker(message).isOutbound()) {
-            SOAPMessage saaj = message.getContent(SOAPMessage.class);
-            if (saaj == null) {
-                SAAJ_OUT.handleMessage(message);
-            }
+
+            SAAJ_OUT.handleMessage(message);
 
             message.getInterceptorChain().add(new AbstractSoapInterceptor() {
                 @Override
@@ -102,41 +103,60 @@ public class SOAPHandlerInterceptor extends
                 }
 
                 public void handleMessage(SoapMessage message) throws Fault {
-                    MessageContext context = createProtocolMessageContext(message);
-                    HandlerChainInvoker invoker = getInvoker(message);
-                    invoker.setProtocolMessageContext(context);
-
-                    if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
-                        message.getInterceptorChain().abort();
-                        Message responseMsg = new MessageImpl();
-                        message.getExchange().setInMessage(responseMsg);
-
-                        MessageObserver observer = (MessageObserver)message.getExchange()
-                            .get(MessageObserver.class);
-                        responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID,
-                                        SOAPHandlerInterceptor.class.getName());
-                        // The request message becomes the response message
-                        if (observer != null) {
-                            SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
-
-                            if (soapMessage != null) {
-                                responseMsg.setContent(SOAPMessage.class, soapMessage);
-                                XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(soapMessage);
-                                responseMsg.setContent(XMLStreamReader.class, xmlReader);
-                            }
-                            observer.onMessage(responseMsg);
-                        } 
-                    }
+                    handleMessageInternal(message);
                 }
             });
         } else {
-            super.handleMessage(message);
+            handleMessageInternal(message);
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             if (msg != null) {
                 XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(msg);
                 message.setContent(XMLStreamReader.class, xmlReader);
             }
         }
+    }
+    
+    private void handleMessageInternal(SoapMessage message) {
+        MessageContext context = createProtocolMessageContext(message);
+        HandlerChainInvoker invoker = getInvoker(message);
+        invoker.setProtocolMessageContext(context);
+
+        if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
+            message.getInterceptorChain().abort();
+            Endpoint e = message.getExchange().get(Endpoint.class);
+            Message responseMsg = e.getBinding().createMessage();            
+ 
+            MessageObserver observer = (MessageObserver)message.getExchange().get(MessageObserver.class);
+            if (observer != null) {
+                //client side outbound, the request message becomes the response message
+                message.getExchange().setInMessage(responseMsg);
+                SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
+
+                if (soapMessage != null) {
+                    responseMsg.setContent(SOAPMessage.class, soapMessage);
+                    XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(soapMessage);
+                    responseMsg.setContent(XMLStreamReader.class, xmlReader);
+                }
+                responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID,
+                                SOAPHandlerInterceptor.class.getName());
+                observer.onMessage(responseMsg);
+            }  else if (!message.getExchange().isOneWay()) {
+                //server side inbound
+                message.getExchange().setOutMessage(responseMsg);
+                SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
+
+                responseMsg.setContent(SOAPMessage.class, soapMessage);
+                
+                InterceptorChain chain = OutgoingChainInterceptor.getOutInterceptorChain(message
+                    .getExchange());
+                responseMsg.setInterceptorChain(chain);
+                //so the idea of starting interceptor chain from any specified point does not work
+                //well for outbound case, as many outbound interceptors have their ending interceptors.
+                //For example, we can not skip MessageSenderInterceptor.               
+                chain.doIntercept(responseMsg, SoapActionInterceptor.class.getName());
+            } 
+        }  
+        onCompletion(message);
     }
     
     @Override
