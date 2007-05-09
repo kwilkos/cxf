@@ -160,10 +160,23 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     /**
-     * Stops retransmission queue.
+     * Stops resending messages for the specified source sequence.
      */
-    public void stop() {
-        // no-op
+    public void stop(SourceSequence seq) {
+        synchronized (this) {
+            List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
+            if (null != sequenceCandidates) {
+                for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
+                    ResendCandidate candidate = sequenceCandidates.get(i);
+                    candidate.cancel();
+                }
+                LOG.log(Level.FINE, "Cancelled resends for sequence {0}.", seq.getIdentifier().getValue());
+            }           
+        }
+    }
+    
+    void stop() {
+        
     }
 
     /**
@@ -421,6 +434,15 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         protected synchronized void resolved() {
             pending = false;
             next = null;
+            if (null != nextTask) {
+                nextTask.cancel();
+            }
+        }
+        
+        /**
+         * Cancel further resend (although no ACK has been received).
+         */
+        protected void cancel() {
             if (null != nextTask) {
                 nextTask.cancel();
             }

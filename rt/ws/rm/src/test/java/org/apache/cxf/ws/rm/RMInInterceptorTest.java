@@ -122,12 +122,14 @@ public class RMInInterceptorTest extends Assert {
     private void testHandleSequenceAck(boolean onServer) throws SequenceFault, RMException, 
     NoSuchMethodException {
         Method m = RMInInterceptor.class.getDeclaredMethod("processAcknowledgments",
-            new Class[] {RMProperties.class});
+            new Class[] {Source.class, RMProperties.class});
         interceptor = control.createMock(RMInInterceptor.class, new Method[] {m});
         Message message = setupInboundMessage(RMConstants.getSequenceAckAction(), onServer);
         rme.receivedControlMessage();
         EasyMock.expectLastCall();
-        interceptor.processAcknowledgments(rmps);
+        Source s = control.createMock(Source.class);
+        EasyMock.expect(rme.getSource()).andReturn(s);
+        interceptor.processAcknowledgments(s, rmps);
         EasyMock.expectLastCall();
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
 
@@ -168,9 +170,9 @@ public class RMInInterceptorTest extends Assert {
     
     private void testAppMessage(boolean onServer) throws SequenceFault, RMException, NoSuchMethodException {
         Method m1 = RMInInterceptor.class.getDeclaredMethod("processAcknowledgments",
-                                                            new Class[] {RMProperties.class});
+                                                            new Class[] {Source.class, RMProperties.class});
         Method m2 = RMInInterceptor.class.getDeclaredMethod("processAcknowledgmentRequests",
-                                                            new Class[] {RMProperties.class});
+                                                            new Class[] {Destination.class, Message.class});
         Method m3 = RMInInterceptor.class.getDeclaredMethod("processSequence",
                                                             new Class[] {Destination.class, Message.class});
         Method m4 = RMInInterceptor.class.getDeclaredMethod("processDeliveryAssurance",
@@ -180,9 +182,11 @@ public class RMInInterceptorTest extends Assert {
         Message message = setupInboundMessage("greetMe", true);
         Destination d = control.createMock(Destination.class);
         EasyMock.expect(manager.getDestination(message)).andReturn(d);
-        interceptor.processAcknowledgments(rmps);
+        Source s = control.createMock(Source.class);
+        EasyMock.expect(rme.getSource()).andReturn(s);
+        interceptor.processAcknowledgments(s, rmps);
         EasyMock.expectLastCall();
-        interceptor.processAcknowledgmentRequests(rmps);
+        interceptor.processAcknowledgmentRequests(d, message);
         EasyMock.expectLastCall();
         interceptor.processSequence(d, message);
         EasyMock.expectLastCall();
@@ -200,6 +204,7 @@ public class RMInInterceptorTest extends Assert {
     public void testProcessAcknowledgments() throws RMException {
         interceptor = new RMInInterceptor();
         manager = control.createMock(RMManager.class);
+        Source source = control.createMock(Source.class);
         interceptor.setManager(manager);
         SequenceAcknowledgement ack1 = control.createMock(SequenceAcknowledgement.class);
         SequenceAcknowledgement ack2 = control.createMock(SequenceAcknowledgement.class);
@@ -210,16 +215,16 @@ public class RMInInterceptorTest extends Assert {
         Identifier id1 = control.createMock(Identifier.class);
         EasyMock.expect(ack1.getIdentifier()).andReturn(id1);
         SourceSequence ss1 = control.createMock(SourceSequence.class);
-        EasyMock.expect(manager.getSourceSequence(id1)).andReturn(ss1);
+        EasyMock.expect(source.getSequence(id1)).andReturn(ss1);
         ss1.setAcknowledged(ack1);
         EasyMock.expectLastCall();
         Identifier id2 = control.createMock(Identifier.class);
         EasyMock.expect(ack2.getIdentifier()).andReturn(id2);
-        EasyMock.expect(manager.getSourceSequence(id2)).andReturn(null);
+        EasyMock.expect(source.getSequence(id2)).andReturn(null);
   
         control.replay();
         try {
-            interceptor.processAcknowledgments(rmps);
+            interceptor.processAcknowledgments(source, rmps);
             fail("Expected SequenceFault not thrown");
         } catch (SequenceFault sf) {
             assertEquals(RMConstants.getUnknownSequenceFaultCode(), sf.getSequenceFault().getFaultCode());

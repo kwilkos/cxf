@@ -40,6 +40,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
@@ -161,9 +162,57 @@ public class Proxy {
     }
     
     void lastMessage(SourceSequence s) throws RMException {
-        // TODO
+        org.apache.cxf.ws.addressing.EndpointReferenceType target = s.getTarget();
+        AttributedURIType uri = null;
+        if (null != target) {
+            uri = target.getAddress();
+        }
+        String addr = null;
+        if (null != uri) {
+            addr = uri.getValue();
+        }
+        
+        if (addr == null) {
+            LOG.log(Level.WARNING, "STANDALONE_LAST_MESSAGE_NO_TARGET_MSG");
+            return;
+        }
+        
+        if (RMUtils.getAddressingConstants().getAnonymousURI().equals(addr)) {
+            LOG.log(Level.WARNING, "STANDALONE_LAST_MESSAGE_ANON_TARGET_MSG");
+            return; 
+        }
+        
+        OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
+            .getOperation(RMConstants.getLastMessageOperationName());
+        invoke(oi, new Object[] {}, null);
     }
     
+    void ackRequested(SourceSequence s) throws RMException {
+        org.apache.cxf.ws.addressing.EndpointReferenceType target = s.getTarget();
+        AttributedURIType uri = null;
+        if (null != target) {
+            uri = target.getAddress();
+        }
+        String addr = null;
+        if (null != uri) {
+            addr = uri.getValue();
+        }
+        
+        if (addr == null) {
+            LOG.log(Level.WARNING, "STANDALONE_ACK_REQUESTED_NO_TARGET_MSG");
+            return;
+        }
+        
+        if (RMUtils.getAddressingConstants().getAnonymousURI().equals(addr)) {
+            LOG.log(Level.WARNING, "STANDALONE_ACK_REQUESTED_ANON_TARGET_MSG");
+            return; 
+        }
+        
+        OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
+            .getOperation(RMConstants.getAckRequestedOperationName());
+        invoke(oi, new Object[] {}, null);
+    }
+        
     Identifier getOfferedIdentifier() {
         return offeredIdentifier;    
     }

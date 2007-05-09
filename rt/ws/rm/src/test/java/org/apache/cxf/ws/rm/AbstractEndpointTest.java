@@ -63,4 +63,18 @@ public class AbstractEndpointTest extends Assert {
         assertSame(ae, tested.getEndpoint());
         assertSame(mgr, tested.getManager());
     }
+    
+    @Test
+    public void testGenerateSequenceIdentifier() {
+        RMManager mgr = control.createMock(RMManager.class); 
+        EasyMock.expect(rme.getManager()).andReturn(mgr);
+        SequenceIdentifierGenerator generator = control.createMock(SequenceIdentifierGenerator.class);
+        EasyMock.expect(mgr.getIdGenerator()).andReturn(generator);
+        Identifier id = control.createMock(Identifier.class);
+        EasyMock.expect(generator.generateSequenceIdentifier()).andReturn(id);
+        control.replay();
+        AbstractEndpoint tested = new AbstractEndpoint(rme);
+        assertSame(id, tested.generateSequenceIdentifier());
+        control.verify();
+    }
 }

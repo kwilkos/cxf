@@ -21,6 +21,8 @@ package org.apache.cxf.ws.rm;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBException;
@@ -28,6 +30,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
@@ -48,10 +51,14 @@ import org.apache.cxf.ws.policy.EffectivePolicy;
 import org.apache.cxf.ws.policy.EndpointPolicy;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry;
+import org.apache.cxf.ws.rm.manager.SequenceTerminationPolicyType;
+import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 
 public class RMEndpoint {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(RMEndpoint.class);
     
     private static final QName SERVICE_NAME = 
         new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractService");
@@ -59,8 +66,7 @@ public class RMEndpoint {
          new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractPortType");
     private static final QName BINDING_NAME = 
         new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractSoapBinding");
-    private static final QName PORT_NAME = 
-        new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractSoapPort");
+
     private static final QName CREATE_PART_NAME =
         new QName(RMConstants.getWsdlNamespace(), "create");
     private static final QName CREATE_RESPONSE_PART_NAME =
@@ -172,6 +178,34 @@ public class RMEndpoint {
     } 
     
     /** 
+     * @return The time when last application message was received.
+     */
+    public long getLastApplicationMessage() {
+        return lastApplicationMessage;
+    }
+
+    /**
+     * Indicates that an application message has been received.
+     */
+    public void receivedApplicationMessage() {
+        lastApplicationMessage = System.currentTimeMillis();
+    }
+
+    /** 
+     * @return The time when last RM protocol message was received.
+     */
+    public long getLastControlMessage() {
+        return lastControlMessage;
+    }
+
+    /**
+     * Indicates that an RM protocol message has been received.
+     */
+    public void receivedControlMessage() {
+        lastControlMessage = System.currentTimeMillis();
+    }
+    
+    /** 
      * @return Returns the conduit.
      */
     public Conduit getConduit() {
@@ -226,7 +260,7 @@ public class RMEndpoint {
         
         ei.setAddress(aei.getAddress());
         
-        ei.setName(PORT_NAME);
+        ei.setName(RMConstants.getPortName());
         ei.setBinding(si.getBinding(BINDING_NAME));
 
         // if addressing was enabled on the application endpoint by means 
@@ -286,6 +320,8 @@ public class RMEndpoint {
         buildCreateSequenceOperationInfo(ii);
         buildTerminateSequenceOperationInfo(ii);
         buildSequenceAckOperationInfo(ii);
+        buildLastMessageOperationInfo(ii);
+        buildAckRequestedOperationInfo(ii);
         
         // TODO: FaultInfo (SequenceFault)
     }
@@ -353,6 +389,26 @@ public class RMEndpoint {
         messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
     }
+    
+    void buildLastMessageOperationInfo(InterfaceInfo ii) {
+
+        OperationInfo operationInfo = null;
+        MessageInfo messageInfo = null;
+
+        operationInfo = ii.addOperation(RMConstants.getLastMessageOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getLastMessageOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
+    }
+    
+    void buildAckRequestedOperationInfo(InterfaceInfo ii) {
+
+        OperationInfo operationInfo = null;
+        MessageInfo messageInfo = null;
+
+        operationInfo = ii.addOperation(RMConstants.getAckRequestedOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getAckRequestedOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
+    }
 
     void buildBindingInfo(ServiceInfo si) {
         // use same binding id as for application endpoint
@@ -382,6 +438,20 @@ public class RMEndpoint {
             assert null != boi;
             soi = new SoapOperationInfo();
             soi.setAction(RMConstants.getSequenceAckAction());
+            boi.addExtensor(soi);
+            bi.addOperation(boi);
+            
+            boi = bi.buildOperation(RMConstants.getLastMessageOperationName(), null, null);
+            assert null != boi;
+            soi = new SoapOperationInfo();
+            soi.setAction(RMConstants.getLastMessageAction());
+            boi.addExtensor(soi);
+            bi.addOperation(boi);
+            
+            boi = bi.buildOperation(RMConstants.getAckRequestedOperationName(), null, null);
+            assert null != boi;
+            soi = new SoapOperationInfo();
+            soi.setAction(RMConstants.getAckRequestedAction());
             boi.addExtensor(soi);
             bi.addOperation(boi);
             
@@ -450,20 +520,49 @@ public class RMEndpoint {
         manager = m;
     }
     
-    public long getLastApplicationMessage() {
-        return lastApplicationMessage;
-    }
-
-    public void receivedApplicationMessage() {
-        lastApplicationMessage = System.currentTimeMillis();
-    }
-
-    public long getLastControlMessage() {
-        return lastControlMessage;
-    }
-
-    public void receivedControlMessage() {
-        lastControlMessage = System.currentTimeMillis();
+    void shutdown() {
+        // cancel outstanding timer tasks (deferred acknowledgements)
+        // and scheduled termination for all
+        // destination sequences of this endpoint
+        
+        for (DestinationSequence ds : getDestination().getAllSequences()) {
+            ds.cancelDeferredAcknowledgments();
+            ds.cancelTermination();
+        }
+        
+        // try terminating sequences
+        SourcePolicyType sp = manager.getSourcePolicy();
+        SequenceTerminationPolicyType stp = null;
+        if (null != sp) {
+            stp = sp.getSequenceTerminationPolicy();
+        }
+        if (null != stp && stp.isTerminateOnShutdown()) {
+            
+            Collection<SourceSequence> seqs = source.getAllUnacknowledgedSequences();
+            LOG.log(Level.FINE, "Trying to terminate {0} sequences", seqs.size());
+            for (SourceSequence seq : seqs) {
+                try {
+                    // destination MUST respond with a 
+                    // sequence acknowledgement
+                    if (seq.isLastMessage()) {
+                        // REVISIT: this may be non-standard
+                        // getProxy().ackRequested(seq);
+                    } else {
+                        
+                        getProxy().lastMessage(seq);
+                    }
+                } catch (RMException ex) {
+                    // already logged
+                }
+            }
+        }     
+        
+        // cancel outstanding resends for all source sequences
+        // of this endpoint
+        
+        for (SourceSequence ss : getSource().getAllSequences()) {
+            manager.getRetransmissionQueue().stop(ss);
+        }
     }
     
     

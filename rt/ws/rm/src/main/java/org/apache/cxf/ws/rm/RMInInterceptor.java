@@ -79,12 +79,12 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         // for application AND out of band messages
         
         RMEndpoint rme = getManager().getReliableEndpoint(message);
+        Destination destination = getManager().getDestination(message);
         
-        if (isApplicationMessage) {            
-            Destination destination = getManager().getDestination(message);
+        if (isApplicationMessage) {                        
             if (null != rmps) {
-                processAcknowledgments(rmps);
-                processAcknowledgmentRequests(rmps);
+                processAcknowledgments(rme.getSource(), rmps);
+                processAcknowledgmentRequests(destination, message);
                 processSequence(destination, message);
                 processDeliveryAssurance(rmps);
             }
@@ -92,7 +92,9 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         } else {
             rme.receivedControlMessage();
             if (RMConstants.getSequenceAckAction().equals(action)) {
-                processAcknowledgments(rmps);
+                processAcknowledgments(rme.getSource(), rmps);
+            } else if (RMConstants.getLastMessageAction().equals(action)) {
+                processSequence(destination, message);
             } else if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
                 LOG.fine("Processing inbound CreateSequence on client side.");
                 Servant servant = rme.getServant();
@@ -106,13 +108,13 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         assertReliability(message);
     }
     
-    void processAcknowledgments(RMProperties rmps) throws SequenceFault, RMException {
+    void processAcknowledgments(Source source, RMProperties rmps) throws SequenceFault, RMException {
         
         Collection<SequenceAcknowledgement> acks = rmps.getAcks();
         if (null != acks) {
             for (SequenceAcknowledgement ack : acks) {
                 Identifier id = ack.getIdentifier();
-                SourceSequence ss = getManager().getSourceSequence(id);                
+                SourceSequence ss = source.getSequence(id);                
                 if (null != ss) {
                     ss.setAcknowledged(ack);
                 } else {
@@ -122,13 +124,13 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         }
     }
 
-    void processAcknowledgmentRequests(RMProperties rmps) {
-        // TODO
+    void processAcknowledgmentRequests(Destination destination, Message message) 
+        throws SequenceFault, RMException {
+        destination.ackRequested(message); 
     }
     
     void processSequence(Destination destination, Message message) 
         throws SequenceFault, RMException {
-
         destination.acknowledge(message);
     }
     

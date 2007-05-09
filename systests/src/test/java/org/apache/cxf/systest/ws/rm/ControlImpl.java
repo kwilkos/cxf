@@ -30,7 +30,6 @@ import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.ws.rm.RMManager;
 
 @WebService(serviceName = "ControlService", 
             portName = "ControlPort", 
@@ -39,24 +38,6 @@ import org.apache.cxf.ws.rm.RMManager;
 public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
     
     private static final Logger LOG = Logger.getLogger(ControlImpl.class.getName());
-    
-    @Override
-    public boolean stopGreeter(String requestType) {  
-        
-        if (null != endpoint) {
-            LOG.info("Stopping Greeter endpoint");
-            endpoint.stop();
-        } else {
-            LOG.info("No endpoint active.");
-        }
-        endpoint = null;
-        if (null != greeterBus) {
-            RMManager manager = greeterBus.getExtension(RMManager.class);
-            manager.shutdown();
-            greeterBus.shutdown(true);
-        }
-        return true;
-    }
 
     @Override
     public boolean startGreeter(String cfgResource) {

@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
  */
 public final class RMConstants {
    
+    // namespaces
     private static final String WSRM_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2005/02/rm";
     
@@ -46,6 +47,8 @@ public final class RMConstants {
         WSRM_NAMESPACE_NAME + "/wsdl";
     
   
+    // element and header names
+    
     private static final String WSRM_SEQUENCE_NAME =
         "Sequence";    
     
@@ -81,10 +84,12 @@ public final class RMConstants {
     private static final QName RMASSERTION_QNAME = 
         new QName(WSRMP_NAMESPACE_NAME, RMASSERTION_NAME);
       
-    /**
-     * The set of headers understood by the protocol binding.
-     */
     private static final Set<QName> HEADERS;
+    
+    // protocol operation names
+    
+    private static final QName WSRM_PORT_NAME =
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "SequenceAbstractSoapPort"); 
     
     private static final QName WSRM_CREATE_SEQUENCE_QNAME =
         new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequence");
@@ -103,7 +108,16 @@ public final class RMConstants {
     
     private static final QName WSRM_SEQUENCE_ACKNOWLEDGEMENT_QNAME =
         new QName(WSRM_WSDL_NAMESPACE_NAME, "SequenceAcknowledgement");
+    
+    private static final QName WSRM_LAST_MESSAGE_QNAME =
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "LastMessage");
+    
+    private static final QName WSRM_ACK_REQ_QNAME =
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "AckRequested");
+ 
 
+    // actions
+    
     private static final String WSRM_CREATE_SEQUENCE_ACTION =
         WSRM_NAMESPACE_NAME + "/CreateSequence";
     
@@ -119,11 +133,16 @@ public final class RMConstants {
     private static final String WSRM_LAST_MESSAGE_ACTION =
         WSRM_NAMESPACE_NAME + "/LastMessage";
     
+    private static final String WSRM_ACK_REQUESTED_ACTION =
+        WSRM_NAMESPACE_NAME + "/AckRequested";
+    
     private static final String WSRM_SEQUENCE_ACKNOWLEDGMENT_ACTION =
         WSRM_NAMESPACE_NAME + "/SequenceAcknowledgement";
     
     private static final String WSRM_SEQUENCE_INFO_ACTION =
         WSRM_NAMESPACE_NAME + "/SequenceInfo";
+    
+    // fault codes
     
     private static final String WSRM_UNKNOWN_SEQUENCE_FAULT_CODE =
         "UnknownSequence";
@@ -224,6 +243,10 @@ public final class RMConstants {
     
     // service model constants
     
+    public static QName getPortName() {
+        return WSRM_PORT_NAME;
+    }
+    
     public static QName getCreateSequenceOperationName() {
         return WSRM_CREATE_SEQUENCE_QNAME;
     }
@@ -248,6 +271,14 @@ public final class RMConstants {
         return WSRM_SEQUENCE_ACKNOWLEDGEMENT_QNAME;
     }
     
+    public static QName getLastMessageOperationName() {
+        return WSRM_LAST_MESSAGE_QNAME;
+    }
+    
+    public static QName getAckRequestedOperationName() {
+        return WSRM_ACK_REQ_QNAME;
+    }
+    
     // actions
     
     public static String getCreateSequenceAction() {
@@ -268,6 +299,10 @@ public final class RMConstants {
     
     public static String getLastMessageAction() {
         return WSRM_LAST_MESSAGE_ACTION;
+    }
+    
+    public static String getAckRequestedAction() {
+        return WSRM_ACK_REQUESTED_ACTION;
     }
     
     public static String getSequenceAcknowledgmentAction() {

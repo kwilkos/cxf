@@ -143,7 +143,7 @@ public class SourceSequence extends AbstractSequence {
             RMEndpoint rme = source.getReliableEndpoint();
             Proxy proxy = rme.getProxy();
             proxy.terminate(this);
-            source.getManager().removeSourceSequence(id);
+            source.removeSequence(this);
         }
     }
 
@@ -194,7 +194,7 @@ public class SourceSequence extends AbstractSequence {
      * @return the next message number.
      */
     BigInteger nextMessageNumber() {
-        return nextMessageNumber(null, null);
+        return nextMessageNumber(null, null, false);
     }
 
     /**
@@ -206,27 +206,22 @@ public class SourceSequence extends AbstractSequence {
      * 
      * @return the next message number.
      */
-    public BigInteger nextMessageNumber(Identifier inSeqId, BigInteger inMsgNumber) {
+    public BigInteger nextMessageNumber(Identifier inSeqId, BigInteger inMsgNumber, boolean last) {
         assert !lastMessage;
 
         BigInteger result = null;
         synchronized (this) {
             currentMessageNumber = currentMessageNumber.add(BigInteger.ONE);
-            checkLastMessage(inSeqId, inMsgNumber);
+            if (last) {
+                lastMessage = true;
+            } else { 
+                checkLastMessage(inSeqId, inMsgNumber);
+            } 
             result = currentMessageNumber;
         }
         return result;
     }
-
-    void nextAndLastMessageNumber() {
-        assert !lastMessage;
-
-        synchronized (this) {
-            currentMessageNumber = currentMessageNumber.add(BigInteger.ONE);
-            lastMessage = true;
-        }
-    }
-
+    
     SequenceAcknowledgement getAcknowledgement() {
         return acknowledgement;
     }

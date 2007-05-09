@@ -91,7 +91,7 @@ public class DestinationTest extends Assert {
         store.removeDestinationSequence(id);
         EasyMock.expectLastCall();
         control.replay();
-        destination.addSequence(ds, true);
+        destination.addSequence(ds);
         assertEquals(1, destination.getAllSequences().size());
         assertSame(ds, destination.getSequence(id));
         destination.removeSequence(ds);
@@ -175,7 +175,8 @@ public class DestinationTest extends Assert {
         BigInteger nr = BigInteger.TEN;
         EasyMock.expect(st.getMessageNumber()).andReturn(nr).times(2);
         DestinationSequence ds = control.createMock(DestinationSequence.class);
-        EasyMock.expect(destination.getSequence(id)).andReturn(ds);   
+        EasyMock.expect(destination.getSequence(id)).andReturn(ds);
+        
         ds.applyDeliveryAssurance(nr);
         EasyMock.expectLastCall();
         ds.acknowledge(message);

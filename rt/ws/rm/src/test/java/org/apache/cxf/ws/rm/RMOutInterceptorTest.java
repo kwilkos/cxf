@@ -135,7 +135,7 @@ public class RMOutInterceptorTest extends Assert {
         EasyMock.expect(manager.getSequence((Identifier)EasyMock.isNull(), EasyMock.same(message), 
                                         EasyMock.same(maps))).andReturn(sseq);
         EasyMock.expect(sseq.nextMessageNumber((Identifier)EasyMock.isNull(), 
-            (BigInteger)EasyMock.isNull())).andReturn(BigInteger.TEN);
+            (BigInteger)EasyMock.isNull(), EasyMock.eq(false))).andReturn(BigInteger.TEN);
         EasyMock.expect(sseq.isLastMessage()).andReturn(false).times(2);
         interceptor.addAcknowledgements(EasyMock.same(destination), EasyMock.same(rmpsOut), 
             (Identifier)EasyMock.isNull(), EasyMock.isA(AttributedURI.class));

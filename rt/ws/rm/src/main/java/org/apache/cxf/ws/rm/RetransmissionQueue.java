@@ -63,7 +63,7 @@ public interface RetransmissionQueue {
     /**
      * Stops retransmission queue.
      */
-    void stop();
+    void stop(SourceSequence seq);
     
     /**
      * Populates the retransmission queue with messages recovered from

@@ -131,6 +131,46 @@ public class ProxyTest extends Assert {
         proxy.acknowledge(ds);      
     }
     
+    @Test
+    public void testLastMessage() throws NoSuchMethodException, RMException {
+        Method m = Proxy.class.getDeclaredMethod("invoke", 
+            new Class[] {OperationInfo.class, Object[].class, Map.class});
+        Proxy proxy = control.createMock(Proxy.class, new Method[] {m});
+        proxy.setReliableEndpoint(rme);
+        SourceSequence ss = control.createMock(SourceSequence.class);
+        EasyMock.expect(ss.getTarget()).andReturn(null);
+        control.replay();
+        proxy.lastMessage(ss);
+        control.verify();
+        
+        control.reset();
+        org.apache.cxf.ws.addressing.EndpointReferenceType target
+            = RMUtils.createAnonymousReference();
+        EasyMock.expect(ss.getTarget()).andReturn(target);
+        control.replay();
+        proxy.lastMessage(ss);
+        control.verify();
+        
+        control.reset();
+        target = RMUtils.createReference("http://localhost:9000/greeterPort");
+        EasyMock.expect(ss.getTarget()).andReturn(target);
+        Endpoint endpoint = control.createMock(Endpoint.class);
+        EasyMock.expect(rme.getEndpoint()).andReturn(endpoint);
+        EndpointInfo epi = control.createMock(EndpointInfo.class);
+        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);
+        ServiceInfo si = control.createMock(ServiceInfo.class);
+        EasyMock.expect(epi.getService()).andReturn(si);
+        InterfaceInfo ii = control.createMock(InterfaceInfo.class);
+        EasyMock.expect(si.getInterface()).andReturn(ii);
+        OperationInfo oi = control.createMock(OperationInfo.class);
+        EasyMock.expect(ii.getOperation(RMConstants.getLastMessageOperationName())).andReturn(oi);
+        expectInvoke(proxy, oi, null);
+        control.replay();
+        
+        proxy.lastMessage(ss);
+        
+    }
+    
     @Test    
     public void testTerminate() throws NoSuchMethodException, RMException {
         Method m = Proxy.class.getDeclaredMethod("invoke", 

@@ -114,6 +114,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     private boolean doTestMultiClientOneway = testAll;
     private boolean doTestMultiClientTwoway = testAll;
     private boolean doTestServerSideMessageLoss = testAll;
+    private boolean doTestTerminateOnShutdown = testAll;
 
     @BeforeClass
     public static void startServers() throws Exception {
@@ -1220,6 +1221,47 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
     
     
+    @Test
+    public void testTerminateOnShutdown() throws Exception {
+        if (!doTestTerminateOnShutdown) {
+            return;
+        }
+        init("org/apache/cxf/systest/ws/rm/terminate-on-shutdown.xml", true);
+        
+        greeter.greetMeOneWay("neutrophil");
+        greeter.greetMeOneWay("basophil");
+        greeter.greetMeOneWay("eosinophil");
+        stopGreeter();
+
+        awaitMessages(6, 8);
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        mf.verifyMessages(6, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, 
+                                                 GREETMEONEWAY_ACTION,
+                                                 RMConstants.getLastMessageAction(),
+                                                 RMConstants.getTerminateSequenceAction()};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4", null}, true);
+        
+        // inbound: CreateSequenceResponse, out-of-band SequenceAcknowledgement
+        // plus 6 partial responses
+        
+        mf.verifyMessages(8, false);
+        mf.verifyMessageNumbers(new String[8], false);
+        
+        mf.verifyPartialResponses(6);
+        mf.purgePartialResponses();
+        
+        
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                        RMConstants.getSequenceAckAction()};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true}, false);
+        
+    }    
 
     // --- test utilities ---
 
@@ -1287,10 +1329,9 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
     
     private void stopGreeter() {
-        if (null != greeter) {                       
-            RMManager manager = greeterBus.getExtension(RMManager.class);
-            manager.shutdown();
+        if (null != greeterBus) {                       
             greeterBus.shutdown(true);
+            greeter = null;
             greeterBus = null;
         }
     }

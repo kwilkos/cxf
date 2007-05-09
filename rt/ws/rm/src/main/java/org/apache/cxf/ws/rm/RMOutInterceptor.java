@@ -44,14 +44,12 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         addAfter(MAPAggregator.class.getName());
     }
     
-    protected void handle(Message message) throws SequenceFault, RMException {
-        LOG.entering(getClass().getName(), "handleMessage");
-        
+    protected void handle(Message message) throws SequenceFault, RMException {  
         if (isRuntimeFault(message)) {
             LogUtils.log(LOG, Level.WARNING, "RUNTIME_FAULT_MSG");
             // TODO: in case of a SequenceFault need to set action
             // to http://schemas.xmlsoap.org/ws/2004/a08/addressing/fault
-            // but: need to defer propagation of received MAPS to oubound chain            
+            // but: need to defer propagation of received MAPS to outbound chain first           
             return;
         }
        
@@ -78,8 +76,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
 
         boolean isApplicationMessage = !RMContextUtils.isRMProtocolMessage(action);
         boolean isPartialResponse = MessageUtils.isPartialResponse(message);
-        LOG.fine("isApplicationMessage: " + isApplicationMessage);
-        LOG.fine("isPartialResponse: " + isPartialResponse);
+        boolean isLastMessage = RMConstants.getLastMessageAction().equals(action);
         
         if (isApplicationMessage && !isPartialResponse) {
             RetransmissionInterceptor ri = new RetransmissionInterceptor();
@@ -113,7 +110,8 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             }
         }
         
-        if (isApplicationMessage && !isPartialResponse) {
+        if ((isApplicationMessage || isLastMessage)
+            && !isPartialResponse) {
       
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
@@ -128,7 +126,8 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
                 // increase message number and store a sequence type object in
                 // context
 
-                seq.nextMessageNumber(inSeqId, inMessageNumber);
+                seq.nextMessageNumber(inSeqId, inMessageNumber, isLastMessage);
+                
                 rmpsOut.setSequence(seq);
 
                 // if this was the last message in the sequence, reset the
@@ -197,7 +196,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         if (LOG.isLoggable(Level.FINE)) {
             Collection<SequenceAcknowledgement> acks = rmpsOut.getAcks();
             if (null == acks) {
-                LOG.fine("No acknowledgements added");
+                LOG.fine("No acknowledgements added.");
             } else {
                 LOG.fine("Added " + acks.size() + " acknowledgements.");
             }

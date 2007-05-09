@@ -311,7 +311,7 @@ public class SourceSequenceTest extends Assert {
         
         seq = new SourceSequence(id, null, did);  
         seq.setSource(source);        
-        seq.nextMessageNumber(did, BigInteger.ONE);
+        seq.nextMessageNumber(did, BigInteger.ONE, false);
         assertTrue(seq.isLastMessage());
         
         control.verify();

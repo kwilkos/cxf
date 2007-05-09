@@ -81,7 +81,6 @@ public class RetransmissionQueueImplTest extends Assert {
     @After
     public void tearDown() {
         control.verify();
-        queue.stop();
         messages.clear();
         properties.clear();
         sequences.clear();
@@ -292,7 +291,6 @@ public class RetransmissionQueueImplTest extends Assert {
     public void testStartStop() {
         control.replay();
         queue.start();
-        queue.stop();
     }
     
     private Message setUpMessage(String sid) {

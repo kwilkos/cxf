@@ -181,9 +181,6 @@ public class DestinationSequence extends AbstractSequence {
     
     void mergeRanges() {
         List<AcknowledgementRange> ranges = acknowledgement.getAcknowledgementRange();
-        if (null == ranges) {
-            return;
-        }
         for (int i = ranges.size() - 1; i > 0; i--) {
             AcknowledgementRange current = ranges.get(i);
             AcknowledgementRange previous = ranges.get(i - 1);
@@ -351,6 +348,12 @@ public class DestinationSequence extends AbstractSequence {
         for (int i = deferredAcknowledgments.size() - 1; i >= 0; i--) {
             DeferredAcknowledgment da = deferredAcknowledgments.get(i);
             da.cancel();
+        }
+    }
+    
+    synchronized void cancelTermination() {
+        if (null != scheduledTermination) {
+            scheduledTermination.cancel();
         }
     }
 

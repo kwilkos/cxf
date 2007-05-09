@@ -473,6 +473,8 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             boi = bi.getOperation(RMConstants.getSequenceAckOperationName()); 
         } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
             boi = bi.getOperation(RMConstants.getTerminateSequenceOperationName()); 
+        } else if (RMConstants.getLastMessageAction().equals(action)) {
+            boi = bi.getOperation(RMConstants.getLastMessageOperationName()); 
         }
         assert boi != null;
         exchange.put(BindingOperationInfo.class, boi);

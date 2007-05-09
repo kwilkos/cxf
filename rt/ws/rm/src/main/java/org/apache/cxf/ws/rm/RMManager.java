@@ -35,6 +35,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.endpoint.ServerLifeCycleListener;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
@@ -63,8 +65,25 @@ public class RMManager extends RMManagerConfigBean {
     private SequenceIdentifierGenerator idGenerator;
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
-    private Map<String, SourceSequence> sourceSequences;
     private Timer timer = new Timer(true);
+    private final ServerLifeCycleListener serverLifeCycleListener;
+
+    public RMManager() {
+        serverLifeCycleListener = new ServerLifeCycleListener() {
+
+            public void startServer(Server server) {
+            }
+
+            public void stopServer(Server server) {
+                RMManager.this.shutdownReliableEndpoint(server.getEndpoint());
+            }
+            
+        };        
+    }
+    
+    public ServerLifeCycleListener getServerLifeCycleListener() {
+        return serverLifeCycleListener;
+    }
 
     public Bus getBus() {
         return bus;
@@ -116,18 +135,17 @@ public class RMManager extends RMManagerConfigBean {
 
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
         Endpoint endpoint = message.getExchange().get(Endpoint.class);
+        QName name = endpoint.getEndpointInfo().getName();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Getting RMEndpoint for endpoint with info: " + endpoint.getEndpointInfo().getName());
+            LOG.fine("Getting RMEndpoint for endpoint with info: " + name);
         }
-        if (endpoint.getEndpointInfo().getName().equals(
-                                                        new QName(RMConstants.getWsdlNamespace(),
-                                                                  "SequenceAbstractSoapPort"))) {
+        if (name.equals(RMConstants.getPortName())) {
             WrappedEndpoint wrappedEndpoint = (WrappedEndpoint)endpoint;
             endpoint = wrappedEndpoint.getWrappedEndpoint();
         }
         RMEndpoint rme = reliableEndpoints.get(endpoint);
         if (null == rme) {
-            rme = new RMEndpoint(this, endpoint);
+            rme = createReliableEndpoint(this, endpoint);
             org.apache.cxf.transport.Destination destination = message.getExchange().getDestination();
             org.apache.cxf.ws.addressing.EndpointReferenceType replyTo = null;
             if (null != destination) {
@@ -147,10 +165,6 @@ public class RMManager extends RMManagerConfigBean {
             return rme.getDestination();
         }
         return null;
-    }
-
-    public SourceSequence getSourceSequence(Identifier id) {
-        return sourceSequences.get(id.getValue());
     }
 
     public Source getSource(Message message) {
@@ -210,27 +224,41 @@ public class RMManager extends RMManagerConfigBean {
         }
 
         return seq;
-    }
+    }    
 
     @PreDestroy
     public void shutdown() {
-        // shutdown retransmission queue
-        if (null != retransmissionQueue) {
-            retransmissionQueue.stop();
-        }
-
-        // cancel outstanding timer tasks (deferred acknowledgements) for all
-        // destination sequences
+        
+        // shutdown remaining endpoints 
+        
         for (RMEndpoint rme : reliableEndpoints.values()) {
-            for (DestinationSequence ds : rme.getDestination().getAllSequences()) {
-                ds.cancelDeferredAcknowledgments();
-            }
+            rme.shutdown();
         }
 
         // remove references to timer tasks cancelled above to make them
         // eligible for garbage collection
         timer.purge();
         timer.cancel();
+    }
+    
+    synchronized void shutdownReliableEndpoint(Endpoint e) {
+        RMEndpoint rme = reliableEndpoints.get(e);
+        if (null == rme) {
+            // not interested
+            return;
+        }
+        
+        rme.shutdown();        
+        
+        // remove references to timer tasks cancelled above to make them
+        // eligible for garbage collection
+        timer.purge();
+        
+        reliableEndpoints.remove(e);
+    }
+    
+    RMEndpoint createReliableEndpoint(RMManager manager, Endpoint endpoint) {
+        return new RMEndpoint(manager, endpoint);
     }
 
     @PostConstruct
@@ -245,13 +273,9 @@ public class RMManager extends RMManagerConfigBean {
             setDeliveryAssurance(da);
         }
         if (!isSetSourcePolicy()) {
-            SourcePolicyType sp = factory.createSourcePolicyType();
-            setSourcePolicy(sp);
+            setSourcePolicy(null);
 
-        }
-        if (!getSourcePolicy().isSetSequenceTerminationPolicy()) {
-            getSourcePolicy().setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
-        }
+        }       
         if (!isSetDestinationPolicy()) {
             DestinationPolicyType dp = factory.createDestinationPolicyType();
             dp.setAcksPolicy(factory.createAcksPolicyType());
@@ -285,17 +309,25 @@ public class RMManager extends RMManagerConfigBean {
         super.setRMAssertion(rma);
     }
 
-    void addSourceSequence(SourceSequence ss) {
-        if (null == sourceSequences) {
-            sourceSequences = new HashMap<String, SourceSequence>();
+    
+    @Override
+    public void setSourcePolicy(SourcePolicyType sp) {
+        org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
+        if (null == sp) {
+            sp = factory.createSourcePolicyType();
         }
-        sourceSequences.put(ss.getIdentifier().getValue(), ss);
+        if (!sp.isSetSequenceTerminationPolicy()) {
+            sp.setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
+        }
+        super.setSourcePolicy(sp);
     }
 
-    void removeSourceSequence(Identifier id) {
-        if (null != sourceSequences) {
-            sourceSequences.remove(id.getValue());
-        }
+    Map<Endpoint, RMEndpoint> getReliableEndpointsMap() {
+        return reliableEndpoints;
+    }
+    
+    void setReliableEndpointsMap(Map<Endpoint, RMEndpoint> map) {
+        reliableEndpoints = map;
     }
 
     class DefaultSequenceIdentifierGenerator implements SequenceIdentifierGenerator {

@@ -87,6 +87,7 @@ public class Destination extends AbstractEndpoint {
         if (null == sequenceType) {
             return;
         }
+        
         DestinationSequence seq = getSequence(sequenceType.getIdentifier());
 
         if (null != seq) {
@@ -94,29 +95,49 @@ public class Destination extends AbstractEndpoint {
             seq.acknowledge(message);
 
             if (null != sequenceType.getLastMessage()) {
-
                 seq.setLastMessageNumber(sequenceType.getMessageNumber());
-
-                seq.scheduleImmediateAcknowledgement();
-
-                // if we cannot expect an outgoing message to which the
-                // acknowledgement
-                // can be added we need to send an out-of-band
-                // SequenceAcknowledgement message
-
-                AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
-                String replyToAddress = null;
-                if (null != maps.getReplyTo()) {
-                    replyToAddress = maps.getReplyTo().getAddress().getValue();
-                }
-                if (!(seq.getAcksTo().getAddress().getValue().equals(replyToAddress) || seq
-                    .canPiggybackAckOnPartialResponse())) {                    
-                    getReliableEndpoint().getProxy().acknowledge(seq);                    
-                }
+                ackImmediately(seq, message);
             }
         } else {
             SequenceFaultFactory sff = new SequenceFaultFactory();
             throw sff.createUnknownSequenceFault(sequenceType.getIdentifier());
+        }
+    }
+    
+    void ackRequested(Message message) throws SequenceFault, RMException {
+        // TODO
+        Collection<AckRequestedType> ars = RMContextUtils.retrieveRMProperties(message, false)
+            .getAcksRequested();
+        if (null == ars) {
+            return;
+        }
+        for (AckRequestedType ar : ars) {
+            Identifier id = ar.getIdentifier();
+            DestinationSequence seq = getSequence(id);
+            if (null == seq) {
+                continue;
+            }
+            ackImmediately(seq, message);
+        }
+    }
+    
+    void ackImmediately(DestinationSequence seq, Message message) throws RMException {
+        
+        seq.scheduleImmediateAcknowledgement();
+
+        // if we cannot expect an outgoing message to which the
+        // acknowledgement
+        // can be added we need to send an out-of-band
+        // SequenceAcknowledgement message
+
+        AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
+        String replyToAddress = null;
+        if (null != maps.getReplyTo()) {
+            replyToAddress = maps.getReplyTo().getAddress().getValue();
+        }
+        if (!(seq.getAcksTo().getAddress().getValue().equals(replyToAddress) || seq
+            .canPiggybackAckOnPartialResponse())) { 
+            getReliableEndpoint().getProxy().acknowledge(seq);                    
         }
     }
 

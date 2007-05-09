@@ -76,7 +76,27 @@ public class AbstractRMInterceptorTest extends Assert {
     }
     
     @Test
-    public void testHandleMessage() {
+    public void testHandleMessageSequenceFaultNoBinding() {
+        RMInterceptor interceptor = new RMInterceptor();
+        Message message = control.createMock(Message.class);
+        SequenceFault sf = control.createMock(SequenceFault.class);
+        interceptor.setSequenceFault(sf);
+        Exchange ex = control.createMock(Exchange.class);
+        EasyMock.expect(message.getExchange()).andReturn(ex);
+        Endpoint e = control.createMock(Endpoint.class);
+        EasyMock.expect(ex.get(Endpoint.class)).andReturn(e);
+        EasyMock.expect(e.getBinding()).andReturn(null);
+        control.replay();
+        try {
+            interceptor.handleMessage(message);
+            fail("Expected Fault not thrown.");
+        } catch (Fault f) {
+            assertSame(sf, f.getCause());            
+        }
+    }
+    
+    @Test
+    public void testHandleMessageSequenceFault() {
         RMInterceptor interceptor = new RMInterceptor();
         Message message = control.createMock(Message.class);
         SequenceFault sf = control.createMock(SequenceFault.class);
@@ -101,7 +121,21 @@ public class AbstractRMInterceptorTest extends Assert {
         } catch (Fault f) {
             assertSame(f, fault);            
         }
-        control.verify();
+    }
+    
+    @Test
+    public void testHandleMessageRMException() {
+        RMInterceptor interceptor = new RMInterceptor();
+        Message message = control.createMock(Message.class);
+        RMException rme = control.createMock(RMException.class);      
+        interceptor.setRMException(rme);
+        control.replay();
+        try {
+            interceptor.handleMessage(message);
+            fail("Expected Fault not thrown.");
+        } catch (Fault f) {
+            assertSame(rme, f.getCause());            
+        }
     }
     
     @Test
@@ -122,21 +156,29 @@ public class AbstractRMInterceptorTest extends Assert {
         interceptor.assertReliability(message);
         assertTrue(!ai.isAsserted());
         ais.add(ai);
-        interceptor.assertReliability(message);     
+        interceptor.assertReliability(message);   
+        
     }
 
     class RMInterceptor extends AbstractRMInterceptor {
 
         private SequenceFault sequenceFault;
+        private RMException rmException;
         
         void setSequenceFault(SequenceFault sf) {
             sequenceFault = sf;
         }
         
+        void setRMException(RMException rme) {
+            rmException = rme;
+        }
+        
         @Override
-        protected void handle(Message msg) throws SequenceFault {
+        protected void handle(Message msg) throws SequenceFault, RMException {
             if (null != sequenceFault) { 
                 throw sequenceFault;
+            } else if (null != rmException) {
+                throw rmException;
             }
         }     
     }
