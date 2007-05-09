@@ -19,41 +19,19 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.tools.common.VelocityGenerator;
 import org.apache.cxf.tools.common.model.JavaClass;
-import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.RequestWrapper;
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.ResponseWrapper;
-import org.apache.cxf.tools.util.Compiler;
-import org.apache.cxf.tools.util.FileWriterUtil;
 
-public final class WrapperBeanGenerator extends AbstractGenerator<File> {
-    private File compileToDir;
-    
-    public File generate(final File sourcedir) {
-        File dir = getOutputBase();
-        if (dir == null) {
-            dir = sourcedir;
-        }
-        if (dir == null) {
-            dir = new File("./");
-        }
-        generateWrapperBeanClasses(getServiceModel(), dir);
-        return dir;
-    }
-    
-    public void setCompileToDir(File f) {
-        compileToDir = f;
-    }
-
-    private void generateWrapperBeanClasses(final ServiceInfo serviceInfo, final File dir) {
-        List<JavaClass> wrapperClasses = new ArrayList<JavaClass>();
+public final class WrapperBeanGenerator extends BeanGenerator {
+    protected Collection<JavaClass> generateBeanClasses(final ServiceInfo serviceInfo) {
+        Collection<JavaClass> wrapperClasses = new HashSet<JavaClass>();
         
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
@@ -77,50 +55,6 @@ public final class WrapperBeanGenerator extends AbstractGenerator<File> {
                 }
             }
         }
-
-        if (wrapperClasses.isEmpty()) {
-            return;
-        }
-
-        String templateName = "org/apache/cxf/tools/java2wsdl/generator/wsdl11/wrapperbean.vm";
-        VelocityGenerator generator = new VelocityGenerator();
-        generator.setBaseDir(dir.toString());
-
-        List<File> generatedFiles = new ArrayList<File>();
-        try {
-            for (JavaClass wrapperClass : wrapperClasses) {
-                generator.setCommonAttributes();
-                generator.setAttributes("bean", wrapperClass);
-            
-                File file = generator.parseOutputName(wrapperClass.getPackageName(),
-                                                      wrapperClass.getName());
-                generatedFiles.add(file);
-            
-                generator.doWrite(templateName, FileWriterUtil.getWriter(file));
-            
-                generator.clearAttributes();
-            }
-        
-
-            if (compileToDir != null) {
-                //compile the classes
-                Compiler compiler = new Compiler();
-
-                List<String> files = new ArrayList<String>(generatedFiles.size());
-                for (File file : generatedFiles) {
-                    files.add(file.getAbsolutePath());
-                }
-                if (!compiler.compileFiles(files.toArray(new String[files.size()]),
-                                           compileToDir)) {
-                    //TODO - compile issue
-                }
-
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
+        return wrapperClasses;
     }
-    
 }

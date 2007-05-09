@@ -165,13 +165,19 @@ public class ProcessorTestBase extends Assert {
 
         String rtn = result.toString();
 
-        //remove Apache header
-        int headerIndexStart = rtn.indexOf("<!--");
-        int headerIndexEnd = rtn.indexOf("-->");
-        if (headerIndexStart != -1 && headerIndexEnd != -1 && headerIndexStart < headerIndexEnd) {
-            rtn = rtn.substring(0, headerIndexStart - 1) + rtn.substring(headerIndexEnd + 4);
-        }
+        rtn = ignoreTokens(rtn, "<!--", "-->");
+        rtn = ignoreTokens(rtn, "/*", "*/");
+        return rtn;
+    }
 
+    private String ignoreTokens(final String contents, final String startToken, final String endToken) {
+        String rtn = contents;
+        int headerIndexStart = rtn.indexOf(startToken);
+        int headerIndexEnd = rtn.indexOf(endToken);
+        if (headerIndexStart != -1 && headerIndexEnd != -1 && headerIndexStart < headerIndexEnd) {
+            rtn = rtn.substring(0, headerIndexStart - 1)
+                + rtn.substring(headerIndexEnd + endToken.length() + 1);
+        }
         return rtn;
     }
 }
