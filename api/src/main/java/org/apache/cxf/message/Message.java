@@ -104,5 +104,13 @@ public interface Message extends StringMap {
      */
     Set<Class<?>> getContentFormats();
     
+    /**
+     * Removes a content from a message.  If some contents are completely consumed,
+     * removing them is a good idea
+     * @param format the format to remove
+     */
+    <T> void removeContent(Class<T> format);
+    
+    
     Object getContextualProperty(String key);   
 }

@@ -101,6 +101,10 @@ public class SOAPHandlerInterceptor extends
                 public String getPhase() {
                     return Phase.USER_PROTOCOL;
                 }
+                @Override
+                public String getId() {
+                    return SOAPHandlerInterceptor.class.getName() + ".ENDING";
+                }
 
                 public void handleMessage(SoapMessage message) throws Fault {
                     handleMessageInternal(message);
@@ -153,7 +157,7 @@ public class SOAPHandlerInterceptor extends
                 //so the idea of starting interceptor chain from any specified point does not work
                 //well for outbound case, as many outbound interceptors have their ending interceptors.
                 //For example, we can not skip MessageSenderInterceptor.               
-                chain.doIntercept(responseMsg, SoapActionInterceptor.class.getName());
+                chain.doInterceptStartingAfter(responseMsg, SoapActionInterceptor.class.getName());
             } 
         }  
         onCompletion(message);

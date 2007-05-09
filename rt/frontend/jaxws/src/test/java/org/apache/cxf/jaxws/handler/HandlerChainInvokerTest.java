@@ -44,6 +44,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
 import org.apache.cxf.jaxws.handler.soap.SOAPMessageContextImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -190,13 +191,20 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.isInbound());
         assertFalse(continueProcessing);
 
+        protocolHandlers[2].setHandleMessageRet(true);
+        invoker.setProtocolMessageContext(pmc);
+        continueProcessing = invoker.invokeProtocolHandlers(false, pmc);
+        invoker.setLogicalMessageContext(lmc);
+        continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+
+        
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(2, logicalHandlers[1].getHandleMessageCount());
         assertEquals(2, logicalHandlers[2].getHandleMessageCount());
         assertEquals(2, logicalHandlers[3].getHandleMessageCount());
         assertEquals(2, protocolHandlers[0].getHandleMessageCount());
         assertEquals(2, protocolHandlers[1].getHandleMessageCount());
-        assertEquals(1, protocolHandlers[2].getHandleMessageCount());
+        assertEquals(2, protocolHandlers[2].getHandleMessageCount());
         assertEquals(0, protocolHandlers[3].getHandleMessageCount());
         assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
                    < logicalHandlers[2].getInvokeOrderOfHandleMessage());
@@ -259,7 +267,7 @@ public class HandlerChainInvokerTest extends TestCase {
         
         //the message is replaced by fault message
         Source responseMessage = lmc.getMessage().getPayload();
-        System.out.println(getSourceAsString(responseMessage));
+        //System.out.println(getSourceAsString(responseMessage));
         assertTrue(getSourceAsString(responseMessage).indexOf("banzai") > -1);
 
         //assertFalse(continueProcessing);
@@ -430,10 +438,18 @@ public class HandlerChainInvokerTest extends TestCase {
         assertFalse(continueProcessing);
         
         assertFalse((Boolean)lmc.get(LogicalMessageContext.MESSAGE_OUTBOUND_PROPERTY));
+
+        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[3].getHandleMessageCount());
+
+        logicalHandlers[2].setHandleMessageRet(true);
+        invoker.invokeLogicalHandlers(false, lmc);
         
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(2, logicalHandlers[1].getHandleMessageCount());
-        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[2].getHandleMessageCount());
         assertEquals(0, logicalHandlers[3].getHandleMessageCount());
         assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
                    < logicalHandlers[2].getInvokeOrderOfHandleMessage());
@@ -885,17 +901,19 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1]));
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
-        assertEquals(2, protocolHandlers[0].getHandleMessageCount());
-
-        assertEquals(2, protocolHandlers[1].getHandleMessageCount());
-
-        // now, invoke handlers on outbound leg
+        
+        logicalHandlers[1].setHandleMessageRet(true);
         invoker.invokeLogicalHandlers(true, lmc);
+        invoker.invokeProtocolHandlers(true, pmc);
+        
+        
+        assertEquals(2, protocolHandlers[0].getHandleMessageCount());
+        assertEquals(2, protocolHandlers[1].getHandleMessageCount());
 
         assertEquals(2, logicalHandlers[1].getHandleMessageCount());
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
-        assertEquals(3, protocolHandlers[0].getHandleMessageCount());
-        assertEquals(3, protocolHandlers[1].getHandleMessageCount());
+        assertEquals(2, protocolHandlers[0].getHandleMessageCount());
+        assertEquals(2, protocolHandlers[1].getHandleMessageCount());
 
     }
 

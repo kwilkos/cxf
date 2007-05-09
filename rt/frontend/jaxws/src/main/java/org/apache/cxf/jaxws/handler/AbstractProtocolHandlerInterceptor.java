@@ -47,10 +47,5 @@ public abstract class AbstractProtocolHandlerInterceptor<T extends Message>
     protected MessageContext createProtocolMessageContext(Message message) {
         return new WrappedMessageContext(message);
     }
-    
-    public void onCompletion(T message) {
-        if (isOutbound(message)) {
-            getInvoker(message).mepComplete(message);
-        }
-    }
+
 }

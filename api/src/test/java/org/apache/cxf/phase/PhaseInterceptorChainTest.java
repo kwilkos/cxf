@@ -318,7 +318,7 @@ public class PhaseInterceptorChainTest extends Assert {
         chain.add(p1);
         chain.add(p2);
         chain.add(p3);
-        chain.doIntercept(message, p2.getId());
+        chain.doInterceptStartingAfter(message, p2.getId());
         assertEquals(0, p1.invoked);
         assertEquals(0, p2.invoked);
         assertEquals(1, p3.invoked);

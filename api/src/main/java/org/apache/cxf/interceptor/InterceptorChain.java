@@ -35,6 +35,7 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     };
     
     String STARTING_AFTER_INTERCEPTOR_ID = "starting_after_interceptor_id";
+    String STARTING_AT_INTERCEPTOR_ID = "starting_at_interceptor_id";
     
     void add(Interceptor i);
     
@@ -44,8 +45,10 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     
     boolean doIntercept(Message message);
     
-    boolean doIntercept(Message message, String startingAfterInterceptorID);
-  
+    boolean doInterceptStartingAfter(Message message, String startingAfterInterceptorID);
+
+    boolean doInterceptStartingAt(Message message, String startingAtInterceptorID);
+
     void pause();
     
     void resume();

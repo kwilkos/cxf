@@ -363,10 +363,14 @@ public class ClientImpl
         
         // execute chain
         try {
-            String startingInterceptorID = (String) message.get(
+            String startingAfterInterceptorID = (String) message.get(
                 PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID);
-            if (startingInterceptorID != null) {
-                chain.doIntercept(message, startingInterceptorID);
+            String startingInterceptorID = (String) message.get(
+                PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID);
+            if (startingAfterInterceptorID != null) {
+                chain.doInterceptStartingAfter(message, startingAfterInterceptorID);
+            } else if (startingInterceptorID != null) {
+                chain.doInterceptStartingAt(message, startingInterceptorID);
             } else {
                 chain.doIntercept(message);
             }

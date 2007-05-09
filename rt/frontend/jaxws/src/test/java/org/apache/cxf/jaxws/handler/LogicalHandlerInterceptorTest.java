@@ -31,6 +31,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -85,8 +86,8 @@ public class LogicalHandlerInterceptorTest extends TestCase {
             .andReturn(true);
 
         control.replay();
-        LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(binding);
-        assertEquals("unexpected phase", "user-logical", li.getPhase());
+        LogicalHandlerInInterceptor<Message> li = new LogicalHandlerInInterceptor<Message>(binding);
+        assertEquals("unexpected phase", "pre-protocol", li.getPhase());
         li.handleMessage(message);
         control.verify();
     }
@@ -132,7 +133,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
 
         control1.replay();
 
-        LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(binding1);
+        LogicalHandlerInInterceptor<Message> li = new LogicalHandlerInInterceptor<Message>(binding1);
         li.handleMessage(outMessage);
         control1.verify();
     }

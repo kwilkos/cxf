@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.Source;
 import javax.xml.ws.LogicalMessage;
@@ -34,6 +35,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.apache.handlers.types.AddNumbers;
 import org.apache.handlers.types.AddNumbersResponse;
+import org.apache.handlers.types.ObjectFactory;
 
 
 /**
@@ -69,8 +71,11 @@ public class SmallNumberHandler extends TestHandlerBase implements LogicalHandle
 
                 // check the payload, if its an AddNumbers request, we'll intervene
                 //
-                JAXBContext jaxbContext = JAXBContext.newInstance(AddNumbers.class);
+                JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
                 Object payload = msg.getPayload(jaxbContext);
+                if (payload instanceof JAXBElement) {
+                    payload = ((JAXBElement)payload).getValue();
+                }
 
                 if (payload instanceof AddNumbers) {
                     AddNumbers req = (AddNumbers)payload;
@@ -86,13 +91,21 @@ public class SmallNumberHandler extends TestHandlerBase implements LogicalHandle
                         //System.out.printf("SmallNumberHandler addNumbers(%d, %d) == %d\n", a, b, answer);
                         // ok, we've done the calculation, so build the
                         // response and set it as the payload of the message
+                        
                         AddNumbersResponse resp = new AddNumbersResponse();
                         resp.setReturn(answer);
-                        msg.setPayload(resp, jaxbContext);
+                        msg.setPayload(new ObjectFactory().createAddNumbersResponse(resp),
+                                       jaxbContext);
                         
-                        Source src = msg.getPayload();
+                        Source src = msg.getPayload();                                             
                         msg.setPayload(src);
-                        AddNumbersResponse resp2 = (AddNumbersResponse)msg.getPayload(jaxbContext);
+                        
+                        payload = msg.getPayload(jaxbContext);
+                        if (payload instanceof JAXBElement) {
+                            payload = ((JAXBElement)payload).getValue();
+                        }
+                        
+                        AddNumbersResponse resp2 = (AddNumbersResponse)payload;
                         if (resp2 == resp) {
                             throw new WebServiceException("Shouldn't be the same object");
                         }

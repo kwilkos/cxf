@@ -24,7 +24,6 @@ import java.util.StringTokenizer;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.LogicalHandler;
@@ -36,7 +35,6 @@ import org.apache.handler_test.PingException;
 import org.apache.handler_test.types.Ping;
 import org.apache.handler_test.types.PingResponse;
 import org.apache.handler_test.types.PingWithArgs;
-import org.apache.hello_world_soap_http.types.GreetMe;
 
 
 public class TestHandler<T extends LogicalMessageContext> 
@@ -52,7 +50,7 @@ public class TestHandler<T extends LogicalMessageContext>
         super(serverSide); 
 
         try {
-            jaxbCtx = JAXBContext.newInstance(PackageUtils.getPackageName(GreetMe.class));
+            jaxbCtx = JAXBContext.newInstance(PackageUtils.getPackageName(Ping.class));
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
@@ -81,12 +79,12 @@ public class TestHandler<T extends LogicalMessageContext>
             throw new ProtocolException(e);
         }
         
-        QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
-        assert operationName != null : "unable to get operation name from " + ctx;
-
-        if ("ping".equals(operationName.getLocalPart())) {
+        Object obj = ctx.getMessage().getPayload(jaxbCtx);
+        
+        if (obj instanceof Ping 
+            || obj instanceof PingResponse) {
             ret = handlePingMessage(outbound, ctx);
-        } else if ("pingWithArgs".equals(operationName.getLocalPart())) {
+        } else if (obj instanceof PingWithArgs) {
             ret = handlePingWithArgsMessage(outbound, ctx); 
         }
         return ret;

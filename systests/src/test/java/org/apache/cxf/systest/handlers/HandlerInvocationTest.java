@@ -125,7 +125,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         assertEquals(2, handler1.getHandleMessageInvoked());
         assertEquals(2, handler2.getHandleMessageInvoked());
     }
-
+    
     @Test
     public void testSOAPHandlerHandleMessageReturnTrueClientSide() throws Exception {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
@@ -182,7 +182,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
 
                         msg.setPayload(resp, jaxbCtx);
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                     fail(e.toString());
@@ -196,24 +195,20 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         List<String> resp = handlerTest.ping();
         assertEquals(clientHandlerMessage, resp.get(0));
 
-        assertEquals("handler must be invoked for inbound & outbound message", 2, handler1
+        assertEquals("handler must be invoked for inbound & outbound message", 2, handler2
             .getHandleMessageInvoked());
 
-        assertEquals("the second handler must be invoked once", 1, handler2.getHandleMessageInvoked());
+        assertEquals("the first handler must be invoked once", 1, handler1.getHandleMessageInvoked());
 
-        /*
-         * assertTrue("close must be called", handler1.isCloseInvoked());
-         * assertTrue("close must be called", handler2.isCloseInvoked());
-         */
+        //assertTrue("close must be called", handler1.isCloseInvoked());
+        //assertTrue("close must be called", handler2.isCloseInvoked());
     }
 
+    
     @Test
     public void testLogicalHandlerHandleMessageReturnsFalseServerSide() throws PingException {
-        //FIXME: the actual invoking sequence are ("soapHandler4", "soapHandler3", "handler2", 
-        //"soapHandler3", "soapHandler4", "soapHandler3", "soapHandler4"). The 4th and 5th handlers
-        //are called from invokeReversedHandlerMessage. This needs to be fixed.
-        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2", "soapHandler3",
-                                     "soapHandler4"};
+        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2", 
+                                     "handler2", "soapHandler3", "soapHandler4"};
 
         List<String> resp = handlerTest.pingWithArgs("handler2 inbound stop");
 
@@ -227,12 +222,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     
     @Test
     public void testSOAPHandlerHandleMessageReturnsFalseServerSide() throws PingException {
-        //FIXME: the actual invoking sequence are ("soapHandler4", "soapHandler3", "soapHandler4", 
-        //"soapHandler3", "soapHandler4"). The 3rd was called by invokeReversedHandlerMessage. 
-        //the 4th and 5th were called when sending out outbound message. We should fix this by removing
-        //the 4th and 5th calls. 
-        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "soapHandler4", "soapHandler3",
-                                     "soapHandler4"};
+        String[] expectedHandlers = {"soapHandler4", "soapHandler3",
+                                     "soapHandler3", "soapHandler4"};
         List<String> resp = handlerTest.pingWithArgs("soapHandler3 inbound stop");
         assertEquals(expectedHandlers.length, resp.size());
         int i = 0;
@@ -350,9 +341,9 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         List<String> resp = handlerTest.ping();
         assertEquals(clientHandlerMessage, resp.get(0));
 
-        assertEquals(3, handler1.getHandleMessageInvoked());
-        assertEquals(3, handler2.getHandleMessageInvoked());
-        assertEquals(2, soapHandler1.getHandleMessageInvoked());
+        assertEquals(2, handler1.getHandleMessageInvoked());
+        assertEquals(2, handler2.getHandleMessageInvoked());
+        assertEquals(1, soapHandler1.getHandleMessageInvoked());
         assertEquals(1, soapHandler2.getHandleMessageInvoked());
     }
 

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.Binding;
@@ -34,8 +33,9 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
-import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
 //import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
 import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
@@ -61,25 +61,32 @@ public class JaxWsEndpointImpl extends EndpointImpl {
 
         createJaxwsBinding();
 
-        List<Interceptor> handlerInterceptors;
-                
-        handlerInterceptors = new ArrayList<Interceptor>();
-        handlerInterceptors.add(new LogicalHandlerInterceptor(binding));
+        Interceptor soap = null;
         if (getBinding() instanceof SoapBinding) {
-            handlerInterceptors.add(new SOAPHandlerInterceptor(binding));
+            soap = new SOAPHandlerInterceptor(binding);
         } else {
              // TODO: what for non soap bindings?
         }
 
         List<Interceptor> fault = super.getOutFaultInterceptors();
-        fault.addAll(handlerInterceptors);
+        fault.add(new LogicalHandlerOutInterceptor(binding));
+        if (soap != null) {
+            fault.add(soap);
+        }
+        
         List<Interceptor> in = super.getInInterceptors();
-        in.addAll(handlerInterceptors);
+        in.add(new LogicalHandlerInInterceptor(binding));
+        if (soap != null) {
+            in.add(soap);
+        }
         in.add(new WrapperClassInInterceptor());
         in.add(new HolderInInterceptor());
         
         List<Interceptor> out = super.getOutInterceptors();
-        out.addAll(handlerInterceptors);
+        out.add(new LogicalHandlerOutInterceptor(binding));
+        if (soap != null) {
+            out.add(soap);
+        }
         out.add(new WrapperClassOutInterceptor());
         out.add(new HolderOutInterceptor());
         

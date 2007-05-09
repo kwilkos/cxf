@@ -41,6 +41,7 @@ import org.apache.handlers.AddNumbersService;
 import org.apache.handlers.types.AddNumbersResponse;
 import org.apache.handlers.types.ObjectFactory;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -84,6 +85,7 @@ public class HandlerInvocationUsingAddNumbersTest extends AbstractBusClientServe
     }
     
     @Test
+    @Ignore
     public void testInvokeFromDispatchWithJAXBPayload() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);

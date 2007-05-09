@@ -207,7 +207,7 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
     }
 
     public String getPrefix(String uri) throws XMLStreamException {
-        return context.getPrefix(uri);
+        return context == null ? null : context.getPrefix(uri);
     }
 
     public void setPrefix(String arg0, String arg1) throws XMLStreamException {

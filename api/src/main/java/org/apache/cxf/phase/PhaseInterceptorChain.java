@@ -183,7 +183,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public synchronized boolean doIntercept(Message message, String startingAfterInterceptorID) {
+    public synchronized boolean doInterceptStartingAfter(Message message,
+                                                         String startingAfterInterceptorID) {
         while (state == State.EXECUTING && iterator.hasNext()) {
             PhaseInterceptor currentInterceptor = (PhaseInterceptor)iterator.next();
             if (currentInterceptor.getId().equals(startingAfterInterceptorID)) {
@@ -193,6 +194,29 @@ public class PhaseInterceptorChain implements InterceptorChain {
         return doIntercept(message);
     }
 
+    /**
+     * Intercept a message, invoking each phase's handlers in turn,
+     * starting at the specified interceptor.
+     * 
+     * @param message the message
+     * @param startingAtInterceptorID the id of the interceptor 
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized boolean doInterceptStartingAt(Message message,
+                                                         String startingAtInterceptorID) {
+        while (state == State.EXECUTING && iterator.hasNext()) {
+            PhaseInterceptor currentInterceptor = (PhaseInterceptor)iterator.next();
+            if (currentInterceptor.getId().equals(startingAtInterceptorID)) {
+                iterator.previous();
+                break;
+            }
+        }
+        return doIntercept(message);
+    }
+    
+    
+    
     public synchronized void reset() {
         if (state == State.COMPLETE) {
             state = State.EXECUTING;
@@ -335,7 +359,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         
         Iterator<List<Interceptor>> phases;
         List<Interceptor> currentPhase;
-        Iterator<Interceptor> currentPhaseIterator;
+        ListIterator<Interceptor> currentPhaseIterator;
         Interceptor<? extends Message> last;
         boolean first = true;
         
@@ -343,7 +367,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
             phases = interceptors.values().iterator();
             if (phases.hasNext()) {
                 currentPhase = phases.next();
-                currentPhaseIterator = currentPhase.iterator();
+                currentPhaseIterator = currentPhase.listIterator();
                 last = null;
             }
         }
@@ -368,7 +392,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
             return false;
         }
         private void refreshIterator() {
-            currentPhaseIterator = currentPhase.iterator();
+            currentPhaseIterator = currentPhase.listIterator();
             if (last != null) {
                 while (currentPhaseIterator.hasNext()
                     && last != currentPhaseIterator.next()) {
@@ -379,7 +403,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         private void nextPhase() {
             if (phases.hasNext()) {
                 currentPhase = phases.next();
-                currentPhaseIterator = currentPhase.iterator();
+                currentPhaseIterator = currentPhase.listIterator();
                 last = null;
             } else {
                 currentPhase = null;
@@ -406,7 +430,12 @@ public class PhaseInterceptorChain implements InterceptorChain {
         public boolean hasPrevious() {
             return !called.isEmpty();
         }
+        
+        @SuppressWarnings("unchecked")
         public Interceptor<? extends Message> previous() {
+            if (currentPhaseIterator.hasPrevious()) {
+                currentPhaseIterator.previous();
+            }
             return called.remove(called.size() - 1);
         }
 
@@ -433,7 +462,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
             phases = interceptors.values().iterator();
             if (phases.hasNext()) {
                 currentPhase = phases.next();
-                currentPhaseIterator = currentPhase.iterator();
+                currentPhaseIterator = currentPhase.listIterator();
                 last = null;
             }
             outputChainToLog(true);

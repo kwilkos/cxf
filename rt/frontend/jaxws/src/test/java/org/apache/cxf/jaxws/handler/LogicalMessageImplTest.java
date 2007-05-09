@@ -23,11 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 
 import junit.framework.TestCase;
+import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
+import org.apache.cxf.jaxws.handler.logical.LogicalMessageImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.handlers.types.AddNumbers;
+import org.apache.handlers.types.ObjectFactory;
 
 public class LogicalMessageImplTest extends TestCase {
     AddNumbers req;
@@ -41,31 +45,23 @@ public class LogicalMessageImplTest extends TestCase {
         args.add(req);
     }
 
-    public void tearDown() {
-    }
-
-    public void xtestGetPayloadOfJAXB() throws Exception {
+    public void testGetPayloadOfJAXB() throws Exception {
         //using Dispatch
+        JAXBContext ctx = JAXBContext.newInstance(ObjectFactory.class);
         Message message = new MessageImpl();
-        message.setContent(Object.class, req);
         LogicalMessageContextImpl lmci = new LogicalMessageContextImpl(message);
+
+        JAXBElement<AddNumbers> el = new ObjectFactory().createAddNumbers(req);
         
         LogicalMessageImpl lmi = new LogicalMessageImpl(lmci);
-        JAXBContext ctx = JAXBContext.newInstance(AddNumbers.class);
+        lmi.setPayload(el, ctx);
         
         Object obj = lmi.getPayload(ctx);
-        assertEquals(req, obj);        
+        assertTrue(obj instanceof JAXBElement);
+        JAXBElement<?> el2 = (JAXBElement)obj;
+        assertTrue(el2.getValue() instanceof AddNumbers);
+        AddNumbers resp = (AddNumbers)el2.getValue();
+        assertEquals(req.getArg0(), resp.getArg0());        
+        assertEquals(req.getArg1(), resp.getArg1());        
     }
-    
-    public void testGetPayloadOfList() throws Exception {
-        Message message = new MessageImpl();
-        message.setContent(List.class, args);
-        LogicalMessageContextImpl lmci = new LogicalMessageContextImpl(message);
-        
-        LogicalMessageImpl lmi = new LogicalMessageImpl(lmci);
-        
-        JAXBContext ctx = JAXBContext.newInstance(AddNumbers.class);        
-        Object obj = lmi.getPayload(ctx);
-        assertEquals(req, obj);        
-    }    
 }

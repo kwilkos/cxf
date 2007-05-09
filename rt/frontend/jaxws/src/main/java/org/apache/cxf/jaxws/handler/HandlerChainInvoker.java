@@ -27,18 +27,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.Source;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
+import org.w3c.dom.Node;
+
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
@@ -54,9 +63,11 @@ public class HandlerChainInvoker {
 
     private final List<Handler> protocolHandlers = new ArrayList<Handler>();
     private List<LogicalHandler> logicalHandlers  = new ArrayList<LogicalHandler>();
+    
+    
     private final List<Handler> invokedHandlers  = new ArrayList<Handler>();
     private final List<Handler> closeHandlers  = new ArrayList<Handler>();
-
+    
     private boolean outbound;
     private boolean responseExpected = true;
     private boolean faultExpected;
@@ -212,7 +223,8 @@ public class HandlerChainInvoker {
         }
     }
 
-    private boolean invokeHandlerChain(List<? extends Handler> handlerChain, MessageContext ctx) {
+    private boolean invokeHandlerChain(List<? extends Handler> handlerChain,
+                                       MessageContext ctx) {
         if (handlerChain.isEmpty()) {
             LOG.log(Level.FINEST, "no handlers registered");
             return true;
@@ -286,9 +298,7 @@ public class HandlerChainInvoker {
                 }
                 if (!continueProcessing) {
                     changeMessageDirection(ctx);
-                    if (responseExpected) {
-                        invokeReversedHandlerMessage(ctx);                       
-                    } else {
+                    if (!responseExpected) {
                         invokeReversedClose();
                     }
 
@@ -322,21 +332,48 @@ public class HandlerChainInvoker {
     //When the message direction is reversed, if the message is not already a fault message then it is 
     //replaced with a fault message
     private void setFaultMessage(MessageContext mc, Exception exception) {
-        if (mc instanceof LogicalMessageContext) {
-            ((WrappedMessageContext)mc).getWrappedMessage().setContent(Exception.class, exception);
-        } else if (mc instanceof SOAPMessageContext) {
-            try {
-                SOAPMessage soapMessage = ((SOAPMessageContext)mc).getMessage();
-                SOAPBody body = soapMessage.getSOAPBody();
-                // Fault f = (Fault)exception;
-                SOAPFault soapFault = body.addFault();
+        Message msg = ((WrappedMessageContext)mc).getWrappedMessage();
+        msg.setContent(Exception.class, exception);
+        msg.removeContent(XMLStreamReader.class);
+        msg.removeContent(Source.class);
+        
+        try {
+            SOAPMessage soapMessage = null;
+            
+            if (!(msg instanceof SoapMessage)
+                || ((SoapMessage)msg).getVersion().getVersion() <= 1.11d) {
+                soapMessage = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL).createMessage();
+            } else {
+                soapMessage = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL).createMessage();
+            }
+            msg.setContent(SOAPMessage.class, soapMessage);
+            
+            SOAPBody body = soapMessage.getSOAPBody();
+            SOAPFault soapFault = body.addFault();
+            
+            if (exception instanceof SOAPFaultException) {
+                SOAPFaultException sf = (SOAPFaultException)exception;
+                soapFault.setFaultString(sf.getFault().getFaultString());
+                soapFault.setFaultCode(sf.getFault().getFaultCode());
+                soapFault.setFaultActor(sf.getFault().getFaultActor());
+                Node nd = soapMessage.getSOAPPart()
+                    .importNode(sf.getFault().getDetail().getFirstChild(), true);
+                soapFault.addDetail().appendChild(nd);
+            } else if (exception instanceof Fault) {
+                SoapFault sf = SoapFault.createFault((Fault)exception,
+                                                     ((SoapMessage)msg).getVersion());
+                soapFault.setFaultString(sf.getReason());
+                soapFault.setFaultCode(sf.getFaultCode());
+                Node nd = soapMessage.getSOAPPart().importNode(sf.getOrCreateDetail(), true);
+                soapFault.addDetail().appendChild(nd);
+            } else {
                 soapFault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "HandlerFault"));
                 soapFault.setFaultString(exception.getMessage());
-            } catch (SOAPException e) {
-                e.printStackTrace();
-                // do nothing
             }
-        }
+        } catch (SOAPException e) {
+            e.printStackTrace();
+            // do nothing
+        }            
     }
         
     // The message direction is reversed, if the message is not already a fault message then it
@@ -348,7 +385,7 @@ public class HandlerChainInvoker {
 
         try {
             int index = invokedHandlers.size() - 2;
-            while (index >= 0) {
+            while (index >= 0 && continueProcessing) {
                 Handler h = invokedHandlers.get(index);
                 if (h instanceof LogicalHandler) {
                     continueProcessing = h.handleFault(logicalMessageContext);
@@ -390,23 +427,6 @@ public class HandlerChainInvoker {
             index--;
         }
         return true;*/
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean invokeReversedHandlerMessage(MessageContext ctx) {
-        boolean continueProcessing = true;
-
-        int index = invokedHandlers.size() - 2;
-        while (index >= 0) {
-            Handler handler = invokedHandlers.get(index);
-            if (handler instanceof LogicalHandler) {
-                continueProcessing = handler.handleMessage(logicalMessageContext);
-            } else {
-                continueProcessing = handler.handleMessage(protocolMessageContext);
-            }
-            index--;
-        }
-        return continueProcessing;
     }
 
     //close is called on each previously invoked handler in the chain, the close method is 

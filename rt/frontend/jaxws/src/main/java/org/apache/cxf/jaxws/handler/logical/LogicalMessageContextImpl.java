@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.handler;
+package org.apache.cxf.jaxws.handler.logical;
 
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.handler.LogicalMessageContext;

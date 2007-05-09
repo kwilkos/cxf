@@ -73,6 +73,10 @@ public class MessageImpl extends StringMapImpl implements Message {
     public <T> void setContent(Class<T> format, Object content) {
         contents.put(format, content);
     }
+    
+    public <T> void removeContent(Class<T> format) {
+        contents.remove(format);
+    }
 
     public Set<Class<?>> getContentFormats() {
         return contents.keySet();

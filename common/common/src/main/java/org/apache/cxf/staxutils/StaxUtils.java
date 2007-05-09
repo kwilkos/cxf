@@ -231,6 +231,11 @@ public final class StaxUtils {
         return false;
     }
 
+    public static void copy(Document doc, XMLStreamWriter writer) throws XMLStreamException {
+        XMLStreamReader reader = createXMLStreamReader(doc);
+        copy(reader, writer);
+    }
+    
     /**
      * Copies the reader to the writer. The start and end document methods must
      * be handled on the writer manually. TODO: if the namespace on the reader
@@ -686,6 +691,9 @@ public final class StaxUtils {
         }
     }
     
+    public static XMLStreamReader createXMLStreamReader(Document doc) {
+        return new W3CDOMStreamReader(doc.getDocumentElement());
+    }
     public static XMLStreamReader createXMLStreamReader(Source source) {
         try {
             if (source instanceof DOMSource) {

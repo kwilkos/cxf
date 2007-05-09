@@ -31,12 +31,7 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
         binding = b;
     }
     
-    boolean isOneway(T message) {
-        //@@TODO
-        return true;
-    }
-    
-    boolean isOutbound(T message) {
+    protected boolean isOutbound(T message) {
         return message == message.getExchange().getOutMessage()
             || message == message.getExchange().getOutFaultMessage();
     }
@@ -73,4 +68,10 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     protected Binding getBinding() {
         return binding;
     }
+    
+    public void onCompletion(T message) {
+        if (isOutbound(message)) {
+            getInvoker(message).mepComplete(message);
+        }
+    }    
 }
