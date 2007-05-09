@@ -78,7 +78,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             
             if (isServerSideHandler()) {
                 if (outbound) {
-                    continueProcessing = true;
+                    continueProcessing = getReturnValue(outbound, ctx); 
                 } else {
                     continueProcessing = getReturnValue(outbound, ctx); 
                     if (!continueProcessing) {
@@ -134,11 +134,6 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
     }
 
     private boolean getReturnValue(boolean outbound, T ctx) { 
-
-        if (outbound) {
-            return true; 
-        } 
-
         boolean ret = true;
         try {
             SOAPMessage msg  = ctx.getMessage(); 
@@ -153,15 +148,18 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             String namespace = body.getFirstChild().getFirstChild().getNamespaceURI(); 
             
             StringTokenizer strtok = new StringTokenizer(arg, " ");
-            String hid = strtok.nextToken();
-            String direction = strtok.nextToken();
-            String command = strtok.nextToken();
+            String hid = "";
+            String direction = "";
+            String command = "";
+            if (strtok.countTokens() == 3) {
+                hid = strtok.nextToken();
+                direction = strtok.nextToken();
+                command = strtok.nextToken();
+            }
             
-            if (getHandlerId().equals(hid)
-                && "inbound".equals(direction)) {
-                if ("stop".equals(command)) {
-
-                    // remove the incoming request body.
+            if (getHandlerId().equals(hid) && "stop".equals(command)) {
+                if (!outbound && "inbound".equals(direction)) {
+                     // remove the incoming request body.
                     Document doc = body.getOwnerDocument(); 
                     // build the SOAP response for this message 
                     //
@@ -182,10 +180,10 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         }
                     }
                     ret = false;
-                } else if ("throw".equals(command)) {
-                    //throwException(strtok.nextToken());
+                } else if (outbound && "outbound".equals(direction)) {
+                    ret = false;
                 }
-            }
+            } 
 
         } catch (Exception e) {
             e.printStackTrace();

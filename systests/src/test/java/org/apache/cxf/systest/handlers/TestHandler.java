@@ -116,7 +116,6 @@ public class TestHandler<T extends LogicalMessageContext>
                 
                 if ("stop".equals(command)) {
                     PingResponse resp = new PingResponse();
-                    getHandlerInfoList(ctx).add(getHandlerId()); 
                     resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
                     msg.setPayload(resp, jaxbCtx);
                     ret = false;
@@ -151,7 +150,7 @@ public class TestHandler<T extends LogicalMessageContext>
             newResp.getHandlersInfo().addAll(origResp.getHandlersInfo());
             newResp.getHandlersInfo().add(getHandlerId());
             msg.setPayload(newResp, jaxbCtx);
-        } else if (obj instanceof Ping) {
+        } else if (obj instanceof Ping || obj instanceof PingWithArgs) {
             getHandlerInfoList(ctx).add(getHandlerId());
         }
     } 

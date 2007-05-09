@@ -66,7 +66,7 @@ public class HandlerTestImpl implements HandlerTest {
 
         List<String> ret = new ArrayList<String>();
         ret.add(handlerCommand);
-        //ret.addAll(getHandlersInfo(context.getMessageContext()));
+        ret.addAll(getHandlersInfo(context.getMessageContext()));
 
         if (handlerCommand.contains("throw exception")) {
             PingFaultDetails details = new PingFaultDetails();

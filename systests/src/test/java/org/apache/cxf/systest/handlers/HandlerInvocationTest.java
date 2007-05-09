@@ -206,11 +206,11 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
 
     
     @Test
-    public void testLogicalHandlerHandleMessageReturnsFalseServerSide() throws PingException {
+    public void testLogicalHandlerHandleMessageReturnsFalseInboundServerSide() throws PingException {
         String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2", 
                                      "handler2", "soapHandler3", "soapHandler4"};
 
-        List<String> resp = handlerTest.pingWithArgs("handler2 inbound stop");
+        List<String> resp = handlerTest.pingWithArgs("handler2 inbound stop");     
 
         assertEquals(expectedHandlers.length, resp.size());
 
@@ -221,7 +221,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testSOAPHandlerHandleMessageReturnsFalseServerSide() throws PingException {
+    public void testSOAPHandlerHandleMessageReturnsFalseInboundServerSide() throws PingException {
         String[] expectedHandlers = {"soapHandler4", "soapHandler3",
                                      "soapHandler3", "soapHandler4"};
         List<String> resp = handlerTest.pingWithArgs("soapHandler3 inbound stop");
@@ -232,6 +232,20 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         }
     }
 
+    
+    @Test
+    public void testSOAPHandlerHandleMessageReturnsFalseOutboundServerSide() throws PingException {
+        String[] expectedHandlers = {"soapHandler3 outbound stop", "soapHandler4", "soapHandler3", "handler2",
+                                     "handler1", "handler1", "handler2", "soapHandler3"};
+        List<String> resp = handlerTest.pingWithArgs("soapHandler3 outbound stop");
+
+        assertEquals(expectedHandlers.length, resp.size());
+        int i = 0;
+        for (String expected : expectedHandlers) {
+            assertEquals(expected, resp.get(i++));
+        }
+    }
+    
     @Test
     public void testLogicalHandlerHandleMessageThrowsProtocolExceptionClientSide() throws Exception {
 
@@ -302,7 +316,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    public void testSOAPHandlerHandleMessageReturnFalseClientSide() throws Exception {
+    public void testSOAPHandlerHandleMessageReturnFalseOutboundClientSide() throws Exception {
         final String clientHandlerMessage = "client side";
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {

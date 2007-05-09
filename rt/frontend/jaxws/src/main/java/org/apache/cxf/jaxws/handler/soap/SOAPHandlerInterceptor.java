@@ -126,41 +126,71 @@ public class SOAPHandlerInterceptor extends
         invoker.setProtocolMessageContext(context);
 
         if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
-            message.getInterceptorChain().abort();
-            Endpoint e = message.getExchange().get(Endpoint.class);
-            Message responseMsg = e.getBinding().createMessage();            
- 
-            MessageObserver observer = (MessageObserver)message.getExchange().get(MessageObserver.class);
-            if (observer != null) {
-                //client side outbound, the request message becomes the response message
-                message.getExchange().setInMessage(responseMsg);
-                SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
-
-                if (soapMessage != null) {
-                    responseMsg.setContent(SOAPMessage.class, soapMessage);
-                    XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(soapMessage);
-                    responseMsg.setContent(XMLStreamReader.class, xmlReader);
-                }
-                responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID,
-                                SOAPHandlerInterceptor.class.getName());
-                observer.onMessage(responseMsg);
-            }  else if (!message.getExchange().isOneWay()) {
-                //server side inbound
-                message.getExchange().setOutMessage(responseMsg);
-                SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
-
-                responseMsg.setContent(SOAPMessage.class, soapMessage);
-                
-                InterceptorChain chain = OutgoingChainInterceptor.getOutInterceptorChain(message
-                    .getExchange());
-                responseMsg.setInterceptorChain(chain);
-                //so the idea of starting interceptor chain from any specified point does not work
-                //well for outbound case, as many outbound interceptors have their ending interceptors.
-                //For example, we can not skip MessageSenderInterceptor.               
-                chain.doInterceptStartingAfter(responseMsg, SoapActionInterceptor.class.getName());
-            } 
-        }  
+            handleAbort(message, context);
+        }
+  
         onCompletion(message);
+    }
+    
+    private void handleAbort(SoapMessage message, MessageContext context) {
+        if (isRequestor(message)) {
+            // client side outbound
+            if (getInvoker(message).isOutbound()) {
+                message.getInterceptorChain().abort();
+                Endpoint e = message.getExchange().get(Endpoint.class);
+                Message responseMsg = e.getBinding().createMessage();
+
+                MessageObserver observer = (MessageObserver)message.getExchange().get(MessageObserver.class);
+                if (observer != null) {
+                    // the request message becomes the response message
+                    message.getExchange().setInMessage(responseMsg);
+                    SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
+
+                    if (soapMessage != null) {
+                        responseMsg.setContent(SOAPMessage.class, soapMessage);
+                        XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(soapMessage);
+                        responseMsg.setContent(XMLStreamReader.class, xmlReader);
+                    }
+                    responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID,
+                                    SOAPHandlerInterceptor.class.getName());
+                    observer.onMessage(responseMsg);
+                }
+            } else {
+                // client side inbound - Normal handler message processing
+                // stops,, but still continue the outbound interceptor chain, dispatch the message
+                System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
+            }
+        } else {
+            if (!getInvoker(message).isOutbound()) {
+
+                // server side outbound
+                message.getInterceptorChain().abort();
+                Endpoint e = message.getExchange().get(Endpoint.class);
+                Message responseMsg = e.getBinding().createMessage();
+                if (!message.getExchange().isOneWay()) {
+                    // server side inbound
+                    message.getExchange().setOutMessage(responseMsg);
+                    SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
+
+                    responseMsg.setContent(SOAPMessage.class, soapMessage);
+
+                    InterceptorChain chain = OutgoingChainInterceptor.getOutInterceptorChain(message
+                        .getExchange());
+                    responseMsg.setInterceptorChain(chain);
+                    // so the idea of starting interceptor chain from any
+                    // specified point does not work
+                    // well for outbound case, as many outbound interceptors
+                    // have their ending interceptors.
+                    // For example, we can not skip MessageSenderInterceptor.
+                    chain.doInterceptStartingAfter(responseMsg, SoapActionInterceptor.class.getName());
+                }
+
+            } else {
+                // server side inbound - Normal handler message processing
+                // stops, but still continue the inbound interceptor chain, dispatch the message
+                System.out.println("SOAP Handler handleMessage returns false on server inbound, aborting");
+            }
+        }
     }
     
     @Override
