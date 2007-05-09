@@ -45,19 +45,17 @@ public final class WrapperHelper {
                 fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
             }
 
-            XmlElement el = null;
-            Field elField = null;
-            for (Field field : wrapperType.getClass().getDeclaredFields()) {
-
-                if (field.getName().equals(fieldName)) {
-                    // JAXB Type get XmlElement Annotation
-                    el = field.getAnnotation(XmlElement.class);
-                    elField = field;
-                    break;
-                }
-            }
 
             if (part == null) {
+                XmlElement el = null;
+                Field elField = null;
+                for (Field field : wrapperType.getClass().getDeclaredFields()) {
+                    if (field.getName().equals(fieldName)) {
+                        elField = field;
+                        el = elField.getAnnotation(XmlElement.class);
+                        break;
+                    }
+                }
                 if (el != null 
                     && !el.nillable() 
                     && elField.getType().isPrimitive()) {
@@ -90,13 +88,24 @@ public final class WrapperHelper {
                     break;
                 }
             }
-            if (!setInvoked
-                && elField != null
-                && el != null
-                && partName.equals(el.name())) {
-                elField.setAccessible(true);
-                elField.set(wrapperType, part);
-                setInvoked = true;
+            if (!setInvoked) {
+                XmlElement el = null;
+                Field elField = null;
+                for (Field field : wrapperType.getClass().getDeclaredFields()) {
+                    if (field.getName().equals(fieldName)) {
+                        elField = field;
+                        el = elField.getAnnotation(XmlElement.class);
+                        break;
+                    }
+                }
+                // JAXB Type get XmlElement Annotation
+                if (elField != null 
+                    && el != null
+                    && partName.equals(el.name())) {
+                    elField.setAccessible(true);
+                    elField.set(wrapperType, part);
+                    setInvoked = true;
+                }
             }
             if (!setInvoked) {
                 throw new IllegalArgumentException("Could not find a modifier method on Wrapper Type for "
@@ -170,13 +179,9 @@ public final class WrapperHelper {
             fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
         }
 
-        XmlElement el = null;
         Field elField = null;
         for (Field field : wrapperType.getClass().getDeclaredFields()) {
-
             if (field.getName().equals(fieldName)) {
-                // JAXB Type get XmlElement Annotation
-                el = field.getAnnotation(XmlElement.class);
                 elField = field;
                 break;
             }
@@ -194,20 +199,21 @@ public final class WrapperHelper {
             accessor2 = accessor2.replaceFirst("get", "is");
         }
 
-        for (Method method : wrapperType.getClass().getMethods()) {
-            if (method.getParameterTypes().length == 0 
-                && (accessor.equals(method.getName())
-                    || accessor2.equals(method.getName()))) {
-
-                return getValue(method, wrapperType);
-            }
+        Method method = wrapperType.getClass().getMethod(accessor, new Class[0]);
+        if (method == null) {
+            method = wrapperType.getClass().getMethod(accessor2, new Class[0]);
         }
-        
-        if (elField != null
-            && el != null
-            && partName.equals(el.name())) {
-            elField.setAccessible(true);
-            return elField.get(wrapperType);
+        if (method != null) {
+            return getValue(method, wrapperType);
+        }
+        if (elField != null) {
+            // JAXB Type get XmlElement Annotation
+            XmlElement el = elField.getAnnotation(XmlElement.class);
+            if (el != null
+                && partName.equals(el.name())) {
+                elField.setAccessible(true);
+                return elField.get(wrapperType);
+            }
         }
         
         return null;
