@@ -329,10 +329,15 @@ public class ServiceProcessor extends AbstractProcessor {
                 
                 JAXWSBinding opBinding = (JAXWSBinding)opinfo.getExtensor(JAXWSBinding.class);
                 
-                if (opBinding != null && !opBinding.isEnableWrapperStyle()) {
-                    jaxwsBinding.setEnableWrapperStyle(false);
-                    if (!opBinding.isEnableAsyncMapping()) {
-                        jaxwsBinding.setEnableAsyncMapping(false);
+                
+                if (opBinding != null) {
+                    if (opBinding.isEnableWrapperStyle()) {
+                        jaxwsBinding.setEnableWrapperStyle(true);
+                    } else {
+                        jaxwsBinding.setEnableWrapperStyle(false);
+                        if (!opBinding.isEnableAsyncMapping()) {
+                            jaxwsBinding.setEnableAsyncMapping(false);
+                        }
                     }
                 }
                                 

@@ -20,6 +20,7 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -129,6 +130,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
                         
             
+            List<Object> objsToRemove = new ArrayList<Object>(headers.size());
             for (SoapHeaderInfo header : headers) {
                 MessagePartInfo part = header.getPart();
 
@@ -150,7 +152,10 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
                 dataWriter.write(arg, header.getPart(), xtw);
                 
-                objs.remove(arg);
+                objsToRemove.add(arg);
+            }
+            for (Object obj : objsToRemove) {
+                objs.remove(obj);
             }
             
             
