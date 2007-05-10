@@ -22,9 +22,6 @@ package org.apache.cxf.tools.wsdlto.core;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
@@ -33,47 +30,23 @@ import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.VelocityGenerator;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.cxf.version.Version;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
 public abstract class AbstractGenerator implements FrontEndGenerator {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     protected ToolContext env;
-    protected Map<String, Object> attributes = new HashMap<String, Object>();
     protected String name;
+    protected final VelocityGenerator velocity = new VelocityGenerator();
 
     public AbstractGenerator() {
     }
 
     protected void doWrite(String templateName, Writer outputs) throws ToolException {
-        Template tmpl = null;
-        try {
-            tmpl = Velocity.getTemplate(templateName);
-        } catch (Exception e) {
-            Message msg = new Message("TEMPLATE_MISSING", LOG, templateName);
-            throw new ToolException(msg, e);
-        }
-
-        VelocityContext ctx = new VelocityContext();
-
-        for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
-            String key = (String)iter.next();
-            ctx.put(key, attributes.get(key));
-        }
-
-        VelocityWriter writer = new VelocityWriter(outputs);
-        try {
-            tmpl.merge(ctx, writer);
-            writer.close();
-        } catch (Exception e) {
-            Message msg = new Message("VELOCITY_ENGINE_WRITE_ERRORS", LOG);
-            throw new ToolException(msg, e);
-        }
+        velocity.doWrite(templateName, outputs);
     }
 
     protected boolean isCollision(String packageName, String filename) throws ToolException {        
@@ -130,16 +103,16 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
     }
 
     protected void setAttributes(String n, Object value) {
-        attributes.put(n, value);
+        velocity.setAttributes(n, value);
     }
 
     protected void setCommonAttributes() {
-        attributes.put("currentdate", Calendar.getInstance().getTime());
-        attributes.put("version", Version.getCurrentVersion());
+        setAttributes("currentdate", Calendar.getInstance().getTime());
+        setAttributes("version", Version.getCurrentVersion());
     }
 
     protected void clearAttributes() {
-        attributes.clear();
+        velocity.clearAttributes();
     }
 
     public void setEnvironment(ToolContext penv) {

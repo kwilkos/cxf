@@ -19,27 +19,21 @@
 
 package org.apache.cxf.maven_plugin.eclipse;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 
 import org.apache.cxf.common.util.ReflectionUtil;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.tools.wsdlto.core.VelocityWriter;
+import org.apache.cxf.tools.common.VelocityGenerator;
+import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
 /**
  * @goal eclipseplugin
@@ -59,7 +53,7 @@ public class EclipsePluginMojo extends AbstractMojo {
      * @required
      * @readonly
      */
-    java.util.Set dependencies;
+    Set dependencies;
 
     /**
      * @parameter  expression="${project.build.directory}/plugin.xml";
@@ -99,24 +93,8 @@ public class EclipsePluginMojo extends AbstractMojo {
     }
 
 
-    private String getVelocityLogFile(String log) {
-        return new File(targetFile.getParentFile(), log).toString();
-    }
-
     private String getVersion() {
         return StringUtils.formatVersionNumber(project.getVersion());
-    }
-
-    // TODO: Reuse the velocity in the tools 
-    private void initVelocity() throws Exception {
-        Properties props = new Properties();
-        String clzName = "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader";
-        props.put("resource.loader", "class");
-        props.put("class.resource.loader.class", clzName);
-        props.put("runtime.log", getVelocityLogFile("velocity.log"));
-
-        Velocity.init(props);
-
     }
 
     private List<String> getExportedPackages(List<File> jars) throws Exception {
@@ -128,37 +106,23 @@ public class EclipsePluginMojo extends AbstractMojo {
     }
 
     private void generatePluginXML(List<File> jars) throws Exception {
-        initVelocity();
-
-        Template tmpl = null;
+        VelocityGenerator velocity = new VelocityGenerator();
 
         String templateFile = getTemplateFile(eclipseVersion);
-        tmpl = Velocity.getTemplate(templateFile);
-
-        if (tmpl == null) {
-            throw new RuntimeException("Can not load template file: " + templateFile);
-        }
 
         File outputFile = targetFile;
-        
-        VelocityContext ctx = new VelocityContext();
-        ctx.put("ECLIPSE_VERSION", eclipseVersion);
-        ctx.put("PLUGIN_VERSION", getVersion());
-        ctx.put("GROUP_ID", project.getGroupId());
-        ctx.put("libPath", LIB_PATH);
-        ctx.put("jars", jars);
+
+        velocity.setAttributes("ECLIPSE_VERSION", eclipseVersion);
+        velocity.setAttributes("PLUGIN_VERSION", getVersion());
+        velocity.setAttributes("GROUP_ID", project.getGroupId());
+        velocity.setAttributes("libPath", LIB_PATH);
+        velocity.setAttributes("jars", jars);
         
         if ("3.1".equals(eclipseVersion.trim())) {
-            ctx.put("exportedPackages", getExportedPackages(jars));
+            velocity.setAttributes("exportedPackages", getExportedPackages(jars));
             outputFile = new File(targetFile.getParentFile(), "MANIFEST.MF");
         }
 
-        Writer outputs = null;
-
-        outputs = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(outputFile)), "UTF-8");
-        VelocityWriter writer = new VelocityWriter(outputs);
-
-        tmpl.merge(ctx, writer);
-        writer.close();
+        velocity.doWrite(templateFile, FileWriterUtil.getWriter(outputFile));
     }
 }
