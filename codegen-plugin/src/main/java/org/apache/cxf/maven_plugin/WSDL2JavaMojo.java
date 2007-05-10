@@ -126,7 +126,9 @@ public class WSDL2JavaMojo extends AbstractMojo {
                              File outputDirFile,
                              long cgtimestamp) throws MojoExecutionException {
         File file = new File(wsdlOption.getWsdl());
-        File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
+        // If URL to WSDL, replace ? and & since they're invalid chars for file names
+        File doneFile =
+            new File(outputDirFile, "." + file.getName().replace('?', '_').replace('&', '_') + ".DONE");
         boolean doWork = cgtimestamp > doneFile.lastModified();
         if (!doneFile.exists()) {
             doWork = true;
