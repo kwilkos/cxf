@@ -32,6 +32,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.service.HelloInterface;
+import org.apache.cxf.jaxws.service.SayHi;
+import org.apache.cxf.jaxws.service.SayHiImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -171,5 +173,25 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         //List<String> result = proxy.getGreetings();
         //assertEquals(2, result.size());
     }
+    
+    
+    @Test
+    public void testRpcClient() throws Exception {
+        SayHiImpl serviceImpl = new SayHiImpl();
+        EndpointImpl ep = new EndpointImpl(getBus(), serviceImpl, (String) null);
+        ep.publish("local://localhost:9090/hello");
+        
+        QName serviceName = new QName("http://mynamespace.com/", "SayHiService");
+        QName portName = new QName("http://mynamespace.com/", "HelloPort");
+        
+        // need to set the same bus with service , so use the ServiceImpl
+        ServiceImpl service = new ServiceImpl(getBus(), (URL)null, serviceName, null);
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/", "local://localhost:9090/hello"); 
+        
+        SayHi proxy = service.getPort(portName, SayHi.class);
+        long res = proxy.sayHi(3);
+        assertEquals(3, res);
+    }
+
 
 }
