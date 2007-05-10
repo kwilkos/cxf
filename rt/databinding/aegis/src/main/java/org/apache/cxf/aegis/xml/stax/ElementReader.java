@@ -29,9 +29,9 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.util.XmlConstants;
-import org.apache.cxf.aegis.util.stax.DepthXMLStreamReader;
 import org.apache.cxf.aegis.xml.AbstractMessageReader;
 import org.apache.cxf.aegis.xml.MessageReader;
+import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 /**

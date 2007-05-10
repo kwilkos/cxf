@@ -29,11 +29,11 @@ import org.w3c.dom.Document;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
-import org.apache.cxf.aegis.util.stax.FragmentStreamReader;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
+import org.apache.cxf.staxutils.FragmentStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 /**
