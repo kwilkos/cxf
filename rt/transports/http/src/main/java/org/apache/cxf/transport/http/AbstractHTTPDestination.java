@@ -99,7 +99,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
                                    EndpointInfo ei,
                                    boolean dp)
         throws IOException {
-        super(getTargetReference(getAddressValue(ei, dp), b), ei);  
+        super(b, getTargetReference(getAddressValue(ei, dp), b), ei);  
         bus = b;
         conduitInitiator = ci;
         

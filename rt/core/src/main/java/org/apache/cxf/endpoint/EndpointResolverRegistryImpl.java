@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -120,6 +121,42 @@ public class EndpointResolverRegistryImpl implements EndpointResolverRegistry {
             }
         }
         return fresh;
+    }
+    
+    /**
+     * Walk the list of registered EndpointResolvers, so as to mint a new 
+     * abstract EPR for a given service name.
+     * 
+     * @param serviceName
+     * @return the newly minted EPR if appropriate, null otherwise
+     */
+    public EndpointReferenceType mint(QName serviceName) {
+        EndpointReferenceType logical = null;
+        for (EndpointResolver resolver : resolvers) {
+            logical = resolver.mint(serviceName);
+            if (logical != null) {
+                break;
+            }
+        }
+        return logical;
+    }
+    
+    /**
+     * Walk the list of registered EndpointResolvers, so as to mint a new 
+     * abstract EPR for a gievn physical EPR.
+     * 
+     * @param serviceName
+     * @return the newly minted EPR if appropriate, null otherwise
+     */
+    public EndpointReferenceType mint(EndpointReferenceType physical) {
+        EndpointReferenceType logical = null;
+        for (EndpointResolver resolver : resolvers) {
+            logical = resolver.mint(physical);
+            if (logical != null) {
+                break;
+            }
+        }
+        return logical;        
     }
     
     /**

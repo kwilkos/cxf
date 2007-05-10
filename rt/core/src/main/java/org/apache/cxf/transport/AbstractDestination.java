@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -39,11 +40,19 @@ public abstract class AbstractDestination
 
     protected final EndpointReferenceType reference;
     protected final EndpointInfo endpointInfo;
+    protected final Bus bus;
     
     public AbstractDestination(EndpointReferenceType ref,
                                EndpointInfo ei) {
+        this(null, ref, ei);
+    }
+    
+    public AbstractDestination(Bus b,
+                               EndpointReferenceType ref,
+                               EndpointInfo ei) {
         reference = ref;
         endpointInfo = ei;
+        bus = b;
     }
     
     /**

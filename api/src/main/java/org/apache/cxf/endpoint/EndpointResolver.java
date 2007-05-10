@@ -19,6 +19,8 @@
 
 package org.apache.cxf.endpoint;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
@@ -52,4 +54,20 @@ public interface EndpointResolver {
      */
     EndpointReferenceType renew(EndpointReferenceType logical,
                                 EndpointReferenceType physical);
+    
+    /**
+     * Mint a new abstract EPR for a given service name.
+     * 
+     * @param serviceName
+     * @return the newly minted EPR if appropriate, null otherwise
+     */
+    EndpointReferenceType mint(QName serviceName);
+    
+    /**
+     * Mint a new abstract EPR for a given concrete EPR
+     * 
+     * @param serviceName
+     * @return the newly minted EPR if appropriate, null otherwise
+     */
+    EndpointReferenceType mint(EndpointReferenceType physical);
 }

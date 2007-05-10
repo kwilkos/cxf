@@ -621,6 +621,42 @@ public final class EndpointReferenceUtils {
         }
         return physical != null ? physical : logical;
     }
+    
+    /**
+     * Mint logical endpoint reference via the Bus EndpointResolverRegistry.
+     * 
+     * @param serviceName the given serviceName
+     * @return the newly minted EPR if appropriate, null otherwise
+     */
+    public static EndpointReferenceType mint(QName serviceName, Bus bus) {
+        EndpointReferenceType logical = null;
+        if (bus != null) {
+            EndpointResolverRegistry registry =
+                bus.getExtension(EndpointResolverRegistry.class);
+            if (registry != null) {
+                logical = registry.mint(serviceName);
+            }
+        }
+        return logical;
+    }
+    
+    /**
+     * Mint logical endpoint reference via the Bus EndpointResolverRegistry.
+     * 
+     * @param physical the concrete template EPR 
+     * @return the newly minted EPR if appropriate, null otherwise
+     */
+    public static EndpointReferenceType mint(EndpointReferenceType physical, Bus bus) {
+        EndpointReferenceType logical = null;
+        if (bus != null) {
+            EndpointResolverRegistry registry =
+                bus.getExtension(EndpointResolverRegistry.class);
+            if (registry != null) {
+                logical = registry.mint(physical);
+            }
+        }
+        return logical != null ? logical : physical;
+    }
                                              
     private static String getNameSpaceUri(Node node, String content, String namespaceURI) {
         if (namespaceURI == null) {

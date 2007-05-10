@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -36,8 +37,8 @@ public abstract class AbstractMultiplexDestination extends AbstractDestination i
     private static final QName MULTIPLEX_ID_QNAME = new QName("http://multiplex.transport.cxf.apache.org",
                                                               "id");
 
-    public AbstractMultiplexDestination(EndpointReferenceType ref, EndpointInfo ei) {
-        super(ref, ei);
+    public AbstractMultiplexDestination(Bus b, EndpointReferenceType ref, EndpointInfo ei) {
+        super(b, ref, ei);
     }
 
     /**
@@ -51,7 +52,8 @@ public abstract class AbstractMultiplexDestination extends AbstractDestination i
       
      */
     public EndpointReferenceType getAddressWithId(String id) {
-        EndpointReferenceType epr = EndpointReferenceUtils.duplicate(reference);
+        EndpointReferenceType epr = EndpointReferenceUtils.duplicate(
+            EndpointReferenceUtils.mint(reference, bus));
         ReferenceParametersType newParams = new org.apache.cxf.ws.addressing.ObjectFactory()
             .createReferenceParametersType();
         

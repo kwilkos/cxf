@@ -79,7 +79,7 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
     public JMSDestination(Bus b,
                           ConduitInitiator ci,
                           EndpointInfo info) throws IOException {
-        super(getTargetReference(info, b), info);    
+        super(b, getTargetReference(info, b), info);    
         
         base = new JMSTransportBase(b, endpointInfo, true, BASE_BEAN_NAME_SUFFIX, this);
 
