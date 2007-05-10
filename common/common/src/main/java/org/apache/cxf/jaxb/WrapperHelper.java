@@ -193,7 +193,9 @@ public final class WrapperHelper {
             accessor2 = "get_return";
         }
 
-        if (elementType != null && "boolean".equals(elementType.toLowerCase())) {
+        if (elementType != null 
+            && "boolean".equals(elementType.toLowerCase())
+            && !Collection.class.isAssignableFrom(elField.getType())) {
             // JAXB Exception to get the Boolean property
             accessor = accessor.replaceFirst("get", "is");
             accessor2 = accessor2.replaceFirst("get", "is");

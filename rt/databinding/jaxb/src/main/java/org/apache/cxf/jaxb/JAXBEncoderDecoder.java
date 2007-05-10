@@ -23,7 +23,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.xml.bind.JAXBContext;
@@ -47,6 +49,9 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
 
 /**
  * Utility functions for JAXB.
@@ -106,7 +111,19 @@ public final class JAXBEncoderDecoder {
                 elName = part.getConcreteName();
             }
             
-            if (null != elName && !cls.isAnnotationPresent(XmlRootElement.class)) {
+            if (null != elName
+                && !cls.isAnnotationPresent(XmlRootElement.class)) {
+                
+                if (mObj.getClass().isArray()
+                    && part != null
+                    && part.getXmlSchema() instanceof XmlSchemaElement) {
+                    XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
+                    if (el.getSchemaType() instanceof XmlSchemaSimpleType
+                        && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
+                            instanceof XmlSchemaSimpleTypeList) {
+                        mObj = Arrays.asList((Object[])mObj);
+                    }
+                }
                 mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
                     .newInstance(elName, cls, mObj);
             }
@@ -165,6 +182,7 @@ public final class JAXBEncoderDecoder {
         return unmarshall(context, schema, source, null, null, true);
     }
 
+    @SuppressWarnings("unchecked")
     public static Object unmarshall(JAXBContext context, 
                                     Schema schema, 
                                     Object source,
@@ -173,6 +191,26 @@ public final class JAXBEncoderDecoder {
                                     boolean unwrap) {
         Class<?> clazz = part != null ? (Class) part.getTypeClass() : null;
         QName elName = part != null ? part.getConcreteName() : null;
+        if (clazz != null
+            && clazz.isArray()
+            && part != null 
+            && part.getXmlSchema() instanceof XmlSchemaElement) {
+            XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
+            if (el.getSchemaType() instanceof XmlSchemaSimpleType
+                && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
+                    instanceof XmlSchemaSimpleTypeList) {
+                
+                Object obj = unmarshall(context, schema, source, elName, null, au, unwrap);
+                if (clazz.isArray()
+                    && obj instanceof List) {
+                    return ((List)obj).toArray((Object[])Array.newInstance(clazz.getComponentType(),
+                                                                 ((List)obj).size()));
+                }
+                    
+                
+                return obj;
+            }
+        }
 
         return unmarshall(context, schema, source, elName, clazz, au, unwrap);
     }
