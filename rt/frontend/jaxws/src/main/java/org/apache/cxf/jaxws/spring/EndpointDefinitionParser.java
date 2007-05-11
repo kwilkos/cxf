@@ -100,7 +100,8 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
         }
 
         bean.setInitMethodName("publish");
-        
+        bean.setDestroyMethodName("stop");
+
         // We don't want to delay the registration of our Server
         bean.setLazyInit(false);
     }
