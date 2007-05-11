@@ -91,11 +91,12 @@ public class AttachmentDeserializer {
         }
 
         if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-            // First try to find the boundary from the content-type
-            boundary = findBoundaryFromContentType(contentType);
-            // If a boundary wasn't found, try the InputStream
+            // First try to find the boundary from InputStream
+            boundary = findBoundaryFromInputStream();
+            // If a boundary wasn't found, try the ContentType
             if (null == boundary) {
-                boundary = findBoundaryFromInputStream();
+                
+                boundary = findBoundaryFromContentType(contentType);
             }
             // If a boundary still wasn't found, throw an exception
             if (null == boundary) {
