@@ -63,9 +63,10 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
             }
 
             String ns = message.getVersion().getNamespace();
-            String defaultPrefix = StaxUtils.getUniquePrefix(writer, ns, true);
+            String defaultPrefix = StaxUtils.getUniquePrefix(writer, ns, false);
 
             writer.writeStartElement(defaultPrefix, "Fault", ns);
+            writer.writeNamespace(defaultPrefix, ns);
 
             writer.writeStartElement("faultcode");
 

@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.stream.StreamFilter;
@@ -53,7 +54,6 @@ import org.w3c.dom.Text;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
-
 
 public final class StaxUtils {
 
@@ -782,11 +782,12 @@ public final class StaxUtils {
 
     public static String getUniquePrefix(XMLStreamWriter writer) {
         int n = 1;
-
+        
+        NamespaceContext nc = writer.getNamespaceContext();
         while (true) {
             String nsPrefix = "ns" + n;
 
-            if (writer.getNamespaceContext().getNamespaceURI(nsPrefix) == null) {
+            if (nc == null || nc.getNamespaceURI(nsPrefix) == null) {
                 return nsPrefix;
             }
 
