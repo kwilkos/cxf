@@ -112,4 +112,15 @@ public class JAXBUtilsTest extends Assert {
         assertEquals("OTHER_PUNCT_CHARS", 
                      JAXBUtils.nameToIdentifier("other_punct-chars", JAXBUtils.IdentifierType.CONSTANT));
     }
+    
+    @Test
+    public void testNsToPkg() {
+        String urn = "urn:cxf.apache.org";     
+        String pkg = JAXBUtils.namespaceURIToPackage(urn);
+        assertEquals("org.apache.cxf", pkg);
+        
+        urn = "urn:cxf.apache.org:test.v4.6.4";
+        pkg = JAXBUtils.namespaceURIToPackage(urn);
+        assertEquals("org.apache.cxf.test_v4_6_4", pkg);       
+    }
 }

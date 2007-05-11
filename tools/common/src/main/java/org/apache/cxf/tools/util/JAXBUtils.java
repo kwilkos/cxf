@@ -104,7 +104,7 @@ public final class JAXBUtils {
         Element rootElement = doc.createElement("schema");
         rootElement.setAttribute("xmlns", ToolConstants.SCHEMA_URI);
         rootElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
-        rootElement.setAttribute("jaxb:version", "1.0");
+        rootElement.setAttribute("jaxb:version", "2.0");
         rootElement.setAttribute("targetNamespace", namespace);
         Element annoElement = doc.createElement("annotation");
         Element appInfo = doc.createElement("appinfo");

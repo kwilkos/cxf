@@ -155,11 +155,12 @@ public final class JAXBUtils {
      * @return the package name.
      */
     public static String nameSpaceURIToPackage(URI uri) {
-        
-        StringBuffer packageName = new StringBuffer();   
-        
+       
+        StringBuffer packageName = new StringBuffer();
         String authority = uri.getAuthority();
-        
+        if (authority == null && "urn".equals(uri.getScheme())) {
+            authority = uri.getSchemeSpecificPart();
+        }
         
         if (null != authority && !"".equals(authority)) {
             if ("urn".equals(uri.getScheme())) {
@@ -167,12 +168,26 @@ public final class JAXBUtils {
                 for (int i = 0; i < packageName.length(); i++) {
                     if (packageName.charAt(i) == '-') {
                         packageName.setCharAt(i, '.');
+                    } 
+                }
+                authority = packageName.toString();
+                packageName.setLength(0);
+                
+                StringTokenizer st = new StringTokenizer(authority, ":");
+                while (st.hasMoreTokens()) {
+                    String token = st.nextToken();
+                    if (packageName.length() > 0) {
+                        packageName.insert(0, ".");
+                        packageName.insert(0, normalizePackageNamePart(token));
+                    } else {
+                        packageName.insert(0, token);
                     }
                 }
                 authority = packageName.toString();
                 packageName.setLength(0);
-            }
-
+                
+            }  
+            
             StringTokenizer st = new StringTokenizer(authority, ".");
             if (st.hasMoreTokens()) {
                 String token = null;
@@ -185,18 +200,16 @@ public final class JAXBUtils {
                     } else {
                         packageName.insert(0, ".");
                     }
-                    packageName.insert(0, token);
+                    packageName.insert(0, normalizePackageNamePart(token));
                 }
-
-                if (!("com".equals(token) || "gov".equals(token) || "net".equals(token)
-                      || "org".equals(token) || "edu".equals(token))) {
-                    packageName.setLength(0);
-
-                }
+               
             }
         }
 
         String path = uri.getPath();
+        if (path == null) {
+            path = "";
+        }
         int index = path.lastIndexOf('.');
         if (index < 0) {
             index = path.length();

@@ -457,12 +457,39 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_BINDING, "http://localhost:8585/remote-hello_world_binding.xsd");
         processor.setContext(env);
         processor.execute();
-        server.stop();
-
-        
+        server.stop();      
         
     }
     
+    
+    @Test
+    public void testDefaultNSWithPkg() throws Exception {
+        String[] args = new String[] {"-d", output.getCanonicalPath(), "-p", "org.cxf",
+                                      getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
+
+        WSDLToJava.main(args);
+        
+        assertNotNull(output);
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File ws = new File(cxf, "ws");
+        assertTrue(ws.exists());
+        File address = new File(ws, "addressing");
+        assertTrue(address.exists());
+
+        File[] files = address.listFiles();
+        assertEquals(11, files.length);
+        
+        cxf = new File(output, "org/cxf");
+        assertTrue(cxf.exists());
+        files = cxf.listFiles();
+        assertEquals(5, files.length);
+
+    }
     
     
     

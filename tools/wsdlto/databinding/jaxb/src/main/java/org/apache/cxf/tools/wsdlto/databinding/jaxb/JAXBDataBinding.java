@@ -70,12 +70,13 @@ public class JAXBDataBinding implements DataBindingProfile {
     private void initialize(ToolContext c) throws ToolException {
         this.context = c;
 
+        
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
         ClassCollector classCollector = context.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
 
         schemaCompiler.setClassNameAllocator(allocator);
-
+           
         JAXBBindErrorListener listener = new JAXBBindErrorListener(context.isVerbose());
         schemaCompiler.setErrorListener(listener);
         // Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
@@ -101,17 +102,23 @@ public class JAXBDataBinding implements DataBindingProfile {
             schemaCompiler.parseSchema(binding);
         }
 
-        if (context.getPackageName() != null) {
+        /*if (context.getPackageName() != null) {
             schemaCompiler.forcePackageName(context.getPackageName());
-        } else {
-            Map<String, String> nsPkgMap = context.getNamespacePackageMap();
-            for (String ns : nsPkgMap.keySet()) {
-                File file = JAXBUtils.getPackageMappingSchemaBindingFile(ns, nsPkgMap.get(ns));
-                InputSource ins = new InputSource(file.toURI().toString());
-                schemaCompiler.parseSchema(ins);
-                FileUtils.delete(file);
-            }
+        } else {*/
+            
+            
+        Map<String, String> nsPkgMap = context.getNamespacePackageMap();
+        for (String ns : nsPkgMap.keySet()) {
+            File file = JAXBUtils.getPackageMappingSchemaBindingFile(ns, context.mapPackageName(ns));
+            InputSource ins = new InputSource(file.toURI().toString());
+            schemaCompiler.parseSchema(ins);
+            FileUtils.delete(file);
         }
+        
+        if (context.getPackageName() != null) {
+            schemaCompiler.setDefaultPackageName(context.getPackageName());
+        }  
+        
 
         rawJaxbModelGenCode = schemaCompiler.bind();
 
