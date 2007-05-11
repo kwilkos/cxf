@@ -27,7 +27,7 @@
   <property environment="env"/>
   
   <path id="build.classpath">
-    <lib dir="${evn.CXF_HOME}/modules">
+    <fileset dir="${evn.CXF_HOME}/modules">
       <include name="cxf-manifest-incubator.jar"/>
     </fileset>
     <pathelement location="./build/classes"/>
@@ -54,4 +54,5 @@
   </target>
 
 </project>
+
 
