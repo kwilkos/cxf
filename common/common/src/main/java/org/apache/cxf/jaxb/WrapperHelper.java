@@ -174,39 +174,54 @@ public final class WrapperHelper {
     public static Object getWrappedPart(String partName, Object wrapperType, String elementType)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
-        String fieldName = partName;
-        if (JAXBUtils.isJavaKeyword(partName)) {
-            fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
+        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
+        Method method = null;
+        NoSuchMethodException nsex = null;
+        try {
+            method = wrapperType.getClass().getMethod(accessor, new Class[0]); 
+        } catch (NoSuchMethodException ex) {
+            //ignore for now
+            nsex = (NoSuchMethodException)ex.fillInStackTrace();
         }
 
         Field elField = null;
-        for (Field field : wrapperType.getClass().getDeclaredFields()) {
-            if (field.getName().equals(fieldName)) {
-                elField = field;
-                break;
+        if (method == null
+            && elementType != null
+            && "boolean".equals(elementType.toLowerCase())) {
+            
+            elField = getElField(partName, wrapperType);
+                
+            if (!Collection.class.isAssignableFrom(elField.getType())
+                && !elField.getType().isArray()) {
+    
+                try {
+                    method = wrapperType.getClass().getMethod(accessor.replaceFirst("get", "is"),
+                                                              new Class[0]); 
+                } catch (NoSuchMethodException ex) {
+                    //ignore for now
+                }            
             }
-        }        
+        }
+        if (method == null 
+            && "return".equals(partName)) {
+            //RI generated code uses this
+            try {
+                method = wrapperType.getClass().getMethod("get_return", new Class[0]);
+            } catch (NoSuchMethodException ex) {
+                try {
+                    method = wrapperType.getClass().getMethod("is_return",
+                                                              new Class[0]);
+                } catch (NoSuchMethodException ex2) {
+                    //ignore for now
+                } 
+            }                
+        }
         
-        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
-        String accessor2 = accessor;
-        if ("return".equals(partName)) {
-            accessor2 = "get_return";
-        }
-
-        if (elementType != null 
-            && "boolean".equals(elementType.toLowerCase())
-            && !Collection.class.isAssignableFrom(elField.getType())) {
-            // JAXB Exception to get the Boolean property
-            accessor = accessor.replaceFirst("get", "is");
-            accessor2 = accessor2.replaceFirst("get", "is");
-        }
-
-        Method method = wrapperType.getClass().getMethod(accessor, new Class[0]);
-        if (method == null) {
-            method = wrapperType.getClass().getMethod(accessor2, new Class[0]);
-        }
         if (method != null) {
             return getValue(method, wrapperType);
+        }
+        if (elField == null) {
+            elField = getElField(partName, wrapperType);
         }
         if (elField != null) {
             // JAXB Type get XmlElement Annotation
@@ -216,11 +231,28 @@ public final class WrapperHelper {
                 elField.setAccessible(true);
                 return elField.get(wrapperType);
             }
+        } else if (nsex != null) {
+            throw nsex;
         }
         
         return null;
     }
 
+    private static Field getElField(String partName, Object wrapperType) {
+        String fieldName = partName;
+        Field elField = null;
+        if (JAXBUtils.isJavaKeyword(partName)) {
+            fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
+        }
+        for (Field field : wrapperType.getClass().getDeclaredFields()) {
+            if (field.getName().equals(fieldName)) {
+                elField = field;
+                break;
+            }
+        }        
+        return elField;
+    }
+    
     public static Object getWrappedPart(String partName, Object wrapperType) throws IllegalAccessException,
         NoSuchMethodException, InvocationTargetException {
         String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
