@@ -53,6 +53,7 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
         } else {
             invoker.setInbound();
         }
+        invoker.setRequestor(isRequestor(message));
         
         if (message.getExchange().isOneWay()
             || ((isRequestor(message) && !isOutbound(message)) 

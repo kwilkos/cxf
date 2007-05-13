@@ -236,6 +236,7 @@ public class HandlerChainInvokerTest extends TestCase {
         ProtocolException pe = new ProtocolException("banzai");
         protocolHandlers[2].setException(pe);
         
+        invoker.setRequestor(true);
         assertTrue(invoker.isOutbound());
         
         boolean continueProcessing = true;
@@ -321,6 +322,7 @@ public class HandlerChainInvokerTest extends TestCase {
         protocolHandlers[2].setException(pe);
         protocolHandlers[0].setHandleFaultRet(false);
         
+        invoker.setRequestor(true);
         assertTrue(invoker.isOutbound());
         
         boolean continueProcessing = true;
@@ -521,6 +523,8 @@ public class HandlerChainInvokerTest extends TestCase {
 
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[2].setException(pe);
+        
+        invoker.setRequestor(true);
 
         //boolean continueProcessing = true;
         try {
@@ -583,6 +587,7 @@ public class HandlerChainInvokerTest extends TestCase {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[2].setException(pe);
         invoker.setResponseExpected(false);
+        invoker.setRequestor(true);
 
         //boolean continueProcessing = true;
         try {
@@ -626,6 +631,7 @@ public class HandlerChainInvokerTest extends TestCase {
 
         RuntimeException re = new RuntimeException("banzai");
         logicalHandlers[1].setException(re);
+        invoker.setRequestor(true);
 
         //boolean continueProcessing = true;
         try {
@@ -690,7 +696,8 @@ public class HandlerChainInvokerTest extends TestCase {
         // throw exception during handleFault processing
         logicalHandlers[2].setException(pe);
         logicalHandlers[1].setFaultException(pe2);
- 
+        invoker.setRequestor(true);
+
         boolean continueProcessing = false;
         try {
             continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
@@ -734,6 +741,7 @@ public class HandlerChainInvokerTest extends TestCase {
         // throw exception during handleFault processing
         logicalHandlers[2].setException(pe);
         logicalHandlers[1].setFaultException(re);
+        invoker.setRequestor(true);
 
 
         boolean continueProcessing = false;
@@ -773,7 +781,8 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testHandleFaultReturnsTrue() {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[2].setException(pe);
-        
+        invoker.setRequestor(true);
+
         logicalHandlers[0].setHandleFaultRet(true);
         logicalHandlers[1].setHandleFaultRet(true);
         logicalHandlers[2].setHandleFaultRet(true);
@@ -815,7 +824,8 @@ public class HandlerChainInvokerTest extends TestCase {
     public void testHandleFaultReturnsFalse() {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[3].setException(pe);
-        
+        invoker.setRequestor(true);
+
         logicalHandlers[0].setHandleFaultRet(true);
         logicalHandlers[1].setHandleFaultRet(true);
         logicalHandlers[2].setHandleFaultRet(false);

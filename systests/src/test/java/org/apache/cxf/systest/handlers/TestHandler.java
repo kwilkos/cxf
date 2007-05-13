@@ -103,35 +103,51 @@ public class TestHandler<T extends LogicalMessageContext>
             String arg = ((PingWithArgs)payload).getHandlersCommand();
             
             StringTokenizer strtok = new StringTokenizer(arg, " ");
-            String hid = strtok.nextToken();
-            String direction = strtok.nextToken();
-            String command = strtok.nextToken();
-            
-            if (outbound) {
-                return ret;
+            String hid = "";
+            String direction = "";
+            String command = "";
+            if (strtok.countTokens() >= 3) {
+                hid = strtok.nextToken();
+                direction = strtok.nextToken();
+                command = strtok.nextToken();
             }
-
-            if (getHandlerId().equals(hid)
-                && "inbound".equals(direction)) {
-                
-                if ("stop".equals(command)) {
+            
+            if (!getHandlerId().equals(hid)) {
+                return true;
+            }
+            
+            if ("stop".equals(command)) {
+                if (!outbound && "inbound".equals(direction)) {
                     PingResponse resp = new PingResponse();
                     resp.getHandlersInfo().addAll(getHandlerInfoList(ctx));
                     msg.setPayload(resp, jaxbCtx);
                     ret = false;
-                } else if ("throw".equals(command)) {
-                    throwException(strtok.nextToken());
+                } else if (outbound && "outbound".equals(direction)) {
+                    ret = false;
                 }
+            } else if ("throw".equals(command)) {
+                String exceptionType = null;
+                if (strtok.hasMoreTokens()) {
+                    exceptionType = strtok.nextToken();
+                }
+                if (exceptionType != null && !outbound && "inbound".equals(direction)) {
+                    if ("RuntimeException".equals(exceptionType)) {
+                        throw new RuntimeException("HandleMessage throws runtime exception");
+                    } else if ("ProtocolException".equals(exceptionType)) {
+                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                    }
+                } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
+                    if ("RuntimeException".equals(exceptionType)) {
+                        throw new RuntimeException("HandleMessage throws RuntimeException exception");
+                    } else if ("ProtocolException".equals(exceptionType)) {
+                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                    }
+                }
+             
             }
         }
+
         return ret;
-    } 
-
-
-    private void throwException(String exType) { 
-        if (exType.contains("ProtocolException")) {
-            throw new ProtocolException("from server handler");
-        }
     } 
 
     private boolean handlePingMessage(boolean outbound, T ctx) { 

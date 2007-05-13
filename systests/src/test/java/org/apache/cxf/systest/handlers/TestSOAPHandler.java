@@ -25,7 +25,9 @@ import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -108,7 +110,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                     getHandlerInfoList(ctx).add(getHandlerId());
                 }
             }
-        } catch (Exception e) {
+        } catch (SOAPException e) {
             e.printStackTrace();
         }
         return continueProcessing;
@@ -151,13 +153,17 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             String hid = "";
             String direction = "";
             String command = "";
-            if (strtok.countTokens() == 3) {
+            if (strtok.countTokens() >= 3) {
                 hid = strtok.nextToken();
                 direction = strtok.nextToken();
                 command = strtok.nextToken();
             }
             
-            if (getHandlerId().equals(hid) && "stop".equals(command)) {
+            if (!getHandlerId().equals(hid)) {
+                return true;
+            } 
+            
+            if ("stop".equals(command)) {
                 if (!outbound && "inbound".equals(direction)) {
                      // remove the incoming request body.
                     Document doc = body.getOwnerDocument(); 
@@ -183,9 +189,28 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                 } else if (outbound && "outbound".equals(direction)) {
                     ret = false;
                 }
-            } 
+            } else if ("throw".equals(command)) {
+                String exceptionType = null;
+                if (strtok.hasMoreTokens()) {
+                    exceptionType = strtok.nextToken();
+                }
+                if (exceptionType != null && !outbound && "inbound".equals(direction)) {
+                    if ("RuntimeException".equals(exceptionType)) {
+                        throw new RuntimeException("HandleMessage throws runtime exception");
+                    } else if ("ProtocolException".equals(exceptionType)) {
+                        throw new ProtocolException("HandleMessage throws runtime exception");
+                    }
+                } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
+                    if ("RuntimeException".equals(exceptionType)) {
+                        throw new RuntimeException("HandleMessage throws ProtocolException exception");
+                    } else if ("ProtocolException".equals(exceptionType)) {
+                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                    }
+                }
+             
+            }
 
-        } catch (Exception e) {
+        } catch (SOAPException e) {
             e.printStackTrace();
         }
             

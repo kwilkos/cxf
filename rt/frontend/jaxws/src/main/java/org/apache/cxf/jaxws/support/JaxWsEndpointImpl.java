@@ -34,8 +34,10 @@ import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 //import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultOutInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerOutInterceptor;
+import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
 import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
@@ -67,11 +69,16 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         } else {
              // TODO: what for non soap bindings?
         }
-
-        List<Interceptor> fault = super.getOutFaultInterceptors();
-        fault.add(new LogicalHandlerOutInterceptor(binding));
-        if (soap != null) {
-            fault.add(soap);
+        
+        List<Interceptor> fault = super.getOutFaultInterceptors();        
+        
+        LogicalHandlerFaultOutInterceptor lh = new LogicalHandlerFaultOutInterceptor(binding);
+        fault.add(lh);
+        //fault.add(new LogicalHandlerOutInterceptor(binding));
+        if (getBinding() instanceof SoapBinding) {
+            //fault.add(soap);
+            SOAPHandlerFaultOutInterceptor sh = new SOAPHandlerFaultOutInterceptor(binding);
+            fault.add(sh);
         }
         
         List<Interceptor> in = super.getInInterceptors();

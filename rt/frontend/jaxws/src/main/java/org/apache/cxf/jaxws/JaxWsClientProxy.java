@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPFault;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -38,7 +40,12 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.http.HTTPException;
+import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
+import org.w3c.dom.Node;
+
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
@@ -126,8 +133,6 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         } catch (WebServiceException wex) {
             throw wex.fillInStackTrace();
         } catch (Exception ex) {
-            //TODO - map to SoapFaultException and HTTPException
-            
             for (Class<?> excls : method.getExceptionTypes()) {
                 if (excls.isInstance(ex)) {
                     throw ex.fillInStackTrace();
@@ -138,6 +143,25 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                 HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
                 exception.initCause(ex);
                 throw exception;
+            } else if (getBinding() instanceof SOAPBinding) {
+                SOAPFault soapFault = ((SOAPBinding)getBinding()).getSOAPFactory().createFault();
+                
+                if (ex instanceof SoapFault) {
+                    soapFault.setFaultString(((SoapFault)ex).getReason());
+                    soapFault.setFaultCode(((SoapFault)ex).getFaultCode());
+
+                    Node nd = soapFault.getOwnerDocument().importNode(((SoapFault)ex).getOrCreateDetail(),
+                                                                      true);
+                    soapFault.addDetail().appendChild(nd);
+ 
+                } else {
+                    soapFault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "HandlerFault"));
+                    soapFault.setFaultString(ex.getMessage());
+                }      
+  
+                SOAPFaultException  exception = new SOAPFaultException(soapFault);
+                exception.initCause(ex);
+                throw exception;                
             } else {
                 throw new WebServiceException(ex);
             }

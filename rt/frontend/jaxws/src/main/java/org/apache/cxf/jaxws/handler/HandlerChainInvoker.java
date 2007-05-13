@@ -69,6 +69,7 @@ public class HandlerChainInvoker {
     private final List<Handler> closeHandlers  = new ArrayList<Handler>();
     
     private boolean outbound;
+    private boolean isRequestor;
     private boolean responseExpected = true;
     private boolean faultExpected;
     private boolean handlerProcessingAborted;
@@ -124,9 +125,14 @@ public class HandlerChainInvoker {
         // objectCtx.setRequestorRole(requestor);
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound());
         return invokeHandlerChain(logicalHandlers, context);
-
     }
-
+    
+    public boolean invokeLogicalHandlersHandleFault(boolean requestor, LogicalMessageContext context) {
+        // objectCtx.setRequestorRole(requestor);
+        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound());
+        return invokeHandlerChainHandleFault(logicalHandlers, context);
+    }
+    
     public boolean invokeProtocolHandlers(boolean requestor, MessageContext context) {
         // WrappedMessageContext context = new WrappedMessageContext(message);
         // bindingContext.put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, requestor);
@@ -134,7 +140,14 @@ public class HandlerChainInvoker {
 
         return invokeHandlerChain(protocolHandlers, context);
     }
+    public boolean invokeProtocolHandlersHandleFault(boolean requestor, MessageContext context) {
+        // WrappedMessageContext context = new WrappedMessageContext(message);
+        // bindingContext.put(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY, requestor);
+        context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound());
 
+        return invokeHandlerChainHandleFault(protocolHandlers, context);
+    }
+    
     public void setResponseExpected(boolean expected) {
         responseExpected = expected;
     }
@@ -150,7 +163,18 @@ public class HandlerChainInvoker {
     public boolean isInbound() {
         return !outbound;
     }
-
+    
+    //We need HandlerChainInvoker behaves differently on client and server side. For 
+    //client side, as we do not have a faultChain, we need to call handleFault and close
+    //on handlers directly. 
+    protected boolean isRequestor() {
+        return isRequestor;
+    }
+    
+    protected void setRequestor(boolean requestor) {
+        isRequestor = requestor;
+    }
+    
     public void setInbound() {
         outbound = false;
     }
@@ -218,11 +242,46 @@ public class HandlerChainInvoker {
         handlers = reverseHandlerChain(handlers);
         for (Handler h : handlers) {
             if (closeHandlers.contains(h)) {
+                //System.out.println("===========invokeClose " + h.toString());
                 h.close(context);
             }
         }
     }
+    
+    private boolean invokeHandlerChainHandleFault(List<? extends Handler> handlerChain,
+                                       MessageContext ctx) {
+        if (handlerChain.isEmpty()) {
+            LOG.log(Level.FINEST, "no handlers registered");
+            return true;
+        }
 
+        if (isClosed()) {
+            return false;
+        }
+
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "invoking handlers, direction: " + (outbound ? "outbound" : "inbound"));
+        }
+        setMessageOutboundProperty(ctx);
+
+        if (!outbound) {
+            handlerChain = reverseHandlerChain(handlerChain);
+        }
+
+        boolean continueProcessing = true;
+
+        WebServiceContextImpl.setMessageContext(ctx);
+
+
+        continueProcessing = invokeHandleFault(handlerChain, ctx);
+
+
+        if (!continueProcessing) {
+            handlerProcessingAborted = true;
+        }
+        return continueProcessing;
+    }
+    
     private boolean invokeHandlerChain(List<? extends Handler> handlerChain,
                                        MessageContext ctx) {
         if (handlerChain.isEmpty()) {
@@ -269,6 +328,7 @@ public class HandlerChainInvoker {
                 if (invokeThisHandler(h)) {
                     closeHandlers.add(h);
                     markHandlerInvoked(h);
+                    //System.out.println("===========handleFault " + h.toString());
                     continueProcessing = h.handleFault(ctx);
                 }
                 if (!continueProcessing) {
@@ -294,6 +354,7 @@ public class HandlerChainInvoker {
                 if (invokeThisHandler(h)) {
                     closeHandlers.add(h);
                     markHandlerInvoked(h);
+                    //System.out.println("===========handlerMessage " + h.toString());
                     continueProcessing = h.handleMessage(ctx);
                 }
                 if (!continueProcessing) {
@@ -307,12 +368,16 @@ public class HandlerChainInvoker {
             }
         } catch (ProtocolException e) {
             LOG.log(Level.FINE, "handleMessage raised exception", e);
-            changeMessageDirection(ctx);
-            if (responseExpected) {
-                setFaultMessage(ctx, e);
-                invokeReversedHandleFault(ctx);
-            } else {
-                invokeReversedClose();
+            
+            //this is the client outbound
+            if (isRequestor()) {
+                changeMessageDirection(ctx);
+                if (responseExpected) {
+                    setFaultMessage(ctx, e);
+                    invokeReversedHandleFault(ctx);
+                } else {
+                    invokeReversedClose();
+                }               
             }
  
             continueProcessing = false;
@@ -320,15 +385,19 @@ public class HandlerChainInvoker {
             throw e;
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
-            changeMessageDirection(ctx);
+            
+            if (isRequestor()) {
+                changeMessageDirection(ctx);
+                invokeReversedClose();
+            }
+            
             continueProcessing = false;
-            invokeReversedClose();
-
+            setFault(e);
             throw e;
         }
         return continueProcessing;
     }
-
+    
     //When the message direction is reversed, if the message is not already a fault message then it is 
     //replaced with a fault message
     private void setFaultMessage(MessageContext mc, Exception exception) {
@@ -387,6 +456,7 @@ public class HandlerChainInvoker {
             int index = invokedHandlers.size() - 2;
             while (index >= 0 && continueProcessing) {
                 Handler h = invokedHandlers.get(index);
+                //System.out.println("===========invokeReversedHandleFault " + h.toString());
                 if (h instanceof LogicalHandler) {
                     continueProcessing = h.handleFault(logicalMessageContext);
                 } else {
@@ -451,7 +521,7 @@ public class HandlerChainInvoker {
         // when handler processing has been aborted, only invoked on
         // previously invoked handlers
         //
-        if (handlerProcessingAborted) {
+        if (handlerProcessingAborted || faultRaised()) {
             ret = invokedHandlers.contains(h);
         }
         if (ret && LOG.isLoggable(Level.FINE)) {

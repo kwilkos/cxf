@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.systest.handlers;
 
+
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.LogicalMessageContext;
@@ -127,7 +129,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testSOAPHandlerHandleMessageReturnTrueClientSide() throws Exception {
+    public void testSOAPHandlerHandleMessageReturnTrueClient() throws Exception {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
@@ -163,7 +165,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testLogicalHandlerHandleMessageReturnFalseClientSide() throws Exception {
+    public void testLogicalHandlerHandleMessageReturnFalseClientOutBound() throws Exception {
         final String clientHandlerMessage = "handler2 client side";
 
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
@@ -203,120 +205,9 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         //assertTrue("close must be called", handler1.isCloseInvoked());
         //assertTrue("close must be called", handler2.isCloseInvoked());
     }
-
     
     @Test
-    public void testLogicalHandlerHandleMessageReturnsFalseInboundServerSide() throws PingException {
-        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2", 
-                                     "handler2", "soapHandler3", "soapHandler4"};
-
-        List<String> resp = handlerTest.pingWithArgs("handler2 inbound stop");     
-
-        assertEquals(expectedHandlers.length, resp.size());
-
-        int i = 0;
-        for (String expected : expectedHandlers) {
-            assertEquals(expected, resp.get(i++));
-        }
-    }
-    
-    @Test
-    public void testSOAPHandlerHandleMessageReturnsFalseInboundServerSide() throws PingException {
-        String[] expectedHandlers = {"soapHandler4", "soapHandler3",
-                                     "soapHandler3", "soapHandler4"};
-        List<String> resp = handlerTest.pingWithArgs("soapHandler3 inbound stop");
-        assertEquals(expectedHandlers.length, resp.size());
-        int i = 0;
-        for (String expected : expectedHandlers) {
-            assertEquals(expected, resp.get(i++));
-        }
-    }
-
-    
-    @Test
-    public void testSOAPHandlerHandleMessageReturnsFalseOutboundServerSide() throws PingException {
-        String[] expectedHandlers = {"soapHandler3 outbound stop", "soapHandler4", "soapHandler3", "handler2",
-                                     "handler1", "handler1", "handler2", "soapHandler3"};
-        List<String> resp = handlerTest.pingWithArgs("soapHandler3 outbound stop");
-
-        assertEquals(expectedHandlers.length, resp.size());
-        int i = 0;
-        for (String expected : expectedHandlers) {
-            assertEquals(expected, resp.get(i++));
-        }
-    }
-    
-    @Test
-    public void testLogicalHandlerHandleMessageThrowsProtocolExceptionClientSide() throws Exception {
-
-        final String clientHandlerMessage = "handler1 client side";
-
-        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
-            public boolean handleMessage(LogicalMessageContext ctx) {
-                super.handleMessage(ctx);
-                throw new ProtocolException(clientHandlerMessage);
-            }
-        };
-
-        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
-
-        try {
-            handlerTest.ping();
-            fail("did not get expected exception");
-        } catch (ProtocolException e) {
-            assertEquals(clientHandlerMessage, e.getMessage());
-        }
-
-        assertEquals(0, handler2.getHandleFaultInvoked());
-        assertEquals(1, handler1.getHandleFaultInvoked());
-
-        assertEquals(1, handler1.getCloseInvoked());
-        assertEquals(1, handler2.getCloseInvoked());
-    }
-
-    // TODO: commented out due to CXF-333
-    @Test
-    @Ignore
-    public void testLogicalHandlerThrowsProtocolExceptionServerSide() throws PingException {
-        try {
-            handlerTest.pingWithArgs("handler2 inbound throw javax.xml.ws.ProtocolException");
-            fail("did not get expected exception");
-        } catch (ProtocolException e) {
-            // happy now
-        }
-    }
-
-    @Test
-    public void testLogicalHandlerHandleMessageThrowsRuntimeExceptionClientSide() throws Exception {
-        final String clientHandlerMessage = "handler1 client side";
-
-        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
-            public boolean handleMessage(LogicalMessageContext ctx) {
-                super.handleMessage(ctx);
-                throw new RuntimeException(clientHandlerMessage);
-            }
-        };
-
-        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
-
-        try {
-            handlerTest.ping();
-            fail("did not get expected exception");
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains(clientHandlerMessage));
-        }
-
-        assertEquals(0, handler2.getHandleFaultInvoked());
-        assertEquals(0, handler1.getHandleFaultInvoked());
-
-        assertEquals(1, handler1.getCloseInvoked());
-        assertEquals(1, handler2.getCloseInvoked());
-    }
-
-    @Test
-    public void testSOAPHandlerHandleMessageReturnFalseOutboundClientSide() throws Exception {
+    public void testSOAPHandlerHandleMessageReturnFalseClientOutbound() throws Exception {
         final String clientHandlerMessage = "client side";
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
@@ -360,11 +251,148 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         assertEquals(1, soapHandler1.getHandleMessageInvoked());
         assertEquals(1, soapHandler2.getHandleMessageInvoked());
     }
+    
+    @Test
+    public void testLogicalHandlerHandleMessageReturnsFalseServerInbound() throws PingException {
+        String[] expectedHandlers = {"soapHandler4", "soapHandler3", "handler2", 
+                                     "handler2", "soapHandler3", "soapHandler4"};
+
+        List<String> resp = handlerTest.pingWithArgs("handler2 inbound stop");     
+
+        assertEquals(expectedHandlers.length, resp.size());
+
+        int i = 0;
+        for (String expected : expectedHandlers) {
+            assertEquals(expected, resp.get(i++));
+        }
+    }
+    
+    @Test
+    public void testSOAPHandlerHandleMessageReturnsFalseServerInbound() throws PingException {
+        String[] expectedHandlers = {"soapHandler4", "soapHandler3",
+                                     "soapHandler3", "soapHandler4"};
+        List<String> resp = handlerTest.pingWithArgs("soapHandler3 inbound stop");
+        assertEquals(expectedHandlers.length, resp.size());
+        int i = 0;
+        for (String expected : expectedHandlers) {
+            assertEquals(expected, resp.get(i++));
+        }
+    }
+    
+    @Test
+    public void testSOAPHandlerHandleMessageReturnsFalseServerOutbound() throws PingException {
+        String[] expectedHandlers = {"soapHandler3 outbound stop", "soapHandler4", "soapHandler3", "handler2",
+                                     "handler1", "handler1", "handler2", "soapHandler3"};
+        List<String> resp = handlerTest.pingWithArgs("soapHandler3 outbound stop");
+
+        assertEquals(expectedHandlers.length, resp.size());
+        int i = 0;
+        for (String expected : expectedHandlers) {
+            assertEquals(expected, resp.get(i++));
+        }
+    }
+
+    @Test
+    public void testLogicalHandlerHandleMessageThrowsProtocolExceptionClientOutbound() throws Exception {
+        final String clientHandlerMessage = "handler1 client side";
+
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleMessage(LogicalMessageContext ctx) {
+                super.handleMessage(ctx);
+                throw new ProtocolException(clientHandlerMessage);
+            }
+        };
+
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
+
+        try {
+            handlerTest.ping();
+            fail("did not get expected exception");
+        } catch (ProtocolException e) {
+            assertEquals(clientHandlerMessage, e.getMessage());
+        }
+
+        assertEquals(0, handler2.getHandleFaultInvoked());
+        assertEquals(1, handler1.getHandleFaultInvoked());
+
+        assertEquals(1, handler1.getCloseInvoked());
+        assertEquals(1, handler2.getCloseInvoked());
+    }
+
+    @Test
+    public void testLogicalHandlerHandleMessageThrowsRuntimeExceptionClientOutbound() throws Exception {
+        final String clientHandlerMessage = "handler1 client side";
+
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleMessage(LogicalMessageContext ctx) {
+                super.handleMessage(ctx);
+                throw new RuntimeException(clientHandlerMessage);
+            }
+        };
+
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
+
+        try {
+            handlerTest.ping();
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains(clientHandlerMessage));
+        }
+
+        assertEquals(0, handler2.getHandleFaultInvoked());
+        assertEquals(0, handler1.getHandleFaultInvoked());
+
+        assertEquals(1, handler1.getCloseInvoked());
+        assertEquals(1, handler2.getCloseInvoked());
+    }
+    
+    @Test
+    public void testSOAPHandlerHandleMessageThrowsRuntimeExceptionServerInbound() throws PingException {
+        try {
+            handlerTest.pingWithArgs("soapHandler3 inbound throw RuntimeException");
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            //FIXME
+            //e.printStackTrace();
+/*            assertTrue("Did not get expected exception message", e.getMessage()
+                .indexOf("HandleMessage throws runtime exception") > -1);*/
+        }        
+    }
+    
+    @Test
+    public void testSOAPHandlerHandleMessageThrowsProtocolExceptionServerInbound() throws PingException {
+        try {
+            handlerTest.pingWithArgs("soapHandler3 inbound throw ProtocolException");
+            fail("did not get expected WebServiceException");
+        } catch (WebServiceException e) {
+            //FIXME
+/*            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos, true);
+            e.printStackTrace(ps);
+            assertTrue("Did not get expected exception message",  baos.toString()
+                .indexOf("HandleMessage throws runtime exception") > -1);
+            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
+                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+        }        
+    }
 
     @Test
     @Ignore
+    public void testLogicalHandlerHandleMessageThrowsProtocolExceptionServerInbound()
+        throws PingException {
+        try {
+            handlerTest.pingWithArgs("handler2 inbound throw ProtocolException");
+            fail("did not get expected exception");
+        } catch (WebServiceException e) {
+            assertTrue(e.getMessage().indexOf("HandleMessage throws ProtocolException exception") >= 0);
+        }
+    }
+    
+    @Test
+    @Ignore
     public void testLogicalHandlerHandlerFaultServerSide() {
-
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);

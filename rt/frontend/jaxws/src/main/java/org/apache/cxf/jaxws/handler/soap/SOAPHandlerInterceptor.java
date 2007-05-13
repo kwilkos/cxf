@@ -157,18 +157,17 @@ public class SOAPHandlerInterceptor extends
                 }
             } else {
                 // client side inbound - Normal handler message processing
-                // stops,, but still continue the outbound interceptor chain, dispatch the message
+                // stops,, but the inbound interceptor chain still continues, dispatch the message
                 System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         } else {
             if (!getInvoker(message).isOutbound()) {
 
-                // server side outbound
+                // server side inbound
                 message.getInterceptorChain().abort();
                 Endpoint e = message.getExchange().get(Endpoint.class);
                 Message responseMsg = e.getBinding().createMessage();
                 if (!message.getExchange().isOneWay()) {
-                    // server side inbound
                     message.getExchange().setOutMessage(responseMsg);
                     SOAPMessage soapMessage = ((SOAPMessageContext)context).getMessage();
 
@@ -186,9 +185,9 @@ public class SOAPHandlerInterceptor extends
                 }
 
             } else {
-                // server side inbound - Normal handler message processing
-                // stops, but still continue the inbound interceptor chain, dispatch the message
-                System.out.println("SOAP Handler handleMessage returns false on server inbound, aborting");
+                // server side outbound - Normal handler message processing
+                // stops, but still continue the outbound interceptor chain, dispatch the message
+                System.out.println("SOAP Handler handleMessage returns false on server outbound, aborting");
             }
         }
     }
