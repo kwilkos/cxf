@@ -16,20 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.management.interceptor;
 
-package org.apache.cxf.management.counters;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 
-import junit.framework.TestCase;
-
-public class CountersTest extends TestCase {
+public class ResponseTimeMessageOutInterceptor extends AbstractMessageResponseTimeInterceptor {
     
-    public void testCounter() {
-        Counter counter = new Counter("TestCounter");
-        counter.reset();
-        counter.increase();
-        assertEquals("The Counter value is incorrcet ", 1, counter.getValue());
-        counter.reset();
-        assertEquals("The Counter should be rest to 0", 0, counter.getValue());
+    public ResponseTimeMessageOutInterceptor() {
+        super();
+        setPhase(Phase.SEND);
     }
-
+    
+    public void handleMessage(Message message) throws Fault {
+        Exchange ex = message.getExchange();
+        if (isClient(message)) {
+            if (ex.isOneWay()) {
+                setOneWayMessage(ex);
+            } else {
+                beginHandlingMessage(ex); 
+            }
+        } else { // the message is handled by server
+            endHandlingMessage(ex);
+        }
+    }
 }

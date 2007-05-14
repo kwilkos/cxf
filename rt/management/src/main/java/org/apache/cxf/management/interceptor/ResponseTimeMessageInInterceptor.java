@@ -17,14 +17,28 @@
  * under the License.
  */
 
-package org.apache.cxf.management.counters;
+package org.apache.cxf.management.interceptor;
 
-import org.apache.cxf.management.ManagedComponent;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 
-public interface Counter extends ManagedComponent {
-    String DEFAULT_DOMAIN_NAME  = "com.iona.tandoori";
+public class ResponseTimeMessageInInterceptor extends AbstractMessageResponseTimeInterceptor {
     
-    void increase(MessageHandlingTimeRecorder mhtr);  
+    public ResponseTimeMessageInInterceptor() {
+        super();
+        setPhase(Phase.RECEIVE);
+    }
+    
+    public void handleMessage(Message message) throws Fault {
         
-    Number getNumInvocations();
+        Exchange ex = message.getExchange();        
+        if (isClient(message)) {
+            endHandlingMessage(ex);
+        } else {            
+            beginHandlingMessage(ex);            
+        }
+    }
+    
 }

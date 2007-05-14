@@ -19,12 +19,27 @@
 
 package org.apache.cxf.management.counters;
 
-import org.apache.cxf.management.ManagedComponent;
+import javax.management.JMException;
+import javax.management.ObjectName;
 
-public interface Counter extends ManagedComponent {
-    String DEFAULT_DOMAIN_NAME  = "com.iona.tandoori";
+public class PerformanceCounter implements PerformanceCounterMBean, Counter {
+    private int invocations;
+    private ObjectName objectName;
+
+    public PerformanceCounter(ObjectName on) {
+        objectName = on;
+    }
+
+    public Number getNumInvocations() {        
+        return invocations;
+    }
+
+    public synchronized void increase(MessageHandlingTimeRecorder mhtr) {
+        invocations++;
+    }
+
+    public ObjectName getObjectName() throws JMException {        
+        return objectName;
+    }
     
-    void increase(MessageHandlingTimeRecorder mhtr);  
-        
-    Number getNumInvocations();
 }
