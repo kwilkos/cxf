@@ -267,7 +267,6 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
             SoapFault sf = (SoapFault)cause;
             assertEquals(expectedMsg, sf.getReason());
             assertEquals(SOAP_FAULT_CODE, sf.getFaultCode());
-            assertNull(sf.getDetail());
         }
         
         try {
@@ -278,7 +277,6 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
             SoapFault sf = (SoapFault)cause;
             assertEquals(expectedMsg, sf.getReason());
             assertEquals(SOAP_FAULT_CODE, sf.getFaultCode());
-            assertNull(sf.getDetail());
         }  
     }
    
