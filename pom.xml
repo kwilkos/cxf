@@ -298,7 +298,6 @@
             <id>deploy</id>
             <modules> 
                 <module>distribution</module>
-                <module>tools/eclipse-plugin</module>
                 <module>tools/eclipse3.1-plugin</module>
             </modules>
             <build>

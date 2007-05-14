@@ -21,6 +21,7 @@ package org.apache.cxf.tools.java2wsdl.generator.wsdl11;
 
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.rmi.ServerException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,7 +69,8 @@ public final class FaultBeanGenerator extends BeanGenerator {
                 || Fault.class.isAssignableFrom(exClazz)
                 || exClazz.equals(RuntimeException.class)
                 || exClazz.equals(Throwable.class)
-                || exClazz.equals(RemoteException.class)) {
+                || exClazz.equals(RemoteException.class)
+                || exClazz.equals(ServerException.class)) {
                 continue;
             }
 

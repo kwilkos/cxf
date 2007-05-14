@@ -46,6 +46,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.WSDLGeneratorFactory;
+import org.apache.cxf.tools.java2wsdl.generator.wsdl11.FaultBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WrapperBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilderFactory;
@@ -84,12 +85,20 @@ public class JavaToProcessor implements Processor {
         
         generators.add(getWSDLGenerator(wsdlFile));
         generators.add(getWrapperBeanGenerator());
+        generators.add(getFaultBeanGenerator());
         
         generate(service, outputDir);
     }
 
     private AbstractGenerator getWrapperBeanGenerator() {
         WrapperBeanGenerator generator = new WrapperBeanGenerator();
+        generator.setOutputBase(getSourceDir());
+        generator.setCompileToDir(getClassesDir());
+        return generator;
+    }
+    
+    private AbstractGenerator getFaultBeanGenerator() {
+        FaultBeanGenerator generator = new FaultBeanGenerator();
         generator.setOutputBase(getSourceDir());
         generator.setCompileToDir(getClassesDir());
         return generator;
