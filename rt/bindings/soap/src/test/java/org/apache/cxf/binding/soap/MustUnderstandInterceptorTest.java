@@ -29,6 +29,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -52,8 +54,10 @@ public class MustUnderstandInterceptorTest extends TestBase {
     public void setUp() throws Exception {
 
         super.setUp();
+        
+        Bus bus = BusFactory.getDefaultBus();
 
-        rhi = new ReadHeadersInterceptor();
+        rhi = new ReadHeadersInterceptor(bus);
         rhi.setPhase("phase1");
         chain.add(rhi);
 

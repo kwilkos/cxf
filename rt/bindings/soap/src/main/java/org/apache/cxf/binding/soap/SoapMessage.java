@@ -19,25 +19,17 @@
 
 package org.apache.cxf.binding.soap;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
+import javax.xml.namespace.QName;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-
-import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.AbstractWrappedMessage;
 import org.apache.cxf.message.Message;
 
 public class SoapMessage extends AbstractWrappedMessage {
-    private static final DocumentBuilder BUILDER = DOMUtils.createDocumentBuilder();
-
-    
-    private Map<Class<?>, Object> headers = new HashMap<Class<?>, Object>(); 
-    
     private SoapVersion version = Soap11.getInstance();
 
     public SoapMessage(Message message) {
@@ -52,24 +44,34 @@ public class SoapMessage extends AbstractWrappedMessage {
         this.version = v;
     }
     
-    public <T> boolean hasHeaders(Class<T> format) {
-        return headers.containsKey(format);
+    public List<Header> getHeaders() {
+        List<Header> heads = CastUtils.cast((List<?>)get(Header.HEADER_LIST));
+        if (heads == null) {
+            heads = new ArrayList<Header>();
+            put(Header.HEADER_LIST, heads);
+        }
+        return heads;
     }
     
-    public <T> T getHeaders(Class<T> format) {
-        T t = format.cast(headers.get(format));
-        if (t == null && Element.class.equals(format)) {
-            Document doc = BUILDER.newDocument();
-            Element header = doc.createElementNS(version.getNamespace(),
-                                                 version.getHeader().getLocalPart());
-            header.setPrefix(version.getPrefix());
-            setHeaders(Element.class, header);
-            t = format.cast(header);
+    public boolean hasHeader(QName qn) {
+        for (Header head : getHeaders()) {
+            if (head.getName().equals(qn)) {
+                return true;
+            }
         }
-        return t;
-    }  
-
-    public <T> void setHeaders(Class<T> format, T content) {
-        headers.put(format, content);
+        return false;
     }
+    public Header getHeader(QName qn) {
+        for (Header head : getHeaders()) {
+            if (head.getName().equals(qn)) {
+                return head;
+            }
+        }
+        return null;
+    }
+    
+    public boolean hasHeaders() {
+        return containsKey(Header.HEADER_LIST) && getHeaders().size() > 0;
+    }
+    
 }

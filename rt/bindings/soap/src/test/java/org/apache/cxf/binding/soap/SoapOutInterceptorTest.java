@@ -28,8 +28,7 @@ import java.io.OutputStream;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.w3c.dom.Element;
-
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -45,11 +44,11 @@ public class SoapOutInterceptorTest extends TestBase {
         sii.setPhase("phase1");
         chain.add(sii);
 
-        rhi = new ReadHeadersInterceptor();
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
         rhi.setPhase("phase2");
         chain.add(rhi);
 
-        soi = new SoapOutInterceptor();
+        soi = new SoapOutInterceptor(BusFactory.getDefaultBus());
         soi.setPhase("phase3");
         chain.add(soi);
     }
@@ -63,7 +62,7 @@ public class SoapOutInterceptorTest extends TestBase {
         
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
         
-        assertNotNull(soapMessage.getHeaders(Element.class));
+        assertNotNull(soapMessage.getHeaders());
 
         Exception oe = (Exception)soapMessage.getContent(Exception.class);
         if (oe != null) {

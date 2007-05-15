@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+//import java.util.HashMap;
+//import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.NamespaceContext;
@@ -235,6 +237,10 @@ public final class StaxUtils {
         XMLStreamReader reader = createXMLStreamReader(doc);
         copy(reader, writer);
     }
+    public static void copy(Element node, XMLStreamWriter writer) throws XMLStreamException {
+        XMLStreamReader reader = createXMLStreamReader(node);
+        copy(reader, writer);
+    }
     
     /**
      * Copies the reader to the writer. The start and end document methods must
@@ -288,6 +294,8 @@ public final class StaxUtils {
             prefix = "";
         }
 
+        
+//        System.out.println("STAXUTILS:writeStartElement : node name : " + local +  " namespace URI" + uri);
         boolean writeElementNS = false;
         if (uri != null) {
             String boundPrefix = writer.getPrefix(uri);
@@ -338,8 +346,8 @@ public final class StaxUtils {
             } else {
                 writer.writeNamespace(prefix, uri);
             }
-        }
-
+        }        
+        
         // Write out attributes
         for (int i = 0; i < reader.getAttributeCount(); i++) {
             String ns = reader.getAttributeNamespace(i);
@@ -411,6 +419,8 @@ public final class StaxUtils {
         String ns = e.getNamespaceURI();
         String localName = e.getLocalName();
 
+       
+//        System.out.println("local name : " + localName + " URI: " + ns + " Prefix :" + prefix);
         if (prefix == null) {
             prefix = "";
         }
@@ -428,6 +438,8 @@ public final class StaxUtils {
         if (ns == null || ns.length() == 0) {
             writer.writeStartElement(localName);
         } else {
+//            System.out.println("Calling writeStartElement for local name : " 
+//            + localName + " URI: " + ns + " Prefix :" + prefix);
             writer.writeStartElement(prefix, localName, ns);
         }
 
@@ -442,8 +454,10 @@ public final class StaxUtils {
                 attrPrefix = name.substring(0, prefixIndex);
                 name = name.substring(prefixIndex + 1);
             }
-
+     
             if ("xmlns".equals(attrPrefix)) {
+//                System.out.println("WriteNamespace is called for prefix : " 
+//                + name + " namespace :" + attr.getNodeValue());
                 writer.writeNamespace(name, attr.getNodeValue());
                 if (name.equals(prefix) && attr.getNodeValue().equals(ns)) {
                     declareNamespace = false;
@@ -691,6 +705,9 @@ public final class StaxUtils {
         }
     }
     
+    public static XMLStreamReader createXMLStreamReader(Element el) {
+        return new W3CDOMStreamReader(el);
+    }
     public static XMLStreamReader createXMLStreamReader(Document doc) {
         return new W3CDOMStreamReader(doc.getDocumentElement());
     }

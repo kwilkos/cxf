@@ -1,0 +1,22 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xsi:schemaLocation="
+       http://cxf.apache.org/transports/http/configuration
+           http://cxf.apache.org/schema/transports/http.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       
+       <http:conduit id="{http://apache.org/hello_world_doc_lit_bare}SoapPort.http-conduit">
+          <http:client ReceiveTimeout="0" ConnectionTimeout="0"/>
+       </http:conduit>
+       <http:destination id="{http://apache.org/hello_world_doc_lit_bare}SoapPort.http-destination">
+          <http:server ReceiveTimeout="0"/>       
+       </http:destination>
+       <jaxws:client id="{http://apache.org/hello_world_doc_lit_bare}SoapPort"
+                  createdFromAPI="true">
+		<jaxws:features>
+          <bean class="org.apache.cxf.feature.LoggingFeature"/>
+        </jaxws:features>
+       </jaxws:client>  
+</beans>

@@ -39,5 +39,7 @@
        	   interface="org.apache.cxf.transports.http.QueryHandlerRegistry"/> 
     <extension class="org.apache.cxf.endpoint.EndpointResolverRegistryImpl"
        	   interface="org.apache.cxf.endpoint.EndpointResolverRegistry"/>
+    <extension class="org.apache.cxf.headers.HeaderManagerImpl"
+       	   interface="org.apache.cxf.headers.HeaderManager"/>
            
 </extensions>

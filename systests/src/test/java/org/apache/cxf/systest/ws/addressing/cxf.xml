@@ -30,3 +30,4 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     
     <import resource="wsa_interceptors.xml"/>
 </beans>
+

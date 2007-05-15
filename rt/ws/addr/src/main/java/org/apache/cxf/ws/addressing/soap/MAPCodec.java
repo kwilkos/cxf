@@ -19,10 +19,10 @@
 
 package org.apache.cxf.ws.addressing.soap;
 
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,16 +37,20 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -78,6 +82,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
         Collections.synchronizedMap(new HashMap<String, Exchange>());
 
     private VersionTransformer transformer;
+    private HeaderFactory headerFactory;
     
     /**
      * Constructor.
@@ -141,13 +146,10 @@ public class MAPCodec extends AbstractSoapInterceptor {
             cacheExchange(message, maps);
             LOG.log(Level.INFO, "Outbound WS-Addressing headers");
             try {
-                Element header = message.getHeaders(Element.class);
+                List<Header> header = message.getHeaders();
                 discardMAPs(header, maps);
-                // add WSA namespace declaration to header, instead of
-                // repeating in each individual child node
-                header.setAttributeNS("http://www.w3.org/2000/xmlns/",
-                                      "xmlns:" + Names.WSA_NAMESPACE_PREFIX,
-                                      maps.getNamespaceURI());
+
+                Element hdr = getHeaderFactory().getHeader(message.getVersion());                
                 JAXBContext jaxbContext = 
                     VersionTransformer.getExposedJAXBContext(
                                                      maps.getNamespaceURI());
@@ -157,39 +159,58 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                 maps.getMessageID(), 
                                 Names.WSA_MESSAGEID_NAME,
                                 AttributedURIType.class, 
-                                header, 
+                                hdr, 
                                 marshaller);
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getTo(), 
                                 Names.WSA_TO_NAME,
                                 AttributedURIType.class,  
-                                header, 
+                                hdr, 
                                 marshaller);
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getReplyTo(), 
                                 Names.WSA_REPLYTO_NAME, 
                                 EndpointReferenceType.class,
-                                header,
+                                hdr,
                                 marshaller);
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getFaultTo(), 
                                 Names.WSA_FAULTTO_NAME, 
                                 EndpointReferenceType.class,
-                                header,
+                                hdr,
                                 marshaller);
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getRelatesTo(),
                                 Names.WSA_RELATESTO_NAME,
                                 RelatesToType.class,
-                                header,
+                                hdr,
                                 marshaller);
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getAction(), 
                                 Names.WSA_ACTION_NAME,
                                 AttributedURIType.class, 
-                                header, 
+                                hdr, 
                                 marshaller);
-                encodeReferenceParameters(maps, header, marshaller);
+                encodeReferenceParameters(maps, hdr, marshaller);
+                
+                NodeList children = hdr.getChildNodes();
+                int len = children.getLength();
+                for (int i = 0; i < len; i++) {
+                    Node node = children.item(i);
+                    
+                    if (node instanceof Element) {
+                        ((Element) node).setAttributeNS("http://www.w3.org/2000/xmlns/",
+                                "xmlns:" + Names.WSA_NAMESPACE_PREFIX,
+                                maps.getNamespaceURI());
+                    }
+              
+                    Header holder = new Header(
+                            new QName(node.getNamespaceURI(), node.getLocalName()), 
+                            node);
+                    header.add(holder);
+                }
+                
+                
                 propogateAction(maps.getAction(), message);
                 applyMAPValidation(message);
             } catch (JAXBException je) {
@@ -216,8 +237,8 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         } else {
                             jaxbEl = (JAXBElement) o;
                         }
-
                         marshaller.marshal(jaxbEl, header);
+                        
                         Element lastAdded = (Element)header.getLastChild();
                         addIsReferenceParameterMarkerAttribute(lastAdded);
                     } else {
@@ -278,24 +299,28 @@ public class MAPCodec extends AbstractSoapInterceptor {
         // expected header is missing 
         AddressingPropertiesImpl maps = null;
         try {
-            Element header = message.getHeaders(Element.class);
+            List<Header> header = message.getHeaders();
             if (header != null) {
                 LOG.log(Level.INFO, "Inbound WS-Addressing headers");
                 Unmarshaller unmarshaller = null;
                 Set<Element> referenceParameterHeaders = null;
-                NodeList headerElements = header.getChildNodes();
-                int headerCount = headerElements.getLength();
-                for (int i = 0; i < headerCount; i++) {
-                    if (headerElements.item(i) instanceof Element) {
-                        Element headerElement = (Element)headerElements.item(i);
+
+                Iterator<Header> iter = header.iterator();
+                while (iter.hasNext()) {
+                    Header hdr = iter.next();
+                    if (hdr.getObject() instanceof Element) {
+                        Element headerElement = (Element)hdr.getObject();
                         String headerURI = headerElement.getNamespaceURI();
-                        if (unmarshaller == null) {
-                            JAXBContext jaxbContext = 
-                                VersionTransformer.getExposedJAXBContext(headerURI);
-                            unmarshaller = 
-                                jaxbContext.createUnmarshaller();
-                        }
+                        // Need to check the uri before getting unmarshaller else
+                        // would get wrong unmarshaller and fail to process required
+                        // headers.
                         if (transformer.isSupported(headerURI)) {
+                            if (unmarshaller == null) {
+                                JAXBContext jaxbContext = 
+                                    VersionTransformer.getExposedJAXBContext(headerURI);
+                                unmarshaller = 
+                                    jaxbContext.createUnmarshaller();
+                            }
                             if (maps == null) {
                                 maps = new AddressingPropertiesImpl();
                                 maps.exposeAs(headerURI);
@@ -479,7 +504,15 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @param header the SOAP header
      * @param maps the current MAPs
      */
-    private void discardMAPs(Element header, AddressingProperties maps) {
+    private void discardMAPs(List<Header> header, AddressingProperties maps) {
+        Iterator<Header> iter = header.iterator();
+        while (iter.hasNext()) {
+            Header hdr = iter.next();
+            if (Names.WSA_NAMESPACE_NAME.equals(hdr.getName().getNamespaceURI())) {
+                iter.remove();
+            }
+        }
+        /*
         NodeList headerElements =
             header.getElementsByTagNameNS(maps.getNamespaceURI(), "*");        
         for (int i = 0; i < headerElements.getLength(); i++) {
@@ -487,7 +520,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
             if (Names.WSA_NAMESPACE_NAME.equals(headerElement.getNamespaceURI())) {
                 header.removeChild(headerElement);
             }
-        }
+        } */
     }
 
     /**
@@ -599,8 +632,29 @@ public class MAPCodec extends AbstractSoapInterceptor {
             message.put(Message.PARTIAL_RESPONSE_MESSAGE, Boolean.TRUE);
         } 
     }
+    
+    protected HeaderFactory getHeaderFactory() {
+        if (headerFactory == null) {
+            headerFactory = new HeaderFactory() {
+                public Element getHeader(SoapVersion soapversion) {
+                    Document doc = DOMUtils.createDocument();
+                    return doc.createElementNS(soapversion.getHeader().getNamespaceURI(),
+                            soapversion.getHeader().getLocalPart());
+                }
+            };
+        }
+        return headerFactory;
+    }
+    
+    protected void setHeaderFactory(HeaderFactory factory) {
+        headerFactory = factory;
+    }
 
+    public interface HeaderFactory {
+        Element getHeader(SoapVersion soapversion);
+    }
 }
+
 
 
 

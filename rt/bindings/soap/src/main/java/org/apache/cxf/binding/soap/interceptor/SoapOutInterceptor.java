@@ -29,12 +29,17 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.headers.HeaderManager;
+import org.apache.cxf.headers.HeaderProcessor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -49,10 +54,12 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);
-
-    public SoapOutInterceptor() {
+    private Bus bus;
+    
+    public SoapOutInterceptor(Bus b) {
         super();
         setPhase(Phase.WRITE);
+        bus = b;
     }
     
     public void handleMessage(SoapMessage message) {
@@ -65,12 +72,28 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             
-            boolean preexistingHeaders = false;
-            if (message.hasHeaders(Element.class)) {
-                Element eleHeaders = message.getHeaders(Element.class);
-                preexistingHeaders = eleHeaders != null && eleHeaders.hasChildNodes();
-                if (preexistingHeaders) {
-                    StaxUtils.writeElement(eleHeaders, xtw, true, false);
+            boolean preexistingHeaders = message.hasHeaders();
+            if (preexistingHeaders) {
+                xtw.writeStartElement(soapVersion.getPrefix(), 
+                                      soapVersion.getHeader().getLocalPart(),
+                                      soapVersion.getNamespace());   
+                List<Header> hdrList = message.getHeaders();
+                for (Header header : hdrList) {
+                    DataBinding b = header.getDataBinding();
+                    if (b == null) {
+                        HeaderProcessor hp = bus.getExtension(HeaderManager.class)
+                                .getHeaderProcessor(header.getName().getNamespaceURI());
+                        if (hp != null) {
+                            b = hp.getDataBinding();
+                        }
+                    }
+                    if (b != null) {
+                        b.createWriter(XMLStreamWriter.class)
+                            .write(header.getObject(), xtw);
+                    } else {
+                        Element node = (Element)header.getObject();
+                        StaxUtils.copy(node, xtw);
+                    }
                 }
             }
             boolean endedHeader = handleHeaderPart(preexistingHeaders, message);

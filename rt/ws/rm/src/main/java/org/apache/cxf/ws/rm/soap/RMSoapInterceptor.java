@@ -23,6 +23,8 @@ package org.apache.cxf.ws.rm.soap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.logging.Level;
@@ -36,18 +38,23 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+//import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
@@ -64,6 +71,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
+//import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.addressing.soap.MAPCodec;
 import org.apache.cxf.ws.rm.AbstractRMInterceptor;
 import org.apache.cxf.ws.rm.AckRequestedType;
@@ -184,12 +192,16 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         LOG.log(Level.FINE, "encoding RMPs in SOAP headers");
         
         try {
-            Element header = message.getHeaders(Element.class);
+            List<Header> header = message.getHeaders();
             discardRMHeaders(header);
             
+            Document doc = DOMUtils.createDocument();
+            SoapVersion version = Soap11.getInstance();
+            Element hdr = doc.createElementNS(version.getHeader().getNamespaceURI(), 
+                    version.getHeader().getLocalPart());
             // add WSRM namespace declaration to header, instead of
             // repeating in each individual child node
-            header.setAttributeNS("http://www.w3.org/2000/xmlns/",
+            hdr.setAttributeNS("http://www.w3.org/2000/xmlns/",
                                   "xmlns:" + RMConstants.getNamespacePrefix(),
                                  RMConstants.getNamespace());
             Marshaller marshaller = getJAXBContext().createMarshaller();
@@ -200,7 +212,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                 encodeProperty(seq, 
                                RMConstants.getSequenceQName(), 
                                SequenceType.class, 
-                               header,
+                               hdr,
                                marshaller);
             } 
             Collection<SequenceAcknowledgement> acks = rmps.getAcks();
@@ -209,7 +221,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                     encodeProperty(ack, 
                                    RMConstants.getSequenceAckQName(), 
                                    SequenceAcknowledgement.class, 
-                                   header,
+                                   hdr,
                                    marshaller);
                 }
             }
@@ -219,10 +231,15 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                     encodeProperty(ar, 
                                    RMConstants.getAckRequestedQName(), 
                                    AckRequestedType.class, 
-                                   header,
+                                   hdr,
                                    marshaller);
                 }
-            }         
+            }
+            for (int i = 0; i < hdr.getChildNodes().getLength(); i++) {
+                Node node = hdr.getChildNodes().item(i);
+                Header holder = new Header(new QName(node.getNamespaceURI(), node.getLocalName()), node);
+                header.add(holder);
+            }
         } catch (SOAPException se) {
             LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
         } catch (JAXBException je) {
@@ -242,22 +259,34 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         }
         LOG.log(Level.FINE, "Encoding SequenceFault in SOAP header");
         try {
-            Element header = message.getHeaders(Element.class);
+            List<Header> header = message.getHeaders();
             discardRMHeaders(header);
             
+            Document doc = DOMUtils.createDocument();
+            SoapVersion version = message.getVersion();
+            Element hdr = doc.createElementNS(version.getHeader().getNamespaceURI(), 
+                    version.getHeader().getLocalPart());
             // add WSRM namespace declaration to header, instead of
             // repeating in each individual child node
-            header.setAttributeNS("http://www.w3.org/2000/xmlns/",
-                                  "xmlns:" + RMConstants.getNamespacePrefix(),
-                                 RMConstants.getNamespace());
+//            hdr.setAttributeNS("http://www.w3.org/2000/xmlns/",
+//                                  "xmlns:" + RMConstants.getNamespacePrefix(),
+//                                 RMConstants.getNamespace());
             Marshaller marshaller = getJAXBContext().createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
 
             encodeProperty(sf.getSequenceFault(), 
                            RMConstants.getSequenceFaultQName(), 
                            SequenceFaultType.class, 
-                           header, 
+                           hdr, 
                            marshaller);
+            Node node = hdr.getFirstChild();
+            if (node instanceof Element) {
+                ((Element)node).setAttributeNS("http://www.w3.org/2000/xmlns/",
+                        "xmlns:" + RMConstants.getNamespacePrefix(),
+                       RMConstants.getNamespace());
+            }
+            
+            header.add(new Header(new QName(node.getNamespaceURI(), node.getLocalName()), node));
         } catch (SOAPException se) {
             LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
         } catch (JAXBException je) {
@@ -290,39 +319,69 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             Collection<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
             Collection<AckRequestedType> requested = new ArrayList<AckRequestedType>();           
             
-            Element header = message.getHeaders(Element.class);
+            List<Header> header = message.getHeaders();
  
             if (header != null) {
                 Unmarshaller unmarshaller = 
                     getJAXBContext().createUnmarshaller();
-                NodeList headerElements = header.getChildNodes();
-                for (int i = 0; i < headerElements.getLength(); i++) {
-                    Node node = headerElements.item(i);
-                    if (Node.ELEMENT_NODE != node.getNodeType()) {
-                        continue;
-                    }
-                    Element headerElement = (Element)headerElements.item(i);
-                    String headerURI = headerElement.getNamespaceURI();
-                    String localName = headerElement.getLocalName();
-                    if (RMConstants.getNamespace().equals(headerURI)) {
-                        LOG.log(Level.FINE, "decoding RM header {0}", localName);
-                        if (RMConstants.getSequenceName().equals(localName)) {
-                            SequenceType s = decodeProperty(SequenceType.class,
-                                                            headerElement,
-                                                            unmarshaller);
-                            
-                            rmps.setSequence(s);
-                        } else if (RMConstants.getSequenceAckName().equals(localName)) {
-                            SequenceAcknowledgement ack = decodeProperty(SequenceAcknowledgement.class,
-                                                            headerElement,
-                                                            unmarshaller);
-                            acks.add(ack);                            
-                        } else if (RMConstants.getAckRequestedName().equals(localName)) {
-                            AckRequestedType ar = decodeProperty(AckRequestedType.class,
-                                                            headerElement,
-                                                            unmarshaller);
-                            requested.add(ar);
+//                NodeList headerElements = header.getChildNodes();
+                Iterator<Header> iter = header.iterator();
+                while (iter.hasNext()) {
+                    Object node = iter.next().getObject();
+                    if (node instanceof Element) {
+                        Element elem = (Element) node;
+                        if (Node.ELEMENT_NODE != elem.getNodeType()) {
+                            continue;
                         }
+                        String headerURI = elem.getNamespaceURI();
+                        String localName = elem.getLocalName();
+                        if (RMConstants.getNamespace().equals(headerURI)) {
+                            LOG.log(Level.FINE, "decoding RM header {0}", localName);
+                            if (RMConstants.getSequenceName().equals(localName)) {
+                                SequenceType s = decodeProperty(SequenceType.class,
+                                        elem,
+                                                                unmarshaller);
+                                
+                                rmps.setSequence(s);
+                            } else if (RMConstants.getSequenceAckName().equals(localName)) {
+                                SequenceAcknowledgement ack = decodeProperty(SequenceAcknowledgement.class,
+                                        elem,
+                                                                unmarshaller);
+                                acks.add(ack);                            
+                            } else if (RMConstants.getAckRequestedName().equals(localName)) {
+                                AckRequestedType ar = decodeProperty(AckRequestedType.class,
+                                        elem,
+                                                                unmarshaller);
+                                requested.add(ar);
+                            }
+                        }
+//                for (int i = 0; i < headerElements.getLength(); i++) {
+//                    Node node = headerElements.item(i);
+//                    if (Node.ELEMENT_NODE != node.getNodeType()) {
+//                        continue;
+//                    }
+//                    Element headerElement = (Element)headerElements.item(i);
+//                    String headerURI = headerElement.getNamespaceURI();
+//                    String localName = headerElement.getLocalName();
+//                    if (RMConstants.getNamespace().equals(headerURI)) {
+//                        LOG.log(Level.FINE, "decoding RM header {0}", localName);
+//                        if (RMConstants.getSequenceName().equals(localName)) {
+//                            SequenceType s = decodeProperty(SequenceType.class,
+//                                                            headerElement,
+//                                                            unmarshaller);
+//                            
+//                            rmps.setSequence(s);
+//                        } else if (RMConstants.getSequenceAckName().equals(localName)) {
+//                            SequenceAcknowledgement ack = decodeProperty(SequenceAcknowledgement.class,
+//                                                            headerElement,
+//                                                            unmarshaller);
+//                            acks.add(ack);                            
+//                        } else if (RMConstants.getAckRequestedName().equals(localName)) {
+//                            AckRequestedType ar = decodeProperty(AckRequestedType.class,
+//                                                            headerElement,
+//                                                            unmarshaller);
+//                            requested.add(ar);
+//                        }
                     }
                 }
                 if (acks.size() > 0) {
@@ -397,15 +456,24 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
      *
      * @param header the SOAP header element
      */
-    private static void discardRMHeaders(Element header) throws SOAPException {
-        NodeList headerElements =
-            header.getElementsByTagNameNS(RMConstants.getNamespace(), "*");
-        for (int i = 0; i < headerElements.getLength(); i++) {
-            Node headerElement = headerElements.item(i);
-            if (RMConstants.getNamespace().equals(headerElement.getNamespaceURI())) {
-                header.removeChild(headerElement);
+    private static void discardRMHeaders(List<Header> header) throws SOAPException {
+        
+        Iterator<Header> iter = header.iterator();
+        while (iter.hasNext()) {
+            Header hdr = iter.next();
+            if (RMConstants.getNamespace().equals(hdr.getName().getNamespaceURI())) {
+                iter.remove();
             }
         }
+        
+//        NodeList headerElements =
+//            header.getElementsByTagNameNS(RMConstants.getNamespace(), "*");
+//        for (int i = 0; i < headerElements.getLength(); i++) {
+//            Node headerElement = headerElements.item(i);
+//            if (RMConstants.getNamespace().equals(headerElement.getNamespaceURI())) {
+//                header.removeChild(headerElement);
+//            }
+//        }
     }
     
     
@@ -534,6 +602,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         return null;
     }
 }
+
 
 
 

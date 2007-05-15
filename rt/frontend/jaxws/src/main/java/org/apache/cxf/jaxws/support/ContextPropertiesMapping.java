@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.support;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +31,10 @@ import javax.activation.DataHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
@@ -194,6 +197,18 @@ public final class ContextPropertiesMapping {
         //get the context response code and setback to out message
         if (ctx.containsKey(MessageContext.HTTP_RESPONSE_CODE)) {
             exchange.getOutMessage().put(Message.RESPONSE_CODE, ctx.get(MessageContext.HTTP_RESPONSE_CODE));
+        }
+        
+        // Guard against wrong type associated with header list.
+        // Need to copy header only if the message is going out.
+        if (ctx.containsKey(Header.HEADER_LIST) 
+                && ctx.get(Header.HEADER_LIST) instanceof List<?> 
+                && exchange.getOutMessage() instanceof SoapMessage) {
+            SoapMessage sm = (SoapMessage) exchange.getOutMessage();
+            Iterator iter = ((List) ctx.get(Header.HEADER_LIST)).iterator();
+            while (iter.hasNext()) {
+                sm.getHeaders().add((Header) iter.next());
+            }
         }
     }
    

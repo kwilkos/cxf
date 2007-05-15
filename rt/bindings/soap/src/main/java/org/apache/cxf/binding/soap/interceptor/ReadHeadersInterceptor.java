@@ -28,19 +28,26 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.headers.HeaderManager;
+import org.apache.cxf.headers.HeaderProcessor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -51,9 +58,11 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = Logger.getLogger(ReadHeadersInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReadHeadersInterceptor.class);
 
-    public ReadHeadersInterceptor() {
+    private Bus bus;
+    public ReadHeadersInterceptor(Bus b) {
         super();
         setPhase(Phase.READ);
+        bus = b;
     }
 
     public void handleMessage(SoapMessage message) {
@@ -90,13 +99,70 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 message.setContent(Node.class, doc);
 
                 // Find header
+                // TODO - we could stream read the "known" headers and just DOM read the 
+                // unknown ones
                 Element element = doc.getDocumentElement();
                 QName header = soapVersion.getHeader();
                 NodeList headerEls = element.getElementsByTagNameNS(header.getNamespaceURI(), header
                     .getLocalPart());
                 for (int i = 0; i < headerEls.getLength(); i++) {
-                    Node node = headerEls.item(i);
-                    message.setHeaders(Element.class, (Element)node);
+                    Node currentHead  = headerEls.item(i);
+                    Node node = currentHead;
+                    NodeList heads = node.getChildNodes();
+                    int len = heads.getLength();
+                    for (int x = 0; x < len; x++) {
+                        node = (Node)heads.item(x);
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            Element hel = (Element)node;
+                            // Need to add any attributes that are present on the parent element
+                            // which otherwise would be lost.
+                            if (currentHead.hasAttributes()) {
+                                NamedNodeMap nnp = currentHead.getAttributes();
+                                for (int ct = 0; ct < nnp.getLength(); ct++) {
+                                    Node attr = nnp.item(ct);
+                                    Node headerAttrNode = hel.hasAttributes() 
+                                            ?  hel.getAttributes().getNamedItemNS(
+                                                            attr.getNamespaceURI(), attr.getLocalName()) 
+                                            : null;
+                                    
+                                    if (headerAttrNode == null) {
+                                        Attr attribute = hel.getOwnerDocument().createAttributeNS(
+                                                attr.getNamespaceURI(), 
+                                                attr.getNodeName());
+                                        attribute.setNodeValue(attr.getNodeValue());
+                                        hel.setAttributeNodeNS(attribute);
+                                    }
+                                }
+                            }
+                            
+//                            System.out.println("READHEADERSINTERCEPTOR : node name : " 
+//                            + node.getLocalName() +  " namespace URI" + node.getNamespaceURI());
+                            HeaderProcessor p = bus.getExtension(HeaderManager.class)
+                                .getHeaderProcessor(hel.getNamespaceURI());
+
+                            Object obj;
+                            DataBinding dataBinding = null;
+                            if (p == null || p.getDataBinding() == null) {
+                                obj = node;
+                            } else {
+                                obj = p.getDataBinding().createReader(Node.class).read(node);
+                            }
+                            //TODO - add the interceptors
+                            
+                            SoapHeader shead = new SoapHeader(new QName(node.getNamespaceURI(),
+                                                                        node.getLocalName()),
+                                                               obj,
+                                                               dataBinding);
+                            String mu = hel.getAttributeNS(soapVersion.getNamespace(),
+                                                          soapVersion.getAttrNameMustUnderstand());
+                            String act = hel.getAttributeNS(soapVersion.getNamespace(),
+                                                            soapVersion.getAttrNameRole());
+                            
+                            shead.setActor(act);
+                            shead.setMustUnderstand(Boolean.valueOf(mu) || "1".equals(mu));
+                            message.getHeaders().add(shead);
+                        }                        
+                    }
                 }
 
                 // advance just past body.

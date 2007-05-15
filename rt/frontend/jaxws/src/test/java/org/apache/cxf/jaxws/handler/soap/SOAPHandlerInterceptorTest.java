@@ -58,6 +58,7 @@ import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.SoapVersionFactory;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.io.AbstractCachedOutputStream;
@@ -193,8 +194,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                         // change mustUnderstand to false
                         SOAPMessage message = smc.getMessage();
                         SOAPHeader soapHeader = message.getSOAPHeader();
-                        Iterator it = soapHeader.getChildElements();
-                        SOAPHeaderElement headerElementNew = (SOAPHeaderElement)it.next();
+                        Element headerElementNew = (Element)soapHeader.getChildNodes().item(0);
 
                         SoapVersion soapVersion = Soap11.getInstance();
                         headerElementNew.setAttributeNS(soapVersion.getNamespace(),
@@ -231,8 +231,13 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         XMLStreamReader reader = preparemXMLStreamReader("resources/greetMeRpcLitReq.xml");
         message.setContent(XMLStreamReader.class, reader);
         Object[] headerInfo = preparemSOAPHeader();
-        message.setHeaders(Element.class, (Element) headerInfo[1]);
-        message.setContent(Node.class, (Document) headerInfo[0]);
+        
+        message.setContent(Node.class, headerInfo[0]);
+        
+        Node node = ((Element) headerInfo[1]).getChildNodes().item(0);
+        
+        message.getHeaders().add(new Header(new QName(node.getNamespaceURI(), node.getLocalName()), node));
+        
         control.replay();
 
         SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
@@ -241,9 +246,10 @@ public class SOAPHandlerInterceptorTest extends TestCase {
 
         // Verify SOAPMessage header
         SOAPMessage soapMessageNew = message.getContent(SOAPMessage.class);
-        SOAPHeader soapHeader = soapMessageNew.getSOAPHeader();
-        Iterator itNew = soapHeader.getChildElements();
-        SOAPHeaderElement headerElementNew = (SOAPHeaderElement)itNew.next();
+        NodeList headerEls = soapMessageNew.getSOAPHeader().getChildNodes();
+
+        Element headerElementNew = (Element)headerEls.item(0);
+        
         SoapVersion soapVersion = Soap11.getInstance();
         assertEquals("false", headerElementNew.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
 
@@ -253,11 +259,22 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("sendReceiveData", qn.getLocalPart());
         
         // Verify Header Element
-        Element element = message.getHeaders(Element.class);      
-        NodeList headerNodeList = element.getElementsByTagNameNS(
-            "http://apache.org/hello_world_rpclit/types", "header1");
-        Element headerElementNew1 = (Element)headerNodeList.item(0);
-        assertEquals("false", headerElementNew1.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
+        Iterator<Header> iter = message.getHeaders().iterator();
+        Element requiredHeader = null;
+        while (iter.hasNext()) {
+            Header localHdr = iter.next();
+            if (localHdr.getObject() instanceof Element) {
+                Element elem = (Element) localHdr.getObject();
+                if (elem.getNamespaceURI().equals("http://apache.org/hello_world_rpclit/types")
+                        && elem.getLocalName().equals("header1")) {
+                    requiredHeader = (Element) localHdr.getObject();
+                    break;                
+                }
+            }
+        }
+        
+        assertNotNull("Should have found header1", requiredHeader);
+        assertEquals("false", requiredHeader.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
     }
 
     public void testChangeSOAPHeaderOutBound() throws Exception {

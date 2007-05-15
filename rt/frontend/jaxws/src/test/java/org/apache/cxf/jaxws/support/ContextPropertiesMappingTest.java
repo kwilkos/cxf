@@ -18,9 +18,11 @@
  */
 package org.apache.cxf.jaxws.support;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.activation.DataHandler;
@@ -32,6 +34,7 @@ import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 
 import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -119,6 +122,7 @@ public class ContextPropertiesMappingTest extends TestCase {
     public void testUpdateWebServiceContext() {
         Exchange xchng = new ExchangeImpl();
         Message outMsg = new MessageImpl();
+        List<Header> hdrList = new ArrayList<Header>();
         xchng.setOutMessage(outMsg);
         
         responseContext.put(MessageContext.HTTP_RESPONSE_CODE, RESPONSE_CODE);
@@ -128,6 +132,14 @@ public class ContextPropertiesMappingTest extends TestCase {
         EasyMock.expectLastCall().andReturn(true);
         ctx.get(MessageContext.HTTP_RESPONSE_CODE);
         EasyMock.expectLastCall().andReturn(RESPONSE_CODE);
+        
+        ctx.containsKey(Header.HEADER_LIST);
+        EasyMock.expectLastCall().andReturn(true);
+        ctx.get(Header.HEADER_LIST);
+        EasyMock.expectLastCall().andReturn(hdrList);
+        ctx.get(Header.HEADER_LIST);
+        EasyMock.expectLastCall().andReturn(hdrList);
+        
         EasyMock.replay(ctx);
         
         ContextPropertiesMapping.updateWebServiceContext(xchng, ctx);

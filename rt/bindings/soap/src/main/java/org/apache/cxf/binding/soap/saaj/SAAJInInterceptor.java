@@ -23,6 +23,7 @@ package org.apache.cxf.binding.soap.saaj;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
+import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
@@ -36,11 +37,18 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.headers.HeaderManager;
+import org.apache.cxf.headers.HeaderProcessor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.phase.Phase;
@@ -86,9 +94,45 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             }
             
             //replace header element if necessary
-            if (message.hasHeaders(Element.class)) {
-                Element headerElements = soapMessage.getSOAPHeader();    
-                message.setHeaders(Element.class, headerElements);
+            if (message.hasHeaders()) {
+                NodeList headerEls = soapMessage.getSOAPHeader().getChildNodes();
+                int len = headerEls.getLength();
+                for (int i = 0; i < len; i++) {
+                    Node nd = headerEls.item(i);
+                    if (Node.ELEMENT_NODE == nd.getNodeType()) {
+                        Element hel = (Element)nd;
+                        HeaderProcessor p = BusFactory.getDefaultBus().getExtension(HeaderManager.class)
+                            .getHeaderProcessor(hel.getNamespaceURI());
+
+                        Object obj;
+                        DataBinding dataBinding = null;
+                        if (p == null || p.getDataBinding() == null) {
+                            obj = nd;
+                        } else {
+                            obj = p.getDataBinding().createReader(Node.class).read(nd);
+                        }
+                        //TODO - add the interceptors
+                        
+                        SoapHeader shead = new SoapHeader(new QName(nd.getNamespaceURI(),
+                                nd.getLocalName()),
+                                                           obj,
+                                                           dataBinding);
+                        String mu = hel.getAttributeNS(message.getVersion().getNamespace(),
+                                message.getVersion().getAttrNameMustUnderstand());
+                        String act = hel.getAttributeNS(message.getVersion().getNamespace(),
+                                message.getVersion().getAttrNameRole());
+                        
+                        shead.setActor(act);
+                        shead.setMustUnderstand(Boolean.valueOf(mu) || "1".equals(mu));
+                        Header oldHdr = message.getHeader(
+                                new QName(nd.getNamespaceURI(), nd.getLocalName()));
+                        if (oldHdr != null) {
+                            message.getHeaders().remove(oldHdr);
+                        } 
+                        message.getHeaders().add(shead);
+                        
+                    }
+                }
             }
             
             XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);

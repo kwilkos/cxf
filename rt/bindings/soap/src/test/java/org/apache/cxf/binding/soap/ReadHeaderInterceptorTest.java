@@ -22,6 +22,7 @@ package org.apache.cxf.binding.soap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.activation.DataHandler;
@@ -30,9 +31,11 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Attachment;
 
@@ -44,7 +47,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        rhi = new ReadHeadersInterceptor();
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
         rhi.setPhase("phase1");
         chain.add(rhi);
     }
@@ -56,7 +59,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
         ByteArrayDataSource bads = new ByteArrayDataSource(in, "test/xml");
         soapMessage.setContent(InputStream.class, bads.getInputStream());
 
-        ReadHeadersInterceptor r = new ReadHeadersInterceptor();
+        ReadHeadersInterceptor r = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
         try {
             r.handleMessage(soapMessage);
             fail("Did not throw exception");
@@ -78,14 +81,23 @@ public class ReadHeaderInterceptorTest extends TestBase {
         XMLStreamReader xmlReader = soapMessage.getContent(XMLStreamReader.class);
         assertEquals("check the first entry of body", "itinerary", xmlReader.getLocalName());
         
-        Element eleHeaders = soapMessage.getHeaders(Element.class);
+        List<Header> eleHeaders = soapMessage.getHeaders();
+        
         List<Element> headerChilds = new ArrayList<Element>();
-        for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
-            if (eleHeaders.getChildNodes().item(i) instanceof Element) {
-                Element element = (Element)eleHeaders.getChildNodes().item(i);
-                headerChilds.add(element);
+        Iterator<Header> iter = eleHeaders.iterator();
+        while (iter.hasNext()) {
+            Header hdr = iter.next();
+
+            if (hdr.getObject() instanceof Element) {
+                headerChilds.add((Element) hdr.getObject());
             }
         }
+//        for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
+//            if (eleHeaders.getChildNodes().item(i) instanceof Element) {
+//                Element element = (Element)eleHeaders.getChildNodes().item(i);
+//                headerChilds.add(element);
+//            }
+//        }
 
         assertEquals(2, headerChilds.size());
         for (int i = 0; i < headerChilds.size(); i++) {

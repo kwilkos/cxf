@@ -22,14 +22,11 @@ package org.apache.cxf.binding.soap.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
@@ -82,15 +79,20 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
             return;
         }
         
-        Element headerElement = message.getHeaders(Element.class);
         for (SoapHeaderInfo header : headers) {
             MessagePartInfo mpi = header.getPart();
-            Element param = findHeader(headerElement, mpi);
+            Header param = findHeader(message, mpi);
             
             int idx = mpi.getIndex();
             Object object = null;
             if (param != null) {
-                object = getNodeDataReader(message).read(mpi, param);
+                if (param.getDataBinding() == null) {
+                    Node source = (Node)param.getObject();
+                    object = getNodeDataReader(message).read(mpi, source);
+                } else {
+                    object = param.getObject();
+                }
+                
             }
             
             if (client) {
@@ -112,21 +114,7 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
         }
     }
 
-    private Element findHeader(Element headerElement, MessagePartInfo mpi) {
-        NodeList nodeList = headerElement.getChildNodes();
-        Element param = null;
-        if (nodeList != null) {
-            QName name = mpi.getConcreteName();
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node n = nodeList.item(i);
-                if (n.getNamespaceURI() != null 
-                        && n.getNamespaceURI().equals(name.getNamespaceURI())
-                        && n.getLocalName() != null
-                        && n.getLocalName().equals(name.getLocalPart())) {
-                    param = (Element) n;
-                }
-            }
-        }
-        return param;
+    private Header findHeader(SoapMessage message, MessagePartInfo mpi) {
+        return message.getHeader(mpi.getConcreteName());
     }
 }

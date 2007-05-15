@@ -21,6 +21,7 @@ package org.apache.cxf.systest.ws.addressing;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -31,12 +32,15 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
+import org.apache.cxf.headers.Header;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
@@ -84,8 +88,27 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
     private void addPartialResponseHeader(SoapMessage message) {
         try {
             // add piggybacked wsa:From header to partial response
-            Element header = message.getHeaders(Element.class);
-            marshallFrom("urn:piggyback_responder", header, getMarshaller());
+//            Element header = message.getHeaders(Element.class);
+            List<Header> header = message.getHeaders();
+            Document doc = DOMUtils.createDocument();
+            SoapVersion ver = message.getVersion();
+            Element hdr = doc.createElementNS(ver.getHeader().getNamespaceURI(), 
+                ver.getHeader().getLocalPart());
+            hdr.setPrefix(ver.getHeader().getPrefix());
+            
+            marshallFrom("urn:piggyback_responder", hdr, getMarshaller());
+            NodeList nl = hdr.getChildNodes();
+            for (int i = 0; i < nl.getLength(); i++) {
+                Object obj = nl.item(i);
+                if (obj instanceof Element) {
+                    Element elem = (Element) obj;
+                    Header holder = new Header(
+                            new QName(elem.getNamespaceURI(), elem.getLocalName()), 
+                            elem, null);
+                    header.add(holder);
+                }
+            }
+            
         } catch (Exception e) {
             verificationCache.put("SOAP header addition failed: " + e);
             e.printStackTrace();
@@ -95,7 +118,7 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
     private void verify(SoapMessage message, boolean outgoingPartialResponse) {
         try {
             List<String> wsaHeaders = new ArrayList<String>();
-            Element headers = message.getHeaders(Element.class);
+            List<Header> headers = message.getHeaders();
             if (headers != null) {
                 recordWSAHeaders(headers,
                                  wsaHeaders,
@@ -113,18 +136,31 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
         }
     }
 
-    private void recordWSAHeaders(Element headers,
+    private void recordWSAHeaders(List<Header> headers,
                                   List<String> wsaHeaders,
                                   String namespaceURI) {
-        NodeList headerElements =
-            headers.getElementsByTagNameNS(namespaceURI, "*");
-        for (int i = 0; i < headerElements.getLength(); i++) {
-            Node headerElement = headerElements.item(i);
-            if (namespaceURI.equals(headerElement.getNamespaceURI())) {
-                currentNamespaceURI = namespaceURI;
-                wsaHeaders.add(headerElement.getLocalName());
+        Iterator<Header> iter = headers.iterator();
+        while (iter.hasNext()) {
+            Object obj = iter.next().getObject();
+            if (obj instanceof Element) {
+                Element hdr = (Element) obj;
+                if (namespaceURI.equals(hdr.getNamespaceURI())) {
+                    currentNamespaceURI = namespaceURI;
+                    wsaHeaders.add(hdr.getLocalName());
+                }
             }
+            
         }
+    
+//        NodeList headerElements =
+//            headers.getElementsByTagNameNS(namespaceURI, "*");
+//        for (int i = 0; i < headerElements.getLength(); i++) {
+//            Node headerElement = headerElements.item(i);
+//            if (namespaceURI.equals(headerElement.getNamespaceURI())) {
+//                currentNamespaceURI = namespaceURI;
+//                wsaHeaders.add(headerElement.getLocalName());
+//            }
+//        }
     }
 
     private boolean isOutgoingPartialResponse(SoapMessage message) {
