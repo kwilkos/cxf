@@ -134,6 +134,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         setExchangeProperties(exchange, endpoint);
 
         message.setContent(Object.class, obj);
+        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
 
         PhaseInterceptorChain chain = getDispatchOutChain(endpoint);
         message.setInterceptorChain(chain);

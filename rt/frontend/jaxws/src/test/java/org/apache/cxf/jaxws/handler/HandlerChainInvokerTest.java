@@ -127,34 +127,38 @@ public class HandlerChainInvokerTest extends TestCase {
             .getInvokeOrderOfHandleMessage());
     }
 
-    public void testLogicalHandlerOutboundProcessingStoppedResponseExpected() {
+    public void testLogicalHandlerReturnFalseOutboundResponseExpected() {
 
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
         assertEquals(0, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[2].getHandleMessageCount());
 
         assertTrue(invoker.isOutbound());
 
         // invoke the handlers.  when a handler returns false, processing
-        // of handlers is stopped and message direction is  reversed.
-        logicalHandlers[0].setHandleMessageRet(false);
+        // of handlers is stopped and message direction is reversed.
+        logicalHandlers[1].setHandleMessageRet(false);
+        
         boolean ret = invoker.invokeLogicalHandlers(false, lmc);
 
         assertEquals(false, ret);
         assertFalse(invoker.isClosed());
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
-        assertEquals(0, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[2].getHandleMessageCount());
         assertTrue(invoker.isInbound());
 
         // the next time invokeHandler is invoked, the 'next' handler is invoked.
         // As message direction has been reversed this means the that the previous
         // one on the list is actually invoked.
-        logicalHandlers[0].setHandleMessageRet(true);
+        logicalHandlers[1].setHandleMessageRet(true);
 
         ret = invoker.invokeLogicalHandlers(false, lmc);
         assertTrue(ret);
         assertFalse(invoker.isClosed());
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
-        assertEquals(0, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(0, logicalHandlers[2].getHandleMessageCount());
         assertTrue(invoker.isInbound());
     }
 
@@ -204,7 +208,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(2, logicalHandlers[3].getHandleMessageCount());
         assertEquals(2, protocolHandlers[0].getHandleMessageCount());
         assertEquals(2, protocolHandlers[1].getHandleMessageCount());
-        assertEquals(2, protocolHandlers[2].getHandleMessageCount());
+        assertEquals(1, protocolHandlers[2].getHandleMessageCount());
         assertEquals(0, protocolHandlers[3].getHandleMessageCount());
         assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
                    < logicalHandlers[2].getInvokeOrderOfHandleMessage());
@@ -451,7 +455,7 @@ public class HandlerChainInvokerTest extends TestCase {
         
         assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(2, logicalHandlers[1].getHandleMessageCount());
-        assertEquals(2, logicalHandlers[2].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[2].getHandleMessageCount());
         assertEquals(0, logicalHandlers[3].getHandleMessageCount());
         assertTrue(logicalHandlers[3].getInvokeOrderOfHandleMessage()
                    < logicalHandlers[2].getInvokeOrderOfHandleMessage());
@@ -497,12 +501,11 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(logicalHandlers[1].getInvokeOrderOfHandleMessage()
                    < logicalHandlers[2].getInvokeOrderOfHandleMessage());
         
-        assertEquals(1, logicalHandlers[0].getCloseCount());
-        assertEquals(1, logicalHandlers[1].getCloseCount());
-        assertEquals(1, logicalHandlers[2].getCloseCount());
+        //Close is invoked outside HandlerChainInvoker, eg, in SOAPHandlerInterceptor
+        assertEquals(0, logicalHandlers[0].getCloseCount());
+        assertEquals(0, logicalHandlers[1].getCloseCount());
+        assertEquals(0, logicalHandlers[2].getCloseCount());
         assertEquals(0, logicalHandlers[3].getCloseCount());
-        assertTrue(logicalHandlers[1].getInvokeOrderOfClose()
-                   < logicalHandlers[0].getInvokeOrderOfClose());
 
         assertEquals(0, logicalHandlers[0].getHandleFaultCount());
         assertEquals(0, logicalHandlers[1].getHandleFaultCount());
@@ -920,7 +923,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(2, protocolHandlers[0].getHandleMessageCount());
         assertEquals(2, protocolHandlers[1].getHandleMessageCount());
 
-        assertEquals(2, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
         assertEquals(2, protocolHandlers[0].getHandleMessageCount());
         assertEquals(2, protocolHandlers[1].getHandleMessageCount());

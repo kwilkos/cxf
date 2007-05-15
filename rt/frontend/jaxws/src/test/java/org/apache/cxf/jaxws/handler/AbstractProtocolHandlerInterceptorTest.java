@@ -56,7 +56,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
 
     public void testInterceptSuccess() {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
-        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
         expect(
                 invoker.invokeProtocolHandlers(eq(false),
                         isA(MessageContext.class))).andReturn(true);
@@ -69,7 +69,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
 
     public void testInterceptFailure() {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
-        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
         expect(exchange.getOutMessage()).andReturn(message);
         expect(
                 invoker.invokeProtocolHandlers(eq(false),

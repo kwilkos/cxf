@@ -129,11 +129,11 @@ public class LogicalHandlerOutInterceptor<T extends Message>
                         responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
                                         LogicalHandlerInInterceptor.class.getName());
                         observer.onMessage(responseMsg);
-                        invoker.mepComplete(responseMsg);
+                        //invoker.mepComplete(responseMsg);
                     }
                 } else {
-                    // server side - about
-                    System.out.println("Aborting");
+                    // server side - abort
+                    System.out.println("Logical handler server side aborting");
                 }
                 return;
             }

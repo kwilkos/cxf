@@ -71,8 +71,28 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     }
     
     public void onCompletion(T message) {
-        if (isOutbound(message)) {
-            getInvoker(message).mepComplete(message);
-        }
-    }    
+        getInvoker(message).mepComplete(message);
+    }   
+    
+    public boolean isMEPComlete(T message) {
+        HandlerChainInvoker invoker = getInvoker(message);
+      
+        if (invoker.isRequestor()) {
+            //client inbound and client outbound with no response are end of MEP
+            if (invoker.isInbound()) {
+                return true;
+            } else if (!invoker.isResponseExpected()) {
+                return true;
+            }            
+        } else {
+            //server outbound and server inbound with no response are end of MEP
+            if (!invoker.isInbound()) {
+                return true;
+            } else if (!invoker.isResponseExpected()) {
+                return true;
+            }            
+        } 
+        
+        return false;
+    }
 }

@@ -66,7 +66,7 @@ public class TestHandler<T extends LogicalMessageContext>
         printHandlerInfo("handleMessage", isOutbound(ctx));
 
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        boolean ret = handleMessageRet; 
+        boolean ret = getHandleMessageRet(); 
 
         if (!isServerSideHandler()) {
             return true;
@@ -154,7 +154,7 @@ public class TestHandler<T extends LogicalMessageContext>
 
         LogicalMessage msg = ctx.getMessage();
         addHandlerId(msg, ctx, outbound);
-        return handleMessageRet;
+        return getHandleMessageRet();
     } 
 
     private void addHandlerId(LogicalMessage msg, T ctx, boolean outbound) { 

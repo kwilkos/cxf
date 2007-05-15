@@ -125,11 +125,23 @@ public class SOAPHandlerInterceptor extends
         HandlerChainInvoker invoker = getInvoker(message);
         invoker.setProtocolMessageContext(context);
 
+/*        if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
+            handleAbort(message, context);
+        } else {
+            //if message processing ends normally, close previously invoked handlers.
+            if (isOutbound(message)) {
+                onCompletion(message);
+            }
+        }*/
+        
         if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
             handleAbort(message, context);
+        } 
+
+        //If this is the outbound and end of MEP, call MEP completion
+        if (isOutbound(message) && isMEPComlete(message)) {
+            onCompletion(message);
         }
-  
-        onCompletion(message);
     }
     
     private void handleAbort(SoapMessage message, MessageContext context) {
@@ -151,13 +163,18 @@ public class SOAPHandlerInterceptor extends
                         XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(soapMessage);
                         responseMsg.setContent(XMLStreamReader.class, xmlReader);
                     }
-                    responseMsg.put(PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID,
+                    responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
                                     SOAPHandlerInterceptor.class.getName());
                     observer.onMessage(responseMsg);
                 }
+                
+                //We dont call onCompletion here, as onCompletion will be called by inbound 
+                //LogicalHandlerInterceptor
             } else {
                 // client side inbound - Normal handler message processing
-                // stops,, but the inbound interceptor chain still continues, dispatch the message
+                // stops, but the inbound interceptor chain still continues, dispatch the message
+                //By onCompletion here, we can skip following Logical handlers 
+                onCompletion(message);
                 System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         } else {

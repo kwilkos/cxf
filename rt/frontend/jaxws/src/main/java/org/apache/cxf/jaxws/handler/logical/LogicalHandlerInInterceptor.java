@@ -57,10 +57,19 @@ public class LogicalHandlerInInterceptor<T extends Message>
         LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
         invoker.setLogicalMessageContext(lctx);
         boolean requestor = isRequestor(message);
-        if (!invoker.invokeLogicalHandlers(requestor, lctx) && !requestor) {
-            handleAbort(message, null);
+        if (!invoker.invokeLogicalHandlers(requestor, lctx)) {
+            if (!requestor) {
+                handleAbort(message, null);
+            } else {
+                //Client side inbound, thus no response expected, do nothing, the close will  
+                //be handled by MEPComplete later
+            }
         }
-        onCompletion(message);
+ 
+        //If this is the inbound and end of MEP, call MEP completion
+        if (!isOutbound(message) && isMEPComlete(message)) {
+            onCompletion(message);
+        }
     }
 
     private void handleAbort(T message, W3CDOMStreamWriter writer) {

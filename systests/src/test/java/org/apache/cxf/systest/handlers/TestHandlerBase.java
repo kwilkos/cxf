@@ -40,13 +40,19 @@ import org.apache.handler_test.PingException;
  * @version 1.0
  */
 public abstract class TestHandlerBase {
-
+   
     private static final Logger LOG = Logger.getLogger(TestHandlerBase.class.getName());
 
-    private static int sid; 
+    private static int sid;
+    private static int sinvokedOrder;
 
-    protected boolean handleMessageRet = true; 
-    Map<String, Integer> methodCallCount = new HashMap<String, Integer>();
+    private boolean handleMessageRet = true;
+
+    private int invokeOrderOfHandleMessage;
+    private int invokeOrderOfHandleFault;
+    private int invokeOrderOfClose;
+
+    private Map<String, Integer> methodCallCount = new HashMap<String, Integer>();
     private final int id;
     private final boolean isServerSideHandler;
 
@@ -60,10 +66,29 @@ public abstract class TestHandlerBase {
         if (methodCallCount.keySet().contains(methodName)) { 
             val = methodCallCount.get(methodName);
         } 
+        if ("handleMessage".equals(methodName)) {
+            invokeOrderOfHandleMessage = ++sinvokedOrder;
+        } else if ("handleFault".equals(methodName)) {
+            invokeOrderOfHandleFault = ++sinvokedOrder;
+        } else if ("close".equals(methodName)) {
+            invokeOrderOfClose = ++sinvokedOrder;
+        }
+
         val++; 
         methodCallCount.put(methodName, val);
     } 
 
+    public int getInvokeOrderOfHandleMessage() {
+        return invokeOrderOfHandleMessage;
+    }
+    
+    public int getInvokeOrderOfHandleFault() {
+        return invokeOrderOfHandleFault;
+    }
+    
+    public int getInvokeOrderOfClose() {
+        return invokeOrderOfClose;
+    }  
     
     public int getId() {
         return id; 
@@ -112,6 +137,10 @@ public abstract class TestHandlerBase {
         handleMessageRet = ret; 
     }
 
+    public boolean getHandleMessageRet() { 
+        return handleMessageRet; 
+    }
+    
     public boolean isServerSideHandler() {
         return isServerSideHandler; 
     } 
