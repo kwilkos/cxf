@@ -24,7 +24,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
@@ -38,7 +43,9 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
@@ -89,7 +96,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertNotNull(mpi.getTypeClass());
     }
     
-    @Test
+    @Ignore
     public void testHolder() throws Exception {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
@@ -188,5 +195,47 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         Collection<SchemaInfo> schemas = si.getSchemas();
         assertEquals(1, schemas.size());
     }
+    
+    @Test
+    public void testBareBug() throws Exception {
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        Bus bus = getBus();
+        bean.setBus(bus);
+        bean.setServiceClass(org.apache.cxf.test.TestInterfacePort.class);
+        Service service = bean.create();
+        ServiceInfo si = service.getServiceInfos().get(0);
+        ServiceWSDLBuilder builder = new ServiceWSDLBuilder(bus, si);
+        Definition def = builder.build();
+        
+        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(def);
+        NodeList nodeList = assertValid("/wsdl:definitions/wsdl:types/xsd:schema" 
+                                        + "[@targetNamespace='http://cxf.apache.org/" 
+                                        + "org.apache.cxf.test.TestInterface/xsd']" 
+                                        + "/xsd:element[@name='getMessage']", wsdl);
+        assertEquals(1, nodeList.getLength());
+        
+
+        assertValid("/wsdl:definitions/wsdl:message[@name='setMessage']" 
+                    + "/wsdl:part[@name = 'parameters'][@element='ns2:setMessage']" , wsdl);
+
+        assertValid("/wsdl:definitions/wsdl:message[@name='echoCharResponse']" 
+                    + "/wsdl:part[@name = 'y'][@element='ns2:charEl_y']" , wsdl);
+        
+        assertValid("/wsdl:definitions/wsdl:message[@name='echoCharResponse']" 
+                    + "/wsdl:part[@name = 'return'][@element='ns2:charEl_return']" , wsdl);
+
+        assertValid("/wsdl:definitions/wsdl:message[@name='echoCharResponse']" 
+                    + "/wsdl:part[@name = 'z'][@element='ns2:charEl_z']" , wsdl);
+        
+        assertValid("/wsdl:definitions/wsdl:message[@name='echoChar']" 
+                    + "/wsdl:part[@name = 'x'][@element='ns2:charEl_x']" , wsdl);
+        
+        assertValid("/wsdl:definitions/wsdl:message[@name='echoChar']" 
+                    + "/wsdl:part[@name = 'y'][@element='ns2:charEl_y']" , wsdl);
+
+        
+    }
+    
+    
 
 }

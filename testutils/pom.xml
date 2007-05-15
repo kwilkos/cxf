@@ -328,6 +328,11 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/factory_pattern.wsdl</wsdl>
                                 </wsdlOption>
+                                <!-- will be removed-->
+                                <wsdlOption>
+				    <wsdl>${basedir}/src/main/resources/wsdl/test_chars.wsdl</wsdl>
+                                </wsdlOption>
+                                
     	                    </wsdlOptions>
                         </configuration>
                         <goals>

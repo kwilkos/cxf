@@ -19,7 +19,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="HeaderTesterService" targetNamespace="http://apache.org/samples/headers" xmlns:ns1="http://apache.org/samples/headers" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://apache.org/samples/headers" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/samples/headers">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://apache.org/samples/headers" targetNamespace="http://apache.org/samples/headers" version="1.0">
 <xs:element name="SOAPHeaderInfo" nillable="true" type="tns:SOAPHeaderData"/>
 <xs:element name="inHeader">
 <xs:complexType>
@@ -69,12 +69,6 @@
 <xs:element name="message" type="xs:string"/>
 </xs:sequence>
 </xs:complexType>
-<xs:element nillable="true" ref="tns:outHeader"/>
-<xs:element nillable="true" ref="tns:outHeaderResponse"/>
-<xs:element nillable="true" ref="tns:inHeader"/>
-<xs:element nillable="true" ref="tns:inHeaderResponse"/>
-<xs:element nillable="true" ref="tns:inoutHeader"/>
-<xs:element nillable="true" ref="tns:inoutHeaderResponse"/>
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="inHeaderResponse">
