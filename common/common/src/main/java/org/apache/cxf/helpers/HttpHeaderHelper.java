@@ -28,6 +28,7 @@ public final class HttpHeaderHelper {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
+    public static final String COOKIE = "Cookie";
     
     private static Map<String, String> internalHeaders = new HashMap<String, String>();
     

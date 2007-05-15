@@ -52,6 +52,8 @@ public final class ContextPropertiesMapping {
     static {
         cxf2jaxwsMap.put(Message.ENDPOINT_ADDRESS, 
                           BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+        cxf2jaxwsMap.put(Message.MAINTAIN_SESSION,
+                         BindingProvider.SESSION_MAINTAIN_PROPERTY);
         
         cxf2jaxwsMap.put(Message.HTTP_REQUEST_METHOD,
                           MessageContext.HTTP_REQUEST_METHOD);
@@ -68,6 +70,8 @@ public final class ContextPropertiesMapping {
         
         jaxws2cxfMap.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
                          Message.ENDPOINT_ADDRESS);
+        jaxws2cxfMap.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, 
+                         Message.MAINTAIN_SESSION);
                 
         jaxws2cxfMap.put(MessageContext.HTTP_REQUEST_METHOD,
                          Message.HTTP_REQUEST_METHOD);

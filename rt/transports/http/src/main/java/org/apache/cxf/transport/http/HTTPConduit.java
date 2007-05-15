@@ -243,6 +243,10 @@ public class HTTPConduit
      * should be handled as such.
      */
     private boolean configFinalized;
+    
+    private String sessionId;
+    
+    private boolean maintainSession;
 
     /**
      * Constructor
@@ -432,6 +436,7 @@ public class HTTPConduit
      * @param message The message to be sent.
      */
     public void prepare(Message message) throws IOException {
+        
         Map<String, List<String>> headers = getSetProtocolHeaders(message);
         
         // This call can possibly change the conduit endpoint address and 
@@ -496,6 +501,18 @@ public class HTTPConduit
             }
         }
         
+        //Do we need to maintain a session?
+        if (Boolean.TRUE.equals((Boolean) message.get(Message.MAINTAIN_SESSION))) {
+            maintainSession = true;
+        } else {
+            maintainSession = false;
+        }
+        
+        //If we have a sessionId and we are maintaining sessions, then use it
+        if (maintainSession && sessionId != null) {
+            connection.setRequestProperty(HttpHeaderHelper.COOKIE, "JSESSIONID=" + sessionId);
+        }
+
         // The trust decision is relagated to after the "flushing" of the
         // request headers.
         
@@ -1749,6 +1766,19 @@ public class HTTPConduit
             inMessage.put(Message.RESPONSE_CODE, responseCode);
             inMessage.put(Message.CONTENT_TYPE, 
                     connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
+            
+            if (maintainSession) {
+                String cookieStr = connection.getHeaderField("Set-Cookie");
+                if (cookieStr != null) {
+                    String cookies[] = cookieStr.split(";");
+                    for (int i = 0; i < cookies.length; i++) {
+                        String nameValue[] = cookies[i].split("=");
+                        if (nameValue[0].equals("JSESSIONID") || nameValue[0].equals("jsessionid")) {
+                            sessionId = nameValue[1];
+                        }
+                    }
+                }
+            }
 
             in = connection.getErrorStream();
             if (null == in) {
