@@ -37,8 +37,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.security.SslSelectChannelConnector;
-//import org.mortbay.jetty.security.SslSocketConnector;
+import org.mortbay.jetty.security.SslSocketConnector;
 
 
 public class JettySslConnectorFactoryTest extends Assert {
@@ -51,11 +50,11 @@ public class JettySslConnectorFactoryTest extends Assert {
     private static final String[] NON_EXPORT_CIPHERS =
     {"SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_3DES_EDE_CBC_SHA"};
 
-    private SslSelectChannelConnector sslConnector;
+    private SslSocketConnector sslConnector;
     
     @Before
     public void setUp() throws Exception {
-        sslConnector = new SslSelectChannelConnector();
+        sslConnector = new SslSocketConnector();
     }
 
     @After
@@ -238,7 +237,7 @@ public class JettySslConnectorFactoryTest extends Assert {
                    sslServerPolicy.getKeyPassword().equals("defaultkeypass"));  
         
         assertNull("Ciphersuites is being being read from somewhere unknown", 
-                   sslConnector.getCipherSuites());        
+                   sslConnector.getExcludeCipherSuites());        
  
         assertTrue("Truststore type not being read", 
                    handler.checkLogContainsString("Unsupported SSLServerPolicy property : "
@@ -288,7 +287,7 @@ public class JettySslConnectorFactoryTest extends Assert {
         factory.decorate(sslConnector);
         
         assertNotNull("Configured ciphersuites not set on listener", 
-                      sslConnector.getCipherSuites()); 
+                      sslConnector.getExcludeCipherSuites()); 
         assertFalse("Ciphersuites config not picked up", handler
                     .checkLogContainsString("The cipher suites have not been configured, " 
                                             + "default values will be used."));        

@@ -30,8 +30,7 @@ import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.http_jetty.JettyConnectorFactory;
 import org.apache.cxf.transport.https.SSLUtils;
 import org.mortbay.jetty.AbstractConnector;
-import org.mortbay.jetty.security.SslSelectChannelConnector;
-//import org.mortbay.jetty.security.SslSocketConnector;
+import org.mortbay.jetty.security.SslSocketConnector;
 
 
 public final class JettySslConnectorFactory implements JettyConnectorFactory {
@@ -62,7 +61,7 @@ public final class JettySslConnectorFactory implements JettyConnectorFactory {
      * @param p the listen port
      */
     public AbstractConnector createConnector(int port) {
-        SslSelectChannelConnector secureConnector = new SslSelectChannelConnector();
+        SslSocketConnector secureConnector = new SslSocketConnector();
         secureConnector.setPort(port);
         decorate(secureConnector);
         return secureConnector;
@@ -73,7 +72,7 @@ public final class JettySslConnectorFactory implements JettyConnectorFactory {
      * 
      * @param listener the secure listener
      */
-    public void decorate(SslSelectChannelConnector secureListener) {
+    public void decorate(SslSocketConnector secureListener) {
         String keyStoreLocation =
             SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG);
         secureListener.setKeystore(keyStoreLocation);
@@ -121,7 +120,7 @@ public final class JettySslConnectorFactory implements JettyConnectorFactory {
                                              secureSocketProtocol,
                                              LOG),
                 null);
-            secureListener.setCipherSuites(
+            secureListener.setExcludeCipherSuites(
                 SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
                                          SSLUtils.getServerSupportedCipherSuites(ctx),
                                          sslPolicy.getCiphersuiteFilters(),
