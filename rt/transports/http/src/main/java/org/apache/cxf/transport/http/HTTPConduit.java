@@ -243,9 +243,11 @@ public class HTTPConduit
      * should be handled as such.
      */
     private boolean configFinalized;
-    
+
+    /**
+     * Variables for holding session state if sessions are supposed to be maintained
+     */
     private String sessionId;
-    
     private boolean maintainSession;
 
     /**
@@ -502,11 +504,7 @@ public class HTTPConduit
         }
         
         //Do we need to maintain a session?
-        if (Boolean.TRUE.equals((Boolean) message.get(Message.MAINTAIN_SESSION))) {
-            maintainSession = true;
-        } else {
-            maintainSession = false;
-        }
+        maintainSession = Boolean.TRUE.equals((Boolean)message.get(Message.MAINTAIN_SESSION));
         
         //If we have a sessionId and we are maintaining sessions, then use it
         if (maintainSession && sessionId != null) {

@@ -173,6 +173,7 @@ public class ServletController {
             inMessage.setContent(InputStream.class, request.getInputStream());
             inMessage.put(AbstractHTTPDestination.HTTP_REQUEST, request);
             inMessage.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
+            inMessage.put(AbstractHTTPDestination.HTTP_CONTEXT, cxfServlet.getServletContext());
             inMessage.put(Message.HTTP_REQUEST_METHOD, request.getMethod());
             inMessage.put(Message.PATH_INFO, request.getPathInfo());
             inMessage.put(Message.QUERY_STRING, request.getQueryString());

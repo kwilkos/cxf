@@ -67,6 +67,8 @@ public final class ContextPropertiesMapping {
                          MessageContext.SERVLET_REQUEST);
         cxf2jaxwsMap.put("HTTP.RESPONSE", 
                          MessageContext.SERVLET_RESPONSE);
+        cxf2jaxwsMap.put("HTTP.CONTEXT", 
+                         MessageContext.SERVLET_CONTEXT);
         
         jaxws2cxfMap.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
                          Message.ENDPOINT_ADDRESS);
@@ -86,6 +88,8 @@ public final class ContextPropertiesMapping {
                          "HTTP.REQUEST"); 
         jaxws2cxfMap.put(MessageContext.SERVLET_RESPONSE, 
                          "HTTP.RESPONSE");
+        jaxws2cxfMap.put(MessageContext.SERVLET_CONTEXT, 
+                        "HTTP.CONTEXT");
     }
     
     private ContextPropertiesMapping() {

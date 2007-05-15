@@ -68,6 +68,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     
     public static final String HTTP_REQUEST = "HTTP.REQUEST";
     public static final String HTTP_RESPONSE = "HTTP.RESPONSE";
+    public static final String HTTP_CONTEXT = "HTTP.CONTEXT";
     public static final String PROTOCOL_HEADERS_CONTENT_TYPE = Message.CONTENT_TYPE.toLowerCase();
     
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
