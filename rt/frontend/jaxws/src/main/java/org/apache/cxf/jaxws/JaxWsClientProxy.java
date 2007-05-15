@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -59,8 +60,9 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsClientProxy.class);
 
-    protected ThreadLocal <Map<String, Object>> requestContext = 
-            new ThreadLocal<Map<String, Object>>();
+    protected Map<String, Object> requestContext =
+            Collections.synchronizedMap(new HashMap<String, Object>());
+
     protected ThreadLocal <Map<String, Object>> responseContext =
             new ThreadLocal<Map<String, Object>>();
 
@@ -103,7 +105,8 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         if (null == params) {
             params = new Object[0];
         }
-        Map<String, Object> reqContext = new HashMap<String, Object>(this.getRequestContext());        
+
+        Map<String, Object> reqContext = this.getRequestContextCopy();        
         Map<String, Object> respContext = this.getResponseContext();
         
         // Clear the response context's hold information
@@ -198,11 +201,14 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
     }
 
 
-    public Map<String, Object> getRequestContext() {
-        if (null == requestContext.get()) {
-            requestContext.set(new HashMap<String, Object>());
+    private Map<String, Object> getRequestContextCopy() {
+        synchronized (this.requestContext) {
+            return new HashMap<String, Object>(this.requestContext);
         }
-        return requestContext.get();
+    }
+    
+    public Map<String, Object> getRequestContext() {
+        return requestContext;
     }
 
     public Map<String, Object> getResponseContext() {
