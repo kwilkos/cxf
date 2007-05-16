@@ -621,7 +621,29 @@ public final class EndpointReferenceUtils {
         }
         return physical != null ? physical : logical;
     }
+
     
+    /**
+     * Renew logical endpoint reference via the Bus EndpointResolverRegistry.
+     * 
+     * @param logical the original abstract EPR (if still available)
+     * @param physical the concrete EPR to renew
+     * @return the renewed concrete EPR if appropriate, null otherwise
+     */
+    public static EndpointReferenceType renew(EndpointReferenceType logical,
+                                              EndpointReferenceType physical,
+                                              Bus bus) {
+        EndpointReferenceType renewed = null;
+        if (bus != null) {
+            EndpointResolverRegistry registry =
+                bus.getExtension(EndpointResolverRegistry.class);
+            if (registry != null) {
+                renewed = registry.renew(logical, physical);
+            }
+        }
+        return renewed != null ? renewed : physical;
+    }
+
     /**
      * Mint logical endpoint reference via the Bus EndpointResolverRegistry.
      * 
