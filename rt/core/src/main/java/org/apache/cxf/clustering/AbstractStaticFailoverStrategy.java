@@ -33,13 +33,17 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
+/**
+ * Failover strategy based on a static cluster represented by
+ * multiple endpoints associated with the same service instance.
+ */
 public abstract class AbstractStaticFailoverStrategy implements FailoverStrategy {
     
     private static final Logger LOG =
         LogUtils.getL7dLogger(AbstractStaticFailoverStrategy.class);
     
     /**
-     * Get the alternative endpoints for this invocation.
+     * Get the alternate endpoints for this invocation.
      * 
      * @param exchange the current Exchange
      * @return a List of alternate endpoints if available
@@ -87,7 +91,8 @@ public abstract class AbstractStaticFailoverStrategy implements FailoverStrategy
             selected = getNextAlternate(alternates);
             LOG.log(Level.WARNING,
                     "FAILING_OVER_TO",
-                     new Object[] {selected.getEndpointInfo().getName()});
+                     new Object[] {selected.getEndpointInfo().getName(),
+                                   selected.getEndpointInfo().getAddress()});
         } else {
             LOG.warning("NO_ALTERNATE_TARGETS_REMAIN");
         }

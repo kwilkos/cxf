@@ -23,6 +23,11 @@ import java.util.List;
 
 import org.apache.cxf.endpoint.Endpoint;
 
+/**
+ * Failover strategy based on a sequential walk through the
+ * static cluster represented by multiple endpoints associated 
+ * with the same service instance.
+ */
 public class SequentialStrategy extends AbstractStaticFailoverStrategy {
 
     /**

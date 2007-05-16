@@ -30,7 +30,7 @@ import org.apache.cxf.message.Exchange;
  */
 public interface FailoverStrategy {
     /**
-     * Get the alternative endpoints for this invocation.
+     * Get the alternate endpoints for this invocation.
      * 
      * @param exchange the current Exchange
      * @param invocation the current InvocationContext

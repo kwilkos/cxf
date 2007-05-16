@@ -24,6 +24,11 @@ import java.util.Random;
 
 import org.apache.cxf.endpoint.Endpoint;
 
+/**
+ * Failover strategy based on a randomized walk through the
+ * static cluster represented by multiple endpoints associated 
+ * with the same service instance.
+ */
 public class RandomStrategy extends AbstractStaticFailoverStrategy {
     
     private Random random;
