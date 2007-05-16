@@ -76,6 +76,7 @@ import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaImport;
+import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSerializer;
 import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
@@ -552,7 +553,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             if (mpi.isElement()) {
                 el.setRefName(mpi.getElementQName());
-                String ns = message.getMessageParts().get(0).getElementQName().getNamespaceURI();
+                String ns = mpi.getElementQName().getNamespaceURI();
                 if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NU_SCHEMA_XSD)) {
                     XmlSchemaImport is = new XmlSchemaImport();
                     is.setNamespace(ns);
@@ -560,11 +561,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
-                String ns = message.getMessageParts().get(0).getTypeQName().getNamespaceURI();
+                String ns = mpi.getTypeQName().getNamespaceURI();
                 if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NU_SCHEMA_XSD)) {
                     XmlSchemaImport is = new XmlSchemaImport();
-                    is.setNamespace(ns);
-                    schema.getItems().add(is);
+                    is.setNamespace(ns);                   
+                    if (!isExistImport(schema, ns)) {
+                        schema.getItems().add(is);
+                    }
                 }
             }
 
@@ -583,6 +586,23 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    private boolean isExistImport(XmlSchema schema, String ns) {
+        boolean isExist = false;
+
+        for (Iterator ite = schema.getItems().getIterator(); ite.hasNext();) {
+            XmlSchemaObject obj = (XmlSchemaObject)ite.next();
+            if (obj instanceof XmlSchemaImport) {
+                XmlSchemaImport xsImport = (XmlSchemaImport)obj;
+                if (xsImport.getNamespace().equals(ns)) {
+                    isExist = true;
+                    break;
+                }
+            }
+        }
+        return isExist;
+
+    }
+    
     private void createWrappedMessageSchema(AbstractMessageContainer wrappedMessage,
                                             AbstractMessageContainer unwrappedMessage, XmlSchema schema,
                                             QName wrapperName) {
