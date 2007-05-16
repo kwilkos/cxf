@@ -29,11 +29,22 @@ import org.apache.cxf.feature.AbstractFeature;
  */
 public class FailoverFeature extends AbstractFeature {
 
+    private FailoverStrategy failoverStrategy;
+    
     @Override
     public void initialize(Client client, Bus bus) {
         FailoverTargetSelector selector =
             new FailoverTargetSelector();
         selector.setEndpoint(client.getEndpoint());
+        selector.setStrategy(getStrategy());
         client.setConduitSelector(selector);
+    }
+
+    public void setStrategy(FailoverStrategy strategy) {
+        failoverStrategy = strategy;
+    }
+    
+    public FailoverStrategy getStrategy()  {
+        return failoverStrategy;
     }
 }

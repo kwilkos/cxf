@@ -24,6 +24,9 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
+    <bean id="Sequential" class="org.apache.cxf.clustering.SequentialStrategy"/>
+    <bean id="Random" class="org.apache.cxf.clustering.RandomStrategy"/>
+    
     <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortA"
                   createdFromAPI="true">
         <jaxws:features>
@@ -34,15 +37,23 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortB"
                   createdFromAPI="true">
         <jaxws:features>
-            <clustering:failover/>
-        </jaxws:features>
-    </jaxws:client>
-    
-    <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortC"
-                  createdFromAPI="true">
-        <jaxws:features>
-            <clustering:failover/>
+            <clustering:failover>
+                <clustering:strategy>
+                    <ref bean="Sequential"/>
+                </clustering:strategy>
+            </clustering:failover>
         </jaxws:features>
     </jaxws:client>
 
+    <jaxws:client id="{http://cxf.apache.org/greeter_control}ReplicatedPortC"
+                  createdFromAPI="true">
+        <jaxws:features>
+            <clustering:failover>
+                <clustering:strategy>
+                    <ref bean="Random"/>
+                </clustering:strategy>
+            </clustering:failover>
+        </jaxws:features>
+    </jaxws:client>
+    
 </beans>

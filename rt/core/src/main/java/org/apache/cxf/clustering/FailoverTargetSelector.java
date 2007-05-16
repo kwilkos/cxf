@@ -20,15 +20,11 @@
 package org.apache.cxf.clustering;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.AbstractConduitSelector;
@@ -39,8 +35,6 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 
 
@@ -54,6 +48,7 @@ public class FailoverTargetSelector extends AbstractConduitSelector {
     private static final Logger LOG =
         LogUtils.getL7dLogger(FailoverTargetSelector.class);
     private Map<InvocationKey, InvocationContext> inProgress;
+    private FailoverStrategy failoverStrategy;
     
     /**
      * Normal constructor.
@@ -166,6 +161,27 @@ public class FailoverTargetSelector extends AbstractConduitSelector {
             }
         }
     }
+    
+    /**
+     * @param strategy the FailoverStrategy to use
+     */
+    public synchronized void setStrategy(FailoverStrategy strategy) {
+        getLogger().log(Level.INFO, "USING_STRATEGY", new Object[] {strategy});
+        failoverStrategy = strategy;
+    }
+    
+    /**
+     * @return strategy the FailoverStrategy to use
+     */    
+    public synchronized FailoverStrategy getStrategy()  {
+        if (failoverStrategy == null) {
+            failoverStrategy = new SequentialStrategy();
+            getLogger().log(Level.INFO,
+                            "USING_STRATEGY",
+                            new Object[] {failoverStrategy});
+        }
+        return failoverStrategy;
+    }
 
     /**
      * @return the logger to use
@@ -212,46 +228,12 @@ public class FailoverTargetSelector extends AbstractConduitSelector {
         if (invocation.getAlternateTargets() == null) {
             // no previous failover attempt on this invocation
             //
-            Endpoint endpoint = exchange.get(Endpoint.class);
-            Collection<ServiceInfo> services = endpoint.getService().getServiceInfos();
-            QName currentBinding = endpoint.getBinding().getBindingInfo().getName();
-            invocation.setAlternateTargets(new ArrayList<Endpoint>());
-            for (ServiceInfo service : services) {
-                Collection<EndpointInfo> candidates = service.getEndpoints();
-                for (EndpointInfo candidate : candidates) {
-                    QName candidateBinding = candidate.getBinding().getName();
-                    if (candidateBinding.equals(currentBinding)) {
-                        if (!candidate.getAddress().equals(
-                                 endpoint.getEndpointInfo().getAddress())) {
-                            Endpoint alternate =
-                                endpoint.getService().getEndpoints().get(candidate.getName());
-                            if (alternate != null) {
-                                getLogger().log(Level.INFO,
-                                                "FAILOVER_CANDIDATE_ACCEPTED",
-                                                candidate.getName());
-                                invocation.getAlternateTargets().add(alternate);
-                            }
-                        }
-                    } else {
-                        getLogger().log(Level.INFO,
-                                        "FAILOVER_CANDIDATE_REJECTED",
-                                        new Object[] {candidate.getName(), candidateBinding});
-                    }
-                }
-            }
+            invocation.setAlternateTargets(
+                getStrategy().getAlternateEndpoints(exchange));
         } 
 
-        Endpoint failoverTarget = null;
-        if (invocation.getAlternateTargets().size() > 0) {
-            // REVISIT: configurable sequential or randomized
-            failoverTarget = invocation.getAlternateTargets().remove(0);
-            getLogger().log(Level.WARNING,
-                            "FAILING_OVER_TO",
-                            new Object[] {failoverTarget.getEndpointInfo().getName()});
-        } else {
-            getLogger().warning("NO_ALTERNATE_TARGETS_REMAIN");
-        }
-        return failoverTarget;
+        return getStrategy().selectAlternateEndpoint(
+                   invocation.getAlternateTargets());
     }
     
     /**

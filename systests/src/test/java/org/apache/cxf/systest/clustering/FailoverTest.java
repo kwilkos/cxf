@@ -28,6 +28,9 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.clustering.FailoverTargetSelector;
+import org.apache.cxf.clustering.RandomStrategy;
+import org.apache.cxf.clustering.SequentialStrategy;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.ClusteredGreeterService;
@@ -180,7 +183,6 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         }
     }
 
-        
     @Test
     public void testFailoverOnCurrentReplicaDeath() throws Exception {
         startTarget(REPLICA_C);
@@ -276,7 +278,54 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
         assertFalse("unexpected WSA enabled for current endpoint",
                     isWSAEnabledForCurrentEndpoint());
     }
+
+    @Test
+    public void testDefaultSequentialStrategy() throws Exception {
+        strategyTest(REPLICA_B, REPLICA_C, REPLICA_A, false);
+    }
+
+    @Test
+    public void testExplicitSequentialStrategy() throws Exception {
+        strategyTest(REPLICA_A, REPLICA_C, REPLICA_B, false);
+    }
     
+    @Test
+    public void testRandomStrategy() throws Exception {
+        strategyTest(REPLICA_A, REPLICA_B, REPLICA_C, true);
+    }
+    
+    private void strategyTest(String activeReplica1,
+                              String activeReplica2,
+                              String inactiveReplica,
+                              boolean expectRandom) {
+        startTarget(activeReplica1);
+        startTarget(activeReplica2);
+        boolean randomized = false;
+        String prevEndpoint = null;
+        for (int i = 0; i < 20; i++) {
+            Greeter g = REPLICA_A.equals(inactiveReplica)
+                        ? new ClusteredGreeterService().getReplicatedPortA()
+                        : REPLICA_B.equals(inactiveReplica)
+                          ? new ClusteredGreeterService().getReplicatedPortB()
+                          : new ClusteredGreeterService().getReplicatedPortC();
+            verifyStrategy(g, expectRandom 
+                              ? RandomStrategy.class
+                              : SequentialStrategy.class);
+            String response = g.greetMe("fred");
+            assertNotNull("expected non-null response", response);
+            String currEndpoint = getCurrentEndpoint(g);
+            if (!(prevEndpoint == null || currEndpoint.equals(prevEndpoint))) {
+                randomized = true;
+            }
+            prevEndpoint = currEndpoint;
+        }
+        stopTarget(activeReplica1);
+        stopTarget(activeReplica2);
+        assertEquals("unexpected random/sequential distribution of failovers",
+                     expectRandom,
+                     randomized);
+    }
+
     private void startTarget(String address) {
         ControlService cs = new ControlService();
         control = cs.getControlPort();
@@ -298,7 +347,11 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
     private void verifyCurrentEndpoint(String replica) {
         assertEquals("unexpected current endpoint",
                      replica,
-                     ClientProxy.getClient(greeter).getEndpoint().getEndpointInfo().getAddress());
+                     getCurrentEndpoint(greeter));
+    }
+    
+    private String getCurrentEndpoint(Object proxy) {
+        return ClientProxy.getClient(proxy).getEndpoint().getEndpointInfo().getAddress();
     }
     
     private void setupGreeter() {
@@ -310,7 +363,19 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
                    ClientProxy.getClient(greeter).getConduitSelector()
                    instanceof FailoverTargetSelector);
     }
-    
+        
+    private void verifyStrategy(Object proxy, Class clz) {
+        ConduitSelector conduitSelector =
+            ClientProxy.getClient(proxy).getConduitSelector();
+        if (conduitSelector instanceof FailoverTargetSelector) {
+            Object strategy =
+                ((FailoverTargetSelector)conduitSelector).getStrategy();
+            assertTrue("unexpected strategy", clz.isInstance(strategy));
+        } else {
+            fail("unexpected conduit selector: " + conduitSelector);
+        }
+    }
+
     protected void enableWSAForCurrentEndpoint() {
         Endpoint provider = ClientProxy.getClient(greeter).getEndpoint();
         mapAggregator = new MAPAggregator();

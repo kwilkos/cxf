@@ -19,16 +19,30 @@
 package org.apache.cxf.clustering.spring;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.apache.cxf.clustering.FailoverFeature;
+import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 
-import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 
-public class FailoverBeanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+public class FailoverBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     @Override
-    protected Class getBeanClass(Element arg0) {
+    protected Class getBeanClass(Element element) {
         return FailoverFeature.class;
     }
-
+ 
+    @Override
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                setFirstChildAsProperty((Element) n, ctx, bean, n.getLocalName());
+            }
+        }
+    }
 }
