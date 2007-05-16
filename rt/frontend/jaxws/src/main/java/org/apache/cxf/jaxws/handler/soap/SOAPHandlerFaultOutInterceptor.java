@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Binding;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
@@ -82,6 +83,9 @@ public class SOAPHandlerFaultOutInterceptor extends
         }
 
         if (getInvoker(message).isOutbound()) {
+            //The SOAPMessage might be set from the outchain, in this case, 
+            //we need to clean it up and create a new SOAPMessage dedicated to fault.
+            message.setContent(SOAPMessage.class, null);
 
             SAAJ_OUT.handleMessage(message);
 

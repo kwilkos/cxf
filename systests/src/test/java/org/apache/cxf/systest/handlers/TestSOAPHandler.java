@@ -196,13 +196,13 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                 }
                 if (exceptionType != null && !outbound && "inbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
-                        throw new RuntimeException("HandleMessage throws runtime exception");
+                        throw new RuntimeException("HandleMessage throws RuntimeException exception");
                     } else if ("ProtocolException".equals(exceptionType)) {
-                        throw new ProtocolException("HandleMessage throws runtime exception");
+                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
                     }
                 } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
-                        throw new RuntimeException("HandleMessage throws ProtocolException exception");
+                        throw new RuntimeException("HandleMessage throws RuntimeException exception");
                     } else if ("ProtocolException".equals(exceptionType)) {
                         throw new ProtocolException("HandleMessage throws ProtocolException exception");
                     }
