@@ -29,7 +29,7 @@ import org.apache.cxf.message.Message;
 public class LogicalMessageContextImpl extends WrappedMessageContext implements LogicalMessageContext {
 
     public LogicalMessageContextImpl(Message wrapped) {
-        super(wrapped);
+        super(wrapped, Scope.HANDLER);
     }
       
     public LogicalMessage getMessage() {

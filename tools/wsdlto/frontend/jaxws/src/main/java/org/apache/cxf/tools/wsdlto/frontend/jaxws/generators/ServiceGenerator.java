@@ -74,6 +74,20 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
         }
         
         for (JavaServiceClass js : serviceClasses.values()) {
+            if (js.getHandlerChains() != null) {
+                HandlerConfigGenerator handlerGen = new HandlerConfigGenerator();
+                handlerGen.setJavaInterface(js);
+                handlerGen.generate(getEnvironment());
+
+                String annot = handlerGen.getHandlerAnnotation().toString();
+                if (handlerGen.getHandlerAnnotation() != null
+                    && !js.getAnnotations().contains(annot)) {
+                    js.addAnnotation(annot);
+                    js.addImport("javax.jws.HandlerChain");
+                }
+            }
+
+            
             String url = (String)env.get(ToolConstants.CFG_WSDLURL);
             String location = (String)env.get(ToolConstants.CFG_WSDLLOCATION);
             if (location == null 

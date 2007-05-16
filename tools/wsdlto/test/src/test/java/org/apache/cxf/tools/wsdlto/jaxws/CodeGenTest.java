@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 import javax.jws.HandlerChain;
 import javax.jws.Oneway;
@@ -539,7 +540,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(address.exists());
 
         File[] files = address.listFiles();
-        assertEquals(5, files.length);
+        assertEquals(Arrays.asList(address.listFiles()).toString(), 6, files.length);
         File handlerConfig = new File(address, "Greeter_handler.xml");
         assertTrue(handlerConfig.exists());
 

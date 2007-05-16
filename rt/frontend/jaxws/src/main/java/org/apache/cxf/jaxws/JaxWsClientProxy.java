@@ -22,10 +22,9 @@ package org.apache.cxf.jaxws;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
@@ -38,7 +37,7 @@ import javax.xml.ws.BindingProvider;
 //import javax.xml.ws.EndpointReference;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.http.HTTPException;
 import javax.xml.ws.soap.SOAPBinding;
@@ -52,6 +51,8 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.MethodDispatcher;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
@@ -60,8 +61,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsClientProxy.class);
 
-    protected Map<String, Object> requestContext =
-            Collections.synchronizedMap(new HashMap<String, Object>());
+    protected Map<String, Object> requestContext = new ConcurrentHashMap<String, Object>();
 
     protected ThreadLocal <Map<String, Object>> responseContext =
             new ThreadLocal<Map<String, Object>>();
@@ -176,6 +176,14 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         
         // need to do context mapping from cxf message to jax-ws
         ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
+        Map<String, Scope> scopes = CastUtils.cast((Map<?, ?>)respContext.get(WrappedMessageContext.SCOPES));
+        if (scopes != null) {
+            for (Map.Entry<String, Scope> scope : scopes.entrySet()) {
+                if (scope.getValue() == Scope.HANDLER) {
+                    respContext.remove(scope.getKey());
+                }
+            }
+        }
         return result;
 
     }
@@ -202,9 +210,13 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
 
 
     private Map<String, Object> getRequestContextCopy() {
-        synchronized (this.requestContext) {
-            return new HashMap<String, Object>(this.requestContext);
+        Map<String, Object> realMap = new HashMap<String, Object>();
+        WrappedMessageContext ctx = new WrappedMessageContext(realMap,
+                                                              Scope.APPLICATION);
+        for (Map.Entry<String, Object> ent : requestContext.entrySet()) {
+            ctx.put(ent.getKey(), ent.getValue());
         }
+        return realMap;
     }
     
     public Map<String, Object> getRequestContext() {
@@ -222,18 +234,6 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         return binding;
     }
 
-    protected void populateResponseContext(MessageContext ctx) {
-        Iterator<String> iter = ctx.keySet().iterator();
-        Map<String, Object> respCtx = getResponseContext();
-        while (iter.hasNext()) {
-            String obj = iter.next();
-            if (MessageContext.Scope.APPLICATION.compareTo(ctx.getScope(obj)) == 0) {
-                respCtx.put(obj, ctx.get(obj));
-            }
-        }
-    }
-
-    
     /*
     //  TODO JAX-WS 2.1
     public EndpointReference getEndpointReference() {

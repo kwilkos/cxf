@@ -63,6 +63,9 @@ public class W3CNamespaceContext implements NamespaceContext {
     }
 
     private String getPrefix(Element e, String uri) {
+        if (e == null) {
+            return null;
+        }
         NamedNodeMap attributes = e.getAttributes();
         if (attributes != null) {
             for (int i = 0; i < attributes.getLength(); i++) {

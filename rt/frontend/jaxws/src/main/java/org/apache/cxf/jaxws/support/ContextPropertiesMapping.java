@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.activation.DataHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -153,7 +154,7 @@ public final class ContextPropertiesMapping {
     
     
     public static MessageContext createWebServiceContext(Exchange exchange) {
-        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage());
+        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage(), Scope.APPLICATION);
         mapCxf2Jaxws(ctx);        
         addMessageAttachments(ctx, 
                               exchange.getInMessage(), 

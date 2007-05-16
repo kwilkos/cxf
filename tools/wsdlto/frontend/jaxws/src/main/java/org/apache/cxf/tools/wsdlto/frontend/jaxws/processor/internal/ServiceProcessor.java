@@ -30,6 +30,8 @@ import javax.wsdl.extensions.http.HTTPBinding;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Element;
+
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -176,6 +178,9 @@ public class ServiceProcessor extends AbstractProcessor {
         if (model.getServiceClasses().containsKey(name)) {
             sclz = model.getServiceClasses().get(name);
         }
+        
+        Element handler = (Element)context.get(ToolConstants.HANDLER_CHAIN);
+        sclz.setHandlerChains(handler);
         
         
         Collection<EndpointInfo> ports = service.getEndpoints();

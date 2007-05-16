@@ -43,6 +43,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
 import org.apache.cxf.jaxws.handler.soap.SOAPMessageContextImpl;
@@ -250,7 +251,7 @@ public class HandlerChainInvokerTest extends TestCase {
         
         //create an empty SOAP body for testing
         try {
-            pmc = new SOAPMessageContextImpl(message);
+            pmc = new SOAPMessageContextImpl(new SoapMessage(message));
             MessageFactory factory = MessageFactory.newInstance();
             SOAPMessage soapMessage = factory.createMessage();      
             ((SOAPMessageContext)pmc).setMessage(soapMessage);            

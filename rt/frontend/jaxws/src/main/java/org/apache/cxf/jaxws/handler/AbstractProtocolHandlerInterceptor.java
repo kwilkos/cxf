@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
@@ -45,7 +46,7 @@ public abstract class AbstractProtocolHandlerInterceptor<T extends Message>
     }
     
     protected MessageContext createProtocolMessageContext(Message message) {
-        return new WrappedMessageContext(message);
+        return new WrappedMessageContext(message, Scope.HANDLER);
     }
 
 }

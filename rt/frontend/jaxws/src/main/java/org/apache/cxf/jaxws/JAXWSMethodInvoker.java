@@ -20,13 +20,17 @@
 package org.apache.cxf.jaxws;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
 
 import org.apache.cxf.common.util.factory.Factory;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.ApplicationScopePolicy;
@@ -58,9 +62,29 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
         // set up the webservice request context 
         MessageContext ctx = 
             ContextPropertiesMapping.createWebServiceContext(exchange);
+        
+        Map<String, Scope> scopes = CastUtils.cast((Map<?, ?>)ctx.get(WrappedMessageContext.SCOPES));
+        Map<String, Object> handlerScopedStuff = new HashMap<String, Object>();
+        if (scopes != null) {
+            for (Map.Entry<String, Scope> scope : scopes.entrySet()) {
+                if (scope.getValue() == Scope.HANDLER) {
+                    handlerScopedStuff.put(scope.getKey(), ctx.get(scope.getKey()));
+                }
+            }
+            for (String key : handlerScopedStuff.keySet()) {
+                ctx.remove(key);
+            }
+        }
+
+        
         WebServiceContextImpl.setMessageContext(ctx);
         
         List<Object> res = CastUtils.cast((List)super.invoke(exchange, serviceObject, m, params));
+        
+        for (Map.Entry<String, Object> key : handlerScopedStuff.entrySet()) {
+            ctx.put(key.getKey(), key.getValue());
+            ctx.setScope(key.getKey(), Scope.HANDLER);
+        }
         
         //update the webservice response context
         ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);

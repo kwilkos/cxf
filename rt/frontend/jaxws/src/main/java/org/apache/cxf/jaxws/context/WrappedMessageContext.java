@@ -26,15 +26,65 @@ import java.util.Set;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 
 public class WrappedMessageContext implements MessageContext {
-
+    public static final String SCOPES = WrappedMessageContext.class.getName() + ".SCOPES";
+    
+    private Map<String, Object> contextMap;
     private Message message;
-    private Map<String, Scope> scopes = new HashMap<String, Scope>();
+    private Map<String, Scope> scopes;
+    private Scope defaultScope;
 
     public WrappedMessageContext(Message m) {
+        this(m, m, Scope.HANDLER);
+    }
+    public WrappedMessageContext(Message m, Scope defScope) {
+        this(m, m, defScope);
+    }
+    
+    public WrappedMessageContext(Map<String, Object> m, Scope defScope) {
+        this(null, m, defScope);
+    }
+    
+    public WrappedMessageContext(Message m, Map<String, Object> map, Scope defScope) {
         message = m;
+        contextMap = map;
+        defaultScope = defScope;
+        scopes = CastUtils.cast((Map<?, ?>)contextMap.get(SCOPES));
+        if (scopes == null && message != null && message.getExchange() != null) { 
+            if (isRequestor() && !isOutbound() && m.getExchange().getOutMessage() != null) {
+                scopes = CastUtils.cast((Map<?, ?>)m.getExchange().getOutMessage().get(SCOPES));
+                copyScopedProperties(m.getExchange().getOutMessage());
+                m.put(SCOPES, scopes);
+            } else if (!isRequestor() && isOutbound() && m.getExchange().getInMessage() != null) {
+                scopes = CastUtils.cast((Map<?, ?>)m.getExchange().getInMessage().get(SCOPES));
+                copyScopedProperties(m.getExchange().getInMessage());
+                m.put(SCOPES, scopes);
+            }
+        }
+        if (scopes == null) {
+            scopes = new HashMap<String, Scope>();
+            contextMap.put(SCOPES, scopes);
+        }
+    }
+    
+    protected final void copyScopedProperties(Message m) {
+        for (String k : scopes.keySet()) {
+            if (!contextMap.containsKey(k)
+                && !MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(k)) {
+                contextMap.put(k, m.get(k));
+            }
+        }
+    }
+    protected final boolean isRequestor() {
+        return Boolean.TRUE.equals(contextMap.containsKey(Message.REQUESTOR_ROLE));
+    }
+    protected final boolean isOutbound() {
+        return message != null 
+            && (message == message.getExchange().getOutMessage()
+                || message == message.getExchange().getOutFaultMessage());
     }
     
     public Message getWrappedMessage() {
@@ -42,71 +92,79 @@ public class WrappedMessageContext implements MessageContext {
     }
     
     public void clear() {
-        message.clear();      
+        contextMap.clear();      
     }
 
     public boolean containsKey(Object key) {
-        return message.containsKey(key);
+        return contextMap.containsKey(key);
     }
 
     public boolean containsValue(Object value) {
-        return message.containsValue(value);
+        return contextMap.containsValue(value);
     }
 
     public Set<Entry<String, Object>> entrySet() {
-        return message.entrySet();
+        return contextMap.entrySet();
     }
 
     public Object get(Object key) {
-        return message.get(key);
+        return contextMap.get(key);
     }
 
     public boolean isEmpty() {
-        return message.isEmpty();
+        return contextMap.isEmpty();
     }
 
     public Set<String> keySet() {
-        return message.keySet();
+        return contextMap.keySet();
     }
 
     public Object put(String key, Object value) {
-        return message.put(key, value);
+        if (!MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(key)) {
+            scopes.put(key, defaultScope);
+        }
+        return contextMap.put(key, value);
     }
 
     public void putAll(Map<? extends String, ? extends Object> t) {
-        message.putAll(t);
+        for (Map.Entry<? extends String, ? extends Object> s : t.entrySet()) {
+            put(s.getKey(), s.getValue());
+        }
     }
 
     public Object remove(Object key) {
-        return message.remove(key);
+        scopes.remove(key);
+        return contextMap.remove(key);
     }
 
     public int size() {
-        return message.size();
+        return contextMap.size();
     }
 
     public Collection<Object> values() {
-        return message.values();
+        return contextMap.values();
     }
 
-    public void setScope(String arg0, Scope arg1) {
-        if (!this.containsKey(arg0)) {
-            throw new IllegalArgumentException("non-existant property-" + arg0 + "is specified");    
+    public void setScope(String key, Scope arg1) {
+        if (!this.containsKey(key)) {
+            throw new IllegalArgumentException("non-existant property-" + key + "is specified");    
         }
-        scopes.put(arg0, arg1);        
+        scopes.put(key, arg1);        
     }
 
-    public Scope getScope(String arg0) {
-        
-        if (containsKey(arg0)) {
-            if (scopes.containsKey(arg0)) {
-                return scopes.get(arg0);
+    public Scope getScope(String key) {
+        if (containsKey(key)) {
+            if (scopes.containsKey(key)) {
+                return scopes.get(key);
             } else {
-                return Scope.HANDLER;
+                return defaultScope;
             }
         }
-        throw new IllegalArgumentException("non-existant property-" + arg0 + "is specified");
+        throw new IllegalArgumentException("non-existant property-" + key + "is specified");
     }
     
+    public Map<String, Scope> getScopes() {
+        return scopes;
+    }
     
 }
