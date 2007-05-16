@@ -119,6 +119,20 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
     public final boolean handleFault(T ctx) {
         methodCalled("handleFault"); 
         printHandlerInfo("handleFault", isOutbound(ctx));
+
+        if (!"soapHandler4".equals(getHandlerId())) {
+            return true;
+        } 
+        
+        try {
+            SOAPMessage msg = ctx.getMessage();
+            if ("soapHandler4HandleFaultThrowsRunException".equals(msg.getSOAPBody().getFault()
+                .getFaultString())) {
+                throw new RuntimeException("soapHandler4 HandleFault throws RuntimeException");
+            }
+        } catch (SOAPException e) {
+            // do nothing
+        }
         return true;
     }
 
@@ -191,20 +205,24 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                 }
             } else if ("throw".equals(command)) {
                 String exceptionType = null;
+                String exceptionText = "HandleMessage throws exception";
                 if (strtok.hasMoreTokens()) {
                     exceptionType = strtok.nextToken();
                 }
+                if (strtok.hasMoreTokens()) {
+                    exceptionText = strtok.nextToken();
+                }
                 if (exceptionType != null && !outbound && "inbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
-                        throw new RuntimeException("HandleMessage throws RuntimeException exception");
+                        throw new RuntimeException(exceptionText);
                     } else if ("ProtocolException".equals(exceptionType)) {
-                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                        throw new ProtocolException(exceptionText);
                     }
                 } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
-                        throw new RuntimeException("HandleMessage throws RuntimeException exception");
+                        throw new RuntimeException(exceptionText);
                     } else if ("ProtocolException".equals(exceptionType)) {
-                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                        throw new ProtocolException(exceptionText);
                     }
                 }
              

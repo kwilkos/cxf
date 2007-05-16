@@ -349,7 +349,7 @@ public class HandlerChainInvoker {
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
             continueProcessing = false;
-            closed = true;
+            throw e;
         }
         return continueProcessing;
     }
@@ -527,6 +527,7 @@ public class HandlerChainInvoker {
         int index = invokedHandlers.size() - 1;
         while (index >= 0) {
             Handler handler = invokedHandlers.get(index);
+            //System.out.println("===========invokeReversedClose " + invokeReversedClose.toString());
             if (handler instanceof LogicalHandler) {
                 handler.close(logicalMessageContext);
             } else {
