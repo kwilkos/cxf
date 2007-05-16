@@ -413,6 +413,34 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
+    public String getResponseWrapperClassName(Method selected) {
+        Method m = getDeclaredMethod(selected);
+
+        ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
+        String clsName = "";
+        if (rw != null) {
+            clsName = rw.className();
+        }
+        if (clsName.length() > 0) {
+            return clsName;
+        }
+        return null;
+    }
+    public String getRequestWrapperClassName(Method selected) {
+        Method m = getDeclaredMethod(selected);
+
+        RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
+        String clsName = "";
+        if (rw != null) {
+            clsName = rw.className();
+        }
+        if (clsName.length() > 0) {
+            return clsName;
+        }
+        return null;
+    }
+    
+    @Override
     public Class getRequestWrapper(Method selected) {
         Method m = getDeclaredMethod(selected);
 

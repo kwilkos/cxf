@@ -220,9 +220,17 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         if (responseWrapper != null) {
             o.getOutput().getMessageParts().get(0).setTypeClass(responseWrapper);
         }
+        if (getResponseWrapperClassName(selected) != null) {
+            o.getOutput().getMessageParts().get(0).setProperty("RESPONSE.WRAPPER.CLASSNAME",
+                                                           getResponseWrapperClassName(selected));
+        }
         Class<?> requestWrapper = getRequestWrapper(selected);
         if (requestWrapper != null) {
             o.getInput().getMessageParts().get(0).setTypeClass(requestWrapper);
+        }
+        if (getRequestWrapperClassName(selected) != null) {
+            o.getInput().getMessageParts().get(0).setProperty("REQUEST.WRAPPER.CLASSNAME",
+                                                           getRequestWrapperClassName(selected));
         }
     }
 
@@ -319,12 +327,14 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                 MessageInfo input = o.getInput();
                 MessagePartInfo part = input.getMessageParts().get(0);                
                 part.setTypeClass(getRequestWrapper(method));
+                part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
             }
 
             if (o.hasOutput()) {
                 MessageInfo input = o.getOutput();
                 MessagePartInfo part = input.getMessageParts().get(0);                
                 part.setTypeClass(getResponseWrapper(method));
+                part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
                 part.setIndex(-1);
             }
 

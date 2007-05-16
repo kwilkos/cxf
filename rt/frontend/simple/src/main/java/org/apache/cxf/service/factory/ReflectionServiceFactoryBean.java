@@ -754,6 +754,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         if (getRequestWrapper(method) != null) {
             part.setTypeClass(this.getRequestWrapper(method));
+        } else if (getRequestWrapperClassName(method) != null) {
+            part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
         }
 
         for (MessagePartInfo mpart : op.getInput().getMessageParts()) {
@@ -785,6 +787,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         if (this.getResponseWrapper(method) != null) {
             part.setTypeClass(this.getResponseWrapper(method));
+        } else if (getResponseWrapperClassName(method) != null) {
+            part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
         }
     }
 
@@ -1157,6 +1161,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
+    protected String getResponseWrapperClassName(Method selected) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            String cls = c.getResponseWrapperClassName(selected);
+            if (cls != null) {
+                return cls;
+            }
+        }
+        return null;
+    }
 
     protected Class getRequestWrapper(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
@@ -1167,7 +1180,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
-
+    protected String getRequestWrapperClassName(Method selected) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            String cls = c.getRequestWrapperClassName(selected);
+            if (cls != null) {
+                return cls;
+            }
+        }
+        return null;
+    }
+    
     protected SimpleMethodDispatcher getMethodDispatcher() {
         return methodDispatcher;
     }

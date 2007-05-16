@@ -38,12 +38,14 @@ public final class ResponseWrapper extends Wrapper {
     public void setOperationInfo(final OperationInfo op) {
         super.setOperationInfo(op);
         setName(op.getOutput().getMessageParts().get(0).getElementQName());
+        setClassName((String)op.getOutput().getMessageParts().get(0)
+                         .getProperty("RESPONSE.WRAPPER.CLASSNAME"));
     }
    
     @Override
     public boolean isWrapperAbsent(final Method method) {
         javax.xml.ws.ResponseWrapper resWrapper = method.getAnnotation(javax.xml.ws.ResponseWrapper.class);
-        return resWrapper == null || StringUtils.isEmpty(resWrapper.className());
+        return getClassName() == null && (resWrapper == null || StringUtils.isEmpty(resWrapper.className()));
     }
 
     @Override
@@ -103,13 +105,14 @@ public final class ResponseWrapper extends Wrapper {
     @Override
     public WrapperBeanClass getWrapperBeanClass(final Method method) {
         javax.xml.ws.ResponseWrapper resWrapper = method.getAnnotation(javax.xml.ws.ResponseWrapper.class);
-        String resClassName = "";
+        String resClassName = getClassName();
         String resNs = null;
         
-        if (!isWrapperAbsent(method)) {
-            resClassName = resWrapper.className();
-            resNs = resWrapper.targetNamespace();
-        } else {
+        if (resWrapper != null) {
+            resClassName = resWrapper.className().length() > 0 ? resWrapper.className() : resClassName;
+            resNs = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : null;
+        }  
+        if (resClassName == null) {
             resClassName = getPackageName(method) + ".jaxws." 
                 + AnnotationUtil.capitalize(method.getName())
                 + "Response";

@@ -48,6 +48,7 @@ public class Wrapper {
     private boolean isSamePackage;
 
     private OperationInfo operationInfo;
+    private String className;
 
     public void setOperationInfo(final OperationInfo op) {
         this.operationInfo = op;
@@ -60,6 +61,12 @@ public class Wrapper {
 
     public void setName(QName n) {
         this.name = n;
+    }
+    public void setClassName(String s) {
+        className = s;
+    }
+    public String getClassName() {
+        return className;
     }
 
     public WrapperBeanClass getWrapperBeanClass(final Method m) {
