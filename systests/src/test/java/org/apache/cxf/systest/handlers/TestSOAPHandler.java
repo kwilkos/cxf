@@ -26,11 +26,14 @@ import java.util.StringTokenizer;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -129,7 +132,12 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             if ("soapHandler4HandleFaultThrowsRunException".equals(msg.getSOAPBody().getFault()
                 .getFaultString())) {
                 throw new RuntimeException("soapHandler4 HandleFault throws RuntimeException");
-            }
+            } else if ("soapHandler4HandleFaultThrowsSOAPFaultException".equals(msg.getSOAPBody().getFault()
+                .getFaultString())) {
+                SOAPFault fault = SOAPFactory.newInstance().createFault();
+                fault.setFaultString("soapHandler4 HandleFault throws SOAPFaultException");
+                throw new SOAPFaultException(fault);
+            } 
         } catch (SOAPException e) {
             // do nothing
         }

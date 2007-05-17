@@ -41,6 +41,7 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.PortInfo;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -788,6 +789,24 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
             e.printStackTrace(ps);
             assertTrue("Did not get expected exception message",  baos.toString()
                 .indexOf("soapHandler4 HandleFault throws RuntimeException") > -1);
+            assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
+                .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
+        }        
+    }
+    
+    @Test
+    public void testSOAPHandlerHandleFaultThrowsSOAPFaultExceptionServerOutbound() throws PingException {
+        try {
+            handlerTest.pingWithArgs("soapHandler3 inbound throw ProtocolException "
+                                     + "soapHandler4HandleFaultThrowsSOAPFaultException");
+            fail("did not get expected SOAPFaultException");
+        } catch (SOAPFaultException e) {
+/*            e.printStackTrace();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos, true);
+            e.printStackTrace(ps);
+            assertTrue("Did not get expected exception message",  baos.toString()
+                .indexOf("soapHandler4 HandleFault throws SOAPFaultException") > -1);
             assertTrue("Did not get expected javax.xml.ws.soap.SOAPFaultException", baos.toString()
                 .indexOf("javax.xml.ws.soap.SOAPFaultException") > -1);*/
         }        
