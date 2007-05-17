@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.ws.rm.RMManager;
+import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
@@ -41,7 +42,12 @@ public class RMManagerBeanDefinitionParser extends AbstractBeanDefinitionParser 
         mapElementToJaxbProperty(element, bean, 
                 new QName(RM_NS, "destinationPolicy"), "destinationPolicy");
         mapElementToJaxbProperty(element, bean, 
-                new QName("http://schemas.xmlsoap.org/ws/2005/02/rm/policy", "RMAssertion"), "RMAssertion");
+                new QName("http://schemas.xmlsoap.org/ws/2005/02/rm/policy", "RMAssertion"), 
+                "RMAssertion",
+                null, 
+                RMAssertion.class.getPackage().getName());
+        
+        ctx.getDelegate().parsePropertyElements(element, bean.getBeanDefinition());
         
         String bus = element.getAttribute("bus");
         if (bus == null || "".equals(bus) && ctx.getRegistry().containsBeanDefinition("cxf")) {

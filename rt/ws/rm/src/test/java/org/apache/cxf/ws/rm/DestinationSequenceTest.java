@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
 
-import javax.xml.namespace.QName;
-
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -131,12 +129,12 @@ public class DestinationSequenceTest extends Assert {
     @Test
     public void testGetEndpointIdentifier() {
         setUpDestination();
-        QName qn = new QName("abc", "xyz");
-        EasyMock.expect(destination.getName()).andReturn(qn);
+        String name = "abc";
+        EasyMock.expect(destination.getName()).andReturn(name);
         control.replay();
         
         DestinationSequence seq = new DestinationSequence(id, ref, destination);
-        assertEquals("Unexpected endpoint identifier", "{abc}xyz", seq.getEndpointIdentifier());
+        assertEquals("Unexpected endpoint identifier", name, seq.getEndpointIdentifier());
         control.verify();
     }
     

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,18 +92,10 @@ public class DestinationSequence extends AbstractSequence {
     }
     
     /**
-     * @return the sequence acknowledgement presenting the sequences thus far received by a destination
-     * as an input stream 
-     */
-    InputStream getAcknowledgmentAsStream() {
-        return null;
-    }
-    
-    /**
      * @return the identifier of the rm destination
      */
     public String getEndpointIdentifier() {
-        return destination.getName().toString();
+        return destination.getName();
     }
     
     public void acknowledge(Message message) throws SequenceFault {

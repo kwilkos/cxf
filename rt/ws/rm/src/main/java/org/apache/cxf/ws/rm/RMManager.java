@@ -45,7 +45,6 @@ import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.manager.DeliveryAssuranceType;
 import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
-import org.apache.cxf.ws.rm.manager.RMManagerConfigBean;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
@@ -56,7 +55,7 @@ import org.apache.cxf.ws.rm.soap.SoapFaultFactory;
 /**
  * 
  */
-public class RMManager extends RMManagerConfigBean {
+public class RMManager {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMManager.class);
 
@@ -67,6 +66,11 @@ public class RMManager extends RMManagerConfigBean {
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
     private Timer timer = new Timer(true);
     private final ServerLifeCycleListener serverLifeCycleListener;
+    private RMAssertion rmAssertion;
+    private DeliveryAssuranceType deliveryAssurance;
+    private SourcePolicyType sourcePolicy;
+    private DestinationPolicyType destinationPolicy;
+    
 
     public RMManager() {
         serverLifeCycleListener = new ServerLifeCycleListener() {
@@ -260,23 +264,26 @@ public class RMManager extends RMManagerConfigBean {
     RMEndpoint createReliableEndpoint(RMManager manager, Endpoint endpoint) {
         return new RMEndpoint(manager, endpoint);
     }
-
+    
+    // configuration
+    
+   
     @PostConstruct
     void initialise() {
-        if (!isSetRMAssertion()) {
+        if (null == rmAssertion) {
             setRMAssertion(null);
         }
         org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
-        if (!isSetDeliveryAssurance()) {
+        if (null == deliveryAssurance) {
             DeliveryAssuranceType da = factory.createDeliveryAssuranceType();
             da.setAtLeastOnce(factory.createDeliveryAssuranceTypeAtLeastOnce());
             setDeliveryAssurance(da);
         }
-        if (!isSetSourcePolicy()) {
+        if (null == sourcePolicy) {
             setSourcePolicy(null);
 
         }       
-        if (!isSetDestinationPolicy()) {
+        if (null == destinationPolicy) {
             DestinationPolicyType dp = factory.createDestinationPolicyType();
             dp.setAcksPolicy(factory.createAcksPolicyType());
             setDestinationPolicy(dp);
@@ -289,39 +296,7 @@ public class RMManager extends RMManagerConfigBean {
         }
     }
 
-    @Override
-    public void setRMAssertion(RMAssertion rma) {
-
-        org.apache.cxf.ws.rm.policy.ObjectFactory factory = new org.apache.cxf.ws.rm.policy.ObjectFactory();
-        if (null == rma) {
-            rma = factory.createRMAssertion();
-            rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
-        }
-        BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
-        if (null == bri) {
-            bri = factory.createRMAssertionBaseRetransmissionInterval();
-            rma.setBaseRetransmissionInterval(bri);
-        }
-        if (null == bri.getMilliseconds()) {
-            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
-        }
-
-        super.setRMAssertion(rma);
-    }
-
-    
-    @Override
-    public void setSourcePolicy(SourcePolicyType sp) {
-        org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
-        if (null == sp) {
-            sp = factory.createSourcePolicyType();
-        }
-        if (!sp.isSetSequenceTerminationPolicy()) {
-            sp.setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
-        }
-        super.setSourcePolicy(sp);
-    }
-
+   
     Map<Endpoint, RMEndpoint> getReliableEndpointsMap() {
         return reliableEndpoints;
     }
@@ -338,6 +313,83 @@ public class RMManager extends RMManagerConfigBean {
             sid.setValue(sequenceID);
             return sid;
         }
+    }
+
+    /**  
+     * @return Returns the deliveryAssurance.
+     */
+    public DeliveryAssuranceType getDeliveryAssurance() {
+        return deliveryAssurance;
+    }
+
+    /**
+     * @param deliveryAssurance The deliveryAssurance to set.
+     */
+    public void setDeliveryAssurance(DeliveryAssuranceType deliveryAssurance) {
+        this.deliveryAssurance = deliveryAssurance;
+    }
+
+    /**
+     * @return Returns the destinationPolicy.
+     */
+    public DestinationPolicyType getDestinationPolicy() {
+        return destinationPolicy;
+    }
+
+    /**
+     * @param destinationPolicy The destinationPolicy to set.
+     */
+    public void setDestinationPolicy(DestinationPolicyType destinationPolicy) {
+        this.destinationPolicy = destinationPolicy;
+    }
+
+    /** 
+     * @return Returns the rmAssertion.
+     */
+    public RMAssertion getRMAssertion() {
+        return rmAssertion;
+    }
+
+    /**
+     * @param rma The rmAssertion to set.
+     */
+    public void setRMAssertion(RMAssertion rma) {
+        org.apache.cxf.ws.rm.policy.ObjectFactory factory = new org.apache.cxf.ws.rm.policy.ObjectFactory();
+        if (null == rma) {
+            rma = factory.createRMAssertion();
+            rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
+        }
+        BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
+        if (null == bri) {
+            bri = factory.createRMAssertionBaseRetransmissionInterval();
+            rma.setBaseRetransmissionInterval(bri);
+        }
+        if (null == bri.getMilliseconds()) {
+            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
+        }
+
+        rmAssertion = rma;
+    }
+
+    /** 
+     * @return Returns the sourcePolicy.
+     */
+    public SourcePolicyType getSourcePolicy() {
+        return sourcePolicy;
+    }
+    
+    /**
+     * @param sp The sourcePolicy to set.
+     */
+    public void setSourcePolicy(SourcePolicyType sp) {
+        org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
+        if (null == sp) {
+            sp = factory.createSourcePolicyType();
+        }
+        if (!sp.isSetSequenceTerminationPolicy()) {
+            sp.setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
+        }
+        sourcePolicy = sp;
     }
 
 }

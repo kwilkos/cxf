@@ -21,19 +21,13 @@ package org.apache.cxf.ws.rm.persistence;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Map;
 
 import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.SourceSequence;
 
 public interface RMStore {
-   
-    /**
-     * Initialises the store.
-     * @param params the store initialisation parameters
-     */
-    void init(Map<String, String> params);
+ 
     
     /**
      * Create a source sequence in the persistent store, with the sequence attributes as specified in the

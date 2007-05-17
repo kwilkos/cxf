@@ -165,9 +165,10 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
         }
         reader.setNamespaceHandlerResolver(nsHandlerResolver);
         
-        // TODO: check why VALIDATION_XSD complains about mixed content in
-        // value elements - this should be legal according to the xsd
-        reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE);
+        String mode = System.getProperty("spring.validation.mode");
+        if (null != mode) {
+            reader.setValidationModeName(mode);
+        }
         reader.setNamespaceAware(true);  
     }
 }

@@ -78,6 +78,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derby.version}</version>
+            <scope>test</scope>
+        </dependency>
 
 
     </dependencies>
@@ -139,7 +145,7 @@
                                     </deleteDirs>
                                 </xsdOption>
                                 <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-manager.xsd</xsd>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/manager-types.xsd</xsd>
                                     <bindingFile>${basedir}/src/main/resources/schemas/configuration/wsrm-policy.xjb</bindingFile>
                                     <extension>true</extension>
                                     <extensionArgs>

@@ -18,27 +18,53 @@
  */
 package org.apache.cxf.ws.rm.persistence;
 
-import java.io.InputStream;
 import java.math.BigInteger;
 
-import javax.xml.ws.handler.MessageContext;
 
-
-public interface RMMessage {
+public class RMMessage {
+    
+    private byte[] content;
+    private BigInteger messageNumber;
     
     /**
-     * @return the message number of the message within its sequence.
+     * Returns the message number of the message within its sequence.
+     * @return the message number
      */
-    BigInteger getMessageNr();
+    public BigInteger getMessageNumber() {
+        return  messageNumber;
+    }
     
     /**
-     * @return the message context of this message.
+     * Sets the message number of the message within its sequence.
+     * @param messageNumber the message number
      */
-    MessageContext getContext();  
+    public void setMessageNumber(BigInteger mn) {
+        messageNumber = mn;
+    }
+    
 
     /**
-     * @return the message context of this message as an input stream.
+     * Returns the content of the message as an input stream.
+     * @return the content
      */
-    InputStream getContextAsStream();
+    public byte[] getContent() {
+        return content;
+    }
+
+
+    /**
+     * Sets the message content as an input stream.
+     * @param content the message content
+     */
+    public void setContent(byte[] c) {
+        content = c;
+    }
+
+
+    
+    
+    
+    
+    
     
 }

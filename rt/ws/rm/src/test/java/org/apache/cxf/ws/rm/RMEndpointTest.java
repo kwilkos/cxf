@@ -86,11 +86,15 @@ public class RMEndpointTest extends Assert {
     @Test
     public void testGetName() {
         EndpointInfo aei = control.createMock(EndpointInfo.class);
-        EasyMock.expect(ae.getEndpointInfo()).andReturn(aei);
-        QName qn = new QName("cxf");
-        EasyMock.expect(aei.getName()).andReturn(qn);
+        EasyMock.expect(ae.getEndpointInfo()).andReturn(aei).times(2);
+        QName eqn = new QName("ns2", "endpoint");
+        EasyMock.expect(aei.getName()).andReturn(eqn);
+        ServiceInfo asi = control.createMock(ServiceInfo.class);
+        EasyMock.expect(aei.getService()).andReturn(asi);
+        QName sqn = new QName("ns1", "service");
+        EasyMock.expect(asi.getName()).andReturn(sqn);
         control.replay();
-        assertSame(qn, rme.getName());
+        assertEquals("{ns1}service.{ns2}endpoint", rme.getName());
     }
 
     @Test

@@ -1,1 +1,3 @@
-http\://cxf.apache.org/ws/rm/manager.xsd=schemas/configuration/wsrm-manager.xsd
+http\://cxf.apache.org/ws/rm/manager-types.xsd=schemas/configuration/manager-types.xsd
+http\://cxf.apache.org/ws/rm/manager.xsd=schemas/configuration/manager.xsd
+http\://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd=schemas/configuration/wsrm-policy.xsd

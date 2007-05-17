@@ -348,6 +348,10 @@ public class ServerLauncher {
         if (null != transformerProperty) {
             cmd.add("-Djavax.xml.transform.TransformerFactory=" + transformerProperty);
         }
+        String validationMode = System.getProperty("spring.validation.mode");
+        if (null != validationMode) {
+            cmd.add("-Dspring.validation.mode=" + validationMode);
+        }
         
         cmd.add(className);
 

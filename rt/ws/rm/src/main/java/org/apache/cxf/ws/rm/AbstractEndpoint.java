@@ -19,8 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import javax.xml.namespace.QName;
-
 import org.apache.cxf.endpoint.Endpoint;
 
 public class AbstractEndpoint {
@@ -31,7 +29,7 @@ public class AbstractEndpoint {
         reliableEndpoint = rme;
     }
     
-    public QName getName() {
+    public String getName() {
         return reliableEndpoint.getName();
     }
     

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -96,8 +97,11 @@ public class RMEndpoint {
         servant = new Servant(this);
     }
     
-    public QName getName() {
-        return applicationEndpoint.getEndpointInfo().getName();
+    public String getName() {
+        return MessageFormat.format("{0}.{1}", new Object[] {
+            applicationEndpoint.getEndpointInfo().getService().getName(),
+            applicationEndpoint.getEndpointInfo().getName()
+        });
     }
     
     /**

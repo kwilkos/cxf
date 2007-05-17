@@ -189,6 +189,7 @@
     <xs:element name="sourcePolicy" type="tns:SourcePolicyType"/>
     <xs:element name="destinationPolicy" type="tns:DestinationPolicyType"/>
 
+    <!--
     <xs:complexType name="RMManagerConfigBean">
         <xs:sequence>
             <xs:element ref="wsrmp:RMAssertion" minOccurs="0"/>
@@ -198,5 +199,6 @@
         </xs:sequence>
     </xs:complexType>
 
-	<xs:element name="rmManager" type="tns:RMManagerConfigBean"/>
+    <xs:element name="rmManager" type="tns:RMManagerConfigBean"/>
+    -->
  </xs:schema>

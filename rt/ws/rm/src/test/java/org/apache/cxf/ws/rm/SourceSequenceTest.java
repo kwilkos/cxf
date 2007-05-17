@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.util.Date;
 
 import javax.xml.datatype.Duration;
-import javax.xml.namespace.QName;
 
 import org.apache.cxf.jaxb.DatatypeFactory;
 import org.apache.cxf.ws.rm.manager.SequenceTerminationPolicyType;
@@ -281,13 +280,13 @@ public class SourceSequenceTest extends Assert {
     @Test
     public void testGetEndpointIdentfier() {
         setUpSource();
-        QName qn = new QName("abc", "xyz");
-        EasyMock.expect(source.getName()).andReturn(qn);
+        String name = "abc";
+        EasyMock.expect(source.getName()).andReturn(name);
         control.replay();
         
         SourceSequence seq = new SourceSequence(id);
         seq.setSource(source);
-        assertEquals("Unexpected endpoint identifier", "{abc}xyz", seq.getEndpointIdentifier());
+        assertEquals("Unexpected endpoint identifier", name, seq.getEndpointIdentifier());
         control.verify();
     }
     

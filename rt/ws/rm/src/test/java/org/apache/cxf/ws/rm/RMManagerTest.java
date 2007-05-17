@@ -89,17 +89,17 @@ public class RMManagerTest extends Assert {
     @Test
     public void testInitialisation() {
         RMManager manager = new RMManager();
-        assertTrue("RMAssertion is set.", !manager.isSetRMAssertion());
-        assertTrue("sourcePolicy is set.", !manager.isSetSourcePolicy());
-        assertTrue("destinationPolicy is set.", !manager.isSetDestinationPolicy());
-        assertTrue("deliveryAssirance is set.", !manager.isSetDeliveryAssurance());
+        assertNull("RMAssertion is set.", manager.getRMAssertion());
+        assertNull("sourcePolicy is set.", manager.getSourcePolicy());
+        assertNull("destinationPolicy is set.", manager.getDestinationPolicy());
+        assertNull("deliveryAssirance is set.", manager.getDeliveryAssurance());
         
         manager.initialise();
         
-        assertTrue("RMAssertion is not set.", manager.isSetRMAssertion());
-        assertTrue("sourcePolicy is not set.", manager.isSetSourcePolicy());
-        assertTrue("destinationPolicy is not set.", manager.isSetDestinationPolicy());
-        assertTrue("deliveryAssirance is not set.", manager.isSetDeliveryAssurance());
+        assertNotNull("RMAssertion is not set.", manager.getRMAssertion());
+        assertNotNull("sourcePolicy is not set.", manager.getSourcePolicy());
+        assertNotNull("destinationPolicy is not set.", manager.getDestinationPolicy());
+        assertNotNull("deliveryAssirance is not set.", manager.getDeliveryAssurance());
         
         RMAssertion rma = manager.getRMAssertion();
         assertTrue(rma.isSetExponentialBackoff());
@@ -420,5 +420,6 @@ public class RMManagerTest extends Assert {
         assertTrue(!id1.getValue().equals(id2.getValue()));     
         control.replay();
     }
+    
      
 } 

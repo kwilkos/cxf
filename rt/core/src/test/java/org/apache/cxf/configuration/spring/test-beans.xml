@@ -22,17 +22,17 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="*2" abstract="true" class="SimpleBean">
+  <bean name="*2" abstract="true" class="SimpleBean">
       <property name="stringAttr" value="StarHallo"/>
   </bean>
 
   <!-- additional wildcards for class SimpleBean will be ignored with a warning -->
-  <bean id="*duplicateWildcardForClassWillBeIgnored" abstract="true" class="SimpleBean">
+  <bean name="*duplicateWildcardForClassWillBeIgnored" abstract="true" class="SimpleBean">
       <property name="stringAttr" value="duplicateWildcardForClassWillBeIgnored"/>
   </bean>
   
   <!--  wildcards bean with no class will be ignored with a warning -->
-  <bean id="*willBeIgnoredBecausOfNoClass" abstract="true" >
+  <bean name="*willBeIgnoredBecausOfNoClass" abstract="true" >
       <property name="stringAttr" value="willBeIgnoredBecausOfNoClass"/>
   </bean>
   

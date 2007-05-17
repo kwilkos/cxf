@@ -34,6 +34,7 @@
 
     <properties>
         <surefire.fork.mode>pertest</surefire.fork.mode>
+        <spring.validation.mode>VALIDATION_NONE</spring.validation.mode>
     </properties>
 
     <dependencies>
@@ -224,6 +225,13 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derby.version}</version>
             <scope>test</scope>
         </dependency>
 

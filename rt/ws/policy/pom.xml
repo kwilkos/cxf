@@ -30,6 +30,10 @@
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <spring.validation.mode>VALIDATION_NONE</spring.validation.mode>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.ws.commons.neethi</groupId>

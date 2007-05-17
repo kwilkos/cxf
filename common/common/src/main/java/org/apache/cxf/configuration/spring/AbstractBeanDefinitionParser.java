@@ -18,13 +18,18 @@
  */
 package org.apache.cxf.configuration.spring;
 
+import java.util.StringTokenizer;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
+
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -39,19 +44,38 @@ import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
 
-public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+    
     @Override
-    protected String resolveId(Element el, AbstractBeanDefinition arg1, 
-                               ParserContext arg2) throws BeanDefinitionStoreException {
-        String id = el.getAttribute("id");
-        String createdFromAPI = el.getAttribute("createdFromAPI");
+    protected String resolveId(Element elem, AbstractBeanDefinition definition, 
+                               ParserContext ctx) throws BeanDefinitionStoreException {
+        
+        // REVISIT: use getAttributeNS instead
+        
+        String id = elem.getAttribute(BeanDefinitionParserDelegate.ID_ATTRIBUTE);
+        String createdFromAPI = elem.getAttribute(BeanConstants.CREATED_FROM_API_ATTR);
+        
+        if (null == id || "".equals(id)) {
+            String names = elem.getAttribute(BeanConstants.NAME_ATTR);
+            if (null != names) {
+                StringTokenizer st = 
+                    new StringTokenizer(BeanDefinitionParserDelegate.BEAN_NAME_DELIMITERS, names);
+                if (st.countTokens() > 0) {
+                    id = st.nextToken();
+                }
+            }
+        }
+        
+        if (null == id || "".equals(id)) {
+            return super.resolveId(elem, definition, ctx);
+        } 
         
         if (createdFromAPI != null && "true".equals(createdFromAPI.toLowerCase())) {
             return id + getSuffix();
         }
         
-        return super.resolveId(el, arg1, arg2);
+        return id;        
     }
 
     protected String getSuffix() {
@@ -116,13 +140,28 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         return first;
     }
     
-    protected void mapElementToJaxbProperty(Element parent, BeanDefinitionBuilder bean, QName name,
-                                            String string) {
-        mapElementToJaxbProperty(parent, bean, name, string, null);
+    protected void mapElementToJaxbProperty(Element parent, 
+                                            BeanDefinitionBuilder bean, 
+                                            QName name,
+                                            String propertyName) {
+        mapElementToJaxbProperty(parent, bean, name, propertyName, null);
     }
+    
+    protected void mapElementToJaxbProperty(Element parent, 
+                                            BeanDefinitionBuilder bean, 
+                                            QName name,
+                                            String propertyName,
+                                            Class<?> c) {
+        mapElementToJaxbProperty(parent, bean, name, propertyName, c, getJaxbPackage());
+    }
+    
 
-    protected void mapElementToJaxbProperty(Element parent, BeanDefinitionBuilder bean, QName name,
-                                            String string, Class<?> c) {
+    protected void mapElementToJaxbProperty(Element parent, 
+                                            BeanDefinitionBuilder bean, 
+                                            QName name,
+                                            String propertyName, 
+                                            Class<?> c,
+                                            String packageName) {
         Node data = null;
         NodeList nl = parent.getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
@@ -141,7 +180,7 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         JAXBContext context = null;
         Object obj = null;
         try {
-            context = JAXBContext.newInstance(getJaxbPackage(), getClass().getClassLoader());
+            context = JAXBContext.newInstance(packageName, getClass().getClassLoader());
             Unmarshaller u = context.createUnmarshaller();
             if (c != null) {
                 obj = u.unmarshal(data, c);
@@ -159,7 +198,7 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         }
 
         if (obj != null) {
-            bean.addPropertyValue(string, obj);
+            bean.addPropertyValue(propertyName, obj);
         }
     }
 
@@ -222,5 +261,25 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
 
         return new QName(ns, local, pre);
     }
+
+    protected final void doParseCommon(Element elem, ParserContext ctx, BeanDefinitionBuilder builder) {
+        System.out.println("Using AbstractBeanDefinitionParser to parse element "
+                           + new QName(elem.getNamespaceURI(), elem.getLocalName()));
+        NamedNodeMap atts = elem.getAttributes();
+        
+        for (int i = 0; i < atts.getLength(); i++) {
+            Attr node = (Attr) atts.item(i);
+            String uri = node.getNamespaceURI();
+            String name = node.getLocalName();
+            
+            if (BeanConstants.NAMESPACE_URI.equals(uri)) {
+                if (BeanConstants.CREATED_FROM_API_ATTR.equals(name)) {
+                    builder.setAbstract(true);
+                } else if (BeanConstants.ABSTRACT_ATTR.equals(name)) {
+                    builder.setAbstract(true);
+                }
+            }
+        }
+    }   
 
 }

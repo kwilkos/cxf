@@ -19,8 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import javax.xml.namespace.QName;
-
 import org.apache.cxf.endpoint.Endpoint;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -50,7 +48,7 @@ public class AbstractEndpointTest extends Assert {
     
     @Test
     public void testAccessors() {
-        QName n = new QName("abc");
+        String n = "abc";
         EasyMock.expect(rme.getName()).andReturn(n);
         Endpoint ae = control.createMock(Endpoint.class);
         EasyMock.expect(rme.getApplicationEndpoint()).andReturn(ae);
