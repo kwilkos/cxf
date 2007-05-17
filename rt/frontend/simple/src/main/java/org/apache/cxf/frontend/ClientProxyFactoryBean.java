@@ -80,6 +80,18 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
         }
 
         Client c = clientFactoryBean.create();
+        if (getInInterceptors() != null) {
+            c.getInInterceptors().addAll(getInInterceptors());
+        }
+        if (getOutInterceptors() != null) {
+            c.getOutInterceptors().addAll(getOutInterceptors());
+        }
+        if (getInFaultInterceptors() != null) {
+            c.getInFaultInterceptors().addAll(getInFaultInterceptors());
+        }
+        if (getOutFaultInterceptors() != null) {
+            c.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
+        }
 
         ClientProxy handler = clientClientProxy(c);
 

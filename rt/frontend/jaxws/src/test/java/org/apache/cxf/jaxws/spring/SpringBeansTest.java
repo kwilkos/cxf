@@ -117,6 +117,8 @@ public class SpringBeansTest extends Assert {
                 logging = true;
             }
         }
+        assertTrue(saaj);
+        assertTrue(logging);
     }
     
     @Test
@@ -152,5 +154,30 @@ public class SpringBeansTest extends Assert {
         assertNotNull("expected ConduitSelector", client.getConduitSelector());
         assertTrue("unexpected ConduitSelector",
                    client.getConduitSelector() instanceof NullConduitSelector);
+        
+        List<Interceptor> inInterceptors = client.getInInterceptors();
+        boolean saaj = false;
+        boolean logging = false;
+        for (Interceptor<?> i : inInterceptors) {
+            if (i instanceof SAAJInInterceptor) {
+                saaj = true;
+            } else if (i instanceof LoggingInInterceptor) {
+                logging = true;
+            }
+        }
+        assertTrue(saaj);
+        assertTrue(logging);
+        
+        saaj = false;
+        logging = false;
+        for (Interceptor<?> i : client.getOutInterceptors()) {
+            if (i instanceof SAAJOutInterceptor) {
+                saaj = true;
+            } else if (i instanceof LoggingOutInterceptor) {
+                logging = true;
+            }
+        }
+        assertTrue(saaj);
+        assertTrue(logging);
     }
 }

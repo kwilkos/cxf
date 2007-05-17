@@ -39,11 +39,22 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
       </property>
   </bean>
   
+  <bean id="saajIn" class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/>
+  <bean id="saajOut" class="org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor"/>
+  
   <jaxws:client id="client1" 
     serviceClass="org.apache.hello_world_soap_http.Greeter"
     address="http://localhost:9000/foo"
     serviceName="s:SOAPService"
     xmlns:s="http://apache.org/hello_world_soap_http">
+    <jaxws:inInterceptors>
+	  <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+	  <ref bean="saajIn"/>
+	</jaxws:inInterceptors>
+	<jaxws:outInterceptors>
+	  <bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+	  <ref bean="saajOut"/>
+	</jaxws:outInterceptors>
     <jaxws:conduitSelector>
       <bean class="org.apache.cxf.endpoint.NullConduitSelector"/>
     </jaxws:conduitSelector>
