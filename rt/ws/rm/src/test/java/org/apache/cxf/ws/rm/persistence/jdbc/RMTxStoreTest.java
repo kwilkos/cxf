@@ -68,7 +68,6 @@ public class RMTxStoreTest extends Assert {
 
         store = new RMTxStore();
         store.setDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
-        store.setUrl("jdbc:derby:rmdb;create=true");
         store.init();
         
         ack1 = new SequenceAcknowledgement();

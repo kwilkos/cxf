@@ -542,7 +542,7 @@ public class RMTxStore implements RMStore {
     synchronized void init() {
         
         if (null == connection) {
-
+            LOG.log(Level.FINE, "Using derby.system.home: {0}", System.getProperty("derby.system.home"));
             assert null != url;
             assert null != driverClassName;
             try {
@@ -556,6 +556,7 @@ public class RMTxStore implements RMStore {
 
             } catch (SQLException ex) {
                 LogUtils.log(LOG, Level.SEVERE, "CONNECT_EXC", ex);
+                return;
             }
         }
         
@@ -564,6 +565,12 @@ public class RMTxStore implements RMStore {
             createTables();
         } catch (SQLException ex) {
             LogUtils.log(LOG, Level.SEVERE, "CONNECT_EXC", ex);
+            SQLException se = ex;
+            while (se.getNextException() != null) {
+                se = se.getNextException();
+                LogUtils.log(LOG, Level.SEVERE, "CONNECT_EXC", se);
+            }
+            throw new RMStoreException(ex);
         }   
     }   
     
@@ -576,22 +583,27 @@ public class RMTxStore implements RMStore {
     }
     
     public static void deleteDatabaseFiles(String path, boolean now) {
-        File root = null;
         String dsh = System.getProperty("derby.system.home");
+       
+        File root = null;  
+        File log = null;
         if (null == dsh) {
-            File log = new File("derby.log");
-            if (log.exists()) {
-                if (now) {
-                    log.delete();
-                } else {
-                    log.deleteOnExit();
-                }
-            }
-            root = new File(path);
+            log = new File("derby.log");
+            root = new File(path);            
         } else {
-            root = new File(dsh);
+            log = new File(dsh, "derby.log"); 
+            root = new File(dsh, path);
+        }
+        if (log.exists()) {            
+            if (now) {
+                boolean deleted = log.delete();
+                LOG.log(Level.FINE, "Deleted log file {0}: {1}", new Object[] {log, deleted});
+            } else {
+                log.deleteOnExit();
+            }
         }
         if (root.exists()) {
+            LOG.log(Level.FINE, "Trying to delete directory {0}", root);
             recursiveDelete(root, now);
         }
 

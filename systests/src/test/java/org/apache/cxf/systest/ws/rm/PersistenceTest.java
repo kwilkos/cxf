@@ -45,6 +45,7 @@ import org.apache.cxf.ws.rm.SourceSequence;
 import org.apache.cxf.ws.rm.persistence.RMMessage;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -78,6 +79,7 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
 
         public static void main(String[] args) {
             try {
+                RMTxStore.deleteDatabaseFiles();
                 Server s = new Server();
                 s.start();
             } catch (Exception ex) {
@@ -90,9 +92,20 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
     }
 
     @BeforeClass
-    public static void startServers() throws Exception {
-        RMTxStore.deleteDatabaseFiles("rmdb", true);
-        assertTrue("server did not launch correctly", launchServer(Server.class));
+    public static void startServers() throws Exception {        
+        String derbyHome = System.getProperty("derby.system.home");
+        try {
+            System.setProperty("derby.system.home", derbyHome + "-server");
+            assertTrue("server did not launch correctly", launchServer(Server.class));
+        } finally {
+            System.setProperty("derby.system.home", derbyHome);
+        }
+        RMTxStore.deleteDatabaseFiles();
+    }
+    
+    @AfterClass
+    public static void tearDownOnce() {
+        RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_DIR, false);
     }
 
     @Before
@@ -162,7 +175,11 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
         
         Collection<RMMessage> msgs = 
             store.getMessages(sss.iterator().next().getIdentifier(), true);
-        assertEquals(3, msgs.size());            
+        assertEquals(3, msgs.size());  
+        
+        msgs = 
+            store.getMessages(sss.iterator().next().getIdentifier(), false);
+        assertEquals(0, msgs.size());  
     }
     
     @Ignore

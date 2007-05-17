@@ -32,6 +32,7 @@
     </parent>
 
     <modules>
+        <!--
         <module>core</module>
         <module>transports/local</module>
         <module>databinding/jaxb</module>
@@ -49,6 +50,8 @@
         <module>ws/rm</module>
         <module>ws/security</module>
         <module>management</module>
+        -->
+        <module>ws/rm</module>
     </modules>
 
     <scm>

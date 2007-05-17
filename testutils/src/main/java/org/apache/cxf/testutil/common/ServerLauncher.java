@@ -352,6 +352,10 @@ public class ServerLauncher {
         if (null != validationMode) {
             cmd.add("-Dspring.validation.mode=" + validationMode);
         }
+        String derbyHome = System.getProperty("derby.system.home");
+        if (null != derbyHome) {
+            cmd.add("-Dderby.system.home=" + derbyHome);
+        }
         
         cmd.add(className);
 
