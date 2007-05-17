@@ -191,8 +191,9 @@ public final class WrapperHelper {
             
             elField = getElField(partName, wrapperType);
                 
-            if (!Collection.class.isAssignableFrom(elField.getType())
-                && !elField.getType().isArray()) {
+            if (elField == null
+                || (!Collection.class.isAssignableFrom(elField.getType())
+                && !elField.getType().isArray())) {
     
                 try {
                     method = wrapperType.getClass().getMethod(accessor.replaceFirst("get", "is"),
@@ -239,11 +240,8 @@ public final class WrapperHelper {
     }
 
     private static Field getElField(String partName, Object wrapperType) {
-        String fieldName = partName;
+        String fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
         Field elField = null;
-        if (JAXBUtils.isJavaKeyword(partName)) {
-            fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
-        }
         for (Field field : wrapperType.getClass().getDeclaredFields()) {
             if (field.getName().equals(fieldName)) {
                 elField = field;

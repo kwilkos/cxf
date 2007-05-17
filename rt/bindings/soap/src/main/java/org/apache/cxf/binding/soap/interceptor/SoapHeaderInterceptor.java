@@ -86,6 +86,8 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
             int idx = mpi.getIndex();
             Object object = null;
             if (param != null) {
+                message.getHeaders().remove(param);
+                
                 if (param.getDataBinding() == null) {
                     Node source = (Node)param.getObject();
                     object = getNodeDataReader(message).read(mpi, source);
