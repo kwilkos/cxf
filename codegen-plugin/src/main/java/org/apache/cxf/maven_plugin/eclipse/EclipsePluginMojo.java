@@ -41,6 +41,9 @@ import org.apache.maven.project.MavenProject;
  */
 public class EclipsePluginMojo extends AbstractMojo {
     private static final String LIB_PATH = "lib";
+    private static final String ECLIPSE_VERSION = "3.2";
+    
+    
     /**
      * @parameter expression="${project}"
      * @required
@@ -54,20 +57,15 @@ public class EclipsePluginMojo extends AbstractMojo {
      * @readonly
      */
     Set dependencies;
-
+    
     /**
-     * @parameter  expression="${project.build.directory}/plugin.xml";
+     * @parameter  expression="${project.build.directory}";
      * @required
      */
-    File targetFile;
-
-    /**
-     * @parameter expression="3.0";
-     */
-    String eclipseVersion;
+    File targetDir;
 
     private String getTemplateFile(String version) {
-        return "/org/apache/cxf/maven_plugin/eclipse/" + version + "/plugin.xml.vm";
+        return "/org/apache/cxf/maven_plugin/eclipse/" + version + "/MANIFEST.vm";
     }
 
     private List<File> listJars() throws Exception {
@@ -108,20 +106,16 @@ public class EclipsePluginMojo extends AbstractMojo {
     private void generatePluginXML(List<File> jars) throws Exception {
         VelocityGenerator velocity = new VelocityGenerator();
 
-        String templateFile = getTemplateFile(eclipseVersion);
+        String templateFile = getTemplateFile(ECLIPSE_VERSION);
 
-        File outputFile = targetFile;
-
-        velocity.setAttributes("ECLIPSE_VERSION", eclipseVersion);
+        velocity.setAttributes("ECLIPSE_VERSION", ECLIPSE_VERSION);
         velocity.setAttributes("PLUGIN_VERSION", getVersion());
         velocity.setAttributes("GROUP_ID", project.getGroupId());
         velocity.setAttributes("libPath", LIB_PATH);
         velocity.setAttributes("jars", jars);
         
-        if ("3.1".equals(eclipseVersion.trim())) {
-            velocity.setAttributes("exportedPackages", getExportedPackages(jars));
-            outputFile = new File(targetFile.getParentFile(), "MANIFEST.MF");
-        }
+        velocity.setAttributes("exportedPackages", getExportedPackages(jars));
+        File outputFile = new File(targetDir, "MANIFEST.MF");
 
         velocity.doWrite(templateFile, FileWriterUtil.getWriter(outputFile));
     }

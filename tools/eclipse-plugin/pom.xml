@@ -19,10 +19,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-eclipse3.1-plugin</artifactId>
+    <artifactId>cxf-eclipse-plugin</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-SNAPSHOT</version>
-    <name>Apache CXF Eclipse 3.1 Distribution</name>
+    <name>Apache CXF Eclipse Distribution</name>
     <url>http://cxf.apache.org/</url>
 
     <parent>
@@ -153,9 +153,6 @@
                         <goals>
                             <goal>eclipseplugin</goal>
                         </goals>
-                        <configuration>
-                            <eclipseVersion>3.1</eclipseVersion>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -164,9 +161,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse3.1-plugin</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse3.1-plugin</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-eclipse3.1-plugin</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse-plugin</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/tools/eclipse-plugin</url>
   </scm>
 
 </project>
