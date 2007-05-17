@@ -353,9 +353,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         Type[] genericTypes = method.getGenericParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             Class paramType = paramTypes[i];
-            Type genericType = genericTypes[i];
-
-            
+            Type genericType = genericTypes[i];            
             initializeParameter(o, method, i, paramType, genericType);
         }
 
@@ -386,12 +384,13 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
         } else if (isIn && isOut) {
-            QName name = getOutPartName(o, method, i);
+            QName name = getInPartName(o, method, i);
             part = o.getInput().getMessagePart(name);
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
-
+            
+            name = getOutPartName(o, method, i); 
             part = o.getOutput().getMessagePart(name);
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
