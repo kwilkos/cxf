@@ -133,7 +133,7 @@ public final class ColocUtil {
             }
             int idx = 0;
             for (MessagePartInfo mpi1 : mpil1) {
-                MessagePartInfo mpi2 = mi2.getMessagePartByIndex(idx);
+                MessagePartInfo mpi2 = mpil2.get(idx);
                 if (!mpi1.getTypeClass().equals(mpi2.getTypeClass())) {
                     return false;
                 }

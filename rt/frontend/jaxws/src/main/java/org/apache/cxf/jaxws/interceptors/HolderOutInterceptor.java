@@ -78,24 +78,18 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             for (int i = 0; i < size; i++) {
                 newObjects.add(null);
             }
-            int[] argsOffset = removeOutHolderFromParaList(outObjects, parts, holders, size, newObjects);
+
+            Object deleteMarker = markOutHolderInParaList(outObjects, parts, holders, newObjects);
             
             if (holders.size() == 0) {
-                
                 return;
             }
             
             int i = 0;
             for (MessagePartInfo part : op.getInput().getMessageParts()) {
-                // if this is an in/out param, we already took care of it above since it has a holder.
-                if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
-                    i++;
-                    continue;
-                }
                 List<String> ordering = part.getMessageInfo().getOperation().getParameterOrdering();
                 if (ordering != null && ordering.size() > 0) {
                     int orderIdx = -1;
-                    int argsIndex = 0;
                     for (int j = 0; j < ordering.size(); j++) {
                         if (ordering.get(j).equals(part.getName().getLocalPart())) {
                             orderIdx = j;
@@ -103,17 +97,28 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                         }
                     }
                     if (orderIdx != -1) {                        
-                        newObjects.set(part.getIndex() + argsOffset[argsIndex++], outObjects.get(orderIdx));
+                        newObjects.set(part.getIndex(), getValue(part, outObjects, orderIdx));
                         
                     } else {
-                        newObjects.set(part.getIndex() + argsOffset[argsIndex++], outObjects.get(i));
+                        newObjects.set(part.getIndex(), getValue(part, outObjects, i));
                     }                    
                 } else {
-                    newObjects.set(part.getIndex(), outObjects.get(i));
+                    newObjects.set(part.getIndex(), getValue(part, outObjects, i));
                 }
                 i++;
             }
-            
+
+            if (deleteMarker != null) {
+                // regenerate the param list by removing all params marked with the deleteMarker.
+                Object[] newObjectsArray = newObjects.toArray();
+                newObjects.clear();
+                for (Object param : newObjectsArray) {
+                    if (param != deleteMarker) {
+                        newObjects.add(param);
+                    }
+                }
+            }
+
             message.setContent(List.class, newObjects);
             message.getExchange().put(HolderInInterceptor.CLIENT_HOLDERS, holders);
         } else {
@@ -152,37 +157,40 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
         }
     }
 
-    private int[] removeOutHolderFromParaList(List<Object> outObjects, 
-                                            List<MessagePartInfo> parts, 
-                                            List<Holder> holders, 
-                                            int size, 
-                                            List<Object> newObjects) {
-        int rmCount = 0;
-        int[] argsOffset = new int[size];
-        int argsIndex = 0;
+    private Object getValue(MessagePartInfo part, List<Object> outObjects, int idx) {
+        if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
+            Holder holder = (Holder) outObjects.get(idx);
+            if (holder == null) {
+                return null;
+            } else {
+                return holder.value;
+            }
+        } else {
+            return outObjects.get(idx);
+        }
+    }
+
+    private Object markOutHolderInParaList(List<Object> outObjects, 
+                                           List<MessagePartInfo> parts, 
+                                           List<Holder> holders, 
+                                           List<Object> newObjects) {
+        Object deleteObject = null;
         for (MessagePartInfo part : parts) {
             int idx = part.getIndex();
-            LOG.fine("part name: " + part.getName() + ", index: " + idx);
-            
             if (idx >= 0) {
                 Holder holder = (Holder) outObjects.get(idx);
-                if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
-                    newObjects.set(idx, holder.value);
-                    argsOffset[argsIndex++] = rmCount;
-                    
-                }
+
                 if (part.getProperty(ReflectionServiceFactoryBean.MODE_OUT) != null) {
-                    newObjects.remove(idx + rmCount);
-                    rmCount--;
-                    argsOffset[argsIndex] = rmCount;
+                    if (deleteObject == null) {
+                        deleteObject = new Object();
+                    }
+                    newObjects.set(idx, deleteObject);
                 }
                 
                 holders.add(holder);
             }
         }
-        return argsOffset;
+        return deleteObject;
     }
-    
-    
     
 }

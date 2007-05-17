@@ -92,22 +92,19 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     }
 
     public int getMessagePartIndex(MessagePartInfo part) {
-        int idx = 0;
         for (MessagePartInfo p : messageParts.values()) {
             if (part == p) {
-                return idx;
+                return p.getIndex();
             }
-            idx++;
         }
         return -1;
     }
+
     public MessagePartInfo getMessagePartByIndex(int i) {
-        int idx = 0;
         for (MessagePartInfo p : messageParts.values()) {
-            if (idx == i) {
+            if (p.getIndex() == i) {
                 return p;
             }
-            ++idx;
         }
         return null;
     }
