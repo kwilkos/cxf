@@ -262,7 +262,14 @@ public class HandlerChainInvoker {
             }
         }
     }*/
-
+    
+    //REVISIT
+    /*
+     * the logic of current implemetation is if the exception is thrown from
+     * previous handlers, we only invoke handleFault if it is ProtocolException
+     * (per spec), if the exception is thrown from other places other than
+     * handlers, we always invoke handleFault.
+     */
     private boolean invokeHandlerChainHandleFault(List<? extends Handler> handlerChain, MessageContext ctx) {
         if (handlerChain.isEmpty()) {
             LOG.log(Level.FINEST, "no handlers registered");
@@ -271,6 +278,12 @@ public class HandlerChainInvoker {
 
         if (isClosed()) {
             return false;
+        }
+        
+        //The fault is raised from previous handlers, in this case, we only invoke handleFault
+        //if the fault is a ProtocolException
+        if (fault != null && !(fault instanceof ProtocolException)) {
+            return true;
         }
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -527,7 +540,7 @@ public class HandlerChainInvoker {
         int index = invokedHandlers.size() - 1;
         while (index >= 0) {
             Handler handler = invokedHandlers.get(index);
-            //System.out.println("===========invokeReversedClose " + invokeReversedClose.toString());
+            //System.out.println("===========invokeReversedClose " + handler.toString());
             if (handler instanceof LogicalHandler) {
                 handler.close(logicalMessageContext);
             } else {

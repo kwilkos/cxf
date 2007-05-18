@@ -29,7 +29,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Binding;
-import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
@@ -116,58 +115,53 @@ public class SOAPHandlerFaultOutInterceptor extends
     private void handleMessageInternal(SoapMessage message) {
         MessageContext context = createProtocolMessageContext(message);
         HandlerChainInvoker invoker = getInvoker(message);
-        invoker.setProtocolMessageContext(context);
-        
-        Fault f = (Fault)message.getContent(Exception.class);
+        invoker.setProtocolMessageContext(context);        
 
-        Throwable cause = f.getCause();
-        if (cause instanceof ProtocolException) {
-            try {
-
-                if (!invoker.invokeProtocolHandlersHandleFault(isRequestor(message), context)) {
-                    // handleAbort(message, context);
-                }
-            } catch (RuntimeException exception) {
-                //Replace SOAPFault with the exception thrown from HandleFault
-                
-                try {
-                    SOAPMessage originalMsg = message.getContent(SOAPMessage.class);
-                    SOAPBody body = originalMsg.getSOAPBody();                    
-                    body.removeContents();
-                    
-                    SOAPFault soapFault = body.addFault();
-
-                    if (exception instanceof SOAPFaultException) {
-                        SOAPFaultException sf = (SOAPFaultException)exception;
-                        soapFault.setFaultString(sf.getFault().getFaultString());
-                        soapFault.setFaultCode(sf.getFault().getFaultCodeAsQName());
-                        soapFault.setFaultActor(sf.getFault().getFaultActor());
-                        if (sf.getFault().hasDetail()) {
-                            Node nd = originalMsg.getSOAPPart().importNode(
-                                                                           sf.getFault().getDetail()
-                                                                               .getFirstChild(), true);
-                            soapFault.addDetail().appendChild(nd);
-                        }
-                    } else if (exception instanceof Fault) {
-                        SoapFault sf = SoapFault.createFault((Fault)exception, ((SoapMessage)message)
-                            .getVersion());
-                        soapFault.setFaultString(sf.getReason());
-                        soapFault.setFaultCode(sf.getFaultCode());
-                        Node nd = originalMsg.getSOAPPart().importNode(sf.getOrCreateDetail(), true);
-                        soapFault.addDetail().appendChild(nd);
-                    } else {
-                        soapFault.setFaultString(exception.getMessage());
-                        soapFault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "HandleFault"));
-                    } 
-                } catch (SOAPException e) {
-                    //do nothing
-                    e.printStackTrace();
-                } 
+        try {
+            if (!invoker.invokeProtocolHandlersHandleFault(isRequestor(message), context)) {
+                // handleAbort(message, context);
             }
-        } else {
-            // do nothing
+        } catch (RuntimeException exception) {
+            /*
+             * handleFault throws exception, in this case we need to replace
+             * SOAPFault with the exception thrown from HandleFault so that the
+             * exception can be dispatched.
+             */
+            try {
+                SOAPMessage originalMsg = message.getContent(SOAPMessage.class);
+                SOAPBody body = originalMsg.getSOAPBody();
+                body.removeContents();
+
+                SOAPFault soapFault = body.addFault();
+
+                if (exception instanceof SOAPFaultException) {
+                    SOAPFaultException sf = (SOAPFaultException)exception;
+                    soapFault.setFaultString(sf.getFault().getFaultString());
+                    soapFault.setFaultCode(sf.getFault().getFaultCodeAsQName());
+                    soapFault.setFaultActor(sf.getFault().getFaultActor());
+                    if (sf.getFault().hasDetail()) {
+                        Node nd = originalMsg.getSOAPPart().importNode(
+                                                                       sf.getFault().getDetail()
+                                                                           .getFirstChild(), true);
+                        soapFault.addDetail().appendChild(nd);
+                    }
+                } else if (exception instanceof Fault) {
+                    SoapFault sf = SoapFault.createFault((Fault)exception, ((SoapMessage)message)
+                        .getVersion());
+                    soapFault.setFaultString(sf.getReason());
+                    soapFault.setFaultCode(sf.getFaultCode());
+                    Node nd = originalMsg.getSOAPPart().importNode(sf.getOrCreateDetail(), true);
+                    soapFault.addDetail().appendChild(nd);
+                } else {
+                    soapFault.setFaultString(exception.getMessage());
+                    soapFault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "HandleFault"));
+                }
+            } catch (SOAPException e) {
+                // do nothing
+                e.printStackTrace();
+            }
         }
-  
+
         onCompletion(message);
     }
     

@@ -27,7 +27,6 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
-import javax.xml.ws.ProtocolException;
 
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -108,18 +107,9 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
                                    StaxUtils.createXMLStreamReader(domWriter.getDocument()));
             }
             
-            Fault f = (Fault)message.getContent(Exception.class);
-
-            Throwable cause = f.getCause();
-            if (cause instanceof ProtocolException) {
-
-                if (!invoker.invokeLogicalHandlersHandleFault(requestor, lctx)) {
-                    //do nothing
-                }
-            } else {
-                // do nothing
-            }
-            
+            if (!invoker.invokeLogicalHandlersHandleFault(requestor, lctx)) {
+                //do nothing
+            }            
             
             if (origMessage != null) {
                 message.setContent(SOAPMessage.class, origMessage);
