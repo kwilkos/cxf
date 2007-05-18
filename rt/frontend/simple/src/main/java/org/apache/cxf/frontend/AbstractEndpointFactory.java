@@ -39,6 +39,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.Service;
@@ -114,6 +115,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         
         if (ep == null) {
             ep = serviceFactory.createEndpoint(ei);
+            ((EndpointImpl)ep).initializeActiveFeatures(getFeatures());
         }
         
         if (properties != null) {

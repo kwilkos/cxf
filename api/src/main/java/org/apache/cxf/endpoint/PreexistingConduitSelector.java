@@ -95,7 +95,7 @@ public class PreexistingConduitSelector implements
     }
 
     /**
-     * @param endpoint the endpoint to encapsulate
+     * @param ep the endpoint to encapsulate
      */
     public void setEndpoint(Endpoint ep) {
         endpoint = ep;

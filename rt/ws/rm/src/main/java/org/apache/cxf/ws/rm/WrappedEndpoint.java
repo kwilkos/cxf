@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -148,4 +149,10 @@ public class WrappedEndpoint implements Endpoint {
         return wrappedEndpoint.values();
     }
     
+    /**
+     * @return the list of fearures <b>already</b> activated for this endpoint.
+     */
+    public List<AbstractFeature> getActiveFeatures() {
+        return wrappedEndpoint.getActiveFeatures();
+    }
 }
