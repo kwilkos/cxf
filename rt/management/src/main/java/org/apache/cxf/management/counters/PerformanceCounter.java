@@ -19,23 +19,26 @@
 
 package org.apache.cxf.management.counters;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.management.JMException;
 import javax.management.ObjectName;
 
 public class PerformanceCounter implements PerformanceCounterMBean, Counter {
-    private int invocations;
+    private AtomicInteger invocations  = new AtomicInteger();
     private ObjectName objectName;
+    
 
     public PerformanceCounter(ObjectName on) {
         objectName = on;
     }
 
     public Number getNumInvocations() {        
-        return invocations;
+        return invocations.get();
     }
 
-    public synchronized void increase(MessageHandlingTimeRecorder mhtr) {
-        invocations++;
+    public void increase(MessageHandlingTimeRecorder mhtr) {
+        invocations.getAndIncrement();
     }
 
     public ObjectName getObjectName() throws JMException {        

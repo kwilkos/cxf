@@ -22,7 +22,7 @@ package org.apache.cxf.management.counters;
 import org.apache.cxf.management.ManagedComponent;
 
 public interface Counter extends ManagedComponent {
-    String DEFAULT_DOMAIN_NAME  = "com.iona.tandoori";
+    String DEFAULT_DOMAIN_NAME  = "org.apache.cxf";
     
     void increase(MessageHandlingTimeRecorder mhtr);  
         

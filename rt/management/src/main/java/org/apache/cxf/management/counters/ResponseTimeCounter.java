@@ -19,12 +19,14 @@
 package org.apache.cxf.management.counters;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.management.ObjectName;
 
 public class ResponseTimeCounter implements ResponseTimeCounterMBean, Counter {    
     
     private ObjectName objectName;
-    private int invocations;
+    private AtomicInteger invocations = new AtomicInteger();
     private long totalHandlingTime;    
     private long maxHandlingTime;
     private long minHandlingTime = Integer.MAX_VALUE;
@@ -33,8 +35,8 @@ public class ResponseTimeCounter implements ResponseTimeCounterMBean, Counter {
         objectName = on;     
     }
     
-    public synchronized void  increase(MessageHandlingTimeRecorder mhtr) {
-        invocations++;
+    public void  increase(MessageHandlingTimeRecorder mhtr) {
+        invocations.getAndIncrement();
         long handlingTime = 0;
         if (mhtr.isOneWay()) {
             // We can count the response time 
@@ -61,7 +63,7 @@ public class ResponseTimeCounter implements ResponseTimeCounterMBean, Counter {
     }
 
     public Number getAvgResponseTime() {        
-        return (int)(totalHandlingTime / invocations);
+        return (int)(totalHandlingTime / invocations.get());
     }
 
     
@@ -74,7 +76,7 @@ public class ResponseTimeCounter implements ResponseTimeCounterMBean, Counter {
     }
 
     public Number getNumInvocations() {        
-        return invocations;
+        return invocations.get();
     }
 
    

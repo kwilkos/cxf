@@ -39,16 +39,16 @@ import org.junit.Before;
 
 
 public class AbstractMessageResponseTestBase extends Assert {
-    protected static final QName SERVICE_NAME = new QName("http://com.iona.tandoori", "hello");
-    protected static final QName OPERATION_NAME = new QName("http://com.iona.tandoori", "world");
-    protected static final QName PORT_NAME = new QName("http://com.iona.tandoori", "port");
+    protected static final QName SERVICE_NAME = new QName("http://org.apache.cxf", "hello");
+    protected static final QName OPERATION_NAME = new QName("http://org.apache.cxf", "world");
+    protected static final QName PORT_NAME = new QName("http://org.apache.cxf", "port");
     
     protected static final String CLIENT_SERVICE_ONAME =
-        "com.iona.tandoori:Type=Counter_Client,BusID=tandoori,ServiceName=\"" 
+        "org.apache.cxf:Type=Counter_Client,BusID=cxf,ServiceName=\"" 
         + SERVICE_NAME.toString() + "\",PortName=\"" 
         + PORT_NAME + "\"";
     protected static final String SERVER_SERVICE_ONAME = 
-        "com.iona.tandoori:Type=Counter_Server,BusID=tandoori,ServiceName=\"" 
+        "org.apache.cxf:Type=Counter_Server,BusID=cxf,ServiceName=\"" 
         + SERVICE_NAME.toString() + "\",PortName=\"" 
         + PORT_NAME + "\"";
     protected ObjectName clientServiceCounterOName;
@@ -93,7 +93,7 @@ public class AbstractMessageResponseTestBase extends Assert {
         bus.getExtension(CounterRepository.class);
         EasyMock.expectLastCall().andReturn(cRepository);
         if (increase) {
-            EasyMock.expect(bus.getId()).andReturn("tandoori");
+            EasyMock.expect(bus.getId()).andReturn("cxf");
             cRepository.increaseCounter(EasyMock.eq(serviceCounterOName),
                                                EasyMock.isA(MessageHandlingTimeRecorder.class));
             EasyMock.expectLastCall();
