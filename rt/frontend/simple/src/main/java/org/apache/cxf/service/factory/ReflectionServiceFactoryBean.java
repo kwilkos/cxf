@@ -402,6 +402,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         createWrappedSchema(serviceInfo, op.getInput(),
                                             op.getUnwrappedOperation().getInput(), wraperBeanName);
                     }
+                    
+                    for (MessagePartInfo mpi : op.getInput().getMessageParts()) {
+                        if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
+                            QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
+                            mpi.setElement(true);
+                            mpi.setElementQName(qn);
+                        }
+                    }
+                    
+                  
                 }
                 if (op.hasOutput()) {
                     QName wraperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
@@ -415,6 +425,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     if (e == null) {
                         createWrappedSchema(serviceInfo, op.getOutput(), op.getUnwrappedOperation()
                             .getOutput(), wraperBeanName);
+                    }
+                    
+                    for (MessagePartInfo mpi : op.getOutput().getMessageParts()) {
+                        if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
+                            QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
+                            mpi.setElement(true);
+                            mpi.setElementQName(qn);
+                        }
                     }
                 }
             }
@@ -603,6 +621,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     }
     
+    private boolean isExistSchemaElement(XmlSchema schema, QName qn) {
+        boolean isExist = false;
+        for (Iterator ite = schema.getItems().getIterator(); ite.hasNext();) {
+            XmlSchemaObject obj = (XmlSchemaObject)ite.next();
+            if (obj instanceof XmlSchemaElement) {
+                XmlSchemaElement xsEle = (XmlSchemaElement)obj;
+                if (xsEle.getQName().equals(qn)) {
+                    isExist = true;
+                    break;
+                }
+            }
+        }
+        return isExist;
+    }
+    
+    
     private void createWrappedMessageSchema(AbstractMessageContainer wrappedMessage,
                                             AbstractMessageContainer unwrappedMessage, XmlSchema schema,
                                             QName wrapperName) {
@@ -623,11 +657,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         ct.setParticle(seq);
 
         for (MessagePartInfo mpi : unwrappedMessage.getMessageParts()) {
-            if (!Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
-                el = new XmlSchemaElement();
-                el.setName(mpi.getName().getLocalPart());
-                el.setQName(mpi.getName());
 
+            el = new XmlSchemaElement();
+            el.setName(mpi.getName().getLocalPart());
+            el.setQName(mpi.getName());
+            if (mpi.isElement()) {
+                el.setRefName(mpi.getElementQName());
+            } else {
+                el.setSchemaTypeName(mpi.getTypeQName());
+            }
+            if (!Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
                     el.setMinOccurs(0);
@@ -638,13 +677,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         el.setMinOccurs(0);
                     }
                 }
-
-                if (mpi.isElement()) {
-                    el.setRefName(mpi.getElementQName());
-                } else {
-                    el.setSchemaTypeName(mpi.getTypeQName());
-                }
                 seq.getItems().add(el);
+            }
+            if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
+
+                QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
+
+                el.setName(qn.getLocalPart());
+                el.setQName(qn);
+
+                if (!isExistSchemaElement(schema, qn)) {
+                    schema.getItems().add(el);
+                }
             }
         }
     }
@@ -667,7 +711,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
 
                 if (isHeader(method, j)) {
-                    part.setElementQName(q);
+                    //part.setElementQName(q);
+                    part.setProperty(ELEMENT_NAME, q);
                     part.setProperty(HEADER, Boolean.TRUE);
                 }
                 part.setIndex(j);
@@ -718,7 +763,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         part.setProperty(MODE_INOUT, Boolean.TRUE);
                     }
                     if (isHeader(method, j)) {
-                        part.setElementQName(q2);
+                        //part.setElementQName(q2);
+                        part.setProperty(ELEMENT_NAME, q2);
                         part.setProperty(HEADER, Boolean.TRUE);
                     }
                 }
@@ -767,8 +813,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
-        MessagePartInfo part = inMsg.addMessagePart("parameters");
+    protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo outMsg) {
+        MessagePartInfo part = outMsg.addMessagePart("parameters");
         part.setElement(true);
         part.setIndex(-1);
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
@@ -780,7 +826,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
         if (part.getElementQName() == null) {
-            part.setElementQName(inMsg.getName());
+            part.setElementQName(outMsg.getName());
         } else if (!part.getElementQName().equals(op.getOutput().getName())) {
             op.getOutput().setName(part.getElementQName());
         }
@@ -789,6 +835,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             part.setTypeClass(this.getResponseWrapper(method));
         } else if (getResponseWrapperClassName(method) != null) {
             part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
+        }
+        
+        for (MessagePartInfo mpart : op.getOutput().getMessageParts()) {
+            if (Boolean.TRUE.equals(mpart.getProperty(HEADER))) {
+                int idx = mpart.getIndex();
+                outMsg.addMessagePart(mpart);
+                mpart.setIndex(idx);
+            }
         }
     }
 

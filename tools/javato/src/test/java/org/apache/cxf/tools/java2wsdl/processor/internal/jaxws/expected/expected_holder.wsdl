@@ -40,6 +40,7 @@
 <xsd:element minOccurs="0" name="arg1" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
+<xsd:element name="header" type="xsd:string"/>
 <xsd:element name="echo3Response" type="echo3Response"/>
 <xsd:complexType name="echo3Response">
 <xsd:sequence>
@@ -68,6 +69,8 @@
   </wsdl:message>
   <wsdl:message name="echo3Response">
     <wsdl:part name="parameters" element="ns1:echo3Response">
+    </wsdl:part>
+    <wsdl:part name="header" element="ns1:header">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo2">
