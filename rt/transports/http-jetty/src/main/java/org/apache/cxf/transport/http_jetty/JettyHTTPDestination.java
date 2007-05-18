@@ -20,6 +20,7 @@ package org.apache.cxf.transport.http_jetty;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Principal;
 import java.util.logging.Level;
@@ -129,8 +130,23 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected ConduitInitiator getConduitInitiator() {
         return conduitInitiator;
     }
+    
+    private String getBasePath(String addr) {
+        try {
+            return new URL(addr).getPath();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-   
+    private synchronized void updateEndpointAddress(String addr) {
+        // only update the EndpointAddress if the base path is equal
+        // make sure we don't broke the get operation?parament query 
+        String address = endpointInfo.getAddress();
+        if (getBasePath(address).equals(getBasePath(addr))) {
+            endpointInfo.setAddress(addr);
+        }
+    }
    
     protected void doService(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Request baseRequest = (req instanceof Request) 
@@ -143,11 +159,14 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             return;
         }
         QueryHandlerRegistry queryHandlerRegistry = bus.getExtension(QueryHandlerRegistry.class);
-        if (queryHandlerRegistry != null) { 
+        
+        if (null != req.getQueryString() && queryHandlerRegistry != null) {        
             String requestURL = req.getRequestURL() + "?" + req.getQueryString();
-            String pathInfo = req.getPathInfo();
+            String pathInfo = req.getPathInfo();                     
             for (QueryHandler qh : queryHandlerRegistry.getHandlers()) {
                 if (qh.isRecognizedQuery(requestURL, pathInfo, endpointInfo)) {
+                    //replace the endpointInfo address with request url only for get wsdl           
+                    updateEndpointAddress(req.getRequestURL().toString());   
                     resp.setContentType(qh.getResponseContentType(requestURL, pathInfo));
                     qh.writeResponse(requestURL, pathInfo, endpointInfo, resp.getOutputStream());
                     resp.getOutputStream().flush();                     
@@ -175,7 +194,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(HTTP_REQUEST, req);
             inMessage.put(HTTP_RESPONSE, resp);
             inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
-            inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo()); 
+            inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo());
+            
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
             if (!StringUtils.isEmpty(endpointInfo.getAddress())) {

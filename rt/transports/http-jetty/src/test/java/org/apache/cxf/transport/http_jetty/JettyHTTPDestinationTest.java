@@ -506,10 +506,6 @@ public class JettyHTTPDestinationTest extends Assert {
         request.getMethod();
         EasyMock.expectLastCall().andReturn(method);
         
-        /*if ("GET".equals(method)) {            
-            request.getQueryString();
-            EasyMock.expectLastCall().andReturn(query);            
-        }*/ 
         
         if (setRedirectURL) {
             policy.setRedirectURL(NOWHERE + "foo/bar");
@@ -519,7 +515,11 @@ public class JettyHTTPDestinationTest extends Assert {
             EasyMock.expectLastCall();
             request.setHandled(true);
             EasyMock.expectLastCall();
-        } else {            
+        } else { 
+            //getQueryString for if statement
+            request.getQueryString();
+            EasyMock.expectLastCall().andReturn(query);      
+            
             if ("GET".equals(method) && "?wsdl".equals(query)) {
                 verifyGetWSDLQuery();                
             } else { // test for the post
@@ -616,7 +616,7 @@ public class JettyHTTPDestinationTest extends Assert {
         queryHandlerRegistry.getHandlers();
         EasyMock.expectLastCall().andReturn(queryHandlerList);       
         request.getRequestURL();
-        EasyMock.expectLastCall().andReturn(new StringBuffer("http://localhost/bar/foo"));
+        EasyMock.expectLastCall().andReturn(new StringBuffer("http://localhost/bar/foo")).times(2);
         request.getPathInfo();
         EasyMock.expectLastCall().andReturn("/bar/foo");
         request.getQueryString();
