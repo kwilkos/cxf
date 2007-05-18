@@ -82,6 +82,7 @@ public class Compiler {
                     }
                 }
                 out.flush();
+                out.close();
                 cmdArray = new String[sourceFileIndex + 1];
                 System.arraycopy(args, 0, cmdArray, 0, sourceFileIndex);
                 cmdArray[sourceFileIndex] = "@" + tmpFile;
