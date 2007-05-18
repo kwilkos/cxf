@@ -123,24 +123,26 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         methodCalled("handleFault"); 
         printHandlerInfo("handleFault", isOutbound(ctx));
 
-        if (!"soapHandler4".equals(getHandlerId())) {
-            return true;
-        } 
-        
-        try {
-            SOAPMessage msg = ctx.getMessage();
-            if ("soapHandler4HandleFaultThrowsRunException".equals(msg.getSOAPBody().getFault()
-                .getFaultString())) {
-                throw new RuntimeException("soapHandler4 HandleFault throws RuntimeException");
-            } else if ("soapHandler4HandleFaultThrowsSOAPFaultException".equals(msg.getSOAPBody().getFault()
-                .getFaultString())) {
-                SOAPFault fault = SOAPFactory.newInstance().createFault();
-                fault.setFaultString("soapHandler4 HandleFault throws SOAPFaultException");
-                throw new SOAPFaultException(fault);
-            } 
-        } catch (SOAPException e) {
-            // do nothing
+        if (isServerSideHandler()) {
+
+            if (!"soapHandler4".equals(getHandlerId())) {
+                return true;
+            }
+
+            try {
+                SOAPMessage msg = ctx.getMessage();
+                if ("soapHandler4HandleFaultThrowsRunException".equals(msg.getSOAPBody().getFault()
+                    .getFaultString())) {
+                    throw new RuntimeException("soapHandler4 HandleFault throws RuntimeException");
+                } else if ("soapHandler4HandleFaultThrowsSOAPFaultException".equals(msg.getSOAPBody()
+                    .getFault().getFaultString())) {
+                    throw createSOAPFaultException("soapHandler4 HandleFault throws SOAPFaultException");
+                }
+            } catch (SOAPException e) {
+                // do nothing
+            }
         }
+        
         return true;
     }
 
@@ -225,12 +227,16 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
                         throw new RuntimeException(exceptionText);
                     } else if ("ProtocolException".equals(exceptionType)) {
                         throw new ProtocolException(exceptionText);
+                    } else if ("SOAPFaultException".equals(exceptionType)) {
+                        throw createSOAPFaultException(exceptionText);
                     }
                 } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
                         throw new RuntimeException(exceptionText);
                     } else if ("ProtocolException".equals(exceptionType)) {
                         throw new ProtocolException(exceptionText);
+                    } else if ("SOAPFaultException".equals(exceptionType)) {
+                        throw createSOAPFaultException(exceptionText);
                     }
                 }
              
@@ -243,6 +249,12 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         return ret;
     } 
 
+    private SOAPFaultException createSOAPFaultException(String faultString) throws SOAPException {
+        SOAPFault fault = SOAPFactory.newInstance().createFault();
+        fault.setFaultString(faultString);
+        fault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "Server"));
+        return new SOAPFaultException(fault);
+    }
 
     public String toString() { 
         return getHandlerId();

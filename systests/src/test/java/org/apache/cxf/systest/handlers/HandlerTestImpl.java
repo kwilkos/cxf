@@ -25,8 +25,14 @@ import javax.annotation.Resource;
 //import javax.jws.HandlerChain;
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.handler_test.HandlerTest;
@@ -68,15 +74,33 @@ public class HandlerTestImpl implements HandlerTest {
         ret.add(handlerCommand);
         ret.addAll(getHandlersInfo(context.getMessageContext()));
 
-        if (handlerCommand.contains("throw exception")) {
+        if (handlerCommand.contains("servant throw exception")) {
             PingFaultDetails details = new PingFaultDetails();
             details.setDetail(ret.toString());
             throw new PingException("from servant", details);
+        } else if (handlerCommand.contains("servant throw RuntimeException")) {
+            throw new RuntimeException("servant throw RuntimeException");
+        } else if (handlerCommand.contains("servant throw SOAPFaultException")) {
+            throw createSOAPFaultException("servant throws SOAPFaultException");
+        } else if (handlerCommand.contains("servant throw WebServiceException")) {
+            RuntimeException re = new RuntimeException("servant throws RuntimeException");
+            throw new WebServiceException("RemoteException with nested RuntimeException", re);
         }
 
         return ret;
     }
 
+    private SOAPFaultException createSOAPFaultException(String faultString) {
+        try {
+            SOAPFault fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultString(faultString);
+            fault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "Server"));
+            return new SOAPFaultException(fault);
+        } catch (SOAPException e) {
+            // do nothing
+        }
+        return null;
+    }
 
     @Resource
     public void setWebServiceContext(WebServiceContext ctx) {

@@ -47,7 +47,7 @@ public class Soap12FaultInInterceptor extends AbstractSoapInterceptor {
     
     public Soap12FaultInInterceptor() {
         super();
-        setPhase(Phase.UNMARSHAL);
+        setPhase(Phase.READ);
         addBefore(ClientFaultConverter.class.getName());
     }
 

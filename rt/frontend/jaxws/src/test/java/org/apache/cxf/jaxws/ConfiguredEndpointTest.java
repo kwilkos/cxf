@@ -298,7 +298,7 @@ public class ConfiguredEndpointTest extends Assert {
         assertEquals("Unexpected interceptor id.", "endpoint-out", 
                      findTestInterceptor(interceptors).getId());
         interceptors = endpoint.getInFaultInterceptors();
-        assertEquals("Unexpected number of interceptors.", 2, interceptors.size());
+        assertEquals("Unexpected number of interceptors.", 4, interceptors.size());
         assertEquals("Unexpected interceptor id.", "endpoint-in-fault", 
                      findTestInterceptor(interceptors).getId());
         interceptors = endpoint.getOutFaultInterceptors();
