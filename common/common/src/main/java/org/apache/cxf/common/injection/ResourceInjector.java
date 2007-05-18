@@ -234,6 +234,7 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
 
     private void invokeSetter(Method method, Object resource) { 
         try {
+            method.setAccessible(true);
             method.invoke(getTarget(), resource);
         } catch (IllegalAccessException e) { 
             LOG.log(Level.SEVERE, "INJECTION_SETTER_NOT_VISIBLE", method);

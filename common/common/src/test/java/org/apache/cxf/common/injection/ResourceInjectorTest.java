@@ -38,8 +38,8 @@ import org.junit.Test;
 
 public class ResourceInjectorTest extends Assert {
     private static final String RESOURCE_ONE = "resource one";
-    private static final String RESOURCE_TWO = "resource one";
-
+    private static final String RESOURCE_TWO = "resource two";
+    
     private ResourceInjector injector; 
         
     public void setUpResourceManager(String pfx) { 
@@ -62,6 +62,18 @@ public class ResourceInjectorTest extends Assert {
     public void testFieldInjection() { 
         setUpResourceManager(FieldTarget.class.getCanonicalName() + "/");
         doInjectTest(new FieldTarget()); 
+    }
+    
+    @Test
+    public void testFieldInSuperClassInjection() { 
+        setUpResourceManager("org.apache.cxf.common.injection.FieldTarget/");
+        doInjectTest(new SubFieldTarget()); 
+    }
+    
+    @Test
+    public void testSetterInSuperClassInjection() {
+        setUpResourceManager("org.apache.cxf.common.injection.SetterTarget/");
+        doInjectTest(new SubSetterTarget()); 
     }
 
     @Test
@@ -116,7 +128,8 @@ public class ResourceInjectorTest extends Assert {
 interface Target {
     String getResource1(); 
     String getResource2(); 
-} 
+}
+
 
 class FieldTarget implements Target {
 
@@ -138,6 +151,13 @@ class FieldTarget implements Target {
         return "[" + resource1 + ":" + resource2foo + "]";
     }
 
+}
+
+class SubFieldTarget extends FieldTarget {
+}
+
+class SubSetterTarget extends SetterTarget {
+    
 }
 
 class SetterTarget implements Target { 
@@ -163,7 +183,7 @@ class SetterTarget implements Target {
     }
     
     @Resource(name = "resource2")
-    public final void setResource2(final String argResource2) {
+    private void setResource2(final String argResource2) {
         this.resource2 = argResource2;
     }
 
@@ -201,6 +221,7 @@ class SetterTarget implements Target {
     // dummy method to access the private methods to avoid compile warnings
     public void dummyMethod() {
         preDestroyMethodPrivate();
+        setResource2("");
     }
 }
 

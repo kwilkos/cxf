@@ -84,25 +84,34 @@ public  class AnnotationProcessor {
         
         annotationTypes = visitor.getTargetAnnotations();
         visitor.setTarget(target);
-        processClass(visitor);
-        processFields(visitor); 
-        processMethods(visitor);
+        //recursively check annotation in super class
+        processClass(visitor, target.getClass());
+        processFields(visitor, target.getClass()); 
+        processMethods(visitor, target.getClass());
     } 
     
     
-    private void processMethods(AnnotationVisitor visitor) {
-        
-        visitAnnotatedElement(target.getClass().getMethods(), visitor, visitMethodMethod); 
+    private void processMethods(AnnotationVisitor visitor, Class<? extends Object> targetClass) {
+
+        if (targetClass.getSuperclass() != null) {
+            processMethods(visitor, targetClass.getSuperclass());
+        }
+        visitAnnotatedElement(targetClass.getDeclaredMethods(), visitor, visitMethodMethod); 
     }
     
-    private void processFields(AnnotationVisitor visitor) { 
-        
-        visitAnnotatedElement(target.getClass().getDeclaredFields(), visitor, visitFieldMethod); 
+    private void processFields(AnnotationVisitor visitor, Class<? extends Object> targetClass) { 
+        if (targetClass.getSuperclass() != null) {
+            processFields(visitor, targetClass.getSuperclass());
+        }
+        visitAnnotatedElement(targetClass.getDeclaredFields(), visitor, visitFieldMethod); 
     } 
     
     
-    private void processClass(AnnotationVisitor visitor) {
-        Class<?>[] classes = {target.getClass()}; 
+    private void processClass(AnnotationVisitor visitor, Class<? extends Object> targetClass) {
+        if (targetClass.getSuperclass() != null) {
+            processClass(visitor, targetClass.getSuperclass());
+        }
+        Class<?>[] classes = {targetClass}; 
         visitAnnotatedElement(classes, visitor, visitClassMethod);
     }
     
