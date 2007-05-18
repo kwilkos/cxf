@@ -32,27 +32,35 @@ public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager {
     private List<ServerLifeCycleListener> listeners = new ArrayList<ServerLifeCycleListener>();
     private Bus bus;
 
-    public void registerListener(ServerLifeCycleListener listener) {
+    public synchronized void registerListener(ServerLifeCycleListener listener) {
         listeners.add(listener);
     }
 
     public void startServer(Server server) {
-        if (null != listeners) {
-            for (ServerLifeCycleListener listener : listeners) {
-                listener.startServer(server);
-            }
+        List<ServerLifeCycleListener> listenersToNotify = null;
+        synchronized (this) {
+            listenersToNotify = new ArrayList<ServerLifeCycleListener>();
+            listenersToNotify.addAll(listeners);
+        }
+        
+        for (ServerLifeCycleListener listener : listenersToNotify) {
+            listener.startServer(server);
         }
     }
 
     public void stopServer(Server server) {
-        if (null != listeners) {
-            for (ServerLifeCycleListener listener : listeners) {
-                listener.stopServer(server);
-            }
-        } 
+        List<ServerLifeCycleListener> listenersToNotify = null;
+        synchronized (this) {
+            listenersToNotify = new ArrayList<ServerLifeCycleListener>();
+            listenersToNotify.addAll(listeners);
+        }
+        
+        for (ServerLifeCycleListener listener : listenersToNotify) {
+            listener.stopServer(server);
+        }
     }
 
-    public void unRegisterListener(ServerLifeCycleListener listener) {
+    public synchronized void unRegisterListener(ServerLifeCycleListener listener) {
         listeners.remove(listener);
     }
     
@@ -71,5 +79,4 @@ public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager {
             bus.setExtension(this, ServerLifeCycleManager.class);
         }
     }
-
 }
