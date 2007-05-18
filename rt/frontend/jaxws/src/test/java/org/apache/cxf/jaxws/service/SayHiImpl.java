@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.jaxws.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jws.WebService;
 
 @WebService(serviceName = "SayHiService", 
@@ -31,4 +34,17 @@ public class SayHiImpl implements SayHi {
     public void greetMe() {
         
     }
+    public String[] getStringArray(String[] strs) {
+        String[] strings = new String[2];
+        strings[0] = "Hello" + strs[0];
+        strings[1] = "Bonjour" + strs[1];
+        return strings;
+    }
+    public List<String> getStringList(List<String> list) {
+        List<String> ret = new ArrayList<String>();
+        ret.add("Hello" + list.get(0));
+        ret.add("Bonjour" + list.get(1));
+        return ret;
+    }
+    
 }

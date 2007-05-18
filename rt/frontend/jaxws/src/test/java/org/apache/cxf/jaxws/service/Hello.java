@@ -39,4 +39,19 @@ public class Hello {
         strings.add("Bonjour");
         return strings;
     }
+    
+    @WebMethod
+    public String[] getStringArray(String[] strs) {
+        String[] strings = new String[2];
+        strings[0] = "Hello" + strs[0];
+        strings[1] = "Bonjour" + strs[1];
+        return strings;
+    }
+    @WebMethod
+    public List<String> getStringList(List<String> list) {
+        List<String> ret = new ArrayList<String>();
+        ret.add("Hello" + list.get(0));
+        ret.add("Bonjour" + list.get(1));
+        return ret;
+    }
 }

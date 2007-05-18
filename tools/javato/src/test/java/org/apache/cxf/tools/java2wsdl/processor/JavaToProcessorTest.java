@@ -41,6 +41,7 @@ import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -54,12 +55,14 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
         
     @Test
+    @Ignore
     public void testGetWSDLVersion() {
         processor.setEnvironment(new ToolContext());
         assertEquals(WSDLConstants.WSDLVersion.WSDL11, processor.getWSDLVersion());
     }
 
     @Test
+    @Ignore
     public void testSimpleClass() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped_bare.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.simple.Hello");
@@ -77,6 +80,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testCalculator() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/calculator.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME,
@@ -90,6 +94,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testIsSOAP12() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
@@ -104,6 +109,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testGetBindingConfig() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME,
                     "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
@@ -123,6 +129,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSOAP12() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");
@@ -136,6 +143,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
     
     @Test
+    @Ignore
     public void testDocLitUseClassPathFlag() throws Exception {
         File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
         classFile.mkdir();
@@ -202,6 +210,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testGetServiceName() throws Exception {
         processor.setEnvironment(env);
         assertNull(processor.getServiceName());
@@ -212,6 +221,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSetServiceName() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");
@@ -225,6 +235,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertFileEquals(new File(expectedFile), new File(output, "my_hello_soap12.wsdl"));
     }
     @Test
+    @Ignore
     public void testGenWrapperBeanClasses() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME,
                 "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
@@ -241,6 +252,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testNoNeedGenWrapperBeanClasses() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.Stock");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_stock.wsdl");
@@ -256,6 +268,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSetSourceDir() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME,
                 "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");

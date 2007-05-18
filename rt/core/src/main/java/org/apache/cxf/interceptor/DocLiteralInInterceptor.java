@@ -19,6 +19,7 @@
 
 package org.apache.cxf.interceptor;
 
+//import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -207,33 +208,50 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                          Iterator<MessagePartInfo> itr) {
 
         boolean isListPara = false;
-        List<Object> list = new ArrayList<Object>();
+        //List<Object> list = new ArrayList<Object>();
         MessagePartInfo part = null;
-        while (StaxUtils.toNextElement(xmlReader)) {
+        while (StaxUtils.toNextElement(xmlReader)) { 
             if (itr.hasNext()) {
                 part = itr.next();
                 if (part.getTypeClass().getName().startsWith("[L")) {
+                    //&& Collection.class.isAssignableFrom(part.getTypeClass())) {
                     //it's List Para
-                    isListPara = true;
+                    //
                     Type genericType = (Type) part.getProperty("generic.type");
-                    ParameterizedType pt = (ParameterizedType) genericType;
-                    part.setTypeClass((Class<?>)pt.getActualTypeArguments()[0]);
+                    
+                    if (genericType instanceof ParameterizedType) {
+                        isListPara = true;
+                        //ParameterizedType pt = (ParameterizedType) genericType;
+                        //part.setTypeClass((Class<?>)pt.getActualTypeArguments()[0]);
+                    } /*else if (genericType instanceof GenericArrayType) {
+                        GenericArrayType gt = (GenericArrayType)genericType;
+                        part.setTypeClass((Class<?>)gt.getGenericComponentType());
+                    }*/
                 } 
             } 
             if (part == null) {
                 break;
             }
-            list.add(dr.read(part, xmlReader));
+            Object obj = dr.read(part, xmlReader);
+            if (isListPara) {
+                List<Object> listArg = new ArrayList<Object>();
+                for (Object o : (Object[])obj) {
+                    listArg.add(o);
+                }
+                parameters.add(listArg);
+            } else {
+                parameters.add(obj);
+            }
 
         }
-        if (isListPara) {
+        
+        /*if (isListPara) {
             parameters.add(list);
         } else {
             for (Object obj : list) {
                 parameters.add(obj);
             }
-
-        }
+        }*/
     }
 
 

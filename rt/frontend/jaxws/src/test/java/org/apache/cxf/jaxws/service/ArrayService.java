@@ -21,16 +21,33 @@ package org.apache.cxf.jaxws.service;
 import java.util.List;
 
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 
-@WebService
-public interface HelloInterface {
+
+
+@WebService(name = "ArrayService",
+            targetNamespace = "http://service.jaxws.cxf.apache.org/")
+@SOAPBinding(style = SOAPBinding.Style.DOCUMENT,
+             use = SOAPBinding.Use.LITERAL,
+             parameterStyle = SOAPBinding.ParameterStyle.WRAPPED)
+public interface ArrayService {
+    
     @WebMethod
-    String sayHi(String text);
+    String[] arrayOutput();
+
     @WebMethod
-    List<String> getGreetings();
+    String arrayInput(
+            @WebParam(name = "input") String[] inputs);
+
     @WebMethod
-    String[] getStringArray(String[] strs);
+    String[] arrayInputAndOutput(
+            @WebParam(name = "input") String[] inputs);
+
     @WebMethod
-    List<String> getStringList(List<String> list);
+    List<String> listOutput();
+    @WebMethod
+    String listInput(@WebParam(name = "input")List<String> inputs);
+
 }

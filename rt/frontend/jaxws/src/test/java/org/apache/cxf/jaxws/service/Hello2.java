@@ -40,4 +40,14 @@ public class Hello2 implements HelloInterface {
     public void sayGoodbye() {
     }
 
+    public String[] getStringArray(String[] strs) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<String> getStringList(List<String> list) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

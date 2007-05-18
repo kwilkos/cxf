@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.jaxws.service;
 
+import java.util.List;
+
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
@@ -29,4 +31,6 @@ public interface SayHi {
     @WebMethod(operationName = "sayHi", exclude = false)
     long sayHi(long l);
     void greetMe();
+    String[] getStringArray(String[] string);
+    List<String> getStringList(List<String> list);
 }

@@ -124,7 +124,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
                 boolean isFromWrapper = part.getMessageInfo().getOperation().isUnwrapped();
                 if (isFromWrapper && clazz.isArray() && !Byte.TYPE.equals(clazz.getComponentType())) {
-                    clazz = clazz.getComponentType();
+                    //clazz = clazz.getComponentType();
                 }
                 JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
                 if (beanInfo == null) {

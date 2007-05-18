@@ -60,6 +60,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         
         Type genericType = (Type) part.getProperty("generic.type");
         if (genericType != null) {
+            addType(genericType);
             if (isFromWrapper
                 && genericType instanceof Class
                 && ((Class)genericType).isArray()) {
@@ -70,7 +71,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                     genericType = cl2.getComponentType();
                 }
             }
-            addType(genericType);
+            //addType(genericType);
             
             if (Collection.class.isAssignableFrom(clazz) 
                 && genericType instanceof ParameterizedType) {
