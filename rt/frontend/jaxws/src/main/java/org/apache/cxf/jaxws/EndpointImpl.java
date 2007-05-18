@@ -352,7 +352,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         LOG.fine("loading handler chain for endpoint");
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-        List<Handler> chain = builder.buildHandlerChainFromClass(implementor.getClass());
+        List<Handler> chain = builder.buildHandlerChainFromClass(implementor.getClass(), endpointName);
         for (Handler h : chain) {
             injectResources(h);
         }

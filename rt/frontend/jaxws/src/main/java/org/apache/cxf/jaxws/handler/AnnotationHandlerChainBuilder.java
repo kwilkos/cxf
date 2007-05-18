@@ -31,6 +31,7 @@ import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
@@ -57,7 +58,8 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
      * @param existingHandlers
      * @return
      */
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers) {
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers,
+                                                    QName endpointName) {
         LOG.fine("building handler chain");
         HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
         List<Handler> chain = null;
@@ -83,7 +85,17 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                 
                 chain = new ArrayList<Handler>();
                 for (HandlerChainType hc : handlerChainsType.getHandlerChain()) {
-                    chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));
+                    //Only add handlers if <port-name-pattern> is not presented or is matched.
+                    //TODO: match the namespace, match the wild card etc. JSR-181, Appendix B. 
+                    if (hc.getPortNamePattern() != null && endpointName != null) {
+                        String portNamePattern = hc.getPortNamePattern();
+                        String localPart = portNamePattern.substring(portNamePattern.indexOf(':') + 1,
+                                                                     portNamePattern.length());
+                        if (!localPart.equals(endpointName.getLocalPart())) {
+                            continue;
+                        }
+                    }
+                    chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));                    
                 }
 
             } catch (Exception e) {
@@ -101,10 +113,14 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         return clazz.getResource(name);
     }
 
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
-        return buildHandlerChainFromClass(clz, null);
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz, QName endpointName) {
+        return buildHandlerChainFromClass(clz, null, endpointName);
     }
 
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
+        return buildHandlerChainFromClass(clz, null, null);
+    }
+    
     private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz, boolean searchSEI) {        
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Checking for HandlerChain annotation on " + clz.getName());

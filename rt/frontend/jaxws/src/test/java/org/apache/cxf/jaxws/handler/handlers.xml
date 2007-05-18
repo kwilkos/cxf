@@ -50,4 +50,24 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
 		</init-param>
 	</handler>
     </handler-chain>
+    
+    
+    <handler-chain>
+		<port-name-pattern
+			xmlns:ns1="http://apache.org/handler_test">
+			ns1:SoapPort1
+		</port-name-pattern>
+		<handler>
+			<handler-name>Handler1</handler-name>
+			<handler-class>
+				org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestLogicalHandler
+			</handler-class>
+		</handler>
+		<handler>
+			<handler-name>Handler2</handler-name>
+			<handler-class>
+				org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestLogicalHandler
+			</handler-class>
+		</handler>
+	</handler-chain>
 </handler-chains>

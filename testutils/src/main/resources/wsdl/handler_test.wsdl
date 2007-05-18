@@ -88,6 +88,11 @@
             <wsdl:fault  message="tns:PingException" name="PingException"/>
         </wsdl:operation>
     </wsdl:portType>
+    <wsdl:portType name="HandlerTest1">
+        <wsdl:operation name="pingOneWay1">
+            <wsdl:input message="tns:pingOneWayRequest" name="pingOneWayRequest1"/>
+        </wsdl:operation>
+    </wsdl:portType>
     <wsdl:binding name="HandlerTest_SOAPBinding" type="tns:HandlerTest">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
         <wsdl:operation name="ping">
@@ -118,9 +123,21 @@
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
+     <wsdl:binding name="HandlerTest_SOAPBinding1" type="tns:HandlerTest1">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="pingOneWay1">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="pingOneWayRequest1">
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>   
     <wsdl:service name="HandlerTestService">
         <wsdl:port binding="tns:HandlerTest_SOAPBinding" name="SoapPort">
             <soap:address location="http://localhost:9005/HandlerTest/SoapPort"/>
+        </wsdl:port>
+       <wsdl:port binding="tns:HandlerTest_SOAPBinding1" name="SoapPort1">
+            <soap:address location="http://localhost:9005/HandlerTest/SoapPort1"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

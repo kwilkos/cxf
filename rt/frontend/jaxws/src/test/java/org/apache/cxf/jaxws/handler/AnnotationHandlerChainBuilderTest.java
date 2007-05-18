@@ -24,6 +24,7 @@ import java.util.Map;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
@@ -40,12 +41,24 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
         assertNotNull(handlers);
-        assertEquals(3, handlers.size());
+        assertEquals(5, handlers.size());
         assertEquals(TestLogicalHandler.class, handlers.get(0).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(1).getClass());
-        assertEquals(TestProtocolHandler.class, handlers.get(2).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(2).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(3).getClass());
+        assertEquals(TestProtocolHandler.class, handlers.get(4).getClass());
+    }    
+    
+    public void testFindHandlerChainAnnotationPerPort() {
+        HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
+        AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
+        QName portName = new QName("namespacedoesntsupportyet", "SoapPort1");
+        List<Handler> handlers = chainBuilder
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portName);
+        assertNotNull(handlers);
+        assertEquals(5, handlers.size());
     }
-
+    
     public static class TestLogicalHandler implements LogicalHandler {
         Map config;
         boolean initCalled;
