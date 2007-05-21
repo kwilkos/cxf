@@ -33,9 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.wsdl.WSDLException;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -203,19 +200,6 @@ public class SchemaValidator extends AbstractDefinitionValidator {
 
             if (!errHandler.isValid()) {
                 throw new ToolException(errHandler.getErrorMessages());
-            }
-
-            try {
-                WSDLFactory wsdlFactory = WSDLFactory.newInstance();
-                WSDLReader reader = wsdlFactory.newWSDLReader();
-                reader.setFeature("javax.wsdl.verbose", false);
-                // REVIST: Get the wsdl builder from the frontend which loaded by the plugin
-                //         Extension should be done in the builder
-                // WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, reader);
-                // register.registerExtensions();
-                def = reader.readWSDL(wsdlsource.getSystemId());
-            } catch (WSDLException e) {
-                throw new ToolException(e);
             }
 
             isValid = true;
