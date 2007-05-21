@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,6 +47,7 @@ import org.apache.cxf.catalog.CatalogWSDLLocator;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
+import org.apache.cxf.common.util.TwoStageMap;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -65,7 +65,7 @@ public class WSDLManagerImpl implements WSDLManager {
 
     final ExtensionRegistry registry;
     final WSDLFactory factory;
-    final WeakHashMap<Object, Definition> definitionsMap;
+    final TwoStageMap<Object, Definition> definitionsMap;
     private Bus bus;
 
     public WSDLManagerImpl() throws BusException {
@@ -78,7 +78,7 @@ public class WSDLManagerImpl implements WSDLManager {
         } catch (WSDLException e) {
             throw new BusException(e);
         }
-        definitionsMap = new WeakHashMap<Object, Definition>();
+        definitionsMap = new TwoStageMap<Object, Definition>();
 
         registerInitialExtensions();
     }
