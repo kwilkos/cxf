@@ -21,6 +21,7 @@ package org.apache.cxf.helpers;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -92,6 +93,11 @@ public final class XMLUtils {
     public static Document parse(InputSource is) throws ParserConfigurationException, SAXException,
         IOException {
         return getParser().parse(is.getSystemId());
+    }
+    
+    public static Document parse(File is) throws ParserConfigurationException, SAXException,
+        IOException {
+        return getParser().parse(is);
     }
 
     public static Document parse(InputStream in) throws ParserConfigurationException, SAXException,
