@@ -23,12 +23,13 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.validator.internal.model.XNode;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class WSDLRefValidatorTest extends TestCase {
+public class WSDLRefValidatorTest extends Assert {
 
     @Test
     public void testNoService() throws Exception {
@@ -52,7 +53,7 @@ public class WSDLRefValidatorTest extends TestCase {
         String text = "{http://apache.org/hello_world/messages}[portType:GreeterA][operation:sayHi]";
         Message msg = new Message("FAILED_AT_POINT",
                                   WSDLRefValidator.LOG,
-                                  8,
+                                  27,
                                   2,
                                   new File(new java.net.URI(wsdl)).toString(),
                                   text);
@@ -103,14 +104,40 @@ public class WSDLRefValidatorTest extends TestCase {
         String t = results.getWarnings().pop();
         assertEquals("WSDL document does not define any services", t);
 
+        WSDLRefValidator v = new WSDLRefValidator(wsdl);
+        v.setSuppressWarnings(true);
+        assertTrue(v.isValid());
+    }
+
+    @Test
+    public void testLogicalWSDL() throws Exception {
+        String wsdl = getClass().getResource("resources/logical.wsdl").toURI().toString();
+        WSDLRefValidator validator = new WSDLRefValidator(wsdl);
+        validator.isValid();
+        ValidationResult results = validator.getValidationResults();
+        
         assertEquals(1, results.getErrors().size());
         String text = "{http://schemas.apache.org/yoko/idl/OptionsPT}[message:getEmployee]";
         Message msg = new Message("FAILED_AT_POINT",
                                   WSDLRefValidator.LOG,
-                                  23,
+                                  42,
                                   6,
                                   new File(new java.net.URI(wsdl)).toString(),
                                   text);
         assertEquals(msg.toString(), results.getErrors().pop());
+    }
+
+    @Test
+    public void testNotAWsdl() throws Exception {
+        String wsdl = getClass().getResource("resources/c.xsd").toURI().toString();
+        try {        
+            WSDLRefValidator validator = new WSDLRefValidator(wsdl);
+            validator.isValid();
+        } catch (Exception e) {
+            assertTrue(e instanceof ToolException);
+            String expected = "WSDLException (at /xs:schema): faultCode=INVALID_WSDL: "
+                + "Expected element '{http://schemas.xmlsoap.org/wsdl/}definitions'.";
+            assertEquals(expected, e.getMessage());
+        }
     }
 }

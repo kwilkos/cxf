@@ -23,11 +23,13 @@ import java.io.File;
 
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
 import org.apache.cxf.helpers.XMLUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Stax2DOMTest extends TestCase {
+public class Stax2DOMTest extends Assert {
 
+    @Test
     public void testGetDocument() throws Exception {
         File wsdl = new File(getClass().getResource("/validator_wsdl/jms_test.wsdl").toURI());
         Document doc = new Stax2DOM().getDocument(wsdl);

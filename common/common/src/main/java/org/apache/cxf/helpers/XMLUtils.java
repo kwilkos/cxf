@@ -19,11 +19,17 @@
 
 package org.apache.cxf.helpers;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -38,12 +44,19 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.logging.LogUtils;
@@ -74,6 +87,11 @@ public final class XMLUtils {
 
     public static DocumentBuilder getParser() throws ParserConfigurationException {
         return parserFactory.newDocumentBuilder();
+    }
+
+    public static Document parse(InputSource is) throws ParserConfigurationException, SAXException,
+        IOException {
+        return getParser().parse(is.getSystemId());
     }
 
     public static Document parse(InputStream in) throws ParserConfigurationException, SAXException,

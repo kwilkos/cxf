@@ -19,10 +19,18 @@
 
 package org.apache.cxf.tools.validator.internal.model;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class XNodeTest extends TestCase {
+public class XNodeTest extends Assert {
+    @Test
+    public void testWSDLDefinition() {
+        XDef def = new XDef();
+        assertEquals("/wsdl:definitions", def.toString());
+    }
+
+    @Test
     public void testGetXPath() {
         XNode node = new XNode();
         node.setQName(WSDLConstants.QNAME_BINDING);
@@ -33,6 +41,7 @@ public class XNodeTest extends TestCase {
         assertEquals("[binding:SOAPBinding]", node.getPlainText());
     }
 
+    @Test
     public void testParentNode() {
         XDef definition = new XDef();
         String ns = "{http://apache.org/hello_world/messages}";

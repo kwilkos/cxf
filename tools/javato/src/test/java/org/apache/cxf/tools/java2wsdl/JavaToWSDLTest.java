@@ -20,25 +20,31 @@
 package org.apache.cxf.tools.java2wsdl;
 
 import org.apache.cxf.tools.common.ToolTestBase;
+import org.junit.After;
+import org.junit.Test;
 
 public class JavaToWSDLTest extends ToolTestBase {
 
+    @After
     public void tearDown() {
         super.tearDown();
     }
 
+    @Test
     public void testVersionOutput() throws Exception {
         String[] args = new String[] {"-v"};
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
 
+    @Test
     public void testHelpOutput() {
         String[] args = new String[] {"-help"};
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
 
+    @Test
     public void testNormalArgs() throws Exception {
         System.err.println(getLocation("test.wsdl"));
         String[] args = new String[] {"-o",
@@ -48,6 +54,7 @@ public class JavaToWSDLTest extends ToolTestBase {
         assertNotNull(getStdOut());
     }
 
+    @Test
     public void testBadUsage() {
         String[] args = new String[] {"-ttt", "a.ww"};
         JavaToWSDL.main(args);
@@ -55,6 +62,7 @@ public class JavaToWSDLTest extends ToolTestBase {
 
     }
 
+    @Test
     public void testValidArgs() {
         String[] args = new String[] {"a.ww"};
         JavaToWSDL.main(args);
@@ -62,6 +70,7 @@ public class JavaToWSDLTest extends ToolTestBase {
 
     }
 
+    @Test
     public void testNoOutPutFile() throws Exception {
         String[] args = new String[] {"-o",
                                       getLocation("nooutput.wsdl"),
@@ -69,7 +78,8 @@ public class JavaToWSDLTest extends ToolTestBase {
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
-    
+
+    @Test
     public void testNoArg() {
         String[] args = new String[] {};
         JavaToWSDL.main(args);

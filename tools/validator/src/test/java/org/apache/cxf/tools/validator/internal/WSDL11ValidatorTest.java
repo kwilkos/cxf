@@ -19,12 +19,12 @@
 
 package org.apache.cxf.tools.validator.internal;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class WSDL11ValidatorTest extends TestCase {
+public class WSDL11ValidatorTest extends Assert {
     private ToolContext context = new ToolContext();
     
     @Test

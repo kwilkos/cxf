@@ -22,11 +22,13 @@ package org.apache.cxf.tools.common;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import junit.framework.TestCase;
 
 import org.apache.cxf.helpers.FileUtils;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-public abstract class ToolTestBase extends TestCase {
+public abstract class ToolTestBase extends Assert {
 
     protected PrintStream oldStdErr; 
     protected PrintStream oldStdOut; 
@@ -34,6 +36,7 @@ public abstract class ToolTestBase extends TestCase {
     protected ByteArrayOutputStream errOut = new ByteArrayOutputStream(); 
     protected ByteArrayOutputStream stdOut = new ByteArrayOutputStream(); 
 
+    @Before
     public void setUp() { 
         oldStdErr = System.err; 
         oldStdOut = System.out;
@@ -41,7 +44,8 @@ public abstract class ToolTestBase extends TestCase {
         System.setErr(new PrintStream(errOut));
         System.setOut(new PrintStream(stdOut));
     }
-    
+
+    @After
     public void tearDown() { 
         
         System.setErr(oldStdErr);

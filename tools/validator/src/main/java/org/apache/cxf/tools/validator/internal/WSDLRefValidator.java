@@ -40,6 +40,7 @@ import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.xpath.XPathConstants;
@@ -71,8 +72,7 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
-
-public class WSDLRefValidator {
+public class WSDLRefValidator extends AbstractValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLRefValidator.class);
     protected List<XNode> vNodes = new ArrayList<XNode>();
     
@@ -86,6 +86,8 @@ public class WSDLRefValidator {
     private List<Definition> importedDefinitions;
     private List<XmlSchemaCollection> schemas;
     private XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
+
+    private boolean suppressWarnings;
 
     public WSDLRefValidator() {
     }
@@ -104,6 +106,9 @@ public class WSDLRefValidator {
                 importedDefinitions.addAll(wsdlBuilder.getImportedDefinitions());
             }
         } catch (Exception e) {
+            if (e.getCause() instanceof WSDLException) {
+                throw new ToolException(e.getCause().getMessage());
+            }
             throw new ToolException(e);
         }
 
@@ -115,6 +120,10 @@ public class WSDLRefValidator {
         } catch (Exception ex) {
             throw new ToolException(ex);
         }
+    }
+
+    public void setSuppressWarnings(boolean s) {
+        this.suppressWarnings = s;
     }
 
     public ValidationResult getValidationResults() {
@@ -184,7 +193,6 @@ public class WSDLRefValidator {
             collectValidationPoints();
             
             List<Document> wsdlDocs = getWSDLDocuments();
-
             for (XNode vNode : vNodes) {
 
                 if (!isExist(wsdlDocs, vNode)) {
@@ -325,9 +333,17 @@ public class WSDLRefValidator {
         return mNode;
     }
 
+    private void addWarning(String warningMsg) {
+        if (suppressWarnings) {
+            return;
+        }
+        vResults.addWarning(warningMsg);
+    }
+    
+    @SuppressWarnings("unchecked")
     private void collectValidationPoints() {
         if (getServices().size() == 0) {
-            vResults.addWarning("WSDL document does not define any services");
+            addWarning("WSDL document does not define any services");
             portTypeRefNames.addAll(this.definition.getAllPortTypes().keySet());
         } else {
             collectValidationPointsForBindings();
@@ -415,19 +431,14 @@ public class WSDLRefValidator {
 
                 }
                 if (typeName != null && elementName == null) {
-
                     boolean valid = validatePartType(typeName.getNamespaceURI(),
                                                      typeName.getLocalPart(),
                                                      false);
-
                     if (!valid) {
                         vResults.addError(new Message("TYPE_REF_NOT_FOUND", LOG, message.getQName(),
                                                       part.getName(), typeName));
                     }
-
                 }
-                
-                
             }
         }
     }
@@ -440,8 +451,8 @@ public class WSDLRefValidator {
                 XNode vOperationNode = getOperationXNode(vPortTypeNode, operation.getName());
                 javax.wsdl.Message inMsg = operation.getInput().getMessage();
                 if (inMsg == null) {
-                    vResults.addWarning("Operation " + operation.getName() + " in PortType: "
-                                        + portType.getQName() + " has no input message");
+                    addWarning("Operation " + operation.getName() + " in PortType: "
+                               + portType.getQName() + " has no input message");
                 } else {
                     XNode vInMsgNode = getXNode(inMsg);
                     vInMsgNode.setFailurePoint(getInputXNode(vOperationNode, operation.getInput().getName()));
@@ -453,8 +464,8 @@ public class WSDLRefValidator {
                     javax.wsdl.Message outMsg = operation.getOutput().getMessage();
 
                     if (outMsg == null) {
-                        vResults.addWarning("Operation " + operation.getName() + " in PortType: "
-                                            + portType.getQName() + " has no output message");
+                        addWarning("Operation " + operation.getName() + " in PortType: "
+                                   + portType.getQName() + " has no output message");
                     } else {
                         XNode vOutMsgNode = getXNode(outMsg);
                         vOutMsgNode.setFailurePoint(getOutputXNode(vOperationNode,
@@ -510,5 +521,13 @@ public class WSDLRefValidator {
             }
         }
         return partvalid;
-    }    
+    }
+
+    public String getErrorMessage() {
+        return vResults.toString();
+    }
+
+    public Definition getDefinition() {
+        return this.definition;
+    }
 }

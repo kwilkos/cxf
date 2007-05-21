@@ -33,18 +33,25 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.wsdl.Definition;
 
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.util.URIParserUtil;
 
 public class WSDL11Validator extends AbstractDefinitionValidator {
-
+    protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
     private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
 
     public WSDL11Validator(Definition definition) {
@@ -55,6 +62,15 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
         super(definition, pe);
     }
 
+    private Document getWSDLDoc(String wsdl) {
+        LOG.log(Level.INFO, new Message("VALIDATE_WSDL", LOG, wsdl).toString());
+        try {
+            return XMLUtils.parse(new InputSource(URIParserUtil.getAbsoluteURI(wsdl)));
+        } catch (Exception e) {
+            throw new ToolException(e);
+        }
+    }
+    
     public boolean isValid() throws ToolException {
         //boolean isValid = true;
         String schemaDir = getSchemaDir();
@@ -64,26 +80,14 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
         // 1.ToolConstants.CFG_SCHEMA_DIR from ToolContext
         // 2.ToolConstants.CXF_SCHEMA_DIR from System property
         // 3.If 1 and 2 is null , then load these schema files from jar file
-        if (!StringUtils.isEmpty(schemaDir)) {
-            schemaValidator = new SchemaValidator(schemaDir, (String)env.get(ToolConstants.CFG_WSDLURL),
-                                                  schemas);
-        } else {
-            try {
-                schemaValidator = new SchemaValidator(getDefaultSchemas(), (String)env
-                    .get(ToolConstants.CFG_WSDLURL), schemas);
-            } catch (IOException e) {
-                throw new ToolException("Schemas can not be loaded before validating wsdl", e);
-            }
+        String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
 
-        }
-        if (!schemaValidator.isValid()) {
-            this.addErrorMessage(schemaValidator.getErrorMessage());            
-            throw new ToolException(this.getErrorMessage());
+        WSDLRefValidator wsdlRefValidator = new WSDLRefValidator(wsdl, getWSDLDoc(wsdl));
+        wsdlRefValidator.setSuppressWarnings(env.optionSet(ToolConstants.CFG_SUPPRESS_WARNINGS));
 
-        } else {
-            this.def = schemaValidator.def;
-        }
+        this.def = wsdlRefValidator.getDefinition();
 
+        validators.add(wsdlRefValidator);
         validators.add(new UniqueBodyPartsValidator(this.def));
         validators.add(new WSIBPValidator(this.def));
         validators.add(new MIMEBindingValidator(this.def));
@@ -94,6 +98,23 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
                 throw new ToolException(this.getErrorMessage());
             }
         }
+
+        if (!StringUtils.isEmpty(schemaDir)) {
+            schemaValidator = new SchemaValidator(schemaDir, wsdl, schemas);
+        } else {
+            try {
+                schemaValidator = new SchemaValidator(getDefaultSchemas(), wsdl, schemas);
+            } catch (IOException e) {
+                throw new ToolException("Schemas can not be loaded before validating wsdl", e);
+            }
+
+        }
+        if (!schemaValidator.isValid()) {
+            this.addErrorMessage(schemaValidator.getErrorMessage());            
+            throw new ToolException(this.getErrorMessage());
+
+        }
+        
         return true;
     }
 

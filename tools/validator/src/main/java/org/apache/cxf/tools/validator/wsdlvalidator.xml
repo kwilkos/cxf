@@ -52,6 +52,14 @@ wsdlvalidator -s http://cxf.apache.org/schemas -s http://mycompany/schemas Greet
 					<annotation>schema-url</annotation>
 				</associatedArgument>
 			</option>
+
+			<option id="suppressWarnings">
+			    <annotation>
+				Suppress warnings
+			    </annotation>
+			    <switch>w</switch>
+			</option>
+
 			
 			<!--option id="deep" maxOccurs="1">
 		      <annotation>Deep level validation like wsdl imports validation and wsdl semantics check.</annotation>

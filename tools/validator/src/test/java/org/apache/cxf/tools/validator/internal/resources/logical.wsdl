@@ -29,7 +29,7 @@
 	    <xsd:import namespace="http://schemas.apache.org/yoko/idl/OptionsPT-types" schemaLocation="schemapt.xsd"/>
 	</xsd:schema>
     </wsdl:types>
-    <wsdl:message name="getEmployee">
+    <wsdl:message name="getEmployeeA">
 	<wsdl:part name="inparameter" element="xsd1:getEmployee">
 	</wsdl:part>
     </wsdl:message>

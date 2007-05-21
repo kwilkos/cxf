@@ -23,12 +23,16 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import org.apache.cxf.tools.common.ToolTestBase;
+import org.junit.Before;
+import org.junit.Test;
 
 public class WSDLValidationTest extends ToolTestBase {
+    @Before    
     public void setUp() {
         super.setUp();
     }
 
+    @Test
     public void testValidateUniqueBody() {
         try {
 
@@ -41,6 +45,7 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Test
     public void testValidateMixedStyle() {
         try {
 
@@ -54,7 +59,8 @@ public class WSDLValidationTest extends ToolTestBase {
             e.printStackTrace();
         }
     }
-    
+
+    @Test
     public void testValidateTypeElement() {
         try {
 
@@ -68,20 +74,25 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Test
     public void testValidateAttribute() {
         try {
 
             String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_error_attribute.wsdl")};
             WSDLValidator.main(args);
+            String expected = "WSDLException (at /wsdl:definitions/wsdl:message[1]/wsdl:part): "
+                + "faultCode=INVALID_WSDL: Encountered illegal extension attribute 'test'. "
+                + "Extension attributes must be in a namespace other than WSDL's";
             assertTrue("Attribute error should be discovered: " + getStdErr(),
-                       getStdErr().indexOf(" is not allowed to appear in element") > -1);
+                       getStdErr().indexOf(expected) > -1);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @Test
     public void testValidateReferenceError() throws Exception {
 
         try {
@@ -96,21 +107,23 @@ public class WSDLValidationTest extends ToolTestBase {
             e.printStackTrace();
         }        
     }
-    
+
+    @Test
     public void testBug305872() throws Exception {
         try {
             String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/bug305872/http.xsd")};
             WSDLValidator.main(args);
-            
+            String expected = "Expected element '{http://schemas.xmlsoap.org/wsdl/}definitions'.";
             assertTrue("Tools should check if this file is a wsdl file: " + getStdErr(),
-                       getStdErr().indexOf("is not a wsdl file") > -1);
+                       getStdErr().indexOf(expected) > -1);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    @Test
     public void testImportWsdlValidation() throws Exception {
         try {
             String[] args = new String[] {"-verbose",
@@ -125,6 +138,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
     }
 
+    @Test
     public void testImportSchemaValidation() throws Exception {
         try {
             String[] args = new String[] {"-verbose",
@@ -139,6 +153,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
     }
 
+    @Test
     public void testWSIBP2210() throws Exception {
         try {
             String[] args = new String[] {"-verbose",
@@ -150,6 +165,7 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Test
     public void testWSIBPR2726() throws Exception {
         try {
             String[] args = new String[] {"-verbose",
@@ -161,6 +177,7 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Test
     public void testWSIBPR2205() throws Exception {
         try {
             String[] args = new String[] {"-verbose",
@@ -172,6 +189,7 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Override
     protected String getLocation(String wsdlFile) throws Exception {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);
         while (e.hasMoreElements()) {

@@ -56,6 +56,30 @@ public final class ValidationResult {
     }
     
     public boolean isSuccessful() {
-        return errors.size() == 0;
+        return errors.size() == 0 && warnings.size() == 0;
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("\n Summary: ");
+        sb.append(" Failures: ");
+        sb.append(errors.size());
+        sb.append(", Warnings: ");
+        sb.append(warnings.size());
+        if (errors.size() > 0) {
+            sb.append("\n\n <<< ERROR! \n");
+            while (!errors.empty()) {
+                sb.append(errors.pop());
+                sb.append("\n");
+            }
+        }
+        if (warnings.size() > 0) {
+            sb.append("\n <<< WARNING! \n");
+            while (!warnings.empty()) {
+                sb.append(warnings.pop());
+                sb.append("\n");                    
+            }
+        }
+        return sb.toString();
+    }    
 }

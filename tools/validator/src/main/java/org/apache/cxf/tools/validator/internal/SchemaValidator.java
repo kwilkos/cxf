@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.WSDLException;
@@ -51,7 +50,6 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
@@ -61,7 +59,6 @@ import org.xml.sax.SAXParseException;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
@@ -184,16 +181,6 @@ public class SchemaValidator extends AbstractDefinitionValidator {
         boolean isValid = false;
         Schema schema;
         try {
-            Message msg = new Message("VALIDATE_WSDL", LOG, wsdlsource.getSystemId());
-            LOG.log(Level.INFO, msg.toString());
-            Document document = docBuilder.parse(wsdlsource.getSystemId());
-
-            Node node = DOMUtils.getChild(document, null);
-            if (node != null && !"definitions".equals(node.getLocalName())) {
-                msg = new Message("NOT_A_WSDLFILE", LOG, wsdlsource.getSystemId());
-                throw new ToolException(msg);
-            }
-
             SAXParserFactory saxFactory = SAXParserFactory.newInstance();
             saxFactory.setFeature("http://xml.org/sax/features/namespaces", true);
             saxParser = saxFactory.newSAXParser();
@@ -229,36 +216,6 @@ public class SchemaValidator extends AbstractDefinitionValidator {
                 def = reader.readWSDL(wsdlsource.getSystemId());
             } catch (WSDLException e) {
                 throw new ToolException(e);
-            }
-
-            WSDLRefValidator wsdlRefValidator = new WSDLRefValidator(wsdlsource.getSystemId(), document);
-            isValid = wsdlRefValidator.isValid();
-
-            if (!isValid) {
-                StringBuffer sb = new StringBuffer();
-                sb.append(wsdlRefValidator.getClass().getName());
-                sb.append("\n Summary: ");
-                sb.append(" Failures: ");
-                Stack<String> errors = wsdlRefValidator.getValidationResults().getErrors();
-                sb.append(errors.size());
-                Stack<String> warnings = wsdlRefValidator.getValidationResults().getWarnings();
-                sb.append(", Warnings: ");                
-                sb.append(warnings.size());
-                if (errors.size() > 0) {
-                    sb.append("\n\n <<< ERROR! \n");
-                    while (!errors.empty()) {
-                        sb.append(errors.pop());
-                        sb.append("\n");
-                    }
-                }
-                if (warnings.size() > 0) {
-                    sb.append("\n <<< WARNING! \n");
-                    while (!warnings.empty()) {
-                        sb.append(warnings.pop());
-                        sb.append("\n");                    
-                    }
-                }
-                throw new ToolException(sb.toString());
             }
 
             isValid = true;
