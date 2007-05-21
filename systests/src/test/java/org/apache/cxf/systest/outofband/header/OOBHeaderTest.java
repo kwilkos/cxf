@@ -106,7 +106,7 @@ public class OOBHeaderTest extends AbstractBusClientServerTestBase {
                 requestContext.put(Header.HEADER_LIST, holder); 
             }
         } catch (JAXBException ex) {
-            System.out.println("failed to insert header into request context :" + ex);
+            //System.out.println("failed to insert header into request context :" + ex);
         }
         
     }
@@ -133,16 +133,16 @@ public class OOBHeaderTest extends AbstractBusClientServerTestBase {
                     if (hdr instanceof Header) {
                         Header hdr1 = (Header) hdr;
                         if (hdr1.getObject() instanceof Node) {
-                            System.out.println("Node conains : " + hdr1.getObject().toString());
+                            //System.out.println("Node conains : " + hdr1.getObject().toString());
                             try {
                                 JAXBElement job = (JAXBElement) JAXBContext.newInstance(ObjectFactory.class)
                                     .createUnmarshaller()
                                     .unmarshal((Node) hdr1.getObject());
                                 hdrToTest = (OutofBandHeader) job.getValue();
-                                System.out.println("oob-hdr contains : \nname = " 
-                                      + hdrToTest.getName() 
-                                      + "  \nvalue = " + hdrToTest.getValue() 
-                                      + " \natribute = " + hdrToTest.getHdrAttribute());
+//                                 System.out.println("oob-hdr contains : \nname = " 
+//                                       + hdrToTest.getName() 
+//                                       + "  \nvalue = " + hdrToTest.getValue() 
+//                                       + " \natribute = " + hdrToTest.getHdrAttribute());
                             } catch (JAXBException ex) {
                                 //
                                 ex.printStackTrace();

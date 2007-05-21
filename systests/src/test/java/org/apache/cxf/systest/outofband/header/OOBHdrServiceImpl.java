@@ -55,7 +55,7 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
         inout.value.setTickerPrice(4.5f);
         inout.value.setTickerSymbol("APACHE");
         if (checkContext()) {
-            System.out.println("Received out-of-band header as expected..");
+            //System.out.println("Received out-of-band header as expected..");
             sendReturnOOBHeader();
         }
     }   
@@ -83,7 +83,7 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
                     hdrList.add(hdr);
                     //Add headerHolder to requestContext.
                     ctx.put(Header.HEADER_LIST, hdrList);
-                    System.out.println("Completed adding list to context");
+                    //System.out.println("Completed adding list to context");
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -92,9 +92,8 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
     }
     
     public void putLastTradedPrice(TradePriceData body) {
-        
-        System.out.println("-----TradePriceData TickerPrice : ----- " + body.getTickerPrice());
-        System.out.println("-----TradePriceData TickerSymbol : ----- " + body.getTickerSymbol());
+        //System.out.println("-----TradePriceData TickerPrice : ----- " + body.getTickerPrice());
+        //System.out.println("-----TradePriceData TickerSymbol : ----- " + body.getTickerSymbol());
     }
     
     private boolean checkContext() {
@@ -109,17 +108,19 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
                     Object hdr = iter.next();
                     if (hdr instanceof Header && ((Header) hdr).getObject() instanceof Node) {
                         Header hdr1 = (Header) hdr;
-                        System.out.println("Node conains : " + hdr1.getObject().toString());
+                        //System.out.println("Node conains : " + hdr1.getObject().toString());
                         try {
                             JAXBElement job = (JAXBElement) JAXBContext.newInstance(ObjectFactory.class)
                                 .createUnmarshaller()
                                 .unmarshal((Node) hdr1.getObject());
                             OutofBandHeader ob = (OutofBandHeader) job.getValue();
-                            System.out.println("oob-hdr contains : \nname = " 
-                                  + ob.getName() 
-                                  + "  \nvalue = " + ob.getValue() 
-                                  + " \natribute = " + ob.getHdrAttribute());
-                            success = true;
+                            if ("testOobHeader".equals(ob.getName())
+                                && "testOobHeaderValue".equals(ob.getValue())
+                                && "testHdrAttribute".equals(ob.getHdrAttribute())) {
+                                success = true;
+                            } else {
+                                throw new RuntimeException("test failed");
+                            }
                         } catch (JAXBException ex) {
                             //
                             ex.printStackTrace();
@@ -127,10 +128,11 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
                     }
                 }
             } else {
-                System.out.println("----- Header should not be null and should be of type JAXBHeaderHolder");
+                throw new RuntimeException("Header should not be null"
+                                           + "and should be of type JAXBHeaderHolder");
             }
         } else {
-            System.out.println("----- MessageContext is null or doesnot contain OOBHeaders");
+            throw new RuntimeException("MessageContext is null or doesnot contain OOBHeaders");
         }
         
         return success;
