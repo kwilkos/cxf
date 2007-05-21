@@ -327,8 +327,17 @@ public class WSDLRefValidator {
 
     private void collectValidationPoints() {
         if (getServices().size() == 0) {
-            throw new ToolException("WSDL document does not define any services");
+            vResults.addWarning("WSDL document does not define any services");
+            portTypeRefNames.addAll(this.definition.getAllPortTypes().keySet());
+        } else {
+            collectValidationPointsForBindings();
         }
+
+        collectValidationPointsForPortTypes();
+        collectValidationPointsForMessages();
+    }
+
+    private void collectValidationPointsForBindings() {
         Map<QName, XNode> vBindingNodes = new HashMap<QName, XNode>();
         for (Service service : getServices().values()) {
             vBindingNodes.putAll(getBindings(service));
@@ -376,9 +385,6 @@ public class WSDLRefValidator {
                 }
             }
         }
-
-        collectValidationPointsForPortTypes();
-        collectValidationPointsForMessages();        
     }
 
     private void collectValidationPointsForMessages() {

@@ -43,11 +43,19 @@ public final class ValidationResult {
         this.errors.push(error);
     }
 
+    public void addWarning(final Message msg) {
+        addWarning(msg.toString());
+    }
+
     public void addWarning(final String warning) {
         this.warnings.push(warning);
     }
 
+    public boolean hasWarnings() {
+        return warnings.size() > 0;
+    }
+    
     public boolean isSuccessful() {
-        return errors.size() == 0 && warnings.size() == 0;
+        return errors.size() == 0;
     }
 }

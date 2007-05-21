@@ -36,8 +36,8 @@ public class WSDLRefValidatorTest extends TestCase {
         WSDLRefValidator validator = new WSDLRefValidator(wsdl);
         assertFalse(validator.isValid());
         ValidationResult results = validator.getValidationResults();
-        assertEquals(1, results.getErrors().size());
-        String t = results.getErrors().pop();
+        assertEquals(1, results.getWarnings().size());
+        String t = results.getWarnings().pop();
         assertEquals("WSDL document does not define any services", t);
     }
 
@@ -90,5 +90,27 @@ public class WSDLRefValidatorTest extends TestCase {
             + " referenced Type <{http://apache.org/samples/headers}SOAPHeaderInfo> "
             + "can not be found in the schemas";
         assertEquals(expected, t);
+    }
+
+    @Test
+    public void testNoBindingWSDL() throws Exception {
+        String wsdl = getClass().getResource("resources/nobinding.wsdl").toURI().toString();
+        WSDLRefValidator validator = new WSDLRefValidator(wsdl);
+        validator.isValid();
+        ValidationResult results = validator.getValidationResults();
+
+        assertEquals(1, results.getWarnings().size());
+        String t = results.getWarnings().pop();
+        assertEquals("WSDL document does not define any services", t);
+
+        assertEquals(1, results.getErrors().size());
+        String text = "{http://schemas.apache.org/yoko/idl/OptionsPT}[message:getEmployee]";
+        Message msg = new Message("FAILED_AT_POINT",
+                                  WSDLRefValidator.LOG,
+                                  23,
+                                  6,
+                                  new File(new java.net.URI(wsdl)).toString(),
+                                  text);
+        assertEquals(msg.toString(), results.getErrors().pop());
     }
 }
