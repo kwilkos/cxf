@@ -182,6 +182,21 @@ targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
             <soap:address location="http://localhost:9001/SOAPDocLitService/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
+    <wsdl:service name="MultiTransportService">
+        <wsdl:port name="HttpPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="http://localhost:9001/SOAPDocLitService/SoapPort"/>
+        </wsdl:port>
+        <wsdl:port name="JMSPort" binding="tns:Greeter_SOAPBinding">
+               <jms:address
+                   jndiConnectionFactoryName="ConnectionFactory"
+                   jndiDestinationName="dynamicQueues/routertest.MultiTransportServiceQ.text">
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+               </jms:address>
+        </wsdl:port>
+    </wsdl:service>
+     
+
     <wsdl:service name="SOAPService2">
         <wsdl:port name="SoapPort2" binding="tns:Greeter_SOAPBinding">
                <jms:address
