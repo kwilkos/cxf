@@ -19,7 +19,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="StockService" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/" xmlns:ns1="http://doc.withannotation.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://cxf.com/" version="1.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/" version="1.0">
 <xs:element name="getPrice">
 <xs:complexType>
 <xs:sequence>
@@ -35,20 +35,6 @@
 </xs:complexType>
 </xs:element>
 </xs:schema>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://doc.withannotation.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/">
-<xsd:element name="getPrice" type="getPrice"/>
-<xsd:complexType name="getPrice">
-<xsd:sequence>
-<xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
-</xsd:sequence>
-</xsd:complexType>
-<xsd:element name="getPriceResponse" type="getPriceResponse"/>
-<xsd:complexType name="getPriceResponse">
-<xsd:sequence>
-<xsd:element name="return" type="xsd:float"/>
-</xsd:sequence>
-</xsd:complexType>
-</xsd:schema>
   </wsdl:types>
   <wsdl:message name="getPriceResponse">
     <wsdl:part name="parameters" element="ns1:getPriceResponse">

@@ -57,6 +57,7 @@ import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
@@ -269,10 +270,11 @@ public final class JAXBDataBinding implements DataBinding {
                 for (DOMResult r : generateJaxbSchemas()) {
                     Document d = (Document)r.getNode();
                     String ns = d.getDocumentElement().getAttribute("targetNamespace");
-                    if (ns == null) {
-                        ns = "";
+                    if (StringUtils.isEmpty(ns)) {
+                        ns = serviceInfo.getInterface().getName().getNamespaceURI();
+                        d.getDocumentElement().setAttribute("targetNamespace", ns);
                     }
-    
+                                       
                     NodeList nodes = d.getDocumentElement().getChildNodes();
                     for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
