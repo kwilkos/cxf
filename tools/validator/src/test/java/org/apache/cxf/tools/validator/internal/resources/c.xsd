@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" 
+	   elementFormDefault="unqualified" 
+	   targetNamespace="http://apache.org/hello_world/types"
+	   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <element name="sayHi">
+	<complexType/>
+    </element>
+    <element name="sayHiResponse">
+	<complexType>
+	    <sequence>
+		<element name="responseType" type="string"/>
+	    </sequence>
+	</complexType>
+    </element>
+</xs:schema>

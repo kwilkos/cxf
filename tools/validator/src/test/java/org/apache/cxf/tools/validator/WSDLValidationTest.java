@@ -89,10 +89,9 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_error_reference.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Reference error should be discovered: " + getStdErr(),
-                       getStdErr().indexOf("reference binding is not defined") > -1);
-
-
+            assertTrue(getStdErr().indexOf("[147,3]") != -1);
+            assertTrue(getStdErr().indexOf("Caused by {http://apache.org/hello_world_soap_http}"
+                                           + "[binding:Greeter_SOAPBinding1] not exist.") != -1);
         } catch (Exception e) {
             e.printStackTrace();
         }        

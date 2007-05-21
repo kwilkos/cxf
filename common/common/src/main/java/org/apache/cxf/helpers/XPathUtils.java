@@ -52,6 +52,10 @@ public class XPathUtils {
             return null;    
         }
     }
+
+    public boolean isExist(String xpathExpression, Node node, QName type) {
+        return getValue(xpathExpression, node, type) != null;
+    }
     
     class MapNamespaceContext implements NamespaceContext {
         private Map<String, String> namespaces;

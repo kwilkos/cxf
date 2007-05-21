@@ -87,7 +87,6 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
         validators.add(new UniqueBodyPartsValidator(this.def));
         validators.add(new WSIBPValidator(this.def));
         validators.add(new MIMEBindingValidator(this.def));
-        //validators.add(new XMLFormatValidator(this.def));
 
         for (AbstractValidator validator : validators) {
             if (!validator.isValid()) {

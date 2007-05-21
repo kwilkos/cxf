@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.WSDLException;
@@ -212,6 +213,7 @@ public class SchemaValidator extends AbstractDefinitionValidator {
             SAXSource saxSource = new SAXSource(saxParser.getXMLReader(), wsdlsource);
             validator.validate(saxSource);
 
+
             if (!errHandler.isValid()) {
                 throw new ToolException(errHandler.getErrorMessages());
             }
@@ -229,14 +231,34 @@ public class SchemaValidator extends AbstractDefinitionValidator {
                 throw new ToolException(e);
             }
 
-            WSDLElementReferenceValidator wsdlRefValidator = new 
-                WSDLElementReferenceValidator(def, this,
-                wsdlsource.getSystemId(), document);
-
+            WSDLRefValidator wsdlRefValidator = new WSDLRefValidator(wsdlsource.getSystemId(), document);
             isValid = wsdlRefValidator.isValid();
 
             if (!isValid) {
-                throw new ToolException(this.getErrorMessage());
+                StringBuffer sb = new StringBuffer();
+                sb.append(wsdlRefValidator.getClass().getName());
+                sb.append("\n Summary: ");
+                sb.append(" Failures: ");
+                Stack<String> errors = wsdlRefValidator.getValidationResults().getErrors();
+                sb.append(errors.size());
+                Stack<String> warnings = wsdlRefValidator.getValidationResults().getWarnings();
+                sb.append(", Warnings: ");                
+                sb.append(warnings.size());
+                if (errors.size() > 0) {
+                    sb.append("\n\n <<< ERROR! \n");
+                    while (!errors.empty()) {
+                        sb.append(errors.pop());
+                        sb.append("\n");
+                    }
+                }
+                if (warnings.size() > 0) {
+                    sb.append("\n <<< WARNING! \n");
+                    while (!warnings.empty()) {
+                        sb.append(warnings.pop());
+                        sb.append("\n");                    
+                    }
+                }
+                throw new ToolException(sb.toString());
             }
 
             isValid = true;

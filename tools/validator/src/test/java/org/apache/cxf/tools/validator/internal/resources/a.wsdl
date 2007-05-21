@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="HelloWorldImport" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://apache.org/hello_world" xmlns:x1="http://apache.org/hello_world/messages" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/hello_world">
+
+    <wsdl:import namespace="http://apache.org/hello_world/messages" location="b.wsdl"/>
+
+    <wsdl:binding name="SOAPBinding" type="x1:GreeterA">	
+	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+	<wsdl:operation name="sayHi">
+	    <soap:operation style="document"/>
+	    <wsdl:input>
+		<soap:body use="literal"/>
+	    </wsdl:input>
+	    <wsdl:output>
+		<soap:body use="literal"/>
+	    </wsdl:output>
+	</wsdl:operation>
+    </wsdl:binding>
+    <service name="SOAPService">
+	<port binding="tns:SOAPBinding" name="SoapPort">
+	    <soap:address location="http://localhost:9000/headers"/>
+	</port>
+    </service>
+</wsdl:definitions>

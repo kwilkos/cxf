@@ -104,6 +104,9 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
     }
 
     private boolean checkR2717AndR2726(final BindingOperation bop) {
+        if (null == bop) {
+            return true;
+        }
         SoapBody inSoapBody = SOAPBindingUtil.getBindingInputSOAPBody(bop);
         SoapBody outSoapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
         if (inSoapBody != null && StringUtils.isEmpty(inSoapBody.getNamespaceURI())
