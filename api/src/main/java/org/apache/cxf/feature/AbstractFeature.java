@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.feature;
 
+import java.util.List;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Server;
@@ -47,5 +49,26 @@ public abstract class AbstractFeature {
     
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         
+    }
+
+    /**
+     * Convenience method to extract a feature by type from an active list.
+     * 
+     * @param features the given feature list
+     * @param type the feature type required
+     * @return the feature of the specified type if active
+     */
+    public static <T> T getActive(List<AbstractFeature> features,
+                                  Class<T> type) {
+        T active = null;
+        if (features != null) {
+            for (AbstractFeature feature : features) {
+                if (type.isInstance(feature)) {
+                    active = type.cast(feature);
+                    break;
+                }
+            }
+        }
+        return active;
     }
 }

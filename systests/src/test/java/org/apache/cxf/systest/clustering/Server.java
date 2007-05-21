@@ -65,12 +65,19 @@ public class Server extends AbstractBusTestServerBase {
                         
                         List<AbstractFeature> active = endpoint.getActiveFeatures();
                         if (!(active.size() == 1
-                              && active.get(0) instanceof WSAddressingFeature)) {
+                              && active.get(0) instanceof WSAddressingFeature)
+                              && AbstractFeature.getActive(active,
+                                                           WSAddressingFeature.class)
+                                 == active.get(0)) {
                             verified = "unexpected active features: " + active;
                         }
                     } else {
                         List<AbstractFeature> active = endpoint.getActiveFeatures();
-                        if (!(active == null || active.size() == 0)) {
+                        if (!(active == null 
+                              || active.size() == 0
+                              || AbstractFeature.getActive(active,
+                                                           WSAddressingFeature.class)
+                                 == null)) {
                             verified = "unexpected active features: " + active;
                         }                        
                     }
