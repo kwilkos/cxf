@@ -225,7 +225,9 @@ public class CXFServlet extends HttpServlet {
     }
 
     public void destroy() {
-        childCtx.destroy();
+        if (childCtx != null) {
+            childCtx.destroy();
+        }
         
         String s = bus.getId();
         BUS_MAP.remove(s);
