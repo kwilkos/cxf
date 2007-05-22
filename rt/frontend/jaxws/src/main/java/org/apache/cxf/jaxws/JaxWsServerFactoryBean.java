@@ -72,7 +72,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         
         if (binding.equals(SOAPBinding.SOAP11HTTP_BINDING) 
             || binding.equals(SOAPBinding.SOAP11HTTP_MTOM_BINDING)
-            || binding.equals(SOAPBinding.SOAP12HTTP_BINDING) 
+            //|| binding.equals(SOAPBinding.SOAP12HTTP_BINDING) 
             || binding.equals(SOAPBinding.SOAP12HTTP_MTOM_BINDING)) {
             binding = "http://schemas.xmlsoap.org/soap/";
             setBindingId(binding);

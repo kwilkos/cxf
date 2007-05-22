@@ -92,9 +92,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else {
             config = new SoapBindingConfiguration();
         }
-        
+        if (bindingid.equals(SOAP_12_BINDING) 
+            || "http://www.w3.org/2003/05/soap/bindings/HTTP/".equals(bindingid)) {
+            config.setVersion(Soap12.getInstance());
+        }
         SoapBindingInfo info = new SoapBindingInfo(si,
-                                                   "http://schemas.xmlsoap.org/wsdl/soap/",
+                                                   bindingid,
                                                    config.getVersion());
         
         info.setName(new QName(si.getName().getNamespaceURI(), 

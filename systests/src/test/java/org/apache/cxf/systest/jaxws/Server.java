@@ -24,6 +24,7 @@ import java.net.URL;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.DocLitBareGreeterImpl;
 import org.apache.hello_world_soap_http.GreeterImpl;
@@ -50,6 +51,13 @@ public class Server extends AbstractBusTestServerBase {
         implementor = new GreeterImpl();
         address = "http://localhost:9000/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
+        
+        //publish port with soap12 binding
+        address = "http://localhost:9009/SoapContext/SoapPort";
+        EndpointImpl e = (EndpointImpl) Endpoint.create(javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING, 
+                                                        implementor);
+        e.publish(address);
+        
         implementor = new DocLitBareGreeterImpl();
         address = "http://localhost:7600/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
