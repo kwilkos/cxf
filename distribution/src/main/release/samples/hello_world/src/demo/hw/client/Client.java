@@ -52,6 +52,7 @@ public final class Client {
         }
         
         System.out.println(wsdlURL);
+        System.setProperty("spring.validation.mode", "VALIDATION_NONE");
         SOAPService ss = new SOAPService(wsdlURL, SERVICE_NAME);
         Greeter port = ss.getSoapPort();
         String resp; 

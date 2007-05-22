@@ -44,6 +44,7 @@
         
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
+        <property name="spring.validation.mode" value="VALIDATION_NONE"/>
         <wsdl2java file="hello_world.wsdl"/>
     </target>
 
