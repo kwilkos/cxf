@@ -116,6 +116,10 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         if (ep == null) {
             ep = serviceFactory.createEndpoint(ei);
             ((EndpointImpl)ep).initializeActiveFeatures(getFeatures());
+        } else {
+            if (ep.getActiveFeatures() == null) {
+                ((EndpointImpl)ep).initializeActiveFeatures(getFeatures());
+            }
         }
         
         if (properties != null) {
