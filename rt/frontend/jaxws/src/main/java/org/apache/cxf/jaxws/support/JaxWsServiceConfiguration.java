@@ -116,9 +116,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
 
             return new QName(intf.getName().getNamespaceURI(), name);
+        } else {
+            return new QName(intf.getName().getNamespaceURI(), method.getName());
         }
-
-        return null;
     }
 
     @Override
