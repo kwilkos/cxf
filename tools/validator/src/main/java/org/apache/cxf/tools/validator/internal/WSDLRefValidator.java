@@ -181,7 +181,7 @@ public class WSDLRefValidator extends AbstractValidator {
             Node node = (Node) xpather.getValue(fNode.toString(), doc, XPathConstants.NODE);
             if (null != node) {
                 return new FailureLocation((Location)node.getUserData(WSDLConstants.NODE_LOCATION),
-                                           doc.getBaseURI());
+                                           doc.getDocumentURI());
             }
         }
         return null;

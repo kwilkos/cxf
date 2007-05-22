@@ -78,18 +78,23 @@ public class WSDLRefValidatorTest extends Assert {
     }
 
     @Test
-    public void testNoTeypRef() throws Exception {
+    public void testNoTypeRef() throws Exception {
         String wsdl = getClass().getResource("resources/NoTypeRef.wsdl").toURI().toString();
         WSDLRefValidator validator = new WSDLRefValidator(wsdl);
         assertFalse(validator.isValid());
         assertEquals(3, validator.getValidationResults().getErrors().size());
 
-        String t = validator.getValidationResults().getErrors().pop();
-
         String expected = "Part <header_info> in Message "
             + "<{http://apache.org/samples/headers}inHeaderRequest>"
             + " referenced Type <{http://apache.org/samples/headers}SOAPHeaderInfo> "
             + "can not be found in the schemas";
+        String t = null;
+        while (!validator.getValidationResults().getErrors().empty()) {
+            t = validator.getValidationResults().getErrors().pop();
+            if (expected.equals(t)) {
+                break;
+            }
+        }
         assertEquals(expected, t);
     }
 
