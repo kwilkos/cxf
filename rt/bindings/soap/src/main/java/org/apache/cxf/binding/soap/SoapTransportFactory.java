@@ -38,7 +38,6 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
@@ -133,9 +132,10 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                 b.addExtensor(soapOperation);
 
                 if (b.getInput() != null) {
-                    List<String> bodyParts = new ArrayList<String>();
+                    List<String> bodyParts = null;
                     SoapHeaderInfo headerInfo = b.getInput().getExtensor(SoapHeaderInfo.class);
                     if (headerInfo != null) {
+                        bodyParts = new ArrayList<String>();
                         for (MessagePartInfo part : b.getInput().getMessageParts()) {
                             bodyParts.add(part.getName().getLocalPart());
                         }
@@ -158,7 +158,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                         body.setNamespaceURI(b.getName().getNamespaceURI());
                     }
 
-                    if (!StringUtils.isEmpty(bodyParts)) {
+                    if (bodyParts != null) {
                         body.setParts(bodyParts);
                     }
 
@@ -166,9 +166,10 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                 }
 
                 if (b.getOutput() != null) {
-                    List<String> bodyParts = new ArrayList<String>();
+                    List<String> bodyParts = null;
                     SoapHeaderInfo headerInfo = b.getOutput().getExtensor(SoapHeaderInfo.class);
                     if (headerInfo != null) {
+                        bodyParts = new ArrayList<String>();
                         for (MessagePartInfo part : b.getOutput().getMessageParts()) {
                             bodyParts.add(part.getName().getLocalPart());
                         }
@@ -190,7 +191,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                         body.setNamespaceURI(b.getName().getNamespaceURI());
                     }
 
-                    if (!StringUtils.isEmpty(bodyParts)) {
+                    if (bodyParts != null) {
                         body.setParts(bodyParts);
                     }
                     
