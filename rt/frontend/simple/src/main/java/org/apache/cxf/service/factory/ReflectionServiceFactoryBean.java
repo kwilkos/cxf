@@ -711,9 +711,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
 
                 if (isHeader(method, j)) {
-                    //part.setElementQName(q);
-                    part.setProperty(ELEMENT_NAME, q);
                     part.setProperty(HEADER, Boolean.TRUE);
+                    if (isRPC(method) || !isWrapped(method)) {
+                        part.setElementQName(q);
+                    } else {
+                        part.setProperty(ELEMENT_NAME, q);
+                    }
                 }
                 part.setIndex(j);
             }
