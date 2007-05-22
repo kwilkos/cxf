@@ -28,10 +28,14 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.jaxws.handler.AbstractJAXWSHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -40,6 +44,8 @@ import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class LogicalHandlerFaultOutInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
+    
+    public static final String ORIGINAL_WRITER = "original_writer";
 
     public LogicalHandlerFaultOutInterceptor(Binding binding) {
         super(binding);
@@ -59,12 +65,9 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
         
             // Replace stax writer with DomStreamWriter
             message.setContent(XMLStreamWriter.class, writer);
-        
-        
-            message.getInterceptorChain().add(new LogicalHandlerFaultOutEndingInterceptor<T>(
-                    getBinding(),
-                    origWriter,
-                    writer));
+            message.put(ORIGINAL_WRITER, origWriter);
+                
+            message.getInterceptorChain().add(new LogicalHandlerFaultOutEndingInterceptor<T>(getBinding()));
         } catch (ParserConfigurationException e) {
             throw new Fault(e);
         }
@@ -74,20 +77,17 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
     private class LogicalHandlerFaultOutEndingInterceptor<X extends Message> 
         extends AbstractJAXWSHandlerInterceptor<X> {
     
-        XMLStreamWriter origWriter;
-        W3CDOMStreamWriter domWriter;
-    
-        public LogicalHandlerFaultOutEndingInterceptor(Binding binding,
-                                           XMLStreamWriter o,
-                                           W3CDOMStreamWriter n) {
+        public LogicalHandlerFaultOutEndingInterceptor(Binding binding) {
             super(binding);
-            origWriter = o;
-            domWriter = n; 
-       
+
             setPhase(Phase.POST_MARSHAL);
         }
     
-        public void handleMessage(X message) throws Fault {
+        public void handleMessage(X message) throws Fault {            
+            W3CDOMStreamWriter domWriter = (W3CDOMStreamWriter)message.getContent(XMLStreamWriter.class);
+            XMLStreamWriter origWriter = (XMLStreamWriter)message
+                .get(LogicalHandlerFaultOutInterceptor.ORIGINAL_WRITER);      
+            
             HandlerChainInvoker invoker = getInvoker(message);
             LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
             invoker.setLogicalMessageContext(lctx);
@@ -101,15 +101,44 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
                 message.removeContent(SOAPMessage.class);
             } else if (domWriter.getDocument().getDocumentElement() != null) {
                 Source source = new DOMSource(domWriter.getDocument());
-                XMLUtils.writeTo(domWriter.getDocument(), System.out);
                 message.setContent(Source.class, source);
                 message.setContent(XMLStreamReader.class, 
                                    StaxUtils.createXMLStreamReader(domWriter.getDocument()));
             }
             
-            if (!invoker.invokeLogicalHandlersHandleFault(requestor, lctx)) {
-                //do nothing
-            }            
+            try {
+                if (!invoker.invokeLogicalHandlersHandleFault(requestor, lctx)) {
+                    // handleAbort(message, context);
+                }
+            } catch (RuntimeException exception) {
+                Exchange exchange = message.getExchange();
+                
+                Exception ex = new Fault(exception);
+
+                FaultMode mode = (FaultMode)message.get(FaultMode.class);                
+                
+                Message faultMessage = exchange.getOutMessage();
+                if (null == faultMessage) {
+                    faultMessage = exchange.get(Endpoint.class).getBinding().createMessage();
+                }
+                faultMessage.setContent(Exception.class, ex);
+                if (null != mode) {
+                    faultMessage.put(FaultMode.class, mode);
+                }
+                assert exchange.get(Exception.class) == ex;
+                exchange.setOutMessage(null);
+                exchange.setOutFaultMessage(faultMessage);
+            
+                InterceptorChain ic = message.getInterceptorChain();
+                ic.reset();
+                
+                onCompletion(message);
+                
+                faultMessage.setInterceptorChain(ic);
+                ic.doIntercept(faultMessage);
+                
+                return;
+            }          
             
             if (origMessage != null) {
                 message.setContent(SOAPMessage.class, origMessage);
@@ -127,9 +156,7 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
             } catch (XMLStreamException e) {
                 throw new Fault(e);
             }
-        }
-        
+        }        
     }
-
     
 }

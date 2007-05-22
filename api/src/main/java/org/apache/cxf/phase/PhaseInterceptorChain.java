@@ -144,7 +144,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
-                
                 currentInterceptor.handleMessage(message);
                 
             } catch (RuntimeException ex) {
@@ -220,6 +219,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
     public synchronized void reset() {
         if (state == State.COMPLETE) {
             state = State.EXECUTING;
+            iterator.reset();
+        } else {
             iterator.reset();
         }
     }

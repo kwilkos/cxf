@@ -19,18 +19,31 @@
 package org.apache.cxf.systest.handlers;
 
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Node;
+
+import org.apache.cxf.binding.soap.Soap11;
 
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.handler_test.PingException;
 import org.apache.handler_test.types.Ping;
 import org.apache.handler_test.types.PingResponse;
@@ -127,20 +140,24 @@ public class TestHandler<T extends LogicalMessageContext>
                 }
             } else if ("throw".equals(command)) {
                 String exceptionType = null;
+                String exceptionText = "HandleMessage throws exception";
                 if (strtok.hasMoreTokens()) {
                     exceptionType = strtok.nextToken();
                 }
+                if (strtok.hasMoreTokens()) {
+                    exceptionText = strtok.nextToken();
+                }
                 if (exceptionType != null && !outbound && "inbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
-                        throw new RuntimeException("HandleMessage throws runtime exception");
+                        throw new RuntimeException(exceptionText);
                     } else if ("ProtocolException".equals(exceptionType)) {
-                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                        throw new ProtocolException(exceptionText);
                     }
                 } else if (exceptionType != null && outbound && "outbound".equals(direction)) {
                     if ("RuntimeException".equals(exceptionType)) {
-                        throw new RuntimeException("HandleMessage throws RuntimeException exception");
+                        throw new RuntimeException(exceptionText);
                     } else if ("ProtocolException".equals(exceptionType)) {
-                        throw new ProtocolException("HandleMessage throws ProtocolException exception");
+                        throw new ProtocolException(exceptionText);
                     }
                 }
              
@@ -169,16 +186,52 @@ public class TestHandler<T extends LogicalMessageContext>
         } else if (obj instanceof Ping || obj instanceof PingWithArgs) {
             getHandlerInfoList(ctx).add(getHandlerId());
         }
-    } 
+    }
 
-
-    public boolean handleFault(T ctx) {
-        methodCalled("handleFault");
+    public final boolean handleFault(T ctx) {
+        methodCalled("handleFault"); 
         printHandlerInfo("handleFault", isOutbound(ctx));
-        //boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        if (isServerSideHandler()) {
+
+            if (!"handler2".equals(getHandlerId())) {
+                return true;
+            }
+              
+            DOMSource source = (DOMSource)ctx.getMessage().getPayload();
+            Node node = source.getNode();
+
+            Map<String, String> ns = new HashMap<String, String>();
+            ns.put("s", Soap11.SOAP_NAMESPACE);
+            XPathUtils xu = new XPathUtils(ns);
+            String exceptionText = (String)xu.getValue("//s:Fault/faultstring/text()", node,
+                                                       XPathConstants.STRING);
+            //XMLUtils.writeTo(node, System.out);
+
+            if ("handler2HandleFaultThrowsRunException".equals(exceptionText)) {
+                throw new RuntimeException("handler2 HandleFault throws RuntimeException");
+            } else if ("handler2HandleFaultThrowsSOAPFaultException".equals(exceptionText)) {
+                throw createSOAPFaultException("handler2 HandleFault " 
+                                               + "throws SOAPFaultException");               
+            }                
+
+        }
+        
         return true;
     }
 
+    private SOAPFaultException createSOAPFaultException(String faultString) {
+        try {
+            SOAPFault fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultString(faultString);
+            fault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "Server"));
+            return new SOAPFaultException(fault);
+        } catch (SOAPException e) {
+            // do nothing
+        }
+        return null;
+    }
+    
     public void close(MessageContext arg0) {
         methodCalled("close");
     }
