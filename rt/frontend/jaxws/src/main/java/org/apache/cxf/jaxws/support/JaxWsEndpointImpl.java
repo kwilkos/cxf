@@ -76,9 +76,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         
         LogicalHandlerFaultOutInterceptor lh = new LogicalHandlerFaultOutInterceptor(binding);
         fault.add(lh);
-        //fault.add(new LogicalHandlerOutInterceptor(binding));
         if (getBinding() instanceof SoapBinding) {
-            //fault.add(soap);
             SOAPHandlerFaultOutInterceptor sh = new SOAPHandlerFaultOutInterceptor(binding);
             fault.add(sh);
         }

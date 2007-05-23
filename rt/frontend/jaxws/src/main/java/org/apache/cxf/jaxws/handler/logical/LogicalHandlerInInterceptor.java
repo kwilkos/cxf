@@ -59,6 +59,7 @@ public class LogicalHandlerInInterceptor<T extends Message>
         boolean requestor = isRequestor(message);
         if (!invoker.invokeLogicalHandlers(requestor, lctx)) {
             if (!requestor) {
+                //server side 
                 handleAbort(message, null);
             } else {
                 //Client side inbound, thus no response expected, do nothing, the close will  
@@ -76,10 +77,9 @@ public class LogicalHandlerInInterceptor<T extends Message>
         message.getInterceptorChain().abort();
 
         if (!message.getExchange().isOneWay()) {
+            //server side inbound
             Endpoint e = message.getExchange().get(Endpoint.class);
             Message responseMsg = e.getBinding().createMessage();            
-
-            //server side inbound
 
             message.getExchange().setOutMessage(responseMsg);
             XMLStreamReader reader = message.getContent(XMLStreamReader.class);
@@ -91,9 +91,7 @@ public class LogicalHandlerInInterceptor<T extends Message>
                 .getOutInterceptorChain(message.getExchange());
             responseMsg.setInterceptorChain(chain);
             responseMsg.put("LogicalHandlerInterceptor.INREADER", reader);
-            //so the idea of starting interceptor chain from any specified point does not work
-            //well for outbound case, as many outbound interceptors have their ending interceptors.
-            //For example, we can not skip MessageSenderInterceptor.               
+              
             chain.doIntercept(responseMsg);
         }        
     }

@@ -43,7 +43,9 @@ import org.apache.cxf.transport.MessageObserver;
 
 public class LogicalHandlerOutInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
-
+    
+    public static final String ORIGINAL_WRITER = "original_writer";
+    
     public LogicalHandlerOutInterceptor(Binding binding) {
         super(binding);
         setPhase(Phase.PRE_MARSHAL);
@@ -61,13 +63,11 @@ public class LogicalHandlerOutInterceptor<T extends Message>
             W3CDOMStreamWriter writer = new W3CDOMStreamWriter(XMLUtils.newDocument());
         
             // Replace stax writer with DomStreamWriter
-            message.setContent(XMLStreamWriter.class, writer);
-        
-        
+            message.setContent(XMLStreamWriter.class, writer);        
+            message.put(ORIGINAL_WRITER, origWriter);
+            
             message.getInterceptorChain().add(new LogicalHandlerOutEndingInterceptor<T>(
-                    getBinding(),
-                    origWriter,
-                    writer));
+                    getBinding()));
         } catch (ParserConfigurationException e) {
             throw new Fault(e);
         }
@@ -77,20 +77,18 @@ public class LogicalHandlerOutInterceptor<T extends Message>
     private class LogicalHandlerOutEndingInterceptor<X extends Message> 
         extends AbstractJAXWSHandlerInterceptor<X> {
     
-        XMLStreamWriter origWriter;
-        W3CDOMStreamWriter domWriter;
-    
-        public LogicalHandlerOutEndingInterceptor(Binding binding,
-                                           XMLStreamWriter o,
-                                           W3CDOMStreamWriter n) {
+        public LogicalHandlerOutEndingInterceptor(Binding binding) {
             super(binding);
-            origWriter = o;
-            domWriter = n; 
-       
+            
             setPhase(Phase.POST_MARSHAL);
         }
     
         public void handleMessage(X message) throws Fault {
+            W3CDOMStreamWriter domWriter = (W3CDOMStreamWriter)message.getContent(XMLStreamWriter.class);
+            XMLStreamWriter origWriter = (XMLStreamWriter)message
+                .get(LogicalHandlerOutInterceptor.ORIGINAL_WRITER);  
+            
+            
             HandlerChainInvoker invoker = getInvoker(message);
             LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
             invoker.setLogicalMessageContext(lctx);
@@ -107,8 +105,7 @@ public class LogicalHandlerOutInterceptor<T extends Message>
                 message.setContent(Source.class, source);
                 message.setContent(XMLStreamReader.class, 
                                    StaxUtils.createXMLStreamReader(domWriter.getDocument()));
-            }
-            
+            }            
             
             if (!invoker.invokeLogicalHandlers(requestor, lctx)) {
                 if (requestor) {
@@ -121,19 +118,17 @@ public class LogicalHandlerOutInterceptor<T extends Message>
                                 .get(MessageObserver.class);
                     if (observer != null) {
                         //client side outbound, the request message becomes the response message
-                        responseMsg.setContent(XMLStreamReader.class,
-                                               message.getContent(XMLStreamReader.class));
-                        
+                        responseMsg.setContent(XMLStreamReader.class, message
+                            .getContent(XMLStreamReader.class));                        
                         
                         message.getExchange().setInMessage(responseMsg);
                         responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
                                         LogicalHandlerInInterceptor.class.getName());
                         observer.onMessage(responseMsg);
-                        //invoker.mepComplete(responseMsg);
                     }
                 } else {
                     // server side - abort
-                    System.out.println("Logical handler server side aborting");
+                    //System.out.println("Logical handler server side aborting");
                 }
                 return;
             }

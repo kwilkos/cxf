@@ -103,7 +103,7 @@ public class SOAPHandlerFaultInInterceptor extends
                 // stops, but the inbound interceptor chain still continues, dispatch the message
                 //By onCompletion here, we can skip rest Logical handlers 
                 onCompletion(message);
-                System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
+                //System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         } else {
             if (!getInvoker(message).isOutbound()) {

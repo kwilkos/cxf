@@ -70,7 +70,7 @@ public class SOAPHandlerInterceptor extends
 
     public Set<URI> getRoles() {
         Set<URI> roles = new HashSet<URI>();
-        // TODO
+        //TODO
         return roles;
     }
 
@@ -124,15 +124,6 @@ public class SOAPHandlerInterceptor extends
         MessageContext context = createProtocolMessageContext(message);
         HandlerChainInvoker invoker = getInvoker(message);
         invoker.setProtocolMessageContext(context);
-
-/*        if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
-            handleAbort(message, context);
-        } else {
-            //if message processing ends normally, close previously invoked handlers.
-            if (isOutbound(message)) {
-                onCompletion(message);
-            }
-        }*/
         
         if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
             handleAbort(message, context);
@@ -175,11 +166,10 @@ public class SOAPHandlerInterceptor extends
                 // stops, but the inbound interceptor chain still continues, dispatch the message
                 //By onCompletion here, we can skip following Logical handlers 
                 onCompletion(message);
-                System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
+                //System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         } else {
             if (!getInvoker(message).isOutbound()) {
-
                 // server side inbound
                 message.getInterceptorChain().abort();
                 Endpoint e = message.getExchange().get(Endpoint.class);
@@ -204,7 +194,7 @@ public class SOAPHandlerInterceptor extends
             } else {
                 // server side outbound - Normal handler message processing
                 // stops, but still continue the outbound interceptor chain, dispatch the message
-                System.out.println("SOAP Handler handleMessage returns false on server outbound, aborting");
+                //System.out.println("SOAP Handler handleMessage returns false on server outbound, aborting");
             }
         }
     }
