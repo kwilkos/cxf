@@ -23,6 +23,7 @@ import javax.xml.ws.Binding;
 
 import org.apache.cxf.jaxws.handler.AbstractJAXWSHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
+import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
@@ -32,7 +33,8 @@ public class LogicalHandlerFaultInInterceptor<T extends Message>
 
     public LogicalHandlerFaultInInterceptor(Binding binding) {
         super(binding);
-        setPhase(Phase.PRE_LOGICAL);
+        setPhase(Phase.PRE_PROTOCOL);
+        addAfter(SOAPHandlerFaultInInterceptor.class.getName());       
     }
 
     public void handleMessage(T message) {

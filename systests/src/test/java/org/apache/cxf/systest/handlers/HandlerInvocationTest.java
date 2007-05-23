@@ -29,6 +29,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.LogicalMessage;
@@ -48,6 +49,7 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.handler_test.HandlerTest;
 import org.apache.handler_test.HandlerTestService;
@@ -132,7 +134,24 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     @Test
     public void testSOAPHandlerHandleMessageReturnTrueClient() throws Exception {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleMessage(LogicalMessageContext ctx) {
+                super.handleMessage(ctx);
+                try {
+                    Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                    if (!outbound) {
+                        LogicalMessage msg = ctx.getMessage();
+                        Source source = msg.getPayload();
+                        assertNotNull(source);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail(e.toString());
+                }
+                return true;
+            }
+        };
+       
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
         TestSOAPHandler soapHandler2 = new TestSOAPHandler(false);
 
@@ -837,9 +856,43 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     @Test   
     public void testServerSOAPInboundHandlerThrowsSOAPFaultToClientHandlers() throws Exception {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
-        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false) {
+            public boolean handleFault(LogicalMessageContext ctx) {
+                super.handleFault(ctx);
+                try {
+                    Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                    if (!outbound) {
+                        LogicalMessage msg = ctx.getMessage();
+                        Source source = msg.getPayload();
+                        System.out.println("dddd " + source);
+                        XMLUtils.writeTo(source, System.out);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    fail(e.toString());
+                }
+                return true;
+            }
+        };
+    
+    
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
-        TestSOAPHandler soapHandler2 = new TestSOAPHandler(false);
+        TestSOAPHandler soapHandler2 = new TestSOAPHandler(false) {
+            public boolean handleFault(SOAPMessageContext ctx) {
+                super.handleFault(ctx);
+                Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                if (!outbound) {
+                    try {
+                        SOAPMessage msg = ctx.getMessage();
+                        msg.writeTo(System.out);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        fail(e.toString());
+                    }
+                }
+                return true;
+            }
+        };
         
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, soapHandler1, soapHandler2);
 
@@ -847,8 +900,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
             handlerTest.pingWithArgs("soapHandler3 inbound throw SOAPFaultException");
             fail("did not get expected SOAPFaultException");
         } catch (SOAPFaultException e) {
-/*            //e.printStackTrace();            
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            //e.printStackTrace();            
+/*            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(baos, true);
             e.printStackTrace(ps);
             assertTrue("Did not get expected exception message",  baos.toString()

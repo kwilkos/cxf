@@ -70,7 +70,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         return "soapHandler" + getId();
     }
     
-    public boolean handleMessage(T ctx) {
+    public boolean handleMessage(SOAPMessageContext ctx) {
 
         boolean continueProcessing = true; 
 
@@ -119,7 +119,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         return continueProcessing;
     }
 
-    public final boolean handleFault(T ctx) {
+    public boolean handleFault(SOAPMessageContext ctx) {
         methodCalled("handleFault"); 
         printHandlerInfo("handleFault", isOutbound(ctx));
 
@@ -159,7 +159,7 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         methodCalled("close"); 
     }
 
-    private boolean getReturnValue(boolean outbound, T ctx) { 
+    private boolean getReturnValue(boolean outbound, SOAPMessageContext ctx) { 
         boolean ret = true;
         try {
             SOAPMessage msg  = ctx.getMessage(); 

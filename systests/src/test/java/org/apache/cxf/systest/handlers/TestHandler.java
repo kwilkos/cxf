@@ -188,7 +188,7 @@ public class TestHandler<T extends LogicalMessageContext>
         }
     }
 
-    public final boolean handleFault(T ctx) {
+    public boolean handleFault(T ctx) {
         methodCalled("handleFault"); 
         printHandlerInfo("handleFault", isOutbound(ctx));
 
