@@ -183,7 +183,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             return null;
         }
         
-        return getParameterName(op, method, paramNumber, op.getInput().size(), "arg");
+        return getParameterName(op, method, paramNumber, op.getInput().size(), "arg", true);
     }
 
     private QName getPartName(OperationInfo op, Method method,
@@ -235,7 +235,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     private QName getParameterName(OperationInfo op, Method method, int paramNumber, 
-                                   int curSize, String prefix) {
+                                   int curSize, String prefix, boolean input) {
         method = getDeclaredMethod(method);
         WebParam param = getWebParam(method, paramNumber);
         String tns = null;
@@ -245,6 +245,17 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             local = param.name();
         }
         
+        if (tns == null || tns.length() == 0) {
+            QName wrappername = null;
+            if (input) {
+                wrappername = getRequestWrapperName(op, method);
+            } else {
+                wrappername = getResponseWrapperName(op, method); 
+            }
+            if (wrappername != null) {
+                tns = wrappername.getNamespaceURI();
+            }
+        }
         if (tns == null || tns.length() == 0) {
             tns = op.getName().getNamespaceURI();
         }
@@ -292,7 +303,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         method = getDeclaredMethod(method);
         
         if (paramNumber >= 0) {
-            return getParameterName(op, method, paramNumber, op.getOutput().size(), "return");
+            return getParameterName(op, method, paramNumber, op.getOutput().size(), "return", false);
         } else {
             WebResult webResult = getWebResult(method);
 
@@ -301,6 +312,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             if (webResult != null) {
                 tns = webResult.targetNamespace();
                 local = webResult.name();
+            }
+            if (tns == null || tns.length() == 0) {
+                QName wrappername = getResponseWrapperName(op, method);
+                if (wrappername != null) {
+                    tns = wrappername.getNamespaceURI();
+                }
             }
 
             if (tns == null || tns.length() == 0) {
