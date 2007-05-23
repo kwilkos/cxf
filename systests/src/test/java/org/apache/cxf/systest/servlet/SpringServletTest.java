@@ -23,6 +23,7 @@ import org.w3c.dom.Document;
 import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
+import com.meterware.servletunit.ServletUnitClient;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -69,4 +70,49 @@ public class SpringServletTest extends AbstractServletTest {
         assertValid("/s:Envelope/s:Body", doc);
         assertValid("//h:sayHiResponse", doc);
     }
+    
+    @Test
+    public void testGreetMeGetRequest() throws Exception {
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(true);
+        
+        WebRequest req = 
+            new GetMethodQueryWebRequest("http://localhost/services/Greeter/greetMe?"
+                                         + "requestType=hello");
+        
+        WebResponse response = client.getResponse(req);        
+        Document doc = DOMUtils.readXml(response.getInputStream());
+        addNamespace("h", "http://apache.org/hello_world_soap_http/types");
+        assertValid("/s:Envelope/s:Body", doc);
+        assertValid("//h:greetMeResponse", doc);
+        
+        req = 
+            new GetMethodQueryWebRequest("http://localhost/services/Greeter1/greetMe?"
+                                         + "requestType=hello");
+        
+        response = client.getResponse(req);        
+        doc = DOMUtils.readXml(response.getInputStream());
+        addNamespace("h", "http://apache.org/hello_world_soap_http/types");
+        assertValid("/s:Envelope/s:Body", doc);
+        assertValid("//h:greetMeResponse", doc);
+    }
+    
+        
+    @Test
+    public void testGetWSDL() throws Exception {
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(true);
+        
+        WebRequest req = 
+            new GetMethodQueryWebRequest("http://localhost/services/Greeter?wsdl"); 
+       
+        WebResponse res = client.getResponse(req); 
+        assertEquals(200, res.getResponseCode());
+        assertEquals("text/xml", res.getContentType());
+        assertTrue("the wsdl should contain the opertion greetMe",
+                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
+        
+    }
+    
+    
 }

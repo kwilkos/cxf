@@ -202,7 +202,7 @@ public class CXFServlet extends HttpServlet {
     }
 
     private void replaceDestionFactory() throws ServletException {
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class); 
         try {
             DestinationFactory df = dfm
                 .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
@@ -215,13 +215,14 @@ public class CXFServlet extends HttpServlet {
         }
 
         DestinationFactory factory = createServletTransportFactory();
-
+        
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/http");
         registerTransport(factory, "http://schemas.xmlsoap.org/soap/http");
         registerTransport(factory, "http://www.w3.org/2003/05/soap/bindings/HTTP/");
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/http/");
         registerTransport(factory, "http://cxf.apache.org/transports/http/configuration");
         registerTransport(factory, "http://cxf.apache.org/bindings/xformat");
+        registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/");
     }
 
     public void destroy() {

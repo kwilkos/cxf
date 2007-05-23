@@ -16,20 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http.bare;
+package org.apache.cxf.customer;
+
+import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "GetCustomer")
-public class GetCustomer {
-    private long id;
 
-    public long getId() {
-        return id;
+// START SNIPPET: bean
+@XmlRootElement
+public class Customers {
+    private Collection<Customer> customers;
+
+    public Collection<Customer> getCustomer() {
+        return customers;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setCustomer(Collection<Customer> c) {
+        this.customers = c;
     }
-
 }
+// END SNIPPET: bean

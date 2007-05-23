@@ -69,6 +69,7 @@ public class ServletTransportFactory extends AbstractTransportFactory
     }
     
     public ServletDestination getDestinationForPath(String path) {
+        // to use the url context match  
         return destinations.get(getTrimmedPath(path));
     }
 

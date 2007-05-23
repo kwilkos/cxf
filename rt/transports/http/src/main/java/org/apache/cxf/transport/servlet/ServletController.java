@@ -79,32 +79,40 @@ public class ServletController {
             String address = request.getPathInfo() == null ? "" : request.getPathInfo();
 
             ei.setAddress(address);
-            ServletDestination d = (ServletDestination)transport.getDestination(ei);
+            ServletDestination d = (ServletDestination)transport.getDestinationForPath(ei.getAddress());
             
-            if ("GET".equals(request.getMethod())) {
-                updateDests(request);
-            }
-
-            if (d.getMessageObserver() == null) {
+            if (d == null) {
                 if (request.getRequestURI().endsWith("services")
                     || request.getRequestURI().endsWith("services/")
                     || StringUtils.isEmpty(request.getPathInfo())
                     || "/".equals(request.getPathInfo())) {
+                    updateDests(request);
                     generateServiceList(request, res);
                 } else {
-                    LOG.warning("Can't find the the request for " + request.getRequestURL() + "'s Observer ");
-                    generateNotFound(request, res);
+                    d = checkRestfulRequest(request);
+                    if (d == null || d.getMessageObserver() == null) {                        
+                        LOG.warning("Can't find the the request for " 
+                                    + request.getRequestURL() + "'s Observer ");
+                        generateNotFound(request, res);
+                    }  else { // the request should be a restful service request
+                        updateDests(request);
+                        invokeDestination(request, res, d);
+                    }
                 }
             } else {
                 ei = d.getEndpointInfo();
                 Bus bus = cxfServlet.getBus();
                 if (null != request.getQueryString() 
                     && request.getQueryString().length() > 0
-                    && bus.getExtension(QueryHandlerRegistry.class) != null) {
+                    && bus.getExtension(QueryHandlerRegistry.class) != null) {                    
                     
                     String ctxUri = request.getPathInfo();
                     String baseUri = request.getRequestURL().toString() 
                         + "?" + request.getQueryString();
+                    // update the EndPoint Address with request url
+                    if ("GET".equals(request.getMethod())) {
+                        updateDests(request);
+                    }
 
                     for (QueryHandler qh : bus.getExtension(QueryHandlerRegistry.class).getHandlers()) {
                         if (qh.isRecognizedQuery(baseUri, ctxUri, ei)) {
@@ -127,6 +135,18 @@ public class ServletController {
         } catch (IOException e) {
             throw new ServletException(e);
         }
+    }
+    
+    private ServletDestination checkRestfulRequest(HttpServletRequest request) throws IOException {        
+        
+        String address = request.getPathInfo() == null ? "" : request.getPathInfo();
+        
+        for (String path : transport.getDestinationsPaths()) {           
+            if (address.startsWith(path)) {                
+                return transport.getDestinationForPath(path);
+            }
+        }
+        return null; 
     }
     
     private void generateServiceList(HttpServletRequest request, HttpServletResponse response)
@@ -178,6 +198,7 @@ public class ServletController {
             inMessage.put(Message.PATH_INFO, request.getPathInfo());
             inMessage.put(Message.QUERY_STRING, request.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, request.getContentType());
+            inMessage.put(Message.BASE_PATH, d.getAddress().getAddress().getValue());            
             inMessage.put(SecurityContext.class, new SecurityContext() {
                 public Principal getUserPrincipal() {
                     return request.getUserPrincipal();

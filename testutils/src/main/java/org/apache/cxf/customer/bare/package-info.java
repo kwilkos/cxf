@@ -16,20 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http;
-
-import javax.xml.ws.WebFault;
-
-@WebFault
-public class CustomerNotFoundFault extends Exception {
-    private CustomerNotFoundDetails details;
-    
-    public CustomerNotFoundFault(CustomerNotFoundDetails details) {
-        super();
-        this.details = details;
-    }
-
-    public CustomerNotFoundDetails getFaultInfo() {
-        return details;
-    }
-}
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://cxf.apache.org/jra", 
+                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+package org.apache.cxf.customer.bare;

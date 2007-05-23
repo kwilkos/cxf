@@ -16,26 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http;
+package org.apache.cxf.customer;
 
-import javax.xml.bind.annotation.XmlRootElement;
-// START SNIPPET: bean
-@XmlRootElement
-public class Customer {
-    private long id;
-    private String name;
+import javax.xml.ws.WebFault;
+
+
+@WebFault
+public class CustomerNotFoundFault extends Exception {
+    private CustomerNotFoundDetails details;
     
-    public long getId() {
-        return id;
+    public CustomerNotFoundFault(CustomerNotFoundDetails details) {
+        super();
+        this.details = details;
     }
-    public void setId(long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
+
+    public CustomerNotFoundDetails getFaultInfo() {
+        return details;
     }
 }
-// END SNIPPET: bean

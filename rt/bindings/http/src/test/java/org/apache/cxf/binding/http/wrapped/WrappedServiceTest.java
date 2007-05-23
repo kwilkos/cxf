@@ -28,6 +28,7 @@ import org.apache.cxf.binding.http.AbstractRestTest;
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.binding.http.strategy.ConventionStrategy;
+import org.apache.cxf.customer.wraped.CustomerService;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;

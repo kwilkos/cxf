@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http.bare;
+package org.apache.cxf.customer.wraped;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +25,8 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 
-import org.apache.cxf.binding.http.Customer;
-import org.apache.cxf.binding.http.CustomerNotFoundDetails;
-import org.apache.cxf.binding.http.CustomerNotFoundFault;
-import org.apache.cxf.binding.http.Customers;
+import org.apache.cxf.customer.Customer;
+import org.apache.cxf.customer.Customers;
 import org.codehaus.jra.Delete;
 import org.codehaus.jra.Get;
 import org.codehaus.jra.HttpResource;
@@ -49,7 +47,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers")
     @WebMethod
-    public Customers getCustomers(@WebParam(name = "GetCustomers") GetCustomers req) {
+    public Customers getCustomers() {
         Customers cbean = new Customers();
         cbean.setCustomer(customers.values());
         return cbean;
@@ -58,21 +56,14 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public Customer getCustomer(@WebParam(name = "GetCustomer") GetCustomer getCustomer) 
-        throws CustomerNotFoundFault {
-        Customer c = customers.get(getCustomer.getId());
-        if (c == null) {
-            CustomerNotFoundDetails details = new CustomerNotFoundDetails();
-            details.setId(getCustomer.getId());
-            throw new CustomerNotFoundFault(details);
-        }
-        return c;
+    public Customer getCustomer(@WebParam(name = "id") Long id) {
+        return customers.get(id);
     }
 
     @Put
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public void updateCustomer(@WebParam(name = "customer") Customer c) {
+    public void updateCustomer(@WebParam(name = "id") String id, Customer c) {
         customers.put(c.getId(), c);
     }
 
@@ -89,8 +80,8 @@ public class CustomerService {
     @Delete
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public void deleteCustomer(long id) {
-        customers.remove(id);
+    public void deleteCustomer(String id) {
+        customers.remove(new Long(id));
     }
 
     final Customer createCustomer() {

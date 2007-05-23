@@ -16,6 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://cxf.apache.org/jra", 
-                                     elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.apache.cxf.binding.http.bare;
+package org.apache.cxf.customer;
+
+import javax.xml.bind.annotation.XmlRootElement;
+// START SNIPPET: bean
+@XmlRootElement
+public class Customer {
+    private long id;
+    private String name;
+    
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+// END SNIPPET: bean

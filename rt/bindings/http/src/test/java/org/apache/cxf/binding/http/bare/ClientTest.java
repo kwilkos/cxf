@@ -25,9 +25,12 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.http.AbstractRestTest;
-import org.apache.cxf.binding.http.Customer;
-import org.apache.cxf.binding.http.Customers;
 import org.apache.cxf.binding.http.HttpBindingFactory;
+import org.apache.cxf.customer.Customer;
+import org.apache.cxf.customer.Customers;
+import org.apache.cxf.customer.bare.CustomerService;
+import org.apache.cxf.customer.bare.GetCustomer;
+import org.apache.cxf.customer.bare.GetCustomers;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
