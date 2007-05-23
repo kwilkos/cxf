@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.jaxws;
 
 
+
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.HttpURLConnection;
@@ -29,9 +30,11 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
@@ -48,10 +51,8 @@ import org.w3c.dom.Node;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
-//import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
-//import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
@@ -70,6 +71,7 @@ import org.junit.Test;
 
 public class ClientServerTest extends AbstractBusClientServerTestBase {
   
+    static final Logger LOG = Logger.getLogger(ClientServerTest.class.getName());
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
@@ -416,12 +418,52 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testAsyncCallWithHandler() throws Exception {
+    public void testAsyncCallUseProperAssignedExecutor() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
         SOAPService service = new SOAPService(wsdl, serviceName);
         
+        class TestExecutor implements Executor {
+            
+            private int count;
+            
+            public void execute(Runnable command) {
+                count++;
+                LOG.info("asyn call time " + count);
+                command.run();
+            }
+            
+            public int getCount() {
+                return count;
+            }
+        }
+        Executor executor = new TestExecutor();
+        service.setExecutor(executor);
+        assertNotNull(service);
+        assertSame(executor, service.getExecutor());
+        
+        
+        assertEquals(((TestExecutor)executor).getCount(), 0);
+        try {
+            Greeter greeter = (Greeter)service.getPort(portName, Greeter.class);
+            for (int i = 0; i < 5; i++) {
+                greeter.greetMeAsync("asyn call" + i);
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+        
+        assertEquals(((TestExecutor)executor).getCount(), 5);
+    }
+
+    
+    @Test
+    public void testAsyncCallWithHandler() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
         
         MyHandler h = new MyHandler();
