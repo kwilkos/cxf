@@ -42,7 +42,7 @@ public final class AttachmentUtil {
     public static String createContentID(String ns) throws UnsupportedEncodingException {
         // tend to change
         String cid = "http://cxf.apache.org/";
-        String name = UUID.randomUUID() + "@";
+        String name = UUID.randomUUID().toString();
         if (ns != null && (ns.length() > 0)) {
             try {
                 URI uri = new URI(ns);
@@ -52,10 +52,10 @@ public final class AttachmentUtil {
                 e.printStackTrace();
                 return null;
             } catch (MalformedURLException e) {
-                cid = URLEncoder.encode(ns, "UTF-8");
+                cid = ns;
             }
         }
-        return URLEncoder.encode(name + cid, "UTF-8");
+        return URLEncoder.encode(name, "UTF-8") + "@" + URLEncoder.encode(cid, "UTF-8");
     }
 
     public static String getUniqueBoundaryValue(int part) {

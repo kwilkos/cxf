@@ -23,12 +23,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.util.Base64Utility;
 
 /**
  * Resolves a File, classpath resource, or URL according to the follow rules:
@@ -76,6 +78,7 @@ public class URIResolver {
         this.calling = (callingCls != null) ? callingCls : getClass();
         this.file = null;
         this.uri = null;
+
         this.is = null;
 
         if (uriStr.startsWith("classpath:")) {
@@ -106,7 +109,31 @@ public class URIResolver {
             if (relative.isAbsolute()) {
                 uri = relative;
                 url = relative.toURL();
-                is = url.openStream();
+
+                try {
+                    HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+
+                    String host = System.getProperty("http.proxyHost");
+                    if (host != null) {
+                        //comment out unused port to pass pmd check
+                        /*String ports = System.getProperty("http.proxyPort");
+                        int port = 80;
+                        if (ports != null) {
+                            port = Integer.parseInt(ports);
+                        }*/
+
+                        String username = System.getProperty("http.proxy.user");
+                        String password = System.getProperty("http.proxy.password");
+
+                        if (username != null && password != null) {
+                            String encoded = Base64Utility.encode((username + ":" + password).getBytes());
+                            huc.setRequestProperty("Proxy-Authorization", "Basic " + encoded);
+                        }
+                    }
+                    is =  huc.getInputStream();
+                } catch (ClassCastException ex) {
+                    is = url.openStream();
+                }
             } else if (baseUriStr != null) {
                 URI base;
                 File baseFile = new File(baseUriStr);
