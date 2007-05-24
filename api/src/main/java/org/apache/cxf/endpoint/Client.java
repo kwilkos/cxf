@@ -92,4 +92,11 @@ public interface Client extends InterceptorProvider, MessageObserver {
      * @param selector the ConduitSelector to use
      */
     void setConduitSelector(ConduitSelector selector);
+    
+    /**
+     * Indicates that the client is no longer needed and that any resources it holds
+     * can now be freed.
+     *
+     */
+    void destroy();
 }

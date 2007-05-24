@@ -21,7 +21,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:wsrm-mgr="http://cxf.apache.org/ws/rm/manager"
        xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xsi:schemaLocation="
+http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/ws/rm/manager.xsd
 http://schemas.xmlsoap.org/ws/2005/02/rm/policy http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd
 http://cxf.apache.org/configuration/beans http://cxf.apache.org/schemas/configuration/cxf-beans.xsd
@@ -31,17 +33,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     
     <bean class="org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore"/>
     
-    
-    <wsrm-mgr:rmManager id="org.apache.cxf.ws.rm.RMManager"> 
-      <wsrm-policy:RMAssertion>         
-          <wsrm-policy:BaseRetransmissionInterval Milliseconds="10000"/>           
-          <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>                                                        
-      </wsrm-policy:RMAssertion>     
-      <wsrm-mgr:destinationPolicy>
-          <wsrm-mgr:acksPolicy intraMessageThreshold="0"/>                    
-      </wsrm-mgr:destinationPolicy>      
+    <wsrm-mgr:rmManager id="org.apache.cxf.ws.rm.RMManager">    
       <property name="store" ref="org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore"/>
-      
     </wsrm-mgr:rmManager>
     
 </beans>

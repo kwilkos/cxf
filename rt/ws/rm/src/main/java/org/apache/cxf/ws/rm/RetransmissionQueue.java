@@ -19,8 +19,6 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.util.Collection;
-
 import org.apache.cxf.message.Message;
 
 public interface RetransmissionQueue {
@@ -39,10 +37,9 @@ public interface RetransmissionQueue {
      * @return true if there are no unacknowledged messages in the queue
      */
     boolean isEmpty();
-   
+    
     /**
-     * Accepts a new context for posible future retransmission.
-     * 
+     * Accepts a new context for posible future retransmission. 
      * @param ctx the message context.
      */
     void addUnacknowledged(Message message);
@@ -64,12 +61,6 @@ public interface RetransmissionQueue {
      * Stops retransmission queue.
      */
     void stop(SourceSequence seq);
-    
-    /**
-     * Populates the retransmission queue with messages recovered from
-     * persistent store.
-     */
-    void populate(Collection<SourceSequence> sss);
     
     
 }

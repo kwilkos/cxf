@@ -22,15 +22,15 @@ package org.apache.cxf.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import org.apache.cxf.extension.BusExtension;
 
-import org.apache.cxf.Bus;
-
-public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager {
+public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager, BusExtension {
     
     private List<ServerLifeCycleListener> listeners = new ArrayList<ServerLifeCycleListener>();
-    private Bus bus;
+
+    public Class<?> getRegistrationType() {
+        return ServerLifeCycleManager.class;
+    }
 
     public synchronized void registerListener(ServerLifeCycleListener listener) {
         listeners.add(listener);
@@ -62,21 +62,5 @@ public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager {
 
     public synchronized void unRegisterListener(ServerLifeCycleListener listener) {
         listeners.remove(listener);
-    }
-    
-    public Bus getBus() {
-        return bus;
-    }
-    
-    @Resource
-    public void setBus(Bus bus) {        
-        this.bus = bus;        
-    }
-    
-    @PostConstruct
-    public void register() {
-        if (null != bus) {
-            bus.setExtension(this, ServerLifeCycleManager.class);
-        }
     }
 }

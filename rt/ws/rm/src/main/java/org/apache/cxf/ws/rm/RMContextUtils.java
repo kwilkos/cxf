@@ -149,7 +149,7 @@ public final class RMContextUtils {
         ((AddressingPropertiesImpl)maps).exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
     }
 
-    private static String getRMPropertiesKey(boolean outbound) {
+    public static String getRMPropertiesKey(boolean outbound) {
         return outbound
             ? RMMessageConstants.RM_PROPERTIES_OUTBOUND : RMMessageConstants.RM_PROPERTIES_INBOUND;
     }

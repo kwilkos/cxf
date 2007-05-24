@@ -21,6 +21,7 @@ package org.apache.cxf.ws.rm;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,7 +113,6 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         
         if ((isApplicationMessage || isLastMessage)
             && !isPartialResponse) {
-      
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
             }
@@ -120,7 +120,13 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             // get the current sequence, requesting the creation of a new one if necessary
             
             synchronized (source) {
-                SourceSequence seq = getManager().getSequence(inSeqId, message, maps);
+                SourceSequence seq = null;
+                if (isLastMessage) {
+                    Map<?, ?> invocationContext = (Map)message.get(Message.INVOCATION_CONTEXT);
+                    seq = (SourceSequence)invocationContext.get(SourceSequence.class.getName());
+                } else {
+                    seq = getManager().getSequence(inSeqId, message, maps);
+                }
                 assert null != seq;
 
                 // increase message number and store a sequence type object in

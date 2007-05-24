@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.rm;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -34,10 +35,22 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientLifeCycleListener;
+import org.apache.cxf.endpoint.ClientLifeCycleManager;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleListener;
+import org.apache.cxf.endpoint.ServerLifeCycleManager;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.RelatesToType;
@@ -46,6 +59,7 @@ import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.manager.DeliveryAssuranceType;
 import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
+import org.apache.cxf.ws.rm.persistence.RMMessage;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
@@ -55,7 +69,7 @@ import org.apache.cxf.ws.rm.soap.SoapFaultFactory;
 /**
  * 
  */
-public class RMManager {
+public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListener {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMManager.class);
 
@@ -65,30 +79,33 @@ public class RMManager {
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
     private Timer timer = new Timer(true);
-    private final ServerLifeCycleListener serverLifeCycleListener;
     private RMAssertion rmAssertion;
     private DeliveryAssuranceType deliveryAssurance;
     private SourcePolicyType sourcePolicy;
     private DestinationPolicyType destinationPolicy;
     
+    // ServerLifeCycleListener
+    
+    public void startServer(Server server) {
+        recoverReliableEndpoint(server.getEndpoint(), null);
+    }
 
-    public RMManager() {
-        serverLifeCycleListener = new ServerLifeCycleListener() {
-
-            public void startServer(Server server) {
-            }
-
-            public void stopServer(Server server) {
-                RMManager.this.shutdownReliableEndpoint(server.getEndpoint());
-            }
-            
-        };        
+    public void stopServer(Server server) {
+        shutdownReliableEndpoint(server.getEndpoint());
     }
     
-    public ServerLifeCycleListener getServerLifeCycleListener() {
-        return serverLifeCycleListener;
+    // ClientLifeCycleListener
+    
+    public void clientCreated(Client client) {
+        recoverReliableEndpoint(client.getEndpoint(), client.getConduit());
+    }
+    
+    public void clientDestroyed(Client client) {
+        shutdownReliableEndpoint(client.getEndpoint());
     }
 
+    // Configuration
+    
     public Bus getBus() {
         return bus;
     }
@@ -136,6 +153,85 @@ public class RMManager {
     public BindingFaultFactory getBindingFaultFactory(Binding binding) {
         return new SoapFaultFactory(binding);
     }
+    
+    /**  
+     * @return Returns the deliveryAssurance.
+     */
+    public DeliveryAssuranceType getDeliveryAssurance() {
+        return deliveryAssurance;
+    }
+
+    /**
+     * @param deliveryAssurance The deliveryAssurance to set.
+     */
+    public void setDeliveryAssurance(DeliveryAssuranceType deliveryAssurance) {
+        this.deliveryAssurance = deliveryAssurance;
+    }
+
+    /**
+     * @return Returns the destinationPolicy.
+     */
+    public DestinationPolicyType getDestinationPolicy() {
+        return destinationPolicy;
+    }
+
+    /**
+     * @param destinationPolicy The destinationPolicy to set.
+     */
+    public void setDestinationPolicy(DestinationPolicyType destinationPolicy) {
+        this.destinationPolicy = destinationPolicy;
+    }
+
+    /** 
+     * @return Returns the rmAssertion.
+     */
+    public RMAssertion getRMAssertion() {
+        return rmAssertion;
+    }
+
+    /**
+     * @param rma The rmAssertion to set.
+     */
+    public void setRMAssertion(RMAssertion rma) {
+        org.apache.cxf.ws.rm.policy.ObjectFactory factory = new org.apache.cxf.ws.rm.policy.ObjectFactory();
+        if (null == rma) {
+            rma = factory.createRMAssertion();
+            rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
+        }
+        BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
+        if (null == bri) {
+            bri = factory.createRMAssertionBaseRetransmissionInterval();
+            rma.setBaseRetransmissionInterval(bri);
+        }
+        if (null == bri.getMilliseconds()) {
+            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
+        }
+
+        rmAssertion = rma;
+    }
+
+    /** 
+     * @return Returns the sourcePolicy.
+     */
+    public SourcePolicyType getSourcePolicy() {
+        return sourcePolicy;
+    }
+    
+    /**
+     * @param sp The sourcePolicy to set.
+     */
+    public void setSourcePolicy(SourcePolicyType sp) {
+        org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
+        if (null == sp) {
+            sp = factory.createSourcePolicyType();
+        }
+        if (!sp.isSetSequenceTerminationPolicy()) {
+            sp.setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
+        }
+        sourcePolicy = sp;
+    }
+    
+    // The real stuff ...
 
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
         Endpoint endpoint = message.getExchange().get(Endpoint.class);
@@ -149,7 +245,7 @@ public class RMManager {
         }
         RMEndpoint rme = reliableEndpoints.get(endpoint);
         if (null == rme) {
-            rme = createReliableEndpoint(this, endpoint);
+            rme = createReliableEndpoint(endpoint);
             org.apache.cxf.transport.Destination destination = message.getExchange().getDestination();
             org.apache.cxf.ws.addressing.EndpointReferenceType replyTo = null;
             if (null != destination) {
@@ -232,10 +328,11 @@ public class RMManager {
 
     @PreDestroy
     public void shutdown() {
-        
         // shutdown remaining endpoints 
         
-        for (RMEndpoint rme : reliableEndpoints.values()) {
+        LOG.log(Level.FINE, "Shutting down RMManager with {0} remaining endpoints.",
+                reliableEndpoints.size());
+        for (RMEndpoint rme : reliableEndpoints.values()) {            
             rme.shutdown();
         }
 
@@ -261,12 +358,72 @@ public class RMManager {
         reliableEndpoints.remove(e);
     }
     
-    RMEndpoint createReliableEndpoint(RMManager manager, Endpoint endpoint) {
-        return new RMEndpoint(manager, endpoint);
+    void recoverReliableEndpoint(Endpoint endpoint, Conduit conduit) {
+        if (null == store || null == retransmissionQueue) {
+            return;
+        }
+        
+        RMEndpoint rme = createReliableEndpoint(endpoint);        
+        rme.initialise(conduit, null);
+        reliableEndpoints.put(endpoint, rme);
+        
+        String id = RMUtils.getEndpointIdentifier(endpoint);
+        LOG.log(Level.FINE, "Recovering {0} endpoint with id: {1}",
+                new Object[] {null == conduit ? "client" : "server", id});
+        Collection<SourceSequence> sss = store.getSourceSequences(id);
+        if (null == sss || 0 == sss.size()) {                        
+            return;
+        }
+        LOG.log(Level.FINE, "Number of source sequences: {0}", sss.size());
+        for (SourceSequence ss : sss) {
+            rme.getSource().addSequence(ss, false);
+ 
+            Collection<RMMessage> ms = store.getMessages(ss.getIdentifier(), true);
+            if (null == ms) {
+                continue;
+            }
+            LOG.log(Level.FINE, "Number of messages in sequence: {0}", ms.size());
+            for (RMMessage m : ms) {
+                
+                Message message = new MessageImpl();
+                Exchange exchange = new ExchangeImpl();
+                message.setExchange(exchange);
+                if (null != conduit) {
+                    exchange.setConduit(conduit);
+                    message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+                }
+                exchange.put(Endpoint.class, endpoint);
+                exchange.put(Service.class, endpoint.getService());
+                if (endpoint.getEndpointInfo().getService() != null) {
+                    exchange.put(ServiceInfo.class, endpoint.getEndpointInfo().getService());
+                    exchange.put(InterfaceInfo.class, endpoint.getEndpointInfo().getService().getInterface());
+                }
+                exchange.put(Binding.class, endpoint.getBinding());
+                exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
+                exchange.put(Bus.class, bus);
+                
+                SequenceType st = RMUtils.getWSRMFactory().createSequenceType();
+                st.setIdentifier(ss.getIdentifier());
+                st.setMessageNumber(m.getMessageNumber());
+                if (ss.isLastMessage() && ss.getCurrentMessageNr().equals(m.getMessageNumber())) {
+                    st.setLastMessage(RMUtils.getWSRMFactory().createSequenceTypeLastMessage());
+                }
+                RMProperties rmps = new RMProperties();
+                rmps.setSequence(st);
+                RMContextUtils.storeRMProperties(message, rmps, true);
+                                    
+                message.setContent(byte[].class, m.getContent());
+                          
+                retransmissionQueue.addUnacknowledged(message);
+            }
+        }
+        retransmissionQueue.start();
+        
     }
     
-    // configuration
-    
+    RMEndpoint createReliableEndpoint(Endpoint endpoint) {
+        return new RMEndpoint(this, endpoint);
+    }  
    
     @PostConstruct
     void initialise() {
@@ -295,6 +452,21 @@ public class RMManager {
             idGenerator = new DefaultSequenceIdentifierGenerator();
         }
     }
+    
+    @PostConstruct
+    void registerListeners() {
+        if (null == bus) { 
+            return;
+        }
+        ServerLifeCycleManager slm = bus.getExtension(ServerLifeCycleManager.class);
+        if (null != slm) {
+            slm.registerListener(this);
+        }
+        ClientLifeCycleManager clm = bus.getExtension(ClientLifeCycleManager.class);
+        if (null != clm) {
+            clm.registerListener(this);
+        }
+    }
 
    
     Map<Endpoint, RMEndpoint> getReliableEndpointsMap() {
@@ -315,81 +487,6 @@ public class RMManager {
         }
     }
 
-    /**  
-     * @return Returns the deliveryAssurance.
-     */
-    public DeliveryAssuranceType getDeliveryAssurance() {
-        return deliveryAssurance;
-    }
-
-    /**
-     * @param deliveryAssurance The deliveryAssurance to set.
-     */
-    public void setDeliveryAssurance(DeliveryAssuranceType deliveryAssurance) {
-        this.deliveryAssurance = deliveryAssurance;
-    }
-
-    /**
-     * @return Returns the destinationPolicy.
-     */
-    public DestinationPolicyType getDestinationPolicy() {
-        return destinationPolicy;
-    }
-
-    /**
-     * @param destinationPolicy The destinationPolicy to set.
-     */
-    public void setDestinationPolicy(DestinationPolicyType destinationPolicy) {
-        this.destinationPolicy = destinationPolicy;
-    }
-
-    /** 
-     * @return Returns the rmAssertion.
-     */
-    public RMAssertion getRMAssertion() {
-        return rmAssertion;
-    }
-
-    /**
-     * @param rma The rmAssertion to set.
-     */
-    public void setRMAssertion(RMAssertion rma) {
-        org.apache.cxf.ws.rm.policy.ObjectFactory factory = new org.apache.cxf.ws.rm.policy.ObjectFactory();
-        if (null == rma) {
-            rma = factory.createRMAssertion();
-            rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
-        }
-        BaseRetransmissionInterval bri = rma.getBaseRetransmissionInterval();
-        if (null == bri) {
-            bri = factory.createRMAssertionBaseRetransmissionInterval();
-            rma.setBaseRetransmissionInterval(bri);
-        }
-        if (null == bri.getMilliseconds()) {
-            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
-        }
-
-        rmAssertion = rma;
-    }
-
-    /** 
-     * @return Returns the sourcePolicy.
-     */
-    public SourcePolicyType getSourcePolicy() {
-        return sourcePolicy;
-    }
     
-    /**
-     * @param sp The sourcePolicy to set.
-     */
-    public void setSourcePolicy(SourcePolicyType sp) {
-        org.apache.cxf.ws.rm.manager.ObjectFactory factory = new org.apache.cxf.ws.rm.manager.ObjectFactory();
-        if (null == sp) {
-            sp = factory.createSourcePolicyType();
-        }
-        if (!sp.isSetSequenceTerminationPolicy()) {
-            sp.setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
-        }
-        sourcePolicy = sp;
-    }
 
 }

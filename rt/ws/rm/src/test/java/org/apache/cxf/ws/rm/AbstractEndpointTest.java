@@ -48,15 +48,12 @@ public class AbstractEndpointTest extends Assert {
     
     @Test
     public void testAccessors() {
-        String n = "abc";
-        EasyMock.expect(rme.getName()).andReturn(n);
         Endpoint ae = control.createMock(Endpoint.class);
         EasyMock.expect(rme.getApplicationEndpoint()).andReturn(ae);
         RMManager mgr = control.createMock(RMManager.class);
         EasyMock.expect(rme.getManager()).andReturn(mgr);
         control.replay();
         AbstractEndpoint tested = new AbstractEndpoint(rme);
-        assertSame(n, tested.getName());
         assertSame(rme, tested.getReliableEndpoint());
         assertSame(ae, tested.getEndpoint());
         assertSame(mgr, tested.getManager());

@@ -85,6 +85,7 @@ public class ClientImpl
         bus = b;
         outFaultObserver = new ClientOutFaultObserver(bus);
         getConduitSelector(sc).setEndpoint(e);
+        notifyLifecycleManager();
     }
 
     public ClientImpl(URL wsdlUrl) {
@@ -108,6 +109,24 @@ public class ClientImpl
             getConduitSelector().setEndpoint(new EndpointImpl(bus, svc, epfo));
         } catch (EndpointException epex) {
             throw new IllegalStateException("Unable to create endpoint: " + epex.getMessage(), epex);
+        }
+        notifyLifecycleManager();
+    }
+    
+    public void destroy() {
+        
+        // TODO: also inform the conduit so it can shutdown any response listeners
+        
+        ClientLifeCycleManager mgr = bus.getExtension(ClientLifeCycleManager.class);
+        if (null != mgr) {
+            mgr.clientDestroyed(this);
+        }
+    }
+    
+    private void notifyLifecycleManager() {
+        ClientLifeCycleManager mgr = bus.getExtension(ClientLifeCycleManager.class);
+        if (null != mgr) {
+            mgr.clientCreated(this);
         }
     }
 
@@ -226,7 +245,7 @@ public class ClientImpl
         // setup conduit selector
         prepareConduitSelector(message);
         
-        // execute chain
+        // execute chain        
         chain.doIntercept(message);
 
         getConduitSelector().complete(exchange);

@@ -58,6 +58,9 @@ public class Servant implements Invoker {
             LOG.fine("No operation info."); 
             return null;
         }
+        
+        // TODO: throw Fault, see AbstractRMInterceptor
+        
         if (RMConstants.getCreateSequenceOperationName().equals(oi.getName())
             || RMConstants.getCreateSequenceOnewayOperationName().equals(oi.getName())) {
             try {
@@ -73,6 +76,14 @@ public class Servant implements Invoker {
             try {
                 createSequenceResponse(createResponse);
             } catch (SequenceFault ex) {
+                ex.printStackTrace();
+            }
+        } else if (RMConstants.getTerminateSequenceOperationName().equals(oi.getName())) {            
+            try {
+                terminateSequence(exchange.getInMessage());
+            } catch (SequenceFault ex) {
+                ex.printStackTrace();
+            } catch (RMException ex) {
                 ex.printStackTrace();
             }
         }

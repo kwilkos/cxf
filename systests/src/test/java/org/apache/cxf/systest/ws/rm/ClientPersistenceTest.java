@@ -19,6 +19,7 @@
 
 package org.apache.cxf.systest.ws.rm;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -31,6 +32,8 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.systest.ws.policy.GreeterImpl;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
@@ -41,24 +44,24 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMManager;
+import org.apache.cxf.ws.rm.RMUtils;
 import org.apache.cxf.ws.rm.SourceSequence;
 import org.apache.cxf.ws.rm.persistence.RMMessage;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Tests the addition of WS-RM properties to application messages and the
  * exchange of WS-RM protocol messages.
  */
-public class PersistenceTest extends AbstractBusClientServerTestBase {
+public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(PersistenceTest.class.getName());
-    private static final String GREETMEONEWAY_ACTION = null;
+    public static final String GREETMEONEWAY_ACTION = null;
+    public static final String GREETME_ACTION = null;
+    private static final Logger LOG = Logger.getLogger(ClientPersistenceTest.class.getName());
     
     private Greeter greeter;
     private OutMessageRecorder out;
@@ -70,7 +73,16 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("/org/apache/cxf/systest/ws/rm/oneway-client-crash.xml");
             BusFactory.setDefaultBus(bus);
-
+            
+            LoggingInInterceptor logIn = new LoggingInInterceptor();
+            bus.getInInterceptors().add(logIn);
+            LoggingOutInterceptor logOut = new LoggingOutInterceptor();
+            bus.getOutFaultInterceptors().add(logOut);
+            bus.getOutFaultInterceptors().add(logOut);
+            
+            bus.getExtension(RMManager.class).getRMAssertion().getBaseRetransmissionInterval()
+                .setMilliseconds(new BigInteger("60000"));
+            
             GreeterImpl implementor = new GreeterImpl();
             String address = "http://localhost:9020/SoapContext/GreeterPort";
             Endpoint.publish(address, implementor);
@@ -108,8 +120,19 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
         RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_DIR, false);
     }
 
-    @Before
-    public void setUp() {
+    @Test 
+    public void testRecovery() throws Exception {
+        startClient();
+        populateStore();
+        verifyStorePopulation();
+        stopClient();
+        startClient();
+        recover();
+        verifyRecovery();
+    }
+    
+    void startClient() {
+        LOG.fine("Creating greeter client");
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("/org/apache/cxf/systest/ws/rm/oneway-client-crash.xml");
         BusFactory.setDefaultBus(bus);
@@ -124,37 +147,43 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
         bus.getInInterceptors().add(in);
     }
 
-    // TODO: refactor into one test as we cannot rely on the order in which the tests are executed
-    // (especially on IBM)
-
-    @Test
-    public void testPopulateStore() throws Exception {
+    void populateStore() throws Exception {
+        
+        bus.getExtension(RMManager.class).getRMAssertion().getBaseRetransmissionInterval()
+            .setMilliseconds(new BigInteger("60000"));
+        bus.getOutInterceptors().add(new MessageLossSimulator());
+                
         greeter.greetMeOneWay("one");
         greeter.greetMeOneWay("two");
         greeter.greetMeOneWay("three");
+        greeter.greetMeOneWay("four");
         
         MessageFlow mf = new MessageFlow(out.getOutboundMessages(), in.getInboundMessages());
+
+        assertNotNull(mf);
+        awaitMessages(5, 3);
         
-        awaitMessages(4, 4);
-        
-        mf.verifyMessages(4, true);
-        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+        mf.verifyMessages(5, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(),
                                                  GREETMEONEWAY_ACTION,
-                                                 GREETMEONEWAY_ACTION, 
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION,
                                                  GREETMEONEWAY_ACTION};
         mf.verifyActions(expectedActions, true);
-        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, true);
+        mf.verifyAcknowledgements(new boolean[5], true);
 
 
-        mf.verifyMessages(4, false);
-        mf.verifyPartialResponses(3);
-        mf.verifyMessageNumbers(new String[4], false);
-        boolean[] expectedAcks = new boolean[4];
-        mf.verifyAcknowledgements(expectedAcks, false);
+        mf.verifyMessages(3, false);
+        mf.verifyPartialResponses(2);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);        
         mf.purgePartialResponses();
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
         mf.verifyActions(expectedActions, false);
-                
+    }
+    
+    void verifyStorePopulation() {
+        
         RMManager manager = bus.getExtension(RMManager.class);
         assertNotNull(manager);
         
@@ -162,8 +191,7 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
         assertNotNull(store);
         
         Client client = ClientProxy.getClient(greeter);
-        String id = client.getEndpoint().getEndpointInfo().getService().getName()
-            + "." + client.getEndpoint().getEndpointInfo().getName();
+        String id = RMUtils.getEndpointIdentifier(client.getEndpoint());
         
         Collection<DestinationSequence> dss =
             store.getDestinationSequences(id);
@@ -175,27 +203,54 @@ public class PersistenceTest extends AbstractBusClientServerTestBase {
         
         Collection<RMMessage> msgs = 
             store.getMessages(sss.iterator().next().getIdentifier(), true);
-        assertEquals(3, msgs.size());  
+        assertEquals(2, msgs.size());  
         
         msgs = 
             store.getMessages(sss.iterator().next().getIdentifier(), false);
         assertEquals(0, msgs.size());  
     }
     
-    @Ignore
-    @Test
-    public void testRecover() throws Exception {
-        // do nothing - resends should happen in the background
+    void stopClient() {
+        // ClientProxy.getClient(greeter).destroy();
+        bus.shutdown(true);
+    }
+      
+    void recover() throws Exception {
         
-        int expectedOut = 2;
-        awaitMessages(2, 0);
+        // do nothing - resends should happen in the background  
+       
+        Thread.sleep(5000);
+        LOG.info("Recovered messages should have been resent by now.");
+ 
+    }
     
-        MessageFlow mf = new MessageFlow(out.getOutboundMessages(), in.getInboundMessages());        
-        String[] expectedActions = new String[expectedOut];
-        for (int i = 0; i < expectedOut; i++) {
-            expectedActions[i] = GREETMEONEWAY_ACTION;
+    void verifyRecovery() throws Exception {
+        
+        RMManager manager = bus.getExtension(RMManager.class);
+        assertNotNull(manager);
+        
+        RMStore store = manager.getStore();
+        assertNotNull(store);
+        
+        Client client = ClientProxy.getClient(greeter);
+        String id = RMUtils.getEndpointIdentifier(client.getEndpoint());
+        
+        Collection<DestinationSequence> dss =
+            store.getDestinationSequences(id);
+        assertEquals(1, dss.size());
+        
+        Collection<SourceSequence> sss =
+            store.getSourceSequences(id);
+        assertEquals(1, sss.size());
+        
+        int i = 0;
+        while (store.getMessages(sss.iterator().next().getIdentifier(), true).size() > 0 && i < 10) {
+            Thread.sleep(200);
+            i++;
         }
-        mf.verifyActions(expectedActions, true);
+       
+        assertEquals(0, store.getMessages(sss.iterator().next().getIdentifier(), true).size());
+        assertEquals(0, store.getMessages(sss.iterator().next().getIdentifier(), false).size());        
     }
     
     private void awaitMessages(int nExpectedOut, int nExpectedIn) {

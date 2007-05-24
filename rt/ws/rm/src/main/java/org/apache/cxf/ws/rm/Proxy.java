@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.rm;
 
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -184,7 +185,10 @@ public class Proxy {
         
         OperationInfo oi = reliableEndpoint.getEndpoint().getEndpointInfo().getService().getInterface()
             .getOperation(RMConstants.getLastMessageOperationName());
-        invoke(oi, new Object[] {}, null);
+        // pass reference to source sequence in invocation context
+        Map<String, Object> context = Collections.singletonMap(SourceSequence.class.getName(), (Object)s);
+
+        invoke(oi, new Object[] {}, context);
     }
     
     void ackRequested(SourceSequence s) throws RMException {

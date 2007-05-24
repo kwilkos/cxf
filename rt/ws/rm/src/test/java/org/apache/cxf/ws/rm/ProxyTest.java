@@ -164,7 +164,7 @@ public class ProxyTest extends Assert {
         EasyMock.expect(si.getInterface()).andReturn(ii);
         OperationInfo oi = control.createMock(OperationInfo.class);
         EasyMock.expect(ii.getOperation(RMConstants.getLastMessageOperationName())).andReturn(oi);
-        expectInvoke(proxy, oi, null);
+        expectInvokeWithContext(proxy, oi, null);
         control.replay();
         
         proxy.lastMessage(ss);
@@ -350,5 +350,12 @@ public class ProxyTest extends Assert {
     private void expectInvoke(Proxy proxy, OperationInfo oi, Object expectedReturn) throws RMException {
         EasyMock.expect(proxy.invoke(EasyMock.same(oi), EasyMock.isA(Object[].class), 
             (Map)EasyMock.isNull())).andReturn(expectedReturn);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void expectInvokeWithContext(Proxy proxy, OperationInfo oi, Object expectedReturn) 
+        throws RMException {
+        EasyMock.expect(proxy.invoke(EasyMock.same(oi), EasyMock.isA(Object[].class), 
+            EasyMock.isA(Map.class))).andReturn(expectedReturn);
     }
 }

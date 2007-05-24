@@ -19,6 +19,9 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.text.MessageFormat;
+
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.ws.addressing.AddressingConstants;
 import org.apache.cxf.ws.addressing.AddressingConstantsImpl;
 import org.apache.cxf.ws.addressing.VersionTransformer;
@@ -87,4 +90,11 @@ public final class RMUtils {
         epr.setAddress(uri);
         return epr;
     } 
+    
+    public static String getEndpointIdentifier(Endpoint endpoint) {
+        return MessageFormat.format("{0}.{1}", new Object[] {
+            endpoint.getEndpointInfo().getService().getName(),
+            endpoint.getEndpointInfo().getName()
+        });
+    }
 }

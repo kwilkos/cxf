@@ -30,7 +30,7 @@ public class AbstractEndpoint {
     }
     
     public String getName() {
-        return reliableEndpoint.getName();
+        return RMUtils.getEndpointIdentifier(getEndpoint());
     }
     
     /** 

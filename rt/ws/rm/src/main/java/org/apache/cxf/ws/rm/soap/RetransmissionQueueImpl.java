@@ -107,10 +107,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
         return 0 == getUnacknowledged().size();
     }
 
-    public void populate(Collection<SourceSequence> sss) {
-        // TODO Auto-generated method stub
-    }
-
     /**
      * Purge all candidates for the given sequence that have been acknowledged.
      * 
@@ -199,14 +195,16 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
      * 
      * @param ctx the message context.
      * @return ResendCandidate
-     */
+     */    
     protected ResendCandidate cacheUnacknowledged(Message message) {
-        ResendCandidate candidate = null;
         RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);
         SequenceType st = rmps.getSequence();
         Identifier sid = st.getIdentifier();
+        String key = sid.getValue();
+        
+        ResendCandidate candidate = null;
+        
         synchronized (this) {
-            String key = sid.getValue();
             List<ResendCandidate> sequenceCandidates = getSequenceCandidates(key);
             if (null == sequenceCandidates) {
                 sequenceCandidates = new ArrayList<ResendCandidate>();
@@ -327,7 +325,15 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             }
             ByteArrayOutputStream savedOutputStream = (ByteArrayOutputStream)message
                 .get(RMMessageConstants.SAVED_OUTPUT_STREAM);
-            ByteArrayInputStream bis = new ByteArrayInputStream(savedOutputStream.toByteArray());
+            byte[] content = null;
+            if (null == savedOutputStream) {                
+                content = message.getContent(byte[].class); 
+                LOG.fine("Using saved byte array: " + content);
+            } else {
+                content = savedOutputStream.toByteArray();
+                LOG.fine("Using saved output stream: " + savedOutputStream);
+            }
+            ByteArrayInputStream bis = new ByteArrayInputStream(content);
 
             // copy saved output stream to new output stream in chunks of 1024
             AbstractCachedOutputStream.copyStream(bis, os, 1024);
