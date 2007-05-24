@@ -21,6 +21,7 @@ package org.apache.cxf.binding.soap;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -336,6 +337,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             parts = soapBody.getParts();
         }
         // Initialize the body parts.
+        List<MessagePartInfo> attParts = null;
         if (parts != null) {
             List<MessagePartInfo> bodyParts = new ArrayList<MessagePartInfo>();
             for (Iterator itr = parts.iterator(); itr.hasNext();) {
@@ -348,28 +350,46 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     }
                     Object content = mpart.getExtensibilityElements().get(0);
                     if (content instanceof MIMEContent) {
-                        partName = ((MIMEContent) content).getPart();
+                        MIMEContent mc = (MIMEContent)content;
+                        partName = mc.getPart();
+                        
+                        if (attParts == null) {
+                            attParts = new LinkedList<MessagePartInfo>();
+                        }
+
+                        MessagePartInfo mpi = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
+                                                                           partName));
+                        mpi.setProperty(Message.CONTENT_TYPE, mc.getType());
+                        attParts.add(mpi);
+                        // Attachments shouldn't be part of the body message
+                        bmsg.getMessageParts().remove(mpi);
                     } else if (SOAPBindingUtil.isSOAPBody(content)) {
                         SoapBody sb = SOAPBindingUtil.getSoapBody(content);
                         if (sb.getParts().size() == 1) {
                             partName = (String) sb.getParts().get(0);
                         }
-                    }
+                        
+                        // We can have a list of empty part names here.
+                        if (partName != null) {
+                            addSoapBodyPart(msg, bodyParts, partName);
+                        }
+                    }                   
                 } else {
-                    partName = (String)part;
-                }
-                if (partName != null) {
-                    MessagePartInfo mpi = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
-                                    partName));
-                    bodyParts.add(mpi);
+                    addSoapBodyPart(msg, bodyParts, (String)part);
                 }
             }
             bodyInfo.setParts(bodyParts);
+            bodyInfo.setAttachments(attParts);
         } else {
             bodyInfo.setParts(messageParts);
         }
 
         bmsg.addExtensor(bodyInfo);
+    }
+    private void addSoapBodyPart(MessageInfo msg, List<MessagePartInfo> bodyParts, String partName) {
+        MessagePartInfo mpi = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
+                                                           partName));
+        bodyParts.add(mpi);
     }
     
     @Override

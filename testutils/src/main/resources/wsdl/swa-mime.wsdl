@@ -39,6 +39,7 @@
         </xsd:complexType>
       </xsd:element>
       
+      <xsd:element name="text" type="xsd:string"/>
     </xsd:schema>
 
     <xsd:schema targetNamespace="http://ws-i.org/profiles/basic/1.1/xsd"
@@ -49,17 +50,30 @@
     </xsd:schema>
   </wsdl:types>
 
+  <wsdl:message name="echoDataRefRequest">
+    <wsdl:part name="data" element="types:DataStruct" />
+  </wsdl:message>
+
+  <wsdl:message name="echoDataRefResponse">
+    <wsdl:part name="data" element="types:DataStruct" />
+  </wsdl:message>
+
   <wsdl:message name="echoDataRequest">
-    <wsdl:part name="text" element="types:DataStruct" />
+    <wsdl:part name="text" element="types:text" />
     <wsdl:part name="data" type="xsd:base64Binary"/>
   </wsdl:message>
 
   <wsdl:message name="echoDataResponse">
-    <wsdl:part name="text" element="types:DataStruct" />
+    <wsdl:part name="text" element="types:text" />
     <wsdl:part name="data" type="xsd:base64Binary" />
   </wsdl:message>
 
   <wsdl:portType name="SwAServiceInterface">
+
+    <wsdl:operation name="echoDataRef">
+      <wsdl:input message="tns:echoDataRefRequest" />
+      <wsdl:output message="tns:echoDataRefResponse" />
+    </wsdl:operation>
 
     <wsdl:operation name="echoData">
       <wsdl:input message="tns:echoDataRequest" />
@@ -71,7 +85,17 @@
   <wsdl:binding name="SwAServiceBinding" type="tns:SwAServiceInterface">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
 
-    <wsdl:operation name="echoData">
+    <wsdl:operation name="echoDataRef">
+      <soap:operation soapAction="" style="literal" />
+      <wsdl:input>
+        <soap:body parts="data" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body parts="data" use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+
+   <wsdl:operation name="echoData">
       <soap:operation soapAction="" style="literal" />
       <wsdl:input>
         <mime:multipartRelated>
@@ -94,7 +118,6 @@
         </mime:multipartRelated>
       </wsdl:output>
     </wsdl:operation>
-
   </wsdl:binding>
 
   <wsdl:service name="SwAService">

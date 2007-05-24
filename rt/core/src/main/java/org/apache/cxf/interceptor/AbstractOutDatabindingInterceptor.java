@@ -44,15 +44,15 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriter<T> writer = service.getDataBinding().createWriter(output);
         
+        Collection<Attachment> atts = message.getAttachments();
         if (MessageUtils.isTrue(message.getContextualProperty(
-              org.apache.cxf.message.Message.MTOM_ENABLED))) {
-            Collection<Attachment> atts = message.getAttachments();
-            if (atts == null) {
-                atts = new ArrayList<Attachment>();
-                message.setAttachments(atts);
-            }
-            writer.setAttachments(atts);
+              org.apache.cxf.message.Message.MTOM_ENABLED))
+              && atts == null) {
+            atts = new ArrayList<Attachment>();
+            message.setAttachments(atts);
         }
+        
+        writer.setAttachments(atts);
         
         setSchemaOutMessage(service, message, writer);
         return writer;

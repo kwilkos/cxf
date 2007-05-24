@@ -22,18 +22,15 @@ import java.io.InputStream;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.swa.SwAService;
 import org.apache.cxf.swa.SwAServiceInterface;
 import org.apache.cxf.swa.types.DataStruct;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-@Ignore
+
 public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
@@ -46,28 +43,54 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
         SwAService service = new SwAService();
         
         SwAServiceInterface port = service.getSwAServiceHttpPort();
-        ((SOAPBinding) ((BindingProvider)port).getBinding()).setMTOMEnabled(true);
+//        ((BindingProvider)port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
+//                                                        "http://localhost:9037/swa");
         
-        Holder<DataStruct> structHolder = new Holder<DataStruct>();
+        Holder<String> textHolder = new Holder<String>();
         Holder<DataHandler> data = new Holder<DataHandler>();
         
         ByteArrayDataSource source = new ByteArrayDataSource("foobar".getBytes(), "application/octet-stream");
         DataHandler handler = new DataHandler(source);
         
-        DataStruct struct = new DataStruct();
-        struct.setDataRef(handler);
         data.value = handler;
         
-        structHolder.value = struct;
+        textHolder.value = "Hi";
 
-        port.echoData(structHolder, data);
+        port.echoData(textHolder, data);
         InputStream bis = null;
         bis = data.value.getDataSource().getInputStream();
         byte b[] = new byte[10];
         bis.read(b, 0, 10);
         String string = new String(b);
         assertEquals("testfoobar", string);
-        
+        assertEquals("Hi", textHolder.value);
     }
+    
+    @Test
+    public void testSwaDataStruct() throws Exception {
+        SwAService service = new SwAService();
+        
+        SwAServiceInterface port = service.getSwAServiceHttpPort();
+//        ((BindingProvider)port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
+//                                                        "http://localhost:9037/swa");
+        
+        Holder<DataStruct> structHolder = new Holder<DataStruct>();
+        
+        ByteArrayDataSource source = new ByteArrayDataSource("foobar".getBytes(), "application/octet-stream");
+        DataHandler handler = new DataHandler(source);
+        
+        DataStruct struct = new DataStruct();
+        struct.setDataRef(handler);
+        structHolder.value = struct;
 
+        port.echoDataRef(structHolder);
+
+        handler = structHolder.value.getDataRef();
+        InputStream bis = null;
+        bis = handler.getDataSource().getInputStream();
+        byte b[] = new byte[10];
+        bis.read(b, 0, 10);
+        String string = new String(b);
+        assertEquals("testfoobar", string);
+    }
 }

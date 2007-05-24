@@ -114,6 +114,10 @@ public final class JAXBDataBinding implements DataBinding {
         setContext(context);
     }
 
+    public JAXBContext getContext() {
+        return context;
+    }
+
     public void setContext(JAXBContext ctx) {
         context = ctx;
     }    

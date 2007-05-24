@@ -35,7 +35,23 @@ import org.apache.cxf.swa.types.DataStruct;
             portName = "SwAServiceHttpPort")
 public class SwAServiceImpl implements SwAServiceInterface {
 
-    public void echoData(Holder<DataStruct> text, Holder<DataHandler> data) {
+    public void echoDataRef(Holder<DataStruct> data) {
+        try {
+            InputStream bis = null;
+            bis = data.value.getDataRef().getDataSource().getInputStream();
+            byte b[] = new byte[6];
+            bis.read(b, 0, 6);
+            String string = new String(b);
+            
+            ByteArrayDataSource source = 
+                new ByteArrayDataSource(("test" + string).getBytes(), "application/octet-stream");
+            data.value.setDataRef(new DataHandler(source));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void echoData(Holder<String> text, Holder<DataHandler> data) {
 
         try {
             InputStream bis = null;
@@ -45,13 +61,11 @@ public class SwAServiceImpl implements SwAServiceInterface {
             String string = new String(b);
             
             ByteArrayDataSource source = 
-                new ByteArrayDataSource(("test" + string).getBytes(), "text/xml");
+                new ByteArrayDataSource(("test" + string).getBytes(), "application/octet-stream");
             data.value = new DataHandler(source);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-
+            e.printStackTrace();
         }
-
     }
 
 }

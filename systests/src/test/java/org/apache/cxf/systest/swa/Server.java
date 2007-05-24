@@ -20,8 +20,8 @@
 package org.apache.cxf.systest.swa;
 
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.soap.SOAPBinding;
 
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 public class Server extends AbstractBusTestServerBase {
@@ -30,8 +30,9 @@ public class Server extends AbstractBusTestServerBase {
         Object implementor = new SwAServiceImpl();
         String address = "http://localhost:9036/swa";
         try {
-            Endpoint endpoint = Endpoint.publish(address, implementor);
-            ((SOAPBinding)endpoint.getBinding()).setMTOMEnabled(true);
+            EndpointImpl ep = (EndpointImpl) Endpoint.create(implementor);
+            ep.setWsdlLocation("classpath:wsdl/swa-mime.wsdl");
+            ep.publish(address);
         } catch (Exception e) {
             e.printStackTrace();
             Thread.currentThread().interrupt();

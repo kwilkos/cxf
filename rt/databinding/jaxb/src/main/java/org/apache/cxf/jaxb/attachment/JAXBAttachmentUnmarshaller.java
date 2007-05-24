@@ -75,12 +75,15 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
     }
 
     private DataSource getAttachmentDataSource(String contentId) {
+        // Is this right? - DD
         if (contentId.startsWith("cid:")) {
             try {
                 contentId = URLDecoder.decode(contentId.substring(4), "UTF-8");
             } catch (UnsupportedEncodingException ue) {
                 contentId = contentId.substring(4);
             }
+            return new LazyDataSource(contentId, attachments);
+        } else if (contentId.indexOf("://") == -1) {
             return new LazyDataSource(contentId, attachments);
         } else {
             try {

@@ -31,6 +31,8 @@ import org.apache.cxf.phase.Phase;
 
 public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    public static final String WRITE_ATTACHMENTS = "write.attachments";
+    
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AttachmentOutInterceptor.class);
 
     public AttachmentOutInterceptor() {
@@ -41,7 +43,8 @@ public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> 
     public void handleMessage(Message message) {
         
         if (!MessageUtils.isTrue(message.getContextualProperty(
-                org.apache.cxf.message.Message.MTOM_ENABLED))) {
+                org.apache.cxf.message.Message.MTOM_ENABLED))
+                && !MessageUtils.isTrue(message.getContextualProperty(WRITE_ATTACHMENTS))) {
             return;
         }
 
