@@ -53,7 +53,7 @@
         <spring.version>2.0.4</spring.version>
         <wsdl4j.version>1.6.1</wsdl4j.version>
         <derby.version>10.2.2.0</derby.version>
-        <activemq.version>4.1.0-incubator</activemq.version>
+        <activemq.version>4.1.1</activemq.version>
         <geronimo.version>1.1</geronimo.version>
         <rhino.version>1.6R5</rhino.version>
         <xmlbeans.version>2.2.0</xmlbeans.version>
