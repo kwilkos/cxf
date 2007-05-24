@@ -43,16 +43,18 @@ import org.apache.cxf.transport.jms.JMSPropertyType;
 import org.apache.hello_world_doc_lit.Greeter;
 import org.apache.hello_world_doc_lit.PingMeFault;
 import org.apache.hello_world_doc_lit.SOAPService2;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 public class JMSClientServerTest extends AbstractBusClientServerTestBase {
+    
+    protected static boolean serversStarted;
 
-    private QName serviceName; 
-    private QName portName;
-
-    @BeforeClass
-    public static void startServers() throws Exception {
+    @Before
+    public void startServers() throws Exception {
+        if (serversStarted) {
+            return;
+        }
         Map<String, String> props = new HashMap<String, String>();                
         if (System.getProperty("activemq.store.dir") != null) {
             props.put("activemq.store.dir", System.getProperty("activemq.store.dir"));
@@ -65,14 +67,25 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
 
         assertTrue("server did not launch correctly", 
                    launchServer(Server.class, false));
+        serversStarted = true;
+    }
+    
+    public URL getWSDLURL(String s) throws Exception {
+        return getClass().getResource(s);
+    }
+    public QName getServiceName(QName q) {
+        return q;
+    }
+    public QName getPortName(QName q) {
+        return q;
     }
     
     @Test
     public void testDocBasicConnection() throws Exception {
-        serviceName =  new QName("http://apache.org/hello_world_doc_lit", 
-                                 "SOAPService2");
-        portName = new QName("http://apache.org/hello_world_doc_lit", "SoapPort2");
-        URL wsdl = getClass().getResource("/wsdl/hello_world_doc_lit.wsdl");
+        QName serviceName = getServiceName(new QName("http://apache.org/hello_world_doc_lit", 
+                                 "SOAPService2"));
+        QName portName = getPortName(new QName("http://apache.org/hello_world_doc_lit", "SoapPort2"));
+        URL wsdl = getWSDLURL("/wsdl/hello_world_doc_lit.wsdl");
         assertNotNull(wsdl);
 
         SOAPService2 service = new SOAPService2(wsdl, serviceName);
@@ -107,10 +120,10 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
 
     @Test
     public void testBasicConnection() throws Exception {
-        serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
-                                 "HelloWorldService");
-        portName = new QName("http://cxf.apache.org/hello_world_jms", "HelloWorldPort");
-        URL wsdl = getClass().getResource("/wsdl/jms_test.wsdl");
+        QName serviceName = getServiceName(new QName("http://cxf.apache.org/hello_world_jms", 
+                                 "HelloWorldService"));
+        QName portName = getPortName(new QName("http://cxf.apache.org/hello_world_jms", "HelloWorldPort"));
+        URL wsdl = getWSDLURL("/wsdl/jms_test.wsdl");
         assertNotNull(wsdl);
 
         HelloWorldService service = new HelloWorldService(wsdl, serviceName);
@@ -152,10 +165,10 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     
     @Test
     public void testOneWayTopicConnection() throws Exception {
-        serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
-                                 "HelloWorldPubSubService");
-        portName = new QName("http://cxf.apache.org/hello_world_jms", 
-                             "HelloWorldPubSubPort");
+        QName serviceName = getServiceName(new QName("http://cxf.apache.org/hello_world_jms", 
+                                 "HelloWorldPubSubService"));
+        QName portName = getPortName(new QName("http://cxf.apache.org/hello_world_jms", 
+                             "HelloWorldPubSubPort"));
         URL wsdl = getClass().getResource("/wsdl/jms_test.wsdl");
         assertNotNull(wsdl);
 
@@ -176,10 +189,10 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     
     @Test
     public void testOneWayQueueConnection() throws Exception {
-        serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
-                                 "HelloWorldOneWayQueueService");
-        portName = new QName("http://cxf.apache.org/hello_world_jms", 
-                             "HelloWorldOneWayQueuePort");
+        QName serviceName = getServiceName(new QName("http://cxf.apache.org/hello_world_jms", 
+                                 "HelloWorldOneWayQueueService"));
+        QName portName = getPortName(new QName("http://cxf.apache.org/hello_world_jms", 
+                             "HelloWorldOneWayQueuePort"));
         URL wsdl = getClass().getResource("/wsdl/jms_test.wsdl");
         assertNotNull(wsdl);
 
@@ -202,9 +215,9 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     public void testContextPropogation() throws Exception {
         final String testReturnPropertyName = "Test_Prop";
         final String testIgnoredPropertyName = "Test_Prop_No_Return";
-        serviceName =  new QName("http://cxf.apache.org/hello_world_jms",
-                                 "HelloWorldService");
-        portName = new QName("http://cxf.apache.org/hello_world_jms", "HelloWorldPort");
+        QName serviceName = getServiceName(new QName("http://cxf.apache.org/hello_world_jms",
+                                 "HelloWorldService"));
+        QName portName = getPortName(new QName("http://cxf.apache.org/hello_world_jms", "HelloWorldPort"));
         URL wsdl = getClass().getResource("/wsdl/jms_test.wsdl");
         assertNotNull(wsdl);
 
