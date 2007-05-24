@@ -19,19 +19,26 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.wsdl.Definition;
+import javax.wsdl.Import;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 
 public class WSDL11Generator extends AbstractGenerator<Definition> {
     
@@ -47,7 +54,7 @@ public class WSDL11Generator extends AbstractGenerator<Definition> {
             file = new File(getServiceModel().getName().getLocalPart() + ".wsdl");
         }
 
-        createOutputDir(file);
+        File outputdir = createOutputDir(file);
         Definition def = null;
         try {
             OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
@@ -64,6 +71,21 @@ public class WSDL11Generator extends AbstractGenerator<Definition> {
             def = builder.build(imports);
             wsdlWriter.writeWSDL(def, os);
             os.close();
+
+            if (def.getImports().size() > 0) {
+                for (Import wsdlImport : WSDLDefinitionBuilder.getImports(def)) {
+                    Definition wsdlDef = wsdlImport.getDefinition();
+                    File wsdlFile = null;
+                    if (!StringUtils.isEmpty(wsdlImport.getLocationURI())) {
+                        wsdlFile = new File(outputdir,  wsdlImport.getLocationURI());
+                    } else {
+                        wsdlFile = new File(outputdir, wsdlDef.getQName().getLocalPart() + ".wsdl");
+                    }
+                    OutputStream wsdlOs = new BufferedOutputStream(new FileOutputStream(wsdlFile));
+                    wsdlWriter.writeWSDL(wsdlDef, wsdlOs);
+                    wsdlOs.close();
+                }
+            }
             
             for (Map.Entry<String, SchemaInfo> imp : imports.entrySet()) {
                 File impfile = new File(file.getParentFile(), imp.getKey());

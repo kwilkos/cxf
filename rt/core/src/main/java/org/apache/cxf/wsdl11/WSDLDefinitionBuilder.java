@@ -21,6 +21,7 @@ package org.apache.cxf.wsdl11;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -97,16 +97,20 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             throw new RuntimeException(msg.toString(), we);
         }
     }
-    
-    private void parseImports(Definition def) {
-        List<Import> importList = new ArrayList<Import>();
-        Map imports = def.getImports();
+
+    public static Collection<Import> getImports(final Definition wsdlDef) {
+        Collection<Import> importList = new ArrayList<Import>();
+        Map imports = wsdlDef.getImports();
         for (Iterator iter = imports.keySet().iterator(); iter.hasNext();) {
             String uri = (String)iter.next();
             List<Import> lst = CastUtils.cast((List)imports.get(uri));
             importList.addAll(lst);
         }
-        for (Import impt : importList) {
+        return importList;
+    }
+
+    private void parseImports(Definition def) {
+        for (Import impt : getImports(def)) {
             parseImports(impt.getDefinition());
             importedDefinitions.add(impt.getDefinition());
         }

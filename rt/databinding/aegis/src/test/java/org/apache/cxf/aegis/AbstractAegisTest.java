@@ -18,7 +18,10 @@
  */
 package org.apache.cxf.aegis;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import javax.wsdl.Definition;
+import javax.wsdl.Import;
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
@@ -48,6 +51,7 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.junit.Before;
 
@@ -128,23 +132,42 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         sf.getServiceFactory().getServiceConfigurations().add(0, new AegisServiceConfiguration());
         sf.getServiceFactory().setDataBinding(new AegisDatabinding());
     }
-    
 
-    protected Document getWSDLDocument(String string) throws WSDLException {
+    protected Collection<Document> getWSDLDocuments(String string) throws WSDLException {
+        WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();        
+
+        Collection<Document> docs = new ArrayList<Document>();
+        Definition definition = getWSDLDefinition(string);
+        if (definition == null) {
+            return null;
+        }
+        docs.add(writer.getDocument(definition));
+        
+        for (Import wsdlImport : WSDLDefinitionBuilder.getImports(definition)) {
+            docs.add(writer.getDocument(wsdlImport.getDefinition()));
+        }
+        return docs;
+    }
+
+    protected Definition getWSDLDefinition(String string) throws WSDLException {
         ServerRegistry svrMan = getBus().getExtension(ServerRegistry.class);
         for (Server s : svrMan.getServers()) {
             Service svc = s.getEndpoint().getService();
             if (svc.getName().getLocalPart().equals(string)) {
                 ServiceWSDLBuilder builder = new ServiceWSDLBuilder(bus, svc.getServiceInfos());
-                Definition definition = builder.build();
-                
-                WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();
-                return writer.getDocument(definition);
+                return builder.build();
             }
         }
-        
         return null;
+        
     }
-
     
+    protected Document getWSDLDocument(String string) throws WSDLException {
+        Definition definition = getWSDLDefinition(string);
+        if (definition == null) {
+            return null;
+        }
+        WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();
+        return writer.getDocument(definition);
+    }
 }

@@ -192,6 +192,10 @@ public class AbstractCXFTest extends Assert {
         namespaces.put(ns, uri);
     }
 
+    public Map<String, String> getNamespaces() {
+        return namespaces;
+    }
+
     protected InputStream getResourceAsStream(String resource) {
         return getClass().getResourceAsStream(resource);
     }

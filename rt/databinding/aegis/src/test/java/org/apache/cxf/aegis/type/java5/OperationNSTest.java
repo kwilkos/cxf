@@ -18,22 +18,26 @@
  */
 package org.apache.cxf.aegis.type.java5;
 
+import java.util.Collection;
 import java.util.List;
-
+import java.util.Map;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.junit.Before;
 import org.junit.Test;
+
 
 public class OperationNSTest extends AbstractAegisTest {
 
@@ -51,10 +55,21 @@ public class OperationNSTest extends AbstractAegisTest {
 
     @Test
     public void testWSDL() throws Exception {
-        Document wsdl = getWSDLDocument("NotificationService");
+        Collection<Document> wsdls = getWSDLDocuments("NotificationService");
 
         addNamespace("xsd", XmlConstants.XSD);
-        assertValid("//xsd:element[@name='Notify']", wsdl);
+        //assertValid("//xsd:element[@name='Notify']", wsdl);
+        assertTrue(isExist(wsdls, "//xsd:element[@name='Notify']", getNamespaces()));
+    }
+
+    private boolean isExist(Collection<Document> docs, String xpath, Map<String, String> ns) {
+        XPathUtils xpather = new XPathUtils(ns);
+        for (Document doc : docs) {
+            if (xpather.isExist(xpath, doc, XPathConstants.NODE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @WebService(name = "NotificationLog", targetNamespace = "http://www.sics.se/NotificationLog")

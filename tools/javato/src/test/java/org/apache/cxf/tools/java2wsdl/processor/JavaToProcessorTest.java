@@ -162,7 +162,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
         System.setProperty("java.class.path", "");
         
-//      test flag
+        //      test flag
         String[] args = new String[] {"-o",
                                       "java2wsdl.wsdl",
                                       "-cp",

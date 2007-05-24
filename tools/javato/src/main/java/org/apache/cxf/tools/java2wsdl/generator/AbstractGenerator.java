@@ -63,14 +63,15 @@ public abstract class AbstractGenerator<T> {
 
     public abstract T generate(File file);
 
-    protected void createOutputDir(File file) {
+    protected File createOutputDir(File file) {
         String parent = file.getParent();
         if (parent == null) {
-            return;
+            return null;
         }
         File parentDir = new File(parent);
         if (parentDir.isDirectory() && !parentDir.exists()) {
             parentDir.mkdirs();
         }
+        return parentDir;
     }
 }

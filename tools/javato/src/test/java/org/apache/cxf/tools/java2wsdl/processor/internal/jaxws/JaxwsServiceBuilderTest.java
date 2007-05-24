@@ -21,9 +21,12 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Collection;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.fortest.classnoanno.docbare.Stock;
@@ -31,6 +34,7 @@ import org.apache.cxf.tools.fortest.withannotation.doc.Hello;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.hello_world_rpclit.GreeterRPCLit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,7 +50,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.setBus(builder.getBus());
     }
 
-    @org.junit.After
+    @After
     public void tearDown() {
         super.tearDown();
     }
@@ -275,6 +279,13 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void testRpcLitNoSEI() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.EchoImpl.class);
         ServiceInfo service = builder.build();
+        assertNotNull(service);
+
+        assertEquals(new QName("http://cxf.apache.org/echotest", "EchoService"),
+                     service.getName());
+        assertEquals(new QName("http://cxf.apache.org/echotest", "Echo"),
+                     service.getInterface().getName());
+        
         generator.setServiceModel(service);
         
         File output = getOutputFile("rpclist_no_sei.wsdl");
@@ -289,6 +300,48 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
             .getResource("expected/expected_doc_lit_wrapped_with_wrapperclass.wsdl").getFile();
         assertFileEquals(expectedFile, output.getAbsolutePath());
         */
+    }
+
+    @Test
+    public void testCXF669() throws Exception {
+        boolean oldSetting = generator.allowImports();
+        generator.setAllowImports(true);
+        
+        builder.setServiceClass(org.apache.cxf.tools.fortest.cxf699.HelloImpl.class);
+        ServiceInfo service = builder.build();
+        assertNotNull(service);
+        assertEquals(new QName("http://foo.com/HelloWorldService", "HelloService"), service.getName());
+        assertEquals(new QName("http://foo.com/HelloWorld", "HelloWorld"), service.getInterface().getName());
+
+        // TODO this is not correct, schema namespace should be http://foo.com/HelloWorld
+        assertEquals("http://foo.com/HelloWorldService",
+                     service.getSchemas().iterator().next().getNamespaceURI());
+        
+        Collection<BindingInfo> bindings = service.getBindings();
+        assertEquals(1, bindings.size());
+        assertEquals(new QName("http://foo.com/HelloWorldService", "HelloServiceSoapBinding"),
+                     bindings.iterator().next().getName());
+
+        generator.setServiceModel(service);
+        File wsdl = getOutputFile("HelloService.wsdl");
+        assertNotNull(wsdl);
+        generator.generate(wsdl);
+        assertTrue(wsdl.exists());
+        File logical = new File(output, "HelloWorld.wsdl");
+        assertTrue(logical.exists());
+        File schema = new File(output, "HelloService_schema1.xsd");
+        assertTrue(schema.exists());
+
+        String s = IOUtils.toString(new FileInputStream(wsdl));
+        assertTrue(s.indexOf("<wsdl:import namespace=\"http://foo.com/HelloWorld\" "
+                             + "location=\"HelloWorld.wsdl\">") != -1);
+
+        s = IOUtils.toString(new FileInputStream(logical));
+
+        assertTrue(s.indexOf("<import namespace=\"http://foo.com/HelloWorldService\" "
+                             + "schemaLocation=\"HelloService_schema1.xsd\"/>") != -1);
+
+        generator.setAllowImports(oldSetting);
     }
     
     private File getOutputFile(String fileName) {
