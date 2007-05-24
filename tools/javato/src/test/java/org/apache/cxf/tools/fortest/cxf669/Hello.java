@@ -16,30 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.fortest.cxf699;
 
-public class SayHiResponse {
+package org.apache.cxf.tools.fortest.cxf669;
 
-    /**
-     * Describe msg here.
-     */
-    private String msg;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 
-    /**
-     * Get the <code>Msg</code> value.
-     *
-     * @return a <code>String</code> value
-     */
-    public final String getMsg() {
-        return msg;
-    }
+@WebService(targetNamespace = "http://foo.com/HelloWorld", name = "HelloWorld")
+@SOAPBinding(style = SOAPBinding.Style.RPC)
+public interface Hello {
 
-    /**
-     * Set the <code>Msg</code> value.
-     *
-     * @param newMsg The new Msg value.
-     */
-    public final void setMsg(final String newMsg) {
-        this.msg = newMsg;
-    }
-}
+    @WebResult(partName = "out", name = "out")
+    @WebMethod
+    String echoFoo(@WebParam(partName = "in", name = "in") String s);
+
+    @WebResult
+    @WebMethod
+    SayHiResponse sayHi(SayHi s);
+} 

@@ -307,7 +307,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         boolean oldSetting = generator.allowImports();
         generator.setAllowImports(true);
         
-        builder.setServiceClass(org.apache.cxf.tools.fortest.cxf699.HelloImpl.class);
+        builder.setServiceClass(org.apache.cxf.tools.fortest.cxf669.HelloImpl.class);
         ServiceInfo service = builder.build();
         assertNotNull(service);
         assertEquals(new QName("http://foo.com/HelloWorldService", "HelloService"), service.getName());

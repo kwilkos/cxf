@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.fortest.cxf699;
+package org.apache.cxf.tools.fortest.cxf669;
 
 import javax.jws.WebService;
 
 @WebService(serviceName = "HelloService",
             portName = "HelloPort",
-            endpointInterface = "org.apache.cxf.tools.fortest.cxf699.Hello",
+            endpointInterface = "org.apache.cxf.tools.fortest.cxf669.Hello",
             targetNamespace = "http://foo.com/HelloWorldService")
 public class HelloImpl {
     public String echoFoo(String s) {
