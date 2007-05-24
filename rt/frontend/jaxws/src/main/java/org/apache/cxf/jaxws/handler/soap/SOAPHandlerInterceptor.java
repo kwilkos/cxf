@@ -128,9 +128,12 @@ public class SOAPHandlerInterceptor extends
         if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
             handleAbort(message, context);
         } 
-
-        //If this is the outbound and end of MEP, call MEP completion
-        if (isOutbound(message) && isMEPComlete(message)) {
+        
+        // If this is the outbound and end of MEP, call MEP completion
+        if (isRequestor(message) && invoker.getLogicalHandlers().isEmpty() 
+            && !isOutbound(message) && isMEPComlete(message)) {
+            onCompletion(message);
+        } else if (isOutbound(message) && isMEPComlete(message)) {
             onCompletion(message);
         }
     }
