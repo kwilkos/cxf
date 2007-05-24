@@ -45,6 +45,7 @@ public class WebParamAnnotator implements Annotator {
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             || parameter.isHeader()) {
             targetNamespace = parameter.getTargetNamespace();
+            
             if (parameter.getQName() != null) {
                 name = parameter.getQName().getLocalPart();
             }

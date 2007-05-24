@@ -35,7 +35,9 @@ $annotation
 public class $bean.Name {
 
 #foreach ($field in $bean.Fields)
-#if($field.Annotation.length() > 0)$field.Annotation#end
+#if($field.Annotation)
+$field.Annotation
+#end
     private $field.Type $field.Name;
 #end
 

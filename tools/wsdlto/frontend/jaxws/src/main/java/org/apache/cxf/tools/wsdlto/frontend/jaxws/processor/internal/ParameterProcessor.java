@@ -294,12 +294,12 @@ public class ParameterProcessor extends AbstractProcessor {
               
         fullJavaName = this.dataBinding.getWrappedElementType(wrapperElement, item);
         
-        
-        String targetNamespace = item.getNamespaceURI();
-        if ("".equals(targetNamespace)) {
-            targetNamespace = ProcessorUtil.resolvePartNamespace(part);
-        }
-
+        String targetNamespace = "";
+        Object obj = part.getProperty("messagepart.isheader");
+        if (Boolean.TRUE.equals(obj)) {
+            targetNamespace = part.getMessageInfo().getOperation().getInterface().
+            getService().getTargetNamespace();
+        } 
         
         String jpname = ProcessorUtil.mangleNameToVariableName(item.getLocalPart());
         JavaParameter parameter = new JavaParameter(jpname, fullJavaName, targetNamespace);
@@ -332,11 +332,12 @@ public class ParameterProcessor extends AbstractProcessor {
             simpleJavaName = fullJavaName.substring(index);    
         }
         
-        String targetNamespace = element.getNamespaceURI();
-         
-        if ("".equals(targetNamespace)) {
-            targetNamespace = ProcessorUtil.resolvePartNamespace(part);
-        }
+        String targetNamespace = "";
+        Object obj = part.getProperty("messagepart.isheader");
+        if (Boolean.TRUE.equals(obj)) {
+            targetNamespace = part.getMessageInfo().getOperation().getInterface().
+            getService().getTargetNamespace();
+        } 
         
         String jpname = ProcessorUtil.mangleNameToVariableName(simpleJavaName);
         JavaReturn returnType = new JavaReturn(jpname, fullJavaName , targetNamespace);

@@ -281,8 +281,9 @@ public class CodeGenTest extends ProcessorTestBase {
         method = clz.getMethod("greetMe", new Class[] {String.class});
         assertEquals("String", method.getReturnType().getSimpleName());
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "requestType");
-        assertEquals("http://apache.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
-
+        //if is wrapped, tns should be empty
+        //assertEquals("http://apache.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
+        assertEquals("", webParamAnn.targetNamespace());
         method = clz.getMethod("greetMeOneWay", new Class[] {String.class});
         Oneway oneWayAnn = AnnotationUtil.getPrivMethodAnnotation(method, Oneway.class);
         assertNotNull("OneWay Annotation is not generated", oneWayAnn);
@@ -837,7 +838,8 @@ public class CodeGenTest extends ProcessorTestBase {
 
         method = clz.getMethod("deregisterPeerManager", new Class[] {String.class});
         webParamAnn = AnnotationUtil.getWebParam(method, "node_id");
-        assertEquals("http://apache.org/locator/types", webParamAnn.targetNamespace());
+        
+        assertEquals("", webParamAnn.targetNamespace());
 
 
 
