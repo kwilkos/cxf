@@ -111,6 +111,10 @@ public class SpringServletTest extends AbstractServletTest {
         assertEquals("text/xml", res.getContentType());
         assertTrue("the wsdl should contain the opertion greetMe",
                    res.getText().contains("<wsdl:operation name=\"greetMe\">"));
+        assertTrue("the soap address should changed",
+                   res.getText().contains("<soap:address location=\"http://localhost/services/Greeter"));
+        
+        
         
     }
     

@@ -221,8 +221,7 @@ public class CXFServlet extends HttpServlet {
         registerTransport(factory, "http://www.w3.org/2003/05/soap/bindings/HTTP/");
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/http/");
         registerTransport(factory, "http://cxf.apache.org/transports/http/configuration");
-        registerTransport(factory, "http://cxf.apache.org/bindings/xformat");
-        registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/");
+        registerTransport(factory, "http://cxf.apache.org/bindings/xformat");        
     }
 
     public void destroy() {
