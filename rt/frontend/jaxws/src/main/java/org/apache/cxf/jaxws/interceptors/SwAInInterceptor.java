@@ -52,6 +52,10 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
         boolean client = isRequestor(message);
         BindingMessageInfo bmi = client ? bop.getOutput() : bop.getInput();
         
+        if (bmi == null) {
+            return;
+        }
+        
         SoapBodyInfo sbi = bmi.getExtensor(SoapBodyInfo.class);
         
         if (sbi == null || sbi.getAttachments() == null || sbi.getAttachments().size() == 0) {
