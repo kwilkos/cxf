@@ -1220,7 +1220,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);
     }
     
-    
+    @Ignore 
     @Test
     public void testTerminateOnShutdown() throws Exception {
         if (!doTestTerminateOnShutdown) {
