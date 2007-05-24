@@ -46,8 +46,8 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.catalog.CatalogWSDLLocator;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
-import org.apache.cxf.common.util.TwoStageMap;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -65,7 +65,7 @@ public class WSDLManagerImpl implements WSDLManager {
 
     final ExtensionRegistry registry;
     final WSDLFactory factory;
-    final TwoStageMap<Object, Definition> definitionsMap;
+    final Map<Object, Definition> definitionsMap;
     private Bus bus;
 
     public WSDLManagerImpl() throws BusException {
@@ -78,7 +78,7 @@ public class WSDLManagerImpl implements WSDLManager {
         } catch (WSDLException e) {
             throw new BusException(e);
         }
-        definitionsMap = new TwoStageMap<Object, Definition>();
+        definitionsMap = new CacheMap<Object, Definition>();
 
         registerInitialExtensions();
     }
@@ -99,9 +99,12 @@ public class WSDLManagerImpl implements WSDLManager {
         return factory;
     }
     
-    public Map<Object, Definition> getDefinitions() { 
-        return Collections.unmodifiableMap(definitionsMap);
+    public Map<Object, Definition> getDefinitions() {
+        synchronized (definitionsMap) {
+            return Collections.unmodifiableMap(definitionsMap);
+        }
     }
+    
 
     /*
      * (non-Javadoc)

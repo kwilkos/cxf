@@ -1272,6 +1272,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             for (AbstractServiceConfiguration c : serviceConfigurations) {
                 wsdlURL = c.getWsdlURL();
                 if (wsdlURL != null) {
+                    //create a unique string so if its an interned string (like
+                    //from an annotation), caches will clear
+                    wsdlURL = new String(wsdlURL);
                     break;
                 }
             }
@@ -1280,7 +1283,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     public void setWsdlURL(String wsdlURL) {
-        this.wsdlURL = wsdlURL;
+        //create a unique string so if its an interned string (like
+        //from an annotation), caches will clear
+        this.wsdlURL = new String(wsdlURL);
     }
 
     public void setWsdlURL(URL wsdlURL) {

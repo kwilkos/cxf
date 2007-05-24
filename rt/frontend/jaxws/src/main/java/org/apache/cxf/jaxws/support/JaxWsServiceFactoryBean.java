@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
@@ -37,6 +38,8 @@ import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -68,6 +71,7 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
  * @see org.apache.cxf.jaxws.JaxWsServerFactoryBean
  */
 public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
+    private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
     
     private AbstractServiceConfiguration jaxWsConfiguration;
 
@@ -375,17 +379,35 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         if (isIn && !isOut) {
             QName name = getInPartName(o, method, i);
             part = o.getInput().getMessagePart(name);
+            if (part == null) {
+                throw new ServiceConstructionException(
+                    new Message("COULD_NOT_FIND_PART", LOG,
+                                name,
+                                o.getInput().getMessagePartsMap().keySet().toString()));
+            }
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
         } else if (!isIn && isOut) {
             QName name = getOutPartName(o, method, i);
             part = o.getOutput().getMessagePart(name);
+            if (part == null) {
+                throw new ServiceConstructionException(
+                    new Message("COULD_NOT_FIND_PART", LOG,
+                                name,
+                                o.getInput().getMessagePartsMap().keySet().toString()));
+            }
             part.setProperty(ReflectionServiceFactoryBean.MODE_OUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
         } else if (isIn && isOut) {
             QName name = getInPartName(o, method, i);
             part = o.getInput().getMessagePart(name);
+            if (part == null) {
+                throw new ServiceConstructionException(
+                    new Message("COULD_NOT_FIND_PART", LOG,
+                                name,
+                                o.getInput().getMessagePartsMap().keySet().toString()));
+            }
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);

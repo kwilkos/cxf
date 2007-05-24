@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -79,7 +80,7 @@ public class ServiceImpl extends ServiceDelegate {
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     private Bus bus;
-    private URL wsdlURL;
+    private String wsdlURL;
 
     private HandlerResolver handlerResolver;
     private final Collection<QName> ports = new HashSet<QName>();
@@ -90,7 +91,7 @@ public class ServiceImpl extends ServiceDelegate {
 
     public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
-        wsdlURL = url;
+        wsdlURL = url == null ? null : url.toString();
         this.serviceName = name;
         clazz = cls;
         
@@ -263,7 +264,11 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public URL getWSDLDocumentLocation() {
-        return wsdlURL;
+        try {
+            return new URL(wsdlURL);
+        } catch (MalformedURLException e) {
+            throw new WebServiceException(e);
+        }
     }
 
     public void setExecutor(Executor e) {
@@ -292,7 +297,7 @@ public class ServiceImpl extends ServiceDelegate {
         proxyFac.setServiceName(serviceName);
 
         if (wsdlURL != null) {
-            proxyFac.setWsdlURL(wsdlURL.toString());
+            proxyFac.setWsdlURL(wsdlURL);
         }
         
         if (portName == null) {

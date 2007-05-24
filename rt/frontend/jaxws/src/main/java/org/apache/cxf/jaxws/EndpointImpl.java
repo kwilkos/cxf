@@ -116,7 +116,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         bus = b;
         implementor = i;
         this.bindingUri = bindingUri;
-        wsdlLocation = wsdl;
+        wsdlLocation = wsdl == null ? null : new String(wsdl);
         serverFactory = new JaxWsServerFactoryBean();
         
         doInit = true; 
@@ -312,7 +312,12 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             }
             
             configureObject(endpoint.getService());
-            configureObject(endpoint);            
+            configureObject(endpoint);
+            
+            if (getWsdlLocation() == null) {
+                //hold onto the wsdl location so cache won't clear till we go away
+                setWsdlLocation(serverFactory.getWsdlURL());
+            }
         }
         return (ServerImpl) server;
     }
