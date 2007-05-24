@@ -236,6 +236,10 @@ public final class JAXBDataBinding implements DataBinding {
         }
     }
 
+    private boolean isSameTNS(final ServiceInfo service) {
+        return service.getName().getNamespaceURI().equals(service.getInterface().getName().getNamespaceURI());
+    }
+    
     public void initialize(Service service) {
         //context is already set, don't redo it
         if (context != null) {
@@ -250,7 +254,11 @@ public final class JAXBDataBinding implements DataBinding {
     
         }
         try {
-            setContext(createJAXBContext(classes, service.getName().getNamespaceURI()));
+            String tns = service.getName().getNamespaceURI();
+            if (service.getServiceInfos().size() > 0) {
+                tns = service.getServiceInfos().get(0).getInterface().getName().getNamespaceURI();
+            }
+            setContext(createJAXBContext(classes, tns));
         } catch (JAXBException e1) {
             throw new ServiceConstructionException(e1);
         }
@@ -270,7 +278,7 @@ public final class JAXBDataBinding implements DataBinding {
                 for (DOMResult r : generateJaxbSchemas()) {
                     Document d = (Document)r.getNode();
                     String ns = d.getDocumentElement().getAttribute("targetNamespace");
-                    if (StringUtils.isEmpty(ns)) {
+                    if (StringUtils.isEmpty(ns) || !isSameTNS(serviceInfo)) {
                         ns = serviceInfo.getInterface().getName().getNamespaceURI();
                         d.getDocumentElement().setAttribute("targetNamespace", ns);
                     }
@@ -286,11 +294,6 @@ public final class JAXBDataBinding implements DataBinding {
                         }
                     }
                     
-                    // Don't include WS-Addressing bits
-                    if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
-                        continue;
-                    }
-    
                     SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
                     schema.setElement(d.getDocumentElement());
                     schema.setSystemId(r.getSystemId());
@@ -329,8 +332,11 @@ public final class JAXBDataBinding implements DataBinding {
             public Result createOutput(String ns, String file) throws IOException {
                 DOMResult result = new DOMResult();
                 result.setSystemId(file);
+                // Don't include WS-Addressing bits
+                if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
+                    return result;
+                }
                 results.add(result);
-
                 return result;
             }
         });

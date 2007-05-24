@@ -117,7 +117,7 @@ public final class ServiceWSDLBuilder {
                 Definition portTypeDef = definition;
                 if (!isSameTNS(service)) {
                     portTypeDef = newDefinition(service.getInterface().getName(),
-                                                service.getTargetNamespace());
+                                                service.getInterface().getName().getNamespaceURI());
                     Import wsdlImport = definition.createImport();
                     String tns = service.getInterface().getName().getNamespaceURI();
                     wsdlImport.setDefinition(portTypeDef);

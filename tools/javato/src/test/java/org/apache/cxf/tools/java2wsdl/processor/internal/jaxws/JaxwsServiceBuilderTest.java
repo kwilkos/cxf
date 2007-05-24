@@ -313,8 +313,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertEquals(new QName("http://foo.com/HelloWorldService", "HelloService"), service.getName());
         assertEquals(new QName("http://foo.com/HelloWorld", "HelloWorld"), service.getInterface().getName());
 
-        // TODO this is not correct, schema namespace should be http://foo.com/HelloWorld
-        assertEquals("http://foo.com/HelloWorldService",
+        assertEquals(1, service.getSchemas().size());
+        assertEquals("http://foo.com/HelloWorld",
                      service.getSchemas().iterator().next().getNamespaceURI());
         
         Collection<BindingInfo> bindings = service.getBindings();
@@ -335,11 +335,16 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         String s = IOUtils.toString(new FileInputStream(wsdl));
         assertTrue(s.indexOf("<wsdl:import namespace=\"http://foo.com/HelloWorld\" "
                              + "location=\"HelloWorld.wsdl\">") != -1);
+        assertTrue(s.indexOf("targetNamespace=\"http://foo.com/HelloWorldService\"") != -1);
 
         s = IOUtils.toString(new FileInputStream(logical));
 
-        assertTrue(s.indexOf("<import namespace=\"http://foo.com/HelloWorldService\" "
+        assertTrue(s.indexOf("<import namespace=\"http://foo.com/HelloWorld\" "
                              + "schemaLocation=\"HelloService_schema1.xsd\"/>") != -1);
+        assertTrue(s.indexOf("targetNamespace=\"http://foo.com/HelloWorld\"") != -1);
+
+        s = IOUtils.toString(new FileInputStream(schema));
+        assertTrue(s.indexOf("targetNamespace=\"http://foo.com/HelloWorld\"") != -1);
 
         generator.setAllowImports(oldSetting);
     }
