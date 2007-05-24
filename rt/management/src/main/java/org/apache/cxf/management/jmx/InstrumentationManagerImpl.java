@@ -117,7 +117,7 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
                 try {
                     //Register Bus here since we can guarantee that Instrumentation 
                     //infrastructure has been initialized.
-                    ManagedBus mbus = new ManagedBus(bus);
+                    ManagedBus mbus = new ManagedBus(bus);                    
                     register(mbus);
                 } catch (JMException jmex) {
                     LOG.log(Level.SEVERE, "REGISTER_FAILURE_MSG", new Object[]{bus, jmex});

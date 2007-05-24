@@ -45,10 +45,11 @@ public class ManagedBus implements ManagedComponent {
     }
     
     public ObjectName getObjectName() throws JMException {
-        String busId = bus.getId() == null ? Integer.toString(bus.hashCode()) : bus.getId();
+        String busId = bus.getId();
         StringBuffer buffer = new StringBuffer(ManagementConstants.DEFAULT_DOMAIN_NAME + ":");
-        buffer.append(ManagementConstants.TYPE_PROP + "="  + TYPE_VALUE + ",");
-        buffer.append(ManagementConstants.NAME_PROP + "=" + "Bus.ID." + busId);
+        buffer.append(ManagementConstants.BUS_ID_PROP + "=" +  busId + ",");
+        buffer.append(ManagementConstants.TYPE_PROP + "="  + TYPE_VALUE);
+        
 
         return new ObjectName(buffer.toString());
     }

@@ -28,6 +28,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.management.ManagementConstants;
 import org.apache.cxf.management.counters.Counter;
 import org.apache.cxf.management.counters.CounterRepository;
 import org.apache.cxf.management.counters.MessageHandlingTimeRecorder;
@@ -108,19 +109,19 @@ public abstract class AbstractMessageResponseTimeInterceptor extends AbstractPha
             String operationName = "\"" + opInfo.getName().toString() + "\"";
             
             StringBuffer buffer = new StringBuffer();
-            buffer.append(Counter.DEFAULT_DOMAIN_NAME + ":");
-            buffer.append("BusID=" + bus.getId() + ",");
+            buffer.append(ManagementConstants.DEFAULT_DOMAIN_NAME + ":");
+            buffer.append(ManagementConstants.BUS_ID_PROP + "=" + bus.getId() + ",");
             if (isClient(message)) {
-                buffer.append("Type=Counter_Client,");
+                buffer.append(ManagementConstants.TYPE_PROP + "=" + Counter.PERFORMANCE_COUNTER + ".Client,");
             } else {
-                buffer.append("Type=Counter_Server,");
+                buffer.append(ManagementConstants.TYPE_PROP + "=" + Counter.PERFORMANCE_COUNTER + ".Server,");
             }
-            buffer.append("ServiceName=" + serviceName + ",");
+            buffer.append(ManagementConstants.SERVICE_NAME_PROP + "=" + serviceName + ",");
            
-            buffer.append("PortName=" + portName);
+            buffer.append(ManagementConstants.PORT_NAME_PROP + "=" + portName);
             String serviceCounterName = buffer.toString();
             
-            buffer.append(",OperationName=" + operationName);
+            buffer.append("," + ManagementConstants.OPERATION_NAME_PROP + "=" + operationName);
             String operationCounterName = buffer.toString();
             try {               
                 ObjectName serviceCounter = 

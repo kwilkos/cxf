@@ -44,12 +44,12 @@ public class AbstractMessageResponseTestBase extends Assert {
     protected static final QName PORT_NAME = new QName("http://org.apache.cxf", "port");
     
     protected static final String CLIENT_SERVICE_ONAME =
-        "org.apache.cxf:Type=Counter_Client,BusID=cxf,ServiceName=\"" 
-        + SERVICE_NAME.toString() + "\",PortName=\"" 
+        "org.apache.cxf:type=Performance.Counter.Client,bus.id=cxf,service=\"" 
+        + SERVICE_NAME.toString() + "\",port=\"" 
         + PORT_NAME + "\"";
     protected static final String SERVER_SERVICE_ONAME = 
-        "org.apache.cxf:Type=Counter_Server,BusID=cxf,ServiceName=\"" 
-        + SERVICE_NAME.toString() + "\",PortName=\"" 
+        "org.apache.cxf:type=Performance.Counter.Server,bus.id=cxf,service=\"" 
+        + SERVICE_NAME.toString() + "\",port=\"" 
         + PORT_NAME + "\"";
     protected ObjectName clientServiceCounterOName;
     protected ObjectName serverServiceCounterOName;
@@ -70,10 +70,10 @@ public class AbstractMessageResponseTestBase extends Assert {
         clientServiceCounterOName = new ObjectName(CLIENT_SERVICE_ONAME);
         serverServiceCounterOName = new ObjectName(SERVER_SERVICE_ONAME);
         clientOperationCounterOName = new ObjectName(CLIENT_SERVICE_ONAME 
-                                               + ",OperationName=\"" 
+                                               + ",operation=\"" 
                                                + OPERATION_NAME.toString() + "\"");
         serverOperationCounterOName = new ObjectName(SERVER_SERVICE_ONAME 
-                                                     + ",OperationName=\"" 
+                                                     + ",operation=\"" 
                                                      + OPERATION_NAME.toString() + "\"");
         
         

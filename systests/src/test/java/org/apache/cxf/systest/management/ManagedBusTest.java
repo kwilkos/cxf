@@ -61,7 +61,7 @@ public class ManagedBusTest extends Assert {
         InstrumentationManager im = bus.getExtension(InstrumentationManager.class);
         assertNotNull(im);
         InstrumentationManagerImpl imi = (InstrumentationManagerImpl)im;
-        assertEquals("service:jmx:rmi:///jndi/rmi://localhost:9914/jmxrmi", imi.getJMXServiceURL());
+        assertEquals("service:jmx:rmi:///jndi/rmi://localhost:9916/jmxrmi", imi.getJMXServiceURL());
         assertTrue(imi.isEnabled());
         assertNotNull(imi.getMBeanServer());
 
@@ -93,6 +93,6 @@ public class ManagedBusTest extends Assert {
             mbs.invoke(n, "shutdown", params, sig);            
         }        
         
-        //bus.shutdown(true);
+        bus.shutdown(true);
     }
 }

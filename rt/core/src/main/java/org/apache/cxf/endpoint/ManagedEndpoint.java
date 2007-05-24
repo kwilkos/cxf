@@ -72,17 +72,18 @@ public class ManagedEndpoint implements ManagedComponent, ServerLifeCycleListene
     }
         
     public ObjectName getObjectName() throws JMException {
-        String busId = bus.getId() == null ? Integer.toString(bus.hashCode()) : bus.getId();
+        String busId = bus.getId();
         StringBuffer buffer = new StringBuffer();
         buffer.append(ManagementConstants.DEFAULT_DOMAIN_NAME + ":");
+        buffer.append(ManagementConstants.BUS_ID_PROP + "=" + busId + ",");
         buffer.append(ManagementConstants.TYPE_PROP + "=" + "Bus.Service.Endpoint,");
-        buffer.append("Bus.ID=" + "BUS.ID." + busId + ",");
+       
 
         String serviceName = ObjectName.quote(endpoint.getEndpointInfo().getService().getName().toString());
-        buffer.append("Service=" + serviceName + ",");
+        buffer.append(ManagementConstants.SERVICE_NAME_PROP + "=" + serviceName + ",");
         String endpointName = ObjectName.quote(endpoint.getEndpointInfo().getName().toString());
-        buffer.append(ManagementConstants.NAME_PROP + "=" + endpointName);
-
+        buffer.append(ManagementConstants.PORT_NAME_PROP + "=" + endpointName);
+        
         //Use default domain name of server
         return new ObjectName(buffer.toString());
     }

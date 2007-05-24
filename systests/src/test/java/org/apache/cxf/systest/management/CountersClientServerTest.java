@@ -31,7 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.management.InstrumentationManager;
-import org.apache.cxf.management.counters.Counter;
+import org.apache.cxf.management.ManagementConstants;
 import org.apache.cxf.management.counters.CounterRepository;
 import org.apache.cxf.management.jmx.InstrumentationManagerImpl;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -90,8 +90,9 @@ public class CountersClientServerTest extends AbstractBusClientServerTestBase {
         assertNotNull(impl.getMBeanServer());
         
         MBeanServer mbs = im.getMBeanServer();
-        ObjectName name = new ObjectName(Counter.DEFAULT_DOMAIN_NAME 
-                                         + ":BusID=cxf" + bus.hashCode() + ",*");        
+        ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+                                         + ":" + ManagementConstants.BUS_ID_PROP
+                                         + "=CXF" + bus.hashCode() + ",*");        
         
         SOAPService service = new SOAPService();
         assertNotNull(service);        
@@ -106,10 +107,10 @@ public class CountersClientServerTest extends AbstractBusClientServerTestBase {
         
         assertEquals("The Counters are not create yet", 4, cr.getCounters().size());
         Set counterNames = mbs.queryNames(name, null);
-        assertEquals("The Counters are not export to JMX ", 4, counterNames.size());
+        assertEquals("The Counters are not export to JMX ", 4 + 2 , counterNames.size());
        
-        ObjectName sayHiCounter =  new ObjectName(Counter.DEFAULT_DOMAIN_NAME 
-            + ":OperationName=\"{http://apache.org/hello_world_soap_http}sayHi\",*"); 
+        ObjectName sayHiCounter =  new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+            + ":operation=\"{http://apache.org/hello_world_soap_http}sayHi\",*"); 
         
         Set s = mbs.queryNames(sayHiCounter, null);        
         Iterator it = s.iterator();
@@ -136,10 +137,10 @@ public class CountersClientServerTest extends AbstractBusClientServerTestBase {
         greeter.greetMeOneWay("hello");
         assertEquals("The Counters are not create yet", 6, cr.getCounters().size());
         counterNames = mbs.queryNames(name, null);
-        assertEquals("The Counters are not export to JMX ", 6, counterNames.size());
+        assertEquals("The Counters are not export to JMX ", 6 + 2, counterNames.size());
         
-        ObjectName greetMeOneWayCounter =  new ObjectName(Counter.DEFAULT_DOMAIN_NAME 
-            + ":OperationName=\"{http://apache.org/hello_world_soap_http}greetMeOneWay\",*");
+        ObjectName greetMeOneWayCounter =  new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+            + ":operation=\"{http://apache.org/hello_world_soap_http}greetMeOneWay\",*");
         
         s = mbs.queryNames(greetMeOneWayCounter, null);        
         it = s.iterator();

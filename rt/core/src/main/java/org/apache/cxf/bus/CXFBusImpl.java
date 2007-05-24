@@ -28,7 +28,7 @@ import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 
 public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus {    
-    protected static final String DEFAULT_BUS_ID = "cxf";
+    protected static final String DEFAULT_BUS_ID = "CXF";
     private Map<Class, Object> extensions;
     private BusLifeCycleManager lifeCycleManager;
     private String id;

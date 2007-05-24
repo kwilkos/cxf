@@ -19,9 +19,6 @@
 
 package org.apache.cxf.workqueue;
 
-import java.util.Hashtable;
-import java.util.Map;
-
 import javax.management.JMException;
 import javax.management.ObjectName;
 
@@ -120,15 +117,17 @@ public class WorkQueueManagerImplMBeanWrapper implements ManagedComponent {
     }
 
     public ObjectName getObjectName() throws JMException {
-        Map<String, String> table = new Hashtable<String, String>();
-        String busId = bus.getId() == null ? Integer.toString(bus.hashCode()) : bus.getId();
+        
+        String busId = bus.getId();        
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(ManagementConstants.DEFAULT_DOMAIN_NAME + ":");
+        buffer.append(ManagementConstants.BUS_ID_PROP + "=" + busId + ",");
+        buffer.append(ManagementConstants.TYPE_PROP + "=" + TYPE_VALUE + ",");
+        buffer.append(ManagementConstants.NAME_PROP + "=" + NAME_VALUE);
 
-        table.put(ManagementConstants.BUS_ID_PROP, busId);
-        table.put(ManagementConstants.NAME_PROP, NAME_VALUE);
-        table.put(ManagementConstants.TYPE_PROP, TYPE_VALUE);
-
+       
         //Use default domain name of server
-        return new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME, (Hashtable)table);
+        return new ObjectName(buffer.toString());
     }
     
 }

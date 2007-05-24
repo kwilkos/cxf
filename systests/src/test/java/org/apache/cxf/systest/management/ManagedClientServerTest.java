@@ -77,7 +77,7 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
     
     @Test
     public void testManagedEndpoint() throws Exception {
-        Bus bus = BusFactory.getDefaultBus();
+        Bus bus = SpringBusFactory.getDefaultBus();
         InstrumentationManager im = bus.getExtension(InstrumentationManager.class);
         assertNotNull(im);
         InstrumentationManagerImpl impl = (InstrumentationManagerImpl)im;
@@ -87,7 +87,8 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
         MBeanServer mbs = im.getMBeanServer();        
         ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
                                          + ":type=Bus.Service.Endpoint,*");
-        Set s = mbs.queryNames(name, null);
+        Set s = mbs.queryNames(name, null); 
+        System.out.println("the size is " + s.size());
         assertTrue(s.size() == 1);
         name = (ObjectName)s.iterator().next();
         
@@ -124,7 +125,8 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
         
         reply = greeter.sayHi();
         assertNotNull("no response received from service", reply);
-        assertEquals(response, reply);               
+        assertEquals(response, reply); 
+        
     }
     
 }
