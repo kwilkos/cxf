@@ -361,29 +361,36 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
     void recoverReliableEndpoint(Endpoint endpoint, Conduit conduit) {
         if (null == store || null == retransmissionQueue) {
             return;
-        }
-        
-        RMEndpoint rme = createReliableEndpoint(endpoint);        
-        rme.initialise(conduit, null);
-        reliableEndpoints.put(endpoint, rme);
+        }        
         
         String id = RMUtils.getEndpointIdentifier(endpoint);
-        LOG.log(Level.FINE, "Recovering {0} endpoint with id: {1}",
-                new Object[] {null == conduit ? "client" : "server", id});
+        
         Collection<SourceSequence> sss = store.getSourceSequences(id);
         if (null == sss || 0 == sss.size()) {                        
             return;
         }
         LOG.log(Level.FINE, "Number of source sequences: {0}", sss.size());
-        for (SourceSequence ss : sss) {
-            rme.getSource().addSequence(ss, false);
+        
+        RMEndpoint rme = null;
+        
+        for (SourceSequence ss : sss) {            
  
             Collection<RMMessage> ms = store.getMessages(ss.getIdentifier(), true);
-            if (null == ms) {
+            if (null == ms || 0 == ms.size()) {
                 continue;
             }
             LOG.log(Level.FINE, "Number of messages in sequence: {0}", ms.size());
-            for (RMMessage m : ms) {
+            
+            if (null == rme) {
+                LOG.log(Level.FINE, "Recovering {0} endpoint with id: {1}",
+                        new Object[] {null == conduit ? "client" : "server", id});
+                rme = createReliableEndpoint(endpoint);
+                rme.initialise(conduit, null);
+                reliableEndpoints.put(endpoint, rme);
+            }
+            rme.getSource().addSequence(ss, false);
+            
+            for (RMMessage m : ms) {                
                 
                 Message message = new MessageImpl();
                 Exchange exchange = new ExchangeImpl();
@@ -415,7 +422,7 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
                 message.setContent(byte[].class, m.getContent());
                           
                 retransmissionQueue.addUnacknowledged(message);
-            }
+            }            
         }
         retransmissionQueue.start();
         

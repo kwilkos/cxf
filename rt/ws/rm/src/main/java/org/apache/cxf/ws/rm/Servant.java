@@ -19,6 +19,7 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -215,18 +216,28 @@ public class Servant implements Invoker {
         // the following may be necessary if the last message for this sequence was a oneway
         // request and hence there was no response to which a last message could have been added
         
-        for (SourceSequence outboundSeq : reliableEndpoint.getSource().getAllSequences()) {
+        // REVISIT: A last message for the correlated sequence should have been sent by the time
+        // the last message for the underlying sequence was received.
+        
+        Source source = reliableEndpoint.getSource();
+        
+        for (SourceSequence outboundSeq : source.getAllSequences()) {
             if (outboundSeq.offeredBy(sid) && !outboundSeq.isLastMessage()) {
                 
+                if (BigInteger.ZERO.equals(outboundSeq.getCurrentMessageNr())) {
+                    source.removeSequence(outboundSeq);
+                }
                 // send an out of band message with an empty body and a 
                 // sequence header containing a lastMessage element.
                
+                /*
                 Proxy proxy = new Proxy(reliableEndpoint);
                 try {
                     proxy.lastMessage(outboundSeq);
                 } catch (RMException ex) {
                     LogUtils.log(LOG, Level.SEVERE, "CORRELATED_SEQ_TERMINATION_EXC", ex);
                 }
+                */
                 
                 break;
             }

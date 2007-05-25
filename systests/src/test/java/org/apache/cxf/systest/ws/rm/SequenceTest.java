@@ -1219,8 +1219,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         mf.verifyLastMessage(new boolean[3], false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);
     }
-    
-    @Ignore 
+     
     @Test
     public void testTerminateOnShutdown() throws Exception {
         if (!doTestTerminateOnShutdown) {

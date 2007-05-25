@@ -530,9 +530,7 @@ public class RMManagerTest extends Assert {
         RetransmissionQueue queue = control.createMock(RetransmissionQueue.class);
         manager.setStore(store);
         manager.setRetransmissionQueue(queue);
-        manager.setReliableEndpointsMap(new HashMap<Endpoint, RMEndpoint>());
-        RMEndpoint rme = control.createMock(RMEndpoint.class);
-        EasyMock.expect(manager.createReliableEndpoint(endpoint)).andReturn(rme);
+        
         Collection<SourceSequence> sss = new ArrayList<SourceSequence>();
         if (null != ss) {
             sss.add(ss);            
@@ -540,11 +538,7 @@ public class RMManagerTest extends Assert {
         EasyMock.expect(store.getSourceSequences("{S}s.{P}p")).andReturn(sss);
         if (null == ss) {
             return;
-        } 
-        Source source = control.createMock(Source.class);
-        EasyMock.expect(rme.getSource()).andReturn(source);
-        source.addSequence(ss, false);
-        EasyMock.expectLastCall();
+        }         
         
         Collection<RMMessage> ms = new ArrayList<RMMessage>();
         if (null != m) {
@@ -557,6 +551,15 @@ public class RMManagerTest extends Assert {
         if (null == m) {
             return;
         }
+        
+        manager.setReliableEndpointsMap(new HashMap<Endpoint, RMEndpoint>());
+        RMEndpoint rme = control.createMock(RMEndpoint.class);
+        EasyMock.expect(manager.createReliableEndpoint(endpoint)).andReturn(rme);
+        Source source = control.createMock(Source.class);
+        EasyMock.expect(rme.getSource()).andReturn(source);
+        source.addSequence(ss, false);
+        EasyMock.expectLastCall();
+        
         Service service = control.createMock(Service.class);
         EasyMock.expect(endpoint.getService()).andReturn(service);
         Binding binding = control.createMock(Binding.class);
