@@ -21,6 +21,7 @@ package org.apache.cxf.systest.rest;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +60,11 @@ public class RestSourcePayloadProviderHttpBinding implements Provider<DOMSource>
         
         Map<String, List<String>> responseHeader =
             CastUtils.cast((Map)mc.get(MessageContext.HTTP_RESPONSE_HEADERS));
+        if (responseHeader == null) {
+            responseHeader = new HashMap<String, List<String>>();
+            mc.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeader);
+        }
+
         List<String> values = new ArrayList<String>();
         values.add("hello1");
         values.add("hello2");

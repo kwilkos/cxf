@@ -49,6 +49,7 @@ import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -203,8 +204,11 @@ public class SOAPHandlerInterceptor extends
     }
     
     @Override
-    protected MessageContext createProtocolMessageContext(Message message) {
-        return new SOAPMessageContextImpl(message);
+    protected MessageContext createProtocolMessageContext(SoapMessage message) {
+        SOAPMessageContextImpl sm = new SOAPMessageContextImpl(message);
+        boolean requestor = isRequestor(message);
+        ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), sm, requestor);
+        return sm;
     }
     
     private XMLStreamReader createXMLStreamReaderFromSOAPMessage(SOAPMessage soapMessage) {

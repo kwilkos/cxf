@@ -14,7 +14,7 @@
 
     <!-- Setup for building in a source build -->
     <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml"> 
-        <available file="../../modules/cxf-manifest-incubator.jar"/>
+        <available file="../../lib/cxf-manifest-incubator.jar"/>
     </condition> 
     <!-- default setting --> 
     <property name="srcbuild_paths.file" value="../../../distribution/target/srcbuild_paths.xml"/> 
@@ -58,7 +58,7 @@
     <path id="cxf.classpath">
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
-        <pathelement location="${cxf.home}/modules/cxf-manifest-incubator.jar"/>
+        <pathelement location="${cxf.home}/lib/cxf-manifest-incubator.jar"/>
 	<pathelement location="${testbase.classes.dir}"/>
     </path>
     <condition property="thirdparty.classpath" value="">
@@ -198,7 +198,7 @@
             </condition>
             <property name="binding.arg" value=""/>
 
-            <java failonerror="true" classname="org.apache.cxf.tools.wsdl2java.WSDLToJava" fork="yes">
+            <java failonerror="true" classname="org.apache.cxf.tools.wsdlto.WSDLToJava" fork="yes">
                 <classpath>
                     <path refid="cxf.classpath" />
                 </classpath>

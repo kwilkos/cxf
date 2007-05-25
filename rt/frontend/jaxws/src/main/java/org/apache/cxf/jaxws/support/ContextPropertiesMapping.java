@@ -36,6 +36,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.headers.Header;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
@@ -150,36 +151,64 @@ public final class ContextPropertiesMapping {
             context.put(BindingProvider.USERNAME_PROPERTY, authPolicy.getUserName());
             context.put(BindingProvider.PASSWORD_PROPERTY, authPolicy.getPassword());
         }
+        
     }
     
     
     public static MessageContext createWebServiceContext(Exchange exchange) {
-        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage(), Scope.APPLICATION);
-        mapCxf2Jaxws(ctx);        
-        addMessageAttachments(ctx, 
-                              exchange.getInMessage(), 
-                              MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
-
-        Object requestHeaders = 
-            exchange.getInMessage().get(Message.PROTOCOL_HEADERS);
-        if (null != requestHeaders) {
-            ctx.put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
-        
-            Message outMessage = exchange.getOutMessage();
-            if (outMessage == null) {
-                Endpoint ep = exchange.get(Endpoint.class);
-                outMessage = ep.getBinding().createMessage();
-                exchange.setOutMessage(outMessage);
-            }
-            Object responseHeaders =
-                outMessage.get(Message.PROTOCOL_HEADERS);
-            if (responseHeaders == null) {
-                responseHeaders = new HashMap<String, List<String>>();
-                outMessage.put(Message.PROTOCOL_HEADERS, responseHeaders);
-            }
-            ctx.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeaders);
-        }
+        WrappedMessageContext ctx = new WrappedMessageContext(exchange.getInMessage(), Scope.APPLICATION);
+        mapCxf2Jaxws(exchange, ctx, false);
         return ctx;
+    }
+
+    public static void mapCxf2Jaxws(Exchange exchange, WrappedMessageContext ctx, boolean requestor) {
+        mapCxf2Jaxws(ctx);        
+        Message inMessage = exchange.getInMessage();
+        Message outMessage = exchange.getOutMessage();
+        
+        if (inMessage == null
+            && Boolean.TRUE.equals(ctx.get(Message.INBOUND_MESSAGE))) {
+            //inbound partial responses and stuff are not set in the exchange
+            inMessage = ctx.getWrappedMessage();
+        }
+        
+        if (inMessage != null) {
+            addMessageAttachments(ctx, 
+                                  inMessage, 
+                                  MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
+            
+            Object inHeaders = 
+                inMessage.get(Message.PROTOCOL_HEADERS);
+            if (null != inHeaders) {
+                if (requestor) {
+                    ctx.put(MessageContext.HTTP_RESPONSE_HEADERS, inHeaders);
+                } else {
+                    ctx.put(MessageContext.HTTP_REQUEST_HEADERS, inHeaders);                    
+                }
+            
+                outMessage = exchange.getOutMessage();
+                if (outMessage == null) {
+                    Endpoint ep = exchange.get(Endpoint.class);
+                    outMessage = ep.getBinding().createMessage();
+                    exchange.setOutMessage(outMessage);
+                }
+            }
+
+        }
+
+        if (outMessage != null) {
+            addMessageAttachments(ctx, 
+                              outMessage, 
+                              MessageContext.OUTBOUND_MESSAGE_ATTACHMENTS);
+            Object outHeaders =
+                outMessage.get(Message.PROTOCOL_HEADERS);
+            
+            if (outHeaders != null && !requestor) {
+                ctx.put(MessageContext.HTTP_REQUEST_HEADERS, outHeaders);
+            }
+        }
+
+       
     }
     
     private static void addMessageAttachments(MessageContext ctx,
@@ -217,6 +246,18 @@ public final class ContextPropertiesMapping {
             Iterator iter = ((List) ctx.get(Header.HEADER_LIST)).iterator();
             while (iter.hasNext()) {
                 sm.getHeaders().add((Header) iter.next());
+            }
+        }
+        if (ctx.containsKey(MessageContext.HTTP_RESPONSE_HEADERS)) {
+            Map<String, List<String>> other = CastUtils
+                .cast((Map<?, ?>)ctx.get(MessageContext.HTTP_RESPONSE_HEADERS));
+            Map<String, List<String>> heads = CastUtils
+                .cast((Map<?, ?>)exchange.getOutMessage().get(Message.PROTOCOL_HEADERS));
+            if (heads != null) {
+                heads.putAll(other);
+            } else if (!other.isEmpty()) {
+                exchange.getOutMessage().put(Message.PROTOCOL_HEADERS, 
+                                             ctx.get(MessageContext.HTTP_RESPONSE_HEADERS));
             }
         }
     }

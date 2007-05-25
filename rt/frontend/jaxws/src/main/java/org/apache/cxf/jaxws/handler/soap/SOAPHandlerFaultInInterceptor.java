@@ -39,7 +39,6 @@ import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -117,7 +116,7 @@ public class SOAPHandlerFaultInInterceptor extends
     }
     
     @Override
-    protected MessageContext createProtocolMessageContext(Message message) {
+    protected MessageContext createProtocolMessageContext(SoapMessage message) {
         return new SOAPMessageContextImpl(message);
     }
     

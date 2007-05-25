@@ -33,6 +33,7 @@ import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.handler.AbstractJAXWSHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -93,6 +94,9 @@ public class LogicalHandlerOutInterceptor<T extends Message>
             LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
             invoker.setLogicalMessageContext(lctx);
             boolean requestor = isRequestor(message);
+            
+            ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), lctx, requestor);
+            
             
             XMLStreamReader reader = (XMLStreamReader)message.get("LogicalHandlerInterceptor.INREADER");
             SOAPMessage origMessage = null;

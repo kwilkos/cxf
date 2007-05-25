@@ -109,7 +109,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         assertNotNull("the request header should not be null", requestHeader);
         assertEquals("we should get the request header", requestHeader, HEADER);        
         Object responseHeader = ctx.get(MessageContext.HTTP_RESPONSE_HEADERS);
-        assertNotNull("the response header should not be null", responseHeader);        
+        assertNull("the response header should be null", responseHeader);        
         Object outMessageHeader = outMessage.get(Message.PROTOCOL_HEADERS);
         assertEquals("the outMessage PROTOCOL_HEADERS should be update", responseHeader, outMessageHeader);
         
@@ -139,7 +139,10 @@ public class ContextPropertiesMappingTest extends TestCase {
         EasyMock.expectLastCall().andReturn(hdrList);
         ctx.get(Header.HEADER_LIST);
         EasyMock.expectLastCall().andReturn(hdrList);
-        
+
+        ctx.containsKey(MessageContext.HTTP_RESPONSE_HEADERS);
+        EasyMock.expectLastCall().andReturn(false);
+
         EasyMock.replay(ctx);
         
         ContextPropertiesMapping.updateWebServiceContext(xchng, ctx);

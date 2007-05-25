@@ -31,6 +31,7 @@ import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractJAXWSHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -57,6 +58,8 @@ public class LogicalHandlerInInterceptor<T extends Message>
         LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
         invoker.setLogicalMessageContext(lctx);
         boolean requestor = isRequestor(message);
+        
+        ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), lctx, requestor);
         if (!invoker.invokeLogicalHandlers(requestor, lctx)) {
             if (!requestor) {
                 //server side 

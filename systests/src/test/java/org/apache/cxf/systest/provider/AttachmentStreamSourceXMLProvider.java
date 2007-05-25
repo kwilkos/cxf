@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,8 +100,14 @@ public class AttachmentStreamSourceXMLProvider implements Provider<StreamSource>
             }
             buf.append("</response>");
             
-            Map<Object, List<?>> respHeaders = CastUtils
-                .cast((Map)mc.get(MessageContext.HTTP_RESPONSE_HEADERS));
+            Map<String, List<String>> respHeaders = CastUtils
+                .cast((Map<?, ?>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS));
+            if (respHeaders == null) {
+                respHeaders = new HashMap<String, List<String>>();
+                mc.put(MessageContext.HTTP_RESPONSE_HEADERS, respHeaders);
+            }
+
+            
             List<String> contentTypeValues = new ArrayList<String>();
             contentTypeValues.add("application/xml+custom");
             respHeaders.put(Message.CONTENT_TYPE, contentTypeValues);

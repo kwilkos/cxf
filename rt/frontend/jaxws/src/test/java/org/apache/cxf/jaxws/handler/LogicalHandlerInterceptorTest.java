@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.LogicalMessage;
@@ -80,6 +81,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         });
         expect(invoker.getLogicalHandlers()).andReturn(list);
         expect(message.getExchange()).andReturn(exchange).anyTimes();
+        expect(message.keySet()).andReturn(new TreeSet<String>()).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(exchange.getOutMessage()).andReturn(message);
         expect(invoker.invokeLogicalHandlers(eq(false), isA(LogicalMessageContext.class)))

@@ -47,7 +47,6 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
 
@@ -166,7 +165,7 @@ public class SOAPHandlerFaultOutInterceptor extends
     }
     
     @Override
-    protected MessageContext createProtocolMessageContext(Message message) {
+    protected MessageContext createProtocolMessageContext(SoapMessage message) {
         return new SOAPMessageContextImpl(message);
     }
 

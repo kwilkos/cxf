@@ -85,7 +85,7 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
             ctx.put(key.getKey(), key.getValue());
             ctx.setScope(key.getKey(), Scope.HANDLER);
         }
-        
+                
         //update the webservice response context
         ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);
         //clear the WebServiceContextImpl's ThreadLocal variable

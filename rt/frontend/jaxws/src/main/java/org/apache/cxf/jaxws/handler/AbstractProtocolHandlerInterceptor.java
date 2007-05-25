@@ -45,7 +45,7 @@ public abstract class AbstractProtocolHandlerInterceptor<T extends Message>
         onCompletion(message);
     }
     
-    protected MessageContext createProtocolMessageContext(Message message) {
+    protected MessageContext createProtocolMessageContext(T message) {
         return new WrappedMessageContext(message, Scope.HANDLER);
     }
 
