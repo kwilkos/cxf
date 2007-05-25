@@ -40,6 +40,19 @@
       </xsd:element>
       
       <xsd:element name="text" type="xsd:string"/>
+      <xsd:element name="VoidRequest" type="types:VoidRequest"/>
+      <xsd:complexType name="VoidRequest">
+	<xsd:sequence/>
+      </xsd:complexType>
+      
+      <xsd:element name="OutputResponseAll" type="types:OutputResponseAll"/>
+      <xsd:complexType name="OutputResponseAll">
+    	<xsd:sequence>
+              <xsd:element name="result" type="xsd:string"/>
+              <xsd:element name="reason" type="xsd:string"/>
+    	</xsd:sequence>
+      </xsd:complexType>
+    
     </xsd:schema>
 
     <xsd:schema targetNamespace="http://ws-i.org/profiles/basic/1.1/xsd"
@@ -67,7 +80,25 @@
     <wsdl:part name="text" element="types:text" />
     <wsdl:part name="data" type="xsd:base64Binary" />
   </wsdl:message>
-
+  
+  <wsdl:message name="messageInputAllAttachmentTypes">
+    <wsdl:part name="request" element="types:VoidRequest"/>
+    <wsdl:part name="attach1" type="xsd:string"/>
+    <wsdl:part name="attach2" type="xsd:string"/>
+    <wsdl:part name="attach3" type="xsd:string"/>
+    <wsdl:part name="attach4" type="xsd:base64Binary"/>
+    <wsdl:part name="attach5" type="xsd:base64Binary"/>
+  </wsdl:message>  
+  
+  <wsdl:message name="messageOutputAllAttachmentTypes">
+    <wsdl:part name="response" element="types:OutputResponseAll"/>
+    <wsdl:part name="attach1" type="xsd:string"/>
+    <wsdl:part name="attach2" type="xsd:string"/>
+    <wsdl:part name="attach3" type="xsd:string"/>
+    <wsdl:part name="attach4" type="xsd:base64Binary"/>
+    <wsdl:part name="attach5" type="xsd:base64Binary"/>
+  </wsdl:message>
+  
   <wsdl:portType name="SwAServiceInterface">
 
     <wsdl:operation name="echoDataRef">
@@ -80,6 +111,11 @@
       <wsdl:output message="tns:echoDataResponse" />
     </wsdl:operation>
 
+    <wsdl:operation name="echoAllAttachmentTypes">
+      <wsdl:input message="tns:messageInputAllAttachmentTypes"/>
+      <wsdl:output message="tns:messageOutputAllAttachmentTypes"/>
+    </wsdl:operation>
+    
   </wsdl:portType>
 
   <wsdl:binding name="SwAServiceBinding" type="tns:SwAServiceInterface">
@@ -117,6 +153,54 @@
           </mime:part>
         </mime:multipartRelated>
       </wsdl:output>
+    </wsdl:operation>   
+    
+    <wsdl:operation name="echoAllAttachmentTypes">
+          <soap:operation/>
+            <wsdl:input>
+              <mime:multipartRelated>
+                <mime:part>
+                  <soap:body parts="request" use="literal"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach1" type="text/plain"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach2" type="text/html"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach3" type="text/xml"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach4" type="image/jpeg"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach5" type="image/jpeg"/>
+                </mime:part>
+              </mime:multipartRelated>
+            </wsdl:input>
+            <wsdl:output>
+              <mime:multipartRelated>
+                <mime:part>
+                  <soap:body parts="response" use="literal"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach1" type="text/plain"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach2" type="text/html"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach3" type="text/xml"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach4" type="image/jpeg"/>
+                </mime:part>
+                <mime:part>
+                  <mime:content part="attach5" type="image/jpeg"/>
+                </mime:part>
+              </mime:multipartRelated>
+            </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
 

@@ -18,16 +18,22 @@
  */
 package org.apache.cxf.systest.swa;
 
+import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.transform.Source;
 import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.swa.SwAServiceInterface;
 import org.apache.cxf.swa.types.DataStruct;
+import org.apache.cxf.swa.types.OutputResponseAll;
+import org.apache.cxf.swa.types.VoidRequest;
+
 
 @WebService(endpointInterface = "org.apache.cxf.swa.SwAServiceInterface", 
             serviceName = "SwAService", 
@@ -67,5 +73,60 @@ public class SwAServiceImpl implements SwAServiceInterface {
             e.printStackTrace();
         }
     }
-
+    
+    public OutputResponseAll echoAllAttachmentTypes(VoidRequest request, Holder<DataHandler> attach1,
+                                                    Holder<DataHandler> attach2, Holder<Source> attach3,
+                                                    Holder<Image> attach4, Holder<Image> attach5) {
+        try {
+            System.out.println("Enter echoAllAttachmentTypes() ......");
+            OutputResponseAll theResponse = new OutputResponseAll();
+            theResponse.setResult("ok");
+            theResponse.setReason("ok");
+            if (attach1 == null || attach1.value == null) {
+                System.err.println("attach1.value is null (unexpected)");
+                theResponse.setReason("attach1.value is null (unexpected)");
+                theResponse.setResult("not ok");
+            }
+            if (attach2 == null || attach2.value == null) {
+                System.err.println("attach2.value is null (unexpected)");
+                if (theResponse.getReason().equals("ok")) {
+                    theResponse.setReason("attach2.value is null (unexpected)");
+                } else {
+                    theResponse.setReason(theResponse.getReason() + "\nattach2.value is null (unexpected)");
+                }
+                theResponse.setResult("not ok");
+            }
+            if (attach3 == null || attach3.value == null) {
+                System.err.println("attach3.value is null (unexpected)");
+                if (theResponse.getReason().equals("ok")) {
+                    theResponse.setReason("attach3.value is null (unexpected)");
+                } else {
+                    theResponse.setReason(theResponse.getReason() + "\nattach3.value is null (unexpected)");
+                }
+                theResponse.setResult("not ok");
+            }
+            if (attach4 == null || attach4.value == null) {
+                System.err.println("attach4.value is null (unexpected)");
+                if (theResponse.getReason().equals("ok")) {
+                    theResponse.setReason("attach4.value is null (unexpected)");
+                } else {
+                    theResponse.setReason(theResponse.getReason() + "\nattach4.value is null (unexpected)");
+                }
+                theResponse.setResult("not ok");
+            }
+            if (attach5 == null || attach5.value == null) {
+                System.err.println("attach5.value is null (unexpected)");
+                if (theResponse.getReason().equals("ok")) {
+                    theResponse.setReason("attach5.value is null (unexpected)");
+                } else {
+                    theResponse.setReason(theResponse.getReason() + "\nattach5.value is null (unexpected)");
+                }
+                theResponse.setResult("not ok");
+            }
+            System.out.println("Leave echoAllAttachmentTypes() ......");
+            return theResponse;
+        } catch (Exception e) {
+            throw new WebServiceException(e.getMessage());
+        }
+    }
 }

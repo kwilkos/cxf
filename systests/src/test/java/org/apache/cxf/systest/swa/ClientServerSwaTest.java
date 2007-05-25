@@ -18,17 +18,25 @@
  */
 package org.apache.cxf.systest.swa;
 
+import java.awt.Image;
 import java.io.InputStream;
+import java.net.URL;
 
 import javax.activation.DataHandler;
+import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Holder;
 
 import org.apache.cxf.swa.SwAService;
 import org.apache.cxf.swa.SwAServiceInterface;
 import org.apache.cxf.swa.types.DataStruct;
+import org.apache.cxf.swa.types.OutputResponseAll;
+import org.apache.cxf.swa.types.VoidRequest;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
@@ -93,4 +101,40 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
         String string = new String(b);
         assertEquals("testfoobar", string);
     }
+    
+    @Test
+    @Ignore
+    public void testSwaTypes() throws Exception {
+        SwAService service = new SwAService();
+        
+        SwAServiceInterface port = service.getSwAServiceHttpPort();
+        
+        URL url1 = this.getClass().getResource("resources/attach.text");
+        URL url2 = this.getClass().getResource("resources/attach.html");
+        URL url3 = this.getClass().getResource("resources/attach.xml");
+        URL url4 = this.getClass().getResource("resources/attach.jpeg1");
+        URL url5 = this.getClass().getResource("resources/attach.jpeg2");
+
+        DataHandler dh1 = new DataHandler(url1);
+        DataHandler dh2 = new DataHandler(url2);
+        DataHandler dh3 = new DataHandler(url3);
+        //DataHandler dh4 = new DataHandler(url4);
+        //DataHandler dh5 = new DataHandler(url5);
+        Holder<DataHandler> attach1 = new Holder<DataHandler>();
+        attach1.value = dh1;
+        Holder<DataHandler> attach2 = new Holder<DataHandler>();
+        attach2.value = dh2;
+        Holder<Source> attach3 = new Holder<Source>();
+        attach3.value = new StreamSource(dh3.getInputStream());
+        Holder<Image> attach4 = new Holder<Image>();
+        Holder<Image> attach5 = new Holder<Image>();
+        attach4.value = ImageIO.read(url4);
+        attach5.value = ImageIO.read(url5);
+        VoidRequest request = new VoidRequest();
+        OutputResponseAll response = port.echoAllAttachmentTypes(request, attach1, attach2, attach3, attach4,
+                                                                 attach5);
+        assertNotNull(response);
+        
+    }
+    
 }
