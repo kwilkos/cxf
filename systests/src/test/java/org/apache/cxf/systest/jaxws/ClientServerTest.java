@@ -138,7 +138,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testAddPortWithSpecifiedBinding() throws Exception {
+    public void testAddPortWithSpecifiedSoap12Binding() throws Exception {
         Service service = Service.create(serviceName);
         service.addPort(fakePortName, javax.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING, 
                         "http://localhost:9009/SoapContext/SoapPort");
@@ -156,6 +156,27 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         
         
     }
+    
+    @Test
+    public void testAddPortWithSpecifiedSoap11Binding() throws Exception {
+        Service service = Service.create(serviceName);
+        service.addPort(fakePortName, javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING, 
+            "http://localhost:9000/SoapContext/SoapPort");
+        Greeter greeter = service.getPort(fakePortName, Greeter.class);
+
+        String response = new String("Bonjour");
+        try {
+            greeter.greetMe("test");
+            String reply = greeter.sayHi();
+            assertNotNull("no response received from service", reply);
+            assertEquals(response, reply);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+        
+        
+    }
+
 
     
     
