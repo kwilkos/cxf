@@ -18,7 +18,12 @@
  */
 package org.apache.cxf.jaxws.interceptors;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.activation.DataHandler;
+import javax.imageio.ImageIO;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -26,6 +31,7 @@ import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -68,28 +74,37 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             String partName = mpi.getConcreteName().getLocalPart();
             
             String start = partName + "=";
+            boolean found = false;
             for (Attachment a : message.getAttachments()) {
                 if (a.getId().startsWith(start)) {
-//                    String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
-//
-//                    System.out.println("Content type " + ct);
-//                    Object content = null;
-//                    try {
-//                        DataFlavor flavor = new DataFlavor(ct);
-//                        content = a.getDataHandler().getTransferData(flavor);
-//                    } catch (IOException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } catch (UnsupportedFlavorException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    } catch (ClassNotFoundException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
-//                    System.out.println("Content " + content);
-                    inObjects.add(a.getDataHandler());
+                    String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
+
+                    DataHandler dh = a.getDataHandler();
+                    Object o = null;
+                    if (ct.startsWith("image/")) {
+                        try {
+                            o = ImageIO.read(dh.getInputStream());
+                        } catch (IOException e) {
+                            throw new Fault(e);
+                        }
+                    } else if (ct.startsWith("text/xml") || ct.startsWith("application/xml")) {
+                        try {
+                            o = new StreamSource(dh.getInputStream());
+                        } catch (IOException e) {
+                            throw new Fault(e);
+                        }
+                    } else {
+                        o = dh;
+                    }
+                    
+                    inObjects.add(o);
+                    found = true;
+                    break;
                 }
+            }
+            
+            if (!found) {
+                inObjects.add(null);
             }
         }
     }

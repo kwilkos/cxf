@@ -35,6 +35,7 @@ public class AttachmentSerializer {
     private String bodyBoundary;
     private OutputStreamWriter writer;
     private OutputStream out;
+    private boolean xop = true;
     
     public AttachmentSerializer(Message messageParam) {
         message = messageParam;
@@ -56,9 +57,12 @@ public class AttachmentSerializer {
         
         // Set transport mime type
         StringBuilder ct = new StringBuilder();
-        ct.append("multipart/related; ")
-            .append("type=\"application/xop+xml\"; ")
-            .append("boundary=\"")
+        ct.append("multipart/related; ");
+        if (xop) {
+            ct.append("type=\"application/xop+xml\"; ");
+        }
+        
+        ct.append("boundary=\"")
             .append(bodyBoundary)
             .append("\"; ")
             .append("start=\"<")
@@ -133,4 +137,13 @@ public class AttachmentSerializer {
         
         writer.flush();
     }
+
+    public boolean isXop() {
+        return xop;
+    }
+
+    public void setXop(boolean xop) {
+        this.xop = xop;
+    }
+    
 }

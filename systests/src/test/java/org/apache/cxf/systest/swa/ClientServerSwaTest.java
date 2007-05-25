@@ -36,7 +36,6 @@ import org.apache.cxf.swa.types.OutputResponseAll;
 import org.apache.cxf.swa.types.VoidRequest;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
@@ -103,7 +102,6 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testSwaTypes() throws Exception {
         SwAService service = new SwAService();
         
@@ -134,7 +132,6 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
         OutputResponseAll response = port.echoAllAttachmentTypes(request, attach1, attach2, attach3, attach4,
                                                                  attach5);
         assertNotNull(response);
-        
     }
     
 }
