@@ -153,6 +153,14 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         return implementor;
     }
 
+    /**
+     * Gets the class of the implementor.
+     * @return the class of the implementor object
+     */
+    public Class getImplementorClass() {
+        return implementor.getClass();
+    }
+
     public List<Source> getMetadata() {
         return metadata;
     }
@@ -255,7 +263,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
             // Initialize the endpointName so we can do configureObject
             if (endpointName == null) {
-                JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(implementor.getClass());
+                JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(getImplementorClass());
                 endpointName = implInfo.getEndpointName();
             }
 
@@ -357,7 +365,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         LOG.fine("loading handler chain for endpoint");
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-        List<Handler> chain = builder.buildHandlerChainFromClass(implementor.getClass(), endpointName);
+        List<Handler> chain = builder.buildHandlerChainFromClass(getImplementorClass(), endpointName);
         for (Handler h : chain) {
             injectResources(h);
         }
