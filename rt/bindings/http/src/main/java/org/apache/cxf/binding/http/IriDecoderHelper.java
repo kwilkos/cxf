@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
@@ -187,18 +188,31 @@ public final class IriDecoderHelper {
      * @param params
      * @return
      */
-    public static Document buildDocument(XmlSchemaElement element,
+    public static Document buildDocument(XmlSchemaAnnotated schemaAnnotation,
                                          Collection<SchemaInfo> schemas,
                                          List<Param> params) {
-        Document doc = DOMUtils.createDocument();
-        XmlSchemaComplexType cplxType = (XmlSchemaComplexType)element.getSchemaType();
-        if (cplxType == null) {
-            cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
+        
+        XmlSchemaElement element = null;
+        QName qname = null;
+        XmlSchemaComplexType cplxType = null;
+        if (schemaAnnotation instanceof XmlSchemaElement) {
+            element = (XmlSchemaElement)schemaAnnotation;
+            qname = element.getQName();
+            cplxType = (XmlSchemaComplexType)element.getSchemaType();
+            if (cplxType == null) {
+                cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
+            }
         }
+        if (schemaAnnotation instanceof XmlSchemaComplexType) {
+            cplxType = (XmlSchemaComplexType)schemaAnnotation;
+            qname = cplxType.getQName();
+        }
+        Document doc = DOMUtils.createDocument();
+         
+              
         XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
-        Element e = doc.createElementNS(element.getQName().getNamespaceURI(), element.getQName()
-            .getLocalPart());
-        e.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, element.getQName().getNamespaceURI());
+        Element e = doc.createElementNS(qname.getNamespaceURI(), qname.getLocalPart());
+        e.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, qname.getNamespaceURI());
         doc.appendChild(e);
         
         if (seq == null || seq.getItems() == null) {
@@ -216,7 +230,7 @@ public final class IriDecoderHelper {
             }
             Element ec = doc.createElementNS(elChild.getQName().getNamespaceURI(), elChild.getQName()
                 .getLocalPart());
-            if (!elChild.getQName().getNamespaceURI().equals(element.getQName().getNamespaceURI())) {
+            if (!elChild.getQName().getNamespaceURI().equals(qname.getNamespaceURI())) {
                 ec.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, elChild.getQName().getNamespaceURI());
             }
             if (param != null) {
@@ -229,19 +243,30 @@ public final class IriDecoderHelper {
     }
     
     public static Document interopolateParams(Document doc,
-                                              XmlSchemaElement element,
+                                              XmlSchemaAnnotated schemaAnnotation,
                                               Collection<SchemaInfo> schemas,
                                               List<Param> params) {
-        XmlSchemaComplexType cplxType = (XmlSchemaComplexType)element.getSchemaType();
-        if (cplxType == null) {
-            cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
+        XmlSchemaElement element = null;
+        QName qname = null;
+        XmlSchemaComplexType cplxType = null;
+        if (schemaAnnotation instanceof XmlSchemaElement) {
+            element = (XmlSchemaElement)schemaAnnotation;
+            qname = element.getQName();
+            cplxType = (XmlSchemaComplexType)element.getSchemaType();
+            if (cplxType == null) {
+                cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
+            }
+        }
+        if (schemaAnnotation instanceof XmlSchemaComplexType) {
+            cplxType = (XmlSchemaComplexType)schemaAnnotation;
+            qname = cplxType.getQName();
         }
         XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
         Element root = doc.getDocumentElement();
         if (root == null) {
-            root = doc.createElementNS(element.getQName().getNamespaceURI(), 
-                                    element.getQName().getLocalPart());
-            root.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, element.getQName().getNamespaceURI());
+            root = doc.createElementNS(qname.getNamespaceURI(), 
+                                    qname.getLocalPart());
+            root.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, qname.getNamespaceURI());
             doc.appendChild(root);
         }
         
@@ -262,7 +287,7 @@ public final class IriDecoderHelper {
             if (ec == null) {
                 ec = doc.createElementNS(elChild.getQName().getNamespaceURI(), elChild.getQName()
                                          .getLocalPart());
-                if (!elChild.getQName().getNamespaceURI().equals(element.getQName().getNamespaceURI())) {
+                if (!elChild.getQName().getNamespaceURI().equals(qname.getNamespaceURI())) {
                     ec.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, elChild.getQName().getNamespaceURI());
                 }
                 

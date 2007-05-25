@@ -48,7 +48,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.ws.commons.schema.XmlSchemaElement;
+
 
 public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = Logger.getLogger(URIParameterInInterceptor.class.getName());
@@ -122,11 +122,11 @@ public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message>
                 throw new Fault(e);
             }
             doc = IriDecoderHelper.interopolateParams(doc, 
-                                                      (XmlSchemaElement)part.getXmlSchema(),
+                                                      part.getXmlSchema(),
                                                       schemas,
                                                       params);
         } else {
-            doc = IriDecoderHelper.buildDocument((XmlSchemaElement)part.getXmlSchema(),
+            doc = IriDecoderHelper.buildDocument(part.getXmlSchema(),
                                                  schemas,
                                                  params);
         }
