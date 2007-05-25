@@ -97,9 +97,9 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
 
     static {
         addrMap.put("Mortimer", "http://localhost:9000/");
-        addrMap.put("Tarpin",   "http://localhost:9003/");
+        addrMap.put("Tarpin",   "https://localhost:9003/");
         addrMap.put("Rethwel",  "http://localhost:9004/");
-        addrMap.put("Poltim",   "http://localhost:9005/");
+        addrMap.put("Poltim",   "https://localhost:9005/");
         addrMap.put("Gordy",    "https://localhost:9001/");
         addrMap.put("Bethal",   "https://localhost:9002/");
         addrMap.put("Abost",    "http://localhost:9007/");

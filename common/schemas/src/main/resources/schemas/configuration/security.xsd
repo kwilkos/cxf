@@ -24,8 +24,15 @@
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            xmlns:tns="http://cxf.apache.org/configuration/security"
+           xmlns:beans="http://www.springframework.org/schema/beans"
+  		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  		   xsi:schemaLocation="
+  		       http://www.springframework.org/schema/beans
+  		       http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
            jaxb:version="2.0">
 
+    <xs:import namespace="http://www.springframework.org/schema/beans"/>
+    
     <xs:complexType name="AuthorizationPolicy">
         <xs:annotation>
             <xs:documentation>
@@ -76,6 +83,12 @@
         </xs:sequence>
     </xs:complexType>
     <xs:element name="authorization" type="tns:AuthorizationPolicy"/>
+    
+    <xs:complexType name="ProxyAuthorizationPolicy">
+       <xs:complexContent>
+          <xs:extension base="tns:AuthorizationPolicy"/>
+       </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="FiltersType">
         <xs:sequence>
@@ -83,7 +96,78 @@
             <xs:element name="exclude" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
-            
+    
+    <xs:complexType name="ClientAuthentication">
+        <xs:attribute name="want"     type="xs:boolean"/>
+        <xs:attribute name="required" type="xs:boolean"/>
+    </xs:complexType>
+    
+    <xs:complexType name="KeyStoreType">
+        <xs:attribute name="type"     type="xs:string"/>
+        <xs:attribute name="password" type="xs:string"/>
+        <xs:attribute name="provider" type="xs:string"/>
+        <xs:attribute name="url"      type="xs:string"/>
+        <xs:attribute name="file"     type="xs:string"/>
+        <xs:attribute name="resource" type="xs:string"/>
+    </xs:complexType>
+    
+    <xs:complexType name="KeyManagersType">
+         <xs:sequence>
+            <xs:element name="keyStore"          type="tns:KeyStoreType" minOccurs="0"/>
+         </xs:sequence>
+            <xs:attribute name="keyPassword"       type="xs:string"/>
+            <xs:attribute name="provider"          type="xs:string"/>
+            <xs:attribute name="factoryAlgorithm"  type="xs:string"/>
+    </xs:complexType>
+    
+    <xs:complexType name="TrustManagersType">
+         <xs:sequence>
+            <xs:element name="keyStore"          type="tns:KeyStoreType" minOccurs="0"/>
+         </xs:sequence>
+            <xs:attribute name="provider"          type="xs:string"/>
+            <xs:attribute name="factoryAlgorithm"  type="xs:string"/>
+    </xs:complexType>
+    
+    <xs:complexType name="CipherSuites">
+        <xs:sequence>
+           <xs:element name="cipherSuite" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="SecureRandomParameters">
+        <xs:attribute name="algorithm"/>
+        <xs:attribute name="provider"/>
+    </xs:complexType>
+    
+    <!-- Although there are common elements of TLSClientParametersType
+      ** and TLSServerParametersType they are listed separate so we
+      ** can use the xs:all element.
+      -->
+    <xs:complexType name="TLSClientParametersType">
+        <xs:all>
+           <xs:element name="keyManagers"           type="tns:KeyManagersType"     minOccurs="0"/>
+           <xs:element name="trustManagers"         type="tns:TrustManagersType"   minOccurs="0"/>
+           <xs:element name="cipherSuites"          type="tns:CipherSuites"        minOccurs="0"/>
+           <xs:element name="cipherSuitesFilter"    type="tns:FiltersType"         minOccurs="0"/>
+           <xs:element name="secureRandomParameters" type="tns:SecureRandomParameters" minOccurs="0"/>
+        </xs:all>
+           <xs:attribute name="jsseProvider"          type="xs:string"/>
+           <xs:attribute name="secureSocketProtocol"  type="xs:string"/>
+    </xs:complexType>
+    
+    <xs:complexType name="TLSServerParametersType">
+        <xs:all>
+           <xs:element name="keyManagers"           type="tns:KeyManagersType"     minOccurs="0"/>
+           <xs:element name="trustManagers"         type="tns:TrustManagersType"   minOccurs="0"/>
+           <xs:element name="cipherSuites"          type="tns:CipherSuites"        minOccurs="0"/>
+           <xs:element name="cipherSuitesFilter"    type="tns:FiltersType"         minOccurs="0"/>
+           <xs:element name="secureRandomParameters" type="tns:SecureRandomParameters" minOccurs="0"/>
+           <xs:element name="clientAuthentication"  type="tns:ClientAuthentication" minOccurs="0"/>
+        </xs:all>
+           <xs:attribute name="jsseProvider"          type="xs:string"/>
+           <xs:attribute name="secureSocketProtocol"  type="xs:string"/>
+    </xs:complexType>
+    
     <xs:complexType name="SSLServerPolicy">
         <xs:annotation>
             <xs:documentation>

@@ -42,6 +42,7 @@ import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.Configurable;
+import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.helpers.CastUtils;
@@ -85,6 +86,11 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     protected String contextMatchStrategy = "stem";
     protected boolean fixedParameterOrder;
     protected boolean multiplexWithAddress;
+    
+    /**
+     *  This field holds the TLS Server Parameters for this Destination.
+     */
+    protected TLSServerParameters tlsServerParameters;
 
     /**
      * Constructor
@@ -459,12 +465,14 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
             String address = (String)context.get(Message.PATH_INFO);
             if (null != address) {
                 int afterLastSlashIndex = address.lastIndexOf("/") + 1;
-                if (afterLastSlashIndex > 0 && afterLastSlashIndex < address.length()) {
+                if (afterLastSlashIndex > 0 
+                        && afterLastSlashIndex < address.length()) {
                     id = address.substring(afterLastSlashIndex);
                 }
             } else {
                 getLogger().log(Level.WARNING,
-                                new org.apache.cxf.common.i18n.Message("MISSING_PATH_INFO", LOG).toString());
+                    new org.apache.cxf.common.i18n.Message(
+                            "MISSING_PATH_INFO", LOG).toString());
             }
         } else {
             return super.getId(context);
@@ -511,15 +519,25 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     public void setServer(HTTPServerPolicy server) {
         this.server = server;
     }
-
+    
+    @Deprecated
     public SSLServerPolicy getSslServer() {
         return sslServer;
     }
 
+    @Deprecated
     public void setSslServer(SSLServerPolicy sslServer) {
         this.sslServer = sslServer;
     }
+    
+    public void setTlsServerParameters(TLSServerParameters params) {
+        this.tlsServerParameters = params;
+    }
 
+    public TLSServerParameters getTlsServerParameters() {
+        return this.tlsServerParameters;
+    }
+    
     public void assertMessage(Message message) {
         PolicyUtils.assertServerPolicy(message, server); 
     }

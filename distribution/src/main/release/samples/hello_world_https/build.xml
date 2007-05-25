@@ -24,7 +24,7 @@
     <target name="insecure.client" description="run demo insecure client" depends="build">
         <property name="param" value=""/>
         <cxfrun classname="demo.hw_https.client.Client"
-                jvmarg1="-Dcxf.config.file=insecure_client.xml"
+                jvmarg1="-Dcxf.config.file=InsecureClient.cxf"
                 param1="${basedir}/wsdl/hello_world.wsdl" 
                 param2="${user}"/>
     </target> 
@@ -32,14 +32,14 @@
     <target name="secure.client" description="run demo secure client" depends="build">
         <property name="param" value=""/>
         <cxfrun classname="demo.hw_https.client.Client"
-                jvmarg1="-Dcxf.config.file=client.xml"
+                jvmarg1="-Dcxf.config.file=WibbleClient.cxf"
                 param1="${basedir}/wsdl/hello_world.wsdl" 
                 param2="${user}"/>
     </target> 
         
     <target name="server" description="run demo server" depends="build">
         <cxfrun classname="demo.hw_https.server.Server" 
-                jvmarg1="-Dcxf.config.file=server.xml"/>
+                jvmarg1="-Dcxf.config.file=CherryServer.cxf"/>
     </target>
         
     <target name="generate.code">

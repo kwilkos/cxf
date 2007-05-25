@@ -37,28 +37,31 @@
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
     <xs:element name="authorization" type="sec:AuthorizationPolicy"/>
     <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
+    <xs:element name="tlsServerParameters" type="sec:TLSServerParametersType"/>
     <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
     <xs:element name="fixedParameterOrder" type="xs:boolean" default="false"/>
 
     <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
     <xs:element name="proxyAuthorization" type="sec:AuthorizationPolicy"/>
     <xs:element name="sslClient" type="sec:SSLClientPolicy"/>
+    <xs:element name="tlsClientParameters" type="sec:TLSClientParametersType"/>
 
     <xs:element name="trustDecider"           type="http-conf:ClassOrBeanType"/>
     <xs:element name="basicAuthSupplier"      type="http-conf:ClassOrBeanType"/>
     
     <xs:element name="conduit">
         <xs:complexType>
-            <xs:sequence>
+            <xs:all>
                 <xs:element ref="http-conf:client" minOccurs="0"/>
                 <xs:element ref="http-conf:authorization" minOccurs="0"/>
                 <xs:element ref="http-conf:proxyAuthorization" minOccurs="0"/>
                 <xs:element ref="http-conf:sslClient" minOccurs="0"/>
+                <xs:element ref="http-conf:tlsClientParameters" minOccurs="0"/>
                 <xs:element ref="http-conf:basicAuthSupplier" 
                 			minOccurs="0" maxOccurs="1"/>
                 <xs:element ref="http-conf:trustDecider" 
                 			minOccurs="0" maxOccurs="1"/>
-            </xs:sequence>
+            </xs:all>
             <xs:attribute name="id" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
@@ -69,14 +72,15 @@
     </xs:complexType>
     
     <xs:element name="destination">
-      <xs:complexType>        
-        <xs:sequence>
+      <xs:complexType>
+        <xs:all>
             <xs:element ref="http-conf:server" minOccurs="0"/>
             <xs:element ref="http-conf:authorization" minOccurs="0"/>
             <xs:element ref="http-conf:sslServer" minOccurs="0"/>
+            <xs:element ref="http-conf:tlsServerParameters" minOccurs="0"/>
             <xs:element ref="http-conf:contextMatchStrategy" minOccurs="0"/>
             <xs:element ref="http-conf:fixedParameterOrder" minOccurs="0"/>
-        </xs:sequence>
+        </xs:all>
         <xs:attribute name="id" type="xs:string" use="required"/>
       </xs:complexType>
    </xs:element>

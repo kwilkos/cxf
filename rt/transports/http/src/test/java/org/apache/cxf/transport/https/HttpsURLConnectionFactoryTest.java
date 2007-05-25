@@ -33,7 +33,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+//DEPRECATED: This class should be removed when we stick with tlsClientParameters
+// for configuration.
 
+@Deprecated
 public class HttpsURLConnectionFactoryTest extends Assert {
 
     protected static final String DROP_BACK_SRC_DIR = 
@@ -127,6 +130,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
     }
     */
 
+    
     @Test
     public void testSetAllData() throws Exception {
         
@@ -218,6 +222,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
             .checkLogContainsString("Unsupported SSLClientPolicy property : CertValidator"));
     }
     
+    
     @Test
     public void testDefaultedCipherSuiteFilters() throws Exception {
         
@@ -260,6 +265,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
                    handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
         
     }
+    
     
     @Test
     public void testNonDefaultedCipherSuiteFilters() throws Exception {
@@ -314,6 +320,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
         
     }
 
+    
     @Test
     public void testAllValidDataJKS() throws Exception {
 
@@ -343,6 +350,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testAllValidDataPKCS12() throws Exception {
 
@@ -370,6 +378,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testNonExistentKeystoreJKS() throws Exception {
 
@@ -395,6 +404,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testNonExistentKeystorePKCS12() throws Exception {
 
@@ -419,6 +429,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testWrongKeystorePasswordJKS() throws Exception {
 
@@ -456,6 +467,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testWrongKeystorePasswordPKCS12() throws Exception {
 
@@ -493,6 +505,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testWrongKeyPasswordJKS() throws Exception {
 
@@ -526,6 +539,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testWrongKeyPasswordPKCS12() throws Exception {
 
@@ -558,6 +572,7 @@ public class HttpsURLConnectionFactoryTest extends Assert {
 
     }
 
+    
     @Test
     public void testAllElementsHaveSetupMethod() throws Exception {
         SSLClientPolicy policy = new SSLClientPolicy();

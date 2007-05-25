@@ -86,7 +86,7 @@ public class JettyHTTPDestinationTest extends Assert {
     private EndpointInfo endpointInfo;
     private EndpointReferenceType address;
     private EndpointReferenceType replyTo;
-    private ServerEngine engine;
+    private JettyHTTPServerEngine engine;
     private HTTPServerPolicy policy;
     private JettyHTTPDestination destination;
     private Request request;
@@ -101,6 +101,27 @@ public class JettyHTTPDestinationTest extends Assert {
     private List<QueryHandler> queryHandlerList;
     private JettyHTTPTransportFactory transportFactory; 
 
+    /**
+     * This class replaces the engine in the Jetty Destination.
+     */
+    private class EasyMockJettyHTTPDestination
+        extends JettyHTTPDestination {
+
+        public EasyMockJettyHTTPDestination(
+                Bus                       b,
+                JettyHTTPTransportFactory ci, 
+                EndpointInfo              endpointInfo,
+                JettyHTTPServerEngine     easyMockEngine
+        ) throws IOException {
+            super(b, ci, endpointInfo);
+            engine = easyMockEngine;
+        }
+        
+        @Override
+        public void retrieveEngine() {
+            // Leave engine alone.
+        }
+    }
     @After
     public void tearDown() {
        
@@ -317,14 +338,13 @@ public class JettyHTTPDestinationTest extends Assert {
         endpointInfo.addExtensor(policy); 
         endpointInfo.addExtensor(new SSLServerPolicy()); 
         
-        engine = EasyMock.createMock(ServerEngine.class);
+        engine = EasyMock.createMock(JettyHTTPServerEngine.class);
         EasyMock.replay();
         endpointInfo.setAddress(NOWHERE + "bar/foo");
         
-        JettyHTTPDestination dest = new JettyHTTPDestination(bus,
-                                                             transportFactory,
-                                                             endpointInfo,
-                                                             engine);
+        JettyHTTPDestination dest = 
+            new EasyMockJettyHTTPDestination(
+                    bus, transportFactory, endpointInfo, engine);
         assertEquals(policy, dest.getServer());
     }
         
@@ -397,7 +417,8 @@ public class JettyHTTPDestinationTest extends Assert {
         return setUpDestination(false, false);
     };
     
-    private JettyHTTPDestination setUpDestination(boolean contextMatchOnStem, boolean mockedBus)
+    private JettyHTTPDestination setUpDestination(
+            boolean contextMatchOnStem, boolean mockedBus)
         throws Exception {
         policy = new HTTPServerPolicy();
         address = getEPR("bar/foo");
@@ -421,7 +442,7 @@ public class JettyHTTPDestinationTest extends Assert {
         };
         transportFactory.setBus(bus);
         
-        engine = EasyMock.createMock(ServerEngine.class);
+        engine = EasyMock.createMock(JettyHTTPServerEngine.class);
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setName(new QName("bla", "Service"));        
         endpointInfo = new EndpointInfo(serviceInfo, "");
@@ -436,7 +457,7 @@ public class JettyHTTPDestinationTest extends Assert {
         EasyMock.expectLastCall();
         EasyMock.replay(engine);
         
-        JettyHTTPDestination dest = new JettyHTTPDestination(bus,
+        JettyHTTPDestination dest = new EasyMockJettyHTTPDestination(bus,
                                                              transportFactory,
                                                              endpointInfo,
                                                              engine);

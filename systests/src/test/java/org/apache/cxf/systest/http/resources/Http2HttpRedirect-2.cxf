@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http:www.w3.org/2001/XMLSchema-instance"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:sec="http://cxf.apache.org/configuration/security"
+       xmlns:schemaLocation="http://cxf.apache.org/transports/httpconfiguration
+         http://cxf.apache.org/schema/transports/http.xsd
+         http://www.springframework.org/schema/beans/
+         http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+   <http:conduit id="{http://apache.org/hello_world}Rethwel.http-conduit">
+
+      <http:client AutoRedirect="true"/>
+    
+   </http:conduit>
+
+</beans>

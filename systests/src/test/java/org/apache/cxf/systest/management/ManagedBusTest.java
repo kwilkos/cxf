@@ -93,6 +93,6 @@ public class ManagedBusTest extends Assert {
             mbs.invoke(n, "shutdown", params, sig);            
         }        
         
-        bus.shutdown(true);
+        bus.shutdown(false);
     }
 }

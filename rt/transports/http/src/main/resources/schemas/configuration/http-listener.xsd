@@ -33,11 +33,16 @@
 
     <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
     <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
+    <xs:element name="tlsServerParameters" type="sec:TLSServerParametersType"/>
 
     <xs:complexType name="HTTPListenerConfigBean">
         <xs:sequence>
             <xs:element ref="tns:listener" minOccurs="0"/>
+            
+            <!-- The following element in deprecated in favor of tlsServerParameters -->
             <xs:element ref="tns:sslServer" minOccurs="0"/>
+            
+            <xs:element ref="tns:tlsServerParameters" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

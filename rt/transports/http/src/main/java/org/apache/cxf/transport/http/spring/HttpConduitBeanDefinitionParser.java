@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.transport.http.spring;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
@@ -25,6 +28,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.configuration.jsse.spring.TLSClientParametersConfig;
+import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpBasicAuthSupplier;
@@ -46,6 +52,8 @@ public class HttpConduitBeanDefinitionParser
                 new QName(HTTP_NS, "proxyAuthorization"), "proxyAuthorization");
         mapElementToJaxbProperty(element, bean, 
                 new QName(HTTP_NS, "authorization"), "authorization");
+        
+       // DEPRECATED: This element is deprecated in favor of tlsClientParameters
         mapElementToJaxbProperty(element, bean, 
                 new QName(HTTP_NS, "sslClient"), "sslClient");
         
@@ -70,15 +78,47 @@ public class HttpConduitBeanDefinitionParser
             if (n.getNodeType() == Node.ELEMENT_NODE 
                 && n.getLocalName().equals("trustDecider")
                 && n.getNamespaceURI().equals(HTTP_NS)) {
-                mapElement((Element)n, bean, MessageTrustDecider.class);
+                
+                mapBeanOrClassElement((Element)n, bean, MessageTrustDecider.class);
             }
             if (n.getNodeType() == Node.ELEMENT_NODE 
                 && n.getLocalName().equals("basicAuthSupplier")
                 && n.getNamespaceURI().equals(HTTP_NS)) {
-                mapElement((Element)n, bean, HttpBasicAuthSupplier.class);
+                
+                mapBeanOrClassElement((Element)n, bean, HttpBasicAuthSupplier.class);
+            }
+            if (n.getNodeType() == Node.ELEMENT_NODE 
+                && n.getLocalName().equals("tlsClientParameters")
+                && n.getNamespaceURI().equals(HTTP_NS)) {
+                
+                mapTLSClientParameters(n, bean);
             }
         }
 
+    }
+    
+    /**
+     * Inject the "setTlsClientParameters" method with
+     * a TLSClientParametersConfig object initialized with the JAXB
+     * generated type unmarshalled from the selected node.
+     */
+    public void mapTLSClientParameters(Node n, BeanDefinitionBuilder bean) {
+
+        // Unmarshal the JAXB Generated Type from Config and inject
+        // the configured TLSClientParameters into the HTTPConduit.
+        JAXBContext context = null;
+        try {
+            context = JAXBContext.newInstance(getJaxbPackage(), 
+                    getClass().getClassLoader());
+            Unmarshaller u = context.createUnmarshaller();
+            JAXBElement<TLSClientParametersType> jaxb = 
+                u.unmarshal(n, TLSClientParametersType.class);
+            TLSClientParameters params = 
+                new TLSClientParametersConfig(jaxb.getValue());
+            bean.addPropertyValue("tlsClientParameters", params);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not process configuration.", e);
+        }
     }
     
     /**
@@ -93,7 +133,7 @@ public class HttpConduitBeanDefinitionParser
      * @param bean         The Bean Definition Parser.
      * @param elementClass The Class a bean or class is supposed to be.
      */
-    protected void mapElement(
+    protected void mapBeanOrClassElement(
         Element               element, 
         BeanDefinitionBuilder bean,
         Class                 elementClass
@@ -131,7 +171,6 @@ public class HttpConduitBeanDefinitionParser
         }
         String beanref = element.getAttribute("bean");
         if (beanref != null && !beanref.equals("")) {
-            System.out.print("Bean property is " + beanref);
             if (classProperty != null && !classProperty.equals("")) {
                 throw new IllegalArgumentException(
                         "Element '" + elementName + "' cannot have both "

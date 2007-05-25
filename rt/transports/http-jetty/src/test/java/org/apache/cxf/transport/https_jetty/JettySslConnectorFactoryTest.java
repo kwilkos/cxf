@@ -19,7 +19,7 @@
 
 package org.apache.cxf.transport.https_jetty;
 
-import java.io.File;
+//import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
@@ -27,8 +27,8 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 
-import org.apache.cxf.configuration.security.FiltersType;
-import org.apache.cxf.configuration.security.ObjectFactory;
+//import org.apache.cxf.configuration.security.FiltersType;
+//import org.apache.cxf.configuration.security.ObjectFactory;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.https.SSLUtils;
 
@@ -37,7 +37,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.security.SslSocketConnector;
 
 
 public class JettySslConnectorFactoryTest extends Assert {
@@ -45,16 +44,17 @@ public class JettySslConnectorFactoryTest extends Assert {
         "../../../../../../../../"
         + "http/src/test/java/org/apache/cxf/transport/https/";
 
-    private static final String[] EXPORT_CIPHERS =
-    {"SSL_RSA_WITH_NULL_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_DES_CBC_SHA"};
-    private static final String[] NON_EXPORT_CIPHERS =
-    {"SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_3DES_EDE_CBC_SHA"};
+//  PMD non use because of commented out stuff below  
+//    private static final String[] EXPORT_CIPHERS =
+//    {"SSL_RSA_WITH_NULL_MD5", "SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_WITH_DES_CBC_SHA"};
+//    private static final String[] NON_EXPORT_CIPHERS =
+//    {"SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_3DES_EDE_CBC_SHA"};
 
-    private SslSocketConnector sslConnector;
+    private CXFJettySslSocketConnector sslConnector;
     
     @Before
     public void setUp() throws Exception {
-        sslConnector = new SslSocketConnector();
+        sslConnector = new CXFJettySslSocketConnector();
     }
 
     @After
@@ -126,7 +126,7 @@ public class JettySslConnectorFactoryTest extends Assert {
         }
     }
     */
-    
+/*    With Jetty 6.1.3 this kind of configuration tests no longer apply.
     @Test
     public void testSetAllData() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
@@ -397,6 +397,7 @@ public class JettySslConnectorFactoryTest extends Assert {
         assertTrue("Expected excluded ciphersuite not included",
                    handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
     }
+*/
 
     @Test
     public void testAllValidDataJKS() throws Exception {        
@@ -459,21 +460,21 @@ public class JettySslConnectorFactoryTest extends Assert {
         factory.addLogHandler(handler);
         return factory;
     }
-    
-    private static String overrideHome() {
-        String oldHome = System.getProperty("user.home");
-        String tmpHome = "" + System.getProperty("java.io.tmpdir")
-                         + File.separator
-                         + System.getProperty("user.name")
-                         + File.separator
-                         + System.currentTimeMillis();
-        System.setProperty("user.home", tmpHome);
-        return oldHome;
-    }
-   
-    private static void restoreHome(String oldHome) {
-        System.setProperty("user.home", oldHome);
-    }
+//  PMD non use because of commented out stuff above  
+//    private static String overrideHome() {
+//        String oldHome = System.getProperty("user.home");
+//        String tmpHome = "" + System.getProperty("java.io.tmpdir")
+//                         + File.separator
+//                         + System.getProperty("user.name")
+//                         + File.separator
+//                         + System.currentTimeMillis();
+//        System.setProperty("user.home", tmpHome);
+//        return oldHome;
+//    }
+//   
+//    private static void restoreHome(String oldHome) {
+//        System.setProperty("user.home", oldHome);
+//    }
 
     
     protected static String getPath(String fileName) throws URISyntaxException {

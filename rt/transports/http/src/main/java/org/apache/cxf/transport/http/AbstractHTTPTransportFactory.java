@@ -238,12 +238,19 @@ public abstract class AbstractHTTPTransportFactory
     static HttpURLConnectionFactory getConnectionFactory(
         HTTPConduit configuredConduit
     ) {
-        if (configuredConduit.getSslClient() == null) {
-            return new HttpURLConnectionFactoryImpl();
-        } else {
-            return new HttpsURLConnectionFactory(
+        HttpURLConnectionFactory fac = null;
+
+        if (configuredConduit.getTlsClientParameters() != null) {
+            fac = new HttpsURLConnectionFactory(
+                             configuredConduit.getTlsClientParameters());
+        // TODO: remove when old SSL config is gone
+        } else if (configuredConduit.getSslClient() != null) {
+            fac = new HttpsURLConnectionFactory(
                              configuredConduit.getSslClient());
+        } else {
+            fac = new HttpURLConnectionFactoryImpl();
         }
+        return fac;
     }   
     
     private static class HttpEndpointInfo extends EndpointInfo {

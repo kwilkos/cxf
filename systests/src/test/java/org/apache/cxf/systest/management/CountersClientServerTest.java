@@ -39,6 +39,7 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -75,6 +76,11 @@ public class CountersClientServerTest extends AbstractBusClientServerTestBase {
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class, true));
+    }
+    
+    @AfterClass
+    public static void shutdownBus() throws Exception {
+        BusFactory.getDefaultBus().shutdown(false);
     }
     
     @Test

@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.configuration.jsse.TLSServerParameters;
+import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.security.SecurityContext;
@@ -46,13 +48,23 @@ import org.mortbay.jetty.Request;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
     
-    private static final Logger LOG = LogUtils.getL7dLogger(JettyHTTPDestination.class);
+    private static final Logger LOG =
+        LogUtils.getL7dLogger(JettyHTTPDestination.class);
 
-    protected ServerEngine engine;
-    protected ServerEngine alternateEngine;
+    
+    protected JettyHTTPServerEngine engine;
     protected JettyHTTPTransportFactory transportFactory;
+    protected JettyHTTPServerEngineFactory serverEngineFactory;
     protected URL nurl;
     
+    /**
+     * This variable signifies that finalizeConfig() has been called.
+     * It gets called after this object has been spring configured.
+     * It is used to automatically reinitialize things when resources
+     * are reset, such as setTlsServerParameters().
+     */
+    private boolean configFinalized;
+     
     /**
      * Constructor, using Jetty server engine.
      * 
@@ -61,27 +73,15 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param endpointInfo the endpoint info of the destination
      * @throws IOException
      */
-    public JettyHTTPDestination(Bus b, JettyHTTPTransportFactory ci, 
-                                EndpointInfo endpointInfo) throws IOException {
-        this(b, ci, endpointInfo, null);
-    }
-
-    /**
-     * Constructor, allowing subsititution of server engine.
-     * 
-     * @param b the associated Bus
-     * @param ci the associated conduit initiator
-     * @param endpointInfo the endpoint info of the destination
-     * @param eng the server engine
-     * @throws IOException
-     */
-    public JettyHTTPDestination(Bus b, JettyHTTPTransportFactory ci, 
-                                EndpointInfo endpointInfo, ServerEngine eng)
-        throws IOException {
+    public JettyHTTPDestination(
+            Bus                       b,
+            JettyHTTPTransportFactory ci, 
+            EndpointInfo              endpointInfo
+    ) throws IOException {
         //Add the defualt port if the address is missing it
         super(b, ci, endpointInfo, true);
-        alternateEngine = eng;
         this.transportFactory = ci;
+        this.serverEngineFactory = ci.getJettyHTTPServerEngineFactory();
         nurl = new URL(endpointInfo.getAddress());
     }
 
@@ -93,14 +93,106 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Post-configure retreival of server engine.
      */
     protected void retrieveEngine() {
-        engine = alternateEngine != null
-                 ? alternateEngine
-                 : JettyHTTPServerEngine.getForPort(bus,
-                                                    nurl.getProtocol(),
-                                                    nurl.getPort(),
-                                                    getSslServer());
+        if (this.getTlsServerParameters() != null) {
+            if (!"https".equals(nurl.getProtocol())) {
+                throw new RuntimeException(
+                        "Wrong protocol for TLS configuration: proto: " 
+                        + nurl.getProtocol());
+            }
+            // If the previous engine was "https", we have to shut it down as
+            // it cannot be reconfigured.
+            if (engine != null 
+                && "https".equals(engine.getProtocol())
+                && nurl.getPort() == engine.getPort()) {
+                engine.shutdown();
+            }
+            engine = serverEngineFactory.getForPort(
+                                 nurl.getProtocol(),
+                                 nurl.getPort(),
+                                 getTlsServerParameters());
+        // TODO: Remove when old SSL config is gone
+        } else if (this.getSslServer() != null) {
+            if (!"https".equals(nurl.getProtocol())) {
+                throw new RuntimeException(
+                        "Wrong protocol for TLS configuration: proto: " 
+                        + nurl.getProtocol());
+            }
+            // If the previous engine was "https", we have to shut it down as
+            // it cannot be reconfigured.
+            if (engine != null 
+                && "https".equals(engine.getProtocol())
+                && nurl.getPort() == engine.getPort()) {
+                engine.shutdown();
+            }
+            engine = serverEngineFactory.getForPort(nurl.getProtocol(),
+                                                nurl.getPort(),
+                                                getSslServer());
+        } else {
+            // We may still have "https", but we might still get the configuration from
+            // http-listener.
+
+            // If the previous engine was "https", we have to shut it down as
+            // it cannot be reconfigured.
+            if (engine != null && "https".equals(nurl.getPort())
+                && "https".equals(engine.getProtocol())
+                && nurl.getPort() == engine.getPort()) {
+                engine.shutdown();
+            }
+            // This should throw an exception if TLS is not configured 
+            // for http-listener and the protocol is "https".
+            engine = serverEngineFactory.getForPort(nurl.getProtocol(),
+                                                nurl.getPort());
+        }
+        assert engine != null;
     }
     
+    /**
+     * This method is used to finalize the configuration
+     * after the configuration items have been set.
+     *
+     */
+    public void finalizeConfig() {
+        retrieveEngine();
+        configFinalized = true;
+    }
+    
+    /**
+     * This method sets the SSLServerPolicy for this destination. Changing
+     * the SSLServerPolicy object internally will not affect this destination.
+     * This method must be called to reconfigure the Destination.
+     * 
+     * @param policy
+     */
+    @Deprecated
+    @Override
+    public void setSslServer(SSLServerPolicy policy) {
+        super.setSslServer(policy);
+        if (configFinalized) {
+            deactivate();
+            engine.shutdown();
+            engine = null;
+            retrieveEngine();
+        }
+    }
+
+    /**
+     * This method sets the TLS Server Parameters for this destination. 
+     * Changing the TLSServerParameters object internally will not affect this 
+     * destination.
+     * This method must be called to reconfigure the Destination.
+     * 
+     * @param params
+     */
+    @Override
+    public void setTlsServerParameters(TLSServerParameters params) {
+        super.setTlsServerParameters(params);
+        if (configFinalized) {
+            deactivate();
+            engine.shutdown();
+            engine = null;
+            retrieveEngine();
+        }
+    }
     /**
      * Activate receipt of incoming messages.
      */
@@ -108,7 +200,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         LOG.log(Level.FINE, "Activating receipt of incoming messages");
         try {
             URL url = new URL(endpointInfo.getAddress());
-            engine.addServant(url, new JettyHTTPHandler(this, contextMatchOnExact()));
+            engine.addServant(url, 
+                    new JettyHTTPHandler(this, contextMatchOnExact()));
             
         } catch (Exception e) {
             LOG.log(Level.WARNING, "URL creation failed: ", e);

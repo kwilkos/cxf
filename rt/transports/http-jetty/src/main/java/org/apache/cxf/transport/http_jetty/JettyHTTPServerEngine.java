@@ -19,12 +19,13 @@
 
 package org.apache.cxf.transport.http_jetty;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.security.GeneralSecurityException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.configuration.jsse.TLSServerParameters;
+import org.apache.cxf.configuration.jsse.spring.TLSServerParametersConfig;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
@@ -37,11 +38,10 @@ import org.mortbay.jetty.handler.ContextHandlerCollection;
 
 
 
-public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implements ServerEngine {
+public class JettyHTTPServerEngine
+    extends HTTPListenerConfigBean 
+    implements ServerEngine {
     private static final long serialVersionUID = 1L;
-    
-    private static Map<Integer, JettyHTTPServerEngine> portMap =
-        new HashMap<Integer, JettyHTTPServerEngine>();
    
     private int servantCount;
     private Server server;
@@ -49,9 +49,54 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
     private JettyConnectorFactory connectorFactory;
     private ContextHandlerCollection contexts;
     
+    /**
+     * This field holds the protocol this engine is for. "http" or "https".
+     */
+    private final String protocol;
+    
     private final int port;
     
-    JettyHTTPServerEngine(Bus bus, String protocol, int p) {
+    /**
+     * This field holds the TLS ServerParameters that are programatically
+     * configured. The tlsServerParamers (due to JAXB) holds the struct
+     * placed by SpringConfig.
+     */
+    private TLSServerParameters tlsProgrammaticServerParameters;
+    
+    /**
+     * This boolean signfies that SpringConfig is over. finalizeConfig
+     * has been called.
+     */
+    private boolean configFinalized;
+    
+    /**
+     * This is the Server Engine Factory. This factory caches some 
+     * engines based on port numbers.
+     */
+    private JettyHTTPServerEngineFactory factory;
+    
+    JettyHTTPServerEngine(JettyHTTPServerEngineFactory fac, Bus bus,
+            String proto, int p) {
+        factory = fac;
+        protocol = proto;
+        port = p;
+    }
+
+    // TODO: remove when old SSL config is gone.
+    @Deprecated
+    JettyHTTPServerEngine(JettyHTTPServerEngineFactory fac, Bus bus,
+            String proto, int p, SSLServerPolicy policy) {
+        factory = fac;
+        sslServer = policy;
+        protocol = proto;
+        port = p;
+    }
+
+    JettyHTTPServerEngine(JettyHTTPServerEngineFactory fac, Bus bus,
+            String proto, int p, TLSServerParameters params) {
+        factory = fac;
+        tlsProgrammaticServerParameters = params;
+        protocol = proto;
         port = p;
     }
     
@@ -59,39 +104,28 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         return JettyHTTPServerEngine.class.getName() + "." + port;
     }
 
-    static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {
-        return getForPort(bus, protocol, p, null);
-    }
-
-    static synchronized JettyHTTPServerEngine getForPort(Bus bus,
-                                                         String protocol,
-                                                         int p,
-                                                         SSLServerPolicy sslServerPolicy) {
-        JettyHTTPServerEngine ref = portMap.get(p);
-        if (ref == null) {
-            ref = new JettyHTTPServerEngine(bus, protocol, p);
-            configure(bus, ref);
-            ref.init(sslServerPolicy);
-            ref.retrieveListenerFactory();
-            portMap.put(p, ref);
-        }
-        return ref;
+    /**
+     * Returns the protocol "http" or "https" for which this engine
+     * was configured.
+     */
+    public String getProtocol() {
+        return protocol;
     }
     
-    public static synchronized void destroyForPort(int p) {
-        JettyHTTPServerEngine ref = portMap.remove(p);
-        if (ref != null && ref.server != null) {
-            try {
-                ref.connector.close();
-                ref.server.stop();
-                ref.server.destroy();
-                ref.server = null;
-                ref.listener = null;            
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }            
-        }
+    /**
+     * Returns the port number for which this server engine was configured.
+     * @return
+     */
+    public int getPort() {
+        return port;
+    }
+    
+    /**
+     * This method will shut down the server engine and
+     * remove it from the factory's cache. 
+     */
+    public void shutdown() {
+        factory.destroyForPort(port);
     }
     
     /**
@@ -241,19 +275,50 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         }
         return ret;
     }
-    
-    protected static void configure(Bus bus, Object bean) {
-        Configurer configurer = bus.getExtension(Configurer.class);
-        if (null != configurer) {
-            configurer.configureBean(bean);
+
+    protected void retrieveListenerFactory() {
+        if (tlsProgrammaticServerParameters != null) {
+            connectorFactory = JettyHTTPTransportFactory
+                    .getConnectorFactory(tlsProgrammaticServerParameters);
+        // TODO: remove when old SSL Config is gone.
+        } else if (isSetSslServer()) {
+            connectorFactory = JettyHTTPTransportFactory
+                    .getConnectorFactory(getSslServer());
+        } else {
+            connectorFactory = JettyHTTPTransportFactory
+                    .getConnectorFactory((TLSServerParameters) null);
         }
     }
+    
+    /**
+     * This method is called after configure on this object.
+     */
+    protected void finalizeConfig() throws GeneralSecurityException,
+            IOException {
 
-    private void retrieveListenerFactory() {
-        connectorFactory = JettyHTTPTransportFactory.getConnectorFactory(getSslServer());
+        // If the listener was spring configured, convert those structs
+        // to real configuration with KeyManagers and TrustManagers.
+        if (this.tlsProgrammaticServerParameters == null
+                && isSetTlsServerParameters()) {
+            tlsProgrammaticServerParameters = 
+                new TLSServerParametersConfig(getTlsServerParameters());
+        }
+        if (!isSetListener()) {
+            setListener(new HTTPListenerPolicy());
+        }
+        if ("https".equals(protocol)
+                && tlsProgrammaticServerParameters == null 
+                && !isSetSslServer()) {
+            throw new RuntimeException(
+                    "Protocol is \"https\" without suitable "
+                            + "programmatic or spring configuration.");
+        }
+        retrieveListenerFactory();
+        this.configFinalized = true;
     }
     
-    private void init(SSLServerPolicy sslServerPolicy) {
+    @Deprecated
+    protected void init(SSLServerPolicy sslServerPolicy) {
         if (!isSetSslServer()) {
             setSslServer(sslServerPolicy);
         }
@@ -261,4 +326,121 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
             setListener(new HTTPListenerPolicy());
         }
     }
+    
+    @Deprecated
+    @Override
+    public void setSslServer(SSLServerPolicy policy) {
+        super.setSslServer(policy);
+        if (this.configFinalized) {
+            this.retrieveListenerFactory();
+        }
+    }
+    /**
+     * This method is called to possibly reconfigure a listener. 
+     */
+    protected void reconfigure(String proto, TLSServerParameters tlsParams) {
+        if (!getProtocol().equals(proto)) {
+            throw new RuntimeException(
+                    "Cannot reconfigure an allocated server port with "
+                    + "different protocol."
+                    + " Port: " + port + " to Protocol " + proto);
+        }
+        if ("https".equals(proto)) {
+            // TLS/SSL Parameters have not yet been set.
+            if (tlsProgrammaticServerParameters == null) {
+                if (!isSetSslServer()) {
+                    try {
+                        setProgrammaticTlsServerParameters(tlsParams);
+                    } catch (Exception e) {
+                        throw new RuntimeException(
+                                "Could not initialize configuration of "
+                                + getBeanName() + ".", e);
+                    }
+                } else {
+                    throw new RuntimeException(
+                        "Cannot reconfigure an allocated TLS server port. "
+                        + "Port = " + port);
+                }
+            } else if (tlsProgrammaticServerParameters != tlsParams) {
+                throw new RuntimeException(
+                    "Cannot reconfigure an allocated TLS server port. "
+                    + "Port = " + port);
+            }
+        }
+        
+    }
+
+    /**
+     * This method is called to possibly reconfigure a listener. 
+     * @param proto
+     * @param policy
+     */
+    @Deprecated
+    protected void reconfigure(String proto, SSLServerPolicy policy) {
+        if (!getProtocol().equals(proto)) {
+            throw new RuntimeException(
+                    "Cannot reconfigure an allocated server port with "
+                    + "different protocol."
+                    + " Port: " + port + " to Protocol " + proto);
+        }
+        if ("https".equals(proto)) {
+            // TLS/SSL Parameters have not yet been set.
+            if (!isSetSslServer()) {
+                if (tlsProgrammaticServerParameters == null) {
+                    try {
+                        setSslServer(policy);
+                    } catch (Exception e) {
+                        throw new RuntimeException(
+                                "Could not initialize configuration of "
+                                + getBeanName() + ".", e);
+                    }
+                } else {
+                    throw new RuntimeException(
+                            "Cannot reconfigure an allocated TLS server port. "
+                            + "Port = " + port);
+                }
+            } else if (getSslServer() != policy) {
+                throw new RuntimeException(
+                    "Cannot reconfigure an allocated TLS server port. Port = " 
+                    + port);
+            }
+        }
+    }
+
+    /**
+     * This method is called by the ServerEngine Factory to destroy the 
+     * listener.
+     *
+     */
+    protected void stop() throws Exception {
+        if (server != null) {
+            connector.close();
+            server.stop();
+            server.destroy();
+            server   = null;
+            listener = null;
+        }
+    }
+    
+    /**
+     * This method is used to programmatically set the TLSServerParameters.
+     * This method must be used to dynamically configure the http-listener.
+     */
+    public void setProgrammaticTlsServerParameters(TLSServerParameters params) {
+        tlsProgrammaticServerParameters = params;
+        if (this.configFinalized) {
+            this.retrieveListenerFactory();
+        }
+    }
+    
+    /**
+     * This method returns the programmatically set TLSServerParameters, not
+     * the TLSServerParametersType, which is the JAXB generated type used 
+     * in SpringConfiguration.
+     * @return
+     */
+    public TLSServerParameters getProgrammaticTlsServerParameters() {
+        return tlsProgrammaticServerParameters;
+    }
+    
 }

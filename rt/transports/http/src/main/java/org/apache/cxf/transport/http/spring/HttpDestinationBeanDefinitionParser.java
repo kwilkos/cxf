@@ -18,10 +18,18 @@
  */
 package org.apache.cxf.transport.http.spring;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import org.apache.cxf.configuration.jsse.TLSServerParameters;
+import org.apache.cxf.configuration.jsse.spring.TLSServerParametersConfig;
+import org.apache.cxf.configuration.security.TLSServerParametersType;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -34,14 +42,66 @@ public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionP
     public void doParse(Element element, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "server"), "server");
+        
+        // DEPRECATED: This element is deprecated in favor of tlsServerParameters.
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "sslServer"), "sslServer");
+        
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "authorization"), "authorization");
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "fixedParameterOrder"),
                                  "fixedParameterOrder");
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "contextMatchStrategy"),
                                  "contextMatchStrategy");
+        
+        mapSpecificElements(element, bean);
     }
-    
+
+    /**
+     * This method specifically maps the "tlsServerParameters" on the 
+     * HTTPDestination.
+     * 
+     * @param parent This should represent "destination".
+     * @param bean   The bean parser.
+     */
+    private void mapSpecificElements(
+        Element               parent, 
+        BeanDefinitionBuilder bean
+    ) {
+        NodeList nl = parent.getChildNodes();
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node n = nl.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE 
+                && n.getLocalName().equals("tlsServerParameters")
+                && n.getNamespaceURI().equals(HTTP_NS)) {
+                
+                this.mapTLSServerParameters(n, bean);
+            }
+        }
+    }
+
+    /**
+     * Inject the "setTlsServerParameters" method with
+     * a TLSServerParametersConfig object initialized with the JAXB
+     * generated type unmarshalled from the selected node.
+     */
+    public void mapTLSServerParameters(Node n, BeanDefinitionBuilder bean) {
+
+        // Unmarshal the JAXB Generated Type from Config and inject
+        // the configured TLSClientParameters into the HTTPDestination.
+        JAXBContext context = null;
+        try {
+            context = JAXBContext.newInstance(getJaxbPackage(), 
+                                  getClass().getClassLoader());
+            Unmarshaller u = context.createUnmarshaller();
+            JAXBElement<TLSServerParametersType> jaxb = 
+                u.unmarshal(n, TLSServerParametersType.class);
+            TLSServerParameters params = 
+                new TLSServerParametersConfig(jaxb.getValue());
+            bean.addPropertyValue("tlsServerParameters", params);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not process configuration.", e);
+        }
+    }
+
     @Override
     protected String getJaxbPackage() {
         return "org.apache.cxf.transports.http.configuration";

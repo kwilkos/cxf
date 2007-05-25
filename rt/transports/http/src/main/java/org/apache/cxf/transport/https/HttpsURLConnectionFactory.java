@@ -23,16 +23,21 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.IIOException;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpURLConnectionFactory;
@@ -78,9 +83,15 @@ public final class HttpsURLConnectionFactory
      * This field contains the TLS configuration for URLs created
      * by this factory.
      */
+    @Deprecated
     SSLClientPolicy sslPolicy;
     
-   
+    /**
+     * This field contains the TLS configuration for the URLs created by
+     * this factory.
+     */
+    TLSClientParameters tlsClientParameters;
+    
     /**
      * This constructor initialized the factory with the configured SSL Client
      * Side Policy for the HTTPConduit for which this factory is used.
@@ -88,8 +99,21 @@ public final class HttpsURLConnectionFactory
      * @param policy The SSL Client Side Policy. This parameter is guaranteed 
      *               to be non-null.
      */
+    @Deprecated
     public HttpsURLConnectionFactory(SSLClientPolicy policy) {
         sslPolicy        = policy;
+    }
+
+    /**
+     * This constructor initialized the factory with the configured TLS
+     * Client Parameters for the HTTPConduit for which this factory is used.
+     * 
+     * @param params The TLS Client Parameters. This parameter is guaranteed 
+     *               to be non-null.
+     */
+    public HttpsURLConnectionFactory(TLSClientParameters params) {
+        tlsClientParameters        = params;
+        assert tlsClientParameters != null;
     }
     
     /**
@@ -119,8 +143,26 @@ public final class HttpsURLConnectionFactory
                                    ? url.openConnection(proxy)
                                    : url.openConnection());
                                    
-        decorate(connection);
-        
+        if (tlsClientParameters != null) {
+            Exception ex = null;
+            try {
+                decorateWithTLS(connection);
+            } catch (Exception e) {
+                ex = e;
+            } finally {
+                if (ex != null) {
+                    if (ex instanceof IOException) {
+                        throw (IOException) ex;
+                    }
+                    throw new IIOException("Error while initializing secure socket", ex);
+                }
+            }
+        } else if (sslPolicy != null) {
+            decorate(connection);
+        } else {
+            assert false;
+        }
+
         return connection;
     }
 
@@ -153,6 +195,7 @@ public final class HttpsURLConnectionFactory
      * 
      * @param secureConnection the secure connection
      */
+    @Deprecated
     protected void decorate(HttpsURLConnection secureConnection) {
         String keyStoreLocation =
             SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG);
@@ -223,6 +266,46 @@ public final class HttpsURLConnectionFactory
                                         LOG);
     }
     
+    /**
+     * This method assigns the various TLS parameters on the HttpsURLConnection
+     * from the TLS Client Parameters.
+     */
+    protected void decorateWithTLS(HttpsURLConnection connection)
+        throws NoSuchAlgorithmException,
+               NoSuchProviderException,
+               KeyManagementException {
+        String provider = tlsClientParameters.getJsseProvider();
+        
+        String protocol = tlsClientParameters.getSecureSocketProtocol() != null
+                  ? tlsClientParameters.getSecureSocketProtocol()
+                  : "TLS";
+                  
+        SSLContext ctx = provider == null
+                  ? SSLContext.getInstance(protocol)
+                  : SSLContext.getInstance(protocol, provider);
+                  
+        ctx.init(
+            tlsClientParameters.getKeyManagers(), 
+            tlsClientParameters.getTrustManagers(), 
+            tlsClientParameters.getSecureRandom());
+        
+        // The "false" argument means opposite of exclude.
+        String[] cipherSuites =
+            SSLUtils.getCiphersuites(tlsClientParameters.getCipherSuites(),
+                                     SSLUtils.getSupportedCipherSuites(ctx),
+                                     tlsClientParameters.getCipherSuitesFilter(),
+                                     LOG, false);
+
+        connection.setHostnameVerifier(
+                    new AlwaysTrueHostnameVerifier());
+        
+        // The SSLSocketFactoryWrapper enables certain cipher suites
+        // from the policy.
+        connection.setSSLSocketFactory(
+            new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
+                                        cipherSuites));
+        
+    }
     /*
      *  For development and testing only
      */

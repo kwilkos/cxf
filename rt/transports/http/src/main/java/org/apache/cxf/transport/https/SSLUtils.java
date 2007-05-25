@@ -166,7 +166,7 @@ public final class SSLUtils {
         return keystoreManagers;
     }
 
-    protected static TrustManager[] getTrustStoreManagers(
+    public static TrustManager[] getTrustStoreManagers(
                                         boolean pkcs12,
                                         String trustStoreType,
                                         String trustStoreLocation,

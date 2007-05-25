@@ -43,14 +43,15 @@ The demo illustrates how authentication can be achieved through
 configuration using 2 different scenarios. The non-defaulted security
 policy values are be specified via configuration files.
 
-Scenario 1: A HTTPS listener is started up. The listener requires
-client authentication so the client must provide suitable
-credentials. The listener configuration is taken from the server.xml
-file located in this directory.  The client's security data is taken
-from from the secure_client.xml file in this directory,
-using the bean name:
-"{http://apache.org/hello_world_soap_http}SoapPort.http-conduit".
-The client does NOT provide the appropriate credentials and so the
+Scenario 1:
+
+A HTTPS listener is started up. The listener requires
+client authentication so the client must provide suitable credentials.
+The listener configuration is taken from the "CherryServer.cxf" file
+located in this directory.  The client's security data is taken from
+from the "InsecureClient.cxf" file in this directory, using the bean name:
+"{http://apache.org/hello_world_soap_http}SoapPort.http-conduit". The
+client does NOT provide the appropriate credentials and so the
 invocation on the server fails.
 
 To run:
@@ -58,27 +59,45 @@ To run:
   ant server
   ant insecure.client
 
-Scenario 2: The same HTTPS listener is used. The client's security
-data is taken from the client.xml file in this directory,
+Scenario 2: 
+The same HTTPS listener is used. The client's security data is taken
+from the "WibbleClient.cxf" configuration file in this directory, 
 using the bean name:
-"{http://apache.org/hello_world_soap_http}SoapPort.http-conduit".
-The client is configured to provide the certificate
-src/demo/hw_https/resources/celtix.p12 to the server and so the server
-authenticates the client's certificate using its trust store
-src/demo/hw_https/resources/abigcompany_ca.pem. Likewise the client
-authenticates the servers certificate against its CA
-src/demo/hw_https/resources/abigcompany_ca.pem. 
-Note also the usage of the CiphersuitesFilters configuration in
-the client.xml and server.xml, where each party imposes different
-ciphersuites contraints, so that the ciphersuite eventually
-negotiated during the TLS handshake is acceptable to both sides.
+"{http://apache.org/hello_world_soap_http}SoapPort.http-conduit". 
+
+The client is configured to provide its certificate "CN=Wibble" and
+chain stored in the Java KeyStore "certs/wibble.jks" to the server. The
+server authenticates the client's certificate using its trust store
+"certs/truststore.jks", which holds the Certificate Authorities'
+certificates.
+
+Likewise the client authenticates the server's certificate "CN=Cherry"
+and chain against the same trust store.  Note also the usage of the
+cipherSuitesFilter configuration in the configuration files,
+where each party imposes different ciphersuites contraints, so that the
+ciphersuite eventually negotiated during the TLS handshake is acceptable
+to both sides. This may be viewed by adding a -Djavax.net.debug=all 
+argument to the JVM.
 
 But please note that it is not adviseable to store sensitive data such
 as passwords stored in a clear text configuration file, unless the
-file is sufficiently protected by OS level permissions. The approach
-taken here is for demonstration reasons only.
+file is sufficiently protected by OS level permissions. The KeyStores
+may be configured programatically so using user interaction may be
+employed to keep passwords from being stored in configuration files.
+The approach taken here is for demonstration reasons only. 
+
 
 To run:
 
   ant server
   ant secure.client
+
+Certificates:
+If the certificates are expired for some reason, a shell script in 
+bin/gencerts.sh will generate the set of certificates needed for
+this sample. Just do the following:
+
+        cd certs
+        sh ../bin/gencerts.sh
+       
+   

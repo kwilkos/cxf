@@ -37,13 +37,16 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.Configurable;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
@@ -218,13 +221,20 @@ public class HTTPConduit
      * configured proxy. This field is injected via spring configuration based 
      * on the conduit name.
      */
-    private AuthorizationPolicy proxyAuthorizationPolicy;
+    private ProxyAuthorizationPolicy proxyAuthorizationPolicy;
     
     /**
      * This field holds the configuration TLS configuration which is
      * "injected" by spring based on the conduit name.
      */
+    @Deprecated
     private SSLClientPolicy sslClientSidePolicy;
+
+    /**
+     * This field holds the configuration TLS configuration which
+     * is programmatically configured. 
+     */
+    private TLSClientParameters tlsClientParameters;
     
     /**
      * This field contains the MessageTrustDecider.
@@ -338,17 +348,19 @@ public class HTTPConduit
                     new AuthorizationPolicy(), AuthorizationPolicy.class);
            
         }
-        // This doesn't work well for proxyAuthorization because of the
-        // sameness of the class.
-        // TODO: Fix proxyAuthorization
         if (this.proxyAuthorizationPolicy == null) {
             proxyAuthorizationPolicy = endpointInfo.getTraversedExtensor(
-                    new AuthorizationPolicy(), AuthorizationPolicy.class);
+                    new ProxyAuthorizationPolicy(), ProxyAuthorizationPolicy.class);
            
         }
+        // TODO: remove once old SSL configuration is gone
         if (this.sslClientSidePolicy == null) {
             sslClientSidePolicy = endpointInfo.getTraversedExtensor(
                     null, SSLClientPolicy.class);
+        }
+        if (this.tlsClientParameters == null) {
+            tlsClientParameters = endpointInfo.getTraversedExtensor(
+                    null, TLSClientParameters.class);
         }
         if (this.trustDecider == null) {
             trustDecider = endpointInfo.getTraversedExtensor(
@@ -1090,6 +1102,7 @@ public class HTTPConduit
      * Using this method will override any Authorization Policy set in 
      * configuration.
      */
+    @Resource
     public void setAuthorization(AuthorizationPolicy authorization) {
         this.authorizationPolicy = authorization;
     }
@@ -1110,24 +1123,28 @@ public class HTTPConduit
      * This method sets the Client Side Policy for this HTTPConduit. Using this
      * method will override any HTTPClientPolicy set in configuration.
      */
+    @Resource
     public void setClient(HTTPClientPolicy client) {
         this.clientSidePolicy = client;
     }
 
     /**
-     * This method retrieves the Authorization Policy for a proxy that is
+     * This method retrieves the Proxy Authorization Policy for a proxy that is
      * set/configured for this HTTPConduit.
      */
-    public AuthorizationPolicy getProxyAuthorization() {
+    public ProxyAuthorizationPolicy getProxyAuthorization() {
         return proxyAuthorizationPolicy;
     }
 
     /**
-     * This method sets the Authorization Policy for a specified proxy. 
+     * This method sets the Proxy Authorization Policy for a specified proxy. 
      * Using this method overrides any Authorization Policy for the proxy 
      * that is set in the configuration.
      */
-    public void setProxyAuthorization(AuthorizationPolicy proxyAuthorization) {
+    @Resource
+    public void setProxyAuthorization(
+            ProxyAuthorizationPolicy proxyAuthorization
+    ) {
         this.proxyAuthorizationPolicy = proxyAuthorization;
     }
 
@@ -1135,6 +1152,7 @@ public class HTTPConduit
      * This method returns the SSL Client Side Policy that is set/configured
      * for this HTTPConduit.
      */
+    @Deprecated
     public SSLClientPolicy getSslClient() {
         return sslClientSidePolicy;
     }
@@ -1144,8 +1162,35 @@ public class HTTPConduit
      * Using this method overrides any SSL Client Side Policy that is configured
      * for this HTTPConduit.
      */
+    @Deprecated
+    @Resource
     public void setSslClient(SSLClientPolicy sslClientPolicy) {
+        LOG.info("The setSslClient method is deprecated. Please use setTlsClientParameters.");
+        
         this.sslClientSidePolicy = sslClientPolicy;
+        // If this is called after the HTTPTransportFactory called 
+        // finalizeConfig, we need to update the connection factory.
+        if (configFinalized) {
+            retrieveConnectionFactory();
+        }
+    }
+
+    /**
+     * This method returns the TLS Client Parameters that is set/configured
+     * for this HTTPConduit.
+     */
+    public TLSClientParameters getTlsClientParameters() {
+        return tlsClientParameters;
+    }
+
+    /**
+     * This method sets the TLS Client Parameters for this HTTPConduit.
+     * Using this method overrides any TLS Client Parameters that is configured
+     * for this HTTPConduit.
+     */
+    @Resource
+    public void setTlsClientParameters(TLSClientParameters params) {
+        this.tlsClientParameters = params;
         // If this is called after the HTTPTransportFactory called 
         // finalizeConfig, we need to update the connection factory.
         if (configFinalized) {
@@ -1167,6 +1212,7 @@ public class HTTPConduit
      * Using this method overrides any trust decider configured for this 
      * HTTPConduit.
      */
+    @Resource
     public void setTrustDecider(MessageTrustDecider decider) {
         this.trustDecider = decider;
     }
@@ -1185,6 +1231,7 @@ public class HTTPConduit
      * Using this method overrides any trust decider configured for this 
      * HTTPConduit.
      */
+    @Resource
     public void setBasicAuthSupplier(HttpBasicAuthSupplier supplier) {
         this.basicAuthSupplier = supplier;
     }

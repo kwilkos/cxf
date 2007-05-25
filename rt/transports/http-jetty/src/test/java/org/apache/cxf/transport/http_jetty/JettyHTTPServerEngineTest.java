@@ -34,11 +34,13 @@ public class JettyHTTPServerEngineTest extends Assert {
 
     private Bus bus;
     private IMocksControl control;
+    private JettyHTTPServerEngineFactory factory;
     
     @Before
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
+        factory = new JettyHTTPServerEngineFactory(bus);
         
         Configurer configurer = new ConfigurerImpl(); 
         
@@ -49,43 +51,43 @@ public class JettyHTTPServerEngineTest extends Assert {
     
     @Test
     public void testEngineEquality() {
-        JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234);
+        JettyHTTPServerEngine engine = factory.getForPort("http", 1234);
         assertTrue("Engine references for the same port should point to the same instance",
-                   engine == JettyHTTPServerEngine.getForPort(bus, "http", 1234));
+                   engine == factory.getForPort("http", 1234));
         assertFalse("Engine references for the different ports should point to diff instances",
-                   engine == JettyHTTPServerEngine.getForPort(bus, "http", 1235));    
-        JettyHTTPServerEngine.destroyForPort(1234);
-        JettyHTTPServerEngine.destroyForPort(1235);
+                   engine == factory.getForPort("http", 1235));    
+        factory.destroyForPort(1234);
+        factory.destroyForPort(1235);
     }
     
     @Test
     public void testNoSSLServerPolicySet() {
-        JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234);
+        JettyHTTPServerEngine engine = factory.getForPort("http", 1234);
         assertFalse("SSLServerPolicy must not be set", engine.isSetSslServer());
-        engine = JettyHTTPServerEngine.getForPort(bus, "http", 1235, null);
+        engine = factory.getForPort("http", 1235, (SSLServerPolicy) null);
         assertFalse("SSLServerPolicy must not be set", engine.isSetSslServer());
-        JettyHTTPServerEngine engine2 = JettyHTTPServerEngine.getForPort(bus, "http", 1234, 
+        JettyHTTPServerEngine engine2 = factory.getForPort("http", 1234, 
                                                    new SSLServerPolicy());
         assertFalse("SSLServerPolicy must not be set for already intialized engine", 
                     engine2.isSetSslServer());
-        JettyHTTPServerEngine.destroyForPort(1234);
-        JettyHTTPServerEngine.destroyForPort(1235);
+        factory.destroyForPort(1234);
+        factory.destroyForPort(1235);
     }
     
     @Test
     public void testDestinationSSLServerPolicy() {
         SSLServerPolicy policy = new SSLServerPolicy();
-        JettyHTTPServerEngine engine = JettyHTTPServerEngine.getForPort(bus, "http", 1234, 
+        JettyHTTPServerEngine engine = factory.getForPort("http", 1234, 
                                                                         policy);
         assertTrue("SSLServerPolicy must be set", engine.getSslServer() == policy);
-        JettyHTTPServerEngine engine2 = JettyHTTPServerEngine.getForPort(bus, "http", 1234, 
+        JettyHTTPServerEngine engine2 = factory.getForPort("http", 1234, 
                                                    new SSLServerPolicy());
         assertTrue("Engine references for the same port should point to the same instance",
                    engine == engine2);
         assertTrue("SSLServerPolicy must not be set for already intialized engine", 
                     engine.getSslServer() == policy);
         
-        JettyHTTPServerEngine.destroyForPort(1234);
+        factory.destroyForPort(1234);
     }
 
 }
