@@ -1365,6 +1365,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         this.wrappedStyle = style;
     }
 
+    /**
+     *  Returns non-null if wrapped mode was explicitely disabled or enabled. 
+     */
+    public Boolean getWrapped() {
+        return this.wrappedStyle;
+    }
+    
     public Map<String, Object> getProperties() {
         return properties;
     }

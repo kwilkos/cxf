@@ -526,8 +526,8 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public Boolean isWrapped(Method m) {
         // see if someone overrode the default value
-        if (!getServiceFactory().isWrapped()) {
-            return Boolean.FALSE;
+        if (getServiceFactory().getWrapped() != null) {
+            return getServiceFactory().getWrapped();
         }
         m = getDeclaredMethod(m);
 
