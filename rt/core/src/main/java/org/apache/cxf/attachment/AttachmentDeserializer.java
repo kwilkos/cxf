@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,6 +69,8 @@ public class AttachmentDeserializer {
     private Message message;
 
     private InputStream body;
+    
+    private Set<DelegatingInputStream> loaded = new HashSet<DelegatingInputStream>();
 
     public AttachmentDeserializer(Message message) {
         this.message = message;
@@ -91,12 +95,9 @@ public class AttachmentDeserializer {
         }
 
         if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-            // First try to find the boundary from InputStream
-            boundary = findBoundaryFromInputStream();
-            // If a boundary wasn't found, try the ContentType
-            if (null == boundary) {
-                
-                boundary = findBoundaryFromContentType(contentType);
+            boundary = findBoundaryFromContentType(contentType);
+            if (null == boundary) {                
+                boundary = findBoundaryFromInputStream();
             }
             // If a boundary still wasn't found, throw an exception
             if (null == boundary) {
@@ -104,7 +105,7 @@ public class AttachmentDeserializer {
             }
 
             stream = new PushbackInputStream(message.getContent(InputStream.class),
-                    boundary.getBytes().length);
+                    boundary.getBytes().length * 2);
             if (!readTillFirstBoundary(stream, boundary.getBytes())) {
                 throw new IOException("Couldn't find MIME boundary: " + boundary);
             }
@@ -194,6 +195,10 @@ public class AttachmentDeserializer {
     }
 
     private void cache(DelegatingInputStream input, boolean deleteOnClose) throws IOException {
+        if (loaded.contains(input)) {
+            return;
+        }
+        loaded.add(input);
         CachedOutputStream out = new CachedOutputStream();
         IOUtils.copy(input, out);
         input.setInputStream(out.getInputStream());

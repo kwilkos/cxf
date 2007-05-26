@@ -24,6 +24,7 @@ import java.awt.MediaTracker;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -37,11 +38,11 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.bind.JAXBContext;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 import com.sun.xml.bind.v2.util.DataSourceSource;
@@ -50,8 +51,10 @@ import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBodyInfo;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.JAXBDataBinding;
@@ -62,9 +65,10 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class SwAOutInterceptor extends AbstractSoapInterceptor {
-    private static final Logger LOG = Logger.getLogger(SwAOutInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(SwAOutInterceptor.class);
     
     public SwAOutInterceptor() {
         super();
@@ -114,7 +118,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
         int bodyParts = sbi.getParts().size();
         for (MessagePartInfo mpi : sbi.getAttachments()) {
             String partName = mpi.getConcreteName().getLocalPart();
-            final String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
+            String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
             
             String id = new StringBuilder().append(partName)
                 .append("=")
@@ -129,24 +133,8 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             DataHandler dh = null;
             
             if (o instanceof Source) {
-                DataSource ds = null;
                 
-                if (o instanceof DataSourceSource) {
-                    ds = (DataSource) o; 
-                } else {
-                    TransformerFactory tf = TransformerFactory.newInstance();
-                    try {
-                        Transformer transformer = tf.newTransformer();
-                        
-                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                        transformer.transform((Source) o, new StreamResult(bos));
-                        ds = new ByteArrayDataSource(bos.toByteArray(), ct);
-                    } catch (TransformerException e) {
-                        throw new Fault(e);
-                    } 
-                }
-                
-                dh = new DataHandler(ds);
+                dh = new DataHandler(createDataSource((Source)o, ct));
                 
             } else if (o instanceof Image) {
                 // TODO: make this streamable. This is one of my pet
@@ -166,11 +154,15 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
                     } catch (IOException e) {
                         throw new Fault(e);
                     }
+                } else {
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("ATTACHMENT_NOT_SUPPORTED", 
+                                     LOG, ct));                    
                 }
                 
                 dh = new DataHandler(new ByteArrayDataSource(bos.toByteArray(), ct));
             } else if (o instanceof DataHandler) {
                 dh = (DataHandler) o;
+                ct = dh.getContentType();
             } else {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ATTACHMENT_NOT_SUPPORTED", 
                                                                        LOG, o.getClass()));
@@ -178,11 +170,47 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             
             AttachmentImpl att = new AttachmentImpl(id);
             att.setDataHandler(dh);
-            att.setHeader("Content-Type", (String)mpi.getProperty(Message.CONTENT_TYPE));
+            att.setHeader("Content-Type", ct);
             atts.add(att);
         }
     }
 
+    private DataSource createDataSource(Source o, String ct) {
+        DataSource ds = null;
+        
+        if (o instanceof DataSourceSource) {
+            ds = (DataSource) o;
+        } else if (o instanceof StreamSource) {
+            StreamSource src = (StreamSource)o;
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try {
+                if (src.getInputStream() != null) {
+                    IOUtils.copy(src.getInputStream(), bos, 1024);
+                    ds = new ByteArrayDataSource(bos.toByteArray(), ct);
+                } else {
+                    ds = new ByteArrayDataSource(IOUtils.toString(src.getReader()),
+                                                 ct);                            
+                }
+            } catch (IOException e) {
+                throw new Fault(e);
+            }
+        } else {
+            XMLStreamReader reader = StaxUtils.createXMLStreamReader((Source)o);
+            StringWriter stringWriter = new StringWriter();
+            XMLStreamWriter writer = StaxUtils.createXMLStreamWriter(stringWriter);
+            try {
+                StaxUtils.copy(reader, writer);
+                writer.flush();
+                ds = new ByteArrayDataSource(stringWriter.toString(), ct);
+            } catch (XMLStreamException e1) {
+                throw new Fault(e1);
+            } catch (IOException e) {
+                throw new Fault(e);
+            }
+        }
+        return ds;
+    }
+    
     private BufferedImage convertToBufferedImage(Image image) throws IOException {
         if (image instanceof BufferedImage) {
             return (BufferedImage)image;

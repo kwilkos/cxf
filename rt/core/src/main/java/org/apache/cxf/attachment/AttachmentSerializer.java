@@ -21,7 +21,8 @@ package org.apache.cxf.attachment;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
@@ -33,8 +34,8 @@ public class AttachmentSerializer {
     private static final String BODY_ATTACHMENT_ID = "root.message@cxf.apache.org";
     private Message message;
     private String bodyBoundary;
-    private OutputStreamWriter writer;
     private OutputStream out;
+    private String encoding;
     private boolean xop = true;
     
     public AttachmentSerializer(Message messageParam) {
@@ -78,11 +79,11 @@ public class AttachmentSerializer {
 
         // 2. write headers
         out = message.getContent(OutputStream.class);
-        String encoding = (String) message.get(Message.ENCODING);
+        encoding = (String) message.get(Message.ENCODING);
         if (encoding == null) {
             encoding = "UTF-8";
         }
-        writer = new OutputStreamWriter(out, encoding);
+        StringWriter writer = new StringWriter();
         writer.write("\r\n");
         writer.write("--");
         writer.write(bodyBoundary);
@@ -96,10 +97,11 @@ public class AttachmentSerializer {
             .append(enc)
             .append("\"");
         
-        writeHeaders(mimeBodyCt.toString(), BODY_ATTACHMENT_ID);
+        writeHeaders(mimeBodyCt.toString(), BODY_ATTACHMENT_ID, writer);
+        out.write(writer.getBuffer().toString().getBytes(encoding));
     }
 
-    private void writeHeaders(String contentType, String attachmentId) throws IOException {
+    private void writeHeaders(String contentType, String attachmentId, Writer writer) throws IOException {
         writer.write("\r\n");
         writer.write("Content-Type: ");
         writer.write(contentType);
@@ -110,7 +112,6 @@ public class AttachmentSerializer {
         writer.write("Content-ID: <");
         writer.write(attachmentId);
         writer.write(">\r\n\r\n");
-        writer.flush();
     }
 
     /**
@@ -120,22 +121,23 @@ public class AttachmentSerializer {
     public void writeAttachments() throws IOException {
         if (message.getAttachments() != null) {
             for (Attachment a : message.getAttachments()) {
-                
+                StringWriter writer = new StringWriter();                
                 writer.write("\r\n");
                 writer.write("--");
                 writer.write(bodyBoundary);
-    
-                writeHeaders(a.getDataHandler().getContentType(), a.getId());
+                writeHeaders(a.getDataHandler().getContentType(), a.getId(), writer);
+                out.write(writer.getBuffer().toString().getBytes(encoding));
                 
                 IOUtils.copy(a.getDataHandler().getInputStream(), out);
             }
         }
+        StringWriter writer = new StringWriter();                
         writer.write("\r\n");
         writer.write("--");
         writer.write(bodyBoundary);
         writer.write("--");
-        
-        writer.flush();
+        out.write(writer.getBuffer().toString().getBytes(encoding));
+        out.flush();
     }
 
     public boolean isXop() {

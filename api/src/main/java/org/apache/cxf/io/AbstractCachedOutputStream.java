@@ -253,6 +253,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     }
 
     public InputStream getInputStream() throws IOException {
+        flush();
         if (inmem) {
             if (currentStream instanceof ByteArrayOutputStream) {
                 return new ByteArrayInputStream(((ByteArrayOutputStream) currentStream).toByteArray());
