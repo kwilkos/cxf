@@ -162,7 +162,7 @@ public final class ContextPropertiesMapping {
     }
 
     public static void mapCxf2Jaxws(Exchange exchange, WrappedMessageContext ctx, boolean requestor) {
-        mapCxf2Jaxws(ctx);        
+        mapCxf2Jaxws(ctx.getWrappedMessage());        
         Message inMessage = exchange.getInMessage();
         Message outMessage = exchange.getOutMessage();
         
@@ -181,9 +181,11 @@ public final class ContextPropertiesMapping {
                 inMessage.get(Message.PROTOCOL_HEADERS);
             if (null != inHeaders) {
                 if (requestor) {
-                    ctx.put(MessageContext.HTTP_RESPONSE_HEADERS, inHeaders);
+                    ctx.getWrappedMessage().put(MessageContext.HTTP_RESPONSE_HEADERS,
+                                                inHeaders);
                 } else {
-                    ctx.put(MessageContext.HTTP_REQUEST_HEADERS, inHeaders);                    
+                    ctx.getWrappedMessage().put(MessageContext.HTTP_REQUEST_HEADERS,
+                                                inHeaders);                    
                 }
             
                 outMessage = exchange.getOutMessage();
@@ -204,7 +206,7 @@ public final class ContextPropertiesMapping {
                 outMessage.get(Message.PROTOCOL_HEADERS);
             
             if (outHeaders != null && !requestor) {
-                ctx.put(MessageContext.HTTP_REQUEST_HEADERS, outHeaders);
+                ctx.getWrappedMessage().put(MessageContext.HTTP_REQUEST_HEADERS, outHeaders);
             }
         }
 
