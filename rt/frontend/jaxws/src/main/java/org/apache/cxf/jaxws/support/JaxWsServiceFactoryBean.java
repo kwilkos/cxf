@@ -394,7 +394,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                 throw new ServiceConstructionException(
                     new Message("COULD_NOT_FIND_PART", LOG,
                                 name,
-                                o.getInput().getMessagePartsMap().keySet().toString()));
+                                o.getOutput().getMessagePartsMap().keySet().toString()));
             }
             part.setProperty(ReflectionServiceFactoryBean.MODE_OUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
