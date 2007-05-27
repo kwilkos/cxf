@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.xml.ws.BindingProvider;
@@ -99,15 +98,10 @@ public final class ContextPropertiesMapping {
     }
     
     private static void mapContext(Map<String, Object> context, Map<String, String> map) {
-        Set<String> keyset = context.keySet();
-        String[] keys = new String[0];
-        keys = keyset.toArray(keys);
-        for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
-            String mappingString = map.get(key);
-            if (null != mappingString) {
-                Object obj = context.get(key);
-                context.put(mappingString, obj);
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Object o = context.get(entry.getKey());
+            if (o != null) {
+                context.put(entry.getValue(), o);
             }
         }
     }
@@ -143,15 +137,14 @@ public final class ContextPropertiesMapping {
     }
         
     private static void mapCxf2Jaxws(WrappedMessageContext context) {
-        Set<String> keyset = context.keySet();
-        String[] keys = new String[0];
-        keys = keyset.toArray(keys);
-        for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
-            String mappingString = cxf2jaxwsMap.get(key);
-            if (null != mappingString) {
-                Object obj = context.get(key);
-                context.put(mappingString, obj, Scope.APPLICATION);
+        
+        for (Map.Entry<String, String> entry : cxf2jaxwsMap.entrySet()) {
+            Object o = context.get(entry.getKey());
+            if (o != null) {
+                context.put(entry.getValue(), o, Scope.APPLICATION);
+            } else if (context.containsKey(entry.getValue())) {
+                context.put(entry.getValue(), 
+                            context.get(entry.getValue()), Scope.APPLICATION);                
             }
         }
         
