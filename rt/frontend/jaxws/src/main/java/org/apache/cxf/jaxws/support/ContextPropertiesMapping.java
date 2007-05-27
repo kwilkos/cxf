@@ -129,7 +129,7 @@ public final class ContextPropertiesMapping {
         if (null != responseHeaders) {
             context.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeaders);
         }  
-        mapCxf2Jaxws(context);
+        mapContext(context, cxf2jaxwsMap);
     }
     
     private static void mapJaxws2Cxf(Map<String, Object> context) {
@@ -142,16 +142,25 @@ public final class ContextPropertiesMapping {
         }
     }
         
-    private static void mapCxf2Jaxws(Map<String, Object> context) {
-        mapContext(context, cxf2jaxwsMap);
+    private static void mapCxf2Jaxws(WrappedMessageContext context) {
+        Set<String> keyset = context.keySet();
+        String[] keys = new String[0];
+        keys = keyset.toArray(keys);
+        for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            String mappingString = cxf2jaxwsMap.get(key);
+            if (null != mappingString) {
+                Object obj = context.get(key);
+                context.put(mappingString, obj, Scope.APPLICATION);
+            }
+        }
         
         if (context.containsKey(AuthorizationPolicy.class.getName())) {
             AuthorizationPolicy authPolicy =
                 (AuthorizationPolicy)context.get(AuthorizationPolicy.class.getName());
-            context.put(BindingProvider.USERNAME_PROPERTY, authPolicy.getUserName());
-            context.put(BindingProvider.PASSWORD_PROPERTY, authPolicy.getPassword());
+            context.put(BindingProvider.USERNAME_PROPERTY, authPolicy.getUserName(), Scope.APPLICATION);
+            context.put(BindingProvider.PASSWORD_PROPERTY, authPolicy.getPassword(), Scope.APPLICATION);
         }
-        
     }
     
     
@@ -162,7 +171,7 @@ public final class ContextPropertiesMapping {
     }
 
     public static void mapCxf2Jaxws(Exchange exchange, WrappedMessageContext ctx, boolean requestor) {
-        mapCxf2Jaxws(ctx.getWrappedMessage());        
+        mapCxf2Jaxws(ctx);        
         Message inMessage = exchange.getInMessage();
         Message outMessage = exchange.getOutMessage();
         
@@ -181,11 +190,13 @@ public final class ContextPropertiesMapping {
                 inMessage.get(Message.PROTOCOL_HEADERS);
             if (null != inHeaders) {
                 if (requestor) {
-                    ctx.getWrappedMessage().put(MessageContext.HTTP_RESPONSE_HEADERS,
-                                                inHeaders);
+                    ctx.put(MessageContext.HTTP_RESPONSE_HEADERS,
+                            inHeaders,
+                            Scope.APPLICATION);
                 } else {
-                    ctx.getWrappedMessage().put(MessageContext.HTTP_REQUEST_HEADERS,
-                                                inHeaders);                    
+                    ctx.put(MessageContext.HTTP_REQUEST_HEADERS,
+                            inHeaders,
+                            Scope.APPLICATION);                    
                 }
             
                 outMessage = exchange.getOutMessage();
@@ -206,14 +217,16 @@ public final class ContextPropertiesMapping {
                 outMessage.get(Message.PROTOCOL_HEADERS);
             
             if (outHeaders != null && !requestor) {
-                ctx.getWrappedMessage().put(MessageContext.HTTP_REQUEST_HEADERS, outHeaders);
+                ctx.put(MessageContext.HTTP_REQUEST_HEADERS,
+                        outHeaders,
+                        Scope.APPLICATION);
             }
         }
 
        
     }
     
-    private static void addMessageAttachments(MessageContext ctx,
+    private static void addMessageAttachments(WrappedMessageContext ctx,
                                               Message message,
                                               String propertyName) {
         Map<String, DataHandler> dataHandlers = null;
@@ -230,7 +243,8 @@ public final class ContextPropertiesMapping {
 
         ctx.put(propertyName, 
                 dataHandlers == null ? Collections.EMPTY_MAP
-                                     : Collections.unmodifiableMap(dataHandlers));
+                                     : Collections.unmodifiableMap(dataHandlers),
+                Scope.APPLICATION);
     }
     
     public static void updateWebServiceContext(Exchange exchange, MessageContext ctx) {

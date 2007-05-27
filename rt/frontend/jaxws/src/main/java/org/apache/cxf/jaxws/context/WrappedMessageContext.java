@@ -120,8 +120,15 @@ public class WrappedMessageContext implements MessageContext {
     }
 
     public Object put(String key, Object value) {
-        if (!MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(key)) {
+        if (!MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(key)
+            && !scopes.containsKey(key)) {
             scopes.put(key, defaultScope);
+        }
+        return contextMap.put(key, value);
+    }
+    public Object put(String key, Object value, Scope scope) {
+        if (!MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(key)) {
+            scopes.put(key, scope);
         }
         return contextMap.put(key, value);
     }
