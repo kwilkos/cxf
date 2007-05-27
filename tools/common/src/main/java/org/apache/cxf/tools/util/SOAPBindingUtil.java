@@ -21,7 +21,11 @@ package org.apache.cxf.tools.util;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;

@@ -35,11 +35,16 @@ import javax.wsdl.Definition;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.extensions.mime.MIMEPart;
+import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
+
+import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -75,6 +80,12 @@ public class WSDLManagerImpl implements WSDLManager {
             registry.registerSerializer(Types.class, 
                                         WSDLConstants.SCHEMA_QNAME,
                                         new SchemaSerializer());
+            QName header = new QName("http://schemas.xmlsoap.org/wsdl/soap/", 
+                                     "header");
+            registry.registerDeserializer(MIMEPart.class, 
+                                          header, 
+                                          new SOAPHeaderSerializer());
+            registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeader.class);
         } catch (WSDLException e) {
             throw new BusException(e);
         }

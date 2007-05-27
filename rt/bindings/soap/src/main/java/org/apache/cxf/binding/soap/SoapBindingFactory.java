@@ -258,20 +258,19 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         SoapBindingInfo bi = new SoapBindingInfo(service, ns);
         // Copy all the extensors
         initializeBindingInfo(service, binding, bi);
-
+    
         org.apache.cxf.tools.common.extensions.soap.SoapBinding wSoapBinding
             = SOAPBindingUtil.getSoapBinding(bi.getExtensors(ExtensibilityElement.class));
         
         bi.setTransportURI(wSoapBinding.getTransportURI());
         bi.setStyle(wSoapBinding.getStyle());
-
+    
         for (BindingOperationInfo boi : bi.getOperations()) {
             initializeBindingOperation(bi, boi);
         }
-
+    
         return bi;
     }
-
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
 
@@ -336,6 +335,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             bodyInfo.setUse(soapBody.getUse());
             parts = soapBody.getParts();
         }
+        
         // Initialize the body parts.
         List<MessagePartInfo> attParts = null;
         if (parts != null) {
@@ -348,32 +348,38 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     if (mpart.getExtensibilityElements().size() < 1) {
                         throw new RuntimeException("MIMEPart should at least contain one element!");
                     }
-                    Object content = mpart.getExtensibilityElements().get(0);
-                    if (content instanceof MIMEContent) {
-                        MIMEContent mc = (MIMEContent)content;
-                        partName = mc.getPart();
+                    for (Object content : mpart.getExtensibilityElements()) {
+                        if (content instanceof MIMEContent) {
+                            MIMEContent mc = (MIMEContent)content;
+                            partName = mc.getPart();
+                            
+                            if (attParts == null) {
+                                attParts = new LinkedList<MessagePartInfo>();
+                            }
+    
+                            MessagePartInfo mpi = 
+                                msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
+                                                             partName));
+                            mpi.setProperty(Message.CONTENT_TYPE, mc.getType());
+                            attParts.add(mpi);
+                            // Attachments shouldn't be part of the body message
+                            bmsg.getMessageParts().remove(mpi);
+                        } else if (SOAPBindingUtil.isSOAPBody(content)) {
+                            SoapBody sb = SOAPBindingUtil.getSoapBody(content);
+                            if (sb.getParts().size() == 1) {
+                                partName = (String) sb.getParts().get(0);
+                            }
+                            
+                            // We can have a list of empty part names here.
+                            if (partName != null) {
+                                addSoapBodyPart(msg, bodyParts, partName);
+                            }
+                        } else if (SOAPBindingUtil.isSOAPHeader(content)) {
+                            SoapHeader sb = SOAPBindingUtil.getSoapHeader(content);
                         
-                        if (attParts == null) {
-                            attParts = new LinkedList<MessagePartInfo>();
-                        }
-
-                        MessagePartInfo mpi = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
-                                                                           partName));
-                        mpi.setProperty(Message.CONTENT_TYPE, mc.getType());
-                        attParts.add(mpi);
-                        // Attachments shouldn't be part of the body message
-                        bmsg.getMessageParts().remove(mpi);
-                    } else if (SOAPBindingUtil.isSOAPBody(content)) {
-                        SoapBody sb = SOAPBindingUtil.getSoapBody(content);
-                        if (sb.getParts().size() == 1) {
-                            partName = (String) sb.getParts().get(0);
-                        }
-                        
-                        // We can have a list of empty part names here.
-                        if (partName != null) {
-                            addSoapBodyPart(msg, bodyParts, partName);
-                        }
-                    }                   
+                            bmsg.addExtensor(sb);
+                        }                  
+                    }
                 } else {
                     addSoapBodyPart(msg, bodyParts, (String)part);
                 }

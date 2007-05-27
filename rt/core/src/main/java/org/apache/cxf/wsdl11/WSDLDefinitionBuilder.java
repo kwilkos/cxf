@@ -29,12 +29,18 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.extensions.mime.MIMEPart;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+
+import com.ibm.wsdl.extensions.soap.SOAPHeaderImpl;
+import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
@@ -59,6 +65,12 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             registry = wsdlFactory.newPopulatedExtensionRegistry();
+            QName header = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "header");
+            registry.registerDeserializer(MIMEPart.class, 
+                                          header, 
+                                          new SOAPHeaderSerializer());
+            registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
+            
             registerInitialExtensions();
             wsdlReader = wsdlFactory.newWSDLReader();
             // TODO enable the verbose if in verbose mode.

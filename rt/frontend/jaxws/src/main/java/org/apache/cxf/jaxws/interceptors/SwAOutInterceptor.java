@@ -25,11 +25,13 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
@@ -99,14 +101,9 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
         if (sbi == null || sbi.getAttachments() == null || sbi.getAttachments().size() == 0) {
             Service s = message.getExchange().get(Service.class);
             DataBinding db = s.getDataBinding();
-            if (db instanceof JAXBDataBinding) {
-                JAXBContext context = ((JAXBDataBinding)db).getContext();
-                if (context instanceof JAXBContextImpl) {
-                    JAXBContextImpl riCtx = (JAXBContextImpl) context;
-                    if (riCtx.hasSwaRef()) {
-                        setupAttachmentOutput(message);
-                    }
-                }
+            if (db instanceof JAXBDataBinding
+                && hasSwaRef((JAXBDataBinding) db)) {
+                setupAttachmentOutput(message);
             }
             return;
         }
@@ -132,6 +129,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             
             DataHandler dh = null;
             
+            // This code could probably be refactored out somewhere...
             if (o instanceof Source) {
                 
                 dh = new DataHandler(createDataSource((Source)o, ct));
@@ -174,6 +172,26 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             atts.add(att);
         }
     }
+    private boolean hasSwaRef(JAXBDataBinding db) {
+        JAXBContext context = db.getContext();
+        if (context instanceof JAXBContextImpl) {
+            JAXBContextImpl riCtx = (JAXBContextImpl) context;
+            
+            try {
+                // We're using reflection here because this won't work on
+                // JAXB < 2.0.5 and Java 6 ships with 2.0.2.  This means
+                // SwA won't work correctly unless you're using at least 
+                // JAXB 2.0.5.
+                Method m = riCtx.getClass().getMethod("hasSwaRef", new Class[0]);
+                
+                return (Boolean) m.invoke(riCtx, new Object[0]);
+            } catch (Exception e) {
+                LOG.log(Level.FINER, "Could not check hasSwaRef", e);
+            }
+        }
+        
+        return false;
+    }
 
     private DataSource createDataSource(Source o, String ct) {
         DataSource ds = null;
@@ -214,25 +232,26 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
     private BufferedImage convertToBufferedImage(Image image) throws IOException {
         if (image instanceof BufferedImage) {
             return (BufferedImage)image;
-        } else {
-            MediaTracker tracker = new MediaTracker(new Component() { });
-            tracker.addImage(image, 0);
-            try {
-                tracker.waitForAll();
-            } catch (InterruptedException e) {
-                IOException ioe = new IOException(e.getMessage());
-                ioe.initCause(e);
-                throw ioe;
-            }
-            BufferedImage bufImage = new BufferedImage(
-                    image.getWidth(null),
-                    image.getHeight(null),
-                    BufferedImage.TYPE_INT_ARGB);
-
-            Graphics g = bufImage.createGraphics();
-            g.drawImage(image, 0, 0, null);
-            return bufImage;
         }
+        
+        // Wait until the image is completely loaded
+        MediaTracker tracker = new MediaTracker(new Component() { });
+        tracker.addImage(image, 0);
+        try {
+            tracker.waitForAll();
+        } catch (InterruptedException e) {
+            throw new Fault(e);
+        }
+        
+        // Create a BufferedImage so we can write it out later
+        BufferedImage bufImage = new BufferedImage(
+                image.getWidth(null),
+                image.getHeight(null),
+                BufferedImage.TYPE_INT_ARGB);
+
+        Graphics g = bufImage.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        return bufImage;
     }
     
     private Collection<Attachment> setupAttachmentOutput(SoapMessage message) {
