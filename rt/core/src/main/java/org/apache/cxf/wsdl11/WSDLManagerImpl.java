@@ -44,6 +44,7 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import com.ibm.wsdl.extensions.soap.SOAPHeaderImpl;
 import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
 
 import org.apache.cxf.Bus;
@@ -85,7 +86,7 @@ public class WSDLManagerImpl implements WSDLManager {
             registry.registerDeserializer(MIMEPart.class, 
                                           header, 
                                           new SOAPHeaderSerializer());
-            registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeader.class);
+            registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
         } catch (WSDLException e) {
             throw new BusException(e);
         }
