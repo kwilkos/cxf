@@ -125,7 +125,6 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
                 if (null != mode) {
                     faultMessage.put(FaultMode.class, mode);
                 }
-                assert exchange.get(Exception.class) == ex;
                 exchange.setOutMessage(null);
                 exchange.setOutFaultMessage(faultMessage);
             
