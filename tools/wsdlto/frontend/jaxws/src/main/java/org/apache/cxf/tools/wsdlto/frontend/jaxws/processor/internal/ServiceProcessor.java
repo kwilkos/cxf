@@ -22,16 +22,21 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPBinding;
+import javax.wsdl.extensions.mime.MIMEContent;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
+import javax.wsdl.extensions.mime.MIMEPart;
+import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -394,41 +399,11 @@ public class ServiceProcessor extends AbstractProcessor {
             if (SOAPBindingUtil.isSOAPBody(ext)) {
                 SoapBody soapBody = SOAPBindingUtil.getSoapBody(ext);
                 use = soapBody.getUse();
-            }            
-            
-            if (SOAPBindingUtil.isSOAPHeader(ext)) {
-                SoapHeader soapHeader = SOAPBindingUtil.getSoapHeader(ext);
-                boolean found = false;
-                for (JavaParameter parameter : jm.getParameters()) {
-                    if (soapHeader.getPart().equals(parameter.getPartName())) {
-                        setParameterAsHeader(parameter);
-                        found = true;
-                    }
-                }
-                if (Boolean.valueOf((String)context.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue()
-                    && !found) {
-                    // Header can't be found in java method parameters, in
-                    // different message
-                    // other than messages used in porttype operation
-                    ParameterProcessor processor = new ParameterProcessor(context);
-                    MessagePartInfo exPart = service.getMessage(soapHeader.getMessage())
-                        .getMessagePart(new QName(soapHeader.getMessage().getNamespaceURI(),
-                                                  soapHeader.getPart()));
-                        
-                    JavaType.Style jpStyle = JavaType.Style.IN;
-                    if (isInOutParam(soapHeader.getPart(), operation.getOutput())) {
-                        jpStyle = JavaType.Style.INOUT;
-                    }
-                    JavaParameter jp = processor.addParameterFromBinding(jm, exPart, jpStyle);
-                    if (soapHeader.getPart() != null && soapHeader.getPart().length() > 0) {
-                        jp.getAnnotation().addArgument("partName", soapHeader.getPart());
-                    }
-                    setParameterAsHeader(jp);
-                }
+            } else if (SOAPBindingUtil.isSOAPHeader(ext)) {
+                processSoapHeader(jm, operation, ext);
             }
             if (ext instanceof MIMEMultipartRelated && jm.enableMime()) {
-                MIMEProcessor mimeProcessor = new MIMEProcessor(context);
-                mimeProcessor.process(jm, (MIMEMultipartRelated)ext, JavaType.Style.IN);
+                processMultipart(jm, operation, (MIMEMultipartRelated)ext, JavaType.Style.IN);
             }            
         }
         
@@ -466,8 +441,7 @@ public class ServiceProcessor extends AbstractProcessor {
                     }
                 }
                 if (ext instanceof MIMEMultipartRelated && jm.enableMime()) {
-                    MIMEProcessor mimeProcessor = new MIMEProcessor(context);
-                    mimeProcessor.process(jm, (MIMEMultipartRelated)ext, JavaType.Style.OUT);
+                    processMultipart(jm, operation, (MIMEMultipartRelated)ext, JavaType.Style.OUT);
                 }
             }           
         }
@@ -487,6 +461,106 @@ public class ServiceProcessor extends AbstractProcessor {
         }
     }
 
+    private void processSoapHeader(JavaMethod jm, BindingOperationInfo operation, ExtensibilityElement ext) {
+        SoapHeader soapHeader = SOAPBindingUtil.getSoapHeader(ext);
+        boolean found = false;
+        for (JavaParameter parameter : jm.getParameters()) {
+            if (soapHeader.getPart().equals(parameter.getPartName())) {
+                setParameterAsHeader(parameter);
+                found = true;
+                break;
+            }
+        }
+        if (Boolean.valueOf((String)context.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue()
+            && !found) {
+            // Header can't be found in java method parameters, in
+            // different message
+            // other than messages used in porttype operation
+            ParameterProcessor processor = new ParameterProcessor(context);
+            MessagePartInfo exPart = service.getMessage(soapHeader.getMessage())
+                .getMessagePart(new QName(soapHeader.getMessage().getNamespaceURI(),
+                                          soapHeader.getPart()));
+                
+            JavaType.Style jpStyle = JavaType.Style.IN;
+            if (isInOutParam(soapHeader.getPart(), operation.getOutput())) {
+                jpStyle = JavaType.Style.INOUT;
+            }
+            JavaParameter jp = processor.addParameterFromBinding(jm, exPart, jpStyle);
+            if (soapHeader.getPart() != null && soapHeader.getPart().length() > 0) {
+                jp.getAnnotation().addArgument("partName", soapHeader.getPart());
+            }
+            setParameterAsHeader(jp);
+        }
+    }
+
+    private static String getJavaTypeForMimeType(MIMEPart mPart) {
+        if (mPart.getExtensibilityElements().size() > 1) {
+            return "javax.activation.DataHandler";
+        } else {
+            ExtensibilityElement extElement = (ExtensibilityElement)mPart.getExtensibilityElements().get(0);
+            if (extElement instanceof MIMEContent) {
+                MIMEContent mimeContent = (MIMEContent)extElement;
+                if ("image/jpeg".equals(mimeContent.getType()) || "image/gif".equals(mimeContent.getType())) {
+                    return "java.awt.Image";
+                } else if ("text/xml".equals(mimeContent.getType())
+                           || "application/xml".equals(mimeContent.getType())) {
+                    return "javax.xml.transform.Source";
+                }  else {
+                    return "javax.activation.DataHandler";
+                }
+            }
+        }
+        return "javax.activation.DataHandler";
+    }
+
+    public void processMultipart(JavaMethod jm, BindingOperationInfo operation,
+                                 MIMEMultipartRelated ext, JavaType.Style style) throws ToolException {
+        List mimeParts = ext.getMIMEParts();
+        Iterator itParts = mimeParts.iterator();
+        while (itParts.hasNext()) {
+            MIMEPart mPart = (MIMEPart)itParts.next();
+            Iterator extns = mPart.getExtensibilityElements().iterator();
+            while (extns.hasNext()) {
+                ExtensibilityElement extElement = (ExtensibilityElement)extns.next();
+                if (extElement instanceof MIMEContent) {
+                    MIMEContent mimeContent = (MIMEContent)extElement;
+                    String mimeJavaType = getJavaTypeForMimeType(mPart);
+                    if (JavaType.Style.IN.equals(style)) {
+                        String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
+                        JavaParameter jp = jm.getParameter(paramName);
+                        if (jp == null) {
+                            Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent.getPart());
+                            throw new ToolException(message);
+                        }
+                        if (!jp.getClassName().equals(mimeJavaType)) {
+                            // jp.setType(mimeJavaType);
+                            jp.setClassName(mimeJavaType);
+                        }
+                    } else if (JavaType.Style.OUT.equals(style)) {
+                        String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
+                        JavaType jp = jm.getParameter(paramName);
+                        if (jp == null) {
+                            //check return
+                            if (paramName.equals(jm.getReturn().getName())) {
+                                jp = jm.getReturn();
+                            }
+                        } else {
+                            ((JavaParameter)jp).setHolderClass(mimeJavaType);
+                        }
+                        if (jp == null) {
+                            Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent
+                                .getPart());
+                            throw new ToolException(message);
+                        } 
+                        jp.setClassName(mimeJavaType);
+                    }
+                } else if (extElement instanceof SOAPHeader) {
+                    processSoapHeader(jm, operation, extElement);
+                }
+            }
+        }
+    }
+    
     private Map getSoapOperationProp(BindingOperationInfo bop) {
         Map<String, Object> soapOPProp = new HashMap<String, Object>();
         if (bop.getExtensor(ExtensibilityElement.class) != null) {

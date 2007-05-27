@@ -91,11 +91,13 @@
   <wsdl:message name="echoDataWithHeaderRequest">
     <wsdl:part name="text" element="types:headerText" />
     <wsdl:part name="data" type="xsd:base64Binary" />
+    <wsdl:part name="headerText" element="types:headerText" />
   </wsdl:message>
 
   <wsdl:message name="echoDataWithHeaderResponse">
     <wsdl:part name="text" element="types:headerText" />
     <wsdl:part name="data" type="xsd:base64Binary" />
+    <wsdl:part name="headerText" element="types:headerText" />
   </wsdl:message>
 
   <wsdl:message name="headerMessage">
@@ -159,14 +161,12 @@
       </wsdl:output>
     </wsdl:operation>
 
-    <wsdl:operation name="echoDataWithHeader">
+    <wsdl:operation name="echoData">
       <soap:operation soapAction="" style="literal" />
       <wsdl:input>
         <mime:multipartRelated>
           <mime:part>
             <soap:body parts="text" use="literal" />
-            <soap:header use="literal" part="text"
-              message="tns:headerMessage" />
           </mime:part>
           <mime:part>
             <mime:content part="data" type="application/octet-stream" />
@@ -177,8 +177,34 @@
         <mime:multipartRelated>
           <mime:part>
             <soap:body parts="text" use="literal" />
-            <soap:header use="literal" part="text"
-              message="tns:headerMessage" />
+          </mime:part>
+          <mime:part>
+            <mime:content part="data" type="application/octet-stream" />
+          </mime:part>
+        </mime:multipartRelated>
+      </wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="echoDataWithHeader">
+      <soap:operation soapAction="" style="literal" />
+      <wsdl:input>
+        <mime:multipartRelated>
+          <mime:part>
+            <soap:body parts="text" use="literal" />
+            <soap:header use="literal" part="headerText"
+              message="tns:echoDataWithHeaderRequest" />
+          </mime:part>
+          <mime:part>
+            <mime:content part="data" type="application/octet-stream" />
+          </mime:part>
+        </mime:multipartRelated>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:multipartRelated>
+          <mime:part>
+            <soap:body parts="text" use="literal" />
+            <soap:header use="literal" part="headerText"
+              message="tns:echoDataWithHeaderResponse" />
           </mime:part>
           <mime:part>
             <mime:content part="data" type="application/octet-stream" />

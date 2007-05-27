@@ -74,6 +74,24 @@ public class SwAServiceImpl implements SwAServiceInterface {
         }
     }
     
+    public void echoDataWithHeader(Holder<String> text, 
+                                   Holder<DataHandler> data,
+                                   Holder<String> headerText) {
+        try {
+            InputStream bis = null;
+            bis = data.value.getDataSource().getInputStream();
+            byte b[] = new byte[6];
+            bis.read(b, 0, 6);
+            String string = new String(b);
+            
+            ByteArrayDataSource source = 
+                new ByteArrayDataSource(("test" + string).getBytes(), "application/octet-stream");
+            data.value = new DataHandler(source);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public OutputResponseAll echoAllAttachmentTypes(VoidRequest request, Holder<DataHandler> attach1,
                                                     Holder<DataHandler> attach2, Holder<Source> attach3,
                                                     Holder<Image> attach4, Holder<Image> attach5) {

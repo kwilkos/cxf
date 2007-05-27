@@ -75,6 +75,12 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             
             String start = partName + "=";
             boolean found = false;
+            
+            int idx = mpi.getIndex();
+            if (idx > inObjects.size()) {
+                idx = inObjects.size();
+            }
+            
             for (Attachment a : message.getAttachments()) {
                 if (a.getId().startsWith(start)) {
                     String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
@@ -97,14 +103,16 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
                         o = dh;
                     }
                     
-                    inObjects.add(o);
+                    inObjects.add(idx, o);
                     found = true;
                     break;
                 }
             }
             
             if (!found) {
-                inObjects.add(null);
+
+                
+                inObjects.add(idx, null);
             }
         }
     }

@@ -41,7 +41,7 @@ public class ServerLauncher {
     protected static final String SERVER_FAILED = 
         "server startup failed (not a log message)";
 
-    private static final boolean DEFAULT_IN_PROCESS = false;
+    private static final boolean DEFAULT_IN_PROCESS = true;
     
     private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
 
@@ -49,7 +49,7 @@ public class ServerLauncher {
     final String className;
 
 
-    private final boolean debug = false;
+    private final boolean debug = true;
     private boolean inProcess = DEFAULT_IN_PROCESS;
     private AbstractTestServerBase inProcessServer;
     

@@ -111,8 +111,8 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
         Collection<Attachment> atts = setupAttachmentOutput(message);
 
         List<Object> outObjects = CastUtils.cast(message.getContent(List.class));
-
-        int bodyParts = sbi.getParts().size();
+        
+        int removed = 0;
         for (MessagePartInfo mpi : sbi.getAttachments()) {
             String partName = mpi.getConcreteName().getLocalPart();
             String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
@@ -122,11 +122,13 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
                 .append(UUID.randomUUID())
                 .append("@apache.org").toString();
             
-            Object o = outObjects.remove(bodyParts);
+            // this assumes things are in order...
+            Object o = outObjects.remove(mpi.getIndex() - removed);
             if (o == null) {
                 continue;
             }
             
+            removed++;
             DataHandler dh = null;
             
             // This code could probably be refactored out somewhere...

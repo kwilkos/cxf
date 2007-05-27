@@ -74,6 +74,37 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    public void testSwaWithHeaders() throws Exception {
+        SwAService service = new SwAService();
+        
+        SwAServiceInterface port = service.getSwAServiceHttpPort();
+//        ((BindingProvider)port).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
+//                                                        "http://localhost:9037/swa");
+        
+        Holder<String> textHolder = new Holder<String>();
+        Holder<String> headerHolder = new Holder<String>();
+        Holder<DataHandler> data = new Holder<DataHandler>();
+        
+        ByteArrayDataSource source = new ByteArrayDataSource("foobar".getBytes(), "application/octet-stream");
+        DataHandler handler = new DataHandler(source);
+        
+        data.value = handler;
+        
+        textHolder.value = "Hi";
+        headerHolder.value = "Header";
+
+        port.echoDataWithHeader(textHolder, data, headerHolder);
+        InputStream bis = null;
+        bis = data.value.getDataSource().getInputStream();
+        byte b[] = new byte[10];
+        bis.read(b, 0, 10);
+        String string = new String(b);
+        assertEquals("testfoobar", string);
+        assertEquals("Hi", textHolder.value);
+        assertEquals("Header", headerHolder.value);
+    }
+    
+    @Test
     public void testSwaDataStruct() throws Exception {
         SwAService service = new SwAService();
         
