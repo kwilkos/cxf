@@ -69,6 +69,9 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             registry.registerDeserializer(MIMEPart.class, 
                                           header, 
                                           new SOAPHeaderSerializer());
+            registry.registerSerializer(MIMEPart.class, 
+                                        header, 
+                                        new SOAPHeaderSerializer());
             registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
             
             registerInitialExtensions();

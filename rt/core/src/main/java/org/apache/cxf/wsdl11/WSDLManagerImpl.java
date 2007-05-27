@@ -36,7 +36,6 @@ import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.mime.MIMEPart;
-import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBException;
@@ -86,6 +85,9 @@ public class WSDLManagerImpl implements WSDLManager {
             registry.registerDeserializer(MIMEPart.class, 
                                           header, 
                                           new SOAPHeaderSerializer());
+            registry.registerSerializer(MIMEPart.class, 
+                                        header, 
+                                        new SOAPHeaderSerializer());
             registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
         } catch (WSDLException e) {
             throw new BusException(e);
