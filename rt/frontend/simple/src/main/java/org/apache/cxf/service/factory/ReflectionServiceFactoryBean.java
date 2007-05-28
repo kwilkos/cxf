@@ -59,6 +59,8 @@ import org.apache.cxf.service.invoker.FactoryInvoker;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.invoker.LocalFactory;
 import org.apache.cxf.service.model.AbstractMessageContainer;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -301,6 +303,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
 
             initializeWSDLOperation(intf, o, selected);
+        }
+        
+        //Some of the operations may have switched from unwrapped to wrapped.  Update the bindings.
+        for (ServiceInfo service : getService().getServiceInfos()) {
+            for (BindingInfo bi : service.getBindings()) {
+                for (BindingOperationInfo binfo : bi.getOperations()) {
+                    binfo.updateUnwrappedOperation();
+                }
+            }
         }
     }
 

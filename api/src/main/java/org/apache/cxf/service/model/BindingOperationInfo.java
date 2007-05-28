@@ -77,6 +77,12 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         opHolder = wrapped;
     }
 
+    public void updateUnwrappedOperation() {
+        if (opInfo.isUnwrappedCapable()
+            && opHolder == null) {
+            opHolder = new BindingOperationInfo(bindingInfo, opInfo.getUnwrappedOperation(), this);
+        }        
+    }
     
     public BindingInfo getBinding() {
         return bindingInfo;

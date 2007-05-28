@@ -151,7 +151,6 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = ((JaxWsServiceConfiguration)jaxWsConfiguration).getDeclaredMethod(method);
-
         super.initializeWSDLOperation(intf, o, method);
 
         initializeWrapping(o, method);
@@ -327,6 +326,13 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
      */
     protected void initializeClassInfo(OperationInfo o, Method method, List<String> paramOrder) {
         if (isWrapped(method)) {
+            if (o.getUnwrappedOperation() == null) {
+                //the "normal" algorithm didn't allow for unwrapping,
+                //but the annotations say unwrap this.   We'll need to
+                //make it.
+                WSDLServiceBuilder.checkForWrapped(o, true);
+            }
+            
             if (o.hasInput()) {
                 MessageInfo input = o.getInput();
                 MessagePartInfo part = input.getMessageParts().get(0);                

@@ -598,10 +598,10 @@ public class WSDLServiceBuilder {
             copyExtensors(finfo, entry.getValue().getExtensibilityElements());
             copyExtensionAttributes(finfo, entry.getValue());
         }
-        checkForWrapped(opInfo);
+        checkForWrapped(opInfo, false);
     }
 
-    private void checkForWrapped(OperationInfo opInfo) {
+    public static void checkForWrapped(OperationInfo opInfo, boolean allowRefs) {
         MessageInfo inputMessage = opInfo.getInput();
         MessageInfo outputMessage = opInfo.getOutput();
         boolean passedRule = true;
@@ -671,7 +671,8 @@ public class WSDLServiceBuilder {
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType) {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
             if (hasAttributes(xsct)
-                || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(), unwrappedInput)) {
+                || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(),
+                                        unwrappedInput, allowRefs)) {
                 passedRule = false;
             }
         } else {
@@ -688,7 +689,8 @@ public class WSDLServiceBuilder {
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
                 if (hasAttributes(xsct)
-                    || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(), unwrappedOutput)) {
+                    || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(),
+                                            unwrappedOutput, allowRefs)) {
                     passedRule = false;
                 }
             } else {
@@ -707,7 +709,7 @@ public class WSDLServiceBuilder {
         }
     }
 
-    private boolean hasAttributes(XmlSchemaComplexType complexType) {
+    private static boolean hasAttributes(XmlSchemaComplexType complexType) {
         // Now lets see if we have any attributes...
         // This should probably look at the restricted and substitute types too.
         if (complexType.getAnyAttribute() != null || complexType.getAttributes().getCount() > 0) {
@@ -716,7 +718,8 @@ public class WSDLServiceBuilder {
         return false;
     }
 
-    private boolean isWrappableSequence(XmlSchemaComplexType type, String namespaceURI, MessageInfo wrapper) {
+    private static boolean isWrappableSequence(XmlSchemaComplexType type, String namespaceURI,
+                                        MessageInfo wrapper, boolean allowRefs) {
         if (type.getParticle() instanceof XmlSchemaSequence) {
             XmlSchemaSequence seq = (XmlSchemaSequence)type.getParticle();
             XmlSchemaObjectCollection items = seq.getItems();
@@ -738,7 +741,9 @@ public class WSDLServiceBuilder {
                     mpi.setTypeQName(el.getRefName());
                     mpi.setXmlSchema(el);
                     //element reference is not permitted for wrapper element
-                    ret = false;
+                    if (!allowRefs) {
+                        ret = false;                        
+                    }
                 } else {
                     // anonymous type
                     MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
