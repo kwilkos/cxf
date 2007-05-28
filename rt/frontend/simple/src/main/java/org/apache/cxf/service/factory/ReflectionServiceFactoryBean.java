@@ -769,7 +769,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                     part.setIndex(j);
 
-                    if (isRPC(method) && !isWrapped(method)) {
+                    if (!isRPC(method) && !isWrapped(method)) {
                         part.setProperty(ELEMENT_NAME, q2);
                     }
 

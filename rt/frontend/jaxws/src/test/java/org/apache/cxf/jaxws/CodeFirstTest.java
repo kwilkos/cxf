@@ -72,11 +72,11 @@ public class CodeFirstTest extends AbstractJaxWsTest {
                     + "/xsd:element[@type='ns0:stringArray']", wsdl);
         
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@element='ns1:sayHi'][@name='arg0']",
+                    + "/wsdl:part[@element='ns1:sayHi'][@name='sayHi']",
                     wsdl);
 
         assertValid("/wsdl:definitions/wsdl:message[@name='getGreetingsResponse']"
-                    + "/wsdl:part[@element='ns1:getGreetingsResponse'][@name='return']",
+                    + "/wsdl:part[@element='ns1:getGreetingsResponse'][@name='getGreetingsResponse']",
                     wsdl);    
 
         assertValid("/wsdl:definitions/wsdl:binding/wsdl:operation[@name='getGreetings']"

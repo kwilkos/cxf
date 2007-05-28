@@ -189,7 +189,6 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     private QName getPartName(OperationInfo op, Method method,
                               int paramNumber, MessageInfo mi, String prefix, boolean isIn) {
         int partIndex = getPartIndex(method, paramNumber, isIn);
-        
         method = getDeclaredMethod(method);
         WebParam param = getWebParam(method, paramNumber);
         String tns = mi.getName().getNamespaceURI();
@@ -208,7 +207,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
             ret = new QName(tns, local);
         } else {
-            ret = new QName(tns, getDefaultLocalName(op, method, paramNumber, partIndex, prefix));
+            if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
+                ret = new QName(tns, getDefaultLocalName(op, method, paramNumber, partIndex, prefix));
+            } else {
+                ret = new QName(tns, getOperationName(op.getInterface(),
+                                                      method).getLocalPart());
+            }
         }
         return ret;
     }
@@ -261,7 +265,14 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
 
         if (local == null || local.length() == 0) {
-            local = getDefaultLocalName(op, method, paramNumber, curSize, prefix);
+            if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
+                local = getDefaultLocalName(op, method, paramNumber, curSize, prefix);
+            } else {
+                local = getOperationName(op.getInterface(), method).getLocalPart();
+                if (!input) {
+                    local += "Response";
+                }
+            }
         }
         
         return new QName(tns, local);
@@ -325,7 +336,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
 
             if (local == null || local.length() == 0) {
-                local = getDefaultLocalName(op, method, paramNumber, op.getOutput().size(), "return");
+                if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
+                    local = getDefaultLocalName(op, method, paramNumber, op.getOutput().size(), "return");
+                } else {
+                    local = getOperationName(op.getInterface(),
+                                             method).getLocalPart() + "Response";
+                }
             }
             
             return new QName(tns, local);
@@ -356,7 +372,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                 }
                 ret = new QName(tns, local);
             } else {
-                ret = new QName(tns, "return");
+                if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
+                    ret = new QName(tns, "return");
+                } else {
+                    ret = new QName(tns, getOperationName(op.getInterface(),
+                                                          method).getLocalPart() + "Response");
+                }
             }
             return ret;
         }        
