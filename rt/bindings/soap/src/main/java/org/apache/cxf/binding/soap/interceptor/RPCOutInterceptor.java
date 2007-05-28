@@ -19,14 +19,11 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.cxf.binding.soap.SoapFault;
-import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
@@ -60,7 +57,6 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
 
             addOperationNode(nsStack, message, xmlWriter);
 
-            int countParts = 0;
             List<MessagePartInfo> parts = null;
 
             if (!isRequestor(message)) {
@@ -68,32 +64,19 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             } else {
                 parts = operation.getInput().getMessageParts();
             }
-            countParts = parts.size();
-
-            if (countParts > 0) {
-                List<?> objs = (List<?>) message.getContent(List.class);                
-                if (objs.size() < parts.size()) {
-                    throw new SoapFault("The number of arguments is not equal!", 
-                                        ((SoapMessage) message).getVersion().getSender());
-                }
-                List<MessagePartInfo> llist = new LinkedList<MessagePartInfo>();
-                for (MessagePartInfo mpi : parts) {
-                    if (!llist.contains(mpi)) {
-                        int i = 0;
-                        for (; i < llist.size(); i++) {
-                            if (llist.get(i).getIndex() > mpi.getIndex()) {
-                                i++;
-                                break;
-                            }
-                        }
-                        llist.add(i, mpi);
-                    }
-                }
-                for (int idx = 0; idx < countParts; idx++) {                    
-                    MessagePartInfo part = llist.get(idx);
-                    dataWriter.write(objs.get(idx), part, xmlWriter);                    
-                }
+            
+            List<?> objs = message.getContent(List.class);
+            if (objs == null) {
+                return;
             }
+            
+            for (MessagePartInfo part : parts) {
+                int idx = part.getMessageInfo().getMessagePartIndex(part);
+                
+                Object o = objs.get(idx);
+                dataWriter.write(o, part, xmlWriter);
+            }
+            
             // Finishing the writing.
             xmlWriter.writeEndElement();            
         } catch (XMLStreamException e) {
