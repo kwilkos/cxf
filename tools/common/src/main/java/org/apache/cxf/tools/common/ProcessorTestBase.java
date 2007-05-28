@@ -87,8 +87,8 @@ public class ProcessorTestBase extends Assert {
         String str1 = getStringFromFile(location1);
         String str2 = getStringFromFile(location2);
 
-        StringTokenizer st1 = new StringTokenizer(str1);
-        StringTokenizer st2 = new StringTokenizer(str2);
+        StringTokenizer st1 = new StringTokenizer(str1, " \t\n\r\f(),");
+        StringTokenizer st2 = new StringTokenizer(str2, " \t\n\r\f(),");
 
         // namespace declarations and wsdl message parts can be ordered
         // differently in the generated wsdl between the ibm and sun jdks.
