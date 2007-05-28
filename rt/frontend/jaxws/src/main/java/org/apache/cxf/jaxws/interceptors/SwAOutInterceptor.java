@@ -112,7 +112,6 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
 
         List<Object> outObjects = CastUtils.cast(message.getContent(List.class));
         
-        int removed = 0;
         for (MessagePartInfo mpi : sbi.getAttachments()) {
             String partName = mpi.getConcreteName().getLocalPart();
             String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
@@ -123,12 +122,13 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
                 .append("@apache.org").toString();
             
             // this assumes things are in order...
-            Object o = outObjects.remove(mpi.getIndex() - removed);
+            int idx = mpi.getMessageInfo().getMessagePartIndex(mpi);
+            Object o = outObjects.get(idx);
+            
             if (o == null) {
                 continue;
             }
             
-            removed++;
             DataHandler dh = null;
             
             // This code could probably be refactored out somewhere...

@@ -26,6 +26,7 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 
@@ -48,31 +49,33 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
         
-        int countParts = 0;
         List<MessagePartInfo> parts = null;
+        BindingMessageInfo bmsg = null;
+        boolean client = isRequestor(message);
 
-        if (!isRequestor(message)) {
+        if (!client) {
             if (operation.getOutput() != null) {
-                parts = operation.getOutput().getMessageParts();
+                bmsg = operation.getOutput();
+                parts = bmsg.getMessageParts();
             } else {
                 // partial response to oneway
                 return;
             }
         } else {
-            parts = operation.getInput().getMessageParts();
+            bmsg = operation.getInput();
+            parts = bmsg.getMessageParts();
         }
-        countParts = parts.size();
-
-        if (countParts > 0) {
-            List<?> objs = message.getContent(List.class);
-            if (objs != null) {
-                Object[] args = objs.toArray();
-                Object[] els = parts.toArray();
-
-                for (int idx = 0; idx < countParts; idx++) {
-                    dataWriter.write(args[idx], (MessagePartInfo)els[idx], xmlWriter);
-                }
-            }
+        
+        List<?> objs = message.getContent(List.class);
+        if (objs == null) {
+            return;
+        }
+        
+        for (MessagePartInfo part : parts) {
+            int idx = part.getMessageInfo().getMessagePartIndex(part);
+            
+            Object o = objs.get(idx);
+            dataWriter.write(o, part, xmlWriter);
         }
     }
     

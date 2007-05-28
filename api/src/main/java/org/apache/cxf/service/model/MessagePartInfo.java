@@ -24,7 +24,7 @@ import javax.xml.namespace.QName;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 
 public final class MessagePartInfo extends AbstractPropertiesHolder {
-    
+
     private QName pname;
     private AbstractMessageContainer mInfo;
     

@@ -20,7 +20,6 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -40,6 +39,7 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.headers.HeaderManager;
 import org.apache.cxf.headers.HeaderProcessor;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -141,7 +141,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         
         List<MessagePartInfo> parts = wrappedBmi.getMessageInfo().getMessageParts();
         if (parts.size() > 0) {
-            List<?> objs = message.getContent(List.class);
+            List<Object> objs = CastUtils.cast((List<?>)message.getContent(List.class));
             if (objs == null) {
                 return endedHeader;
             }
@@ -149,17 +149,13 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             List<SoapHeaderInfo> headers = bmi.getExtensors(SoapHeaderInfo.class);
             if (headers == null) {
                 return endedHeader;
-            }
+            }            
             
-                        
-            
-            List<Object> objsToRemove = new ArrayList<Object>(headers.size());
             for (SoapHeaderInfo header : headers) {
                 MessagePartInfo part = header.getPart();
 
                 int idx = parts.indexOf(part);
-                //int idx = part.getIndex();
-                                
+                
                 Object arg = objs.get(idx);
                 if (!(startedHeader || preexistingHeaders)) {
                     try {
@@ -174,13 +170,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 }
                 DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
                 dataWriter.write(arg, header.getPart(), xtw);
-                
-                objsToRemove.add(arg);
             }
-            for (Object obj : objsToRemove) {
-                objs.remove(obj);
-            }
-            
             
             if (startedHeader || preexistingHeaders) {
                 try {
