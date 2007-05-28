@@ -63,6 +63,17 @@
       <jms:serverConfig
         messageTimeToLive="500"
         durableSubscriptionClientId="test-server-id"/>
+  </jms:destination> 
+  
+   <jms:destination id="{http://cxf.apache.org/hello_world_jms}HelloWorldPubSubPort.jms-destination">
+      <jms:sessionPool
+          lowWaterMark="10"
+          highWaterMark="5000"/>
+      <jms:runtimePolicy              
+         durableSubscriberName="cxf_subscriber"/>
+      <jms:serverConfig
+        messageTimeToLive="500"
+        durableSubscriptionClientId="test-server-id"/>
   </jms:destination>  
 
 </beans>

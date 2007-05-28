@@ -92,7 +92,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
     }
     
     @Test    
-    public void testGetConfiguration() throws Exception {
+    public void testGetConfigurationFromSpring() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         BusFactory.setDefaultBus(null);
         bus = bf.createBus("/wsdl/jms_test_config.xml");
@@ -114,8 +114,73 @@ public class JMSDestinationTest extends AbstractJMSTester {
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
                      destination.getJMSAddress().getConnectionPassword());
+        assertEquals("Can't get the right DurableSubscriberName",
+                     "cxf_subscriber",
+                     destination.getRuntimePolicy().getDurableSubscriberName());
+        assertEquals("Can't get the right MessageSelectorName",
+                     "cxf_message_selector",
+                     destination.getRuntimePolicy().getMessageSelector());
         BusFactory.setDefaultBus(null);
         
+    }
+    
+    @Test    
+    public void testGetConfigurationFormWSDL() throws Exception {
+        SpringBusFactory bf = new SpringBusFactory();
+        BusFactory.setDefaultBus(null);
+        bus = bf.createBus();
+        BusFactory.setDefaultBus(bus);
+        setupServiceInfo("http://cxf.apache.org/hello_world_jms",
+                         "/wsdl/jms_test.wsdl",
+                         "HelloWorldQueueBinMsgService",
+                         "HelloWorldQueueBinMsgPort");
+      
+        JMSDestination destination = setupJMSDestination(false);
+        
+        assertEquals("Can't get the right DurableSubscriberName",
+                     "CXF_subscriber",
+                     destination.getRuntimePolicy().getDurableSubscriberName());
+        
+        assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
+                     "dynamicQueues/test.jmstransport.binary",
+                     destination.getJMSAddress().getJndiDestinationName());
+       
+        BusFactory.setDefaultBus(null);
+        
+    }
+    
+    @Test   
+    public void testDurableSubscriber() throws Exception {
+        SpringBusFactory bf = new SpringBusFactory();
+        BusFactory.setDefaultBus(null);
+        bus = bf.createBus("/wsdl/jms_test_config.xml");
+        BusFactory.setDefaultBus(bus);
+        destMessage = null;
+        inMessage = null;
+        setupServiceInfo("http://cxf.apache.org/hello_world_jms", 
+                         "/wsdl/jms_test.wsdl", 
+                         "HelloWorldPubSubService", 
+                         "HelloWorldPubSubPort");
+        JMSConduit conduit = setupJMSConduit(true, false);
+        Message outMessage = new MessageImpl();
+        setupMessageHeader(outMessage);
+        JMSDestination destination = null;
+        try {
+            destination = setupJMSDestination(true);        
+            //destination.activate();
+        } catch (IOException e) {
+            assertFalse("The JMSDestination activate should not through exception ", false);            
+            e.printStackTrace();
+        }        
+        sendoutMessage(conduit, outMessage, true);  
+        // wait for the message to be get from the destination
+        waitForReceiveDestMessage();
+        Thread.sleep(2000000);
+        // just verify the Destination inMessage
+        assertTrue("The destiantion should have got the message ", destMessage != null);
+        verifyReceivedMessage(destMessage);
+        verifyHeaders(destMessage, outMessage);
+        destination.shutdown();
     }
     
     @Test    
@@ -201,6 +266,8 @@ public class JMSDestinationTest extends AbstractJMSTester {
                      outHeader.getJMSType(), inHeader.getJMSType());
         
     }
+    
+    
     
     @Test    
     public void testRoundTripDestination() throws Exception {
