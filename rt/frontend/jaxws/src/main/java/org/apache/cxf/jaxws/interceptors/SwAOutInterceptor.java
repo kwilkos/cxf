@@ -36,6 +36,7 @@ import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.activation.URLDataSource;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.mail.util.ByteArrayDataSource;
@@ -128,7 +129,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             if (o == null) {
                 continue;
             }
-            
+            outObjects.set(mpi.getIndex(), null);
             DataHandler dh = null;
             
             // This code could probably be refactored out somewhere...
@@ -163,9 +164,13 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             } else if (o instanceof DataHandler) {
                 dh = (DataHandler) o;
                 ct = dh.getContentType();
-            } else {
+            } else if (dh == null) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ATTACHMENT_NOT_SUPPORTED", 
                                                                        LOG, o.getClass()));
+            } else if (dh.getDataSource() instanceof URLDataSource) {
+                URLDataSource ds = (URLDataSource)dh.getDataSource();
+                dh = new DataHandler(ds.getURL()); 
+                ct = ds.getContentType();
             }
             
             AttachmentImpl att = new AttachmentImpl(id);

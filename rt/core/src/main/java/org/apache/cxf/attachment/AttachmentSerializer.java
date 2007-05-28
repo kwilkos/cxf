@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -128,7 +127,7 @@ public class AttachmentSerializer {
                 writeHeaders(a.getDataHandler().getContentType(), a.getId(), writer);
                 out.write(writer.getBuffer().toString().getBytes(encoding));
                 
-                IOUtils.copy(a.getDataHandler().getInputStream(), out);
+                a.getDataHandler().writeTo(out);
             }
         }
         StringWriter writer = new StringWriter();                

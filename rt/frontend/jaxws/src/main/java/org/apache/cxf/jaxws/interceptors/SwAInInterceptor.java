@@ -31,7 +31,6 @@ import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -77,17 +76,22 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             boolean found = false;
             
             int idx = mpi.getIndex();
-            if (idx > inObjects.size()) {
-                idx = inObjects.size();
+            while (idx >= inObjects.size()) {
+                inObjects.add(null);
+            }
+            if (inObjects.get(idx) != null) {
+                continue;
             }
             
             for (Attachment a : message.getAttachments()) {
                 if (a.getId().startsWith(start)) {
-                    String ct = (String) mpi.getProperty(Message.CONTENT_TYPE);
-
                     DataHandler dh = a.getDataHandler();
+                    String ct = dh.getContentType();
                     Object o = null;
-                    if (ct.startsWith("image/")) {
+                    
+                    if (DataHandler.class.isAssignableFrom(mpi.getTypeClass())) {
+                        o = dh;
+                    } else if (ct.startsWith("image/")) {
                         try {
                             o = ImageIO.read(dh.getInputStream());
                         } catch (IOException e) {
@@ -103,7 +107,7 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
                         o = dh;
                     }
                     
-                    inObjects.add(idx, o);
+                    inObjects.set(idx, o);
                     found = true;
                     break;
                 }
