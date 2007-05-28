@@ -44,9 +44,9 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.W
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.MethodMapper;
 
 public class OperationProcessor  extends AbstractProcessor {
-   
+
     private JavaParameter wrapperRequest;
-    private JavaParameter wrapperResponse;   
+    private JavaParameter wrapperResponse;
     public OperationProcessor(ToolContext c) {
         super(c);
     }
@@ -54,7 +54,7 @@ public class OperationProcessor  extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, OperationInfo operation) throws ToolException {
         JavaMethod method = new MethodMapper().map(operation);
-        method.setInterface(intf);             
+        method.setInterface(intf);
         processMethod(method, operation, null);
         Collection<FaultInfo> faults = operation.getFaults();
         FaultProcessor faultProcessor = new FaultProcessor(context);
@@ -63,7 +63,7 @@ public class OperationProcessor  extends AbstractProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    void processMethod(JavaMethod method, OperationInfo operation, 
+    void processMethod(JavaMethod method, OperationInfo operation,
                               JAXWSBinding globalBinding) throws ToolException {
         if (isAsynCMethod(method)) {
             return;
@@ -73,7 +73,7 @@ public class OperationProcessor  extends AbstractProcessor {
 
         if (inputMessage == null) {
             LOG.log(Level.WARNING, "NO_INPUT_MESSAGE", new Object[] {operation.getName()});
-            org.apache.cxf.common.i18n.Message msg 
+            org.apache.cxf.common.i18n.Message msg
                 = new org.apache.cxf.common.i18n.Message("INVALID_MEP", LOG,
                                                                new Object[] {operation.getName()});
             throw new ToolException(msg);
@@ -87,7 +87,7 @@ public class OperationProcessor  extends AbstractProcessor {
                                operation.getParameterOrdering());
 
         method.annotate(new WebMethodAnnotator());
-        
+
         if (method.isWrapperStyle()) {
             setWrapper(operation);
             method.annotate(new WrapperAnnotator(wrapperRequest, wrapperResponse));
@@ -95,7 +95,7 @@ public class OperationProcessor  extends AbstractProcessor {
 
         method.annotate(new WebResultAnnotator());
         method.annotate(new SoapBindingAnnotator());
-        
+
         JAXWSBinding opBinding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
         
         boolean enableAsync = false;
@@ -126,14 +126,14 @@ public class OperationProcessor  extends AbstractProcessor {
         if (operation.getOutput() != null && operation.getOutput().getMessageParts() != null) {
             outputPart = operation.getOutput().getMessageParts().iterator().next();
         }
-        
+
         if (inputPart != null) {
             wrapperRequest = new JavaParameter();
             wrapperRequest.setName(ProcessorUtil.resolvePartName(inputPart));
             wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
 
-            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, 
+            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart,
                                                                      context, false));
 
         }
@@ -155,7 +155,7 @@ public class OperationProcessor  extends AbstractProcessor {
         }
         return false;
     }
-    
+
     private void addAsyncMethod(JavaMethod method) throws ToolException {
         addPollingMethod(method);
         addCallbackMethod(method);
@@ -206,7 +206,7 @@ public class OperationProcessor  extends AbstractProcessor {
         callbackMethod.setWrapperStyle(method.isWrapperStyle());
         callbackMethod.setSoapAction(method.getSoapAction());
         callbackMethod.setOperationName(method.getOperationName());
-        
+
         JavaReturn response = new JavaReturn();
         response.setClassName(getAsyncClassName(method, "Response"));
         callbackMethod.setReturn(response);
@@ -239,14 +239,14 @@ public class OperationProcessor  extends AbstractProcessor {
         sb.append(">");
         return sb.toString();
     }
-    
+
     private boolean isAddedAsyMethod(JavaMethod method) {
         List<JavaMethod> jmethods = method.getInterface().getMethods();
         for (JavaMethod jm : jmethods) {
-            if (!jm.getName().toLowerCase().equals(method.getOperationName().toLowerCase()) 
+            if (!jm.getName().toLowerCase().equals(method.getOperationName().toLowerCase())
                 && jm.getOperationName().toLowerCase().equals(method.getOperationName().toLowerCase())) {
                 return  true;
-                
+
             }
         }
         return false;

@@ -30,7 +30,7 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
 
     private boolean enableAsyncMapping;
 
-    private boolean enableMime = true;
+    private boolean enableMime;
 
     private Element element;
     private boolean required;

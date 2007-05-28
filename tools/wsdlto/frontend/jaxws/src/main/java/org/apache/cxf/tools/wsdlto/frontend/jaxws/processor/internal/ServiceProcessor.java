@@ -266,17 +266,17 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void processOperation(JavaModel model, BindingOperationInfo bop, BindingInfo binding)
         throws ToolException {
-        
+        boolean enableOpMime = false;
         JAXWSBinding bind = binding.getExtensor(JAXWSBinding.class);
  
-        if (bind != null && !bind.isEnableMime()) {
-            jaxwsBinding.setEnableMime(false);
+        if (bind != null && bind.isEnableMime()) {
+            enableOpMime = true;
         }
         
         JAXWSBinding bopBinding = bop.getExtensor(JAXWSBinding.class);
         
-        if (bopBinding != null && !bopBinding.isEnableMime()) {
-            jaxwsBinding.setEnableMime(false);
+        if (bopBinding != null && bopBinding.isEnableMime()) {
+            enableOpMime = true;
             if (bopBinding.getJaxwsPara() != null) {
                 jaxwsBinding.setJaxwsPara(bopBinding.getJaxwsPara());
             }
@@ -349,10 +349,18 @@ public class ServiceProcessor extends AbstractProcessor {
                             jaxwsBinding.setEnableAsyncMapping(false);
                         }
                     }
+                    
+                    if (opBinding.isEnableMime()) {
+                        enableOpMime = true;
+                    }
                 }
-                                
+                if (jaxwsBinding.isEnableMime() || enableOpMime) {
+                    jm.setMimeEnable(true);
+                }
+                
                 if (jm.isWrapperStyle() && headerType > this.noHEADER 
-                    || !jaxwsBinding.isEnableWrapperStyle()) {
+                    || !jaxwsBinding.isEnableWrapperStyle() 
+                    || jm.enableMime() && jm.isWrapperStyle()) {
                     // changed wrapper style
 
                     jm.setWrapperStyle(false);
@@ -537,22 +545,33 @@ public class ServiceProcessor extends AbstractProcessor {
                             jp.setClassName(mimeJavaType);
                         }
                     } else if (JavaType.Style.OUT.equals(style)) {
-                        String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
-                        JavaType jp = jm.getParameter(paramName);
-                        if (jp == null) {
-                            //check return
-                            if (paramName.equals(jm.getReturn().getName())) {
-                                jp = jm.getReturn();
-                            }
-                        } else {
-                            ((JavaParameter)jp).setHolderClass(mimeJavaType);
+                        JavaType jp = null;
+                        if (!"void".equals(jm.getReturn().getType())
+                            && mimeContent.getPart().equals(jm.getReturn().getName())) {
+                            jp = jm.getReturn();
+                            jp.setClassName(mimeJavaType);
                         }
+                            
+                         
+                        
+                        if (jp == null) {
+                            for (JavaParameter para : jm.getParameters()) {
+                                if (mimeContent.getPart().equals(para.getPartName())) {
+                                    jp = para;
+                                }
+                            }
+                            if (jp != null) {
+                                ((JavaParameter)jp).setHolderClass(mimeJavaType);
+                            }
+
+                        }
+
+
                         if (jp == null) {
                             Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent
                                 .getPart());
                             throw new ToolException(message);
-                        } 
-                        jp.setClassName(mimeJavaType);
+                        }
                     }
                 } else if (extElement instanceof SOAPHeader) {
                     processSoapHeader(jm, operation, extElement);

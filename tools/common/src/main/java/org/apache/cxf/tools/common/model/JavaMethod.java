@@ -43,7 +43,7 @@ public class JavaMethod implements JavaAnnotatable {
     private SOAPBinding.Style soapStyle;
     private SOAPBinding.Use soapUse;
     private boolean wrapperStyle;
-    private boolean enableMime = true;
+    private boolean enableMime;
     private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();

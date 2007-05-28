@@ -756,6 +756,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testSWAMime() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/swa-mime.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/swa-mime-binding.xml"));
         processor.setContext(env);
         processor.execute();
         Class clz = classLoader.loadClass("org.apache.cxf.swa.SwAServiceInterface");

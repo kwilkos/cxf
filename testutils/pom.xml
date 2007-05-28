@@ -180,6 +180,13 @@
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/swa-mime.wsdl</wsdl>
+                                    <extraargs>
+                                        <extraarg>-b</extraarg>
+                                        <extraarg>
+                                            ${basedir}/src/main/resources/wsdl/swa-mime-binding.xml
+                                        </extraarg>
+                                    </extraargs>                                    
+                                    
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_mixed.wsdl</wsdl>

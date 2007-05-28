@@ -491,6 +491,23 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     }
     
+    @Test
+    public void testCXF677() throws Exception {
+        
+       
+        String[] args = new String[] {"-d", output.getCanonicalPath(), "-verbose", 
+                                      "-b", 
+                                      getLocation("/wsdl2java_wsdl/hello-mime-binding.xml"),
+                                      getLocation("/wsdl2java_wsdl/hello-mime.wsdl")};
+
+        WSDLToJava.main(args); 
+        assertFileEquals(getClass().getResource("expected/expected_hello_mime").getFile(), 
+                         output.getCanonicalPath() + "/org/apache/hello_world_mime/Hello.java");
+
+
+
+    }
+    
     
     
 
