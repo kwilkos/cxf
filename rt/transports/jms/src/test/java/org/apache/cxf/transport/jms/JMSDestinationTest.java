@@ -174,8 +174,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         }        
         sendoutMessage(conduit, outMessage, true);  
         // wait for the message to be get from the destination
-        waitForReceiveDestMessage();
-        Thread.sleep(2000000);
+        waitForReceiveDestMessage();        
         // just verify the Destination inMessage
         assertTrue("The destiantion should have got the message ", destMessage != null);
         verifyReceivedMessage(destMessage);
