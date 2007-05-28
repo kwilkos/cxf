@@ -75,7 +75,7 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             String start = partName + "=";
             boolean found = false;
             
-            int idx = mpi.getIndex();
+            int idx = mpi.getMessageInfo().getMessagePartIndex(mpi);
             while (idx >= inObjects.size()) {
                 inObjects.add(null);
             }

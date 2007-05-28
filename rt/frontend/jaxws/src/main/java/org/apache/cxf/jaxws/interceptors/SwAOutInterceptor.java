@@ -129,7 +129,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             if (o == null) {
                 continue;
             }
-            outObjects.set(mpi.getIndex(), null);
+            outObjects.set(idx, null);
             DataHandler dh = null;
             
             // This code could probably be refactored out somewhere...
