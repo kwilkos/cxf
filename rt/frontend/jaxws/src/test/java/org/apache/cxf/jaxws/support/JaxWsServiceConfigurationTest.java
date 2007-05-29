@@ -75,11 +75,10 @@ public class JaxWsServiceConfigurationTest extends TestCase {
 
     public void testDefaultStyle() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
-        bean.setServiceClass(Hello.class);
+        bean.setServiceClass(HelloDefault.class);
         JaxWsServiceConfiguration jwsc = (JaxWsServiceConfiguration) bean.getServiceConfigurations().get(0);
         jwsc.setServiceFactory(bean);
 
-        // REVIST: the Hello.class,  is not a valide JAXWS SEI, the Style.RPC can not on method (JSR-181)
         assertEquals("document", jwsc.getStyle());
         assertNull(jwsc.isWrapped());
     }
@@ -161,16 +160,22 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         return serviceInfo;
     }
 
-    // REVISIT this is not a valid JAXWS SEI Style.RPC can not put on method. (JSR-181)
     @WebService(name = "Hello", targetNamespace = "http://cxf.com/")
+    @SOAPBinding(parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.BARE, 
+                 style = javax.jws.soap.SOAPBinding.Style.RPC, use = javax.jws.soap.SOAPBinding.Use.LITERAL)
     public interface Hello {
-        @SOAPBinding(parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.BARE, 
-                style = javax.jws.soap.SOAPBinding.Style.RPC, use = javax.jws.soap.SOAPBinding.Use.LITERAL)
         @WebMethod(operationName = "sayHi", exclude = false)
         String sayHi();
 
-        @SOAPBinding(parameterStyle = javax.jws.soap.SOAPBinding.ParameterStyle.BARE, 
-                style = javax.jws.soap.SOAPBinding.Style.RPC, use = javax.jws.soap.SOAPBinding.Use.LITERAL)
+        @WebMethod(operationName = "sayHello", exclude = false)
+        String sayHello(String asdf1, String asdf2);
+    }
+
+    @WebService(name = "Hello", targetNamespace = "http://cxf.com/")
+    public interface HelloDefault {
+        @WebMethod(operationName = "sayHi", exclude = false)
+        String sayHi();
+
         @WebMethod(operationName = "sayHello", exclude = false)
         String sayHello(String asdf1, String asdf2);
     }

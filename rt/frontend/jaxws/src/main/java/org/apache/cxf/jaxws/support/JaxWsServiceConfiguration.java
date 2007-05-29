@@ -194,7 +194,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         String tns = mi.getName().getNamespaceURI();
         String local = null;
         if (param != null) {
-            local = param.partName();
+            if (Boolean.TRUE.equals(isRPC(method)) || isDocumentBare(method)) {
+                local = param.partName();
+            }
             if (local == null || local.length() == 0) {
                 local = param.name();
             }
@@ -355,7 +357,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             String tns = op.getOutput().getName().getNamespaceURI();
             String local = null;
             if (webResult != null) {
-                local = webResult.partName();
+                if (Boolean.TRUE.equals(isRPC(method)) || isDocumentBare(method)) {
+                    local = webResult.partName();
+                }
                 if (local == null || local.length() == 0) {
                     local = webResult.name();
                 }
@@ -586,15 +590,23 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         return "document";
     }
     
-    
+    private boolean isDocumentBare(Method method) {
+        SOAPBinding ann = method.getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return ann.style().equals(SOAPBinding.Style.DOCUMENT) 
+                   && ann.parameterStyle().equals(SOAPBinding.ParameterStyle.BARE);
+        }
+        ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return ann.style().equals(SOAPBinding.Style.DOCUMENT) 
+                   && ann.parameterStyle().equals(SOAPBinding.ParameterStyle.BARE);
+        }
+        return false;
+    }
     
     @Override
     public Boolean isRPC(Method method) {
         SOAPBinding ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
-        if (ann != null) {
-            return ann.style().equals(SOAPBinding.Style.RPC);
-        }
-        ann = method.getAnnotation(SOAPBinding.class);
         if (ann != null) {
             return ann.style().equals(SOAPBinding.Style.RPC);
         }
