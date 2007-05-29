@@ -243,7 +243,7 @@ public class WSDLQueryHandler implements QueryHandler {
             List<SchemaImport> impLst = CastUtils.cast(lst);
             for (SchemaImport imp : impLst) {
                 String start = imp.getSchemaLocationURI();
-                if (start != null) {
+                if (start != null && !doneSchemas.containsKey(start)) {
                     try {
                         //check to see if it's aleady in a URL format.  If so, leave it.
                         new URL(start);
@@ -257,7 +257,7 @@ public class WSDLQueryHandler implements QueryHandler {
         List<SchemaReference> includes = CastUtils.cast(schema.getIncludes());
         for (SchemaReference included : includes) {
             String start = included.getSchemaLocationURI();
-            if (start != null) {
+            if (start != null && !doneSchemas.containsKey(start)) {
                 try {
                     //check to see if it's aleady in a URL format.  If so, leave it.
                     new URL(start);
