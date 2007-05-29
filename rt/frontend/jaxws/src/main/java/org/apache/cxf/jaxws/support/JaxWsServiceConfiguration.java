@@ -353,29 +353,23 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         } else {
             WebResult webResult = getWebResult(method);
             String tns = op.getOutput().getName().getNamespaceURI();
-            
-            QName ret;
+            String local = null;
             if (webResult != null) {
-                String local = webResult.partName();
-//                if (webResult.targetNamespace().length() > 0) {
-//                    tns = webResult.targetNamespace();
-//                }
-                if (local.length() == 0) {
+                local = webResult.partName();
+                if (local == null || local.length() == 0) {
                     local = webResult.name();
                 }
-                if (local.length() == 0) {
-                    local = getDefaultLocalName(op, method, paramNumber, op.getOutput().size(), "return");
-                }
-                ret = new QName(tns, local);
-            } else {
+            }
+
+            if (local == null || local.length() == 0) {
                 if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
-                    ret = new QName(tns, "return");
+                    local = "return";
                 } else {
-                    ret = new QName(tns, getOperationName(op.getInterface(),
-                                                          method).getLocalPart() + "Response");
+                    local = getOperationName(op.getInterface(), method).getLocalPart() + "Response";
                 }
             }
-            return ret;
+
+            return new QName(tns, local);
         }        
     }
 
