@@ -76,7 +76,7 @@ public final class ResponseWrapper extends Wrapper {
                 type = returnType.getName();
             }
             field.setType(type);
-            field.setTargetNamespace("");
+            //field.setTargetNamespace("");
         }
         fields.add(field);
         

@@ -495,7 +495,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     public void testCXF677() throws Exception {
         
        
-        String[] args = new String[] {"-d", output.getCanonicalPath(), "-verbose", 
+        String[] args = new String[] {"-d", output.getCanonicalPath(), 
                                       "-b", 
                                       getLocation("/wsdl2java_wsdl/hello-mime-binding.xml"),
                                       getLocation("/wsdl2java_wsdl/hello-mime.wsdl")};

@@ -282,8 +282,8 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("String", method.getReturnType().getSimpleName());
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "requestType");
         //if is wrapped, tns should be empty
-        //assertEquals("http://apache.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
-        assertEquals("", webParamAnn.targetNamespace());
+        assertEquals("http://apache.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
+        //assertEquals("", webParamAnn.targetNamespace());
         method = clz.getMethod("greetMeOneWay", new Class[] {String.class});
         Oneway oneWayAnn = AnnotationUtil.getPrivMethodAnnotation(method, Oneway.class);
         assertNotNull("OneWay Annotation is not generated", oneWayAnn);
