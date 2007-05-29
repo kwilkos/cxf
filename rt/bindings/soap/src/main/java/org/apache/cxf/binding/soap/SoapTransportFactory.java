@@ -91,8 +91,10 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
     }
 
     public void createPortExtensors(EndpointInfo ei, Service service) {
-        SoapBindingInfo bi = (SoapBindingInfo)ei.getBinding();
-        createSoapExtensors(ei, bi, bi.getSoapVersion() instanceof Soap12);
+        if (ei.getBinding() instanceof SoapBindingInfo) {
+            SoapBindingInfo bi = (SoapBindingInfo)ei.getBinding();
+            createSoapExtensors(ei, bi, bi.getSoapVersion() instanceof Soap12);
+        }
     }
 
     private void createSoapExtensors(EndpointInfo ei, SoapBindingInfo bi, boolean isSoap12) {
@@ -205,7 +207,11 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
     }
     
     public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {
-        SoapBindingInfo sbi = (SoapBindingInfo)b;
+        String transportURI = "http://schemas.xmlsoap.org/wsdl/soap/";
+        if (b instanceof SoapBindingInfo) {
+            SoapBindingInfo sbi = (SoapBindingInfo)b;
+            transportURI = sbi.getTransportURI();
+        }
         if (port != null) {
             List ees = port.getExtensibilityElements();
             for (Iterator itr = ees.iterator(); itr.hasNext();) {
@@ -214,14 +220,14 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
                 if (SOAPBindingUtil.isSOAPAddress(extensor)) {
                     final SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
     
-                    EndpointInfo info = new SoapEndpointInfo(serviceInfo, sbi.getTransportURI());
+                    EndpointInfo info = new SoapEndpointInfo(serviceInfo, transportURI);
                     info.addExtensor(sa);
                     info.setAddress(sa.getLocationURI());
                     return info;
                 }
             }
         }
-        return new SoapEndpointInfo(serviceInfo, sbi.getTransportURI());
+        return new SoapEndpointInfo(serviceInfo, transportURI);
     }
 
 

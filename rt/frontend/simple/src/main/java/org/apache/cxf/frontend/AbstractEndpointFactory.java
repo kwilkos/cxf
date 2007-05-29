@@ -161,24 +161,16 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     }
 
     protected EndpointInfo createEndpointInfo() throws BusException {
-        if (transportId == null) {
-            if (getAddress() != null) {
-                DestinationFactory df = getDestinationFactory();
-                if (df == null) {
-                    DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
-                    df = dfm.getDestinationFactoryForUri(getAddress());
-                }
-                
-                if (df != null) {
-                    transportId = df.getTransportIds().get(0);
-                }
+        if (transportId == null 
+            && getAddress() != null) {
+            DestinationFactory df = getDestinationFactory();
+            if (df == null) {
+                DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
+                df = dfm.getDestinationFactoryForUri(getAddress());
             }
             
-            if (transportId == null) {
-                // TODO: we shouldn't have to do this, but the DF is null because the
-                // LocalTransport doesn't return for the http:// uris
-                // People also seem to be supplying a null JMS getAddress(), which is worrying
-                transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
+            if (df != null) {
+                transportId = df.getTransportIds().get(0);
             }
         }
         
@@ -192,6 +184,19 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ((SoapBindingInfo) bindingInfo).setTransportURI(transportId);
             transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
+        
+        
+        if (transportId == null) {
+            if (bindingInfo instanceof SoapBindingInfo) {
+                // TODO: we shouldn't have to do this, but the DF is null because the
+                // LocalTransport doesn't return for the http:// uris
+                // People also seem to be supplying a null JMS getAddress(), which is worrying
+                transportId = "http://schemas.xmlsoap.org/wsdl/soap/";                
+            } else {
+                transportId = "http://schemas.xmlsoap.org/wsdl/http/";
+            }
+        }
+        
         service.getServiceInfos().get(0).addBinding(bindingInfo);
 
         setTransportId(transportId);

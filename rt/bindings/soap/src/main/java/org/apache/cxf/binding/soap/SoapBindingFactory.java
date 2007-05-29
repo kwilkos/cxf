@@ -375,9 +375,19 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                                 addSoapBodyPart(msg, bodyParts, partName);
                             }
                         } else if (SOAPBindingUtil.isSOAPHeader(content)) {
-                            SoapHeader sb = SOAPBindingUtil.getSoapHeader(content);
-                        
-                            bmsg.addExtensor(sb);
+                            SoapHeader header = SOAPBindingUtil.getSoapHeader(content);
+
+                            SoapHeaderInfo headerInfo = new SoapHeaderInfo();
+                            headerInfo.setUse(header.getUse());
+                            MessagePartInfo mpi = 
+                                msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
+                                            .getPart()));
+                            if (mpi != null) {
+                                headerInfo.setPart(mpi);
+                                messageParts.remove(part);
+                                bmsg.getMessageParts().remove(mpi);
+                                bmsg.addExtensor(headerInfo);
+                            }
                         }                  
                     }
                 } else {

@@ -164,6 +164,15 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             } else if (o instanceof DataHandler) {
                 dh = (DataHandler) o;
                 ct = dh.getContentType();
+                
+                try {
+                    if ("text/xml".equals(ct)
+                        && dh.getContent() instanceof Source) {
+                        dh = new DataHandler(createDataSource((Source)dh.getContent(), ct));
+                    }
+                } catch (IOException e) {
+                    //ignore, use same dh
+                }
             } else if (dh == null) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ATTACHMENT_NOT_SUPPORTED", 
                                                                        LOG, o.getClass()));
