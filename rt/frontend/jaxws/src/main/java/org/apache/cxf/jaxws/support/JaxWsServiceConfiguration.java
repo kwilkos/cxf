@@ -192,29 +192,23 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         method = getDeclaredMethod(method);
         WebParam param = getWebParam(method, paramNumber);
         String tns = mi.getName().getNamespaceURI();
-        QName ret = null;
+        String local = null;
         if (param != null) {
-            /*if (param.targetNamespace().length() > 0) {
-                tns = param.targetNamespace();
-            }*/
-
-            String local = param.partName();
-            if (local.length() == 0) {
+            local = param.partName();
+            if (local == null || local.length() == 0) {
                 local = param.name();
             }
-            if (local.length() == 0) {
-                local = getDefaultLocalName(op, method, paramNumber, partIndex, prefix);
-            }
-            ret = new QName(tns, local);
-        } else {
+        }
+
+        if (local == null || local.length() == 0) {
             if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
-                ret = new QName(tns, getDefaultLocalName(op, method, paramNumber, partIndex, prefix));
+                local = getDefaultLocalName(op, method, paramNumber, partIndex, prefix);
             } else {
-                ret = new QName(tns, getOperationName(op.getInterface(),
-                                                      method).getLocalPart());
+                local = getOperationName(op.getInterface(), method).getLocalPart();
             }
         }
-        return ret;
+
+        return new QName(tns, local);
     }
     
     private int getPartIndex(Method method, int paraNumber, boolean isIn) {
