@@ -144,6 +144,17 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     }
 
     protected EndpointInfo findBestEndpointInfo(List<ServiceInfo> serviceInfos) {
+        
+        QName qn = serviceFactory.getInterfaceName();
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
+            for (EndpointInfo ep : eps) {
+                if (ep.getInterface().getName().equals(qn)) {
+                    return ep;
+                }
+            }
+        }        
+        
         EndpointInfo best = null;
         for (ServiceInfo serviceInfo : serviceInfos) {
             Collection<EndpointInfo> eps = serviceInfo.getEndpoints();

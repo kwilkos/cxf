@@ -956,7 +956,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-    protected QName getInterfaceName() {
+    public QName getInterfaceName() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             QName name = c.getInterfaceName();
             if (name != null) {
