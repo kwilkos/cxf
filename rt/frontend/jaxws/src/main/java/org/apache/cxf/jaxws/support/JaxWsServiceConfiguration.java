@@ -227,6 +227,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
         }
         if (!isIn && isOutParam(method, paraNumber)) {
+            if (!method.getReturnType().equals(Void.class)) {
+                ret++;
+            }
             for (int i = 0; i < paraNumber; i++) {
                 if (isOutParam(method, i)) {
                     ret++;
@@ -234,12 +237,11 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
         }
         return ret;
-        
-        
     }
 
     private QName getParameterName(OperationInfo op, Method method, int paramNumber, 
                                    int curSize, String prefix, boolean input) {
+        int partIndex = getPartIndex(method, paramNumber, input);
         method = getDeclaredMethod(method);
         WebParam param = getWebParam(method, paramNumber);
         String tns = null;
@@ -266,7 +268,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
         if (local == null || local.length() == 0) {
             if (Boolean.TRUE.equals(isRPC(method)) || !Boolean.FALSE.equals(isWrapped(method))) {
-                local = getDefaultLocalName(op, method, paramNumber, curSize, prefix);
+                local = getDefaultLocalName(op, method, paramNumber, partIndex, prefix);
             } else {
                 local = getOperationName(op.getInterface(), method).getLocalPart();
                 if (!input) {
