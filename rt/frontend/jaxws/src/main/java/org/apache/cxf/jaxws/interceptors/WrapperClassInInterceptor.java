@@ -20,10 +20,10 @@
 package org.apache.cxf.jaxws.interceptors;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.WrapperHelper;
 import org.apache.cxf.message.Message;
@@ -63,26 +63,43 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
-            
-            // Sometimes, an operation can be unwrapped according to WSDLServiceFactory,
-            // but not according to JAX-WS. We should unify these at some point, but
-            // for now check for the wrapper class.
-            MessageInfo messageInfo = message.get(MessageInfo.class);
-            if (messageInfo != null && messageInfo.getMessageParts().get(0).getTypeClass() == null) {
-                return;
-            }
-            
             OperationInfo op = boi2.getOperationInfo();
             BindingMessageInfo bmi;
-            if (messageInfo == boi.getOperationInfo().getInput()) {
+            
+            MessageInfo wrappedMessageInfo = message.get(MessageInfo.class);
+            MessageInfo messageInfo;
+            if (wrappedMessageInfo == boi.getOperationInfo().getInput()) {
                 messageInfo = op.getInput();
                 bmi = boi2.getInput();
             } else {
                 messageInfo = op.getOutput();
                 bmi = boi2.getOutput();
             }
-                        
+            
+            // Sometimes, an operation can be unwrapped according to WSDLServiceFactory,
+            // but not according to JAX-WS. We should unify these at some point, but
+            // for now check for the wrapper class.
             List<?> lst = message.getContent(List.class);
+            if (lst == null) {
+                return;
+            }
+            Class<?> wrapperClass = null;
+            Object wrappedObject = null;
+            if (wrappedMessageInfo != null) {
+                for (MessagePartInfo part : wrappedMessageInfo.getMessageParts()) {
+                    //headers should appear in both, find the part that doesn't
+                    if (messageInfo.getMessagePart(part.getName()) == null) {
+                        wrapperClass = part.getTypeClass();
+                        for (Object o : lst) {
+                            if (wrapperClass.isInstance(o)) {
+                                wrappedObject = o;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
             
             if (lst != null) {
                 message.put(MessageInfo.class, messageInfo);
@@ -94,38 +111,39 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 LOG.info("WrapperClassInInterceptor skipped in HTTP GET method");
                 return;
             }
-            if (lst != null && lst.size() == 1) {
-                if (messageInfo.getMessageParts().size() > 0) {
-                    Object wrappedObject = lst.get(0);
-                    lst.clear();
-                    
-                    for (MessagePartInfo part : messageInfo.getMessageParts()) {
-                        try {
-                            String elementType = null;
-                            if (part.isElement()) {
-                                elementType = part.getElementQName().getLocalPart();
-                            } else {
-                                if (part.getTypeQName() == null) {
-                                    // handling anonymous complex type
-                                    elementType = null;
-                                } else {
-                                    elementType = part.getTypeQName().getLocalPart();
-                                }
-                            }
-                            Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(), 
-                                                                      wrappedObject,
-                                                                      elementType);
-                        
-                            CastUtils.cast(lst, Object.class).add(obj);
-                        } catch (Exception e) {
-                            // TODO - fault
-                            throw new Fault(e);
-                        }
-                    }
+            if (wrapperClass == null || wrappedObject == null) {
+                return;
+            }
+            
+            List<Object> newParams = new ArrayList<Object>();
+            for (MessagePartInfo part : messageInfo.getMessageParts()) {
+                if (wrappedMessageInfo.getMessagePart(part.getName()) != null) {
+                    newParams.add(lst.get(part.getIndex()));
                 } else {
-                    lst.clear();
+                    try {
+                        String elementType = null;
+                        if (part.isElement()) {
+                            elementType = part.getElementQName().getLocalPart();
+                        } else {
+                            if (part.getTypeQName() == null) {
+                                // handling anonymous complex type
+                                elementType = null;
+                            } else {
+                                elementType = part.getTypeQName().getLocalPart();
+                            }
+                        }
+                        Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(), 
+                                                                  wrappedObject,
+                                                                  elementType);
+                    
+                        newParams.add(obj);
+                    } catch (Exception e) {
+                        // TODO - fault
+                        throw new Fault(e);
+                    }
                 }
             }
+            message.setContent(List.class, newParams);
         }
     }
 
