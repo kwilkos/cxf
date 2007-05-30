@@ -40,6 +40,7 @@ import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
@@ -116,7 +117,13 @@ public class SOAPHandlerInterceptor extends
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             if (msg != null) {
                 XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(msg);
-                message.setContent(XMLStreamReader.class, xmlReader);
+                message.setContent(XMLStreamReader.class, xmlReader);   
+                // replace headers
+                try {
+                    SAAJInInterceptor.replaceHeaders(msg, message);
+                } catch (SOAPException e) {
+                    e.printStackTrace();
+                }                
             }
         }
     }

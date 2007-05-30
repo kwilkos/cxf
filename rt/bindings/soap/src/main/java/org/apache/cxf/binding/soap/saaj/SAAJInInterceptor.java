@@ -28,6 +28,7 @@ import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamException;
@@ -95,44 +96,7 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             
             //replace header element if necessary
             if (message.hasHeaders()) {
-                NodeList headerEls = soapMessage.getSOAPHeader().getChildNodes();
-                int len = headerEls.getLength();
-                for (int i = 0; i < len; i++) {
-                    Node nd = headerEls.item(i);
-                    if (Node.ELEMENT_NODE == nd.getNodeType()) {
-                        Element hel = (Element)nd;
-                        HeaderProcessor p = BusFactory.getDefaultBus().getExtension(HeaderManager.class)
-                            .getHeaderProcessor(hel.getNamespaceURI());
-
-                        Object obj;
-                        DataBinding dataBinding = null;
-                        if (p == null || p.getDataBinding() == null) {
-                            obj = nd;
-                        } else {
-                            obj = p.getDataBinding().createReader(Node.class).read(nd);
-                        }
-                        //TODO - add the interceptors
-                        
-                        SoapHeader shead = new SoapHeader(new QName(nd.getNamespaceURI(),
-                                nd.getLocalName()),
-                                                           obj,
-                                                           dataBinding);
-                        String mu = hel.getAttributeNS(message.getVersion().getNamespace(),
-                                message.getVersion().getAttrNameMustUnderstand());
-                        String act = hel.getAttributeNS(message.getVersion().getNamespace(),
-                                message.getVersion().getAttrNameRole());
-                        
-                        shead.setActor(act);
-                        shead.setMustUnderstand(Boolean.valueOf(mu) || "1".equals(mu));
-                        Header oldHdr = message.getHeader(
-                                new QName(nd.getNamespaceURI(), nd.getLocalName()));
-                        if (oldHdr != null) {
-                            message.getHeaders().remove(oldHdr);
-                        } 
-                        message.getHeaders().add(shead);
-                        
-                    }
-                }
+                replaceHeaders(soapMessage, message);
             }
             
             XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
@@ -150,6 +114,50 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             throw new SoapFault(new org.apache.cxf.common.i18n.Message(
                     "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), e, message
                     .getVersion().getSender());
+        }
+    }
+
+    public static void replaceHeaders(SOAPMessage soapMessage, SoapMessage message) throws SOAPException {
+        SOAPHeader header = soapMessage.getSOAPHeader();
+        if (header == null) {
+            return;
+        }
+        NodeList headerEls = header.getChildNodes();
+        int len = headerEls.getLength();
+        for (int i = 0; i < len; i++) {
+            Node nd = headerEls.item(i);
+            if (Node.ELEMENT_NODE == nd.getNodeType()) {
+                Element hel = (Element)nd;
+                HeaderProcessor p = BusFactory.getDefaultBus().getExtension(HeaderManager.class)
+                    .getHeaderProcessor(hel.getNamespaceURI());
+
+                Object obj;
+                DataBinding dataBinding = null;
+                if (p == null || p.getDataBinding() == null) {
+                    obj = nd;
+                } else {
+                    obj = p.getDataBinding().createReader(Node.class).read(nd);
+                }
+                //TODO - add the interceptors
+                
+                SoapHeader shead = new SoapHeader(new QName(nd.getNamespaceURI(),
+                        nd.getLocalName()),
+                                                   obj,
+                                                   dataBinding);
+                String mu = hel.getAttributeNS(message.getVersion().getNamespace(),
+                        message.getVersion().getAttrNameMustUnderstand());
+                String act = hel.getAttributeNS(message.getVersion().getNamespace(),
+                        message.getVersion().getAttrNameRole());
+                
+                shead.setActor(act);
+                shead.setMustUnderstand(Boolean.valueOf(mu) || "1".equals(mu));
+                Header oldHdr = message.getHeader(
+                        new QName(nd.getNamespaceURI(), nd.getLocalName()));
+                if (oldHdr != null) {
+                    message.getHeaders().remove(oldHdr);
+                } 
+                message.getHeaders().add(shead);                        
+            }
         }
     }
 
