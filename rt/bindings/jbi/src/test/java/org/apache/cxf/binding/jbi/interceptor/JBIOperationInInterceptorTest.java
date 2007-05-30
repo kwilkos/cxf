@@ -18,20 +18,30 @@
  */
 package org.apache.cxf.binding.jbi.interceptor;
 
-import junit.framework.TestCase;
+
+import javax.jbi.messaging.MessageExchange;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.jbi.JBIMessage;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
+import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class JBIOperationInInterceptorTest extends TestCase {
+public class JBIOperationInInterceptorTest extends Assert {
 
+    @Test
     public void testPhase() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIOperationInInterceptor();
         assertEquals(Phase.PRE_PROTOCOL, interceptor.getPhase());
     }
     
-    /*
+    @Ignore
     public void testOperation() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIOperationInInterceptor();
         JBIMessage msg = new JBIMessage(new MessageImpl());
@@ -45,6 +55,6 @@ public class JBIOperationInInterceptorTest extends TestCase {
         
         interceptor.handleMessage(msg);
     }
-    */
+    
     
 }

@@ -27,8 +27,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.binding.jbi.JBIMessage;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.helpers.DOMUtils;
@@ -36,14 +34,18 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JBIFaultOutInterceptorTest extends TestCase {
+public class JBIFaultOutInterceptorTest extends Assert {
     
+    @Test
     public void testPhase() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIFaultOutInterceptor();
         assertEquals(Phase.MARSHAL, interceptor.getPhase());
     }
     
+    @Test
     public void testNoWriter() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIFaultOutInterceptor();
         try {
@@ -55,6 +57,7 @@ public class JBIFaultOutInterceptorTest extends TestCase {
         }
     }
 
+    @Test
     public void testNoFault() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIFaultOutInterceptor();
         try {
@@ -68,6 +71,7 @@ public class JBIFaultOutInterceptorTest extends TestCase {
         }
     }
 
+    @Test
     public void testEmptyFault() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIFaultOutInterceptor();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -81,6 +85,7 @@ public class JBIFaultOutInterceptorTest extends TestCase {
         assertEquals("fault", doc.getDocumentElement().getNodeName());
     }
 
+    @Test
     public void testDetailedFault() throws Exception {
         PhaseInterceptor<JBIMessage> interceptor = new JBIFaultOutInterceptor();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

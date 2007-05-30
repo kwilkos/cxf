@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.binding.jbi;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.jbi.interceptor.JBIFaultOutInterceptor;
@@ -27,10 +26,14 @@ import org.apache.cxf.binding.jbi.interceptor.JBIWrapperInInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIWrapperOutInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JBIBindingFactoryTest extends TestCase {
+public class JBIBindingFactoryTest extends Assert {
 
+    @Test
     public void testCreateBinding() {
+        
         JBIBindingInfo info = new JBIBindingInfo(new ServiceInfo(), "id");
         Binding binding = new JBIBindingFactory().createBinding(info);
         assertEquals(2, binding.getInInterceptors().size());
