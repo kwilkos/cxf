@@ -36,6 +36,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +59,7 @@ import org.apache.cxf.ws.rm.persistence.RMStoreException;
 
 public class RMTxStore implements RMStore {
     
-    public static final String DEFAULT_DATABASE_DIR = "rmdb";
+    public static final String DEFAULT_DATABASE_NAME = "rmdb";
     
     private static final String CREATE_DEST_SEQUENCES_TABLE_STMT =
         "CREATE TABLE CXF_RM_DEST_SEQUENCES " 
@@ -80,6 +82,7 @@ public class RMTxStore implements RMStore {
         "CREATE TABLE {0} " 
         + "(SEQ_ID VARCHAR(256) NOT NULL, "
         + "MSG_NO DECIMAL(31, 0) NOT NULL, "
+        + "SEND_TO VARCHAR(256), "
         + "CONTENT BLOB, "
         + "PRIMARY KEY (SEQ_ID, MSG_NO))";
     private static final String INBOUND_MSGS_TABLE_NAME = "CXF_RM_INBOUND_MESSAGES";
@@ -99,7 +102,7 @@ public class RMTxStore implements RMStore {
     private static final String UPDATE_SRC_SEQUENCE_STMT_STR =
         "UPDATE CXF_RM_SRC_SEQUENCES SET CUR_MSG_NO = ?, LAST_MSG = ? WHERE SEQ_ID = ?";
     private static final String CREATE_MESSAGE_STMT_STR 
-        = "INSERT INTO {0} VALUES(?, ?, ?)";
+        = "INSERT INTO {0} VALUES(?, ?, ?, ?)";
     private static final String DELETE_MESSAGE_STMT_STR =
         "DELETE FROM {0} WHERE SEQ_ID = ? AND MSG_NO = ?";
     private static final String SELECT_DEST_SEQUENCES_STMT_STR =
@@ -109,11 +112,12 @@ public class RMTxStore implements RMStore {
         "SELECT SEQ_ID, CUR_MSG_NO, LAST_MSG, EXPIRY, OFFERING_SEQ_ID FROM CXF_RM_SRC_SEQUENCES "
         + "WHERE ENDPOINT_ID = ?";
     private static final String SELECT_MESSAGES_STMT_STR =
-        "SELECT MSG_NO, CONTENT FROM {0} WHERE SEQ_ID = ?";
+        "SELECT MSG_NO, SEND_TO, CONTENT FROM {0} WHERE SEQ_ID = ?";
     
     private static final Logger LOG = LogUtils.getL7dLogger(RMTxStore.class);
     
     private Connection connection;
+    private Lock writeLock = new ReentrantLock();
 
     private PreparedStatement createDestSequenceStmt;
     private PreparedStatement createSrcSequenceStmt;
@@ -131,7 +135,7 @@ public class RMTxStore implements RMStore {
     private PreparedStatement selectOutboundMessagesStmt;
     
     private String driverClassName = "org.apache.derby.jdbc.EmbeddedDriver";
-    private String url = MessageFormat.format("jdbc:derby:{0};create=true", DEFAULT_DATABASE_DIR);
+    private String url = MessageFormat.format("jdbc:derby:{0};create=true", DEFAULT_DATABASE_NAME);
     private String userName;
     private String password;
     
@@ -342,10 +346,12 @@ public class RMTxStore implements RMStore {
             ResultSet res = stmt.executeQuery();
             while (res.next()) {
                 BigInteger mn = res.getBigDecimal(1).toBigInteger();
-                Blob blob = res.getBlob(2);
+                String to = res.getString(2);
+                Blob blob = res.getBlob(3);
                 byte[] bytes = blob.getBytes(1, (int)blob.length());     
                 RMMessage msg = new RMMessage();
                 msg.setMessageNumber(mn);
+                msg.setTo(to);
                 msg.setContent(bytes);
                 msgs.add(msg);                
             }            
@@ -423,13 +429,19 @@ public class RMTxStore implements RMStore {
     }
 
     // transaction demarcation
+    // 
     
     protected void beginTransaction() {
-        // no-op 
+        // avoid sharing of statements and result sets
+        writeLock.lock();
     }
     
     protected void commit() throws SQLException {
-        connection.commit();
+        try {
+            connection.commit();
+        } finally {
+            writeLock.unlock();
+        }
     }
     
     protected void abort() {
@@ -437,7 +449,9 @@ public class RMTxStore implements RMStore {
             connection.rollback(); 
         } catch (SQLException ex) {
             LogUtils.log(LOG, Level.SEVERE, "ABORT_FAILED_MSG", ex);
-        }     
+        } finally {
+            writeLock.unlock();
+        }
     }
     
     // helpers
@@ -446,8 +460,9 @@ public class RMTxStore implements RMStore {
         throws IOException, SQLException {
         String id = sid.getValue();
         BigInteger nr = msg.getMessageNumber();
-        LOG.log(Level.FINE, "Storing {0} message number {1} for sequence {2}",
-            new Object[] {outbound ? "outbound" : "inbound", nr, id});
+        String to = msg.getTo();
+        LOG.log(Level.FINE, "Storing {0} message number {1} for sequence {2}, to = {3}",
+            new Object[] {outbound ? "outbound" : "inbound", nr, id, to});
         PreparedStatement stmt = outbound ? createOutboundMessageStmt : createInboundMessageStmt;
         if (null == stmt) {
             stmt = connection.prepareStatement(MessageFormat.format(CREATE_MESSAGE_STMT_STR,
@@ -458,14 +473,16 @@ public class RMTxStore implements RMStore {
                 createInboundMessageStmt = stmt;
             }
         }
-
         int i = 1;
         stmt.setString(i++, id);  
-        stmt.setBigDecimal(i++, new BigDecimal(nr)); 
+        stmt.setBigDecimal(i++, new BigDecimal(nr));
+        stmt.setString(i++, to); 
         byte[] bytes = msg.getContent();    
         stmt.setBinaryStream(i++, new ByteArrayInputStream(bytes), bytes.length);
-        
         stmt.execute();
+        LOG.log(Level.FINE, "Successfully stored {0} message number {1} for sequence {2}",
+                new Object[] {outbound ? "outbound" : "inbound", nr, id});
+        
     }
     
     protected void updateSourceSequence(SourceSequence seq) 
@@ -579,20 +596,20 @@ public class RMTxStore implements RMStore {
     }
     
     public static void deleteDatabaseFiles() {
-        deleteDatabaseFiles(DEFAULT_DATABASE_DIR, true);
+        deleteDatabaseFiles(DEFAULT_DATABASE_NAME, true);
     }
     
-    public static void deleteDatabaseFiles(String path, boolean now) {
+    public static void deleteDatabaseFiles(String dbName, boolean now) {
         String dsh = System.getProperty("derby.system.home");
        
         File root = null;  
         File log = null;
         if (null == dsh) {
             log = new File("derby.log");
-            root = new File(path);            
+            root = new File(dbName);            
         } else {
             log = new File(dsh, "derby.log"); 
-            root = new File(dsh, path);
+            root = new File(dsh, dbName);
         }
         if (log.exists()) {            
             if (now) {

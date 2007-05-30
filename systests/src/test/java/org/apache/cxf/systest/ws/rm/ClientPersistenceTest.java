@@ -71,7 +71,7 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
         protected void run() {
             SpringBusFactory bf = new SpringBusFactory();
-            Bus bus = bf.createBus("/org/apache/cxf/systest/ws/rm/oneway-client-crash.xml");
+            Bus bus = bf.createBus("/org/apache/cxf/systest/ws/rm/persistent.xml");
             BusFactory.setDefaultBus(bus);
             
             LoggingInInterceptor logIn = new LoggingInInterceptor();
@@ -117,7 +117,7 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
     
     @AfterClass
     public static void tearDownOnce() {
-        RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_DIR, false);
+        RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_NAME, false);
     }
 
     @Test 
@@ -134,7 +134,7 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
     void startClient() {
         LOG.fine("Creating greeter client");
         SpringBusFactory bf = new SpringBusFactory();
-        bus = bf.createBus("/org/apache/cxf/systest/ws/rm/oneway-client-crash.xml");
+        bus = bf.createBus("/org/apache/cxf/systest/ws/rm/persistent.xml");
         BusFactory.setDefaultBus(bus);
 
         GreeterService gs = new GreeterService();

@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
+import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.rm.persistence.RMMessage;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 
@@ -59,6 +61,12 @@ public class RetransmissionCallback implements CachedOutputStreamCallback {
                 SourceSequence ss = s.getSequence(sid);
                 RMMessage msg = new RMMessage();
                 msg.setMessageNumber(rmps.getSequence().getMessageNumber());
+                if (!MessageUtils.isRequestor(message)) {
+                    AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, true);
+                    if (null != maps && null != maps.getTo()) {
+                        msg.setTo(maps.getTo().getValue());
+                    }
+                }
                 msg.setContent(bos.toByteArray());
                 store.persistOutgoing(ss, msg); 
             }

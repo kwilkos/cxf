@@ -568,6 +568,9 @@ public class RMManagerTest extends Assert {
         EasyMock.expect(ss.isLastMessage()).andReturn(true);
         EasyMock.expect(ss.getCurrentMessageNr()).andReturn(BigInteger.TEN);
         EasyMock.expect(m.getMessageNumber()).andReturn(BigInteger.TEN).times(2);
+        if (null == conduit) {
+            EasyMock.expect(m.getTo()).andReturn("toAddress");
+        }
         byte[] content = new byte[] {'x', '9'};
         EasyMock.expect(m.getContent()).andReturn(content);
         queue.addUnacknowledged(EasyMock.isA(Message.class));

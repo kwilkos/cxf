@@ -58,6 +58,9 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         }
         if (os instanceof AbstractCachedOutputStream) {
             ((AbstractCachedOutputStream)os).registerCallback(new RecorderCallback());
+        } else {
+            LOG.fine("Can't register recorder callback for output stream of class "
+                     + os.getClass().getName());
         }
     }
    
@@ -83,6 +86,8 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("outbound: " + bos.toString());
                 }
+            } else {
+                LOG.fine("Can't record message from output stream class: " + os.getClass().getName());
             }
         }
         

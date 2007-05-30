@@ -97,7 +97,7 @@ public class RMTxStoreTest extends Assert {
             ex.printStackTrace();
         }
         */
-        RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_DIR, false);
+        RMTxStore.deleteDatabaseFiles(RMTxStore.DEFAULT_DATABASE_NAME, false);
     }
     
     
@@ -419,8 +419,8 @@ public class RMTxStoreTest extends Assert {
         assertEquals(0, out.size());
         
         try {
-            setupMessage(sid1, BigInteger.ONE, true);
-            setupMessage(sid1, BigInteger.ONE, false);
+            setupMessage(sid1, BigInteger.ONE, null, true);
+            setupMessage(sid1, BigInteger.ONE, null, false);
 
             out = store.getMessages(sid1, true);
             assertEquals(1, out.size());
@@ -430,8 +430,8 @@ public class RMTxStoreTest extends Assert {
             assertEquals(1, in.size());
             checkRecoveredMessages(in);
             
-            setupMessage(sid1, BigInteger.TEN, true);
-            setupMessage(sid1, BigInteger.TEN, false);
+            setupMessage(sid1, BigInteger.TEN, NON_ANON_ACKS_TO, true);
+            setupMessage(sid1, BigInteger.TEN, NON_ANON_ACKS_TO, false);
             
             out = store.getMessages(sid1, true);
             assertEquals(2, out.size());
@@ -518,10 +518,11 @@ public class RMTxStoreTest extends Assert {
         return sid;
     }
     
-    private void setupMessage(Identifier sid, BigInteger mn, boolean outbound) 
+    private void setupMessage(Identifier sid, BigInteger mn, String to, boolean outbound) 
         throws IOException, SQLException  {
         RMMessage msg = control.createMock(RMMessage.class);
         EasyMock.expect(msg.getMessageNumber()).andReturn(mn);
+        EasyMock.expect(msg.getTo()).andReturn(to);
         String value = "Message " + mn.longValue();
         EasyMock.expect(msg.getContent()).andReturn(value.getBytes());
         
@@ -582,6 +583,11 @@ public class RMTxStoreTest extends Assert {
         for (RMMessage msg : msgs) {
             BigInteger mn = msg.getMessageNumber();
             assertTrue(BigInteger.ONE.equals(mn) || BigInteger.TEN.equals(mn));
+            if (BigInteger.TEN.equals(mn)) {
+                assertEquals(NON_ANON_ACKS_TO, msg.getTo());
+            } else {
+                assertNull(msg.getTo());
+            }
             byte[] actual = msg.getContent();
             assertEquals(new String("Message " + mn.longValue()), new String(actual));
         }

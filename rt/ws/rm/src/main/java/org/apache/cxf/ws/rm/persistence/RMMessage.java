@@ -25,6 +25,7 @@ public class RMMessage {
     
     private byte[] content;
     private BigInteger messageNumber;
+    private String to;
     
     /**
      * Returns the message number of the message within its sequence.
@@ -58,6 +59,23 @@ public class RMMessage {
      */
     public void setContent(byte[] c) {
         content = c;
+    }
+    
+    /**
+     * Returns the to address of this message.
+     * @return the to address
+     */
+    public String getTo() {
+        return to;
+    }
+    
+    
+    /**
+     * Sets the to address of this message.
+     * @param t the to address
+     */
+    public void setTo(String t) {
+        to = t;
     }
 
 

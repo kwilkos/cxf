@@ -417,7 +417,13 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
                 }
                 RMProperties rmps = new RMProperties();
                 rmps.setSequence(st);
-                RMContextUtils.storeRMProperties(message, rmps, true);
+                RMContextUtils.storeRMProperties(message, rmps, true);                
+                if (null == conduit) {
+                    String to = m.getTo();
+                    AddressingProperties maps = new AddressingPropertiesImpl();
+                    maps.setTo(RMUtils.createReference(to));
+                    RMContextUtils.storeMAPs(maps, message, true, false);
+                }
                                     
                 message.setContent(byte[].class, m.getContent());
                           

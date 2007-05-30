@@ -41,19 +41,26 @@ public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
 
     @Override
     public boolean startGreeter(String cfgResource) {
-        SpringBusFactory bf = new SpringBusFactory();
-        greeterBus = bf.createBus(cfgResource);
-        BusFactory.setDefaultBus(greeterBus);
-        LOG.info("Initialised bus with cfg file resource: " + cfgResource);
-        
-        Interceptor logIn = new LoggingInInterceptor();
-        Interceptor logOut = new LoggingOutInterceptor();
-        greeterBus.getInInterceptors().add(logIn);
-        greeterBus.getOutInterceptors().add(logOut);
-        greeterBus.getOutFaultInterceptors().add(logOut);
-        
-        Endpoint.publish(address, implementor);
-        LOG.info("Published greeter endpoint.");
+        String derbyHome = System.getProperty("derby.system.home"); 
+        try {
+            System.setProperty("derby.system.home", derbyHome + "-server");   
+            SpringBusFactory bf = new SpringBusFactory();
+            greeterBus = bf.createBus(cfgResource);
+            BusFactory.setDefaultBus(greeterBus);
+            LOG.info("Initialised bus " + greeterBus + " with cfg file resource: " + cfgResource);
+            LOG.fine("greeterBus inInterceptors: " + greeterBus.getInInterceptors());
+
+            Interceptor logIn = new LoggingInInterceptor();
+            Interceptor logOut = new LoggingOutInterceptor();
+            greeterBus.getInInterceptors().add(logIn);
+            greeterBus.getOutInterceptors().add(logOut);
+            greeterBus.getOutFaultInterceptors().add(logOut);
+
+            Endpoint.publish(address, implementor);
+            LOG.info("Published greeter endpoint.");
+        } finally {
+            System.setProperty("derby.system.home", derbyHome);
+        }
         
         return true;        
     }

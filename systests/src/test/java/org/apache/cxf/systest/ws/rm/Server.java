@@ -38,6 +38,7 @@ public class Server extends AbstractBusTestServerBase {
         BusFactory.setDefaultBus(bus);
         setBus(bus);
 
+        System.out.println("Created control bus " + bus);
         ControlImpl implementor = new ControlImpl();
         GreeterImpl greeterImplementor = new GreeterImpl();
         implementor.setImplementor(greeterImplementor);

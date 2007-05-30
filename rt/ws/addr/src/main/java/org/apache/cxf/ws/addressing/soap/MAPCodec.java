@@ -379,8 +379,6 @@ public class MAPCodec extends AbstractSoapInterceptor {
                 if (null != referenceParameterHeaders && null != maps) {
                     decodeReferenceParameters(referenceParameterHeaders, maps, unmarshaller);
                 }
-                restoreExchange(message, maps);
-                markPartialResponse(message, maps);
             }
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
@@ -618,6 +616,9 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         }
                     }
                 }
+            } else {
+                LOG.log(Level.WARNING, "CORRELATION_FAILURE_MSG");
+                message.getInterceptorChain().abort();
             }
         }
     }
