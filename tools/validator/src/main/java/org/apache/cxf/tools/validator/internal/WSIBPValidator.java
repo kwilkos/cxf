@@ -338,7 +338,8 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
             Binding binding = (Binding)ite.next();
 
             if (!SOAPBindingUtil.isSOAPBinding(binding)) {
-                System.err.println("NOT SOAPBINDING");
+                System.err.println("WSIBP Validator found <"
+                                   + binding.getQName() + "> is NOT a SOAP binding");
                 continue;
             }
 
