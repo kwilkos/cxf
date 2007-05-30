@@ -89,19 +89,9 @@ public final class WrapperHelper {
                 }
             }
             if (!setInvoked) {
-                XmlElement el = null;
-                Field elField = null;
-                for (Field field : wrapperType.getClass().getDeclaredFields()) {
-                    if (field.getName().equals(fieldName)) {
-                        elField = field;
-                        el = elField.getAnnotation(XmlElement.class);
-                        break;
-                    }
-                }
+                Field elField = getField(wrapperType, partName, fieldName);
                 // JAXB Type get XmlElement Annotation
-                if (elField != null 
-                    && el != null
-                    && partName.equals(el.name())) {
+                if (elField != null) {
                     elField.setAccessible(true);
                     elField.set(wrapperType, part);
                     setInvoked = true;
@@ -112,6 +102,26 @@ public final class WrapperHelper {
                                                    + partName);
             }
         }
+    }
+
+    private static Field getField(Object wrapperType, String partName, String fieldName) {
+        // match fieldName and partName first
+        for (Field field : wrapperType.getClass().getDeclaredFields()) {
+            if (field.getName().equals(fieldName)) {
+                XmlElement el = field.getAnnotation(XmlElement.class);
+                if (el != null && el.name().equals(partName)) {
+                    return field;
+                }
+            }
+        }
+        // if above fails, check partName only
+        for (Field field : wrapperType.getClass().getDeclaredFields()) {
+            XmlElement el = field.getAnnotation(XmlElement.class);
+            if (el != null && el.name().equals(partName)) {
+                return field;
+            }
+        }
+        return null;
     }
 
     private static boolean setJAXBElementValueIntoWrapType(Method method, Object wrapType, Object value) {
