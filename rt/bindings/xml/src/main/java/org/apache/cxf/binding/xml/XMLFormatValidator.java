@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.validator; 
+package org.apache.cxf.binding.xml;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,11 +33,12 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.WSDLConstants;
-import org.apache.cxf.tools.validator.internal.AbstractValidator;
+import org.apache.cxf.tools.validator.ServiceValidator;
 
-public class XMLFormatValidator extends AbstractValidator {
+public class XMLFormatValidator extends ServiceValidator {
 
-    private ServiceInfo service;
+    public XMLFormatValidator() {
+    }
 
     public XMLFormatValidator(ServiceInfo s) {
         this.service = s;

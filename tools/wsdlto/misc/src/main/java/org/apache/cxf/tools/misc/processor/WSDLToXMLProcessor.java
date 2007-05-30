@@ -21,10 +21,10 @@ package org.apache.cxf.tools.misc.processor;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -36,22 +36,22 @@ import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
-import org.apache.cxf.bindings.xformat.XMLFormatBinding;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.tools.misc.processor.address.Address;
+import org.apache.cxf.tools.misc.processor.address.AddressFactory;
+import org.apache.cxf.wsdl.WSDLExtensibilityPlugin;
 
 public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
 
     private static final String NEW_FILE_NAME_MODIFIER = "-xmlbinding";
-    private static final String HTTP_PREFIX = "http://localhost:9000";
 
     private ExtensionRegistry extReg;
 
@@ -182,15 +182,12 @@ public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        XMLFormatBinding xmlBinding = null;
         try {
-            xmlBinding = (XMLFormatBinding)extReg.createExtension(Binding.class,
-                                                                  ToolConstants.XML_BINDING_FORMAT);
+            binding.addExtensibilityElement(getWSDLPlugin("xml", Binding.class).createExtension(null));
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_XMLBINDING", LOG);
             throw new ToolException(msg);
         }
-        binding.addExtensibilityElement(xmlBinding);
     }
 
     @SuppressWarnings("unchecked")
@@ -232,19 +229,20 @@ public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
         // TODO
     }
 
-    private XMLBindingMessageFormat getXMLBody(Class clz, String operationName) throws ToolException {
+    private ExtensibilityElement getXMLBody(Class clz, String operationName) throws ToolException {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        XMLBindingMessageFormat xmlFormat = null;
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put(QName.class.getName(), new QName(wsdlDefinition.getTargetNamespace(), operationName));
+        args.put(Class.class.getName(), clz);
+
         try {
-            xmlFormat = (XMLBindingMessageFormat)extReg.createExtension(clz, ToolConstants.XML_FORMAT);
+            return getWSDLPlugin("xml", clz).createExtension(args);
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_XMLBINDING", LOG);
             throw new ToolException(msg);
         }
-        xmlFormat.setRootNode(new QName(wsdlDefinition.getTargetNamespace(), operationName));
-        return xmlFormat;
     }
 
     private void doAppendService() throws ToolException {
@@ -268,21 +266,17 @@ public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        HTTPAddress xmlHttpAddress = null;
+
+        Address address = AddressFactory.getInstance().getAddresser("xml");
+        WSDLExtensibilityPlugin generator = getWSDLPlugin("xml", Port.class);
         try {
-            xmlHttpAddress = (HTTPAddress)extReg.createExtension(Port.class,
-                                                                 WSDLConstants.NS_XMLHTTP_BINDING_ADDRESS);
+            ExtensibilityElement extElement = generator.createExtension(address.buildAddressArguments(env));
+
+            port.addExtensibilityElement(extElement);
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SOAPADDRESS", LOG);
             throw new ToolException(msg);
         }
-        if (env.get(ToolConstants.CFG_ADDRESS) != null) {
-            xmlHttpAddress.setLocationURI((String)env.get(ToolConstants.CFG_ADDRESS));
-        } else {
-            xmlHttpAddress.setLocationURI(HTTP_PREFIX + "/" + env.get(ToolConstants.CFG_SERVICE) + "/"
-                                          + env.get(ToolConstants.CFG_PORT));
-        }
-        port.addExtensibilityElement(xmlHttpAddress);
     }
 
     private void writeToWSDL() throws ToolException {

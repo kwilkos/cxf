@@ -116,22 +116,6 @@
 			<configuration>
 			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
 			    <xsdOptions>
-      				<xsdOption>
-      				    <xsd>${basedir}/src/main/resources/schemas/wsdl/xml-binding.xsd</xsd>
-      				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/xml-binding.xjb</bindingFile>
-      				    <deleteDirs>
-            					<deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-      				    </deleteDirs>
-      				</xsdOption>
-      				
-  			      <xsdOption>
-    			        <xsd>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</xsd>
-    			        <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-    			        <deleteDirs>
-      			          <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-    			        </deleteDirs>
-  			      </xsdOption>
-  			      
   			      <xsdOption>
     			        <xsd>${basedir}/src/main/resources/schemas/wsdl/jbi.xsd</xsd>
     			        <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jbi.xjb</bindingFile>

@@ -34,6 +34,7 @@ import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
+import org.apache.cxf.tools.validator.ServiceValidator;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
@@ -183,6 +184,13 @@ public class JAXWSContainerTest extends ProcessorTestBase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void testGetServceValidator() throws Exception {
+        JAXWSContainer container = new JAXWSContainer(null);
+        List<ServiceValidator> validators = container.getServiceValidators();
+        assertNotNull(validators);
+        assertTrue(validators.size() > 0);
     }
 
     protected String getLocation(String wsdlFile) throws URISyntaxException {

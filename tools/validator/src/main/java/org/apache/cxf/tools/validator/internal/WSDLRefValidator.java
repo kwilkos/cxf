@@ -72,7 +72,7 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
-public class WSDLRefValidator extends AbstractValidator {
+public class WSDLRefValidator extends AbstractDefinitionValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLRefValidator.class);
     protected List<XNode> vNodes = new ArrayList<XNode>();
     

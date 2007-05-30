@@ -40,8 +40,8 @@ wsdl2service -transport http -e servicename -p portname -n bindingname HelloWorl
 		       </annotation>
 				<switch>transport</switch>
 				<associatedArgument placement="afterSpace">
-				    <annotation>http/jms</annotation>
-				  	<valueenum>http|jms</valueenum>
+				    <annotation>soap/xml/jms</annotation>
+				  	<valueenum>soap|xml|jms</valueenum>
 				</associatedArgument>
 		    </option>
 	

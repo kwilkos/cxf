@@ -49,6 +49,7 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.URIParserUtil;
+import org.apache.cxf.tools.validator.AbstractValidator;
 
 public class WSDL11Validator extends AbstractDefinitionValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);

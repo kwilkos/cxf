@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
@@ -40,6 +41,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -58,8 +60,7 @@ import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.URIParserUtil;
-import org.apache.cxf.tools.validator.internal.AbstractValidator;
-import org.apache.cxf.tools.validator.internal.ServiceValidator;
+import org.apache.cxf.tools.validator.ServiceValidator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
@@ -70,6 +71,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
+    private static final String SERVICE_VALIDATOR = "META-INF/service.validator.xml";
     String toolName;
 
     public WSDLToJavaContainer(String name, ToolSpec toolspec) throws Exception {
@@ -481,13 +483,38 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         dataBindingProfile.generate(context);
     }
 
-    public void validate(ServiceInfo service) throws ToolException {
-        ServiceValidator validator = new ServiceValidator();
-        validator.addValidators(getServiceValidators());
-        validator.isValid();
+    public void validate(final ServiceInfo service) throws ToolException {
+        for (ServiceValidator validator : getServiceValidators()) {
+            validator.setService(service);
+            if (!validator.isValid()) {
+                throw new ToolException(validator.getErrorMessage());
+            }
+        }
     }
 
-    public List<AbstractValidator> getServiceValidators() {
-        return new ArrayList<AbstractValidator>();
+    public List<ServiceValidator> getServiceValidators() {
+        List<ServiceValidator> validators = new ArrayList<ServiceValidator>();
+        
+        Properties initialExtensions = null;
+        try {
+            initialExtensions = PropertiesLoaderUtils.loadAllProperties(SERVICE_VALIDATOR, Thread
+                            .currentThread().getContextClassLoader());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        for (Iterator it = initialExtensions.values().iterator(); it.hasNext();) {
+            String validatorClass = (String) it.next();
+            try {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Found service validator : " + validatorClass);
+                }
+                ServiceValidator validator = (ServiceValidator)Class.forName(validatorClass).newInstance();
+                validators.add(validator);
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
+            }
+        }
+        return validators;
     }
 }

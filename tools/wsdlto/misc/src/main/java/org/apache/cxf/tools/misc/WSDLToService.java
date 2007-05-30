@@ -67,7 +67,7 @@ public class WSDLToService extends AbstractCXFToolContainer {
                 processor.process();
             }
         } catch (ToolException ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("Tools Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
@@ -76,7 +76,7 @@ public class WSDLToService extends AbstractCXFToolContainer {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("Unexpected Error : " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();

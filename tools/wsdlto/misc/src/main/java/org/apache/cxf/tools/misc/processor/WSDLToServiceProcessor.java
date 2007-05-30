@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.wsdl.Binding;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
@@ -36,14 +36,13 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
-import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
-import org.apache.cxf.transport.jms.AddressType;
+import org.apache.cxf.tools.misc.processor.address.Address;
+import org.apache.cxf.tools.misc.processor.address.AddressFactory;
+import org.apache.cxf.wsdl.WSDLExtensibilityPlugin;
 
 public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
 
     private static final String NEW_FILE_NAME_MODIFIER = "-service";
-    private static final String HTTP_PREFIX = "http://localhost:9000";
 
     private Map services;
     private Service service;
@@ -99,10 +98,6 @@ public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
             }
         }
         return (port == null) ? false : true;
-    }
-
-    private boolean isSOAP12() {
-        return env.optionSet(ToolConstants.CFG_SOAP12);
     }
 
     private boolean isBindingExisted() {
@@ -163,59 +158,16 @@ public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        if ("http".equalsIgnoreCase((String)env.get(ToolConstants.CFG_TRANSPORT))) {
-            SoapAddress soapAddress = null;
-            try {
-                soapAddress = SOAPBindingUtil.createSoapAddress(extReg, isSOAP12());
-            } catch (WSDLException wse) {
-                Message msg = new Message("FAIL_TO_CREATE_SOAPADDRESS", LOG);
-                throw new ToolException(msg, wse);
-            }
-            
-            if (env.get(ToolConstants.CFG_ADDRESS) != null) {
-                soapAddress.setLocationURI((String)env.get(ToolConstants.CFG_ADDRESS));
-            } else {
-                soapAddress.setLocationURI(HTTP_PREFIX + "/" + env.get(ToolConstants.CFG_SERVICE) + "/"
-                                           + env.get(ToolConstants.CFG_PORT));
-            }
-            port.addExtensibilityElement(soapAddress);
-        } else if ("jms".equalsIgnoreCase((String)env.get(ToolConstants.CFG_TRANSPORT))) {
-            AddressType jmsAddress = null;
-            //JMSAddress jmsAddress = null;
-            //JMSAddressSerializer jmsAddressSerializer = new JMSAddressSerializer();
-            try {
-//extReg.registerSerializer(JMSAddress.class, ToolConstants.JMS_ADDRESS, jmsAddressSerializer);
-//extReg.registerDeserializer(JMSAddress.class, ToolConstants.JMS_ADDRESS, jmsAddressSerializer);
-                jmsAddress = (AddressType)extReg.createExtension(Port.class, ToolConstants.JMS_ADDRESS);
-                if (env.optionSet(ToolConstants.JMS_ADDR_DEST_STYLE)) {
-                    //jmsAddress.setDestinationStyle((String)env.get(ToolConstants.JMS_ADDR_DEST_STYLE));
-                }
-                if (env.optionSet(ToolConstants.JMS_ADDR_INIT_CTX)) {
-                    //jmsAddress.setInitialContextFactory((String)env.get(ToolConstants.JMS_ADDR_INIT_CTX));
-                }
-                if (env.optionSet(ToolConstants.JMS_ADDR_JNDI_DEST)) {
-                    jmsAddress.setJndiDestinationName((String)env.get(ToolConstants.JMS_ADDR_JNDI_DEST));
-                }
-                if (env.optionSet(ToolConstants.JMS_ADDR_JNDI_FAC)) {
-                    jmsAddress.setJndiConnectionFactoryName((String)env.get(ToolConstants.JMS_ADDR_JNDI_FAC));
-                }
-                if (env.optionSet(ToolConstants.JMS_ADDR_JNDI_URL)) {
-                    //jmsAddress.setJndiProviderURL((String)env.get(ToolConstants.JMS_ADDR_JNDI_URL));
-                }
-                if (env.optionSet(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)) {
-                    //jmsAddress.setUseMessageIDAsCorrelationID(Boolean.getBoolean((String)env
-                    //.get(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)));
-                }
-                if (env.optionSet(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME)) {
-                    //jmsAddress.setDurableSubscriberName((String)env
-                    //  .get(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
-                }
-            } catch (WSDLException wse) {
-                Message msg = new Message("FAIL_TO_CREATE_SOAP_ADDRESS", LOG);
-                throw new ToolException(msg, wse);
-            }
-            port.addExtensibilityElement(jmsAddress);
+        String transport = (String)env.get(ToolConstants.CFG_TRANSPORT);
+        Address address = AddressFactory.getInstance().getAddresser(transport);
+
+        WSDLExtensibilityPlugin plugin = getWSDLPlugin(transport, Port.class);
+        try {
+            ExtensibilityElement extElement = plugin.createExtension(address.buildAddressArguments(env));
+            port.addExtensibilityElement(extElement);
+        } catch (WSDLException wse) {
+            Message msg = new Message("FAIL_TO_CREATE_SOAP_ADDRESS", LOG);
+            throw new ToolException(msg, wse);
         }
     }
-
 }

@@ -22,9 +22,11 @@ package org.apache.cxf.tools.validator.internal;
 import javax.wsdl.Definition;
 import javax.xml.stream.Location;
 import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.validator.AbstractValidator;
 
 public abstract class AbstractDefinitionValidator extends AbstractValidator {
     protected Definition def;
+    protected ToolContext env;
 
     public AbstractDefinitionValidator() {
         super();

@@ -20,20 +20,15 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.resource.URIResolver;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
-import org.apache.cxf.tools.validator.internal.AbstractValidator;
 import org.apache.cxf.tools.wsdlto.WSDLToJavaContainer;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.validator.XMLFormatValidator;
 
 public class JAXWSContainer extends WSDLToJavaContainer {
     
@@ -68,11 +63,4 @@ public class JAXWSContainer extends WSDLToJavaContainer {
             env.put(ToolConstants.CFG_BINDING, bindings);
         }        
     }
-
-    public List<AbstractValidator> getServiceValidators() {
-        List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
-        validators.add(new XMLFormatValidator(context.get(ServiceInfo.class)));
-        return validators;
-    }
-    
 }

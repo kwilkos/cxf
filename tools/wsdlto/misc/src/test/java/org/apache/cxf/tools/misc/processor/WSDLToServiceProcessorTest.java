@@ -46,7 +46,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testNewService() throws Exception {
-        String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
+        String[] args = new String[] {"-transport", "soap", "-e", "serviceins", "-p", "portins", "-n",
                                       "Greeter_SOAPBinding", "-a",
                                       "http://localhost:9000/newservice/newport", "-d",
                                       output.getCanonicalPath(),
@@ -93,7 +93,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testNewServiceSoap12() throws Exception {
-        String[] args = new String[] {"-soap12", "-transport", "http",
+        String[] args = new String[] {"-soap12", "-transport", "soap",
                                       "-e", "SOAPService", "-p", "SoapPort", "-n",
                                       "Greeter_SOAPBinding", "-a",
                                       "http://localhost:9000/SOAPService/SoapPort", "-d",
@@ -138,7 +138,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
     @Test
     public void testDefaultLocation() throws Exception {
 
-        String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
+        String[] args = new String[] {"-transport", "soap", "-e", "serviceins", "-p", "portins", "-n",
                                       "Greeter_SOAPBinding", "-d", output.getCanonicalPath(),
                                       getLocation("/misctools_wsdl/hello_world.wsdl")};
         WSDLToService.main(args);
@@ -230,7 +230,6 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 //                     }
                     if (!(jmsAddress.getJndiDestinationName() != null && jmsAddress.getJndiDestinationName()
                         .equals("dynamicQueues/test.cxf.jmstransport.queue"))) {
-                        System.err.println("jms address break 2");
                         break;
                     }
 //                 if (!(jmsAddress.getJndiProviderURL() != null && jmsAddress.getJndiProviderURL()

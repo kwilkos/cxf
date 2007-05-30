@@ -17,21 +17,17 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.validator.internal;
+package org.apache.cxf.tools.validator;
 
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.cxf.tools.common.ToolContext;
-
 public abstract class AbstractValidator {
     protected List<String> errorMessages = new Vector<String>();
-    protected ToolContext env;
     
     public AbstractValidator() {
-        
     }
-    
+
     public abstract boolean isValid();
 
     public void addErrorMessage(String err) {

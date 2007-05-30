@@ -400,9 +400,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                                      "handler1", "handler1", "handler2"};
 
         List<String> resp = handlerTest.pingWithArgs("handler2 outbound stop");     
-        for (String expected1 : resp) {
-            System.out.println(expected1);
-        }
         assertEquals(expectedHandlers.length, resp.size());
 
         int i = 0;
@@ -864,8 +861,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                     if (!outbound) {
                         LogicalMessage msg = ctx.getMessage();
                         Source source = msg.getPayload();
-                        System.out.println("dddd " + source);
-                        XMLUtils.writeTo(source, System.out);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -884,7 +879,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                 if (!outbound) {
                     try {
                         SOAPMessage msg = ctx.getMessage();
-                        msg.writeTo(System.out);
                     } catch (Exception e) {
                         e.printStackTrace();
                         fail(e.toString());

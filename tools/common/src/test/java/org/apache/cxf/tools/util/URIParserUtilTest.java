@@ -61,7 +61,7 @@ public class URIParserUtilTest extends TestCase {
         assertTrue(uri2.contains(uri));
         assertTrue(uri2.contains(new java.io.File("").toString()));
 
-        uri = getClass().getResource("/schemas/wsdl/xml-binding.xsd").toString();
+        uri = getClass().getResource("/schemas/wsdl/jbi.xsd").toString();
         uri2 = URIParserUtil.getAbsoluteURI(uri);
         assertNotNull(uri2);
         assertTrue(uri2.startsWith("file"));

@@ -22,6 +22,7 @@ package org.apache.cxf.wsdl11;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -41,7 +41,6 @@ import javax.xml.namespace.QName;
 
 import com.ibm.wsdl.extensions.soap.SOAPHeaderImpl;
 import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
-
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -49,17 +48,22 @@ import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLBuilder;
+import org.apache.cxf.wsdl.WSDLExtensibilityPlugin;
 
 public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {    
     
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLDefinitionBuilder.class);
     private static final String EXTENSIONS_RESOURCE = "META-INF/extensions.xml";
+    private static final String WSDL_PLUGIN_RESOURCE = "META-INF/wsdl.plugin.xml";
     
     protected WSDLReader wsdlReader;
     protected Definition wsdlDefinition;
     final WSDLFactory wsdlFactory;
     final ExtensionRegistry registry;    
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
+    
+    private final Map<String, WSDLExtensibilityPlugin> wsdlPlugins
+        = new HashMap<String, WSDLExtensibilityPlugin>();
     
     public WSDLDefinitionBuilder() {    
         try {
@@ -80,6 +84,13 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             wsdlReader.setFeature("javax.wsdl.verbose", false);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public WSDLDefinitionBuilder(boolean requirePlugins) {
+        this();
+        if (requirePlugins) {
+            registerWSDLExtensibilityPlugins();
         }
     }
     
@@ -173,5 +184,35 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
     public WSDLReader getWSDLReader() {
         return wsdlReader;
     }
-    
+
+    public Map<String, WSDLExtensibilityPlugin> getWSDLPlugins() {
+        return wsdlPlugins;
+    }
+
+    private void registerWSDLExtensibilityPlugins() {
+        Properties initialExtensions = null;
+        try {
+            initialExtensions = PropertiesLoaderUtils.loadAllProperties(WSDL_PLUGIN_RESOURCE, Thread
+                            .currentThread().getContextClassLoader());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        for (Iterator it = initialExtensions.keySet().iterator(); it.hasNext();) {
+            String key = (String) it.next();
+            String pluginClz = initialExtensions.getProperty(key);
+            try {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Registering : " + pluginClz + " for type: " + key);
+                }
+
+                WSDLExtensibilityPlugin plugin
+                    = (WSDLExtensibilityPlugin)Class.forName(pluginClz).newInstance();
+                plugin.setExtensionRegistry(registry);
+                wsdlPlugins.put(key, plugin);
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
+            }
+        }
+    }
 }

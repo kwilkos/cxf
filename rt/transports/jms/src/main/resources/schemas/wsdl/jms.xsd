@@ -25,7 +25,7 @@
   elementFormDefault="qualified" jaxb:version="2.0">
   
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" 
-      schemaLocation="../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
+      schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
     
     <!-- Spring elements -->  
     <xs:element name="conduit" type="jms:ConduitType"/>
