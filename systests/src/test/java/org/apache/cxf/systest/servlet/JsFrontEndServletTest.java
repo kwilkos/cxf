@@ -36,7 +36,7 @@ public class JsFrontEndServletTest extends AbstractServletTest {
     @Test
     public void testPostInvokeServices() throws Exception {
                 
-        WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter",
+        WebRequest req = new PostMethodWebRequest(CONTEXT_URL + "/services/Greeter",
                 getClass().getResourceAsStream("GreeterMessage.xml"),
                 "text/xml; charset=UTF-8");
         

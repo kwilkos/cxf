@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.systest.jms;
 
+import java.io.File;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -39,6 +41,7 @@ public class EmbeddedJMSBrokerLauncher extends AbstractBusTestServerBase {
         try {                
             broker = new BrokerService();
             broker.setPersistenceAdapter(new MemoryPersistenceAdapter());
+            broker.setTmpDataDirectory(new File("./target"));
             broker.addConnector(brokerUrl1);
             broker.start();            
         } catch (Exception e) {

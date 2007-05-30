@@ -51,7 +51,7 @@ public class CXFServletTest extends AbstractServletTest {
     }
 
     private void invoke(String encoding) throws Exception {        
-        WebRequest req = new PostMethodWebRequest("http://localhost/services/greeter", 
+        WebRequest req = new PostMethodWebRequest(CONTEXT_URL + "/services/greeter", 
             getClass().getResourceAsStream("GreeterMessage.xml"), 
             "text/xml; charset=" + encoding);
         
@@ -76,17 +76,17 @@ public class CXFServletTest extends AbstractServletTest {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(false);
 
-        WebResponse res = client.getResponse("http://localhost/services");    
+        WebResponse res = client.getResponse(CONTEXT_URL + "/services");    
         
         WebLink[] links = res.getLinks();
         assertEquals("There should get one link for service", 1, links.length);
-        assertEquals("http://localhost/services/greeter?wsdl", links[0].getURLString());       
+        assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
         
-        res = client.getResponse("http://localhost/services/");
+        res = client.getResponse(CONTEXT_URL + "/services");
         links = res.getLinks();
         assertEquals("There should get one link for service", 1, links.length);
-        assertEquals("http://localhost/services/greeter?wsdl", links[0].getURLString());       
+        assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
     }
     
@@ -95,7 +95,7 @@ public class CXFServletTest extends AbstractServletTest {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(true);
         
-        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/greeter?wsdl");
+        WebRequest req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/greeter?wsdl");
         
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
@@ -103,7 +103,7 @@ public class CXFServletTest extends AbstractServletTest {
         assertTrue("the wsdl should contain the opertion greetMe",
                    res.getText().contains("<wsdl:operation name=\"greetMe\">"));
         assertTrue("the soap address should changed",
-                   res.getText().contains("<soap:address location=\"http://localhost/services/greeter\""));
+                   res.getText().contains("<soap:address location=\"" + CONTEXT_URL + "/services/greeter\""));
         
     }
 
@@ -112,14 +112,14 @@ public class CXFServletTest extends AbstractServletTest {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(false);
 
-        WebResponse res = client.getResponse("http://localhost/services/NoSuchService");
+        WebResponse res = client.getResponse(CONTEXT_URL + "/services/NoSuchService");
         assertEquals(404, res.getResponseCode());
         assertEquals("text/html", res.getContentType());
     }
 
     @Test
     public void testServiceWsdlNotFound() throws Exception {
-        WebRequest req = new GetMethodWebRequest("http://localhost/services/NoSuchService?wsdl");
+        WebRequest req = new GetMethodWebRequest(CONTEXT_URL + "/services/NoSuchService?wsdl");
 
         expectErrorCode(req, 404, "Response code 404 required for invalid WSDL url.");
     }
@@ -130,14 +130,14 @@ public class CXFServletTest extends AbstractServletTest {
         client.setExceptionsThrownOnErrorStatus(true);
 
         WebRequest req 
-            = new GetMethodQueryWebRequest("http://localhost/services/greeter?wsdl");
+            = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/greeter?wsdl");
         WebResponse res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
         String text = res.getText();
         assertEquals("text/xml", res.getContentType());
-        assertTrue(text.contains("http://localhost/services/greeter?wsdl=test_import.xsd"));
+        assertTrue(text.contains(CONTEXT_URL + "/services/greeter?wsdl=test_import.xsd"));
 
-        req = new GetMethodQueryWebRequest("http://localhost/services/greeter?wsdl=test_import.xsd");
+        req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/greeter?wsdl=test_import.xsd");
         res = client.getResponse(req); 
         assertEquals(200, res.getResponseCode());
         text = res.getText();

@@ -45,13 +45,13 @@ public class SpringServletTest extends AbstractServletTest {
     @Test
     public void testInvokingSpringBeans() throws Exception {
 
-        WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter",
+        WebRequest req = new PostMethodWebRequest(CONTEXT_URL + "/services/Greeter",
             getClass().getResourceAsStream("GreeterMessage.xml"),
             "text/xml; charset=utf-8");
 
         invokingEndpoint(req);
         
-        req = new PostMethodWebRequest("http://localhost/services/Greeter1",
+        req = new PostMethodWebRequest(CONTEXT_URL + "/services/Greeter1",
             getClass().getResourceAsStream("GreeterMessage.xml"), "text/xml; charset=utf-8");
         
         invokingEndpoint(req);
@@ -77,7 +77,7 @@ public class SpringServletTest extends AbstractServletTest {
         client.setExceptionsThrownOnErrorStatus(true);
         
         WebRequest req = 
-            new GetMethodQueryWebRequest("http://localhost/services/Greeter/greetMe?"
+            new GetMethodQueryWebRequest(CONTEXT_URL + "/services/Greeter/greetMe?"
                                          + "requestType=hello");
         
         WebResponse response = client.getResponse(req);        
@@ -87,7 +87,7 @@ public class SpringServletTest extends AbstractServletTest {
         assertValid("//h:greetMeResponse", doc);
         
         req = 
-            new GetMethodQueryWebRequest("http://localhost/services/Greeter1/greetMe?"
+            new GetMethodQueryWebRequest(CONTEXT_URL + "/services/Greeter1/greetMe?"
                                          + "requestType=hello");
         
         response = client.getResponse(req);        
@@ -104,15 +104,15 @@ public class SpringServletTest extends AbstractServletTest {
         client.setExceptionsThrownOnErrorStatus(true);
         
         WebRequest req = 
-            new GetMethodQueryWebRequest("http://localhost/services/Greeter?wsdl"); 
+            new GetMethodQueryWebRequest(CONTEXT_URL + "/services/Greeter?wsdl"); 
        
-        WebResponse res = client.getResponse(req); 
+        WebResponse res = client.getResponse(req);        
         assertEquals(200, res.getResponseCode());
         assertEquals("text/xml", res.getContentType());
         assertTrue("the wsdl should contain the opertion greetMe",
                    res.getText().contains("<wsdl:operation name=\"greetMe\">"));
         assertTrue("the soap address should changed",
-                   res.getText().contains("<soap:address location=\"http://localhost/services/Greeter"));
+                   res.getText().contains("<soap:address location=\"" + CONTEXT_URL + "/services/Greeter"));
         
         
         

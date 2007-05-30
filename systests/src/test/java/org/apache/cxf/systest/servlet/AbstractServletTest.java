@@ -34,15 +34,16 @@ import org.apache.cxf.test.AbstractCXFTest;
 import org.junit.Before;
 
 public abstract class AbstractServletTest extends AbstractCXFTest {
-
+    public static final String CONTEXT = "/mycontext";
+    public static final String CONTEXT_URL = "http://localhost/mycontext";
     protected ServletRunner sr;
 
     @Before
     public void setUp() throws Exception {
-        sr = new ServletRunner(getResourceAsStream(getConfiguration()));
+        sr = new ServletRunner(getResourceAsStream(getConfiguration()), CONTEXT);
         
         try {
-            sr.newClient().getResponse("http://localhost/services/");
+            sr.newClient().getResponse(CONTEXT_URL + "/services");
         } catch (HttpNotFoundException e) {
             // ignore, we just want to boot up the servlet
         }   

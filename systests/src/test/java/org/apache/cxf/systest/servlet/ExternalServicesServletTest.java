@@ -45,7 +45,7 @@ public class ExternalServicesServletTest extends AbstractServletTest {
     public void testPostInvokeServices() throws Exception {
         newClient();
         
-        WebRequest req = new PostMethodWebRequest("http://localhost/services/greeter",
+        WebRequest req = new PostMethodWebRequest(CONTEXT_URL + "/services/greeter",
                 getClass().getResourceAsStream("GreeterMessage.xml"),
                 "text/xml; charset=UTF-8");
         

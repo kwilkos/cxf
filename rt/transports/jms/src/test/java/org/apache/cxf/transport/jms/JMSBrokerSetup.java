@@ -19,6 +19,8 @@
 
 package org.apache.cxf.transport.jms;
 
+import java.io.File;
+
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 
@@ -76,7 +78,8 @@ class JMSBrokerSetup {
                 //ContainerWapper container;
                 BrokerService broker = new BrokerService();
                 synchronized (this) {                                     
-                    broker.setPersistenceAdapter(new MemoryPersistenceAdapter());
+                    broker.setPersistenceAdapter(new MemoryPersistenceAdapter());                    
+                    broker.setTmpDataDirectory(new File("./target"));
                     broker.addConnector(brokerUrl);
                     broker.start();
                     Thread.sleep(200);

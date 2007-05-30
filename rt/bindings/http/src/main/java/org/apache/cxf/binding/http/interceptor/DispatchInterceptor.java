@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.endpoint.Endpoint;
+//import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -43,13 +43,17 @@ public class DispatchInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         String path = (String)message.get(Message.PATH_INFO);
+        String address = (String)message.get(Message.BASE_PATH);
         String method = (String)message.get(Message.HTTP_REQUEST_METHOD);
         
-        String address = message.getExchange().get(Endpoint.class).getEndpointInfo().getAddress();
-        int idx = address.indexOf('/', 7);
-        if (idx != -1) {
-            address = address.substring(idx);
-        }
+        //String address = message.getExchange().get(Endpoint.class).getEndpointInfo().getAddress();
+        
+        if (address.startsWith("http")) {
+            int idx = address.indexOf('/', 7);       
+            if (idx != -1) {
+                address = address.substring(idx);
+            }
+        }    
         
         if (path.startsWith(address)) {
             path = path.substring(address.length());
