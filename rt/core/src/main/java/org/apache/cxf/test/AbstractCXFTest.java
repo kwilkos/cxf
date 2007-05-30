@@ -30,6 +30,12 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.wsdl.Definition;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLWriter;
+
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -38,15 +44,18 @@ import org.xml.sax.SAXParseException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -220,6 +229,18 @@ public class AbstractCXFTest extends Assert {
         }
 
         return basedirPath;
+    }
+
+    protected Document getWSDLDocument(Server server) throws WSDLException {
+        Service service = server.getEndpoint().getService();
+        
+        ServiceWSDLBuilder wsdlBuilder = 
+            new ServiceWSDLBuilder(bus, service.getServiceInfos().get(0));
+        wsdlBuilder.setUseSchemaImports(false);
+        Definition definition = wsdlBuilder.build();
+        WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();
+        
+        return writer.getDocument(definition);
     }
     
     public static class TestMessageObserver implements MessageObserver {

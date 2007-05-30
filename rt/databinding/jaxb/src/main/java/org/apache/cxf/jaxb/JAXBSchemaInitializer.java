@@ -90,6 +90,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
         
         boolean isElement = beanInfo.isElement();
+        
         part.setElement(isElement);
         if (isElement) {
             QName name = new QName(beanInfo.getElementNamespaceURI(null), 
@@ -141,20 +142,48 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                     if (s.getNamespaceURI().equals(qn.getNamespaceURI())) {
                         schemaInfo = s;
 
-                        el = new XmlSchemaElement();
-                        el.setQName(part.getElementQName());
-                        el.setName(part.getElementQName().getLocalPart());
-                        el.setNillable(true);
+                        createXsElement(part, typeName, schemaInfo);
+
                         schemaInfo.getSchema().getItems().add(el);
                         
-                        el.setSchemaTypeName(typeName);
                         return;
                     }
                 }
+                
+                schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
+                el = createXsElement(part, typeName, schemaInfo);
+
+                XmlSchema schema = new XmlSchema(qn.getNamespaceURI(), schemas);
+                schemaInfo.setSchema(schema);
+                schema.getItems().add(el);
+
+                NamespaceMap nsMap = new NamespaceMap();
+                nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+                schema.setNamespaceContext(nsMap);
+                
+                Document[] docs;
+                try {
+                    docs = XmlSchemaSerializer.serializeSchema(schema, false);
+                } catch (XmlSchemaSerializerException e1) {
+                    throw new ServiceConstructionException(e1);
+                }
+                Element e = docs[0].getDocumentElement();
+                
+                schemaInfo.setElement(e);
+                serviceInfo.addSchema(schemaInfo);
             }
         }
         
         
+    }
+
+    private XmlSchemaElement createXsElement(MessagePartInfo part, QName typeName, SchemaInfo schemaInfo) {
+        XmlSchemaElement el = new XmlSchemaElement();
+        el.setQName(part.getElementQName());
+        el.setName(part.getElementQName().getLocalPart());
+        el.setNillable(true);
+        el.setSchemaTypeName(typeName);
+        return el;
     }
     
     public void end(FaultInfo fault) {

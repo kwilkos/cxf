@@ -581,13 +581,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             el.setNillable(true);
 
             if (mpi.isElement()) {
-                el.setRefName(mpi.getElementQName());
-                String ns = mpi.getElementQName().getNamespaceURI();
-                if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NU_SCHEMA_XSD)) {
-                    XmlSchemaImport is = new XmlSchemaImport();
-                    is.setNamespace(ns);
-                    schema.getItems().add(is);
-                }
+                continue;
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
                 String ns = mpi.getTypeQName().getNamespaceURI();

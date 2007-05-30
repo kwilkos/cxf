@@ -31,11 +31,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.service.ArrayService;
 import org.apache.cxf.jaxws.service.ArrayServiceImpl;
+import org.apache.cxf.jaxws.service.FooServiceImpl;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.service.HelloInterface;
 import org.apache.cxf.jaxws.service.SayHi;
@@ -265,5 +267,18 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertEquals(proxy.listInput(listIn), "list1list2list3");
     }
 
+    @Test
+    public void testNamespacedWebParams() throws Exception {
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setAddress("http://localhost/test");
+        sf.setServiceClass(FooServiceImpl.class);
+        
+        Server server = sf.create();
+        
+        Document doc = getWSDLDocument(server);
+        
+        assertValid("//xsd:schema[@targetNamespace='http://namespace3']", doc);
+        assertValid("//xsd:schema[@targetNamespace='http://namespace5']", doc);
+    }
 
 }

@@ -70,7 +70,7 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
  *
  * @see org.apache.cxf.jaxws.JaxWsServerFactoryBean
  */
-public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
+public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
     
     private AbstractServiceConfiguration jaxWsConfiguration;

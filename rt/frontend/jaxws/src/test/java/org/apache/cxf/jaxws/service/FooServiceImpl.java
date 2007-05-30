@@ -16,10 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.support;
+package org.apache.cxf.jaxws.service;
 
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import javax.jws.WebService;
 
-public class AbstractJaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
+@WebService(endpointInterface = "org.apache.cxf.jaxws.service.FooService")
+public class FooServiceImpl implements FooService {
+
+    public Foo echo(Foo foo) {
+        return foo;
+    }
+
+    public Foo echo2(Foo foo, String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }
