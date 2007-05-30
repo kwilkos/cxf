@@ -22,6 +22,7 @@ package org.apache.cxf.transport.jbi;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
@@ -38,6 +39,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -80,9 +82,10 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
 
     private void commitOutputMessage() throws IOException {
         try {
-            Method targetMethod = (Method) message.get(Method.class.getName());
-            Class<?> clz = targetMethod.getDeclaringClass();
-            BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+            Member member = (Member) message.get(Method.class.getName());
+            Class<?> clz = member.getDeclaringClass();
+            Exchange exchange = message.getExchange();
+            BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
 
             LOG.info(new org.apache.cxf.common.i18n.Message("INVOKE.SERVICE", LOG).toString() + clz);
 
@@ -130,7 +133,9 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
                     
                     Message inMessage = new MessageImpl();
                     message.getExchange().setInMessage(inMessage);
-                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(outMsg.getContent());
+                    Source source = outMsg.getContent();
+                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(source);
+                    
                     inMessage.setContent(XMLStreamReader.class, reader);
                     conduit.getMessageObserver().onMessage(inMessage);
                     

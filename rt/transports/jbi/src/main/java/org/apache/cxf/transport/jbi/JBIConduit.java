@@ -28,6 +28,7 @@ import javax.jbi.messaging.DeliveryChannel;
 
 
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.AbstractConduit;
@@ -39,12 +40,22 @@ public class JBIConduit extends AbstractConduit {
     private static final Logger LOG = LogUtils.getL7dLogger(JBIConduit.class);
 
     private DeliveryChannel channel;
+    private Bus bus;
            
     public JBIConduit(EndpointReferenceType target, DeliveryChannel dc) {           
+        this(null, target, dc);
+    }
+    
+    public JBIConduit(Bus b, EndpointReferenceType target, DeliveryChannel dc) {
         super(target);
         channel = dc;
+        bus = b;
     }
 
+    public Bus getBus() {
+        return bus;
+    }
+    
     protected Logger getLogger() {
         return LOG;
     }
