@@ -49,7 +49,6 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.util.PackageUtils;
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.handler_test.HandlerTest;
 import org.apache.handler_test.HandlerTestService;
