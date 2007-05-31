@@ -515,7 +515,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();
         
         assertFileEquals(getClass().getResource("expected/expected_sayHi").getFile(), 
-                         output.getCanonicalPath() + "/org/apache/sayHi/SayHi.java");
+                         output.getCanonicalPath() + "/org/apache/sayhi/SayHi.java");
         
     }
     
