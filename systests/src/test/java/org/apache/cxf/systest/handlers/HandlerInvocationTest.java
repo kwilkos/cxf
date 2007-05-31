@@ -101,6 +101,8 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
 
         handlerTestNew.pingOneWay();
 
+        String bindingID = myHandlerResolver.bindingID;
+        assertEquals("http://schemas.xmlsoap.org/wsdl/soap/http", bindingID);
         assertEquals(1, handler1.getHandleMessageInvoked());
         assertEquals(1, handler2.getHandleMessageInvoked());
     }
@@ -860,6 +862,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                     if (!outbound) {
                         LogicalMessage msg = ctx.getMessage();
                         Source source = msg.getPayload();
+                        assertNotNull(source);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -878,6 +881,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                 if (!outbound) {
                     try {
                         SOAPMessage msg = ctx.getMessage();
+                        assertNotNull(msg);
                     } catch (Exception e) {
                         e.printStackTrace();
                         fail(e.toString());
@@ -1150,6 +1154,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
 
     public class MyHandlerResolver implements HandlerResolver {
         List<Handler> chain = new ArrayList<Handler>();
+        String bindingID;
 
         public MyHandlerResolver(Handler... handlers) {
             for (Handler h : handlers) {
@@ -1158,6 +1163,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
         }
 
         public List<Handler> getHandlerChain(PortInfo portInfo) {
+            bindingID = portInfo.getBindingID();
             return chain;
         }
 
