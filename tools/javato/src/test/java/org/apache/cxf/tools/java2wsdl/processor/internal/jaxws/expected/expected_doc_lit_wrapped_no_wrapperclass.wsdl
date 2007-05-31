@@ -19,7 +19,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="HelloWrappedService" targetNamespace="http://cxf.com/" xmlns:ns1="http://cxf.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://cxf.com/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://cxf.com/">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://cxf.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://cxf.com/">
 <xsd:element name="sayHiWithoutWrapperClass" type="sayHiWithoutWrapperClass"/>
 <xsd:complexType name="sayHiWithoutWrapperClass">
 <xsd:sequence/>

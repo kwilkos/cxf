@@ -100,6 +100,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
 
     @Override
+    protected boolean qualifyWrapperSchema() {
+        //the JAXWS-RI doesn't qualify the schemas for the wrapper types
+        //and thus won't work if we do.
+        return false;
+    }
+
+    @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (getJaxWsImplementorInfo() == null) {
             setJaxWsImplementorInfo(new JaxWsImplementorInfo(serviceClass));

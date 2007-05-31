@@ -450,6 +450,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
     }
+    
+    protected boolean qualifyWrapperSchema() {
+        return true;
+    }
 
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
                                        AbstractMessageContainer unwrappedMessage, QName wraperBeanName) {
@@ -464,7 +468,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (schemaInfo == null) {
             XmlSchemaCollection col = new XmlSchemaCollection();
             XmlSchema schema = new XmlSchema(wraperBeanName.getNamespaceURI(), col);
-            schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+            if (qualifyWrapperSchema()) {
+                schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+            }
             serviceInfo.setXmlSchemaCollection(col);
 
             NamespaceMap nsMap = new NamespaceMap();
