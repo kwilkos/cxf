@@ -65,8 +65,10 @@ public class WebResultAnnotator implements Annotator {
             targetNamespace = method.getReturn().getTargetNamespace();
         }
 
+        
+        
         resultAnnotation.addArgument("name", name);
-        resultAnnotation.addArgument("targetNamespace", targetNamespace);
+        resultAnnotation.addArgIgnoreEmtpy("targetNamespace", targetNamespace, "\"");
 
         if (method.getSoapStyle() == SOAPBinding.Style.RPC
             || (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle())) {

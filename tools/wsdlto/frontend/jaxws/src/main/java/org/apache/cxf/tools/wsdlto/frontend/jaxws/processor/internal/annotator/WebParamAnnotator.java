@@ -67,7 +67,7 @@ public class WebParamAnnotator implements Annotator {
         }
         webParamAnnotation.addArgument("name", name);
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT || parameter.isHeader()) {
-            webParamAnnotation.addArgument("targetNamespace", targetNamespace);
+            webParamAnnotation.addArgIgnoreEmtpy("targetNamespace", targetNamespace, "\"");
         }
 
         parameter.setAnnotation(webParamAnnotation);

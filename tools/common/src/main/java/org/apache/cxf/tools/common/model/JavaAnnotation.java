@@ -42,6 +42,12 @@ public class JavaAnnotation {
         }        
     }
     
+    public void addArgIgnoreEmtpy(String key , String value, String quote) {
+        if (value != null) {
+            arguments.put(key, quote + value + quote);
+        }
+    }
+    
     public void addArgument(String key, String value) {
         addArgument(key, value, DEFAULT_QUOTE);
     }
@@ -64,7 +70,11 @@ public class JavaAnnotation {
                     continue;
                 }
                 sb.append(" = ");
-                sb.append(value);
+                if ("".equals(value)) {
+                    sb.append("\"\"");
+                } else {
+                    sb.append(value);
+                }
                 if (i != (keys.length - 1)) {
                     sb.append(", ");
                 }

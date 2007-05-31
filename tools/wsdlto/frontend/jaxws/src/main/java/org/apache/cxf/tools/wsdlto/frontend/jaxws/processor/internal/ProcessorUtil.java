@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.DOMException;
@@ -45,9 +46,11 @@ import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 
@@ -353,5 +356,18 @@ public final class ProcessorUtil {
         }
         return qnames;
     }
- 
+    
+    public static boolean isSchemaFormQualified(ToolContext context, QName partElement) {
+        ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
+        XmlSchemaCollection schemaCol = (XmlSchemaCollection)serviceInfo
+            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+        for (int i = 0; i < schemaCol.getXmlSchemas().length; i++) {
+            XmlSchema schema = schemaCol.getXmlSchemas().clone()[i];
+            if (schema.getElementByName(partElement) != null) {
+                return schema.getElementFormDefault().getValue().equals(XmlSchemaForm.QUALIFIED);
+            }
+        }
+        return false;
+    
+    }
 }

@@ -28,8 +28,6 @@ import javax.jws.WebResult;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
-
-
 @WebService(targetNamespace = "http://apache.org/hello_world_mime", name = "Hello")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 
@@ -48,7 +46,7 @@ public interface Hello {
     public void helloMime(
         @WebParam(targetNamespace = "http://apache.org/hello_world_mime/types", partName = "body", name = "body")
         java.lang.String body,
-        @WebParam(mode = Mode.INOUT, partName = "mime", name = "mime")
+        @WebParam(targetNamespace = "", mode = Mode.INOUT, partName = "mime", name = "mime")
         javax.xml.ws.Holder<java.awt.Image> mime
     );
 
@@ -57,7 +55,7 @@ public interface Hello {
     public void hello(
         @WebParam(targetNamespace = "http://apache.org/hello_world_mime/types", partName = "body", name = "body")
         java.lang.String body,
-        @WebParam(mode = Mode.INOUT, partName = "mime", name = "mime")
+        @WebParam(targetNamespace = "", mode = Mode.INOUT, partName = "mime", name = "mime")
         javax.xml.ws.Holder<byte[]> mime
     );
 }

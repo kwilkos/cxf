@@ -47,7 +47,15 @@ public final class ResponseWrapper extends Wrapper {
         javax.xml.ws.ResponseWrapper resWrapper = method.getAnnotation(javax.xml.ws.ResponseWrapper.class);
         return getClassName() == null && (resWrapper == null || StringUtils.isEmpty(resWrapper.className()));
     }
-
+    
+    public String getWrapperTns(Method method) {
+        javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
+        if (reqWrapper != null) {
+            return reqWrapper.targetNamespace();
+        }
+        return null;
+    }
+    
     @Override
     protected List<JavaField> buildFields() {
         return buildFields(getMethod(), getOperationInfo().getUnwrappedOperation().getOutput());
@@ -76,7 +84,8 @@ public final class ResponseWrapper extends Wrapper {
                 type = returnType.getName();
             }
             field.setType(type);
-            //field.setTargetNamespace("");
+            field.setTargetNamespace("");
+            
         }
         fields.add(field);
         
@@ -97,6 +106,7 @@ public final class ResponseWrapper extends Wrapper {
                     type = clz.getName();
                 }
                 fields.add(new JavaField(name, type, ""));
+               
             }
         }
         

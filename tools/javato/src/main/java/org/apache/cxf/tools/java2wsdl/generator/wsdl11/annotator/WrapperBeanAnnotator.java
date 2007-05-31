@@ -23,7 +23,6 @@ import org.apache.cxf.tools.common.model.Annotator;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
-
 public class WrapperBeanAnnotator implements Annotator {
 
     public void annotate(final JavaAnnotatable clz) {
@@ -42,9 +41,9 @@ public class WrapperBeanAnnotator implements Annotator {
         xmlAccessorType.addArgument("XmlAccessType.FIELD", "null", "");
 
         JavaAnnotation xmlType = new JavaAnnotation("XmlType");
+        //xmlType.addArgument("name", wrapperBeanClass.getElementName().getLocalPart());
         xmlType.addArgument("name", wrapperBeanClass.getElementName().getLocalPart());
         xmlType.addArgument("namespace", wrapperBeanClass.getElementName().getNamespaceURI());
-
         // Revisit: why annotation is string?
         wrapperBeanClass.addAnnotation(xmlRootElement.toString());
         wrapperBeanClass.addAnnotation(xmlAccessorType.toString());

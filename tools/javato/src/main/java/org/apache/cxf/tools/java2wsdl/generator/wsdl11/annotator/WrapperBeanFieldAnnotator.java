@@ -37,7 +37,7 @@ public class WrapperBeanFieldAnnotator implements Annotator {
         JavaAnnotation xmlElementAnnotation = new JavaAnnotation("XmlElement");
         
         xmlElementAnnotation.addArgument("name", rawName);
-        xmlElementAnnotation.addArgument("namespace", jField.getTargetNamespace());
+        xmlElementAnnotation.addArgIgnoreEmtpy("namespace", jField.getTargetNamespace(), "\"");
 
         jField.setAnnotation(xmlElementAnnotation);
         jField.getOwner().addImport("javax.xml.bind.annotation.XmlElement");

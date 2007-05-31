@@ -44,6 +44,14 @@ public class RequestWrapper extends Wrapper {
         javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
         return getClassName() == null && (reqWrapper == null || StringUtils.isEmpty(reqWrapper.className()));
     }
+    
+    public String getWrapperTns(Method method) {
+        javax.xml.ws.RequestWrapper reqWrapper = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
+        if (reqWrapper != null) {
+            return reqWrapper.targetNamespace();
+        }
+        return null;
+    }
 
     @Override
     protected List<JavaField> buildFields() {
@@ -70,6 +78,7 @@ public class RequestWrapper extends Wrapper {
                 type = clz.getName();
             }
             JavaField field = new JavaField(name, type, "");
+            field.setTargetNamespace("");
             fields.add(field);
             
         }

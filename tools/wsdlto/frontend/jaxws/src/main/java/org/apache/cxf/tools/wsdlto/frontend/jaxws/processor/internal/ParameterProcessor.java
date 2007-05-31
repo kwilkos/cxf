@@ -109,6 +109,8 @@ public class ParameterProcessor extends AbstractProcessor {
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
               
         JavaReturn returnType = new JavaReturn(name, type, namespace);
+        
+        
         returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
         if (namespace != null && type != null && !"void".equals(type)) {
@@ -140,9 +142,15 @@ public class ParameterProcessor extends AbstractProcessor {
         if (wrappedElements == null || wrappedElements.size() == 0) {
             return;
         }
+        boolean isSchemaQualified = ProcessorUtil.isSchemaFormQualified(context, part.getElementQName());
         for (QName item : wrappedElements) {
-            addParameter(method, getParameterFromQName(part.getElementQName(), 
-                                                       item, JavaType.Style.IN, part));
+            JavaParameter jp = getParameterFromQName(part.getElementQName(), 
+                                  item, JavaType.Style.IN, part);
+            if (!isSchemaQualified) {
+                jp.setTargetNamespace("");
+            }
+            
+            addParameter(method, jp);
         }
     }
 
@@ -220,13 +228,19 @@ public class ParameterProcessor extends AbstractProcessor {
             return;
         }
         method.setReturn(null);
+        boolean qualified = ProcessorUtil.isSchemaFormQualified(context, outputPart.getElementQName());
+        
         if (outputWrapElement.size() == 1 && inputWrapElement != null) {
             QName outElement = outputWrapElement.iterator().next();
             boolean sameWrapperChild = false;
             for (QName inElement : inputWrapElement) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromQName(outputPart.getElementQName(), outElement, 
-                                                               JavaType.Style.INOUT, outputPart));
+                    JavaParameter  jp = getParameterFromQName(outputPart.getElementQName(), outElement, 
+                                                              JavaType.Style.INOUT, outputPart);
+                    if (!qualified) {
+                        jp.setTargetNamespace("");
+                    }
+                    addParameter(method, jp);
                     sameWrapperChild = true;
                     if (method.getReturn() == null) {
                         addVoidReturn(method);
@@ -235,7 +249,11 @@ public class ParameterProcessor extends AbstractProcessor {
                 }
             }
             if (!sameWrapperChild) {
-                method.setReturn(getReturnFromQName(outElement, outputPart));
+                JavaReturn jreturn = getReturnFromQName(outElement, outputPart);
+                if (!qualified) {
+                    jreturn.setTargetNamespace("");
+                }
+                method.setReturn(jreturn);
                 return;
             }
             
@@ -247,23 +265,35 @@ public class ParameterProcessor extends AbstractProcessor {
                         new org.apache.cxf.common.i18n.Message("WRAPPER_STYLE_TWO_RETURN_TYPES", LOG);
                     throw new ToolException(msg);
                 }
-                method.setReturn(getReturnFromQName(outElement, outputPart));
+                JavaReturn jreturn = getReturnFromQName(outElement, outputPart);
+                if (!qualified) {
+                    jreturn.setTargetNamespace("");
+                }
+                method.setReturn(jreturn);
                 continue;
             }
             boolean sameWrapperChild = false;
             if (inputWrapElement != null) {
                 for (QName inElement : inputWrapElement) {
                     if (isSameWrapperChild(inElement, outElement)) {
-                        addParameter(method, getParameterFromQName(outputPart.getElementQName(), outElement, 
-                                                                   JavaType.Style.INOUT, outputPart));
+                        JavaParameter  jp = getParameterFromQName(outputPart.getElementQName(), outElement, 
+                                                                  JavaType.Style.INOUT, outputPart);
+                        if (!qualified) {
+                            jp.setTargetNamespace("");
+                        }
+                        addParameter(method, jp);
                         sameWrapperChild = true;
                         break;
                     }
                 }
             }
             if (!sameWrapperChild) {
-                addParameter(method, getParameterFromQName(outputPart.getElementQName(), outElement, 
-                                                           JavaType.Style.OUT, outputPart));
+                JavaParameter  jp = getParameterFromQName(outputPart.getElementQName(), outElement, 
+                                                          JavaType.Style.OUT, outputPart);
+                if (!qualified) {
+                    jp.setTargetNamespace("");
+                }
+                addParameter(method, jp);
             }
         }
         if (method.getReturn() == null) {

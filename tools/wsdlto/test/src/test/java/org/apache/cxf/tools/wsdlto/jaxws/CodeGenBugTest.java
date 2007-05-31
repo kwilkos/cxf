@@ -507,6 +507,19 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
     
     
+    @Test
+    public void testWebResult() throws Exception {
+
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/sayHi.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        
+        assertFileEquals(getClass().getResource("expected/expected_sayHi").getFile(), 
+                         output.getCanonicalPath() + "/org/apache/sayHi/SayHi.java");
+        
+    }
+    
+    
     
 
 }
