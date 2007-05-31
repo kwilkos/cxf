@@ -22,15 +22,18 @@ package org.apache.cxf.management.jmx;
 import javax.management.JMException;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.management.jmx.export.AnnotationTestInstrumentation;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JMXManagedComponentManagerTest extends TestCase {
+public class JMXManagedComponentManagerTest extends Assert {
        
     private static final String NAME_ATTRIBUTE = "Name";    
     private InstrumentationManagerImpl manager;
     
+    @Before
     public void setUp() throws Exception {
         manager = new InstrumentationManagerImpl(); 
         manager.setDaemon(false);
@@ -41,11 +44,13 @@ public class JMXManagedComponentManagerTest extends TestCase {
         //Wait for MBeanServer connector to be initialized on separate thread.
         Thread.sleep(2000);
     }
-        
+    
+    @After
     public void tearDown() throws Exception {
         manager.shutdown();
     }
     
+    @Test
     public void testRegisterInstrumentation() throws Exception {
         //manager.setDaemon(false);
         //manager.setThreaded(false);
@@ -94,6 +99,7 @@ public class JMXManagedComponentManagerTest extends TestCase {
         manager.unregister(im);
     }
 
+    @Test
     public void testRegisterStandardMBean() throws Exception {
         HelloWorld hw = new HelloWorld();
         ObjectName name = new ObjectName("org.apache.cxf:type=foo,name=bar");

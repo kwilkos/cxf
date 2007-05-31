@@ -24,24 +24,30 @@ import java.util.Set;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.workqueue.WorkQueueManagerImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class InstrumentationManagerTest extends TestCase {
+public class InstrumentationManagerTest extends Assert {
     InstrumentationManager im;
     Bus bus;
     
+    @Before
     public void setUp() throws Exception {
 
     }
     
+    @After
     public void tearDown() throws Exception {
         //test case had done the bus.shutdown
         bus.shutdown(true);
     }
     
+    @Test
     public void testInstrumentationNotEnabled() {
         SpringBusFactory factory = new SpringBusFactory();
         bus =  factory.createBus();
@@ -51,6 +57,7 @@ public class InstrumentationManagerTest extends TestCase {
         assertNull("MBeanServer should not be available.", mbs);
     }
     
+    @Test
     // try to get WorkQueue information
     public void testWorkQueueInstrumentation() throws Exception {
         SpringBusFactory factory = new SpringBusFactory();
