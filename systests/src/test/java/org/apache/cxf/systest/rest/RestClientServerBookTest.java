@@ -19,65 +19,25 @@
 
 package org.apache.cxf.systest.rest;
 
-
-
 import java.util.logging.Logger;
-
 
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.customer.book.Book;
 import org.apache.cxf.customer.book.BookService;
-import org.apache.cxf.customer.book.BookServiceImpl;
 import org.apache.cxf.customer.book.GetAnotherBook;
 import org.apache.cxf.customer.book.GetBook;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
-import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 
 public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     static final Logger LOG = Logger.getLogger(RestClientServerBookTest.class.getName());
-    
-    public static class MyServer extends AbstractBusTestServerBase {
 
-        protected void run() {
-            BookServiceImpl serviceObj = new BookServiceImpl();
-            JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
-            sf.setServiceClass(BookService.class);
-            // Use the HTTP Binding which understands the Java Rest Annotations
-            sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
-            sf.setAddress("http://localhost:9080/xml/");
-            sf.getServiceFactory().setInvoker(new BeanInvoker(serviceObj));
-
-            // Turn the "wrapped" style off. This means that CXF won't generate
-            // wrapper XML elements and we'll have prettier XML text. This
-            // means that we need to stick to one request and one response
-            // parameter though.
-            sf.getServiceFactory().setWrapped(false);
-
-            sf.create();
-        }
-
-        public static void main(String[] args) {
-            try {
-                MyServer s = new MyServer();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                LOG.info("done!");
-            }
-        }
-    }
-    
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(MyServer.class));
+        assertTrue("server did not launch correctly", launchServer(BookServer.class));
     }
 
     @Test
