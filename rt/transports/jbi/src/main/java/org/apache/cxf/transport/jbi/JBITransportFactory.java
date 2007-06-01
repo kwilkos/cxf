@@ -48,7 +48,7 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     DestinationFactory {
     
     public static final String TRANSPORT_ID = "http://cxf.apache.org/transports/jbi";
-
+    
     private static final Logger LOG = LogUtils.getL7dLogger(JBITransportFactory.class);
 
     private static final ThreadLocal<DeliveryChannel> DELIVERY_CHANNEL = new ThreadLocal<DeliveryChannel>();

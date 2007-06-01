@@ -49,8 +49,9 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.EndpointUtils;
 import org.apache.cxf.jbi.ServiceConsumer;
-import org.apache.cxf.jbi.transport.JBITransportFactory;
 import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.jbi.JBITransportFactory;
+
 
 /**
  * Wraps a CXF service or client.

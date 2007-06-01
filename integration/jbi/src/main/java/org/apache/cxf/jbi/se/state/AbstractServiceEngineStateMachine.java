@@ -33,8 +33,9 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jbi.se.CXFServiceEngine;
 import org.apache.cxf.jbi.se.CXFServiceUnitManager;
-import org.apache.cxf.jbi.transport.JBITransportFactory;
 import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.jbi.JBITransportFactory;
+
 
 
 public abstract class AbstractServiceEngineStateMachine implements ServiceEngineStateMachine {
@@ -65,7 +66,7 @@ public abstract class AbstractServiceEngineStateMachine implements ServiceEngine
     void registerJBITransport(Bus argBus, CXFServiceUnitManager mgr) throws JBIException { 
         try { 
             getTransportFactory().setBus(argBus);
-            getTransportFactory().setServiceUnitManager(mgr);
+            //getTransportFactory().setServiceUnitManager(mgr);
         } catch (Exception ex) {
             LOG.severe(new Message("SE.FAILED.REGISTER.TRANSPORT.FACTORY", 
                                                LOG).toString());
