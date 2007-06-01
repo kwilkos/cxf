@@ -24,7 +24,7 @@
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"> 
 
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
     
     <xs:complexType name="TestPolicyType">
         <xs:annotation>

@@ -24,15 +24,15 @@
            xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
            xmlns:sec="http://cxf.apache.org/configuration/security"
-  		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  		   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:version="2.0">
 
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
-    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/configuration/security.xsd"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
+    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="http://cxf.apache.org/schemas/configuration/security.xsd"/>
     
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
     <xs:element name="authorization" type="sec:AuthorizationPolicy"/>

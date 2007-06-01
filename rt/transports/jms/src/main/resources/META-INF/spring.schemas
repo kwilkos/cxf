@@ -1,3 +1,1 @@
-http\://cxf.apache.org/transport/jms.xsd=schemas/wsdl/jms.xsd
-http\://cxf.apache.org/../../../../../../common/schemas/src/main/resources/schemas/configuration/security.xsd=schemas/configuration/security.xsd
-http\://cxf.apache.org/../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd=schemas/wsdl/wsdl.xsd
+http\://cxf.apache.org/schemas/wsdl/jms.xsd=schemas/wsdl/jms.xsd

@@ -33,7 +33,9 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
+import org.springframework.beans.factory.xml.BeansDtdResolver;
 import org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver;
+import org.springframework.beans.factory.xml.PluggableSchemaResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -74,7 +76,7 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
         cfgFileURL = url;
         includeDefaults = include;
         refresh();
-    }
+    } 
     
     @Override
     protected Resource[] getConfigResources() {
@@ -169,6 +171,15 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
         if (null != mode) {
             reader.setValidationModeName(mode);
         }
-        reader.setNamespaceAware(true);  
+        reader.setNamespaceAware(true); 
+        
+        setEntityResolvers(reader);        
     }
+    
+    void setEntityResolvers(XmlBeanDefinitionReader reader) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        reader.setEntityResolver(new BusEntityResolver(new BeansDtdResolver(),
+            new PluggableSchemaResolver(cl)));
+    }
+    
 }

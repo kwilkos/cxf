@@ -24,8 +24,7 @@
   targetNamespace="http://cxf.apache.org/transports/jms" 
   elementFormDefault="qualified" jaxb:version="2.0">
   
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" 
-      schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
     
     <!-- Spring elements -->  
     <xs:element name="conduit" type="jms:ConduitType"/>

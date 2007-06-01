@@ -25,6 +25,7 @@ import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.test.TestApplicationContext;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
@@ -33,7 +34,6 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http_jetty.JettyHTTPDestination;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class ApplicationContextTest extends Assert {
     @Test
@@ -44,8 +44,8 @@ public class ApplicationContextTest extends Assert {
         String s4 = getClass()
             .getResource("/org/apache/cxf/transport/http_jetty/spring/beans.xml").toString();
         
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-            new String[] {s1, s2, s3, s4}, false);
+        TestApplicationContext ctx = new TestApplicationContext(
+            new String[] {s1, s2, s3, s4});
         
         ctx.refresh();
         
