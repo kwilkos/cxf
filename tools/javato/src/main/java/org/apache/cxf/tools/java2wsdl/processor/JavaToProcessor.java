@@ -129,7 +129,12 @@ public class JavaToProcessor implements Processor {
         // TODO check if user specify the style from cli arguments
         //      builderFactory.setStyle(style/from/command/line);
         ServiceBuilder builder = builderFactory.newBuilder();
-        builder.setAddress(DEFAULT_ADDRESS);
+        if (context.get(ToolConstants.CFG_ADDRESS) != null) {
+            String address = (String)context.get(ToolConstants.CFG_ADDRESS);
+            builder.setAddress(address);
+        } else {
+            builder.setAddress(DEFAULT_ADDRESS);
+        }
         builder.setTransportId(getTransportId());
         builder.setBus(getBus());
         builder.setBindingConfig(getBindingConfig());
