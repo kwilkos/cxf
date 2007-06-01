@@ -62,6 +62,7 @@ import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.jdom.output.DOMOutputter;
 
 /**
@@ -272,8 +273,12 @@ public class AegisDatabinding implements DataBinding {
                 XmlSchemaCollection col = new XmlSchemaCollection();
                 NamespaceMap nsMap = new NamespaceMap();
                 nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");
-                //For Aegis types, such as org.apache.cxf.aegis.type.basic.StringType
-                nsMap.add("ns1", "http://lang.java");
+
+                for (Iterator itr = e.getAdditionalNamespaces().iterator(); itr.hasNext();) {
+                    Namespace n = (Namespace) itr.next();
+                    nsMap.add(n.getPrefix(), n.getURI());
+                }
+                
                 col.setNamespaceContext(nsMap);
 
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));

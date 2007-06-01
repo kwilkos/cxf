@@ -41,6 +41,7 @@ import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -123,6 +124,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSOAP12() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");
@@ -212,6 +214,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    @Ignore
     public void testSetServiceName() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");

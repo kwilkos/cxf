@@ -24,14 +24,10 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 
 import org.apache.cxf.service.ServiceModelVisitor;
-import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
@@ -43,8 +39,6 @@ import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
-import org.apache.ws.commons.schema.XmlSchemaSerializer;
-import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 
 /**
@@ -90,8 +84,9 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         }
         
         boolean isElement = beanInfo.isElement();
-        
+
         part.setElement(isElement);
+        
         if (isElement) {
             QName name = new QName(beanInfo.getElementNamespaceURI(null), 
                                    beanInfo.getElementLocalName(null));
@@ -102,16 +97,22 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 part.setElementQName(name);
             }
             part.setXmlSchema(el);
-        } else {
-            Iterator<QName> itr = beanInfo.getTypeNames().iterator();
-            if (!itr.hasNext()) {
-                return;
+        } else  {
+            QName typeName = getTypeName(beanInfo);
+            if (typeName != null) {
+                part.setTypeQName(typeName);
+                part.setXmlSchema(schemas.getTypeByQName(typeName));
             }
-            
-            QName typeName = itr.next();
-            part.setTypeQName(typeName);
-            part.setXmlSchema(schemas.getTypeByQName(typeName));
         }
+    }
+
+    private QName getTypeName(JaxBeanInfo<?> beanInfo) {
+        Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+        if (!itr.hasNext()) {
+            return null;
+        }
+        
+        return itr.next();
     } 
     public void checkForExistence(MessagePartInfo part) {
         QName qn = part.getElementQName();
@@ -131,50 +132,41 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 if (beanInfo == null) {
                     return;
                 }
-                Iterator<QName> itr = beanInfo.getTypeNames().iterator();
-                if (!itr.hasNext()) {
-                    return;
-                }
-                QName typeName = itr.next();
-
-                SchemaInfo schemaInfo = null;
-                for (SchemaInfo s : serviceInfo.getSchemas()) {
-                    if (s.getNamespaceURI().equals(qn.getNamespaceURI())) {
-                        schemaInfo = s;
-
-                        createXsElement(part, typeName, schemaInfo);
-
-                        schemaInfo.getSchema().getItems().add(el);
-                        
-                        return;
-                    }
-                }
                 
-                schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
+                QName typeName = getTypeName(beanInfo);
+
+                createBridgeXsElement(part, qn, typeName);
+            }
+        }
+    }
+
+    private void createBridgeXsElement(MessagePartInfo part, QName qn, QName typeName) {
+        XmlSchemaElement el = null;
+        SchemaInfo schemaInfo = null;
+        for (SchemaInfo s : serviceInfo.getSchemas()) {
+            if (s.getNamespaceURI().equals(qn.getNamespaceURI())) {
+                schemaInfo = s;
+
                 el = createXsElement(part, typeName, schemaInfo);
 
-                XmlSchema schema = new XmlSchema(qn.getNamespaceURI(), schemas);
-                schemaInfo.setSchema(schema);
-                schema.getItems().add(el);
-
-                NamespaceMap nsMap = new NamespaceMap();
-                nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
-                schema.setNamespaceContext(nsMap);
+                schemaInfo.getSchema().getItems().add(el);
                 
-                Document[] docs;
-                try {
-                    docs = XmlSchemaSerializer.serializeSchema(schema, false);
-                } catch (XmlSchemaSerializerException e1) {
-                    throw new ServiceConstructionException(e1);
-                }
-                Element e = docs[0].getDocumentElement();
-                
-                schemaInfo.setElement(e);
-                serviceInfo.addSchema(schemaInfo);
+                return;
             }
         }
         
+        schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
+        el = createXsElement(part, typeName, schemaInfo);
+
+        XmlSchema schema = new XmlSchema(qn.getNamespaceURI(), schemas);
+        schemaInfo.setSchema(schema);
+        schema.getItems().add(el);
+
+        NamespaceMap nsMap = new NamespaceMap();
+        nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+        schema.setNamespaceContext(nsMap);
         
+        serviceInfo.addSchema(schemaInfo);
     }
 
     private XmlSchemaElement createXsElement(MessagePartInfo part, QName typeName, SchemaInfo schemaInfo) {
@@ -183,6 +175,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         el.setName(part.getElementQName().getLocalPart());
         el.setNillable(true);
         el.setSchemaTypeName(typeName);
+        part.setXmlSchema(el);
         return el;
     }
     
@@ -311,24 +304,5 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             el.setSchemaTypeName(beanInfo.getTypeName(null));
         }
         seq.getItems().add(el);
-            
-        Document[] docs;
-        try {
-            docs = XmlSchemaSerializer.serializeSchema(schema, false);
-        } catch (XmlSchemaSerializerException e1) {
-            throw new ServiceConstructionException(e1);
-        }
-        Element e = docs[0].getDocumentElement();
-        schemaInfo.setElement(e);
-        // XXX A problem can occur with the ibm jdk when the XmlSchema
-        // object is serialized.  The xmlns declaration gets incorrectly
-        // set to the same value as the targetNamespace attribute.
-        // The aegis databinding tests demonstrate this particularly.
-        if (e.getPrefix() == null && !WSDLConstants.NU_SCHEMA_XSD.equals(
-            e.getAttributeNS(WSDLConstants.NU_XMLNS, WSDLConstants.NP_XMLNS))) {
-            e.setAttributeNS(WSDLConstants.NU_XMLNS, 
-                WSDLConstants.NP_XMLNS, WSDLConstants.NU_SCHEMA_XSD);
-        }
-        schemaInfo.setElement(e);
     }
 }

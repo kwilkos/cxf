@@ -51,6 +51,7 @@ import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.junit.Test;
 
+
 public class CodeFirstTest extends AbstractJaxWsTest {
     String address = "local://localhost:9000/Hello";
     
@@ -268,7 +269,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
     }
 
     @Test
-    public void testNamespacedWebParams() throws Exception {
+    public void testNamespacedWebParamsBare() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setAddress("http://localhost/test");
         sf.setServiceClass(FooServiceImpl.class);
@@ -277,6 +278,22 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         
         Document doc = getWSDLDocument(server);
         
+        assertValid("//xsd:schema[@targetNamespace='http://namespace3']", doc);
+        assertValid("//xsd:schema[@targetNamespace='http://namespace5']", doc);
+    }
+
+    @Test
+    public void testNamespacedWebParamsWrapped() throws Exception {
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setAddress("http://localhost/test");
+        sf.setServiceBean(new FooServiceImpl());
+        sf.getServiceFactory().setWrapped(true);
+        
+        Server server = sf.create();
+        
+        Document doc = getWSDLDocument(server);
+ 
+        // DOMUtils.writeXml(doc, System.out);
         assertValid("//xsd:schema[@targetNamespace='http://namespace3']", doc);
         assertValid("//xsd:schema[@targetNamespace='http://namespace5']", doc);
     }

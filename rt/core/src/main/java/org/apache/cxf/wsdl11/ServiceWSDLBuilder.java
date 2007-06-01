@@ -56,6 +56,7 @@ import com.ibm.wsdl.extensions.schema.SchemaImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -71,6 +72,8 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.ws.commons.schema.XmlSchemaSerializer;
+import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
 
 public final class ServiceWSDLBuilder {
     
@@ -187,6 +190,29 @@ public final class ServiceWSDLBuilder {
         doc.appendChild(nd);
         
         for (SchemaInfo schemaInfo : schemas) {
+            
+            if (schemaInfo.getSchema() != null) {
+                Document[] docs;
+                try {
+                    docs = XmlSchemaSerializer.serializeSchema(schemaInfo.getSchema(), false);
+                } catch (XmlSchemaSerializerException e1) {
+                    throw new ServiceConstructionException(e1);
+                }
+                Element e = docs[0].getDocumentElement();
+                // XXX A problem can occur with the ibm jdk when the XmlSchema
+                // object is serialized. The xmlns declaration gets incorrectly
+                // set to the same value as the targetNamespace attribute.
+                // The aegis databinding tests demonstrate this particularly.
+                if (e.getPrefix() == null
+                    && !WSDLConstants.NU_SCHEMA_XSD.equals(e.getAttributeNS(WSDLConstants.NU_XMLNS,
+                                                                            WSDLConstants.NP_XMLNS))) {
+                    e.setAttributeNS(WSDLConstants.NU_XMLNS, 
+                                     WSDLConstants.NP_XMLNS, 
+                                     WSDLConstants.NU_SCHEMA_XSD);
+                }
+                schemaInfo.setElement(e);
+            }
+            
             if (!useSchemaImports) {
                 SchemaImpl schemaImpl = new SchemaImpl();
                 schemaImpl.setRequired(true);

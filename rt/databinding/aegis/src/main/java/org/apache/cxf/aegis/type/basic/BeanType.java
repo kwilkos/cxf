@@ -382,7 +382,7 @@ public class BeanType extends Type {
             Element extension = new Element("extension", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
             complex.addContent(extension);
             QName baseType = sooperType.getSchemaType();
-            extension.setAttribute(new Attribute("base", getNameWithPrefix2(extension, baseType
+            extension.setAttribute(new Attribute("base", getNameWithPrefix2(root, baseType
                 .getNamespaceURI(), baseType.getLocalPart())));
 
             dummy = extension;
@@ -472,7 +472,7 @@ public class BeanType extends Type {
     }
 
     private String getNameWithPrefix2(Element root, String nameNS, String localName) {
-        String prefix = NamespaceHelper.getUniquePrefix((Element)root.getParent(), nameNS);
+        String prefix = NamespaceHelper.getUniquePrefix(root, nameNS);
 
         if (prefix == null || prefix.length() == 0) {
             prefix = NamespaceHelper.getUniquePrefix(root, nameNS);

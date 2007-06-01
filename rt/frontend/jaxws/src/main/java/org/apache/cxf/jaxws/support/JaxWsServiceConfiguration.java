@@ -40,6 +40,7 @@ import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -517,7 +518,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
     
     private static String getPackageName(Method method) {
-        return method.getDeclaringClass().getPackage().getName();
+        return PackageUtils.getPackageName(method.getDeclaringClass());
     }
     
     @Override

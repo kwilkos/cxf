@@ -39,9 +39,6 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Endpoint;
@@ -80,8 +77,7 @@ import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
-import org.apache.ws.commons.schema.XmlSchemaSerializer;
-import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
+import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 
 /**
@@ -419,6 +415,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
                             mpi.setElement(true);
                             mpi.setElementQName(qn);
+                            
+                            
+                            checkForHeaderElement(serviceInfo, mpi);
                         }
                     }
                     
@@ -443,6 +442,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
                             mpi.setElement(true);
                             mpi.setElementQName(qn);
+                            
+                            checkForHeaderElement(serviceInfo, mpi);
                         }
                     }
                 }
@@ -451,67 +452,40 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     }
     
+    protected void checkForHeaderElement(ServiceInfo serviceInfo, MessagePartInfo mpi) {
+        for (SchemaInfo s : serviceInfo.getSchemas()) {
+            XmlSchemaElement e = s.getElementByQName(mpi.getElementQName());
+            if (e != null) {
+                return;
+            }
+        }
+        SchemaInfo si = getOrCreateSchema(serviceInfo, mpi.getElementQName().getNamespaceURI());
+        XmlSchema schema = si.getSchema();
+        
+        XmlSchemaElement el = new XmlSchemaElement();
+        el.setQName(mpi.getElementQName());
+        el.setName(mpi.getElementQName().getLocalPart());
+        schema.getItems().add(el);
+
+        el.setMinOccurs(1);
+        el.setMaxOccurs(0);
+        el.setNillable(true);
+        
+        XmlSchemaType tp = (XmlSchemaType)mpi.getXmlSchema();
+        el.setSchemaTypeName(tp.getQName());
+    }
+
+    
     protected boolean qualifyWrapperSchema() {
         return true;
     }
 
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
                                        AbstractMessageContainer unwrappedMessage, QName wraperBeanName) {
-        SchemaInfo schemaInfo = null;
-        for (SchemaInfo s : serviceInfo.getSchemas()) {
-            if (s.getNamespaceURI().equals(wraperBeanName.getNamespaceURI())) {
-                schemaInfo = s;
-                break;
-            }
-        }
-
-        if (schemaInfo == null) {
-            XmlSchemaCollection col = new XmlSchemaCollection();
-            XmlSchema schema = new XmlSchema(wraperBeanName.getNamespaceURI(), col);
-            if (qualifyWrapperSchema()) {
-                schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
-            }
-            serviceInfo.setXmlSchemaCollection(col);
-
-            NamespaceMap nsMap = new NamespaceMap();
-            nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
-            schema.setNamespaceContext(nsMap);
-
-            createWrappedMessageSchema(wrappedMessage, unwrappedMessage, schema, wraperBeanName);
-
-            Document[] docs;
-            try {
-                docs = XmlSchemaSerializer.serializeSchema(schema, false);
-            } catch (XmlSchemaSerializerException e1) {
-                throw new ServiceConstructionException(e1);
-            }
-            Element e = docs[0].getDocumentElement();
-            schemaInfo = new SchemaInfo(serviceInfo, wraperBeanName.getNamespaceURI());
-            schemaInfo.setElement(e);
-            schemaInfo.setSchema(schema);
-            serviceInfo.addSchema(schemaInfo);
-        } else {
-            XmlSchema schema = schemaInfo.getSchema();
-            createWrappedMessageSchema(wrappedMessage, unwrappedMessage, schema, wraperBeanName);
-
-            Document[] docs;
-            try {
-                docs = XmlSchemaSerializer.serializeSchema(schema, false);
-            } catch (XmlSchemaSerializerException e1) {
-                throw new ServiceConstructionException(e1);
-            }
-            Element e = docs[0].getDocumentElement();
-            // XXX A problem can occur with the ibm jdk when the XmlSchema
-            // object is serialized. The xmlns declaration gets incorrectly
-            // set to the same value as the targetNamespace attribute.
-            // The aegis databinding tests demonstrate this particularly.
-            if (e.getPrefix() == null
-                && !WSDLConstants.NU_SCHEMA_XSD.equals(e.getAttributeNS(WSDLConstants.NU_XMLNS,
-                                                                        WSDLConstants.NP_XMLNS))) {
-                e.setAttributeNS(WSDLConstants.NU_XMLNS, WSDLConstants.NP_XMLNS, WSDLConstants.NU_SCHEMA_XSD);
-            }
-            schemaInfo.setElement(e);
-        }
+        SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo, wraperBeanName.getNamespaceURI());
+        
+        createWrappedMessageSchema(serviceInfo, wrappedMessage, unwrappedMessage, 
+                                   schemaInfo.getSchema(), wraperBeanName);
     }
 
     protected void createBareMessage(ServiceInfo serviceInfo, 
@@ -600,13 +574,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
 
-            Document[] docs;
-            try {
-                docs = XmlSchemaSerializer.serializeSchema(schema, false);
-            } catch (XmlSchemaSerializerException e1) {
-                throw new ServiceConstructionException(e1);
-            }
-            schemaInfo.setElement(docs[0].getDocumentElement());
             schemaInfo.setSchema(schema);
 
             mpi.setElement(true);
@@ -648,8 +615,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
     
     
-    private void createWrappedMessageSchema(AbstractMessageContainer wrappedMessage,
-                                            AbstractMessageContainer unwrappedMessage, XmlSchema schema,
+    private void createWrappedMessageSchema(ServiceInfo serviceInfo,
+                                            AbstractMessageContainer wrappedMessage,
+                                            AbstractMessageContainer unwrappedMessage, 
+                                            XmlSchema schema,
                                             QName wrapperName) {
         XmlSchemaElement el = new XmlSchemaElement();
         el.setQName(wrapperName);
@@ -697,11 +666,35 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 el.setName(qn.getLocalPart());
                 el.setQName(qn);
 
-                if (!isExistSchemaElement(schema, qn)) {
-                    schema.getItems().add(el);
+                SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, qn.getNamespaceURI());
+                if (!isExistSchemaElement(headerSchemaInfo.getSchema(), qn)) {
+                    headerSchemaInfo.getSchema().getItems().add(el);
                 }
             }
         }
+    }
+
+    private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo, String namespaceURI) {
+        for (SchemaInfo s : serviceInfo.getSchemas()) {
+            if (s.getNamespaceURI().equals(namespaceURI)) {
+                return s;
+            }
+        }
+
+        SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
+        XmlSchemaCollection col = new XmlSchemaCollection();
+        XmlSchema schema = new XmlSchema(namespaceURI, col);
+        if (qualifyWrapperSchema()) {
+            schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+        }
+        serviceInfo.setXmlSchemaCollection(col);
+        schemaInfo.setSchema(schema);
+        
+        NamespaceMap nsMap = new NamespaceMap();
+        nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+        schema.setNamespaceContext(nsMap);
+        serviceInfo.addSchema(schemaInfo);
+        return schemaInfo;
     }
 
     protected void createMessageParts(InterfaceInfo intf, OperationInfo op, Method method) {
@@ -1175,7 +1168,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             return null;
         }
 
-        if (isWrapped(method)) {
+        if (isWrapped(method) && !isHeader(method, paramNumber)) {
             return getInParameterName(op, method, paramNumber);
         }
 

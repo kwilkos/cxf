@@ -39,6 +39,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
     WSDL11Generator generator = new WSDL11Generator();

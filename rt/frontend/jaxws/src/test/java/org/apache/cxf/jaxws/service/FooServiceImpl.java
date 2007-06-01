@@ -22,10 +22,10 @@ import javax.jws.WebService;
 
 @WebService(endpointInterface = "org.apache.cxf.jaxws.service.FooService")
 public class FooServiceImpl implements FooService {
-
-    public Foo echo(Foo foo) {
-        return foo;
-    }
+//
+//    public Foo echo(Foo foo) {
+//        return foo;
+//    }
 
     public Foo echo2(Foo foo, String name) {
         // TODO Auto-generated method stub
