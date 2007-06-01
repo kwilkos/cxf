@@ -27,16 +27,16 @@ public class ManagementConsoleTest extends Assert {
     
     @Test
     public void paraserCommandTest() {
-        String[] listArgs = new String[] {"-operation", "listall"};
+        String[] listArgs = new String[] {"--operation", "list"};
         mc.parserArguments(listArgs);
-        assertEquals("It is not right operation name", "listall", mc.operationName);
+        assertEquals("It is not right operation name", "list", mc.operationName);
         assertEquals("The portName should be cleared", "", mc.portName);
-        String[] startArgs = new String[] {"-operation", "start", "-jmx", 
+        String[] startArgs = new String[] {"-o", "start", "--jmx", 
                                            "service:jmx:rmi:///jndi/rmi://localhost:1234/jmxrmi",
-                                           "-port", 
-                                           "\"{http://apache.org/hello_world_soap_http}SoapPort\"",
-                                           "-service",
-                                           "\"{http://apache.org/hello_world_soap_http}SOAPService\""};
+                                           "--service",
+                                           "\"{http://apache.org/hello_world_soap_http}SOAPService\"",
+                                           "--port", 
+                                           "\"{http://apache.org/hello_world_soap_http}SoapPort\""};
         mc.parserArguments(startArgs);
         assertEquals("It is not right operation name", "start", mc.operationName);
         assertEquals("It is not right port name", 
@@ -46,6 +46,10 @@ public class ManagementConsoleTest extends Assert {
         assertEquals("It is not a jmx url",
                     "service:jmx:rmi:///jndi/rmi://localhost:1234/jmxrmi",
                     mc.jmxServerURL);
+        
+        String[] errorArgs = new String[] {"--op", "listAll"};
+        assertFalse("the arguments are wrong", mc.parserArguments(errorArgs));
+                
     }
     
     

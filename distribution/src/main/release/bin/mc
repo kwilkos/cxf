@@ -18,8 +18,38 @@
 #    under the License.
 #
 #
-NO_MBEAN_SERVER = Can't find the MBeanServer, please Connect the MBeanServer first.
-FAIL_TO_CONNECT_TO_MBEAN_SERVER = Failed to connect to the MBeanServer with is url {0}
-FAIL_TO_LIST_ENDPOINTS = Failed to list the endpoints, the exception is {0}. 
-FAILT_TO_CREATE_ENDPOINT_OBEJCTNAME = Failed to create the endpoints objectname, error is {0}
-FAIL_TO_INVOKE_MANAGED_OBJECT_OPERTION = Failed to invoke the managed object {0}'s operation {1}, the exception is {2}.
+#!/bin/sh
+# run the Apache CXF management console tool 
+#
+
+me=`basename $0`
+cxf_home=$CXF_HOME
+if [ ! -f  $cxf_home/lib/cxf-manifest-incubator.jar ]; then
+    cxf_home=`dirname $0`/..
+fi
+
+cxf_jar=$cxf_home/lib/cxf-manifest-incubator.jar
+
+if [ ! -f $cxf_jar ]; then 
+    if [ ! -f ${cxf_home}/../../target/srcbuild_env ]; then
+        echo "ERROR: Unable to find cxf-manifest-incubator.jar in $cxf_home/lib"
+        exit 1
+    else
+        . ${cxf_home}/../../target/srcbuild_env
+        cxf_jar=${CXF_CLASSPATH}
+    fi
+fi 
+
+
+log_config=$cxf_home/etc/logging.properties
+
+
+
+cxf_classpath=${cxf_jar}:${CLASSPATH}
+
+$JAVA_HOME/bin/java -cp ${cxf_classpath} -Djava.util.logging.config.file=$log_config org.apache.cxf.management.utils.ManagementConsole "$@"
+
+
+
+
+
