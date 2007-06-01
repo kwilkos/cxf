@@ -35,6 +35,7 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.thread.BoundedThreadPool;
 
 
 
@@ -141,12 +142,6 @@ public class JettyHTTPServerEngine
             connector = connectorFactory.createConnector(port);
             //REVISITION for setup the connector's threadPool
             /*
-            if (getListener().isSetMinThreads()) {
-                listener.setMinThreads(getListener().getMinThreads());
-            }
-            if (getListener().isSetMaxThreads()) {
-                listener.setMaxThreads(getListener().getMaxThreads());            
-            }
             if (getListener().isSetMaxIdleTimeMs()) {
                 listener.setMaxIdleTimeMs(getListener().getMaxIdleTimeMs().intValue());
             }
@@ -161,6 +156,16 @@ public class JettyHTTPServerEngine
             server.addHandler(contexts);
             try {
                 server.start();
+                if (connector.getThreadPool() instanceof BoundedThreadPool
+                    && isSetListener()) {
+                    BoundedThreadPool pool = (BoundedThreadPool)connector.getThreadPool();
+                    if (getListener().isSetMinThreads()) {
+                        pool.setMinThreads(getListener().getMinThreads());
+                    }
+                    if (getListener().isSetMaxThreads()) {
+                        pool.setMaxThreads(getListener().getMaxThreads());
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 //problem starting server
