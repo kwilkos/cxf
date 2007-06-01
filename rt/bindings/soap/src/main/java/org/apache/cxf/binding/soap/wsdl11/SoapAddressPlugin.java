@@ -28,15 +28,20 @@ import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.wsdl.AbstractWSDLPlugin;
 
-public class SoapAddressPlugin extends AbstractWSDLPlugin {
+public final class SoapAddressPlugin extends AbstractWSDLPlugin {
 
     public ExtensibilityElement createExtension(Map<String, Object> args) throws WSDLException {
+        return createExtension(optionSet(args, ToolConstants.CFG_SOAP12),
+                               getOption(args, ToolConstants.CFG_ADDRESS));
+    }
+
+    public ExtensibilityElement createExtension(final boolean isSOAP12,
+                                                final String address) throws WSDLException {
         SoapAddress soapAddress = null;
-        boolean isSOAP12 = optionSet(args, ToolConstants.CFG_SOAP12);
 
         soapAddress = SOAPBindingUtil.createSoapAddress(registry, isSOAP12);
         
-        soapAddress.setLocationURI(getOption(args, ToolConstants.CFG_ADDRESS));
+        soapAddress.setLocationURI(address);
 
         return soapAddress;
     }

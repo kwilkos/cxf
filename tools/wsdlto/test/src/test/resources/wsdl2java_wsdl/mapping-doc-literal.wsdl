@@ -44,8 +44,32 @@
                     </sequence>
                 </complexType>
             </element>
+
+	    <element name="gdocsRequest">
+		<complexType>
+		    <sequence>
+			<element name="foo1" type="string"/>
+			<element name="foo2" type="int"/>				
+		    </sequence>
+		</complexType>
+	    </element>
+	    <element name="gdocsResponse">
+		<complexType>
+		    <sequence>
+			<element name="foo2" type="int"/>
+			<element name="foo3" type="long"/>				
+		    </sequence>
+		</complexType>
+	    </element>
         </schema>
     </types>
+    <message name="gdocsRequest">
+	<part element="tns:gdocsRequest" name="parameters"/>
+    </message>
+    <message name="gdocsResponse">
+	<part element="tns:gdocsResponse" name="parameters"/>
+    </message>
+
     <message name="doSomething">
         <part element="tns:doSomething" name="parameters"/>
     </message>
@@ -57,6 +81,12 @@
             <input message="tns:doSomething" name="doSomething"/>
             <output message="tns:doSomethingResponse" name="doSomethingResponse"/>
         </operation>
+
+        <operation name="gdocsRequest">
+            <input message="tns:gdocsRequest" name="gdocsRequest"/>
+            <output message="tns:gdocsResponse" name="gdocsResponse"/>
+        </operation>
+
     </portType>
     <binding name="SomethingServerSOAPBinding" type="tns:SomethingServer">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>

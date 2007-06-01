@@ -18,8 +18,24 @@
  */
 package org.apache.cxf.jaxws;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.wsdl.Definition;
+import javax.wsdl.xml.WSDLWriter;
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Document;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.calculator.CalculatorPortType;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.jaxws.service.Hello;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.hello_world_doc_lit.GreeterImplDoc;
 import org.junit.Test;
 
@@ -46,5 +62,74 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
         
         Server server = sf.create();
         assertNotNull(server);
+    }
+
+
+    @Test
+    public void testSimpleServiceClass() throws Exception {
+        ServerFactoryBean factory = new ServerFactoryBean();
+        factory.setServiceClass(Hello.class);
+        String address = "http://localhost:9001/jaxwstest";
+        factory.setAddress(address);
+        Server server = factory.create();
+        Endpoint endpoint = server.getEndpoint();
+        ServiceInfo service = endpoint.getEndpointInfo().getService();
+        assertNotNull(service);
+
+        Bus bus = factory.getBus();
+        Definition def = new ServiceWSDLBuilder(bus, service).build();
+
+        WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class).getWSDLFactory().newWSDLWriter();
+        def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
+        Document doc = wsdlWriter.getDocument(def);
+
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("wsdl", "http://schemas.xmlsoap.org/wsdl/");
+        ns.put("soap", "http://schemas.xmlsoap.org/wsdl/soap/");
+        XPathUtils xpather = new XPathUtils(ns);
+        xpather.isExist("/wsdl:definitions/wsdl:binding/soap:binding",
+                        doc,
+                        XPathConstants.NODE);
+        xpather.isExist("/wsdl:definitions/wsdl:binding/wsdl:operation[@name='add']/soap:operation",
+                        doc,
+                        XPathConstants.NODE);
+        xpather.isExist("/wsdl:definitions/wsdl:service/wsdl:port[@name='add']/soap:address[@location='"
+                        + address + "']",
+                        doc,
+                        XPathConstants.NODE);
+    }
+
+    @Test
+    public void testJaxwsServiceClass() throws Exception {
+        JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
+        factory.setServiceClass(CalculatorPortType.class);
+        String address = "http://localhost:9001/jaxwstest";
+        factory.setAddress(address);
+        Server server = factory.create();
+        Endpoint endpoint = server.getEndpoint();
+        ServiceInfo service = endpoint.getEndpointInfo().getService();
+        assertNotNull(service);
+
+        Bus bus = factory.getBus();
+        Definition def = new ServiceWSDLBuilder(bus, service).build();
+
+        WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class).getWSDLFactory().newWSDLWriter();
+        def.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
+        Document doc = wsdlWriter.getDocument(def);
+
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("wsdl", "http://schemas.xmlsoap.org/wsdl/");
+        ns.put("soap", "http://schemas.xmlsoap.org/wsdl/soap/");
+        XPathUtils xpather = new XPathUtils(ns);
+        xpather.isExist("/wsdl:definitions/wsdl:binding/soap:binding",
+                        doc,
+                        XPathConstants.NODE);
+        xpather.isExist("/wsdl:definitions/wsdl:binding/wsdl:operation[@name='add']/soap:operation",
+                        doc,
+                        XPathConstants.NODE);
+        xpather.isExist("/wsdl:definitions/wsdl:service/wsdl:port[@name='add']/soap:address[@location='"
+                        + address + "']",
+                        doc,
+                        XPathConstants.NODE);
     }
 }

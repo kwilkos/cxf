@@ -319,7 +319,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File mapping = new File(apache, "mapping");
         assertTrue(mapping.exists());
         File[] files = mapping.listFiles();
-        assertEquals(7, files.length);
+        assertEquals(9, files.length);
         Class clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
         Method method = clz.getMethod("doSomething", new Class[] {int.class, javax.xml.ws.Holder.class,
                                                                   javax.xml.ws.Holder.class});

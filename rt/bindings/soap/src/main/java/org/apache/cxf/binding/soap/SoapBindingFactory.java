@@ -23,8 +23,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
+import javax.wsdl.BindingInput;
+import javax.wsdl.BindingOutput;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.mime.MIMEContent;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
@@ -60,6 +63,7 @@ import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -67,7 +71,9 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapFault;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -75,6 +81,7 @@ import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.MultipleEndpointObserver;
+import org.apache.cxf.wsdl.WSDLManager;
 
 
 public class SoapBindingFactory extends AbstractBindingFactory {
@@ -149,9 +156,114 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 setupHeaders(bop, bOutput, unwrappedMsg, output, config);
             }
         }
+
+        try {
+            createSoapBinding(info);
+        } catch (WSDLException e) {
+            e.printStackTrace();
+        }
         
         return info;
     }
+
+
+    private void createSoapBinding(final SoapBindingInfo bi) throws WSDLException {
+        boolean isSoap12 = bi.getSoapVersion() instanceof Soap12;
+        ExtensionRegistry extensionRegistry = getBus().getExtension(WSDLManager.class)
+            .getExtenstionRegistry();
+        
+        SoapBinding soapBinding = SOAPBindingUtil.createSoapBinding(extensionRegistry, isSoap12);
+        soapBinding.setStyle(bi.getStyle());
+        soapBinding.setTransportURI(bi.getTransportURI());
+        bi.addExtensor(soapBinding);
+
+        for (BindingOperationInfo b : bi.getOperations()) {
+            for (BindingFaultInfo faultInfo : b.getFaults()) {
+                SoapFault soapFault = SOAPBindingUtil.createSoapFault(extensionRegistry, isSoap12);
+                soapFault.setUse("literal");
+                soapFault.setName(faultInfo.getFaultInfo().getFaultName().getLocalPart());
+                faultInfo.addExtensor(soapFault);
+            }
+            SoapOperationInfo soi = b.getExtensor(SoapOperationInfo.class);
+                
+            SoapOperation soapOperation = SOAPBindingUtil.createSoapOperation(extensionRegistry,
+                                                                              isSoap12);
+            soapOperation.setSoapActionURI(soi.getAction());
+            soapOperation.setStyle(soi.getStyle());
+            boolean isRpc = "rpc".equals(soapOperation.getStyle());
+
+            b.addExtensor(soapOperation);
+
+            if (b.getInput() != null) {
+                List<String> bodyParts = null;
+                SoapHeaderInfo headerInfo = b.getInput().getExtensor(SoapHeaderInfo.class);
+                if (headerInfo != null) {
+                    bodyParts = new ArrayList<String>();
+                    for (MessagePartInfo part : b.getInput().getMessageParts()) {
+                        bodyParts.add(part.getName().getLocalPart());
+                    }
+                        
+                    SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
+                                                                             BindingInput.class,
+                                                                             isSoap12);
+                    soapHeader.setMessage(b.getInput().getMessageInfo().getName());
+                    soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
+                    soapHeader.setUse("literal");
+                    bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
+                    b.getInput().addExtensor(soapHeader);
+
+                } 
+                SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
+                                                               BindingInput.class,
+                                                               isSoap12);
+                body.setUse("literal");
+                if (isRpc) {
+                    body.setNamespaceURI(b.getName().getNamespaceURI());
+                }
+
+                if (bodyParts != null) {
+                    body.setParts(bodyParts);
+                }
+
+                b.getInput().addExtensor(body);
+            }
+
+            if (b.getOutput() != null) {
+                List<String> bodyParts = null;
+                SoapHeaderInfo headerInfo = b.getOutput().getExtensor(SoapHeaderInfo.class);
+                if (headerInfo != null) {
+                    bodyParts = new ArrayList<String>();
+                    for (MessagePartInfo part : b.getOutput().getMessageParts()) {
+                        bodyParts.add(part.getName().getLocalPart());
+                    }
+                    SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
+                                                                             BindingOutput.class,
+                                                                             isSoap12);
+                    soapHeader.setMessage(b.getOutput().getMessageInfo().getName());
+                    soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
+                    soapHeader.setUse("literal");
+                    bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
+                    b.getOutput().addExtensor(soapHeader);
+
+                }
+                SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
+                                                               BindingOutput.class,
+                                                               isSoap12);
+                body.setUse("literal");
+                if (isRpc) {
+                    body.setNamespaceURI(b.getName().getNamespaceURI());
+                }
+
+                if (bodyParts != null) {
+                    body.setParts(bodyParts);
+                }
+                    
+                b.getOutput().addExtensor(body);
+            }
+        }
+    }
+    
+    
     private void setupHeaders(BindingOperationInfo op, 
                               BindingMessageInfo bMsg, 
                               BindingMessageInfo unwrappedBMsg, 
@@ -179,12 +291,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         String parameterStyle = SoapConstants.PARAMETER_STYLE_WRAPPED;
         String bindingStyle = SoapConstants.BINDING_STYLE_DOC;
 
-        SoapBinding sb = null;
+        org.apache.cxf.binding.soap.SoapBinding sb = null;
         SoapVersion version = null;
         if (binding instanceof SoapBindingInfo) {
             SoapBindingInfo sbi = (SoapBindingInfo) binding;
             version = sbi.getSoapVersion();
-            sb = new SoapBinding(binding, version);
+            sb = new org.apache.cxf.binding.soap.SoapBinding(binding, version);
             // Service wide style
             if (!StringUtils.isEmpty(sbi.getStyle())) {
                 bindingStyle = sbi.getStyle();
@@ -259,7 +371,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         // Copy all the extensors
         initializeBindingInfo(service, binding, bi);
     
-        org.apache.cxf.tools.common.extensions.soap.SoapBinding wSoapBinding
+        SoapBinding wSoapBinding
             = SOAPBindingUtil.getSoapBinding(bi.getExtensors(ExtensibilityElement.class));
         
         bi.setTransportURI(wSoapBinding.getTransportURI());
