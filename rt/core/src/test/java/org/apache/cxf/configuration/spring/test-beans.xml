@@ -22,7 +22,7 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean name="*2" abstract="true" class="SimpleBean">
+  <bean name="*2" abstract="true" class="org.apache.cxf.configuration.spring.ConfigurerImplTest$SimpleBean">
       <property name="stringAttr" value="StarHallo"/>
   </bean>
 

@@ -1,1 +1,2 @@
 http\://cxf.apache.org/schemas/wsdl/http-conf.xsd=schemas/wsdl/http-conf.xsd
+http\://cxf.apache.org/schemas/configuration/http-conf.xsd=schemas/configuration/http-conf.xsd

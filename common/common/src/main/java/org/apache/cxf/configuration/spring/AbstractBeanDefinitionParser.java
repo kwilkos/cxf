@@ -60,7 +60,7 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
             String names = elem.getAttribute(BeanConstants.NAME_ATTR);
             if (null != names) {
                 StringTokenizer st = 
-                    new StringTokenizer(BeanDefinitionParserDelegate.BEAN_NAME_DELIMITERS, names);
+                    new StringTokenizer(names, BeanDefinitionParserDelegate.BEAN_NAME_DELIMITERS);
                 if (st.countTokens() > 0) {
                     id = st.nextToken();
                 }
@@ -263,8 +263,6 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
     }
 
     protected final void doParseCommon(Element elem, ParserContext ctx, BeanDefinitionBuilder builder) {
-        System.out.println("Using AbstractBeanDefinitionParser to parse element "
-                           + new QName(elem.getNamespaceURI(), elem.getLocalName()));
         NamedNodeMap atts = elem.getAttributes();
         
         for (int i = 0; i < atts.getLength(); i++) {

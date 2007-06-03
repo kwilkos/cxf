@@ -149,7 +149,7 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
     
     private void configureWithWildCard(String bn, Object beanInstance) {
         if (!wildCardBeanDefinitions.isEmpty() && !isWildcardBeanName(bn)) {
-            String className = beanInstance.getClass().getSimpleName();
+            String className = beanInstance.getClass().getName();
             if (wildCardBeanDefinitions.containsKey(className)) {
                 String wildCardBeanId = wildCardBeanDefinitions.get(className);
                 if (bn.endsWith(stripStar(wildCardBeanId))) {

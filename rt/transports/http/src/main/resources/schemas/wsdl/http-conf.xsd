@@ -19,72 +19,21 @@
 -->
 
 <xs:schema targetNamespace="http://cxf.apache.org/transports/http/configuration" 
-           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
            xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
-           xmlns:sec="http://cxf.apache.org/configuration/security"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:version="2.0">
 
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
-    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="http://cxf.apache.org/schemas/configuration/security.xsd"/>
     
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
-    <xs:element name="authorization" type="sec:AuthorizationPolicy"/>
-    <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
-    <xs:element name="tlsServerParameters" type="sec:TLSServerParametersType"/>
-    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
-    <xs:element name="fixedParameterOrder" type="xs:boolean" default="false"/>
-
     <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
-    <xs:element name="proxyAuthorization" type="sec:AuthorizationPolicy"/>
-    <xs:element name="sslClient" type="sec:SSLClientPolicy"/>
-    <xs:element name="tlsClientParameters" type="sec:TLSClientParametersType"/>
-
-    <xs:element name="trustDecider"           type="http-conf:ClassOrBeanType"/>
-    <xs:element name="basicAuthSupplier"      type="http-conf:ClassOrBeanType"/>
+    <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
     
-    <xs:element name="conduit">
-        <xs:complexType>
-            <xs:all>
-                <xs:element ref="http-conf:client" minOccurs="0"/>
-                <xs:element ref="http-conf:authorization" minOccurs="0"/>
-                <xs:element ref="http-conf:proxyAuthorization" minOccurs="0"/>
-                <xs:element ref="http-conf:sslClient" minOccurs="0"/>
-                <xs:element ref="http-conf:tlsClientParameters" minOccurs="0"/>
-                <xs:element ref="http-conf:basicAuthSupplier" 
-                			minOccurs="0" maxOccurs="1"/>
-                <xs:element ref="http-conf:trustDecider" 
-                			minOccurs="0" maxOccurs="1"/>
-            </xs:all>
-            <xs:attribute name="id" type="xs:string" use="required"/>
-        </xs:complexType>
-    </xs:element>
-    
-    <xs:complexType name="ClassOrBeanType">
-       <xs:attribute name="class" type="xs:string"/>
-       <xs:attribute name="bean"  type="xs:string"/>
-    </xs:complexType>
-    
-    <xs:element name="destination">
-      <xs:complexType>
-        <xs:all>
-            <xs:element ref="http-conf:server" minOccurs="0"/>
-            <xs:element ref="http-conf:authorization" minOccurs="0"/>
-            <xs:element ref="http-conf:sslServer" minOccurs="0"/>
-            <xs:element ref="http-conf:tlsServerParameters" minOccurs="0"/>
-            <xs:element ref="http-conf:contextMatchStrategy" minOccurs="0"/>
-            <xs:element ref="http-conf:fixedParameterOrder" minOccurs="0"/>
-        </xs:all>
-        <xs:attribute name="id" type="xs:string" use="required"/>
-      </xs:complexType>
-   </xs:element>
-   
     <xs:complexType name="HTTPServerPolicy">
         <xs:annotation>
             <xs:documentation>HTTP Server configuration properties.
@@ -434,7 +383,6 @@
     		</xs:element>
     	</xs:sequence>
     </xs:complexType>
-    <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
 
   
     <xs:simpleType name="serverCacheControlType">
@@ -477,4 +425,9 @@
             <xs:enumeration value="SOCKS"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="ClassOrBeanType">
+       <xs:attribute name="class" type="xs:string"/>
+       <xs:attribute name="bean"  type="xs:string"/>
+    </xs:complexType>
  </xs:schema>

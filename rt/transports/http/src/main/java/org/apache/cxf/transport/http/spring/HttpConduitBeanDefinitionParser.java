@@ -30,12 +30,16 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.jsse.spring.TLSClientParametersConfig;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
+import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpBasicAuthSupplier;
 import org.apache.cxf.transport.http.MessageTrustDecider;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+
 
 public class HttpConduitBeanDefinitionParser 
     extends AbstractBeanDefinitionParser {
@@ -49,13 +53,16 @@ public class HttpConduitBeanDefinitionParser
         mapElementToJaxbProperty(element, bean, 
                 new QName(HTTP_NS, "client"), "client");
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "proxyAuthorization"), "proxyAuthorization");
+                new QName(HTTP_NS, "proxyAuthorization"), "proxyAuthorization",
+                ProxyAuthorizationPolicy.class, ProxyAuthorizationPolicy.class.getPackage().getName());
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "authorization"), "authorization");
+                new QName(HTTP_NS, "authorization"), "authorization",
+                AuthorizationPolicy.class, AuthorizationPolicy.class.getPackage().getName());
         
        // DEPRECATED: This element is deprecated in favor of tlsClientParameters
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "sslClient"), "sslClient");
+                new QName(HTTP_NS, "sslClient"), "sslClient",
+                SSLClientPolicy.class, SSLClientPolicy.class.getPackage().getName());
         
         mapSpecificElements(element, bean);
     }
@@ -74,23 +81,17 @@ public class HttpConduitBeanDefinitionParser
         NodeList nl = parent.getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
             Node n = nl.item(i);
+            if (Node.ELEMENT_NODE != n.getNodeType() 
+                || !HTTP_NS.equals(n.getNamespaceURI())) {
+                continue;
+            }
+            String elementName = n.getLocalName();
             // Schema should require that no more than one each of these exist.
-            if (n.getNodeType() == Node.ELEMENT_NODE 
-                && n.getLocalName().equals("trustDecider")
-                && n.getNamespaceURI().equals(HTTP_NS)) {
-                
+            if ("trustDecider".equals(elementName)) {                
                 mapBeanOrClassElement((Element)n, bean, MessageTrustDecider.class);
-            }
-            if (n.getNodeType() == Node.ELEMENT_NODE 
-                && n.getLocalName().equals("basicAuthSupplier")
-                && n.getNamespaceURI().equals(HTTP_NS)) {
-                
+            } else if ("basicAuthSupplier".equals(elementName)) {
                 mapBeanOrClassElement((Element)n, bean, HttpBasicAuthSupplier.class);
-            }
-            if (n.getNodeType() == Node.ELEMENT_NODE 
-                && n.getLocalName().equals("tlsClientParameters")
-                && n.getNamespaceURI().equals(HTTP_NS)) {
-                
+            } else if ("tlsClientParameters".equals(elementName)) {
                 mapTLSClientParameters(n, bean);
             }
         }
