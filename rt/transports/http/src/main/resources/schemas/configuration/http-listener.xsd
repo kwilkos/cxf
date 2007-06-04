@@ -23,27 +23,38 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
            xmlns:sec="http://cxf.apache.org/configuration/security" 
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:beans="http://www.springframework.org/schema/beans" 
+           xmlns:cxf-beans="http://cxf.apache.org/configuration/beans"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
-           jaxb:version="2.0">
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           jaxb:ersion="2.0">
 
     <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="http://cxf.apache.org/schemas/configuration/security.xsd"/>
     <xs:import namespace="http://cxf.apache.org/transports/http/configuration" schemaLocation="http://cxf.apache.org/schemas/wsdl/http-conf.xsd"/>
+    <xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans.xsd"/>
+    <xs:import namespace="http://cxf.apache.org/configuration/beans" schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
 
+    <!--
     <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
     <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
     <xs:element name="tlsServerParameters" type="sec:TLSServerParametersType"/>
+    -->
 
-    <xs:complexType name="HTTPListenerConfigBean">
-        <xs:sequence>
-            <xs:element ref="tns:listener" minOccurs="0"/>
-            
-            <!-- The following element in deprecated in favor of tlsServerParameters -->
-            <xs:element ref="tns:sslServer" minOccurs="0"/>
-            
-            <xs:element ref="tns:tlsServerParameters" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
+    <xs:element name="listener">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="beans:identifiedType">
+                    <xs:sequence>
+                        <xs:element name="listener" type="http-conf:HTTPListenerPolicy" minOccurs="0"/>
+                        <!-- The following element is deprecated in favor of tlsServerParameters -->
+                        <xs:element name="sslServer" type="sec:SSLServerPolicy" minOccurs="0"/>
+                        <xs:element name="tlsServerParameters" type="sec:TLSServerParametersType" minOccurs="0"/>
+                    </xs:sequence>
+                    <xs:attributeGroup ref="cxf-beans:beanAttributes"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
 
  </xs:schema>

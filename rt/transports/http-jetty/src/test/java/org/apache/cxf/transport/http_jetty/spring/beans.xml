@@ -21,10 +21,12 @@
        xmlns:beans="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:h="http://cxf.apache.org/transports/http/configuration"
+       xmlns:l="http://cxf.apache.org/transport/http/listener"
        xmlns:sec="http://cxf.apache.org/configuration/security"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://cxf.apache.org/configuration/security http://cxf.apache.org/schemas/configuration/security.xsd
+http://cxf.apache.org/transport/http/listener http://cxf.apache.org/schemas/configuration/http-listener.xsd
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd"
 >
 
@@ -39,5 +41,15 @@ http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema
     <h:conduit name="*Bar.http-conduit">
       <h:client ConnectionTimeout="79"/>
     </h:conduit>
+    
+    <l:listener id="org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine.9000">     
+      <l:listener>
+        <h:MinThreads>111</h:MinThreads> 
+      </l:listener> 
+      <l:sslServer>
+        <sec:WantClientAuthentication>true</sec:WantClientAuthentication>
+      </l:sslServer>
+    </l:listener>
+    
 
 </beans>

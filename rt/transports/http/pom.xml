@@ -96,19 +96,6 @@
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
                                     </deleteDirs>
                                 </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/http-listener.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
-                                    <catalog>${basedir}/src/main/resources/catalog.cat</catalog>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xdv</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
                             </xsdOptions>
                         </configuration>
                         <goals>

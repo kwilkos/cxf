@@ -34,6 +34,7 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http_jetty.JettyHTTPDestination;
+import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -89,7 +90,10 @@ public class ApplicationContextTest extends Assert {
             dfm.getDestinationFactory("http://schemas.xmlsoap.org/soap/http").getDestination(info);
         assertTrue(d instanceof JettyHTTPDestination);
         JettyHTTPDestination jd = (JettyHTTPDestination) d;        
-        assertEquals("foobar", jd.getServer().getContentEncoding());
+        assertEquals("foobar", jd.getServer().getContentEncoding());   
+        
+        JettyHTTPServerEngine engine = (JettyHTTPServerEngine)jd.getEngine();
+        assertEquals(111, engine.getListener().getMinThreads());
         
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
         ConduitInitiator ci = cim.getConduitInitiator("http://schemas.xmlsoap.org/soap/http");

@@ -21,14 +21,17 @@ package org.apache.cxf.transport.http_jetty.spring;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
+
+import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.configuration.security.TLSServerParametersType;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
-
+import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
 public class ListenerBeanDefinitionParser  extends AbstractBeanDefinitionParser {
      
-    private static final String HTTP_NS = "http://cxf.apache.org/transports/http/configuration";
+    private static final String LISTENER_NS = "http://cxf.apache.org/transport/http/listener";
     
     @Override
     protected Class getBeanClass(Element arg0) {
@@ -38,11 +41,21 @@ public class ListenerBeanDefinitionParser  extends AbstractBeanDefinitionParser 
     @Override
     public void doParse(Element element, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
-        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "listener"), "listener");
+        mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "listener"), "listener",
+            HTTPListenerPolicy.class, HTTPListenerPolicy.class.getPackage().getName());
+        // TODO: what about the other two properties?
+
+        mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "sslServer"), "sslServer",
+            SSLServerPolicy.class, SSLServerPolicy.class.getPackage().getName());
+        mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "tlsServerParameters"), 
+            "tlsServerParameters",
+            TLSServerParametersType.class, TLSServerParametersType.class.getPackage().getName());
+
     }
 
     @Override
     protected String getJaxbPackage() {
-        return "org.apache.cxf.transports.http.configuration";
+        // not needed - return null?
+        return "org.apache.cxf.transport.http.listener";
     }
 }

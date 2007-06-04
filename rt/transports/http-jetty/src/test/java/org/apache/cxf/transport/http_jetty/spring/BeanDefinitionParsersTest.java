@@ -24,6 +24,7 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.transport.http.spring.HttpConduitBeanDefinitionParser;
 import org.apache.cxf.transport.http.spring.HttpDestinationBeanDefinitionParser;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,5 +59,19 @@ public class BeanDefinitionParsersTest extends Assert {
         PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
         assertEquals(1, pvs.length);
         assertEquals(97, ((HTTPClientPolicy) pvs[0].getValue()).getConnectionTimeout(), 0);
+    }
+    
+    @Test
+    public void testHttpListener()throws Exception {
+        BeanDefinitionBuilder bd = BeanDefinitionBuilder.childBeanDefinition("child");
+        
+        ListenerBeanDefinitionParser parser = new ListenerBeanDefinitionParser();
+
+        Document d = DOMUtils.readXml(getClass().getResourceAsStream("listener.xml"));
+        parser.doParse(d.getDocumentElement(), bd);
+        
+        PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
+        assertEquals(1, pvs.length);
+        assertEquals(111, ((HTTPListenerPolicy) pvs[0].getValue()).getMinThreads());
     }
 }

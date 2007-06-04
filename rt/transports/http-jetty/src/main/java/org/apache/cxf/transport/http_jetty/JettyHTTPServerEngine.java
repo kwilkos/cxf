@@ -27,8 +27,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.configuration.jsse.spring.TLSServerParametersConfig;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.configuration.security.TLSServerParametersType;
 import org.apache.cxf.transport.HttpUriMapper;
-import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.mortbay.jetty.AbstractConnector;
 import org.mortbay.jetty.Handler;
@@ -40,7 +40,6 @@ import org.mortbay.thread.BoundedThreadPool;
 
 
 public class JettyHTTPServerEngine
-    extends HTTPListenerConfigBean 
     implements ServerEngine {
     private static final long serialVersionUID = 1L;
    
@@ -49,6 +48,10 @@ public class JettyHTTPServerEngine
     private AbstractConnector connector;
     private JettyConnectorFactory connectorFactory;
     private ContextHandlerCollection contexts;
+    
+    private HTTPListenerPolicy listener;
+    private SSLServerPolicy sslServer;
+    private TLSServerParametersType tlsServerParameters;
     
     /**
      * This field holds the protocol this engine is for. "http" or "https".
@@ -333,9 +336,8 @@ public class JettyHTTPServerEngine
     }
     
     @Deprecated
-    @Override
     public void setSslServer(SSLServerPolicy policy) {
-        super.setSslServer(policy);
+        this.sslServer = policy;
         if (this.configFinalized) {
             this.retrieveListenerFactory();
         }
@@ -446,6 +448,59 @@ public class JettyHTTPServerEngine
      */
     public TLSServerParameters getProgrammaticTlsServerParameters() {
         return tlsProgrammaticServerParameters;
+    } 
+
+    /**
+     * Returns the listener policy
+     *  @return the listener policy.
+     */
+    public HTTPListenerPolicy getListener() {
+        return listener;
     }
+
+    /**
+     * Sets the listener policy.
+     * @param listener The listener policy to set.
+     */
+    public void setListener(HTTPListenerPolicy listener) {
+        this.listener = listener;
+    }
+
+    /** 
+     * Returns the tlsServerParameters.
+     * @return the tlsServerParameters.
+     */
+    public TLSServerParametersType getTlsServerParameters() {
+        return tlsServerParameters;
+    }
+
+    /**
+     * Sets the tlsServerParameters.
+     * @param tlsServerParameters The tlsServerParameters to set.
+     */
+    public void setTlsServerParameters(TLSServerParametersType tlsServerParameters) {
+        this.tlsServerParameters = tlsServerParameters;
+    }
+
+    /** 
+     * Returns the sslServer policy.
+     * @return the sslServer policy.
+     */
+    public SSLServerPolicy getSslServer() {
+        return sslServer;
+    }
+    
+    public boolean isSetListener() {
+        return null != listener;
+    }
+    
+    public boolean isSetSslServer() {
+        return null != sslServer;
+    }
+    
+    public boolean isSetTlsServerParameters() {
+        return null != tlsServerParameters; 
+    }
+    
     
 }

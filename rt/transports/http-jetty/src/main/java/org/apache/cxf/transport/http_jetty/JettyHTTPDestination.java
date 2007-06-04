@@ -327,5 +327,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         
         super.shutdown();
     }
+    
+    public ServerEngine getEngine() {
+        return engine;
+    }
    
 }
