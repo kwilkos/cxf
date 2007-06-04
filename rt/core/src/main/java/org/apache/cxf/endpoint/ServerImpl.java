@@ -89,13 +89,15 @@ public class ServerImpl implements Server {
             
         destination = destinationFactory.getDestination(ei);
         serverRegistry = bus.getExtension(ServerRegistry.class);
-        InstrumentationManager manager = bus.getExtension(InstrumentationManager.class);
-        if (manager != null) {            
-            ManagedEndpoint mep = new ManagedEndpoint(bus, endpoint, this);
-            mgr = bus.getExtension(ServerLifeCycleManager.class);
-            if (mgr != null) {
-                mgr.registerListener(mep);
-            }            
+                 
+        ManagedEndpoint mep = new ManagedEndpoint(bus, endpoint, this);
+        mgr = bus.getExtension(ServerLifeCycleManager.class);
+        if (mgr != null) {
+            mgr.registerListener(mep);
+        }
+        
+        InstrumentationManager manager = bus.getExtension(InstrumentationManager.class);        
+        if (manager != null) {   
             try {
                 manager.register(mep);
             } catch (JMException jmex) {
