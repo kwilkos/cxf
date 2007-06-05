@@ -86,8 +86,7 @@ public class ProcessorTestBase extends Assert {
     protected void assertFileEquals(File location1, File location2) {
         String str1 = getStringFromFile(location1);
         String str2 = getStringFromFile(location2);
-        System.out.println(str1);
-        System.out.println(str2);
+        
         StringTokenizer st1 = new StringTokenizer(str1, " \t\n\r\f(),");
         StringTokenizer st2 = new StringTokenizer(str2, " \t\n\r\f(),");
 
