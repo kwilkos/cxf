@@ -49,6 +49,7 @@ import org.apache.cxf.jaxws.context.WebServiceContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
@@ -74,6 +75,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private Object implementor;
     private Server server;
     private JaxWsServerFactoryBean serverFactory;
+    private JaxWsServiceFactoryBean serviceFactory;
     private Service service;
     private Map<String, Object> properties;
     private List<Source> metadata;
@@ -146,6 +148,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public Service getService() {
         return service;
     }
+    
+    public JaxWsServiceFactoryBean getServiceFactory() {
+        return serviceFactory;
+    }
 
     
     @Override
@@ -186,6 +192,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         doPublish(addr);
     }
 
+    public void setServiceFactory(JaxWsServiceFactoryBean sf) {
+        serviceFactory = sf;
+    }
+    
     public void setMetadata(List<Source> metadata) {
         this.metadata = metadata;
     }
@@ -266,10 +276,14 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
                 JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(getImplementorClass());
                 endpointName = implInfo.getEndpointName();
             }
-
-            if (serviceName != null) {
-                serverFactory.getServiceFactory().setServiceName(serviceName);
+            
+            if (serviceFactory != null) {
+                serverFactory.setServiceFactory(serviceFactory);
             }
+
+            /*if (serviceName != null) {
+                serverFactory.getServiceFactory().setServiceName(serviceName);
+            }*/
 
             configureObject(this);
             

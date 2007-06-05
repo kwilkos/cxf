@@ -49,12 +49,22 @@ public class HttpBindingServletTest extends AbstractServletTest {
     }
     
     @Test
-    public void testInvokingRestService() throws Exception {
+    public void testServerFactoryRestService() throws Exception {
+        testInvokingRestService("/services/serverFactory/restful");
+    }
+    
+    @Test
+    public void testEndpointRestService() throws Exception {
+        testInvokingRestService("/services/endpoint/restful");
+    }
+    
+    
+    private void testInvokingRestService(String serviceAddress) throws Exception {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(false);
         
         WebRequest req = 
-            new GetMethodQueryWebRequest(CONTEXT_URL + "/services/restful/customers");
+            new GetMethodQueryWebRequest(CONTEXT_URL + serviceAddress + "/customers");
         
         WebResponse response = client.getResponse(req);        
         Document doc = DOMUtils.readXml(response.getInputStream());
@@ -65,7 +75,7 @@ public class HttpBindingServletTest extends AbstractServletTest {
         assertValid("/c:customers/c:customer/c:id[text()='123']", doc);
         assertValid("/c:customers/c:customer/c:name[text()='Dan Diephouse']", doc);
         
-        req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/restful/customers/123");
+        req = new GetMethodQueryWebRequest(CONTEXT_URL + serviceAddress + "/customers/123");
         response = client.getResponse(req);        
         doc = DOMUtils.readXml(response.getInputStream());
         assertNotNull(doc);
@@ -75,7 +85,7 @@ public class HttpBindingServletTest extends AbstractServletTest {
         assertValid("/c:customer/c:name[text()='Dan Diephouse']", doc);
         
         // Try invalid customer
-        req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/restful/customers/0");
+        req = new GetMethodQueryWebRequest(CONTEXT_URL + serviceAddress + "/customers/0");
         response = client.getResponse(req); 
         
         assertEquals("Expect the wrong response code", response.getResponseCode(), 500);
@@ -85,7 +95,7 @@ public class HttpBindingServletTest extends AbstractServletTest {
         assertValid("//c:CustomerNotFoundDetails", doc);
         
         PostMethodWebRequest postReq = 
-            new PostMethodWebRequest(CONTEXT_URL + "/services/restful/customers", 
+            new PostMethodWebRequest(CONTEXT_URL + serviceAddress + "/customers", 
                                  getClass().getResourceAsStream("add.xml"),
                                  "text/xml; charset=UTF-8");
         response = client.getResponse(postReq);
@@ -94,7 +104,7 @@ public class HttpBindingServletTest extends AbstractServletTest {
         assertValid("/c:addCustomer", doc);
         
         PutMethodWebRequest putReq = 
-            new PutMethodWebRequest(CONTEXT_URL + "/services/restful/customers/123", 
+            new PutMethodWebRequest(CONTEXT_URL + serviceAddress + "/customers/123", 
                                  getClass().getResourceAsStream("update.xml"),
                                  "text/xml; charset=UTF-8");
         response = client.getResponse(putReq);
@@ -103,7 +113,7 @@ public class HttpBindingServletTest extends AbstractServletTest {
         assertValid("/c:updateCustomer", doc);
       
         // Get the updated document
-        req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/restful/customers/123");
+        req = new GetMethodQueryWebRequest(CONTEXT_URL + serviceAddress + "/customers/123");
         response = client.getResponse(req);
         doc = DOMUtils.readXml(response.getInputStream());
         assertNotNull(doc);  

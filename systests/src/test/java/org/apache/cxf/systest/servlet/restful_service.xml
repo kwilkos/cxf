@@ -39,11 +39,20 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     <property name="serviceBean">
       <bean class="org.apache.cxf.customer.bare.CustomerService"/>
     </property>
-    <property name="address" value="/services/restful"/>
+    <property name="address" value="/services/serverFactory/restful"/>
     <property name="bus" ref="cxf"/>
     <property name="bindingId" value="http://apache.org/cxf/binding/http"/>
     <property name="transportId" value="http://schemas.xmlsoap.org/wsdl/soap/http"/>
     <property name="serviceFactory" ref="JaxWsServiceFactoryBean"/>
   </bean>  
+  
+  <jaxws:endpoint id="restfulServer" 
+              implementor="org.apache.cxf.customer.bare.CustomerService"
+              address="/services/endpoint/restful"
+              bindingUri="http://apache.org/cxf/binding/http">              
+     <jaxws:serviceFactory> 
+       <ref bean="JaxWsServiceFactoryBean"/>
+     </jaxws:serviceFactory> 
+  </jaxws:endpoint>
      
 </beans>
