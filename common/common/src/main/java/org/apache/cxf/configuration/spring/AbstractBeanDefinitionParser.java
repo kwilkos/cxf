@@ -27,9 +27,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -53,19 +51,8 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         
         // REVISIT: use getAttributeNS instead
         
-        String id = elem.getAttribute(BeanDefinitionParserDelegate.ID_ATTRIBUTE);
+        String id = getIdOrName(elem);
         String createdFromAPI = elem.getAttribute(BeanConstants.CREATED_FROM_API_ATTR);
-        
-        if (null == id || "".equals(id)) {
-            String names = elem.getAttribute(BeanConstants.NAME_ATTR);
-            if (null != names) {
-                StringTokenizer st = 
-                    new StringTokenizer(names, BeanDefinitionParserDelegate.BEAN_NAME_DELIMITERS);
-                if (st.countTokens() > 0) {
-                    id = st.nextToken();
-                }
-            }
-        }
         
         if (null == id || "".equals(id)) {
             return super.resolveId(elem, definition, ctx);
@@ -74,7 +61,6 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         if (createdFromAPI != null && "true".equals(createdFromAPI.toLowerCase())) {
             return id + getSuffix();
         }
-        
         return id;        
     }
 
@@ -256,6 +242,7 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         return new QName(ns, local, pre);
     }
 
+    /*
     protected final void doParseCommon(Element elem, ParserContext ctx, BeanDefinitionBuilder builder) {
         NamedNodeMap atts = elem.getAttributes();
         
@@ -272,6 +259,23 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
                 }
             }
         }
-    }   
+    } 
+    */
+    
+    protected final String getIdOrName(Element elem) {
+        String id = elem.getAttribute(BeanDefinitionParserDelegate.ID_ATTRIBUTE);
+        
+        if (null == id || "".equals(id)) {
+            String names = elem.getAttribute(BeanConstants.NAME_ATTR);
+            if (null != names) {
+                StringTokenizer st = 
+                    new StringTokenizer(names, BeanDefinitionParserDelegate.BEAN_NAME_DELIMITERS);
+                if (st.countTokens() > 0) {
+                    id = st.nextToken();
+                }
+            }
+        }
+        return id;
+    }
 
 }

@@ -69,7 +69,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                     bean.addPropertyValue(name, q);
                 } else if (IMPLEMENTOR.equals(name)) {
                     loadImplementor(bean, val);
-                } else {
+                } else if (!"name".equals(name)) {
                     mapToProperty(bean, name, val);
                 }
             } else if ("abstract".equals(name)) {

@@ -1,1 +1,1 @@
-http\://cxf.apache.org/schema/jaxws.xsd=org/apache/cxf/jaxws/spring/jaxws.xsd
+http\://cxf.apache.org/schemas/jaxws.xsd=schemas/jaxws.xsd

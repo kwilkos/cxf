@@ -2,13 +2,14 @@
 <xsd:schema xmlns="http://www.springframework.org/schema/myns"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:cxf-beans="http://cxf.apache.org/configuration/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
   targetNamespace="http://cxf.apache.org/jaxws" 
   elementFormDefault="qualified"
   attributeFormDefault="unqualified"  >
 
-  <xsd:import namespace="http://www.springframework.org/schema/beans" />
+  <xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans.xsd"/>
+  <xsd:import namespace="http://cxf.apache.org/configuration/beans" schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
 
   <xsd:element name="endpoint">
     <xsd:complexType>
@@ -26,9 +27,8 @@
             <xsd:element name="properties" type="beans:mapType" minOccurs="0"/>
             <xsd:element name="serviceFactory" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
-          <xsd:attribute name="abstract" type="xsd:boolean" />
+          <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>
           <xsd:attribute name="address" type="xsd:string" />
-          <xsd:attribute name="createdFromAPI" type="xsd:string" />
           <xsd:attribute name="bindingUri" type="xsd:string" />
           <xsd:attribute name="bus" type="xsd:string" />
           <xsd:attribute name="implementor" type="xsd:string"/>
@@ -59,10 +59,9 @@
             <xsd:element name="serviceBean" type="xsd:anyType" minOccurs="0"/>
             <xsd:element name="serviceFactory" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
-          <xsd:attribute name="abstract" type="xsd:boolean" />
+          <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>
           <xsd:attribute name="address" type="xsd:string" />
           <xsd:attribute name="bus" type="xsd:string" />
-          <xsd:attribute name="createdFromAPI" type="xsd:string" />
           <xsd:attribute name="serviceClass" type="xsd:string"/>
           <xsd:attribute name="serviceBean" type="xsd:string"/>
           <xsd:attribute name="start" type="xsd:boolean" default="true"/>
@@ -87,11 +86,10 @@
             <xsd:element name="properties" type="beans:mapType" minOccurs="0"/>
             <xsd:element name="conduitSelector" type="xsd:anyType" minOccurs="0"/>
           </xsd:sequence>
-          <xsd:attribute name="abstract" type="xsd:boolean" />
+          <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>
           <xsd:attribute name="address" type="xsd:string" />
           <xsd:attribute name="bindingUri" type="xsd:string" />
           <xsd:attribute name="bus" type="xsd:string" />
-          <xsd:attribute name="createdFromAPI" type="xsd:string" />
           <xsd:attribute name="endpointName" type="xsd:QName" />
           <xsd:attribute name="password" type="xsd:string" />
           <xsd:attribute name="serviceClass" type="xsd:QName" />

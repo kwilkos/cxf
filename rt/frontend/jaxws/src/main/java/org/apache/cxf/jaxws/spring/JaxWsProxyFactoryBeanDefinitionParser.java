@@ -46,8 +46,7 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
         
         BeanDefinitionBuilder bean = BeanDefinitionBuilder.rootBeanDefinition(JaxWsProxyFactoryBean.class);
 
-        NamedNodeMap atts = element.getAttributes();
-        String id = null;
+        NamedNodeMap atts = element.getAttributes();        
         boolean createdFromAPI = false;
         boolean setBus = false;
         for (int i = 0; i < atts.getLength(); i++) {
@@ -64,14 +63,12 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
-                } else {
+                } else if (!"name".equals(name)) {
                     if ("bus".equals(name)) {
                         setBus = true;
                     }
                     mapToProperty(bean, name, val);
                 }
-            } else if ("id".equals(name)) {
-                id = val;
             } else if ("abstract".equals(name)) {
                 bean.setAbstract(true);
                 clientBean.setAbstract(true);
@@ -100,13 +97,13 @@ public class JaxWsProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitio
                 }
             }
         }
+        String id = getIdOrName(element);
         if (createdFromAPI) {
             id = id + getSuffix();
         }
         String factoryId = id + ".proxyFactory";
         
         ctx.getRegistry().registerBeanDefinition(factoryId, bean.getBeanDefinition());
-        
         clientBean.getBeanDefinition().setAttribute("id", id);
         clientBean.setFactoryBean(factoryId, "create");
     }

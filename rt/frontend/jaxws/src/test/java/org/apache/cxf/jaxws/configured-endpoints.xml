@@ -21,11 +21,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:foo="http://cxf.apache.org/configuration/foo"
     xmlns:jaxws="http://cxf.apache.org/jaxws"
-    xmlns:soap="http://cxf.apache.org/bindings/soap"
     xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-http://cxf.apache.org/bindings/soap http://cxf.apache.org/schema/bindings/soap.xsd
-http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
 	<bean name="{http://apache.org/hello_world_soap_http}SOAPService"
 		abstract="true">
@@ -63,23 +61,23 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
 		</property>
 	</bean>
 
-	<jaxws:endpoint id="{http://apache.org/hello_world_soap_http}SoapPort"
+	<jaxws:endpoint name="{http://apache.org/hello_world_soap_http}SoapPort"
 		createdFromAPI="true">
 		<jaxws:inInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
 				<property name="name" value="endpoint-in" />
 			</bean>
 		</jaxws:inInterceptors>
-		<jaxws:outInterceptors>
-			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-				<property name="name" value="endpoint-out" />
-			</bean>
-		</jaxws:outInterceptors>
 		<jaxws:inFaultInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
 				<property name="name" value="endpoint-in-fault" />
 			</bean>
 		</jaxws:inFaultInterceptors>
+		<jaxws:outInterceptors>
+			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
+				<property name="name" value="endpoint-out" />
+			</bean>
+		</jaxws:outInterceptors>		
 		<jaxws:outFaultInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
 				<property name="name" value="endpoint-out-fault" />
