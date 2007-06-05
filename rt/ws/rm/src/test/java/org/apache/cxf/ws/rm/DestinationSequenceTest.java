@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.ws.rm;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -621,7 +620,7 @@ public class DestinationSequenceTest extends Assert {
     }
     
     @Test
-    public void testScheduleSequenceTermination() throws SequenceFault, IOException {
+    public void testScheduleSequenceTermination() throws SequenceFault {
         Timer timer = new Timer();
         setUpDestination(timer);
         

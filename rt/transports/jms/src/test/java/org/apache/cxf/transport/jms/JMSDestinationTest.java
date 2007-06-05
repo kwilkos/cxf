@@ -95,7 +95,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
     public void testGetConfigurationFromSpring() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         BusFactory.setDefaultBus(null);
-        bus = bf.createBus("/wsdl/jms_test_config.xml");
+        bus = bf.createBus("/jms_test_config.xml");
         BusFactory.setDefaultBus(bus);
         setupServiceInfo("http://cxf.apache.org/jms_conf_test",
                          "/wsdl/jms_test_no_addr.wsdl",

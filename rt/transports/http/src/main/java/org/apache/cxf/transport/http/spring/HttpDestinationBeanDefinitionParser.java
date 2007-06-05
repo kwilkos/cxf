@@ -35,6 +35,7 @@ import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.configuration.security.TLSServerParametersType;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
 public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionParser {
@@ -44,14 +45,15 @@ public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionP
     @Override
     public void doParse(Element element, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
-        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "server"), "server");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "server"), "server", 
+                                 HTTPServerPolicy.class);
         
         // DEPRECATED: This element is deprecated in favor of tlsServerParameters.
-        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "sslServer"), "sslServer",
-            SSLServerPolicy.class, SSLServerPolicy.class.getPackage().getName());
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "sslServer"), "sslServer", 
+                                 SSLServerPolicy.class);
         
-        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "authorization"), "authorization",
-            AuthorizationPolicy.class, AuthorizationPolicy.class.getPackage().getName());
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "authorization"), "authorization", 
+                                 AuthorizationPolicy.class);
         
         mapSpecificElements(element, bean);
     }
@@ -108,11 +110,6 @@ public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionP
         } catch (Exception e) {
             throw new RuntimeException("Could not process configuration.", e);
         }
-    }
-
-    @Override
-    protected String getJaxbPackage() {
-        return "org.apache.cxf.transports.http.configuration";
     }
 
     @Override

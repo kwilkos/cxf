@@ -26,10 +26,6 @@
   
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
     
-    <!-- Spring elements -->  
-    <xs:element name="conduit" type="jms:ConduitType"/>
-    <xs:element name="destination" type="jms:DestinationType"/>
-        
     <!-- Valid wsdl elements -->
     <xs:element name="client" type="jms:ClientBehaviorPolicyType"/>
     <xs:element name="server" type="jms:ServerBehaviorPolicyType"/>
@@ -37,27 +33,6 @@
     <xs:element name="serverConfig" type="jms:ServerConfig"/>
     <xs:element name="address" type="jms:AddressType"/>
 
-    <!-- Abstract Types -->
-    <xs:complexType name="DestinationType">
-        <xs:sequence>
-            <xs:element name="serverConfig" type="jms:ServerConfig" minOccurs="0"/>
-            <xs:element name="runtimePolicy" type="jms:ServerBehaviorPolicyType" minOccurs="0"/>
-            <xs:element name="sessionPool" type="jms:SessionPoolType" minOccurs="0"/>
-            <xs:element name="address" type="jms:AddressType" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attribute name="id" type="xs:string"/>
-    </xs:complexType>
-    
-    <xs:complexType name="ConduitType">
-        <xs:sequence>
-            <xs:element name="clientConfig" type="jms:ClientConfig" minOccurs="0"/>
-            <xs:element name="runtimePolicy" type="jms:ClientBehaviorPolicyType" minOccurs="0"/>
-            <xs:element name="sessionPool" type="jms:SessionPoolType" minOccurs="0"/>
-            <xs:element name="address" type="jms:AddressType" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attribute name="id" type="xs:string"/>
-    </xs:complexType>
-    
     <xs:complexType name="SessionPoolType">
         <xs:annotation>
             <xs:documentation>JMS Session pool configuration policy</xs:documentation>

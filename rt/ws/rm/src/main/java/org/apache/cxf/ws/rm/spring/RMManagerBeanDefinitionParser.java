@@ -44,8 +44,7 @@ public class RMManagerBeanDefinitionParser extends AbstractBeanDefinitionParser 
         mapElementToJaxbProperty(element, bean, 
                 new QName("http://schemas.xmlsoap.org/ws/2005/02/rm/policy", "RMAssertion"), 
                 "RMAssertion",
-                null, 
-                RMAssertion.class.getPackage().getName());
+                RMAssertion.class);
         
         ctx.getDelegate().parsePropertyElements(element, bean.getBeanDefinition());
         

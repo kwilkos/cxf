@@ -146,22 +146,12 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
                                             String propertyName) {
         mapElementToJaxbProperty(parent, bean, name, propertyName, null);
     }
-    
-    protected void mapElementToJaxbProperty(Element parent, 
-                                            BeanDefinitionBuilder bean, 
-                                            QName name,
-                                            String propertyName,
-                                            Class<?> c) {
-        mapElementToJaxbProperty(parent, bean, name, propertyName, c, getJaxbPackage());
-    }
-    
-
+   
     protected void mapElementToJaxbProperty(Element parent, 
                                             BeanDefinitionBuilder bean, 
                                             QName name,
                                             String propertyName, 
-                                            Class<?> c,
-                                            String packageName) {
+                                            Class<?> c) {
         Node data = null;
         NodeList nl = parent.getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
@@ -180,7 +170,11 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         JAXBContext context = null;
         Object obj = null;
         try {
-            context = JAXBContext.newInstance(packageName, getClass().getClassLoader());
+            String pkg = getJaxbPackage();
+            if (null != c) {
+                pkg = c.getPackage().getName();
+            }
+            context = JAXBContext.newInstance(pkg, getClass().getClassLoader());
             Unmarshaller u = context.createUnmarshaller();
             if (c != null) {
                 obj = u.unmarshal(data, c);

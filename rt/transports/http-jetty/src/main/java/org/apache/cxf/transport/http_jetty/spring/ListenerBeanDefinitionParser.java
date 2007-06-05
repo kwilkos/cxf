@@ -42,20 +42,13 @@ public class ListenerBeanDefinitionParser  extends AbstractBeanDefinitionParser 
     public void doParse(Element element, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "listener"), "listener",
-            HTTPListenerPolicy.class, HTTPListenerPolicy.class.getPackage().getName());
-        // TODO: what about the other two properties?
+            HTTPListenerPolicy.class);
 
         mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "sslServer"), "sslServer",
-            SSLServerPolicy.class, SSLServerPolicy.class.getPackage().getName());
+            SSLServerPolicy.class);
         mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "tlsServerParameters"), 
             "tlsServerParameters",
-            TLSServerParametersType.class, TLSServerParametersType.class.getPackage().getName());
+            TLSServerParametersType.class);
 
-    }
-
-    @Override
-    protected String getJaxbPackage() {
-        // not needed - return null?
-        return "org.apache.cxf.transport.http.listener";
     }
 }

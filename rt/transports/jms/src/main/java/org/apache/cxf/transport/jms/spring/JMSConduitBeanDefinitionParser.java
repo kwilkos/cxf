@@ -46,11 +46,6 @@ public class JMSConduitBeanDefinitionParser extends AbstractBeanDefinitionParser
         mapElementToJaxbProperty(element, bean, new QName(JMS_NS, "sessionPool"), "sessionPool", 
                                  SessionPoolType.class);
     }
-    
-    @Override
-    protected String getJaxbPackage() {
-        return "org.apache.cxf.transport.jms";
-    }
 
     @Override
     protected Class getBeanClass(Element arg0) {

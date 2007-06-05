@@ -38,6 +38,7 @@ import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpBasicAuthSupplier;
 import org.apache.cxf.transport.http.MessageTrustDecider;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
 
@@ -51,18 +52,19 @@ public class HttpConduitBeanDefinitionParser
     public void doParse(Element element, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "client"), "client");
+                new QName(HTTP_NS, "client"), "client", 
+                HTTPClientPolicy.class);
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "proxyAuthorization"), "proxyAuthorization",
-                ProxyAuthorizationPolicy.class, ProxyAuthorizationPolicy.class.getPackage().getName());
+                new QName(HTTP_NS, "proxyAuthorization"), "proxyAuthorization", 
+                ProxyAuthorizationPolicy.class);
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "authorization"), "authorization",
-                AuthorizationPolicy.class, AuthorizationPolicy.class.getPackage().getName());
+                new QName(HTTP_NS, "authorization"), "authorization", 
+                AuthorizationPolicy.class);
         
        // DEPRECATED: This element is deprecated in favor of tlsClientParameters
         mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "sslClient"), "sslClient",
-                SSLClientPolicy.class, SSLClientPolicy.class.getPackage().getName());
+                new QName(HTTP_NS, "sslClient"), "sslClient", 
+                SSLClientPolicy.class);
         
         mapSpecificElements(element, bean);
     }
@@ -109,7 +111,7 @@ public class HttpConduitBeanDefinitionParser
         // the configured TLSClientParameters into the HTTPConduit.
         JAXBContext context = null;
         try {
-            context = JAXBContext.newInstance(getJaxbPackage(), 
+            context = JAXBContext.newInstance(TLSClientParametersType.class.getPackage().getName(), 
                     getClass().getClassLoader());
             Unmarshaller u = context.createUnmarshaller();
             JAXBElement<TLSClientParametersType> jaxb = 
@@ -185,11 +187,6 @@ public class HttpConduitBeanDefinitionParser
                     + "' requires at least one of the "
                     + "\"bean\" or \"class\" attributes.");
         }
-    }
-    
-    @Override
-    protected String getJaxbPackage() {
-        return "org.apache.cxf.transports.http.configuration";
     }
 
     @Override
