@@ -520,6 +520,21 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
     
     
+    @Test
+    public void testCXF627() throws Exception {
+
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug627/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/bug627/async_binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        
+        
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        assertEquals(3, clz.getDeclaredMethods().length); 
+
+    }
+    
+    
     
 
 }

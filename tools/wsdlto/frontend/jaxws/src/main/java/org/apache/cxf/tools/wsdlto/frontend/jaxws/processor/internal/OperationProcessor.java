@@ -242,13 +242,13 @@ public class OperationProcessor  extends AbstractProcessor {
 
     private boolean isAddedAsyMethod(JavaMethod method) {
         List<JavaMethod> jmethods = method.getInterface().getMethods();
+        int counter = 0;
         for (JavaMethod jm : jmethods) {
-            if (!jm.getName().toLowerCase().equals(method.getOperationName().toLowerCase())
-                && jm.getOperationName().toLowerCase().equals(method.getOperationName().toLowerCase())) {
-                return  true;
-
+            if (jm.getOperationName().equals(method.getOperationName())) {
+                counter++;
             }
         }
-        return false;
+        return counter > 1 ? true : false;
     }
+    
 }
