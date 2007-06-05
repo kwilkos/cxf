@@ -20,8 +20,8 @@
 package org.apache.cxf.tools.java2wsdl.generator;
 
 import junit.framework.TestCase;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class WSDLGeneratorFactoryTest extends TestCase {
 

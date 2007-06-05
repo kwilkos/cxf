@@ -70,6 +70,12 @@
 	    <groupId>javax.xml.soap</groupId>
 	    <artifactId>saaj-api</artifactId>
 	</dependency>
+
+	<dependency>
+	    <groupId>org.apache.cxf</groupId>
+	    <artifactId>cxf-api</artifactId>
+	    <version>${project.version}</version>
+	</dependency>
 	
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>

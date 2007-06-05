@@ -43,7 +43,6 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.WSDLGeneratorFactory;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.FaultBeanGenerator;
@@ -51,6 +50,7 @@ import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WrapperBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilderFactory;
 import org.apache.cxf.tools.util.AnnotationUtil;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class JavaToProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToProcessor.class);

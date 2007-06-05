@@ -53,7 +53,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.validator.internal.model.FailureLocation;
 import org.apache.cxf.tools.validator.internal.model.XBinding;
@@ -67,6 +66,7 @@ import org.apache.cxf.tools.validator.internal.model.XOutput;
 import org.apache.cxf.tools.validator.internal.model.XPort;
 import org.apache.cxf.tools.validator.internal.model.XPortType;
 import org.apache.cxf.tools.validator.internal.model.XService;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -237,7 +237,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
             Port port = (Port)portIte.next();
             Binding binding = port.getBinding();
             bindings.put(binding.getQName(), getXNode(service, port));
-            if (WSDLConstants.NS_WSDL.equals(binding.getQName().getNamespaceURI())) {
+            if (WSDLConstants.WSDL11_NAMESPACE.equals(binding.getQName().getNamespaceURI())) {
                 throw new ToolException("Binding "
                                         + binding.getQName().getLocalPart()
                                         + " namespace set improperly.");
@@ -490,14 +490,14 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
         boolean partvalid = false;
 
-        if (namespace.equals(WSDLConstants.NS_XMLNS)) {
+        if (namespace.equals(WSDLConstants.NU_SCHEMA_XSD)) {
             if (isElement) {
                 XmlSchemaElement  schemaEle = 
-                    schemaCollection.getElementByQName(new QName(WSDLConstants.NS_XMLNS, name));    
+                    schemaCollection.getElementByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));    
                 partvalid = schemaEle != null ? true : false;
             } else {
                 XmlSchemaType schemaType = 
-                    schemaCollection.getTypeByQName(new QName(WSDLConstants.NS_XMLNS, name));  
+                    schemaCollection.getTypeByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));  
                 partvalid = schemaType != null ? true : false;
             }
             

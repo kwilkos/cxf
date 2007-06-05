@@ -44,12 +44,12 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.dom.ExtendedDocumentBuilder;
 import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBindingDeserializer;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBindingSerializer;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class XSDToWSDLProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(XSDToWSDLProcessor.class);
@@ -121,7 +121,7 @@ public class XSDToWSDLProcessor implements Processor {
 
         this.wsdlDefinition.setTargetNamespace((String)env.get(ToolConstants.CFG_NAMESPACE));
         this.wsdlDefinition
-            .setQName(new QName(WSDLConstants.NS_WSDL, (String)env.get(ToolConstants.CFG_NAME)));
+            .setQName(new QName(WSDLConstants.WSDL11_NAMESPACE, (String)env.get(ToolConstants.CFG_NAME)));
 
         Types types = this.wsdlDefinition.createTypes();
         ExtensibilityElement extElement;
@@ -130,8 +130,7 @@ public class XSDToWSDLProcessor implements Processor {
             registerJAXWSBinding(Definition.class);
             registerJAXWSBinding(Types.class);
             registerJAXWSBinding(Schema.class);
-            extElement = registry.createExtension(Types.class, new QName(WSDLConstants.XSD_NAMESPACE,
-                                                                         "schema"));
+            extElement = registry.createExtension(Types.class, WSDLConstants.SCHEMA_QNAME);
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SCHEMA_EXTENSION", LOG);
             throw new ToolException(msg, wse);

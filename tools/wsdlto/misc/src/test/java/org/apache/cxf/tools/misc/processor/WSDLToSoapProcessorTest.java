@@ -37,13 +37,13 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
 import org.apache.cxf.tools.common.extensions.soap.SoapFault;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.misc.WSDLToSoap;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -415,7 +415,8 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
                 SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
                 assertNotNull(soapBinding);
                 assertTrue("document".equalsIgnoreCase(soapBinding.getStyle()));
-                assertTrue(WSDLConstants.SOAP_HTTP_TRANSPORT.equalsIgnoreCase(soapBinding.getTransportURI()));
+                assertTrue(WSDLConstants.NS_SOAP11_HTTP_BINDING.
+                           equalsIgnoreCase(soapBinding.getTransportURI()));
             }
             
             BindingOperation bo = binding.getBindingOperation("sayHi", null, null);

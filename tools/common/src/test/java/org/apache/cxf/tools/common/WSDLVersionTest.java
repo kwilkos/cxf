@@ -21,6 +21,8 @@ package org.apache.cxf.tools.common;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.wsdl.WSDLConstants;
+
 public class WSDLVersionTest extends TestCase {
     
     public void testWSDLVersion() {

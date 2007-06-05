@@ -44,7 +44,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
@@ -78,7 +78,7 @@ public final class ValidatorUtil {
         baseURI = baseURI.replaceAll(" ", "%20");
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         NodeList nodes = document.getElementsByTagNameNS(
-            WSDLConstants.NS_XMLNS, "schema");
+            WSDLConstants.NU_SCHEMA_XSD, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {
             Node schemaNode = nodes.item(x);
             Element schemaEl = (Element) schemaNode;
@@ -134,7 +134,7 @@ public final class ValidatorUtil {
             throw new ToolException(e);
         }
         
-        NodeList nodes = document.getElementsByTagNameNS(WSDLConstants.NS_WSDL, "import");
+        NodeList nodes = document.getElementsByTagNameNS(WSDLConstants.WSDL11_NAMESPACE, "import");
         //
         // Remove the scheme part of a URI - need to escape spaces in
         // case we are on Windows and have spaces in directory names.

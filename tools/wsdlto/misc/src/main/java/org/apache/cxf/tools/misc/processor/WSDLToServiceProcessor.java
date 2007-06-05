@@ -35,9 +35,9 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.misc.processor.address.Address;
 import org.apache.cxf.tools.misc.processor.address.AddressFactory;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLExtensibilityPlugin;
 
 public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {

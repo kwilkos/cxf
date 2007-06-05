@@ -44,8 +44,8 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.IMocksControl;
 
@@ -97,7 +97,7 @@ public class SoapBindingFactoryTest extends TestCase {
 
         SoapBindingInfo sbi = (SoapBindingInfo)bi;
         assertEquals("document", sbi.getStyle());
-        assertTrue(WSDLConstants.SOAP_HTTP_TRANSPORT.equalsIgnoreCase(sbi.getTransportURI()));
+        assertTrue(WSDLConstants.NS_SOAP11_HTTP_BINDING.equalsIgnoreCase(sbi.getTransportURI()));
         assertTrue(sbi.getSoapVersion() instanceof Soap11);
 
         BindingOperationInfo boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap_http",

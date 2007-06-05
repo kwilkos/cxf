@@ -26,8 +26,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPAddress;
 
 import org.apache.cxf.tools.common.ToolConstants;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.wsdl.AbstractWSDLPlugin;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public final class HttpAddressPlugin extends AbstractWSDLPlugin {
 

@@ -27,7 +27,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
-import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class SoapBindingInfo extends BindingInfo {
     private SoapVersion soapVersion;

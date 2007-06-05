@@ -40,7 +40,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class Stax2DOM {
 
