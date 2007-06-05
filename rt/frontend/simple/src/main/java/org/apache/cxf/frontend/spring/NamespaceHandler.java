@@ -16,19 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
+package org.apache.cxf.frontend.spring;
 
-import org.apache.cxf.frontend.spring.ClientProxyFactoryBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-public class JaxWsProxyFactoryBeanDefinitionParser extends ClientProxyFactoryBeanDefinitionParser {
-
-    @Override
-    protected String getSuffix() {
-        return ".jaxws-client";
-    }
-    
-    protected Class getProxyFactoryClass() {
-        return JaxWsProxyFactoryBean.class;
+public class NamespaceHandler extends NamespaceHandlerSupport {
+    public void init() {
+        registerBeanDefinitionParser("client", new ClientProxyFactoryBeanDefinitionParser());    
+        registerBeanDefinitionParser("server", new ServerFactoryBeanDefinitionParser());        
     }
 }

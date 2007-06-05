@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
+package org.apache.cxf.frontend.spring;
 
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
@@ -27,38 +29,54 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.springframework.beans.FatalBeanException;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.util.StringUtils;
 
-public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class ClientProxyFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
-    private static final String IMPLEMENTOR = "implementor";
+    public ClientProxyFactoryBeanDefinitionParser() {
+        super();
+        setBeanClass(Object.class);
+    }
 
     @Override
-    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
-        NamedNodeMap atts = element.getAttributes();
+    protected String getSuffix() {
+        return ".simple-client";
+    }
+
+    @Override
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder clientBean) {
+        
+        BeanDefinitionBuilder bean = BeanDefinitionBuilder.rootBeanDefinition(getProxyFactoryClass());
+
+        NamedNodeMap atts = element.getAttributes();        
+        boolean createdFromAPI = false;
         boolean setBus = false;
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
+            String pre = node.getPrefix();
             String name = node.getLocalName();
             
             if ("createdFromAPI".equals(name)) {
                 bean.setAbstract(true);
-            } else if (IMPLEMENTOR.equals(name)) {
-                loadImplementor(bean, val);
+                clientBean.setAbstract(true);
+                createdFromAPI = true;
+            } else if (!"id".equals(name) && isAttribute(pre, name)) {
+                if ("endpointName".equals(name) || "serviceName".equals(name)) {
+                    QName q = parseQName(element, val);
+                    bean.addPropertyValue(name, q);
+                } else if (!"name".equals(name)) {
+                    if ("bus".equals(name)) {
+                        setBus = true;
+                    }
+                    mapToProperty(bean, name, val);
+                }
             } else if ("abstract".equals(name)) {
                 bean.setAbstract(true);
-            } else {
-                if ("bus".equals(name)) {
-                    setBus = true;
-                }
-                mapToProperty(bean, name, val);
+                clientBean.setAbstract(true);
             }
         }
         
@@ -74,13 +92,7 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
                 if ("properties".equals(n.getLocalName())) {
                     Map map = ctx.getDelegate().parseMapElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue("properties", map);
-                } else if ("executor".equals(n.getLocalName())) {
-                    setFirstChildAsProperty((Element) n, ctx, bean, "serviceFactory.executor");
-                } else if ("invoker".equals(n.getLocalName())) {
-                    setFirstChildAsProperty((Element) n, ctx, bean, "serviceFactory.invoker");
-                } else if ("binding".equals(n.getLocalName())) {
-                    setFirstChildAsProperty((Element) n, ctx, bean, "bindingConfig");
-                }  else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
+                } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
                     || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
                     || "features".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
@@ -90,31 +102,19 @@ public class ServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
                 }
             }
         }
-        
-        bean.setInitMethodName("create");
-        
-        // We don't really want to delay the registration of our Server
-        bean.setLazyInit(false);
-    }
-
-    private void loadImplementor(BeanDefinitionBuilder bean, String val) {
-        if (StringUtils.hasText(val)) {
-            if (val.startsWith("#")) {
-                bean.addPropertyReference(IMPLEMENTOR, val.substring(1));
-            } else {
-                try {
-                    bean.addPropertyValue(IMPLEMENTOR,
-                                          ClassLoaderUtils.loadClass(val, getClass()).newInstance());
-                } catch (Exception e) {
-                    throw new FatalBeanException("Could not load class: " + val, e);
-                }
-            }
+        String id = getIdOrName(element);
+        if (createdFromAPI) {
+            id = id + getSuffix();
         }
+        String factoryId = id + ".proxyFactory";
+        
+        ctx.getRegistry().registerBeanDefinition(factoryId, bean.getBeanDefinition());
+        clientBean.getBeanDefinition().setAttribute("id", id);
+        clientBean.setFactoryBean(factoryId, "create");
     }
 
-    @Override
-    protected Class getBeanClass(Element arg0) {
-        return JaxWsServerFactoryBean.class;
+    protected Class getProxyFactoryClass() {
+        return ClientProxyFactoryBean.class;
     }
 
 }

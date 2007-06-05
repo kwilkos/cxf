@@ -18,12 +18,17 @@
  */
 package org.apache.cxf.jaxws.spring;
 
+import org.apache.cxf.frontend.spring.ServerFactoryBeanDefinitionParser;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 public class NamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
         registerBeanDefinitionParser("client", new JaxWsProxyFactoryBeanDefinitionParser());        
-        registerBeanDefinitionParser("endpoint", new EndpointDefinitionParser());        
-        registerBeanDefinitionParser("server", new ServerBeanDefinitionParser());        
+        registerBeanDefinitionParser("endpoint", new EndpointDefinitionParser());
+        
+        ServerFactoryBeanDefinitionParser parser = new ServerFactoryBeanDefinitionParser();
+        parser.setBeanClass(JaxWsServerFactoryBean.class);
+        registerBeanDefinitionParser("server", parser);        
     }
 }

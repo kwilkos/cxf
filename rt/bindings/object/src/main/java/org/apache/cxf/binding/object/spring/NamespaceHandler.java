@@ -18,10 +18,13 @@
  */
 package org.apache.cxf.binding.object.spring;
 
+import org.apache.cxf.binding.object.ObjectBindingConfiguration;
+import org.apache.cxf.configuration.spring.SimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 public class NamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
-        registerBeanDefinitionParser("soapBinding", new ObjectBindingConfigBeanDefinintionParser());        
+        registerBeanDefinitionParser("objectBinding",
+                                     new SimpleBeanDefinitionParser(ObjectBindingConfiguration.class));
     }
 }

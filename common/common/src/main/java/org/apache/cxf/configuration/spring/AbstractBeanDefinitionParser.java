@@ -26,8 +26,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
-
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -42,8 +43,52 @@ import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
 
-
 public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+    
+    private Class beanClass;
+    
+    @Override
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+        NamedNodeMap atts = element.getAttributes();
+        boolean setBus = false;
+        for (int i = 0; i < atts.getLength(); i++) {
+            Attr node = (Attr) atts.item(i);
+            String val = node.getValue();
+            String name = node.getLocalName();
+            
+            if ("createdFromAPI".equals(name)) {
+                bean.setAbstract(true);
+            } else if ("abstract".equals(name)) {
+                bean.setAbstract(true);
+            } else if (!"id".equals(name)) {
+                if ("bus".equals(name)) {
+                    setBus = true;
+                } 
+                mapAttribute(bean, name, val);
+            }
+        }
+        
+        if (!setBus && ctx.getRegistry().containsBeanDefinition("cxf") && hasBusProperty()) {
+            bean.addPropertyReference("bus", "cxf");
+        }
+        
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                String name = n.getLocalName();
+                
+                mapElement(ctx, bean, (Element) n, name);
+            }
+        }
+    }
+    
+    protected void mapAttribute(BeanDefinitionBuilder bean, String name, String val) {
+        mapToProperty(bean, name, val);
+    }
+
+    protected void mapElement(ParserContext ctx, BeanDefinitionBuilder bean, Element e, String name) {
+    }
     
     @Override
     protected String resolveId(Element elem, AbstractBeanDefinition definition, 
@@ -64,6 +109,10 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         return id;        
     }
 
+    protected boolean hasBusProperty() {
+        return false;
+    }
+    
     protected String getSuffix() {
         return "";
     }
@@ -186,12 +235,6 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         return "";
     }
 
-    protected void mapAttributeToProperty(Element element, BeanDefinitionBuilder bean, String attrName,
-                                          String propertyName) {
-        String val = element.getAttribute(attrName);
-        mapToProperty(bean, propertyName, val);
-    }
-
     protected void mapToProperty(BeanDefinitionBuilder bean, String propertyName, String val) {
         if (ID_ATTRIBUTE.equals(propertyName)) {
             return;
@@ -242,25 +285,18 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         return new QName(ns, local, pre);
     }
 
-    /*
-    protected final void doParseCommon(Element elem, ParserContext ctx, BeanDefinitionBuilder builder) {
-        NamedNodeMap atts = elem.getAttributes();
-        
-        for (int i = 0; i < atts.getLength(); i++) {
-            Attr node = (Attr) atts.item(i);
-            String uri = node.getNamespaceURI();
-            String name = node.getLocalName();
-            
-            if (BeanConstants.NAMESPACE_URI.equals(uri)) {
-                if (BeanConstants.CREATED_FROM_API_ATTR.equals(name)) {
-                    builder.setAbstract(true);
-                } else if (BeanConstants.ABSTRACT_ATTR.equals(name)) {
-                    builder.setAbstract(true);
-                }
-            }
-        }
-    } 
-    */
+    public Class getBeanClass() {
+        return beanClass;
+    }
+
+    public void setBeanClass(Class beanClass) {
+        this.beanClass = beanClass;
+    }
+
+    @Override
+    protected Class getBeanClass(Element arg0) {
+        return getBeanClass();
+    }
     
     protected final String getIdOrName(Element elem) {
         String id = elem.getAttribute(BeanDefinitionParserDelegate.ID_ATTRIBUTE);

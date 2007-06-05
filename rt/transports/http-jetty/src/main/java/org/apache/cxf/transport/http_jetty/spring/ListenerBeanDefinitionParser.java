@@ -28,6 +28,7 @@ import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 
 public class ListenerBeanDefinitionParser  extends AbstractBeanDefinitionParser {
      
@@ -39,7 +40,7 @@ public class ListenerBeanDefinitionParser  extends AbstractBeanDefinitionParser 
     }
     
     @Override
-    public void doParse(Element element, BeanDefinitionBuilder bean) {
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, new QName(LISTENER_NS, "listener"), "listener",
             HTTPListenerPolicy.class);

@@ -57,6 +57,11 @@ public class RMManagerBeanDefinitionParser extends AbstractBeanDefinitionParser 
     }
 
     @Override
+    protected boolean hasBusProperty() {
+        return true;
+    }
+
+    @Override
     protected Class getBeanClass(Element element) {
         return RMManager.class;
     }

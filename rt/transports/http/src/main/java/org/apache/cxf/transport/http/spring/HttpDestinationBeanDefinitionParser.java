@@ -37,13 +37,14 @@ import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 
 public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     private static final String HTTP_NS = "http://cxf.apache.org/transports/http/configuration";
 
     @Override
-    public void doParse(Element element, BeanDefinitionBuilder bean) {
+    public void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "server"), "server", 
                                  HTTPServerPolicy.class);

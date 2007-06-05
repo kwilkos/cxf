@@ -55,6 +55,7 @@ import com.sun.tools.xjc.api.XJC;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.helpers.FileUtils;
@@ -141,10 +142,13 @@ public final class DynamicClientFactory {
     }
 
     public Client createClient(String wsdlUrl, QName service, QName port) {
-        return createClient(wsdlUrl, service, Thread.currentThread().getContextClassLoader(), port);
+        return createClient(wsdlUrl, service, null, port);
     }
 
     public Client createClient(String wsdlUrl, QName service, ClassLoader classLoader, QName port) {
+        if (classLoader == null) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
         URL u = composeUrl(wsdlUrl);
         LOG.log(Level.FINE, "Creating client from URL " + u.toString());
         ClientImpl client = new ClientImpl(bus, u, service, port);
@@ -222,7 +226,11 @@ public final class DynamicClientFactory {
         JAXBContext context;
 
         try {
-            context = JAXBContext.newInstance(packageList, cl);
+            if (StringUtils.isEmpty(packageList)) {
+                context = JAXBContext.newInstance(new Class[0]);
+            } else {
+                context = JAXBContext.newInstance(packageList, cl);
+            }
         } catch (JAXBException jbe) {
             throw new IllegalStateException("Unable to create JAXBContext for generated packages: "
                                             + jbe.getMessage(), jbe);

@@ -39,7 +39,7 @@ public class BeanDefinitionParsersTest extends Assert {
         HttpDestinationBeanDefinitionParser parser = new HttpDestinationBeanDefinitionParser();
 
         Document d = DOMUtils.readXml(getClass().getResourceAsStream("destination.xml"));
-        parser.doParse(d.getDocumentElement(), bd);
+        parser.doParse(d.getDocumentElement(), null, bd);
         
         PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
         assertEquals(2, pvs.length);
@@ -54,7 +54,7 @@ public class BeanDefinitionParsersTest extends Assert {
         HttpConduitBeanDefinitionParser parser = new HttpConduitBeanDefinitionParser();
 
         Document d = DOMUtils.readXml(getClass().getResourceAsStream("conduit.xml"));
-        parser.doParse(d.getDocumentElement(), bd);
+        parser.doParse(d.getDocumentElement(), null, bd);
         
         PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
         assertEquals(1, pvs.length);
@@ -68,7 +68,7 @@ public class BeanDefinitionParsersTest extends Assert {
         ListenerBeanDefinitionParser parser = new ListenerBeanDefinitionParser();
 
         Document d = DOMUtils.readXml(getClass().getResourceAsStream("listener.xml"));
-        parser.doParse(d.getDocumentElement(), bd);
+        parser.doParse(d.getDocumentElement(), null, bd);
         
         PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
         assertEquals(1, pvs.length);

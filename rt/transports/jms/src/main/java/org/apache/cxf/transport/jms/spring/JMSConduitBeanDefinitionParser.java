@@ -29,13 +29,14 @@ import org.apache.cxf.transport.jms.ClientConfig;
 import org.apache.cxf.transport.jms.JMSConduit;
 import org.apache.cxf.transport.jms.SessionPoolType;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 
 public class JMSConduitBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     private static final String JMS_NS = "http://cxf.apache.org/transports/jms";
 
     @Override
-    protected void doParse(Element element, BeanDefinitionBuilder bean) {
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         bean.setAbstract(true);
         mapElementToJaxbProperty(element, bean, new QName(JMS_NS, "clientConfig"), "clientConfig",
                                  ClientConfig.class);

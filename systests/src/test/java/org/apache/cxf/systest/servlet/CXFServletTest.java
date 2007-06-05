@@ -78,7 +78,7 @@ public class CXFServletTest extends AbstractServletTest {
         addNamespace("h", "http://apache.org/hello_world_soap_http/types");
 
         assertValid("/s:Envelope/s:Body", doc);
-        assertValid("//h:sayHiResponse", doc);        
+        assertValid("//h:sayHiResponse", doc);    
     }
     
     @Test
@@ -98,6 +98,9 @@ public class CXFServletTest extends AbstractServletTest {
         assertEquals("There should get one link for service", 1, links.length);
         assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
+        
+        // Ensure that the Bus is available for people doing an Endpoint.publish() or similar.
+        assertNotNull(BusFactory.getDefaultBus(false));
     }
     
     @Test

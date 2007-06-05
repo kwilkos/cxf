@@ -18,26 +18,12 @@
  */
 package org.apache.cxf.binding.soap.spring;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.xml.ParserContext;
 
 public class SoapBindingInfoConfigBeanDefinitionParser extends AbstractBeanDefinitionParser {
-
-    @Override
-    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
-        NamedNodeMap atts = element.getAttributes();
-        for (int i = 0; i < atts.getLength(); i++) {
-            Attr node = (Attr) atts.item(i);
-            
-            mapToProperty(bean, node.getLocalName(), node.getValue());
-        }
-    }
 
     @Override
     protected Class getBeanClass(Element arg0) {
