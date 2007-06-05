@@ -38,10 +38,10 @@ public class CatalogWSDLLocator implements WSDLLocator {
     private Catalog catalogResolver;
     private String baseUri;
     
-    public CatalogWSDLLocator(String wsdlUrl, Catalog catalogResolver) {
+    public CatalogWSDLLocator(String wsdlUrl, OASISCatalogManager catalogManager) {
         this.wsdlUrl = wsdlUrl;
         this.baseUri = this.wsdlUrl;
-        this.catalogResolver = catalogResolver;
+        this.catalogResolver = catalogManager.getCatalog();
         this.resolver = new ExtendedURIResolver();
     }
 

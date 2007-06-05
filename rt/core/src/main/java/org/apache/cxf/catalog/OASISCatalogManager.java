@@ -20,9 +20,15 @@ package org.apache.cxf.catalog;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.xml.resolver.Catalog;
@@ -30,11 +36,14 @@ import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
 
 public class OASISCatalogManager {
+    public static final String DEFAULT_CATALOG_NAME = "META-INF/jax-ws-catalog.xml";
 
     private static final Logger LOG =
         Logger.getLogger(OASISCatalogManager.class.getName());
 
     private Catalog resolver;
+    private Set<URL> loadedCatalogs = Collections.synchronizedSet(new HashSet<URL>());
+    private Bus bus;  
     
     public OASISCatalogManager() {
         CatalogManager catalogManager = new CatalogManager();
@@ -44,45 +53,71 @@ public class OASISCatalogManager {
         this.resolver = catalogResolver.getCatalog();
     }
     
+    public Bus getBus() {
+        return bus;
+    }
+    
+    @Resource
+    public void setBus(Bus bus) {        
+        this.bus = bus;
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, OASISCatalogManager.class);
+        }
+        loadContextCatalogs();
+    }
+    
     public Catalog getCatalog() {
         return this.resolver;
     }
 
     public void loadContextCatalogs() {
+        loadContextCatalogs(DEFAULT_CATALOG_NAME);
+    }
+    public void loadContextCatalogs(String name) {
         try {
-            loadCatalogs(Thread.currentThread().getContextClassLoader());
+            loadCatalogs(Thread.currentThread().getContextClassLoader(), name);
         } catch (IOException e) {
-            LOG.log(Level.WARNING, "Error loading META-INF/jax-ws-catalog.xml catalog files", e);
+            LOG.log(Level.WARNING, "Error loading " + name + " catalog files", e);
         }
     }
     
-    public void loadCatalogs(ClassLoader classLoader) throws IOException {
+    public void loadCatalogs(ClassLoader classLoader, String name) throws IOException {
         if (classLoader == null) {
             return;
         }
         
-        Enumeration<URL> catalogs = classLoader.getResources("META-INF/jax-ws-catalog.xml");
+        Enumeration<URL> catalogs = classLoader.getResources(name);
         while (catalogs.hasMoreElements()) {
             URL catalogURL = catalogs.nextElement();
-            this.resolver.parseCatalog(catalogURL);
+            if (!loadedCatalogs.contains(catalogURL)) {
+                this.resolver.parseCatalog(catalogURL);
+                loadedCatalogs.add(catalogURL);
+            }
         }
     }
     
     public void loadCatalog(URL catalogURL) throws IOException {
-        this.resolver.parseCatalog(catalogURL);
+        if (!loadedCatalogs.contains(catalogURL)) {
+            this.resolver.parseCatalog(catalogURL);
+            loadedCatalogs.add(catalogURL);
+        }
     }
 
-    private static Catalog getContextCatalog() {
+    private static OASISCatalogManager getContextCatalog() {
         OASISCatalogManager oasisCatalog = new OASISCatalogManager();
         oasisCatalog.loadContextCatalogs();
-        return oasisCatalog.getCatalog();
+        return oasisCatalog;
     }
 
-    public static Catalog getCatalog(Bus bus) {
+    public static OASISCatalogManager getCatalogManager(Bus bus) {
         if (bus == null) {
             return getContextCatalog();
         }
-        Catalog catalog = bus.getExtension(Catalog.class);
+        OASISCatalogManager catalog = bus.getExtension(OASISCatalogManager.class);
         if (catalog == null) {
             return getContextCatalog();
         } else {

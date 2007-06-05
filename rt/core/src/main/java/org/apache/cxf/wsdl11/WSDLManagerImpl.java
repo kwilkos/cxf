@@ -191,7 +191,7 @@ public class WSDLManagerImpl implements WSDLManager {
         reader.setFeature("javax.wsdl.verbose", false);
         reader.setExtensionRegistry(registry);
         CatalogWSDLLocator catLocator = 
-            new CatalogWSDLLocator(url, OASISCatalogManager.getCatalog(bus));
+            new CatalogWSDLLocator(url, OASISCatalogManager.getCatalogManager(bus));
         ResourceManagerWSDLLocator wsdlLocator = new ResourceManagerWSDLLocator(url,
                                                                                 catLocator,
                                                                                 bus);

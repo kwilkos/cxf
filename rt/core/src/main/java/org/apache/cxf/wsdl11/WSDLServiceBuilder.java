@@ -325,7 +325,7 @@ public class WSDLServiceBuilder {
                     
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
                     CatalogXmlSchemaURIResolver schemaResolver = 
-                        new CatalogXmlSchemaURIResolver(OASISCatalogManager.getCatalog(bus));
+                        new CatalogXmlSchemaURIResolver(OASISCatalogManager.getCatalogManager(bus));
                     schemaCol.setSchemaResolver(schemaResolver);
                     XmlSchema xmlSchema = schemaCol.read(schemaElem, systemId);
 

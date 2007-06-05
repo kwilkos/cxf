@@ -35,7 +35,6 @@ import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.hello_world.Greeter;
 import org.apache.hello_world.services.SOAPService;
 
-import org.apache.xml.resolver.Catalog;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,7 +68,7 @@ public class OASISCatalogTest extends Assert {
         // set Catalog on the Bus
         Bus bus = BusFactory.getDefaultBus();
         OASISCatalogManager catalog = new OASISCatalogManager();
-        bus.setExtension(catalog.getCatalog(), Catalog.class);
+        bus.setExtension(catalog, OASISCatalogManager.class);
         
         try {
             SOAPService service = new SOAPService(wsdl, serviceName);
@@ -102,7 +101,7 @@ public class OASISCatalogTest extends Assert {
        
         CatalogWSDLLocator wsdlLocator =
             new CatalogWSDLLocator(wsdl.toString(),
-                                   OASISCatalogManager.getCatalog(null));
+                                   OASISCatalogManager.getCatalogManager(null));
         wsdlReader.setFeature("javax.wsdl.verbose", false);
         wsdlReader.readWSDL(wsdlLocator);
     }
@@ -119,7 +118,7 @@ public class OASISCatalogTest extends Assert {
        
         OASISCatalogManager catalog = new OASISCatalogManager();
         CatalogWSDLLocator wsdlLocator =
-            new CatalogWSDLLocator(wsdl.toString(), catalog.getCatalog());
+            new CatalogWSDLLocator(wsdl.toString(), catalog);
         try {
             wsdlReader.readWSDL(wsdlLocator);
             fail("Test did not fail as expected");

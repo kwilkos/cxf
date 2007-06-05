@@ -48,7 +48,7 @@ public class ResourceManagerWSDLLocator implements WSDLLocator {
                                       Bus bus) {
         this.wsdlUrl = wsdlUrl;
         this.bus = bus;
-        this.parent = new CatalogWSDLLocator(wsdlUrl, OASISCatalogManager.getCatalog(bus));
+        this.parent = new CatalogWSDLLocator(wsdlUrl, OASISCatalogManager.getCatalogManager(bus));
     }
 
 
