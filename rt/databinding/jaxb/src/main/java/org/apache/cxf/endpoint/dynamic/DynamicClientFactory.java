@@ -108,7 +108,7 @@ public final class DynamicClientFactory {
      * @see CXFBusFactory#getDefaultBus()
      */
     public static DynamicClientFactory newInstance() {
-        Bus bus = CXFBusFactory.getDefaultBus();
+        Bus bus = CXFBusFactory.getThreadDefaultBus();
         return new DynamicClientFactory(bus);
     }
 

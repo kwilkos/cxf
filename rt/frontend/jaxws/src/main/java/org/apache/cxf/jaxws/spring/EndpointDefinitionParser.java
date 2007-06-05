@@ -30,12 +30,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.util.StringUtils;
 
 
 public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
@@ -51,10 +51,10 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         NamedNodeMap atts = element.getAttributes();
         String bus = element.getAttribute("bus");
-        if (bus == null && ctx.getRegistry().containsBeanDefinition("cxf")) {
+        if (StringUtils.isEmpty(bus) 
+            && ctx.getRegistry().containsBeanDefinition("cxf")) {
             bean.addConstructorArgReference("cxf");
-        } 
-        
+        }
         for (int i = 0; i < atts.getLength(); i++) {
             Attr node = (Attr) atts.item(i);
             String val = node.getValue();
@@ -107,7 +107,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
     }
 
     private void loadImplementor(BeanDefinitionBuilder bean, String val) {
-        if (StringUtils.hasText(val)) {
+        if (!StringUtils.isEmpty(val)) {
             if (val.startsWith("#")) {
                 bean.addConstructorArgReference(val.substring(1));
             } else {

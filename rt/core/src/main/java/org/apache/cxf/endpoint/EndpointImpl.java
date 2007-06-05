@@ -70,7 +70,7 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
         }
         
         if (bus == null) {
-            this.bus = BusFactory.getDefaultBus();
+            this.bus = BusFactory.getThreadDefaultBus();
         } else {
             this.bus = bus;
         }

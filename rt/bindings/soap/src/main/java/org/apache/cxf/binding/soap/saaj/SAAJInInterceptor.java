@@ -39,7 +39,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.apache.cxf.BusFactory;
+
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapHeader;
@@ -128,9 +129,12 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
             Node nd = headerEls.item(i);
             if (Node.ELEMENT_NODE == nd.getNodeType()) {
                 Element hel = (Element)nd;
-                HeaderProcessor p = BusFactory.getDefaultBus().getExtension(HeaderManager.class)
-                    .getHeaderProcessor(hel.getNamespaceURI());
-
+                Bus b = message.getExchange().get(Bus.class);
+                HeaderProcessor p =  null;
+                if (b != null && b.getExtension(HeaderManager.class) != null) {
+                    p = b.getExtension(HeaderManager.class).getHeaderProcessor(hel.getNamespaceURI());
+                }
+                
                 Object obj;
                 DataBinding dataBinding = null;
                 if (p == null || p.getDataBinding() == null) {

@@ -510,7 +510,7 @@ public class HTTPConduit
                 && !needToCacheRequest) {
                 //TODO: The chunking mode be configured or at least some
                 // documented client constant.
-                LOG.log(Level.INFO, "Chunking is set at 2048.");
+                LOG.log(Level.FINER, "Chunking is set at 2048.");
                 connection.setChunkedStreamingMode(2048);
             }
         }

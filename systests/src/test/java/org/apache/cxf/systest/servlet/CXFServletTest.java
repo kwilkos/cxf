@@ -30,11 +30,21 @@ import com.meterware.servletunit.ServletUnitClient;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.helpers.DOMUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 
 public class CXFServletTest extends AbstractServletTest {
+    
+    
+    @Before
+    public void setUp() throws Exception {
+        BusFactory.setDefaultBus(null);
+        BusFactory.setThreadDefaultBus(null);
+        super.setUp();
+    }
     
     @Override
     protected Bus createBus() throws BusException {

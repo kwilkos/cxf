@@ -94,7 +94,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private List<Interceptor> inFault  = new CopyOnWriteArrayList<Interceptor>();
 
     public EndpointImpl(Object implementor) {
-        this(BusFactory.getDefaultBus(), implementor);
+        this(BusFactory.getThreadDefaultBus(), implementor);
     }
    
     public EndpointImpl(Bus b, Object implementor, 

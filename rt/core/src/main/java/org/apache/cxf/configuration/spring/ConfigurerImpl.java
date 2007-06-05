@@ -172,13 +172,22 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
             return ((Configurable)beanInstance).getBeanName();
         }
         String beanName = null;
+        Method m = null;
         try {
-            Method m = beanInstance.getClass().getDeclaredMethod("getBeanName", (Class[])null);
-            beanName = (String)(m.invoke(beanInstance));
+            m = beanInstance.getClass().getDeclaredMethod("getBeanName", (Class[])null);
         } catch (NoSuchMethodException ex) {
-            // ignore
-        } catch (Exception ex) {
-            LogUtils.log(LOG, Level.WARNING, "ERROR_DETERMINING_BEAN_NAME_EXC", ex);
+            try {
+                m = beanInstance.getClass().getMethod("getBeanName", (Class[])null);
+            } catch (NoSuchMethodException e) {
+                //ignore
+            }
+        }
+        if (m != null) {
+            try {
+                beanName = (String)(m.invoke(beanInstance));
+            } catch (Exception ex) {
+                LogUtils.log(LOG, Level.WARNING, "ERROR_DETERMINING_BEAN_NAME_EXC", ex);
+            }
         }
         
         if (null == beanName) {

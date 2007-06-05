@@ -289,7 +289,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
 
     public Bus getBus() {
         if (bus == null) {
-            bus = BusFactory.getDefaultBus();
+            bus = BusFactory.getThreadDefaultBus();
         }
         return bus;
     }

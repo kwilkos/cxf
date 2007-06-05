@@ -7,23 +7,23 @@ Exit Criteria
 
 Copyrights & Licensing
 
-  -- Do all the software in the codebase has its copyright assigned to The
+X  -- Do all the software in the codebase has its copyright assigned to The
      Apache Software Foundation?
 
-  -- Do All the software in the codebase, are licensed (or multi-licensed) under the
+X  -- Do All the software in the codebase, are licensed (or multi-licensed) under the
      Apache licence?
 
-  -- Do all the software in the codebase,are compliant with the
+X  -- Do all the software in the codebase,are compliant with the
      Specifications set by Java Community Process?(Wherever applicable)
      * This criteria has been superceded by the Exit Milestone below
 
 Distribution rights
 
-  -- For all code included with the distribution that is not under the
+X  -- For all code included with the distribution that is not under the
      Apache license, do we have the right to combine with Apache-licensed
      code and redistribute?
 
-  -- Is all source code distributed by the project covered by one or more
+X  -- Is all source code distributed by the project covered by one or more
      of the following approved licenses:  Apache, BSD, Artistic, MIT/X,
      MIT/W3C, MPL 1.1, or something with essentially the same terms?
 
@@ -32,25 +32,26 @@ Infrastructure
 X -- SVN modules created and committers added to avail file?
      Yes:       https://svn.apache.org/repos/asf/incubator/cxf
 
-  -- Are the developer,commit and user mailing lists set up and archived?
+X  -- Are the developer,commit and user mailing lists set up and archived?
 
-  -- Bug tracking system enabled?
+X  -- Bug tracking system enabled?
      Yes:       https://issues.apache.org/jira/browse/CXF
 
-  -- wiki based documentation site enabled?
+X  -- wiki based documentation site enabled?
+     Yes:       http://cwiki.apache.org/confluence/display/CXF/Index
 
-  -- Has the project migrated to our infrastructure?
+X  -- Has the project migrated to our infrastructure?
 
 Committers:
 
-  -- Have all of the active long-term volunteers been identified
+X  -- Have all of the active long-term volunteers been identified
      and acknowledged as committers on the project?
 
-  -- Have all the commiters signed the CLA?
+X  -- Have all the commiters signed the CLA?
 
-  -- Do they have accounts on svn.apache.org?
+X  -- Do they have accounts on svn.apache.org?
 
-  -- Are there three or more independent committers?
+X  -- Are there three or more independent committers?
      Yes
 
 Collaborative Development:

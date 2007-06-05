@@ -38,7 +38,7 @@ public class JsServiceFactoryBean {
     
     public Bus getBus() {
         if (bus == null) {
-            bus = BusFactory.getDefaultBus();
+            bus = BusFactory.getThreadDefaultBus();
         }
         return bus;
     }

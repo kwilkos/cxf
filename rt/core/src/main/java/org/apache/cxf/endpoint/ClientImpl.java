@@ -89,11 +89,11 @@ public class ClientImpl
     }
 
     public ClientImpl(URL wsdlUrl) {
-        this(BusFactory.getDefaultBus(), wsdlUrl, null, null);
+        this(BusFactory.getThreadDefaultBus(), wsdlUrl, null, null);
     }
     
     public ClientImpl(URL wsdlUrl, QName port) {
-        this(BusFactory.getDefaultBus(), wsdlUrl, null, port);
+        this(BusFactory.getThreadDefaultBus(), wsdlUrl, null, port);
     }
 
     public ClientImpl(Bus bus, URL wsdlUrl, QName service, QName port) {

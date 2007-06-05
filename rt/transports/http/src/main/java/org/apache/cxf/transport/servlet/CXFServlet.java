@@ -78,32 +78,33 @@ public class CXFServlet extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
 
-        BusFactory.setDefaultBus(null);
-        BusFactory.setThreadDefaultBus(null);
-
-        String busid = servletConfig.getInitParameter("bus.id");
-        if (null != busid) {
-            WeakReference<Bus> ref = BUS_MAP.get(busid);
-            if (null != ref) {
-                bus = ref.get();
-            }
-        }
-        
-        String springCls = "org.springframework.context.ApplicationContext";
         try {
-            ClassLoaderUtils.loadClass(springCls, getClass());
-            loadSpringBus(servletConfig);
-        } catch (ClassNotFoundException e) {
-            loadBusNoConfig(servletConfig);
-        }
+            BusFactory.setThreadDefaultBus(null);
+    
+            String busid = servletConfig.getInitParameter("bus.id");
+            if (null != busid) {
+                WeakReference<Bus> ref = BUS_MAP.get(busid);
+                if (null != ref) {
+                    bus = ref.get();
+                    BusFactory.setThreadDefaultBus(bus);
+                }
+            }
             
-            
-        if (null != busid) {
-            BUS_MAP.put(busid, new WeakReference<Bus>(bus));
+            String springCls = "org.springframework.context.ApplicationContext";
+            try {
+                ClassLoaderUtils.loadClass(springCls, getClass());
+                loadSpringBus(servletConfig);
+            } catch (ClassNotFoundException e) {
+                loadBusNoConfig(servletConfig);
+            }
+                
+                
+            if (null != busid) {
+                BUS_MAP.put(busid, new WeakReference<Bus>(bus));
+            }
+        } finally {
+            BusFactory.setThreadDefaultBus(null);
         }
-        
-        BusFactory.setDefaultBus(null);
-        BusFactory.setThreadDefaultBus(null);
     }
     
     private void loadBusNoConfig(ServletConfig servletConfig) throws ServletException {
