@@ -82,11 +82,11 @@ public class MtomPolicyTest extends AbstractCXFTest {
         WSPolicyFeature policy = new WSPolicyFeature();
         if (mtomRequired) {
             policy.getPolicyElements().add(DOMUtils.readXml(
-                getClass().getResourceAsStream("mtom-policy.xsd"))
+                getClass().getResourceAsStream("mtom-policy.xml"))
                            .getDocumentElement());
         } else {
             policy.getPolicyElements().add(DOMUtils.readXml(
-                getClass().getResourceAsStream("mtom-policy-optional.xsd"))
+                getClass().getResourceAsStream("mtom-policy-optional.xml"))
                            .getDocumentElement());
         }        
         

@@ -22,9 +22,10 @@
        xmlns:jaxws="http://cxf.apache.org/jaxws"
        xmlns:wsa="http://cxf.apache.org/ws/addressing"
 	xsi:schemaLocation="
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
-    <jaxws:endpoint id="{http://apache.org/hello_world_soap_http}SoapPort" createdFromAPI="true">
+    <jaxws:endpoint name="{http://apache.org/hello_world_soap_http}SoapPort" createdFromAPI="true">
         <jaxws:features>
             <wsa:addressing/>
         </jaxws:features>

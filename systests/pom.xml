@@ -291,6 +291,6 @@
   </dependencies>
   <properties>
     <surefire.fork.mode>pertest</surefire.fork.mode>
-    <spring.validation.mode>VALIDATION_NONE</spring.validation.mode>
   </properties>
+  
 </project>

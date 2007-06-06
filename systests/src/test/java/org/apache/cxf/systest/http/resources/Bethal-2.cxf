@@ -25,18 +25,17 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:sec="http://cxf.apache.org/configuration/security"
-  xmlns:http="http://cxf.apache.org/transports/http/configuration"
-  xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
-  xsi:schemaLocation="
-           http://cxf.apache.org/transports/http/configuration
-              http://cxf.apache.org/schema/transports/http.xsd
-           http://www.springframework.org/schema/beans
-              http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:sec="http://cxf.apache.org/configuration/security"
+       xsi:schemaLocation="
+            http://cxf.apache.org/transports/http/configuration 
+                http://cxf.apache.org/schemas/configuration/http-conf.xsd
+            http://www.springframework.org/schema/beans 
+                http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <http:destination 
-    id="{http://apache.org/hello_world}GreeterImplPort.http-destination">
+    name="{http://apache.org/hello_world}GreeterImplPort.http-destination">
     
     <http:tlsServerParameters>
       <sec:keyManagers keyPassword="password">

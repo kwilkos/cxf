@@ -23,23 +23,9 @@
        xmlns:jaxws="http://cxf.apache.org/jaxws"
        xmlns:coloc="http://cxf.apache.org/binding/coloc"
        xsi:schemaLocation="
-http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-<!--
-    <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
-        <property name="bus" ref="cxf"/>
-        <property name="enabled" value="true"/>
-    </bean>
-    <wsp:Policy wsu:Id="AddressingPolicy"
-    xmlns:wsp="http://www.w3.org/2006/07/ws-policy"
-    xmlns:coloc="http://cxf.apache.org/binding/coloc">
-    <coloc:EnableColoc wsp:Optional="true">
-     </wsp:Policy>
-    <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
-        <constructor-arg ref="cxf"/>
-        <property name="location" value="org/apache/cxf/systest/coloc/coloc-external.xml"/>
-    </bean>
--->
+
     <bean id="faultOutbound" class="org.apache.cxf.systest.coloc.ThrowFaultInterceptor"/>
 
     <!-- Adding interceptors to the bus will add it to all services/endpoints-->
@@ -51,7 +37,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
     </bean>
 
-    <jaxws:client id="{http://apache.org/headers/rpc_lit}SoapPort"
+    <jaxws:client name="{http://apache.org/headers/rpc_lit}SoapPort"
                   createdFromAPI="true">
         <jaxws:features>
             <coloc:enableColoc/>

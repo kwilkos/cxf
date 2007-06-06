@@ -19,9 +19,7 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xsi:schemaLocation="
-http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     <bean name="{http://cxf.apache.org/factory_pattern}NumberPort.http-destination" abstract="true">
       <!--  applying with wildcard to all JettyHTTPDestinations instead of this verbose method -->

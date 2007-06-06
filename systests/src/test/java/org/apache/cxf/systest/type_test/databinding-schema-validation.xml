@@ -19,11 +19,10 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:foo="http://cxf.apache.org/configuration/foo"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
  
-    <bean id="{http://apache.org/type_test/doc}SOAPService" abstract="true">
+    <bean name="{http://apache.org/type_test/doc}SOAPService" abstract="true">
         <property name="properties">
           	<map>
           		<entry key="schema-validation-enabled" value="true" />
@@ -31,7 +30,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
     </bean>
 
-    <bean id="{http://apache.org/type_test/xml}XMLService" abstract="true">
+    <bean name="{http://apache.org/type_test/xml}XMLService" abstract="true">
         <property name="properties">
           	<map>
           		<entry key="schema-validation-enabled" value="true" />

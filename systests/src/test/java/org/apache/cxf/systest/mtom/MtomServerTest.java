@@ -125,7 +125,7 @@ public class MtomServerTest extends AbstractCXFTest {
         sf.setProperties(props);
         sf.create();
         
-        servStatic(getClass().getResource("mtom-policy.xsd"), 
+        servStatic(getClass().getResource("mtom-policy.xml"), 
                    "http://localhost:9036/policy.xsd");
         
 

@@ -22,7 +22,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
     <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
         <property name="bus" ref="cxf"/>
@@ -30,12 +30,12 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     </bean>
     
     <jaxws:endpoint 
-        id="{http://cxf.apache.org/greeter_control}GreeterPort" 
+        name="{http://cxf.apache.org/greeter_control}GreeterPort" 
         createdFromAPI="true"
         wsdlLocation="org/apache/cxf/systest/ws/policy/http_server_greeter.wsdl"/>
         
     <!--<jaxws:endpoint 
-        id="{http://cxf.apache.org/greeter_control}GreeterPort" 
+        name="{http://cxf.apache.org/greeter_control}GreeterPort" 
         abstract="true"
         implementor="org.apache.cxf.systest.ws.policy.GreeterImpl" 
         address="http://localhost:9020/SoapContext/GreeterPort"
