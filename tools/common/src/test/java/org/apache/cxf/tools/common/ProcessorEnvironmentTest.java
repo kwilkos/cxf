@@ -19,11 +19,14 @@
 
 package org.apache.cxf.tools.common;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ProcessorEnvironmentTest extends TestCase {
+public class ProcessorEnvironmentTest extends Assert {
+    @Test
     public void testGet() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
@@ -33,6 +36,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertEquals("v1", value);
     }
 
+    @Test
     public void testPut() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
@@ -43,6 +47,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertEquals("v2", value);
     }
 
+    @Test
     public void testRemove() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
@@ -55,6 +60,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertNull(env.get("k1"));
     }
 
+    @Test
     public void testContainsKey() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
@@ -63,6 +69,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertTrue(env.containsKey("k1"));
     }
 
+    @Test
     public void testGetDefaultValue() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
@@ -75,6 +82,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertEquals("v2", k2);
     }
 
+    @Test
     public void testOptionSet() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "true");
@@ -85,6 +93,7 @@ public class ProcessorEnvironmentTest extends TestCase {
         assertFalse(env.optionSet("k2"));
     }
 
+    @Test
     public void testGetBooleanValue() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "true");

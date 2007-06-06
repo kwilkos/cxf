@@ -82,7 +82,7 @@
 	    <artifactId>cxf-common-utilities</artifactId>
 	    <version>${project.version}</version>
 	</dependency>
-	
+
     </dependencies>
 
 

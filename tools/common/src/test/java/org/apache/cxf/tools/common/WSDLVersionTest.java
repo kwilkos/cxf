@@ -19,12 +19,13 @@
 
 package org.apache.cxf.tools.common;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class WSDLVersionTest extends TestCase {
-    
+public class WSDLVersionTest extends Assert {
+
+    @Test
     public void testWSDLVersion() {
         assertEquals(WSDLConstants.WSDLVersion.WSDL11, WSDLConstants.getVersion("1.1"));
         assertEquals(WSDLConstants.WSDLVersion.WSDL20, WSDLConstants.getVersion("2.0"));

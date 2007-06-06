@@ -19,11 +19,13 @@
 
 package org.apache.cxf.tools.common.toolspec;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.ToolException;
-public class ToolSupportTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Test;
 
-    
+public class ToolSupportTest extends Assert {
+
+    @Test
     public void testProtect() throws ToolException {
         ToolSupport toolSupport = new ToolSupport();
         

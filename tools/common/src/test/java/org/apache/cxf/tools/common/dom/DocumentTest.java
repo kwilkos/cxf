@@ -19,10 +19,14 @@
 
 package org.apache.cxf.tools.common.dom;
 
-import junit.framework.*;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class DocumentTest extends TestCase {
+public class DocumentTest extends Assert {
 
+    @Test
+    @Ignore
     public void testDocument() {
         // fail("There are no tests in xutil.dom, put some in!!");
     }

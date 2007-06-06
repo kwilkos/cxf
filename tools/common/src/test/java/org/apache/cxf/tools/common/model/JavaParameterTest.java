@@ -19,10 +19,12 @@
 
 package org.apache.cxf.tools.common.model;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JavaParameterTest extends TestCase {
-    
+public class JavaParameterTest extends Assert {
+
+    @Test
     public void testGetHolderDefaultTypeValue() throws Exception {
         JavaParameter holderParameter = new JavaParameter("i", "java.lang.String", null);
         holderParameter.setHolder(true);

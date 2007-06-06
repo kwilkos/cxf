@@ -19,21 +19,22 @@
 
 package org.apache.cxf.tools.common.toolspec;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.ToolException;
-public class AbstractToolContainerTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+public class AbstractToolContainerTest extends Assert {
     private DummyToolContainer dummyTool;
 
-    public AbstractToolContainerTest(String name) {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
         String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool.xml";
         ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
         dummyTool = new DummyToolContainer(toolspec);
     }
 
+    @Test
     public void testQuietMode() {
         // catch all exception in here.
         try {
@@ -46,6 +47,7 @@ public class AbstractToolContainerTest extends TestCase {
         assertNotNull("Fail to redirect output:", dummyTool.getOutOutputStream());
     }
 
+    @Test
     public void testInit() {
         try {
             dummyTool.init();
@@ -56,6 +58,7 @@ public class AbstractToolContainerTest extends TestCase {
         assertTrue(true);
     }
 
+    @Test
     public void testToolRunner() throws Exception {
         String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool.xml";
         String[] args = {"-r", "wsdlurl=dfd"};

@@ -19,10 +19,10 @@
 
 package org.apache.cxf.tools.common.model;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class JavaInterfaceTest extends TestCase {
+public class JavaInterfaceTest extends Assert {
     @Test
     public void testSetFullClassName() throws Exception {
         String fullName = "org.apache.cxf.tools.common.model.JavaInterface";

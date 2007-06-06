@@ -23,16 +23,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,6 +42,7 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.dom.ExtendedDocumentBuilder;
 
@@ -101,7 +103,19 @@ public class ToolSpec {
     }
 
     public Element getElementById(String id) {
-        return doc.getElementById(id);
+        Element ele = doc.getElementById(id);
+        if (ele != null) {
+            return ele;
+        }
+
+        XPathUtils xpather = new XPathUtils(new HashMap<String, String>());
+        NodeList nl = (NodeList) xpather.getValue("//*[@id='" + id + "']",
+                                                  doc,
+                                                  XPathConstants.NODESET);
+        if (nl != null && nl.getLength() > 0) {
+            return (Element)nl.item(0);
+        }
+        return null;
     }
 
     public boolean hasHandler() {

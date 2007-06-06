@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -43,7 +42,6 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.toolspec.Tool;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
-
 
 public class CommandLineParser {
 

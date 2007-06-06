@@ -19,10 +19,10 @@
 
 package org.apache.cxf.tools.common.model;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class JavaClassTest extends TestCase {
+public class JavaClassTest extends Assert {
     @Test
     public void testGetterSetter() throws Exception {
         JavaField field = new JavaField("arg0",

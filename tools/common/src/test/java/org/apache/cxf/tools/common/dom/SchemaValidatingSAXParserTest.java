@@ -19,9 +19,11 @@
 
 package org.apache.cxf.tools.common.dom;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SchemaValidatingSAXParserTest extends TestCase {
+public class SchemaValidatingSAXParserTest extends Assert {
+    @Test
     public void testMassMethod() {
         SchemaValidatingSAXParser parser = new SchemaValidatingSAXParser();
         parser.setValidating(true);
