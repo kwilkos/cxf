@@ -19,11 +19,12 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
+	xmlns:wsrm-mgr="http://cxf.apache.org/ws/rm/manager"
 	xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
 	xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
 	xsi:schemaLocation="
-http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/ws/rm/manager.xsd
+http://schemas.xmlsoap.org/ws/2005/02/rm/policy http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd
+http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/schemas/configuration/wsrm-manager.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
@@ -77,12 +78,12 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	
 	
 
-	<wsrm-mgmt:rmManager id="org.apache.cxf.ws.rm.RMManager">
+	<wsrm-mgr:rmManager id="org.apache.cxf.ws.rm.RMManager">
 		<wsrm-policy:RMAssertion>
 			<!-- avoid server side resends, change programatically for client -->
 			<wsrm-policy:BaseRetransmissionInterval Milliseconds="2000" />
 		</wsrm-policy:RMAssertion>
-	</wsrm-mgmt:rmManager>
+	</wsrm-mgr:rmManager>
 
 
 </beans>

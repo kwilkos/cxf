@@ -19,12 +19,10 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
-       xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
-       xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xsi:schemaLocation="
-http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl"/>
   
     <!-- Endpoint Level Interceptors-->
     <!-- Inserted From JaxWsEndpointImpl, EndpointImpl-->
@@ -58,7 +56,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
 
     <!--WS-A Interceptors not required in Fault Chain-->
-    <bean id="{http://cxf.apache.org/greeter_control}GreeterPort.endpoint" abstract="true">
+    <bean name="{http://cxf.apache.org/greeter_control}GreeterPort.endpoint" abstract="true">
         <property name="inInterceptors">
             <list>
                 <ref bean="rmLogicalIn"/>

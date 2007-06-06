@@ -27,7 +27,7 @@
            attributeFormDefault="unqualified"
            jaxb:version="2.0">
 
-    <xs:import namespace="http://schemas.xmlsoap.org/ws/2005/02/rm/policy" schemaLocation="wsrm-policy.xsd"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/ws/2005/02/rm/policy" schemaLocation="http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd"/>
 
     <xs:complexType name="SourcePolicyType">
         <xs:annotation>

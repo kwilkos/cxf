@@ -19,26 +19,27 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
+	xmlns:wsrm-mgr="http://cxf.apache.org/ws/rm/manager"
 	xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
 	xsi:schemaLocation="
-http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/ws/rm/manager.xsd
+http://schemas.xmlsoap.org/ws/2005/02/rm/policy http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd
+http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/schemas/configuration/wsrm-manager.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<import resource="rminterceptors.xml" />
 
-	<wsrm-mgmt:rmManager id="org.apache.cxf.ws.rm.RMManager">
-		<wsrm-mgmt:destinationPolicy>
-			<wsrm-mgmt:acksPolicy intraMessageThreshold="0" />
-		</wsrm-mgmt:destinationPolicy>
-		<wsrm-mgmt:deliveryAssurance>
-			<wsrm-mgmt:AtMostOnce />
-		</wsrm-mgmt:deliveryAssurance>
-		<wsrm-policy:RMAssertion>
+	<wsrm-mgr:rmManager id="org.apache.cxf.ws.rm.RMManager">
+        <wsrm-policy:RMAssertion>
 			<wsrm-policy:BaseRetransmissionInterval Milliseconds="60000" />
 			<wsrm-policy:AcknowledgementInterval Milliseconds="10000" />
 		</wsrm-policy:RMAssertion>
-	</wsrm-mgmt:rmManager>
+		<wsrm-mgr:deliveryAssurance>
+			<wsrm-mgr:AtMostOnce />
+		</wsrm-mgr:deliveryAssurance>
+		<wsrm-mgr:destinationPolicy>
+			<wsrm-mgr:acksPolicy intraMessageThreshold="0" />
+		</wsrm-mgr:destinationPolicy>
+	</wsrm-mgr:rmManager>
 
 
 </beans>
