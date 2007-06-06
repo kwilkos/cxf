@@ -159,6 +159,7 @@ public class FailoverTargetSelector extends AbstractConduitSelector {
             synchronized (this) {
                 inProgress.remove(key);
             }
+            super.complete(exchange);
         }
     }
     

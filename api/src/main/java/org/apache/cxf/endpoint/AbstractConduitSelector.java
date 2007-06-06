@@ -118,6 +118,21 @@ public abstract class AbstractConduitSelector implements ConduitSelector {
         return exchange.get(Bus.class);
     }
     
+    
+    /**
+     * Called on completion of the MEP for which the Conduit was required.
+     * 
+     * @param exchange represents the completed MEP
+     */
+    public void complete(Exchange exchange) {
+        try {
+            if (exchange.getInMessage() != null) {
+                getSelectedConduit(exchange.getInMessage()).close(exchange.getInMessage());
+            }
+        } catch (IOException e) {
+            //IGNORE
+        }
+    }    
     /**
      * @return the logger to use
      */

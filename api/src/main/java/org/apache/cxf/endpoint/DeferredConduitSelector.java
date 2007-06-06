@@ -22,7 +22,6 @@ package org.apache.cxf.endpoint;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.Conduit;
 
@@ -68,15 +67,6 @@ public class DeferredConduitSelector extends AbstractConduitSelector {
      */
     public Conduit selectConduit(Message message) {
         return getSelectedConduit(message);
-    }
-
-    /**
-     * Called on completion of the MEP for which the Conduit was required.
-     * 
-     * @param exchange represents the completed MEP
-     */    
-    public void complete(Exchange exchange) {
-        // nothing to do
     }
 
     /**

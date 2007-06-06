@@ -64,7 +64,8 @@ public class LocalConduit extends AbstractConduit {
 
     @Override
     public void close(Message message) throws IOException {
-        if (Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
+        if (Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))
+            && !Boolean.TRUE.equals(message.get(Message.INBOUND_MESSAGE))) {
             dispatchDirect(message);
         } 
         

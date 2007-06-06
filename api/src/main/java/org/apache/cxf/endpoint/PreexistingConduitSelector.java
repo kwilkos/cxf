@@ -19,6 +19,8 @@
 
 package org.apache.cxf.endpoint;
 
+import java.io.IOException;
+
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.Conduit;
@@ -84,7 +86,13 @@ public class PreexistingConduitSelector implements
      * @param exchange represents the completed MEP
      */
     public void complete(Exchange exchange) {
-        // nothing to do
+        try {
+            if (exchange.getInMessage() != null) {
+                selectedConduit.close(exchange.getInMessage());
+            }
+        } catch (IOException e) {
+            //IGNORE
+        }
     }
     
     /**

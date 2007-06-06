@@ -20,6 +20,7 @@
 package org.apache.cxf.transport;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.cxf.message.Message;
@@ -57,12 +58,16 @@ public abstract class AbstractConduit
     }
 
     /**
-     * @param message for which content shoul dbe closed.
+     * @param message for which content should be closed.
      */    
     public void close(Message msg) throws IOException {
         OutputStream os = msg.getContent(OutputStream.class);
         if (os != null) {
             os.close();
+        }
+        InputStream in = msg.getContent(InputStream.class);
+        if (in != null) {
+            in.close();
         }
     }
     
