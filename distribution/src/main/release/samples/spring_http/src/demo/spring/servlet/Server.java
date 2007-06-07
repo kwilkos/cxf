@@ -53,12 +53,12 @@ public class Server {
 
         server.setHandler(handlers);
         server.start();
+        System.out.println("Server ready...");
         server.join();
     }
 
     public static void main(String args[]) throws Exception {
         new Server();
-        System.out.println("Server ready...");
     }
 
 }
