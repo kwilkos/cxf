@@ -29,7 +29,7 @@ import org.apache.hello_world.types.FaultDetail;
 @javax.jws.WebService(portName = "SoapPort", serviceName = "HelloWorldService",
                       targetNamespace = "http://apache.org/hello_world",
                       endpointInterface = "org.apache.hello_world.Greeter",
-                      wsdlLocation = "/META-INF/hello_world.wsdl")
+                      wsdlLocation = "./META-INF/hello_world.wsdl")
 
                   
 public class HelloWorldProvider implements Greeter {

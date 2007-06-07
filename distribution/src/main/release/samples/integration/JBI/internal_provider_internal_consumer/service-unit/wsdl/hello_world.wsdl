@@ -25,7 +25,8 @@
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:xformat="http://cxf.apache.org/bindings/xformat"
-    xmlns:jbi="http://apache.org/transport/jbi">
+    xmlns:jbi="http://cxf.apache.org/transports/jbi"
+    xmlns:jbiFormat="http://cxf.apache.org/bindings/jbi">
 
     <wsdl:types>
         <schema targetNamespace="http://apache.org/hello_world/types" 
@@ -132,48 +133,7 @@
         </wsdl:operation> 
     </wsdl:portType>
     <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
-        <!--soap:binding style="document" transport="http://apache.org/transport/jbi"/>
-  
-        <wsdl:operation name="sayHi">
-            <soap:operation soapAction="" style="document"/>
-            <wsdl:input name="sayHiRequest">
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output name="sayHiResponse">
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        
-        <wsdl:operation name="greetMe">
-            <soap:operation soapAction="" style="document"/>
-            <wsdl:input name="greetMeRequest">
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output name="greetMeResponse">
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        
-        <wsdl:operation name="greetMeOneWay">
-            <soap:operation soapAction="" style="document"/>
-            <wsdl:input name="greetMeOneWayRequest">
-                <soap:body use="literal"/>
-            </wsdl:input>
-        </wsdl:operation>
-
-        <wsdl:operation name="pingMe">
-            <soap:operation style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-            <wsdl:fault name="pingMeFault">
-                <soap:fault name="pingMeFault" use="literal"/>
-            </wsdl:fault>
-        </wsdl:operation-->
-        <xformat:binding />
+        <jbiFormat:binding />
                                                                                                                                                            
                 <wsdl:operation name="sayHi">
                         <wsdl:input name="sayHiRequest" />

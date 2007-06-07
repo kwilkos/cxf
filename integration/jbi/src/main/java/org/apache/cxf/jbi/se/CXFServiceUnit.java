@@ -110,8 +110,13 @@ public class CXFServiceUnit {
             LOG.info(new Message("SU.START.PROVIDER", LOG).toString());
             ref = null;
             try {
+                ((JBITransportFactory)bus.getExtension(ConduitInitiatorManager.class).
+                        getConduitInitiator(CXFServiceEngine.JBI_TRANSPORT_ID)).
+                        setDeliveryChannel(ctx.getDeliveryChannel());
                 ref = ctx.activateEndpoint(getServiceName(), getEndpointName());
             } catch (JBIException e) {
+                LOG.severe(new Message("SU.FAIED.ACTIVE.ENDPOINT", LOG).toString() + e);
+            } catch (BusException e) {
                 LOG.severe(new Message("SU.FAIED.ACTIVE.ENDPOINT", LOG).toString() + e);
             } 
             LOG.info("activated endpoint: " + ref.getEndpointName() 
@@ -131,6 +136,7 @@ public class CXFServiceUnit {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
             new Thread(serviceConsumer).start();
         }
     }
