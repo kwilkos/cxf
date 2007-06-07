@@ -26,9 +26,12 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.binding.jbi.JBIConstants;
+import org.apache.cxf.binding.jbi.JBIFault;
 import org.apache.cxf.binding.jbi.JBIMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -43,13 +46,24 @@ public class JBIFaultOutInterceptor extends AbstractPhaseInterceptor<JBIMessage>
     }
 
     public void handleMessage(JBIMessage message) throws Fault {
+        message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
+        NSStack nsStack = new NSStack();
+        nsStack.push();
+
+        
+        
         try {
             XMLStreamWriter writer = getWriter(message);
             Fault fault = getFault(message);
-            if (!fault.hasDetails()) {
+            JBIFault jbiFault = JBIFault.createFault(fault);
+            nsStack.add(JBIConstants.NS_JBI_BINDING);
+            String prefix = nsStack.getPrefix(JBIConstants.NS_JBI_BINDING);
+            StaxUtils.writeStartElement(writer, prefix, JBIFault.JBI_FAULT_ROOT, 
+                                        JBIConstants.NS_JBI_BINDING);
+            if (!jbiFault.hasDetails()) {
                 writer.writeEmptyElement("fault");
             } else {
-                Element detail = fault.getDetail();
+                Element detail = jbiFault.getDetail();
                 NodeList details = detail.getChildNodes();
                 for (int i = 0; i < details.getLength(); i++) {
                     if (details.item(i) instanceof Element) {
@@ -58,6 +72,9 @@ public class JBIFaultOutInterceptor extends AbstractPhaseInterceptor<JBIMessage>
                     }
                 }
             }
+            writer.writeEndElement();
+            writer.flush();
+            
         } catch (XMLStreamException xe) {
             throw new Fault(new Message("XML_WRITE_EXC", BUNDLE), xe);
         }

@@ -168,6 +168,22 @@
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-bindings-jbi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-jbi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-integration-jbi</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-bindings-http</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -266,6 +282,12 @@
       <artifactId>ant</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.servicemix</groupId>
+      <artifactId>servicemix-core</artifactId>
+      <version>${servicemix.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>rhino</groupId>
       <artifactId>js</artifactId>

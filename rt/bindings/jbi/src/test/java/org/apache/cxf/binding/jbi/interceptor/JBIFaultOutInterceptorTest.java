@@ -82,7 +82,7 @@ public class JBIFaultOutInterceptorTest extends Assert {
         interceptor.handleMessage(msg);
         writer.close();
         Document doc = DOMUtils.readXml(new ByteArrayInputStream(baos.toByteArray()));
-        assertEquals("fault", doc.getDocumentElement().getNodeName());
+        assertEquals("fault", doc.getDocumentElement().getFirstChild().getNodeName());
     }
 
     @Test
@@ -99,8 +99,8 @@ public class JBIFaultOutInterceptorTest extends Assert {
         interceptor.handleMessage(msg);
         writer.close();
         Document doc = DOMUtils.readXml(new ByteArrayInputStream(baos.toByteArray()));
-        assertEquals("urn:test", doc.getDocumentElement().getNamespaceURI());
-        assertEquals("myDetails", doc.getDocumentElement().getNodeName());
+        assertEquals("urn:test", doc.getDocumentElement().getFirstChild().getNamespaceURI());
+        assertEquals("myDetails", doc.getDocumentElement().getFirstChild().getNodeName());
     }
 
 }

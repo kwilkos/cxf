@@ -22,10 +22,12 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.jbi.interceptor.JBIFaultInInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIFaultOutInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIOperationInInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIWrapperInInterceptor;
 import org.apache.cxf.binding.jbi.interceptor.JBIWrapperOutInterceptor;
+import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -42,6 +44,9 @@ public class JBIBindingFactory extends AbstractBindingFactory {
         jb.getOutInterceptors().add(new JBIWrapperOutInterceptor());
         jb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         jb.getOutFaultInterceptors().add(new JBIFaultOutInterceptor());
+        
+        jb.getInFaultInterceptors().add(new StaxInInterceptor());
+        jb.getInFaultInterceptors().add(new JBIFaultInInterceptor());
         return jb;
     }
 

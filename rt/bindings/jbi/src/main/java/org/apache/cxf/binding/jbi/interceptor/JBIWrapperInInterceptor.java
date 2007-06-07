@@ -30,6 +30,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.binding.jbi.JBIBindingInfo;
 import org.apache.cxf.binding.jbi.JBIConstants;
+import org.apache.cxf.binding.jbi.JBIFault;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
@@ -41,6 +42,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -77,6 +79,17 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
         Exchange ex = message.getExchange();
         QName startQName = reader.getName();
 
+        // handling jbi fault message
+        if (startQName.getLocalPart().equals(JBIFault.JBI_FAULT_ROOT)) {
+            message.getInterceptorChain().abort();
+
+            if (ep.getInFaultObserver() != null) {
+                ep.getInFaultObserver().onMessage(message);
+                return;
+            }
+        }
+
+
         // handling xml normal inbound message
         if (!startQName.equals(JBIConstants.JBI_WRAPPER_MESSAGE)) {
             throw new Fault(new org.apache.cxf.common.i18n.Message(
@@ -88,7 +101,8 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
             DataReader<XMLStreamReader> dr = getDataReader(message);
             List<Object> parameters = new ArrayList<Object>();
             reader.next();
-            BindingMessageInfo messageInfo = isRequestor(message) ? bop.getInput() : bop.getOutput();
+            BindingMessageInfo messageInfo = !isRequestor(message) ? bop.getInput() : bop.getOutput();
+            message.put(MessageInfo.class, messageInfo.getMessageInfo());
             for (MessagePartInfo part : messageInfo.getMessageParts()) {
                 if (!StaxUtils.skipToStartOfElement(reader)) {
                     throw new Fault(new org.apache.cxf.common.i18n.Message(

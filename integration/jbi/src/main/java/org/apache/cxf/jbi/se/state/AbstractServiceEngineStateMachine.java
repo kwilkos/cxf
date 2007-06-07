@@ -66,7 +66,6 @@ public abstract class AbstractServiceEngineStateMachine implements ServiceEngine
     void registerJBITransport(Bus argBus, CXFServiceUnitManager mgr) throws JBIException { 
         try { 
             getTransportFactory().setBus(argBus);
-            //getTransportFactory().setServiceUnitManager(mgr);
         } catch (Exception ex) {
             LOG.severe(new Message("SE.FAILED.REGISTER.TRANSPORT.FACTORY", 
                                                LOG).toString());

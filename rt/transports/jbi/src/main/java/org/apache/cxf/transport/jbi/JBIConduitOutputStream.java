@@ -22,6 +22,7 @@ package org.apache.cxf.transport.jbi;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
@@ -114,7 +115,6 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
             NormalizedMessage inMsg = xchng.createMessage();
             LOG.info(new org.apache.cxf.common.i18n.Message("EXCHANGE.ENDPOINT", LOG).toString()
                      + xchng.getEndpoint());
-
             if (inMsg != null) {
                 LOG.info("setup message contents on " + inMsg);
                 inMsg.setContent(getMessageContent(message));
@@ -127,17 +127,28 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
                 xchng.setMessage(inMsg, "in");
                 LOG.info("sending message");
                 if (!isOneWay) {
-
                     channel.sendSync(xchng);
                     NormalizedMessage outMsg = ((InOut)xchng).getOutMessage();
-                    
+                    Source content = null;
+                    if (outMsg != null) {
+                        content = outMsg.getContent();
+                    } else {
+                        content = ((InOut)xchng).getFault().getContent();
+                    }
                     Message inMessage = new MessageImpl();
                     message.getExchange().setInMessage(inMessage);
-                    Source source = outMsg.getContent();
-                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(source);
+                    InputStream ins = JBIMessageHelper.convertMessageToInputStream(content);
+                    if (ins == null) {
+                        throw new IOException(new org.apache.cxf.common.i18n.Message(
+                            "UNABLE.RETRIEVE.MESSAGE", LOG).toString());
+                    }
+                    inMessage.setContent(InputStream.class, ins);
                     
+                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(content);
                     inMessage.setContent(XMLStreamReader.class, reader);
                     conduit.getMessageObserver().onMessage(inMessage);
+                    
+                    
                     
                 } else {
                     channel.send(xchng);

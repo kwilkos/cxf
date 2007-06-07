@@ -51,6 +51,7 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     
     private static final Logger LOG = LogUtils.getL7dLogger(JBITransportFactory.class);
 
+
     private static final ThreadLocal<DeliveryChannel> DELIVERY_CHANNEL = new ThreadLocal<DeliveryChannel>();
     private Bus bus;
     private final Map<String, JBIDestination> destinationMap =  new HashMap<String, JBIDestination>();
@@ -95,6 +96,8 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
             }
         }
     }
+
+    
 
     
     public static DeliveryChannel getDeliveryChannel() {

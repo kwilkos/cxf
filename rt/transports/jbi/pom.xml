@@ -64,10 +64,43 @@
             <groupId>org.apache.servicemix</groupId>
             <artifactId>servicemix-jbi</artifactId>
             <version>3.1-incubating</version>
-          </dependency>
-      
+        </dependency>
+ 
+     
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-common-xsd</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <xsdOptions>
+                              <xsdOption>
+                                <xsd>${basedir}/src/main/resources/schemas/wsdl/jbi.xsd</xsd>
+                                <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jbi.xjb</bindingFile>
+                                <catalog>${basedir}/src/main/resources/catalog.cat</catalog>
+                                <deleteDirs>
+                                  <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
+                                </deleteDirs>
+                              </xsdOption>
+
+                            </xsdOptions>
+                        </configuration>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/jbi</connection>

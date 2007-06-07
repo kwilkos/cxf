@@ -40,6 +40,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.easymock.classextension.EasyMock;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JBIConduitTest extends AbstractJBITest {
@@ -61,6 +62,7 @@ public class JBIConduitTest extends AbstractJBITest {
     }
     
     @Test
+    @Ignore
     public void testSendOut() throws Exception {
         LOG.info("test send");
         JBIConduit conduit = setupJBIConduit(true, false); 

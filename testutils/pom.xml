@@ -339,6 +339,10 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/factory_pattern.wsdl</wsdl>
                                 </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_jbi.wsdl</wsdl>
+                                </wsdlOption>
+
                                 <!-- will be removed-->
                                 <wsdlOption>
 				    <wsdl>${basedir}/src/main/resources/wsdl/test_chars.wsdl</wsdl>

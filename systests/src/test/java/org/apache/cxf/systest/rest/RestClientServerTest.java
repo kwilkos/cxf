@@ -107,7 +107,7 @@ public class RestClientServerTest extends AbstractBusClientServerTestBase {
         Source result = dispatcher.invoke(new StreamSource(is));
         String tempstring = source2String(result);
         assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
-        assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
+        assertTrue("Result should have CustomerID", tempstring.lastIndexOf(">123456<") > 0);
     }
     
     @Test
@@ -142,7 +142,7 @@ public class RestClientServerTest extends AbstractBusClientServerTestBase {
         assertNotNull("result shoud not be null", result);        
         String tempstring = source2String(result);
         assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
-        assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
+        assertTrue("Result should have CustomerID", tempstring.lastIndexOf(">123456<") > 0);
     }
     
     private String source2String(Source source) throws Exception {
