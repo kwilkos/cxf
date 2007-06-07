@@ -19,7 +19,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-distribution</artifactId>
+    <artifactId>apache-cxf</artifactId>
     <packaging>pom</packaging>
     <name>Apache CXF Distribution</name>
     <version>2.0-incubator-SNAPSHOT</version>
@@ -315,7 +315,6 @@
                                 <descriptor>src/main/assembly/src.xml</descriptor>
                             </descriptors>
                             <tarLongFileMode>gnu</tarLongFileMode>
-                            <finalName>cxf-${pom.version}</finalName>
                         </configuration>
                     </execution>
                 </executions>

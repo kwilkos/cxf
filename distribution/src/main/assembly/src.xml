@@ -29,10 +29,8 @@
     <fileSets>
         <fileSet>
             <directory>src/main/release</directory>
-            <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
+            <outputDirectory>apache-cxf-${cxf.version}-src</outputDirectory>
             <includes>
-                <include>DISCLAIMER</include>
-                <include>LICENSE</include>
                 <include>licenses/*.*</include>
                 <include>README</include>
                 <include>BUILDING.txt</include>
@@ -40,14 +38,14 @@
         </fileSet>
         <fileSet>
             <directory>target/maven-shared-archive-resources/META-INF</directory>
-            <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
+            <outputDirectory>apache-cxf-${cxf.version}-src</outputDirectory>
             <includes>
-                <include>NOTICE</include>
+                <include>*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>..</directory>
-            <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
+            <outputDirectory>apache-cxf-${cxf.version}-src</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>

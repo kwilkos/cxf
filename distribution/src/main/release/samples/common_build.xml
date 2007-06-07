@@ -169,9 +169,9 @@
                 <jvmarg value="@{jvmarg3}"/>
                 <jvmarg value="@{jvmarg4}"/>
                 <jvmarg value="@{jvmarg5}"/>
-                <assertions>
+                <!--assertions>
                     <enable package="org.apache.cxf"/>
-                </assertions>
+                </assertions-->
                 <sysproperty key="java.util.logging.config.file" value="@{logging-properties-file}"/>
             </java>
         </sequential>

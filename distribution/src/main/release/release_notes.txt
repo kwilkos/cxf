@@ -1,14 +1,14 @@
-Apache CXF 2.0 RC (incubating) Release Notes
+Apache CXF 2.0 (incubating) Release Notes
 
 1. Overview
 
-Apache CXF 2.0 RC, under incubation,  delivers the second milestone of 
+Apache CXF 2.0, under incubation,  delivers the second milestone of 
 the Celtix project (http://celtix.objectweb.org) and the Xfire project
 (http://xfire.codehaus.org) merge.  This release includes following new
 features and enhancement:
     * WS-policy framework
     * WS-Security
-    * HTTP transport enhancement, including upgrade to jetty 6.1.2 with
+    * HTTP transport enhancement, including upgrade to jetty 6.1.3 with
       async http support, and HTTPS improvements
     * Service routing
     * Aegis databinding support
@@ -21,8 +21,7 @@ features and enhancement:
     * Many other JIRA issues and code cleanup 
 
 Features also available since Apache CXF M1 release:
-    * JAX-WS 2.0 API's - Apache CXF uses/implements the JAX-WS API's but makes no 
-      representation that this release is JAX-WS compliant.
+    * JAX-WS 2.0 API's
     * Transports: HTTP 1.1, HTTPS, and JMS
     * Full SOAP 1.1 and SOAP 1.2 implementation, with MTOM/XOP support
     * JAXB 2.0 databinding support

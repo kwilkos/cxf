@@ -176,7 +176,7 @@ public class MtomServerTest extends AbstractCXFTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         IOUtils.copy(inAtt.getDataHandler().getInputStream(), out);
         out.close();
-        assertTrue(out.size() > 196 && out.size() < 201);
+        assertTrue("Wrong size: " + out.size(), out.size() > 980 && out.size() < 1020);
     }
 
     @Override

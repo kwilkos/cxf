@@ -128,7 +128,11 @@ public class ServiceInfo extends AbstractDescriptionElement {
 
     public SchemaInfo getSchema(String namespaceURI) {
         for (SchemaInfo s : schemas) {
-            if (s.getNamespaceURI().equals(namespaceURI)) {
+            if (namespaceURI != null) {
+                if (namespaceURI.equals(s.getNamespaceURI())) {
+                    return s;
+                }
+            } else if (s.getNamespaceURI() == null) {
                 return s;
             }
         }

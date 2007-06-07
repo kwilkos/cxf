@@ -36,12 +36,10 @@
         <dependency>
             <groupId>rhino</groupId>
             <artifactId>js</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
