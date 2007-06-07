@@ -33,6 +33,13 @@
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
     <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
     <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
+    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
+    <xs:element name="fixedParameterOrder"  type="xs:boolean" default="false"/>
+    
+    <xs:complexType name="ClassOrBeanType">
+       <xs:attribute name="class" type="xs:string"/>
+       <xs:attribute name="bean"  type="xs:string"/>
+    </xs:complexType>
     
     <xs:complexType name="HTTPServerPolicy">
         <xs:annotation>
@@ -419,15 +426,11 @@
             <xs:enumeration value="Keep-Alive"/>
         </xs:restriction>
     </xs:simpleType>
+    
     <xs:simpleType name="proxyServerType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="HTTP"/>
             <xs:enumeration value="SOCKS"/>
         </xs:restriction>
     </xs:simpleType>
-
-    <xs:complexType name="ClassOrBeanType">
-       <xs:attribute name="class" type="xs:string"/>
-       <xs:attribute name="bean"  type="xs:string"/>
-    </xs:complexType>
  </xs:schema>

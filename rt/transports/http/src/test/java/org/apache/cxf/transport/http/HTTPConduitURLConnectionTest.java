@@ -29,7 +29,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusImpl;
-import org.apache.cxf.configuration.security.SSLClientPolicy;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -121,7 +121,7 @@ public class HTTPConduitURLConnectionTest extends Assert {
      * This verifys that the underlying connection is an HttpsURLConnection.
      */
     @Test
-    public void testSslClientPolicy() throws Exception {
+    public void testTLSServerParameters() throws Exception {
         Bus bus = new CXFBusImpl();
         EndpointInfo ei = new EndpointInfo();
         ei.setAddress("https://secure.nowhere.null/" + "bar/foo");
@@ -130,12 +130,12 @@ public class HTTPConduitURLConnectionTest extends Assert {
     
         Message message = getNewMessage();
         // We need an SSL policy, or we can't use "https".
-        conduit.setSslClient(new SSLClientPolicy());
+        conduit.setTlsClientParameters(new TLSClientParameters());
         
         // Test call
         conduit.prepare(message);
         
-        assertTrue("SSL Client Policy should generate an HttpsURLConnection",
+        assertTrue("TLS Client Parameters should generate an HttpsURLConnection",
                 HttpsURLConnection.class.isInstance(
                         message.get("http.connection")));
     }

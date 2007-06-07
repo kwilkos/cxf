@@ -64,6 +64,10 @@ public class ApplicationContextTest extends Assert {
         }
     }
     
+    // This test fails because I think it is trying to read the http-conf.xsd
+    // twice, failing on a duplicate name for 
+    //http://cxf.apache.org/transports/http/configuration,authorization
+    
     @Test
     public void testContext() throws Exception {
         String s4 = getClass()
@@ -93,7 +97,7 @@ public class ApplicationContextTest extends Assert {
         assertEquals("foobar", jd.getServer().getContentEncoding());   
         
         JettyHTTPServerEngine engine = (JettyHTTPServerEngine)jd.getEngine();
-        assertEquals(111, engine.getListener().getMinThreads());
+        assertEquals(111, engine.getThreadingParameters().getMinThreads());
         
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
         ConduitInitiator ci = cim.getConduitInitiator("http://schemas.xmlsoap.org/soap/http");

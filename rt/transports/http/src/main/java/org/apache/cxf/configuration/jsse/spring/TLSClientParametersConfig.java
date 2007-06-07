@@ -37,20 +37,30 @@ public class TLSClientParametersConfig
     public TLSClientParametersConfig(TLSClientParametersType params) 
         throws GeneralSecurityException,
                IOException {
-        
-        this.setCipherSuitesFilter(params.getCipherSuitesFilter());
+
+        if (params.isSetCipherSuitesFilter()) {
+            this.setCipherSuitesFilter(params.getCipherSuitesFilter());
+        }
         if (params.isSetCipherSuites()) {
             this.setCipherSuites(params.getCipherSuites().getCipherSuite());
         }
-        this.setJsseProvider(params.getJsseProvider());
-        this.setSecureSocketProtocol(params.getSecureSocketProtocol());
-        this.setSecureRandom(
+        if (params.isSetJsseProvider()) {
+            this.setJsseProvider(params.getJsseProvider());
+        }
+        if (params.isSetSecureRandomParameters()) {
+            this.setSecureRandom(
                 TLSParameterJaxBUtils.getSecureRandom(
                         params.getSecureRandomParameters()));
-        this.setKeyManagers(
+        }
+        if (params.isSetKeyManagers()) {
+            this.setKeyManagers(
                 TLSParameterJaxBUtils.getKeyManagers(params.getKeyManagers()));
-        this.setTrustManagers(
-                TLSParameterJaxBUtils.getTrustManagers(params.getTrustManagers()));
+        }
+        if (params.isSetTrustManagers()) {
+            this.setTrustManagers(
+                TLSParameterJaxBUtils.getTrustManagers(
+                        params.getTrustManagers()));
+        }
     }
 
 }

@@ -18,29 +18,42 @@
  */
 package org.apache.cxf.transport.http_jetty;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.jsse.TLSServerParameters;
-import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.transport.http_jetty.spring.JettyHTTPServerEngineFactoryConfig;
 
+/**
+ * This Bus Extension handles the configuration of network port
+ * numbers for use with "http" or "https". This factory 
+ * caches the JettyHTTPServerEngines so that they may be 
+ * retrieved if already previously configured.
+ */
 public class JettyHTTPServerEngineFactory {
+    private static final Logger LOG =
+        LogUtils.getL7dLogger(JettyHTTPServerEngineFactory.class);
+
 
     /**
      * This map holds references for allocated ports.
      */
-    // HACK!!! All system tests do not shut down bus correct,
+    // All system tests do not shut down bus correctly,
     // or the bus does not shutdown all endpoints correctly,
-    // so that these are shared amongst busses. Which is
-    // hogwash!! This was static before I changed it, and I
-    // tried to make it local.  Now, we get address in use
-    // Bind exceptions because these server engines aren't
-    // shared!! What hog wash. Propper shutdowns people!
+    // so that these server endings are actuall shared amongst busses
+    // within the same JVM.
     
-    // We will keep it static until
-    // we can resolve the problems in the System tests.
+    // We will keep it static until we can resolve the problems 
+    // in the System tests.
     // TODO: Fix the System Tests so that they shutdown the 
     // buses that they are using and that the buses actually
     // shutdown the destinations and their server engines
@@ -50,89 +63,190 @@ public class JettyHTTPServerEngineFactory {
     // shared accross buses, right?
     private static Map<Integer, JettyHTTPServerEngine> portMap =
         new HashMap<Integer, JettyHTTPServerEngine>();
+   
+    
+    /**
+     * This map holds the threading parameters that are to be applied
+     * to new Engines when bound to a specified port.
+     */
+    private Map<Integer, ThreadingParameters> threadingParametersMap =
+        new TreeMap<Integer, ThreadingParameters>();
+    
+    /**
+     * This map holds TLS Server Parameters that are to be used to
+     * configure a subsequently created JettyHTTPServerEngine.
+     */
+    private Map<Integer, TLSServerParameters> tlsParametersMap =
+        new TreeMap<Integer, TLSServerParameters>();
     
     /**
      * The bus.
      */
     private Bus bus;
     
-    protected JettyHTTPServerEngineFactory(Bus b) {
-        bus = b;
+    private JettyHTTPServerEngineFactoryConfig factorySpringConfig;
+    
+    public JettyHTTPServerEngineFactory() {
+        // Empty
     }
     
     /**
-     * Allocate a JettyServer engine for a particular port. This call is allows 
-     * the Spring configuration of the engine. If the protocol is "https" it 
-     * must find a suitable configuration or this call will throw an error.
+     * This call is used to set the bus. It should only be called once.
+     * @param bus
      */
-    synchronized JettyHTTPServerEngine getForPort(String protocol, int p) {
-
-        return getForPort(protocol, p, (TLSServerParameters) null);
+    @Resource(name = "bus")
+    public void setBus(Bus bus) {
+        assert this.bus == null;
+        this.bus = bus;
+    }
+    
+    @Resource
+    public void setConfig(JettyHTTPServerEngineFactoryConfig config) {
+        factorySpringConfig = config;
+    }
+    
+    @PostConstruct
+    public void registerWithBus() {
+        bus.setExtension(this, JettyHTTPServerEngineFactory.class);
+    }
+    
+    @PostConstruct
+    public void configureSpring() {
+        if (factorySpringConfig != null) {
+            factorySpringConfig.configureServerEngineFactory(this);
+        }
+    }
+    
+    /**
+     * This call sets TLSServerParameters for a JettyHTTPServerEngine
+     * that will be subsequently created. It will not alter an engine
+     * that has already been created for that network port.
+     * @param port       The network port number to bind to the engine.
+     * @param tlsParams  The tls server parameters. Cannot be null.
+     */
+    public void setTLSServerParametersForPort(
+        int port, 
+        TLSServerParameters tlsParams) {
+        if (tlsParams == null) {
+            throw new IllegalArgumentException("tlsParams cannot be null");
+        }
+        tlsParametersMap.put(port, tlsParams);
     }
 
     /**
-     * Allocate a Jetty server engine for a particular port, and an ssl 
-     * server policy.
-     * This call in order to remain consistent with previous implemenation 
-     * does NOT override any spring configuration. That may be a bug. 
-     * This method is deprecated in favor of using TLSServerParameters.
+     * This call removes any TLSParameters that have been placed
+     * on the port arguments. This call will not affect a server engine
+     * already in existence for that port. 
+     * @param port
      */
-    @Deprecated
-    synchronized JettyHTTPServerEngine getForPort(
-            String protocol,
-            int p,
-            SSLServerPolicy sslServerPolicy
-    ) {
-        JettyHTTPServerEngine ref = portMap.get(p);
-        if (ref == null) {
-            ref = new JettyHTTPServerEngine(this, bus, protocol, p);
-            configure(ref);
-            // This previous incantaion says programatic configuration does not 
-            // override because init tests to see if sslServer is already set 
-            // and if so, ignores this sslServerPolicy. 
-            // This situation has been fixed with tlsServerParameters.
-            ref.init(sslServerPolicy);
-            ref.retrieveListenerFactory();
-            portMap.put(p, ref);
-        } else {
-            // This will throw an exception if the reference cannot be 
-            // reconfigured
-            ref.reconfigure(protocol, sslServerPolicy);
+    public void removeTLSServerParametersForPort(int port) {
+        tlsParametersMap.remove(port);
+    }
+    
+    /**
+     * This call sets the ThreadingParameters for a JettyHTTPServerEngine
+     * that will be subsequently created. It will not alter an
+     * engine that has already ben creatd for that network port.
+     * @param port            The network port number to bind to the engine.
+     * @param threadingParams The threading parameters. Cannot be null.
+     */
+    public void setThreadingParametersForPort(
+        int port,
+        ThreadingParameters threadingParams) {
+        if (threadingParams == null) {
+            throw new IllegalArgumentException(
+                    "threadingParameters cannot be null");
         }
+        threadingParametersMap.put(port, threadingParams);
+    }
+    
+    /**
+     * This call removes any ThreadingParameters that have been placed
+     * on the port arguments. This call will not affect a server engine
+     * already in existence for that port. 
+     * @param port
+     */
+    public void removeThreadingParametersForPort(int port) {
+        threadingParametersMap.remove(port);
+    }
+    
+    /**
+     * This call retrieves a previously configured JettyHTTPServerEngine for the
+     * given port. If none exists, this call returns null.
+     */
+    synchronized JettyHTTPServerEngine retrieveJettyHTTPServerEngine(int port) {
+        return portMap.get(port);
+    }
+
+    /**
+     * This call creates a new JettyHTTPServerEngine initialized for "http"
+     * or "https" on the given port. The determination of "http" or "https"
+     * will depend on configuration of the engine's bean name.
+     * 
+     * If an JettyHTTPEngine already exists, or the port
+     * is already in use, a BindIOException will be thrown. If the 
+     * engine is being Spring configured for TLS a GeneralSecurityException
+     * may be thrown.
+     */
+    synchronized JettyHTTPServerEngine createJettyHTTPServerEngine(int port)
+        throws GeneralSecurityException, IOException {
+        
+        TLSServerParameters tlsParams = tlsParametersMap.get(port);
+
+        if (tlsParams != null) {
+            throw new RuntimeException("Port " 
+                    + port + " is configured for TLS");
+        }
+        
+        JettyHTTPServerEngine ref = 
+            new JettyHTTPServerEngine(this, bus, port);
+
+        ref.setProgrammaticTlsServerParameters(tlsParams);
+        
+        ThreadingParameters tparams = threadingParametersMap.get(port);
+        if (tparams != null) {
+            ref.setThreadingParameters(tparams);
+        }
+        
+        ref.finalizeConfig();
+        portMap.put(port, ref);
         return ref;
     }
-    
+
     /**
-     * Allocate a Jetty server engine for a particular port with TLS parameters.
-     * If tlsParams is not null, it overrides any spring configuration of TLS 
-     * parameters.
+     * This call creates a new JettyHTTPServerEngine initialized for "https"
+     * on the given port. The configuration for "https"
+     * will depend on configuration of the engine's bean name, then default,
+     * then parameter map.
+     * 
+     * If an JettyHTTPEngine already exists, or the port
+     * is already in use, a BindIOException will be thrown. If the 
+     * engine is being Spring configured for TLS a GeneralSecurityException
+     * may be thrown.
      */
-    synchronized JettyHTTPServerEngine getForPort(
-            String protocol,
-            int p,
-            TLSServerParameters tlsParams
-    ) {
-        JettyHTTPServerEngine ref = portMap.get(p);
-        if (ref == null) {
-            ref = new JettyHTTPServerEngine(this, bus, protocol, p);
-            configure(ref);
-            // Programatic configuration overrides Spring configuration.
-            if (tlsParams != null) {
-                ref.setProgrammaticTlsServerParameters(tlsParams);
-            }
-            try { 
-                ref.finalizeConfig();
-            } catch (Exception e) {
-                throw new RuntimeException(
-                        "Could not initialize configuration of "
-                        + ref.getBeanName() + ".", e);
-            }
-            portMap.put(p, ref);
+    synchronized JettyHTTPServerEngine createJettyHTTPSServerEngine(int port)
+        throws GeneralSecurityException, IOException {
+
+        LOG.fine("Creating Jetty HTTP Server Engine for port " + port + ".");
+        
+        JettyHTTPServerEngine ref = 
+            new JettyHTTPServerEngine(this, bus, port);
+        
+        // Configuration of the Factory 
+        TLSServerParameters tlsParams = tlsParametersMap.get(port);
+        if (tlsParams != null) {
+            ref.setProgrammaticTlsServerParameters(tlsParams);
         } else {
-            // This call will throw an exception if the engine cannot be 
-            // reconfigured.
-            ref.reconfigure(protocol, tlsParams);
+            throw new RuntimeException("Port " 
+                    + port + " is not configured for TLS");
         }
+        
+        ThreadingParameters threadingParams = threadingParametersMap.get(port);
+        if (threadingParams != null) {
+            ref.setThreadingParameters(threadingParams);
+        }
+        ref.finalizeConfig();
+        portMap.put(port, ref);
         return ref;
     }
     
@@ -142,6 +256,7 @@ public class JettyHTTPServerEngineFactory {
     public synchronized void destroyForPort(int port) {
         JettyHTTPServerEngine ref = portMap.remove(port);
         if (ref != null) {
+            LOG.fine("Stopping Jetty HTTP Server Engine for port " + port + ".");
             try {
                 ref.stop();
             } catch (Exception e) {
@@ -151,16 +266,9 @@ public class JettyHTTPServerEngineFactory {
         }
     }
 
-    /**
-     * This call configures the Server Engine as Spring Bean.
-     * @param bean
-     */
-    protected void configure(JettyHTTPServerEngine bean) {
-        Configurer configurer = bus.getExtension(Configurer.class);
-        if (null != configurer) {
-            configurer.configureBean(bean);
-        }
+    @PostConstruct
+    public void finalizeConfig() {
+        registerWithBus();
     }
-
     
 }

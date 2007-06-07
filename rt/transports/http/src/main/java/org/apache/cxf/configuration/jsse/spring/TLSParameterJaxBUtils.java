@@ -81,6 +81,10 @@ public final class TLSParameterJaxBUtils {
         throws GeneralSecurityException,
                IOException {
         
+        if (kst == null) {
+            return null;
+        }
+        
         String type = kst.isSetType()
                     ? kst.getType()
                     : KeyStore.getDefaultType();

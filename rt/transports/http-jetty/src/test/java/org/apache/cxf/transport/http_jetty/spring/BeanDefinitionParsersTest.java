@@ -24,7 +24,6 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.transport.http.spring.HttpConduitBeanDefinitionParser;
 import org.apache.cxf.transport.http.spring.HttpDestinationBeanDefinitionParser;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -62,16 +61,36 @@ public class BeanDefinitionParsersTest extends Assert {
     }
     
     @Test
-    public void testHttpListener()throws Exception {
+    public void testJettyHTTPServerEngineFactory()throws Exception {
         BeanDefinitionBuilder bd = BeanDefinitionBuilder.childBeanDefinition("child");
         
-        ListenerBeanDefinitionParser parser = new ListenerBeanDefinitionParser();
+        JettyHTTPServerEngineFactoryBeanDefinitionParser parser = 
+            new JettyHTTPServerEngineFactoryBeanDefinitionParser();
 
-        Document d = DOMUtils.readXml(getClass().getResourceAsStream("listener.xml"));
+        Document d = DOMUtils.readXml(getClass().getResourceAsStream("serverenginefactory.xml"));
         parser.doParse(d.getDocumentElement(), null, bd);
         
-        PropertyValue[] pvs = bd.getRawBeanDefinition().getPropertyValues().getPropertyValues();
-        assertEquals(1, pvs.length);
-        assertEquals(111, ((HTTPListenerPolicy) pvs[0].getValue()).getMinThreads());
+        PropertyValue[] pvs = bd.getRawBeanDefinition()
+            .getPropertyValues().getPropertyValues();
+        
+        // First is config, Second is the bus.
+        assertEquals(2, pvs.length);
+        
+        JettyHTTPServerEngineFactoryConfig con =
+            (JettyHTTPServerEngineFactoryConfig) pvs[0].getValue();
+        
+        assertEquals(1, con.threadingParametersMap.get(9000).getMinThreads());
+        assertEquals(2, con.threadingParametersMap.get(9000).getMaxThreads());
+        assertNotNull(con.tlsParametersMap.get(9000));
+        assertNotNull(con.tlsParametersMap.get(9000).getClientAuthentication());
+        assertFalse(con.tlsParametersMap.get(9000).getClientAuthentication().isWant());
+        assertFalse(con.tlsParametersMap.get(9000).getClientAuthentication().isRequired());
+
+        assertNotNull(con.tlsParametersMap.get(9001));
+        assertNotNull(con.tlsParametersMap.get(9001).getClientAuthentication());
+        assertEquals(11, con.threadingParametersMap.get(9001).getMinThreads());
+        assertEquals(12, con.threadingParametersMap.get(9001).getMaxThreads());
+        assertTrue(con.tlsParametersMap.get(9001).getClientAuthentication().isWant());
+        assertTrue(con.tlsParametersMap.get(9001).getClientAuthentication().isRequired());
     }
 }

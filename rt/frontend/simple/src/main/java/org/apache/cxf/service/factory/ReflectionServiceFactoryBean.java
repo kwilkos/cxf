@@ -543,7 +543,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 serviceInfo.addSchema(schemaInfo);
             } else {
                 schema = schemaInfo.getSchema();
-                if (schema.getElementByName(qname) != null) {
+                if (schema != null && schema.getElementByName(qname) != null) {
                     mpi.setElement(true);
                     mpi.setElementQName(qname);
                     paraNumber++;

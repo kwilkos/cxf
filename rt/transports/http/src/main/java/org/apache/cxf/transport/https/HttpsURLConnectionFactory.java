@@ -27,7 +27,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.IIOException;
@@ -38,7 +37,6 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.HttpURLConnectionFactory;
 import org.apache.cxf.transport.http.HttpURLConnectionInfo;
@@ -80,29 +78,10 @@ public final class HttpsURLConnectionFactory
     HTTPConduit conduit;
     
     /**
-     * This field contains the TLS configuration for URLs created
-     * by this factory.
-     */
-    @Deprecated
-    SSLClientPolicy sslPolicy;
-    
-    /**
      * This field contains the TLS configuration for the URLs created by
      * this factory.
      */
     TLSClientParameters tlsClientParameters;
-    
-    /**
-     * This constructor initialized the factory with the configured SSL Client
-     * Side Policy for the HTTPConduit for which this factory is used.
-     * 
-     * @param policy The SSL Client Side Policy. This parameter is guaranteed 
-     *               to be non-null.
-     */
-    @Deprecated
-    public HttpsURLConnectionFactory(SSLClientPolicy policy) {
-        sslPolicy        = policy;
-    }
 
     /**
      * This constructor initialized the factory with the configured TLS
@@ -157,8 +136,6 @@ public final class HttpsURLConnectionFactory
                     throw new IIOException("Error while initializing secure socket", ex);
                 }
             }
-        } else if (sslPolicy != null) {
-            decorate(connection);
         } else {
             assert false;
         }
@@ -189,82 +166,6 @@ public final class HttpsURLConnectionFactory
         }
 
     }
-
-    /**
-     * Decorate connection with applicable SSL settings.
-     * 
-     * @param secureConnection the secure connection
-     */
-    @Deprecated
-    protected void decorate(HttpsURLConnection secureConnection) {
-        String keyStoreLocation =
-            SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG);
-        String keyStoreType =
-            SSLUtils.getKeystoreType(sslPolicy.getKeystoreType(), LOG);
-        String keyStorePassword =
-            SSLUtils.getKeystorePassword(sslPolicy.getKeystorePassword(), LOG);
-        String keyPassword =
-            SSLUtils.getKeyPassword(sslPolicy.getKeyPassword(), LOG);
-        String keyStoreMgrFactoryAlgorithm =
-            SSLUtils.getKeystoreAlgorithm(
-                    sslPolicy.getKeystoreAlgorithm(), LOG);
-        String trustStoreMgrFactoryAlgorithm =
-            SSLUtils.getTrustStoreAlgorithm(
-                    sslPolicy.getTrustStoreAlgorithm(), LOG);
-        String trustStoreLocation =
-            SSLUtils.getTrustStore(sslPolicy.getTrustStore(), LOG);
-        String trustStoreType =
-            SSLUtils.getTrustStoreType(sslPolicy.getTrustStoreType(), LOG);
-        String secureSocketProtocol =
-            SSLUtils.getSecureSocketProtocol(
-                    sslPolicy.getSecureSocketProtocol(), LOG);
-        
-        secureConnection.setHostnameVerifier(
-                    new AlwaysTrueHostnameVerifier());
-        
-        try {
-            // There is something special about the keystore being a pkcs12
-            // that governs the trust store. I don't know what that is.
-            
-            boolean pkcs12 =
-                keyStoreType.equalsIgnoreCase(SSLUtils.PKCS12_TYPE);
-            SSLContext ctx = SSLUtils.getSSLContext(
-                secureSocketProtocol,
-                SSLUtils.getKeyStoreManagers(keyStoreLocation,
-                                             keyStoreType,
-                                             keyStorePassword,
-                                             keyPassword,
-                                             keyStoreMgrFactoryAlgorithm,
-                                             secureSocketProtocol,
-                                             LOG),
-                SSLUtils.getTrustStoreManagers(pkcs12,
-                                               trustStoreType,
-                                               trustStoreLocation,
-                                               trustStoreMgrFactoryAlgorithm,
-                                               LOG));
-            
-            String[] cipherSuites =
-                SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
-                                         SSLUtils.getSupportedCipherSuites(ctx),
-                                         sslPolicy.getCiphersuiteFilters(),
-                                         LOG, false);
-            
-            // The SSLSocketFactoryWrapper enables certain cipher suites
-            // from the policy.
-            secureConnection.setSSLSocketFactory(
-                new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
-                                            cipherSuites));
-            
-           
-        } catch (Exception e) {
-            LogUtils.log(LOG, Level.SEVERE, "SSL_CONTEXT_INIT_FAILURE", e);
-        }
-        
-        SSLUtils.logUnSupportedPolicies(sslPolicy,
-                                        true,
-                                        UNSUPPORTED,
-                                        LOG);
-    }
     
     /**
      * This method assigns the various TLS parameters on the HttpsURLConnection
@@ -283,7 +184,7 @@ public final class HttpsURLConnectionFactory
         SSLContext ctx = provider == null
                   ? SSLContext.getInstance(protocol)
                   : SSLContext.getInstance(protocol, provider);
-                  
+        
         ctx.init(
             tlsClientParameters.getKeyManagers(), 
             tlsClientParameters.getTrustManagers(), 
@@ -304,6 +205,7 @@ public final class HttpsURLConnectionFactory
         connection.setSSLSocketFactory(
             new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
                                         cipherSuites));
+        
         
     }
     /*
@@ -337,4 +239,5 @@ public final class HttpsURLConnectionFactory
         return new HttpsURLConnectionInfo((HttpsURLConnection)connection);
     }
 }
+
 

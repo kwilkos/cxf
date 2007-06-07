@@ -115,6 +115,7 @@ public class CXFJettySslSocketConnector extends SslSocketConnector {
         context.init(keyManagers, trustManagers, secureRandom);
 
         SSLServerSocketFactory con = context.getServerSocketFactory();
+
         
         String[] cs = 
             SSLUtils.getCiphersuites(

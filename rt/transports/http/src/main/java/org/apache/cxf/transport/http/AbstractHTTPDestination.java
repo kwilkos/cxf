@@ -42,9 +42,7 @@ import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.Configurable;
-import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
@@ -81,17 +79,10 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
 
     // Configuration values
     protected HTTPServerPolicy server;
-    protected AuthorizationPolicy authorization;
-    protected SSLServerPolicy sslServer;
     protected String contextMatchStrategy = "stem";
     protected boolean fixedParameterOrder;
     protected boolean multiplexWithAddress;
     
-    /**
-     *  This field holds the TLS Server Parameters for this Destination.
-     */
-    protected TLSServerParameters tlsServerParameters;
-
     /**
      * Constructor
      * 
@@ -260,13 +251,14 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     private void initConfig() {
         PolicyEngine engine = bus.getExtension(PolicyEngine.class);
         // for a decoupled endpoint there is no service info
-        if (null != engine && engine.isEnabled() && null != endpointInfo.getService()) {
+        if (null != engine && engine.isEnabled() 
+            && null != endpointInfo.getService()) {
             server = PolicyUtils.getServer(engine, endpointInfo, this);
         }
         if (null == server) {
-            server = endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class);
+            server = endpointInfo.getTraversedExtensor(
+                    new HTTPServerPolicy(), HTTPServerPolicy.class);
         }
-        this.sslServer = endpointInfo.getTraversedExtensor(null, SSLServerPolicy.class);
     }
 
     void setPolicies(Map<String, List<String>> headers) {
@@ -480,14 +472,6 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
         return id;
     }
 
-    public AuthorizationPolicy getAuthorization() {
-        return authorization;
-    }
-
-    public void setAuthorization(AuthorizationPolicy authorization) {
-        this.authorization = authorization;
-    }
-
     public String getContextMatchStrategy() {
         return contextMatchStrategy;
     }
@@ -520,24 +504,6 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
         this.server = server;
     }
     
-    @Deprecated
-    public SSLServerPolicy getSslServer() {
-        return sslServer;
-    }
-
-    @Deprecated
-    public void setSslServer(SSLServerPolicy sslServer) {
-        this.sslServer = sslServer;
-    }
-    
-    public void setTlsServerParameters(TLSServerParameters params) {
-        this.tlsServerParameters = params;
-    }
-
-    public TLSServerParameters getTlsServerParameters() {
-        return this.tlsServerParameters;
-    }
-    
     public void assertMessage(Message message) {
         PolicyUtils.assertServerPolicy(message, server); 
     }
@@ -545,8 +511,5 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     public boolean canAssert(QName type) {
         return PolicyUtils.HTTPSERVERPOLICY_ASSERTION_QNAME.equals(type); 
     }
-    
-    
-    
     
 }

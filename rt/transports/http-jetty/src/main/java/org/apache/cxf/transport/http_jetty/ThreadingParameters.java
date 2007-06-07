@@ -16,37 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.transport.http_jetty;
 
-package org.apache.cxf.transport.https;
+/**
+ * This class holds a structure that contains parameters
+ * pertaining to the threading of a Jetty HTTP Server Engine.
+ */
+public class ThreadingParameters {
 
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
-
-
-class TestLogHandler extends Handler {
-    String log;
+    private int minThreads;
+    private int maxThreads;
+    private boolean minThreadsSet;
+    private boolean maxThreadsSet;
     
-    public TestLogHandler() {
-        log = "";
-    }
-    
-    public void publish(LogRecord record) {
-        log += record.getMessage();
-        
-    }
-
-    public void flush() {
-        
-    }
-
-    public void close() throws SecurityException {
-        
+    public void setMinThreads(int number) {
+        minThreads = number;
     }
     
-    boolean checkLogContainsString(String str) {
-        if (log.indexOf(str) == -1) {
-            return false;
-        }
-        return true;
-    }    
+    public void setMaxThreads(int number) {
+        maxThreads = number;
+    }
+    
+    public int getMinThreads() {
+        return minThreads;
+    }
+    
+    public int getMaxThreads() {
+        return maxThreads;
+    }
+    
+    public boolean isSetMaxThreads() {
+        return maxThreadsSet;
+    }
+    
+    public boolean isSetMinThreads() {
+        return minThreadsSet;
+    }
 }

@@ -22,7 +22,7 @@ package org.apache.cxf.transport.http_jetty;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -40,7 +40,8 @@ public class JettyHTTPServerEngineTest extends Assert {
     public void setUp() throws Exception {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
-        factory = new JettyHTTPServerEngineFactory(bus);
+        factory = new JettyHTTPServerEngineFactory();
+        factory.setBus(bus);
         
         Configurer configurer = new ConfigurerImpl(); 
         
@@ -50,44 +51,35 @@ public class JettyHTTPServerEngineTest extends Assert {
     }
     
     @Test
-    public void testEngineEquality() {
-        JettyHTTPServerEngine engine = factory.getForPort("http", 1234);
-        assertTrue("Engine references for the same port should point to the same instance",
-                   engine == factory.getForPort("http", 1234));
-        assertFalse("Engine references for the different ports should point to diff instances",
-                   engine == factory.getForPort("http", 1235));    
-        factory.destroyForPort(1234);
-        factory.destroyForPort(1235);
-    }
-    
-    @Test
-    public void testNoSSLServerPolicySet() {
-        JettyHTTPServerEngine engine = factory.getForPort("http", 1234);
-        assertFalse("SSLServerPolicy must not be set", engine.isSetSslServer());
-        engine = factory.getForPort("http", 1235, (SSLServerPolicy) null);
-        assertFalse("SSLServerPolicy must not be set", engine.isSetSslServer());
-        JettyHTTPServerEngine engine2 = factory.getForPort("http", 1234, 
-                                                   new SSLServerPolicy());
-        assertFalse("SSLServerPolicy must not be set for already intialized engine", 
-                    engine2.isSetSslServer());
-        factory.destroyForPort(1234);
-        factory.destroyForPort(1235);
-    }
-    
-    @Test
-    public void testDestinationSSLServerPolicy() {
-        SSLServerPolicy policy = new SSLServerPolicy();
-        JettyHTTPServerEngine engine = factory.getForPort("http", 1234, 
-                                                                        policy);
-        assertTrue("SSLServerPolicy must be set", engine.getSslServer() == policy);
-        JettyHTTPServerEngine engine2 = factory.getForPort("http", 1234, 
-                                                   new SSLServerPolicy());
-        assertTrue("Engine references for the same port should point to the same instance",
-                   engine == engine2);
-        assertTrue("SSLServerPolicy must not be set for already intialized engine", 
-                    engine.getSslServer() == policy);
+    public void testEngineRetrieval() throws Exception {
+        JettyHTTPServerEngine engine = 
+            factory.createJettyHTTPServerEngine(1234);
+        
+        assertTrue(
+            "Engine references for the same port should point to the same instance",
+            engine == factory.retrieveJettyHTTPServerEngine(1234));
         
         factory.destroyForPort(1234);
     }
-
+    
+    @Test
+    public void testHttpAndHttps() throws Exception {
+        JettyHTTPServerEngine engine = 
+            factory.createJettyHTTPServerEngine(1234);
+        
+        assertTrue("Protocol must be http", 
+                "http".equals(engine.getProtocol()));
+        
+        factory.setTLSServerParametersForPort(1235, new TLSServerParameters());
+        
+        engine = factory.createJettyHTTPSServerEngine(1235);
+        
+        assertTrue("Protocol must be https", 
+                "https".equals(engine.getProtocol()));
+        
+        factory.removeTLSServerParametersForPort(1235);
+        factory.destroyForPort(1234);
+        factory.destroyForPort(1235);
+    }
+    
 }

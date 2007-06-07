@@ -32,7 +32,6 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.jsse.spring.TLSClientParametersConfig;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
-import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -61,11 +60,6 @@ public class HttpConduitBeanDefinitionParser
         mapElementToJaxbProperty(element, bean, 
                 new QName(HTTP_NS, "authorization"), "authorization", 
                 AuthorizationPolicy.class);
-        
-       // DEPRECATED: This element is deprecated in favor of tlsClientParameters
-        mapElementToJaxbProperty(element, bean, 
-                new QName(HTTP_NS, "sslClient"), "sslClient", 
-                SSLClientPolicy.class);
         
         mapSpecificElements(element, bean);
     }

@@ -33,70 +33,143 @@
            jaxb:version="2.0">
 
     <xs:include schemaLocation="http://cxf.apache.org/schemas/wsdl/http-conf.xsd"/> 
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
-    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="http://cxf.apache.org/schemas/configuration/security.xsd"/>
-    <xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans.xsd"/>
-    <xs:import namespace="http://cxf.apache.org/configuration/beans" schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" 
+               schemaLocation="http://schemas.xmlsoap.org/wsdl/"/>
+    <xs:import namespace="http://cxf.apache.org/configuration/security" 
+               schemaLocation="http://cxf.apache.org/schemas/configuration/security.xsd"/>
+    <xs:import namespace="http://www.springframework.org/schema/beans" 
+               schemaLocation="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"/>
+    <xs:import namespace="http://cxf.apache.org/configuration/beans" 
+               schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
 
-    <!-- already defined as it can appear in WSDL    
+    <!-- This are already defined as it can appear in WSDL    
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
-    -->
-    <xs:element name="authorization" type="sec:AuthorizationPolicy"/>
-    <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
-    <xs:element name="tlsServerParameters" type="sec:TLSServerParametersType"/>
-    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
-    <xs:element name="fixedParameterOrder" type="xs:boolean" default="false"/>
-
-    <!-- already defined as it can appear in WSDL    
     <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
-    -->
-    <xs:element name="proxyAuthorization" type="sec:AuthorizationPolicy"/>
-    <xs:element name="sslClient" type="sec:SSLClientPolicy"/>
-    <xs:element name="tlsClientParameters" type="sec:TLSClientParametersType"/>
-
-    <xs:element name="trustDecider"           type="http-conf:ClassOrBeanType"/>
-    <xs:element name="basicAuthSupplier"      type="http-conf:ClassOrBeanType"/>
-    
-    <xs:element name="conduit">
-      <xs:complexType>
-        <xs:complexContent>
-          <xs:extension base="beans:identifiedType">
-            <xs:all>
-                <xs:element ref="http-conf:client" minOccurs="0"/>
-                <xs:element ref="http-conf:authorization" minOccurs="0"/>
-                <xs:element ref="http-conf:proxyAuthorization" minOccurs="0"/>
-                <xs:element ref="http-conf:sslClient" minOccurs="0"/>
-                <xs:element ref="http-conf:tlsClientParameters" minOccurs="0"/>
-                <xs:element ref="http-conf:basicAuthSupplier" 
-                			minOccurs="0" maxOccurs="1"/>
-                <xs:element ref="http-conf:trustDecider" 
-                			minOccurs="0" maxOccurs="1"/>
-            </xs:all>
-            <xs:attributeGroup ref="cxf-beans:beanAttributes"/>
-          </xs:extension>
-        </xs:complexContent>
-      </xs:complexType>
-    </xs:element>
+      ** The following are in the WSDL http-conf.xsd file because
+      ** they need to be generated.
+      ** Destination Specific Items **
+    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
+    <xs:element name="fixedParameterOrder"  type="xs:boolean" default="false"/>
    
-    <!-- 
     <xs:complexType name="ClassOrBeanType">
        <xs:attribute name="class" type="xs:string"/>
        <xs:attribute name="bean"  type="xs:string"/>
     </xs:complexType>
     -->
     
+    <!-- Conduit Specific Items -->
+
+    <xs:element name="authorization"       type="sec:AuthorizationPolicy"/>
+    <xs:element name="proxyAuthorization"  type="sec:ProxyAuthorizationPolicy"/>
+    <xs:element name="tlsClientParameters" type="sec:TLSClientParametersType"/>
+    <xs:element name="trustDecider"        type="http-conf:ClassOrBeanType"/>
+    <xs:element name="basicAuthSupplier"   type="http-conf:ClassOrBeanType"/>
+    
+    
+    <xs:element name="conduit">
+      <xs:complexType>
+        <xs:complexContent>
+          <xs:extension base="beans:identifiedType">
+            <xs:all>
+                <xs:element ref="http-conf:client" minOccurs="0">
+                   <xs:annotation>
+                     <xs:documentation>
+                       This element holds the parameters that configure
+                       the client side of an Http connection.
+                     </xs:documentation>
+                   </xs:annotation>
+                </xs:element>
+                <xs:element ref="http-conf:authorization" minOccurs="0">
+                   <xs:annotation>
+                     <xs:documentation>
+                       This element holds the parameters that configure
+                       the Basic Authentication that will be premptively
+                       used. Note, supplying a Basic Auth Supplier object
+                       is the preferred approach.
+                     </xs:documentation>
+                   </xs:annotation>
+                </xs:element>
+                <xs:element ref="http-conf:proxyAuthorization" minOccurs="0">
+                   <xs:annotation>
+                     <xs:documentation>
+                       This element holds the parameters that configure
+                       the Basic Authentication for an outgoing Http
+                       Proxy Server.
+                     </xs:documentation>
+                   </xs:annotation>
+                </xs:element>
+                <xs:element ref="http-conf:tlsClientParameters" minOccurs="0">
+                   <xs:annotation>
+                     <xs:documentation>
+                       This element holds the parameters that configure
+                       the underlying SSL/TLS JSSE client side 
+                       of an Https connection.
+                     </xs:documentation>
+                   </xs:annotation>
+                </xs:element>
+                <xs:element ref="http-conf:basicAuthSupplier" 
+                			minOccurs="0" maxOccurs="1">
+                   <xs:annotation>
+                     <xs:documentation>
+                       This element holds the bean reference or class name
+                       of an object that supplies Basic Auth information
+                       both prememptively and in response to a 401 Http
+                       Challenge. This class must extend the abstract class 
+                       org.apache.cxf.transport.http.BasicAuthSupplier.
+                     </xs:documentation>
+                   </xs:annotation>
+                </xs:element>
+                <xs:element ref="http-conf:trustDecider" 
+                			minOccurs="0" maxOccurs="1">
+                   <xs:annotation>
+                     <xs:documentation>
+                       This element holds the bean reference or class name
+                       of an object that checks the Http(s)URLConnection
+                       that will establish trust for a connection with an
+                       Http(s) server, before any information is sent to the
+                       server, namely Basic Auth information. This class
+                       must extend the abstract class
+                       org.apache.cxf.transport.http.MessageTrustDecider. 
+                     </xs:documentation>
+                   </xs:annotation>
+                </xs:element>
+            </xs:all>
+            <xs:attributeGroup ref="cxf-beans:beanAttributes"/>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="destination">
       <xs:complexType>
         <xs:complexContent>
           <xs:extension base="beans:identifiedType">
             <xs:all>
-              <xs:element ref="http-conf:server" minOccurs="0"/>
-              <xs:element ref="http-conf:authorization" minOccurs="0"/>
-              <xs:element ref="http-conf:sslServer" minOccurs="0"/>
-              <xs:element ref="http-conf:tlsServerParameters" minOccurs="0"/>
-              <xs:element ref="http-conf:contextMatchStrategy" minOccurs="0"/>
-              <xs:element ref="http-conf:fixedParameterOrder" minOccurs="0"/>
-            </xs:all>
+	            <xs:element ref="http-conf:server" minOccurs="0">
+	               <xs:annotation>
+	                 <xs:documentation>
+	                   This element holds the parameters that configure
+	                   the server side of an Http connection.
+	                 </xs:documentation>
+	               </xs:annotation>
+	            </xs:element>
+	            <xs:element ref="http-conf:contextMatchStrategy" minOccurs="0">
+	               <xs:annotation>
+	                 <xs:documentation>
+	                   This element holds the parameters that configure
+	                   the context match strategy for processing an Http request.
+	                 </xs:documentation>
+	               </xs:annotation>
+	            </xs:element>
+	            <xs:element ref="http-conf:fixedParameterOrder" minOccurs="0">
+	               <xs:annotation>
+	                 <xs:documentation>
+	                   This element signifies whether the parameter order of
+	                   an Http request handled by this destination is fixed.
+	                 </xs:documentation>
+	               </xs:annotation>
+	            </xs:element>
+	        </xs:all>
             <xs:attributeGroup ref="cxf-beans:beanAttributes"/>
           </xs:extension>
         </xs:complexContent>

@@ -1,0 +1,29 @@
+<hj:engine-factory
+       xmlns:hj="http://cxf.apache.org/transports/http-jetty/configuration"
+       xmlns:sec="http://cxf.apache.org/configuration/security"
+   bus="cxf">
+   
+   <hj:identifiedTLSServerParameters id="sample1">
+      <hj:tlsServerParameters jsseProvider="SUN" secureSocketProtocol="TLS">
+        <sec:clientAuthentication want="false" required="false"/>
+      </hj:tlsServerParameters>
+   </hj:identifiedTLSServerParameters>
+   
+   <hj:identifiedThreadingParameters id="sampleThreading1">
+      <hj:threadingParameters minThreads="11" maxThreads="12"/>
+   </hj:identifiedThreadingParameters>
+   
+   <hj:engine port="9000">
+      <hj:tlsServerParametersRef id="sample1"/>
+      <hj:threadingParameters minThreads="1" maxThreads="2"/>
+   </hj:engine>
+   
+   <hj:engine port="9001">
+      <hj:tlsServerParameters>
+        <sec:clientAuthentication want="true" required="true"/>
+      </hj:tlsServerParameters>
+      <hj:threadingParametersRef id="sampleThreading1"/>
+   </hj:engine>
+   
+</hj:engine-factory>
+         

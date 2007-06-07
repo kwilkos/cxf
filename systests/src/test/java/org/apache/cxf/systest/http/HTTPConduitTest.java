@@ -20,20 +20,28 @@
 package org.apache.cxf.systest.http;
 
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.FiltersType;
-import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.message.Message;
@@ -91,7 +99,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
 
     private static final boolean IN_PROCESS = true;
     
-    private static SSLClientPolicy sslClientPolicy = new SSLClientPolicy();
+    private static TLSClientParameters tlsClientParameters = new TLSClientParameters();
     private static Map<String, String> addrMap = new TreeMap<String, String>();
     private static List<String> servers = new ArrayList<String>();
 
@@ -108,25 +116,30 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
     }
     
     static {
-        String keystore = 
-            Server.class.getResource("resources/Morpit.jks").getFile();
-        //System.out.println("Keystore: " + keystore);
-        String truststore = 
-            Server.class.getResource("resources/Truststore.jks").getFile();
-        //System.out.println("Truststore: " + truststore);
-        sslClientPolicy.setKeystore(keystore);
-        sslClientPolicy.setKeystoreType("JKS");
-        sslClientPolicy.setKeystorePassword("password");
-        sslClientPolicy.setKeyPassword("password");
-        sslClientPolicy.setTrustStore(truststore);
-        sslClientPolicy.setTrustStoreType("JKS");
-        FiltersType filters = new FiltersType();
-        filters.getInclude().add(".*_EXPORT_.*");
-        filters.getInclude().add(".*_EXPORT1024_.*");
-        filters.getInclude().add(".*_WITH_DES_.*");
-        filters.getInclude().add(".*_WITH_NULL_.*");
-        filters.getInclude().add(".*_DH_anon_.*");
-        sslClientPolicy.setCiphersuiteFilters(filters);
+        try {
+            //System.setProperty("javax.net.debug", "all");
+            String keystore = 
+                Server.class.getResource("resources/Morpit.jks").getFile();
+            //System.out.println("Keystore: " + keystore);
+            KeyManager[] kmgrs = getKeyManagers(getKeyStore("JKS", keystore, "password"), "password");
+            
+            String truststore = 
+                Server.class.getResource("resources/Truststore.jks").getFile();
+            //System.out.println("Truststore: " + truststore);
+            TrustManager[] tmgrs = getTrustManagers(getKeyStore("JKS", truststore, "password"));
+            
+            tlsClientParameters.setKeyManagers(kmgrs);
+            tlsClientParameters.setTrustManagers(tmgrs);
+            FiltersType filters = new FiltersType();
+            filters.getInclude().add(".*_EXPORT_.*");
+            filters.getInclude().add(".*_EXPORT1024_.*");
+            filters.getInclude().add(".*_WITH_DES_.*");
+            filters.getInclude().add(".*_WITH_NULL_.*");
+            filters.getInclude().add(".*_DH_anon_.*");
+            tlsClientParameters.setCipherSuitesFilter(filters);
+        } catch (Exception e) {
+            throw new RuntimeException("Static initialization failed", e);
+        }
     }
 
     private final QName serviceName = 
@@ -161,7 +174,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
      * server approach allieviates the pain in starting them all just to run
      * a particular test in the debugger.
      */
-    public static boolean startServer(String name) {
+    public static synchronized boolean startServer(String name) {
         if (servers.contains(name)) {
             return true;
         }
@@ -183,9 +196,62 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
     public void setUp() {
         // TODO: Do I need this?
         System.setProperty("org.apache.cxf.bus.factory", 
-                "org.apache.cxf.bus.CXFBusFactory");
+            "org.apache.cxf.bus.CXFBusFactory");
     }
 
+    public static KeyStore getKeyStore(String ksType, String file, String ksPassword)
+        throws GeneralSecurityException,
+               IOException {
+        
+        String type = ksType != null
+                    ? ksType
+                    : KeyStore.getDefaultType();
+                    
+        char[] password = ksPassword != null
+                    ? ksPassword.toCharArray()
+                    : null;
+
+        // We just use the default Keystore provider
+        KeyStore keyStore = KeyStore.getInstance(type);
+        
+        keyStore.load(new FileInputStream(file), password);
+        
+        return keyStore;
+    }
+
+    public static KeyManager[] getKeyManagers(KeyStore keyStore, String keyPassword) 
+        throws GeneralSecurityException,
+               IOException {
+        // For tests, we just use the default algorithm
+        String alg = KeyManagerFactory.getDefaultAlgorithm();
+        
+        char[] keyPass = keyPassword != null
+                     ? keyPassword.toCharArray()
+                     : null;
+        
+        // For tests, we just use the default provider.
+        KeyManagerFactory fac = KeyManagerFactory.getInstance(alg);
+                     
+        fac.init(keyStore, keyPass);
+        
+        return fac.getKeyManagers();
+    }
+
+    public static TrustManager[] getTrustManagers(KeyStore keyStore) 
+        throws GeneralSecurityException,
+               IOException {
+        // For tests, we just use the default algorithm
+        String alg = TrustManagerFactory.getDefaultAlgorithm();
+        
+        // For tests, we just use the default provider.
+        TrustManagerFactory fac = TrustManagerFactory.getInstance(alg);
+                     
+        fac.init(keyStore);
+        
+        return fac.getTrustManagers();
+    }
+    
+    
     @Test
     public void testBasicConnection() throws Exception {
         startServer("Mortimer");
@@ -324,6 +390,53 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
      * to avoid the 401.
      */
     @Test
+    public void testHttpsBasicConnectionWithConfig() throws Exception {
+        startServer("Bethal");
+
+        URL config = getClass().getResource(
+                    "resources/BethalClientConfig.cxf");
+        
+        // We go through the back door, setting the default bus.
+        new DefaultBusFactory().createBus(config);
+        URL wsdl = getClass().getResource("resources/greeting.wsdl");
+        assertNotNull("WSDL is null", wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull("Service is null", service);
+
+        Greeter bethal = service.getPort(bethalQ, Greeter.class);
+        assertNotNull("Port is null", bethal);
+        
+        // Okay, I'm sick of configuration files.
+        // This also tests dynamic configuration of the conduit.
+        Client client = ClientProxy.getClient(bethal);
+        HTTPConduit http = 
+            (HTTPConduit) client.getConduit();
+        
+        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+        
+        httpClientPolicy.setAutoRedirect(false);
+        // If we set any name, but Edward, Mary, or George,
+        // and a password of "password" we will get through
+        // Bethal.
+        AuthorizationPolicy authPolicy = new AuthorizationPolicy();
+        authPolicy.setUserName("Betty");
+        authPolicy.setPassword("password");
+        
+        http.setClient(httpClientPolicy);
+        http.setTlsClientParameters(tlsClientParameters);
+        http.setAuthorization(authPolicy);
+        
+        String answer = bethal.sayHi();
+        assertTrue("Unexpected answer: " + answer, 
+                "Bonjour from Bethal".equals(answer));
+    }
+    /**
+     * This methods tests a basic https connection to Bethal.
+     * It supplies an authorization policy with premetive user/pass
+     * to avoid the 401.
+     */
+    @Test
     public void testHttpsBasicConnection() throws Exception {
         startServer("Bethal");
 
@@ -353,7 +466,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         authPolicy.setPassword("password");
         
         http.setClient(httpClientPolicy);
-        http.setSslClient(sslClientPolicy);
+        http.setTlsClientParameters(tlsClientParameters);
         http.setAuthorization(authPolicy);
         
         String answer = bethal.sayHi();
@@ -391,7 +504,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         httpClientPolicy.setAutoRedirect(true);
         
         http.setClient(httpClientPolicy);
-        http.setSslClient(sslClientPolicy);
+        http.setTlsClientParameters(tlsClientParameters);
         
         try {
             String answer = poltim.sayHi();
@@ -487,7 +600,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         authPolicy.setPassword("password");
         
         http.setClient(httpClientPolicy);
-        http.setSslClient(sslClientPolicy);
+        http.setTlsClientParameters(tlsClientParameters);
         http.setAuthorization(authPolicy);
         
         // Our expected server should be OU=Bethal
@@ -543,7 +656,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         authPolicy.setPassword("password");
         
         http.setClient(httpClientPolicy);
-        http.setSslClient(sslClientPolicy);
+        http.setTlsClientParameters(tlsClientParameters);
         http.setAuthorization(authPolicy);
         
         // We get redirected from Tarpin, to Gordy, to Bethal.
@@ -676,7 +789,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         
         httpClientPolicy.setAutoRedirect(true);
         http.setClient(httpClientPolicy);
-        http.setSslClient(sslClientPolicy);
+        http.setTlsClientParameters(tlsClientParameters);
         
         // We get redirected from Gordy, to Bethal.
         http.setTrustDecider(
@@ -709,3 +822,4 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
     }
     
 }
+

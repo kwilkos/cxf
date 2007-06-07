@@ -1,5 +1,0 @@
-<l:listener xmlns:l="http://cxf.apache.org/transport/http/listener" xmlns:h="http://cxf.apache.org/transports/http/configuration">
-  <l:listener>
-    <h:MinThreads>111</h:MinThreads> 
-  </l:listener>
-</l:listener>

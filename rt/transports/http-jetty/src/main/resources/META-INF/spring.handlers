@@ -1,1 +1,1 @@
-http\://cxf.apache.org/transport/http/listener=org.apache.cxf.transport.http_jetty.spring.NamespaceHandler
+http\://cxf.apache.org/transports/http-jetty/configuration=org.apache.cxf.transport.http_jetty.spring.NamespaceHandler

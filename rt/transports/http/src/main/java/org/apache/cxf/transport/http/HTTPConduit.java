@@ -47,7 +47,6 @@ import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
-import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
@@ -222,13 +221,6 @@ public class HTTPConduit
      * on the conduit name.
      */
     private ProxyAuthorizationPolicy proxyAuthorizationPolicy;
-    
-    /**
-     * This field holds the configuration TLS configuration which is
-     * "injected" by spring based on the conduit name.
-     */
-    @Deprecated
-    private SSLClientPolicy sslClientSidePolicy;
 
     /**
      * This field holds the configuration TLS configuration which
@@ -353,11 +345,6 @@ public class HTTPConduit
                     new ProxyAuthorizationPolicy(), ProxyAuthorizationPolicy.class);
            
         }
-        // TODO: remove once old SSL configuration is gone
-        if (this.sslClientSidePolicy == null) {
-            sslClientSidePolicy = endpointInfo.getTraversedExtensor(
-                    null, SSLClientPolicy.class);
-        }
         if (this.tlsClientParameters == null) {
             tlsClientParameters = endpointInfo.getTraversedExtensor(
                     null, TLSClientParameters.class);
@@ -371,14 +358,14 @@ public class HTTPConduit
                     null, HttpBasicAuthSupplier.class);
         }
         if (trustDecider == null) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO,
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE,
                     "No Trust Decider configured for Conduit '"
                     + getConduitName() + "'");
             }
         } else {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Message Trust Decider of class '" 
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Message Trust Decider of class '" 
                     + trustDecider.getClass().getName()
                     + "' with logical name of '"
                     + trustDecider.getLogicalName()
@@ -388,20 +375,34 @@ public class HTTPConduit
             }
         }
         if (basicAuthSupplier == null) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO,
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE,
                     "No Basic Auth Supplier configured for Conduit '"
                     + getConduitName() + "'");
             }
         } else {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "HttpBasicAuthSupplier of class '" 
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "HttpBasicAuthSupplier of class '" 
                     + basicAuthSupplier.getClass().getName()
                     + "' with logical name of '"
                     + basicAuthSupplier.getLogicalName()
                     + "' has been configured for Conduit '" 
                     + getConduitName()
                     + "'");
+            }
+        }
+        if (this.tlsClientParameters != null) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Conduit '" + getConduitName()
+                    + "' has been configured for TLS "
+                    + "keyManagers " + tlsClientParameters.getKeyManagers()
+                    + "trustManagers " + tlsClientParameters.getTrustManagers()
+                    + "secureRandom " + tlsClientParameters.getSecureRandom());
+            }
+        } else {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Conduit '" + getConduitName()
+                    + "' has been configured for plain http.");
             }
         }
 
@@ -1149,33 +1150,6 @@ public class HTTPConduit
     }
 
     /**
-     * This method returns the SSL Client Side Policy that is set/configured
-     * for this HTTPConduit.
-     */
-    @Deprecated
-    public SSLClientPolicy getSslClient() {
-        return sslClientSidePolicy;
-    }
-
-    /**
-     * This method sets the SSL Client Side Policy for this HTTPConduit.
-     * Using this method overrides any SSL Client Side Policy that is configured
-     * for this HTTPConduit.
-     */
-    @Deprecated
-    @Resource
-    public void setSslClient(SSLClientPolicy sslClientPolicy) {
-        LOG.info("The setSslClient method is deprecated. Please use setTlsClientParameters.");
-        
-        this.sslClientSidePolicy = sslClientPolicy;
-        // If this is called after the HTTPTransportFactory called 
-        // finalizeConfig, we need to update the connection factory.
-        if (configFinalized) {
-            retrieveConnectionFactory();
-        }
-    }
-
-    /**
      * This method returns the TLS Client Parameters that is set/configured
      * for this HTTPConduit.
      */
@@ -1191,6 +1165,20 @@ public class HTTPConduit
     @Resource
     public void setTlsClientParameters(TLSClientParameters params) {
         this.tlsClientParameters = params;
+        if (this.tlsClientParameters != null) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Conduit '" + getConduitName()
+                    + "' has been (re) configured for TLS "
+                    + "keyManagers " + tlsClientParameters.getKeyManagers()
+                    + "trustManagers " + tlsClientParameters.getTrustManagers()
+                    + "secureRandom " + tlsClientParameters.getSecureRandom());
+            }
+        } else {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "Conduit '" + getConduitName()
+                    + "' has been (re)configured for plain http.");
+            }
+        }
         // If this is called after the HTTPTransportFactory called 
         // finalizeConfig, we need to update the connection factory.
         if (configFinalized) {
@@ -1877,4 +1865,5 @@ public class HTTPConduit
     }
     
 }
+
 

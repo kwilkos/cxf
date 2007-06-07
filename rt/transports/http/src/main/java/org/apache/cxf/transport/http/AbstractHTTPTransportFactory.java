@@ -243,10 +243,6 @@ public abstract class AbstractHTTPTransportFactory
         if (configuredConduit.getTlsClientParameters() != null) {
             fac = new HttpsURLConnectionFactory(
                              configuredConduit.getTlsClientParameters());
-        // TODO: remove when old SSL config is gone
-        } else if (configuredConduit.getSslClient() != null) {
-            fac = new HttpsURLConnectionFactory(
-                             configuredConduit.getSslClient());
         } else {
             fac = new HttpURLConnectionFactoryImpl();
         }

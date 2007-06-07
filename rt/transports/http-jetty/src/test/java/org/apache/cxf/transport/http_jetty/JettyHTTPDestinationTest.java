@@ -38,7 +38,6 @@ import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
@@ -330,13 +329,13 @@ public class JettyHTTPDestinationTest extends Assert {
         bus = new CXFBusImpl();
         
         transportFactory = new JettyHTTPTransportFactory();
+        transportFactory.setBus(bus);
         
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setName(new QName("bla", "Service"));        
         endpointInfo = new EndpointInfo(serviceInfo, "");
         endpointInfo.setName(new QName("bla", "Port"));
-        endpointInfo.addExtensor(policy); 
-        endpointInfo.addExtensor(new SSLServerPolicy()); 
+        endpointInfo.addExtensor(policy);
         
         engine = EasyMock.createMock(JettyHTTPServerEngine.class);
         EasyMock.replay();
@@ -422,6 +421,24 @@ public class JettyHTTPDestinationTest extends Assert {
         throws Exception {
         policy = new HTTPServerPolicy();
         address = getEPR("bar/foo");
+        
+
+        transportFactory = new JettyHTTPTransportFactory() {
+            @Override
+            public JettyHTTPServerEngineFactory getJettyHTTPServerEngineFactory() {
+                if (serverEngineFactory == null) {
+                    serverEngineFactory = new JettyHTTPServerEngineFactory();
+                }
+                return serverEngineFactory;   
+            }
+            
+            @Override
+            public Conduit getConduit(EndpointInfo epi,
+                                      EndpointReferenceType target) throws IOException {
+                return decoupledBackChannel;
+            }
+        };
+        
         if (!mockedBus) {
             bus = new CXFBusImpl();
         } else {
@@ -433,15 +450,6 @@ public class JettyHTTPDestinationTest extends Assert {
             EasyMock.replay(bus);
         }
         
-        transportFactory = new JettyHTTPTransportFactory() {
-            @Override
-            public Conduit getConduit(EndpointInfo epi,
-                                      EndpointReferenceType target) throws IOException {
-                return decoupledBackChannel;
-            }
-        };
-        transportFactory.setBus(bus);
-        
         engine = EasyMock.createMock(JettyHTTPServerEngine.class);
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setName(new QName("bla", "Service"));        
@@ -450,8 +458,6 @@ public class JettyHTTPDestinationTest extends Assert {
         endpointInfo.setAddress(NOWHERE + "bar/foo");
        
         endpointInfo.addExtensor(policy);
-        endpointInfo.getExtensor(SSLServerPolicy.class);
-        endpointInfo.addExtensor(new SSLServerPolicy());
         engine.addServant(EasyMock.eq(new URL(NOWHERE + "bar/foo")),
                           EasyMock.isA(JettyHTTPHandler.class));
         EasyMock.expectLastCall();
