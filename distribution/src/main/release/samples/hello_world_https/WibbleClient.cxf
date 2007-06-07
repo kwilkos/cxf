@@ -28,12 +28,14 @@
   xmlns:http="http://cxf.apache.org/transports/http/configuration"
   xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
   xsi:schemaLocation="
+           http://cxf.apache.org/configuration/security
+           http://cxf.apache.org/schemas/configuration/security.xsd
            http://cxf.apache.org/transports/http/configuration
-              http://cxf.apache.org/schema/transports/http.xsd
+           http://cxf.apache.org/schemas/configuration/http-conf.xsd
            http://www.springframework.org/schema/beans
-              http://www.springframework.org/schema/beans/spring-beans.xsd">
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <http:conduit id="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit">
+  <http:conduit name="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit">
     <http:tlsClientParameters>
       <sec:trustManagers>
           <sec:keyStore type="JKS" password="password"

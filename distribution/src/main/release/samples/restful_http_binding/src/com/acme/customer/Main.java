@@ -59,6 +59,8 @@ public final class Main {
         serveHTML();
         
         System.out.println("Started CustomerService!");
+    
+        System.out.println("Server ready...");
     }
 
     private static void createRestService(Object serviceObj) {
