@@ -41,17 +41,24 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
+    String classPath = "";
     private WSDLHelper wsdlHelper = new WSDLHelper();
-
-    @After
-    public void tearDown() {
+    @Before
+    public void startUp() throws Exception {
         env = new ToolContext();
+        classPath = System.getProperty("java.class.path");
+        System.setProperty("java.class.path", getClassPath());
+    }
+    @After
+    public void tearDown() {      
         super.tearDown();
+        System.setProperty("java.class.path", classPath);
     }
         
     @Test
@@ -273,5 +280,19 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File responseWrapperClass = new File(output, pkgBase + "/AddResponse.java");
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
+    }
+    
+    
+    @Test
+    //test for CXF-704 and CXF-705
+    public void testHello() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.Hello");
+        processor.setEnvironment(env);
+        processor.process();
+        
+        File wsdlFile = new File(output, "hello.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+
     }
 }

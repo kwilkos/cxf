@@ -33,16 +33,20 @@ import org.junit.Test;
 
 public class WrapperBeanGeneratorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
+    String classPath = "";
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        classPath = System.getProperty("java.class.path");
+        System.setProperty("java.class.path", getClassPath());
         processor.setEnvironment(env);
     }
 
     @After
     public void tearDown() {
         super.tearDown();
+        System.setProperty("java.class.path", classPath);
     }
     
     private ServiceInfo getServiceInfo() {

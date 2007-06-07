@@ -30,6 +30,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator.WrapperBeanAnnotator;
@@ -132,7 +133,11 @@ public class Wrapper {
     }
 
     protected String getPackageName(final Method m) {
-        return m.getDeclaringClass().getPackage().getName();
+        Package pkg = m.getDeclaringClass().getPackage();
+        if (pkg == null) {
+            return ToolConstants.DEFAULT_PACKAGE_NAME;
+        }
+        return pkg.getName();
     }
 
     public boolean isWrapperAbsent() {

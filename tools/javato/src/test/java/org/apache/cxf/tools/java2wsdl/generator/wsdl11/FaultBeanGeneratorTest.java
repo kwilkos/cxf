@@ -34,16 +34,19 @@ import org.junit.Test;
 
 public class FaultBeanGeneratorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
-
+    String classPath = "";
     @Before
     public void setUp() throws Exception {
         super.setUp();
+        classPath = System.getProperty("java.class.path");
+        System.setProperty("java.class.path", getClassPath());
         processor.setEnvironment(env);
     }
 
     @After
     public void tearDown() {
-        super.tearDown();
+        //super.tearDown();
+        System.setProperty("java.class.path", classPath);
     }
     
     private ServiceInfo getServiceInfo() {
@@ -61,7 +64,7 @@ public class FaultBeanGeneratorTest extends ProcessorTestBase {
         generator.generate(output);
 
         String pkgBase = "org/apache/cxf/tools/fortest/cxf523/jaxws";
-        assertEquals(1, new File(output, pkgBase).listFiles().length);
+        assertEquals(2, new File(output, pkgBase).listFiles().length);
         File faultBeanClass = new File(output, pkgBase + "/DBServiceFaultBean.java");
         assertTrue(faultBeanClass.exists());
 
@@ -80,7 +83,7 @@ public class FaultBeanGeneratorTest extends ProcessorTestBase {
         generator.generate(output);
 
         String pkgBase = "org/apache/cxf/tools/fortest/jaxws/rpc/types";
-        assertEquals(1, new File(output, pkgBase).listFiles().length);
+        assertEquals(2, new File(output, pkgBase).listFiles().length);
         File faultBeanClass = new File(output, pkgBase + "/FaultDetail.java");
         assertTrue(faultBeanClass.exists());
 
