@@ -89,9 +89,17 @@ public class ServiceInfo extends AbstractDescriptionElement {
     }
     
     public Map<QName, MessageInfo> getMessages() {
-        if (messages != null) {
-            return messages;            
+        if (messages == null) {
+            initMessagesMap();           
         }
+        return messages;
+    }
+    
+    public MessageInfo getMessage(QName qname) {
+        return getMessages().get(qname);
+    }
+    
+    private void initMessagesMap() {
         messages = new ConcurrentHashMap<QName, MessageInfo>();
         for (OperationInfo operation : getInterface().getOperations()) {
             if (operation.getInput() != null) {
@@ -100,12 +108,18 @@ public class ServiceInfo extends AbstractDescriptionElement {
             if (operation.getOutput() != null) {
                 messages.put(operation.getOutput().getName(), operation.getOutput());
             }
-        }
-        return messages;
+        }       
     }
     
-    public MessageInfo getMessage(QName qname) {
-        return getMessages().get(qname);
+    public void setMessages(Map<QName, MessageInfo> msgs) {
+        messages = msgs;
+    }
+    
+    public void addMessage(MessageInfo msg) {
+        if (messages == null) {
+            initMessagesMap();           
+        }
+        messages.put(msg.getName(), msg);
     }
     
     public void addSchema(SchemaInfo schemaInfo) {

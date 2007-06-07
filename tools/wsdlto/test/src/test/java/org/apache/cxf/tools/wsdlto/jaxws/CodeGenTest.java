@@ -78,7 +78,68 @@ public class CodeGenTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
+    
+    @Test
+    public void testHeaderFromAnotherNamespace() throws Exception {
 
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/pizza.wsdl"));
+        env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "TRUE");
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        Class clz = classLoader.loadClass("com.mypizzaco.pizza.PizzaPortType");      
+        
+        Method meths[] = clz.getMethods();
+        for (Method m : meths) {
+            if ("orderPizzaBroken".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(2, annotations.length);
+                for (int i = 0; i < 2; i++) {
+                    assertTrue(annotations[i][0] instanceof WebParam);
+                    WebParam parm = (WebParam)annotations[i][0];
+                    if ("OrderPizza".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("OrderPizza", parm.name());
+                        assertTrue(!parm.header());                       
+                    } else if ("CallerIDHeader".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("callerID", parm.partName());
+                        assertEquals("CallerIDHeader", parm.name());
+                        assertTrue(parm.header());                       
+                    } else {
+                        fail("No WebParam found!");
+                    }
+                }
+           
+            }
+            if ("orderPizza".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(2, annotations.length);
+                for (int i = 0; i < 2; i++) {
+                    assertTrue(annotations[i][0] instanceof WebParam);
+                    WebParam parm = (WebParam)annotations[i][0];
+                    if ("OrderPizza".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("OrderPizza", parm.name());
+                        assertTrue(!parm.header());                       
+                    } else if ("CallerIDHeader".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("callerID", parm.partName());
+                        assertEquals("CallerIDHeader", parm.name());
+                        assertTrue(parm.header());                       
+                    } else {
+                        fail("No WebParam found!");
+                    }
+                }
+           
+            } 
+        }
+
+
+    }
+    
     @Test
     public void testRPCLit() throws Exception {
 

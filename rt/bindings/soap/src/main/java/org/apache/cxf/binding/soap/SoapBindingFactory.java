@@ -19,12 +19,16 @@
 
 package org.apache.cxf.binding.soap;
 
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOutput;
+import javax.wsdl.Definition;
+import javax.wsdl.Part;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -82,7 +86,10 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.MultipleEndpointObserver;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 
+import static org.apache.cxf.helpers.CastUtils.cast;
 
 public class SoapBindingFactory extends AbstractBindingFactory {
 
@@ -365,7 +372,43 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         return sb;
     }
+    
+    protected void addMessageFromBinding(ExtensibilityElement ext, ServiceInfo serviceInfo) {
+        SoapHeader header = SOAPBindingUtil.getSoapHeader(ext);
 
+        if (header != null && serviceInfo.getMessage(header.getMessage()) == null) {
+            Definition def = (Definition)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_DEFINITION);
+            XmlSchemaCollection schemas = (XmlSchemaCollection)serviceInfo
+            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+            
+            if (def != null && schemas != null) {
+                javax.wsdl.Message msg = def.getMessage(header.getMessage());
+
+                MessageInfo minfo = new MessageInfo(null, msg.getQName());
+                buildMessage(minfo, msg, schemas);
+                
+                serviceInfo.addMessage(minfo);
+            }
+        }
+    }
+    
+    private void buildMessage(MessageInfo minfo, javax.wsdl.Message msg,
+                              XmlSchemaCollection schemas) {
+        for (Part part : cast(msg.getParts().values(), Part.class)) {
+            MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
+                .getName()));
+            if (part.getTypeName() != null) {
+                pi.setTypeQName(part.getTypeName());
+                pi.setElement(false);
+                pi.setXmlSchema(schemas.getTypeByQName(part.getTypeName()));
+            } else {
+                pi.setElementQName(part.getElementName());
+                pi.setElement(true);
+                pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
+            }
+        }
+    }
+   
     public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding, String ns) {
         SoapBindingInfo bi = new SoapBindingInfo(service, ns);
         // Copy all the extensors
@@ -373,6 +416,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     
         SoapBinding wSoapBinding
             = SOAPBindingUtil.getSoapBinding(bi.getExtensors(ExtensibilityElement.class));
+       
         
         bi.setTransportURI(wSoapBinding.getTransportURI());
         bi.setStyle(wSoapBinding.getStyle());
@@ -383,6 +427,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     
         return bi;
     }
+    
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
 

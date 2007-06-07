@@ -241,7 +241,7 @@ public class WSDLServiceBuilder {
                 service = new ServiceInfo();
                 service.setDescription(description);
                 description.getDescribed().add(service);
-                service.setProperty(WSDL_DEFINITION, def);
+                service.setProperty(WSDL_DEFINITION, def);               
                 service.setProperty(WSDL_SERVICE, serv);
 
                 XmlSchemaCollection schemas = getSchemas(def, service);

@@ -100,7 +100,7 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
 
     protected BindingInfo initializeBindingInfo(ServiceInfo service, Binding binding, BindingInfo bi) {
         bi.setName(binding.getQName());
-        copyExtensors(bi, binding.getExtensibilityElements());
+        copyExtensors(bi, binding.getExtensibilityElements(), service);
 
         for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
             String inName = null;
@@ -122,30 +122,36 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
                 }
             }
             if (bop2 != null) {
-                copyExtensors(bop2, bop.getExtensibilityElements());
+                copyExtensors(bop2, bop.getExtensibilityElements(), service);
                 if (bop.getBindingInput() != null) {
-                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
+                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements(), service);
                 }
                 if (bop.getBindingOutput() != null) {
-                    copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
+                    copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements(),
+                                  service);
                 }
                 for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
                     copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(), f.getName())),
-                                  bop.getBindingFault(f.getName()).getExtensibilityElements());
+                                  bop.getBindingFault(f.getName()).getExtensibilityElements(), service);
                 }
             }
         }
         return bi;
     }
 
-    private void copyExtensors(AbstractPropertiesHolder info, List<?> extList) {
+    private void copyExtensors(AbstractPropertiesHolder info, List<?> extList, ServiceInfo service) {
         if (info != null) {
             for (ExtensibilityElement ext : cast(extList, ExtensibilityElement.class)) {
                 info.addExtensor(ext);
+                addMessageFromBinding(ext, service);
             }
         }
     }
-
+    
+    protected void addMessageFromBinding(ExtensibilityElement ext, ServiceInfo serviceInfo) {
+        
+    }
+    
     public void addListener(Destination d, Endpoint e) {
         ChainInitiationObserver observer = new ChainInitiationObserver(e, bus);
         

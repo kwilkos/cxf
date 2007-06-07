@@ -485,6 +485,7 @@ public class ServiceProcessor extends AbstractProcessor {
             // different message
             // other than messages used in porttype operation
             ParameterProcessor processor = new ParameterProcessor(context);
+           
             MessagePartInfo exPart = service.getMessage(soapHeader.getMessage())
                 .getMessagePart(new QName(soapHeader.getMessage().getNamespaceURI(),
                                           soapHeader.getPart()));
