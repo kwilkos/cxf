@@ -314,5 +314,12 @@
   <properties>
     <surefire.fork.mode>pertest</surefire.fork.mode>
   </properties>
+
+  <repositories>
+        <repository>
+            <id>apache-incubator</id>
+            <url>http://people.apache.org/repo/m2-incubating-repository</url>
+        </repository>
+    </repositories>
   
 </project>
