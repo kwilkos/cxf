@@ -239,7 +239,7 @@ public class CXFServiceUnit {
                 LOG.severe(new Message("SU.COULDNOT.GET.ANNOTATION", LOG).toString());
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         } 
         return doc;
     } 

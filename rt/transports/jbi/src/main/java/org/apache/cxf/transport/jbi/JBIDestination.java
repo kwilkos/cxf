@@ -20,6 +20,7 @@
 package org.apache.cxf.transport.jbi;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -170,8 +171,8 @@ public class JBIDestination extends AbstractDestination {
 
     public void dispatch(MessageExchange exchange) throws IOException {
         QName opName = exchange.getOperation(); 
-        getLogger().fine("dispatch method: " + opName);
-        
+        getLogger().info("dispatch method: " + opName);
+                
         NormalizedMessage nm = exchange.getMessage("in");
         try {
             //get the message to be interceptor
@@ -181,7 +182,10 @@ public class JBIDestination extends AbstractDestination {
             
             XMLStreamReader reader = StaxUtils.createXMLStreamReader(nm.getContent());
             inMessage.setContent(XMLStreamReader.class, reader);
+            final InputStream in = JBIMessageHelper.convertMessageToInputStream(nm.getContent());
+            //get the message to be interceptor
             
+            inMessage.setContent(InputStream.class, in);
                                            
             //dispatch to correct destination in case of multiple endpoint
             inMessage.setDestination(this);

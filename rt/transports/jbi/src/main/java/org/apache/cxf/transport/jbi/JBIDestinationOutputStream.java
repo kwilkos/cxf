@@ -99,6 +99,7 @@ public class JBIDestinationOutputStream extends AbstractCachedOutputStream {
                     NormalizedMessage msg = xchng.createMessage();
                     msg.setContent(new DOMSource(doc));
                     xchng.setMessage(msg, "out");
+                    
                 }
                 LOG.fine(new org.apache.cxf.common.i18n.Message(
                     "POST.DISPATCH", LOG).toString());

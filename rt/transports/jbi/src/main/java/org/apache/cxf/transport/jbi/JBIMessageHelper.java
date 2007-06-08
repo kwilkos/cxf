@@ -23,8 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Logger;
-
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -32,12 +30,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
+
 
 public final class JBIMessageHelper {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(JBIMessageHelper.class);
 
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
@@ -53,8 +49,7 @@ public final class JBIMessageHelper {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         StreamResult result = new StreamResult(baos);
         transformer.transform(src, result);
-        LOG.info(new Message("RECEIVED.MESSAGE", LOG) + new String(baos.toByteArray()));
-
+        
         return new ByteArrayInputStream(baos.toByteArray());
     }
 }

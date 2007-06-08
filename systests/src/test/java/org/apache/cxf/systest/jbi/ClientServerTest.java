@@ -87,9 +87,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
                                                     "endpoint");
         
         container.activateComponent(new ActivationSpec("component", component));
-        /*component.getContext().activateEndpoint(new QName("http://apache.org/hello_world/jbi", 
-            "HelloWorldService"), 
-            "endpoint");*/
+        
         DeliveryChannel channel = component.getChannel();
         JBITransportFactory jbiTransportFactory = 
             (JBITransportFactory)bus.getExtension(ConduitInitiatorManager.class).
@@ -105,10 +103,12 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         EndpointImpl e = (EndpointImpl)Endpoint.publish(address, implementor);
         e.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
         e.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());
-                   
+        
         port.greetMeOneWay("test");
         String rep = port.greetMe("ffang");
         assertEquals(rep, "Hello ffang");
+        rep = port.sayHi();
+        assertEquals(rep, "Bonjour");
         try {
             port.pingMe();
             fail();
