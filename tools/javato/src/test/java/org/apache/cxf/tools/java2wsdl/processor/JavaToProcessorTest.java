@@ -26,10 +26,6 @@ import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.binding.BindingConfiguration;
-import org.apache.cxf.binding.soap.Soap11;
-import org.apache.cxf.binding.soap.Soap12;
-import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -42,7 +38,6 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -112,26 +107,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
-    public void testGetBindingConfig() throws Exception {
-        env.put(ToolConstants.CFG_CLASSNAME,
-                    "org.apache.cxf.tools.fortest.withannotation.doc.Stock12Impl");
-        processor.setEnvironment(env);
-        BindingConfiguration config = processor.getBindingConfig();
-        assertTrue(config instanceof SoapBindingConfiguration);
-        
-        assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
-
-        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
-        config = processor.getBindingConfig();
-        assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap11);
-
-        env.put(ToolConstants.CFG_SOAP12, "soap12");
-        config = processor.getBindingConfig();
-        assertTrue(((SoapBindingConfiguration)config).getVersion() instanceof Soap12);
-    }
-
-    @Test
-    @Ignore
+    // TODO the generated wsdl has two faultDetail elements
     public void testSOAP12() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");
@@ -221,7 +197,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
-    @Ignore
     public void testSetServiceName() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");

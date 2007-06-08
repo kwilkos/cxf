@@ -62,7 +62,6 @@ public final class WSDLConstants {
     }
 
     public static final String NS_SOAP11_HTTP_BINDING = "http://schemas.xmlsoap.org/soap/http";
-    //public static final String SOAP_HTTP_TRANSPORT =    "http://schemas.xmlsoap.org/soap/http";
     
     public static final QName NS_SOAP_BINDING = new QName(SOAP11_NAMESPACE, "binding");
     public static final QName NS_SOAP_OPERATION = new QName(SOAP11_NAMESPACE, "operation");

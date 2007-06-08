@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOutput;
 import javax.wsdl.Definition;
@@ -85,6 +84,7 @@ import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.MultipleEndpointObserver;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -99,7 +99,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     public static final String MESSAGE_PROCESSING_DISABLED = "disable.header.processing";
     
     private boolean mtomEnabled = true;
-    
+
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object conf) {
         SoapBindingConfiguration config;
         if (conf instanceof SoapBindingConfiguration) {
@@ -107,9 +107,10 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else {
             config = new SoapBindingConfiguration();
         }
-        if (bindingid.equals(SOAP_12_BINDING) 
-            || "http://www.w3.org/2003/05/soap/bindings/HTTP/".equals(bindingid)) {
+        if (WSDLConstants.SOAP12_NAMESPACE.equals(bindingid)
+            || WSDLConstants.SOAP12_HTTP_TRANSPORT.equals(bindingid)) {
             config.setVersion(Soap12.getInstance());
+            config.setTransportURI(WSDLConstants.SOAP12_HTTP_TRANSPORT);
         }
         SoapBindingInfo info = new SoapBindingInfo(si,
                                                    bindingid,

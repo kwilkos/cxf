@@ -29,14 +29,9 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingConfiguration;
-import org.apache.cxf.binding.soap.Soap11;
-import org.apache.cxf.binding.soap.Soap12;
-import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.Processor;
@@ -69,6 +64,11 @@ public class JavaToProcessor implements Processor {
             EndpointInfo einfo = service.getEndpoints().iterator().next();
             QName qn = new QName(einfo.getName().getNamespaceURI(), portName); 
             einfo.setName(qn);
+        }
+
+        if (context.containsKey(ToolConstants.CFG_SERVICENAME)) {
+            String svName = getServiceName();
+            service.setName(new QName(service.getName().getNamespaceURI(), svName));
         }
     }
     
@@ -137,17 +137,8 @@ public class JavaToProcessor implements Processor {
         }
         builder.setTransportId(getTransportId());
         builder.setBus(getBus());
-        builder.setBindingConfig(getBindingConfig());
+        builder.setBindingId(getBindingId());
 
-        ReflectionServiceFactoryBean serviceFactory = builder.getServiceFactory();
-
-        if (!StringUtils.isEmpty(getServiceName())) {
-            QName serviceQName = serviceFactory.getServiceQName();
-            if (serviceQName != null) {
-                serviceFactory.setServiceName(new QName(serviceQName.getNamespaceURI(), getServiceName()));
-            }
-        }
-        
         return builder;
     }
 
@@ -157,18 +148,15 @@ public class JavaToProcessor implements Processor {
         }
         return WSDLConstants.SOAP11_NAMESPACE;
     }
-    
-    protected BindingConfiguration getBindingConfig() {
-        SoapBindingConfiguration bindingConfig = new SoapBindingConfiguration();
-        if (isSOAP12()) {
-            bindingConfig.setVersion(Soap12.getInstance());
-            bindingConfig.setTransportURI(WSDLConstants.SOAP12_HTTP_TRANSPORT);
-        } else {
-            bindingConfig.setVersion(Soap11.getInstance());
-        }
-        return bindingConfig;
-    }
 
+    protected String getBindingId() {
+        if (isSOAP12()) {
+            return WSDLConstants.SOAP12_NAMESPACE;
+        } else {
+            return WSDLConstants.SOAP11_NAMESPACE;
+        }
+    }
+    
     protected boolean isSOAP12() {
         if (!this.context.optionSet(ToolConstants.CFG_SOAP12)) {
             BindingType bType = getServiceClass().getAnnotation(BindingType.class);
