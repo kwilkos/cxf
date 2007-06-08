@@ -30,17 +30,18 @@ import javax.xml.ws.WebServiceProvider;
 @WebServiceProvider(portName = "SoapPort1", serviceName = "SOAPService1",
                       targetNamespace = "http://apache.org/hello_world_soap_http",
                       wsdlLocation = "wsdl/hello_world.wsdl")
-@ServiceMode(value = Service.Mode.MESSAGE)            
+@ServiceMode(value = Service.Mode.MESSAGE)
 public class GreeterSoapMessageProvider implements Provider<SOAPMessage> {
 
     public GreeterSoapMessageProvider() {
         //Complete
     }
-    
+
     public SOAPMessage invoke(SOAPMessage request) {
-        SOAPMessage response = null;        
+        SOAPMessage response = null;
         try {
-            MessageFactory factory = MessageFactory.newInstance();            
+            System.out.println("Incoming Client Request as a SOAPMessage");
+            MessageFactory factory = MessageFactory.newInstance();
             InputStream is = getClass().getResourceAsStream("GreetMeDocLiteralResp1.xml");
             response =  factory.createMessage(null, is);
             is.close();
