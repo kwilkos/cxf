@@ -17,21 +17,22 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.io.File;
-import javax.jws.WebService;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.frontend.AbstractServiceFactory;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
-import org.apache.cxf.tools.util.AnnotationUtil;
 
-public class JaxwsServiceBuilder extends ServiceBuilder {
+public class JaxwsServiceBuilder extends AbstractServiceFactory {
+
+    final JaxWsServiceFactoryBean serviceFactory;
     
     public JaxwsServiceBuilder() {
         super();
-        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory = new JaxWsServiceFactoryBean();
         //As this is a javatowsdl tool, explictly populate service model from class
         serviceFactory.setPopulateFromClass(true);
         
@@ -39,11 +40,8 @@ public class JaxwsServiceBuilder extends ServiceBuilder {
     }
 
     public File getOutputFile() {
-        WebService webService = AnnotationUtil.getPrivClassAnnotation(getServiceClass(), WebService.class);
-        if (webService == null) {
-            return null;
-        }
-        String wsdlLocation = webService.wsdlLocation();
+        JaxWsImplementorInfo jaxwsImpl = serviceFactory.getJaxWsImplementorInfo();
+        String wsdlLocation = jaxwsImpl.getWsdlLocation();
         if (!StringUtils.isEmpty(wsdlLocation)) {
             return new File(wsdlLocation);
         }

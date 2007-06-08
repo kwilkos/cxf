@@ -17,12 +17,12 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.java2wsdl.processor.internal.simple;
+package org.apache.cxf.simple;
 
+import org.apache.cxf.frontend.AbstractServiceFactory;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
 
-public class SimpleServiceBuilder extends ServiceBuilder {
+public class SimpleServiceBuilder extends AbstractServiceFactory {
     
     public SimpleServiceBuilder() {
         super();

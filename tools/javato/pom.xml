@@ -80,14 +80,15 @@
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-tools-common</artifactId>
-                </exclusion>
-            </exclusions>
+	    <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -113,7 +114,10 @@
             <artifactId>jaxb-impl</artifactId>
         </dependency>
 
-
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+        </dependency>
 
     </dependencies>
 

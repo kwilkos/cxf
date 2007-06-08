@@ -22,6 +22,7 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 import java.io.File;
 
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.jaxws.JaxwsServiceBuilder;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
@@ -49,7 +50,7 @@ public class JaxwsServiceBuilderRPCTest extends ProcessorTestBase {
     @Test
     public void testGreeter() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.jaxws.rpc.Greeter.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
         generator.setServiceModel(service);
         File output = getOutputFile("rpc_greeter.wsdl");
         assertNotNull(output);

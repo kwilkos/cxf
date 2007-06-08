@@ -19,17 +19,19 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal;
 
-import junit.framework.TestCase;
-
+import org.apache.cxf.jaxws.JaxwsServiceBuilder;
+import org.apache.cxf.service.ServiceBuilder;
+import org.apache.cxf.simple.SimpleServiceBuilder;
 import org.apache.cxf.tools.fortest.classnoanno.docbare.Stock;
 import org.apache.cxf.tools.fortest.simple.Hello;
 import org.apache.cxf.tools.java2wsdl.processor.FrontendFactory;
-import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.JaxwsServiceBuilder;
-import org.apache.cxf.tools.java2wsdl.processor.internal.simple.SimpleServiceBuilder;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ServiceBuilderFactoryTest extends TestCase {
+public class ServiceBuilderFactoryTest extends Assert {
     ServiceBuilderFactory factory = ServiceBuilderFactory.getInstance();
-    
+
+    @Test
     public void testGetBuilderClassName() {
         assertNotNull(factory);
         assertEquals(JaxwsServiceBuilder.class.getName(),
@@ -39,6 +41,7 @@ public class ServiceBuilderFactoryTest extends TestCase {
                      factory.getBuilderClassName(FrontendFactory.Style.Simple));
     }
 
+    @Test
     public void testGetJaxwsBuilder() {
         factory.setServiceClass(Stock.class);
         ServiceBuilder builder = factory.newBuilder();
@@ -46,6 +49,7 @@ public class ServiceBuilderFactoryTest extends TestCase {
         assertTrue(builder instanceof JaxwsServiceBuilder);
     }
 
+    @Test
     public void testGetSimpleBuilder() {
         factory.setServiceClass(Hello.class);
         ServiceBuilder builder = factory.newBuilder();

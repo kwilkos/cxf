@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxws.JaxwsServiceBuilder;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ProcessorTestBase;
@@ -70,7 +71,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Test
     public void testDocLitWrappedWithWrapperClass() {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.StockWrapped.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
         generator.setServiceModel(service);
         File output = getOutputFile("doc_lit_wrapped_with_wrapperclass.wsdl");
         assertNotNull(output);
@@ -85,7 +86,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Test
     public void testDocLitWrappedWithoutWrapperClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File output = getOutputFile("doc_lit_wrapped_no_wrapperclass.wsdl");
@@ -102,7 +103,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Test
     public void testDocLitWrapped() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
         generator.setServiceModel(service);
         File output = getOutputFile("hello_doc_lit.wsdl");
         assertNotNull(output);
@@ -119,7 +120,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     //contain namespace
     public void testDocWrappedWithLocalName() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Stock.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File output = getOutputFile("doc_lit_wrapped_localName.wsdl");
@@ -137,7 +138,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     //contain namespace
     public void testDocWrappedNoWebParam() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWithNoWebParam.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File output = getOutputFile("doc_lit_wrapped_no_webparam.wsdl");
@@ -155,7 +156,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     //"invalid XML schema: "header" must refer to an existing element"
     public void testHolder() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.holder.HolderService.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File output = getOutputFile("holder.wsdl");
@@ -171,7 +172,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Test
     public void testAsync() throws Exception {
         builder.setServiceClass(org.apache.hello_world_async_soap_http.GreeterAsync.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
         generator.setServiceModel(service);
         File output = getOutputFile("hello_async.wsdl");
         assertNotNull(output);
@@ -187,7 +188,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void testRPCLit() throws Exception {
         builder.setServiceClass(GreeterRPCLit.class);
         builder.setAddress("http://localhost");
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File file = getOutputFile("rpc_lit.wsdl");
@@ -205,7 +206,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void testDocWrapparBare() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_wrapped_bare.Greeter.class);
         builder.setAddress("http://localhost");
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File file = getOutputFile("doc_wrapped_bare.wsdl");
@@ -219,7 +220,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Ignore
     public void testRPCWithoutParentBindingAnnotation() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.Hello.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File file = getOutputFile("rpc_lit_service_no_anno.wsdl");
@@ -234,7 +235,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Ignore
     public void testSOAPBindingRPCOnMethod() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.HelloWrongAnnotation.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File file = getOutputFile("rpc_on_method.wsdl");
@@ -248,7 +249,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     public void testSoapHeader() throws Exception {
 
         builder.setServiceClass(org.apache.samples.headers.HeaderTester.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File file = getOutputFile("soap_header.wsdl");
@@ -267,7 +268,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         Class clz = AnnotationUtil.loadClass("org.apache.cxf.tools.fortest.cxf188.Demo", getClass()
             .getClassLoader());
         builder.setServiceClass(clz);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         generator.setServiceModel(service);
         File file = getOutputFile("cxf188.wsdl");
@@ -279,7 +280,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     @Test
     public void testRpcLitNoSEI() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.EchoImpl.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
         assertNotNull(service);
 
         assertEquals(new QName("http://cxf.apache.org/echotest", "EchoService"),
@@ -309,7 +310,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.setAllowImports(true);
         
         builder.setServiceClass(org.apache.cxf.tools.fortest.cxf669.HelloImpl.class);
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
         assertNotNull(service);
         assertEquals(new QName("http://foo.com/HelloWorldService", "HelloService"), service.getName());
         assertEquals(new QName("http://foo.com/HelloWorld", "HelloWorld"), service.getInterface().getName());

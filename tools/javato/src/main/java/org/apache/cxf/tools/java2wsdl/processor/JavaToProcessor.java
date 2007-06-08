@@ -32,6 +32,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.service.ServiceBuilder;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.Processor;
@@ -42,7 +43,6 @@ import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.WSDLGeneratorFactory;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.FaultBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WrapperBeanGenerator;
-import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilderFactory;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.wsdl.WSDLConstants;
@@ -79,7 +79,7 @@ public class JavaToProcessor implements Processor {
             System.setProperty("java.class.path", newCp + File.pathSeparator + oldClassPath);
         }
         ServiceBuilder builder = getServiceBuilder();
-        ServiceInfo service = builder.build();
+        ServiceInfo service = builder.createService();
 
         customize(service);
 

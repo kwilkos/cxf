@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import junit.framework.TestCase;
+import org.apache.cxf.jaxws.JaxwsServiceBuilder;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -36,7 +37,7 @@ public class RequestWrapperTest extends TestCase {
 
     private OperationInfo getOperation(Class clz, String opName) {
         builder.setServiceClass(clz);
-        ServiceInfo serviceInfo = builder.build();
+        ServiceInfo serviceInfo = builder.createService();
 
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null

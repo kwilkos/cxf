@@ -50,7 +50,7 @@ public class FaultBeanGeneratorTest extends ProcessorTestBase {
     }
     
     private ServiceInfo getServiceInfo() {
-        return processor.getServiceBuilder().build();
+        return processor.getServiceBuilder().createService();
     }
     
     @Test

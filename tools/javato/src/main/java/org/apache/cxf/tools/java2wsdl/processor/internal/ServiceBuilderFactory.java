@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal;
 
+import org.apache.cxf.service.ServiceBuilder;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.java2wsdl.processor.FrontendFactory;
 
@@ -51,12 +52,12 @@ public final class ServiceBuilderFactory {
             throw new ToolException("Can not find the ServiceBulider for style: " + s, e);
         }
         builder.setServiceClass(serviceClass);
-        builder.getServiceFactory().setServiceClass(serviceClass);
+        //builder.getServiceFactory().setServiceClass(serviceClass);
         return builder;
     }
 
     protected String getBuilderClassName(FrontendFactory.Style s) {
-        String pkgName = getClass().getPackage().getName();
+        String pkgName = "org.apache.cxf";
         return pkgName + "." + s.toString().toLowerCase() + "." + s + "ServiceBuilder";
     }
 
