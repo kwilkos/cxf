@@ -20,14 +20,17 @@
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
-import junit.framework.TestCase;
+
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class WrapperUtilTest extends TestCase {
+public class WrapperUtilTest extends Assert {
     String pkgName = "org.apache.cxf.tools.fortest.classnoanno.docwrapped";
     Class stockClass;
     Method method;
-    
+
+    @Before
     public void setUp() throws Exception {
         stockClass = Class.forName(pkgName + ".Stock");
         assertNotNull(stockClass);

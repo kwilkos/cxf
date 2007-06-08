@@ -22,11 +22,11 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 import java.lang.reflect.Method;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.model.JavaClass;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class WrapperTest extends TestCase {
+public class WrapperTest extends Assert {
     @Test
     public void testGetWrapperBeanClassFromQName() {
         QName qname = new QName("http://cxf.apache.org", "sayHi");

@@ -21,15 +21,16 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
 import org.apache.cxf.jaxws.JaxwsServiceBuilder;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.model.JavaField;
+import org.apache.cxf.tools.fortest.withannotation.doc.GreeterArray;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class ResponseWrapperTest extends TestCase {
+public class ResponseWrapperTest extends Assert {
     JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
 
     private OperationInfo getOperation(Class clz, String opName) {
@@ -48,7 +49,7 @@ public class ResponseWrapperTest extends TestCase {
     @Test
     public void testBuildFields() {
         // Test String[]
-        Class testingClass = org.apache.cxf.tools.fortest.withannotation.doc.GreeterArray.class;
+        Class testingClass = GreeterArray.class;
         OperationInfo opInfo = getOperation(testingClass, "sayStringArray");
         assertNotNull(opInfo);
         

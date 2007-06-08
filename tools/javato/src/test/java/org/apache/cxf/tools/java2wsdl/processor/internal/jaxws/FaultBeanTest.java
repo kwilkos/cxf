@@ -22,12 +22,12 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class FaultBeanTest extends TestCase {
+public class FaultBeanTest extends Assert {
 
     @Test
     public void testTransform() throws Exception {

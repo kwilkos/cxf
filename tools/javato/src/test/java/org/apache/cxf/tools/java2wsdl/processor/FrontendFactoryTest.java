@@ -19,25 +19,29 @@
 
 package org.apache.cxf.tools.java2wsdl.processor;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.tools.fortest.classnoanno.docbare.Stock;
 import org.apache.cxf.tools.fortest.simple.Hello;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class FrontendFactoryTest extends TestCase {
+public class FrontendFactoryTest extends Assert {
 
     FrontendFactory factory = FrontendFactory.getInstance();
-    
+
+    @Test
     public void testDefaultStyle() {
         factory.setServiceClass(null);
         assertEquals(FrontendFactory.Style.Jaxws, factory.discoverStyle());
     }
 
+    @Test
     public void testJaxwsStyle() {
         factory.setServiceClass(Stock.class);
         assertEquals(FrontendFactory.Style.Jaxws, factory.discoverStyle());
     }
 
+    @Test
     public void testSimpleStyle() {
         factory.setServiceClass(Hello.class);
         assertEquals(FrontendFactory.Style.Simple, factory.discoverStyle());
