@@ -38,6 +38,7 @@ public class JBIBindingFactory extends AbstractBindingFactory {
 
     public Binding createBinding(BindingInfo binding) {
         JBIBinding jb = new JBIBinding((JBIBindingInfo) binding);
+        jb.getInInterceptors().add(new StaxInInterceptor());
         jb.getInInterceptors().add(new JBIOperationInInterceptor());
         jb.getInInterceptors().add(new JBIWrapperInInterceptor());
         jb.getOutInterceptors().add(new StaxOutInterceptor());
@@ -45,7 +46,6 @@ public class JBIBindingFactory extends AbstractBindingFactory {
         jb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         jb.getOutFaultInterceptors().add(new JBIFaultOutInterceptor());
         
-        jb.getInFaultInterceptors().add(new StaxInInterceptor());
         jb.getInFaultInterceptors().add(new JBIFaultInInterceptor());
         return jb;
     }

@@ -29,14 +29,13 @@ import javax.jbi.messaging.DeliveryChannel;
 import javax.jbi.messaging.MessageExchange;
 import javax.jbi.messaging.NormalizedMessage;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.staxutils.StaxUtils;
+
 
 
 import org.apache.cxf.transport.AbstractConduit;
@@ -182,8 +181,7 @@ public class JBIDestination extends AbstractDestination {
             
             final InputStream in = JBIMessageHelper.convertMessageToInputStream(nm.getContent());
             inMessage.setContent(InputStream.class, in);
-            XMLStreamReader reader = StaxUtils.createXMLStreamReader(in);
-            inMessage.setContent(XMLStreamReader.class, reader);                               
+                                           
             inMessage.setDestination(this);
             getMessageObserver().onMessage(inMessage);
             

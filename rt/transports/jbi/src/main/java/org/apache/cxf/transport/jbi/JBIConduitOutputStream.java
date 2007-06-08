@@ -34,7 +34,6 @@ import javax.jbi.messaging.MessageExchangeFactory;
 import javax.jbi.messaging.NormalizedMessage;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
@@ -44,7 +43,6 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
@@ -144,8 +142,7 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
                     }
                     inMessage.setContent(InputStream.class, ins);
                     
-                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(content);
-                    inMessage.setContent(XMLStreamReader.class, reader);
+                    
                     conduit.getMessageObserver().onMessage(inMessage);
                     
                     

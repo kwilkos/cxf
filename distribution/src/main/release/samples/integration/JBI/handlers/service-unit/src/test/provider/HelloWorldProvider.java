@@ -27,7 +27,7 @@ import org.apache.handlers.types.FaultDetail;
 @javax.jws.WebService(portName = "AddNumbersPort", serviceName = "AddNumbersService",
                       targetNamespace = "http://apache.org/handlers",
                       endpointInterface = "org.apache.handlers.AddNumbers",
-                      wsdlLocation = "/META-INF/addNumbers.wsdl")
+                      wsdlLocation = "./META-INF/addNumbers.wsdl")
 
 
 @HandlerChain(file = "../common/demo_handlers.xml", name = "DemoHandlerChain")

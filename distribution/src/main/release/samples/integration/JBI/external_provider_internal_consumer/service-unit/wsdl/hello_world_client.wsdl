@@ -28,7 +28,7 @@
     xmlns:x1="http://apache.org/hello_world/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xformat="http://cxf.apache.org/bindings/xformat"
-    xmlns:jbi="http://apache.org/transport/jbi"
+    xmlns:jbi="http://cxf.apache.org/transports/jbi"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
         <schema targetNamespace="http://apache.org/hello_world/types" 

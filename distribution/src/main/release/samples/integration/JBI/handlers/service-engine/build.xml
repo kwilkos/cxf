@@ -16,16 +16,17 @@
   specific language governing permissions and limitations
   under the License.
 -->
+
 <project name="jbi-demo-service-engine" default="build">
 
   <property name="build.dir" location="./build"/>
   <property name="build.classes.dir" location="${build.dir}/classes"/>
   <property name="build.lib.dir" location="${build.dir}/lib"/>
   <property name="src.dir" location="./src"/>
-  <property environment="env"/>
-  
+
+  <property environment="env"/> 
   <path id="build.classpath">
-    <fileset dir="${env.CXF_HOME}/lib">
+    <fileset dir="${env.CXF_HOME}/modules">
       <include name="cxf-manifest-incubator.jar"/>
     </fileset>
     <pathelement location="./build/classes"/>
@@ -38,7 +39,21 @@
 
     <jar destfile="${build.lib.dir}/cxf-service-engine.jar">
       <fileset dir="${env.CXF_HOME}/lib">
-	<include name="*.jar"/>
+	<include name="cxf-2.0-incubator-SNAPSHOT.jar"/>
+        <include name="cxf-manifest-incubator.jar"/>
+        <include name="jaxb*.jar"/>
+        <include name="neethi-2.0.jar"/>
+        <include name="jaxws-api-2.0.jar"/>
+        <include name="geronimo-annotation_1.0_spec-1.1.jar"/>
+        <include name="xml-resolver-1.2.jar"/>
+        <include name="saaj*.jar"/>
+        <include name="geronimo-ws-metadata_2.0_spec-1.1.jar"/>
+        <include name="XmlSchema-1.2.jar"/>
+        <include name="wstx-asl-3.2.1.jar"/>
+        <include name="wsdl4j-1.6.1.jar"/>
+      </fileset>
+      <fileset dir="${env.CXF_HOME}/modules/integration">
+        <include name="*.jar"/>
       </fileset>
       <metainf dir="./etc">
 	<include name="jbi.xml"/>
@@ -52,4 +67,5 @@
   </target>
 
 </project>
+
 

@@ -36,14 +36,14 @@ public class JBIBindingFactoryTest extends Assert {
         
         JBIBindingInfo info = new JBIBindingInfo(new ServiceInfo(), "id");
         Binding binding = new JBIBindingFactory().createBinding(info);
-        assertEquals(2, binding.getInInterceptors().size());
+        assertEquals(3, binding.getInInterceptors().size());
         //assertEquals(?, binding.getInFaultInterceptors().size());
         assertEquals(2, binding.getOutInterceptors().size());
         assertEquals(2, binding.getOutFaultInterceptors().size());
         assertEquals(JBIOperationInInterceptor.class.getName(), 
-                        binding.getInInterceptors().get(0).getClass().getName());
-        assertEquals(JBIWrapperInInterceptor.class.getName(), 
                         binding.getInInterceptors().get(1).getClass().getName());
+        assertEquals(JBIWrapperInInterceptor.class.getName(), 
+                        binding.getInInterceptors().get(2).getClass().getName());
         assertEquals(StaxOutInterceptor.class.getName(), 
                         binding.getOutInterceptors().get(0).getClass().getName());
         assertEquals(JBIWrapperOutInterceptor.class.getName(), 
