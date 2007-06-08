@@ -61,6 +61,11 @@ public final class Main {
         System.out.println("Started CustomerService!");
     
         System.out.println("Server ready...");
+
+        Thread.sleep(5 * 60 * 1000);
+        System.out.println("Server exiting");
+        System.exit(0);
+
     }
 
     private static void createRestService(Object serviceObj) {
@@ -122,6 +127,7 @@ public final class Main {
         sf.setServiceClass(CustomerService.class);
         sf.setAddress("http://localhost:8080/soap");
         sf.getServiceFactory().setInvoker(new BeanInvoker(serviceObj));
+        sf.getServiceFactory().setWrapped(false);
 
         sf.create();
     }

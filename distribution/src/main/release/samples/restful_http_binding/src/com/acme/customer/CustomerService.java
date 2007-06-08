@@ -28,7 +28,7 @@ import org.codehaus.jra.HttpResource;
 import org.codehaus.jra.Post;
 import org.codehaus.jra.Put;
 
-@WebService
+@WebService(targetNamespace = "http://customer.acme.com")
 public interface CustomerService {
 
     @Get
