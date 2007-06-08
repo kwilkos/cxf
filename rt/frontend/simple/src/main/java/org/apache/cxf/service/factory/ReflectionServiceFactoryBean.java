@@ -400,8 +400,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     QName wraperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
                     XmlSchemaElement e = null;
                     for (SchemaInfo s : serviceInfo.getSchemas()) {
-                        e = s.getElementByQName(wraperBeanName);
+                        e = s.getElementByQName(wraperBeanName);                        
                         if (e != null) {
+                            op.getInput().getMessageParts().get(0).setXmlSchema(e);
                             break;
                         }
                     }
@@ -672,6 +673,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
         }
+        
     }
 
     private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo, String namespaceURI) {
