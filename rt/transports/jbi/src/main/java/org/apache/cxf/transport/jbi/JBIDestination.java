@@ -175,19 +175,15 @@ public class JBIDestination extends AbstractDestination {
                 
         NormalizedMessage nm = exchange.getMessage("in");
         try {
-            //get the message to be interceptor
+
             MessageImpl inMessage = new MessageImpl();
             inMessage.put(MessageExchange.class, exchange);
-            //get the message to be interceptor
             
-            XMLStreamReader reader = StaxUtils.createXMLStreamReader(nm.getContent());
-            inMessage.setContent(XMLStreamReader.class, reader);
+            
             final InputStream in = JBIMessageHelper.convertMessageToInputStream(nm.getContent());
-            //get the message to be interceptor
-            
             inMessage.setContent(InputStream.class, in);
-                                           
-            //dispatch to correct destination in case of multiple endpoint
+            XMLStreamReader reader = StaxUtils.createXMLStreamReader(in);
+            inMessage.setContent(XMLStreamReader.class, reader);                               
             inMessage.setDestination(this);
             getMessageObserver().onMessage(inMessage);
             
