@@ -270,4 +270,22 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
 
     }
+    
+    public void testHelloNoPackage() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello-no-package.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "HelloNoPackage");
+        processor.setEnvironment(env);
+        processor.process();
+        
+        File wsdlFile = new File(output, "hello-no-package.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        
+        
+        String pkgBase = "defaultnamespace";
+        File requestWrapperClass = new File(output, pkgBase + "/SayHi.java");
+        File responseWrapperClass = new File(output, pkgBase + "/SayHiResponse.java");
+        assertTrue(requestWrapperClass.exists());
+        assertTrue(responseWrapperClass.exists());
+    }
+    
 }

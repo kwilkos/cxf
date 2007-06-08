@@ -73,6 +73,11 @@ public class JavaToProcessor implements Processor {
     }
     
     public void process() throws ToolException {
+        String oldClassPath = System.getProperty("java.class.path");
+        if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
+            String newCp = (String)context.get(ToolConstants.CFG_CLASSPATH);
+            System.setProperty("java.class.path", newCp + File.pathSeparator + oldClassPath);
+        }
         ServiceBuilder builder = getServiceBuilder();
         ServiceInfo service = builder.build();
 
@@ -88,6 +93,7 @@ public class JavaToProcessor implements Processor {
         generators.add(getFaultBeanGenerator());
         
         generate(service, outputDir);
+        System.setProperty("java.class.path", oldClassPath);
     }
 
     private AbstractGenerator getWrapperBeanGenerator() {
@@ -123,7 +129,7 @@ public class JavaToProcessor implements Processor {
     }
 
     public ServiceBuilder getServiceBuilder() throws ToolException {
-        init();
+        
         ServiceBuilderFactory builderFactory = ServiceBuilderFactory.getInstance();
         builderFactory.setServiceClass(getServiceClass());
         // TODO check if user specify the style from cli arguments
@@ -251,14 +257,6 @@ public class JavaToProcessor implements Processor {
 
     public ToolContext getEnvironment() {
         return this.context;
-    }
-
-    protected void init() {
-        if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
-            String newCp = (String)context.get(ToolConstants.CFG_CLASSPATH);
-            String classpath = System.getProperty("java.class.path");
-            System.setProperty("java.class.path", newCp + File.pathSeparator + classpath);
-        }
     }
 
 }

@@ -199,5 +199,5 @@ public final class ToolConstants {
 
     // Suppress the code generation, in this case you can just get the generated code model
     public static final String CFG_SUPPRESS_GEN = "suppress";
-    public static final String DEFAULT_PACKAGE_NAME = "DefaultNamespace";
+    public static final String DEFAULT_PACKAGE_NAME = "defaultnamespace";
 }
