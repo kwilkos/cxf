@@ -127,35 +127,7 @@
         </fileSet>
         <fileSet>
             <directory>target</directory>
-            <outputDirectory>apache-cxf-${cxf.version}/samples/integration/JBI/internal_provider_internal_consumer/service-engine/etc</outputDirectory>
-            <includes>
-                <include>jbi.xml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>target</directory>
-            <outputDirectory>apache-cxf-${cxf.version}/samples/integration/JBI/internal_provider_external_consumer/service-engine/etc</outputDirectory>
-            <includes>
-                <include>jbi.xml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>target</directory>
-            <outputDirectory>apache-cxf-${cxf.version}/samples/integration/JBI/external_provider_internal_consumer/service-engine/etc</outputDirectory>
-            <includes>
-                <include>jbi.xml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>target</directory>
-            <outputDirectory>apache-cxf-${cxf.version}/samples/integration/JBI/external_provider_external_consumer/service-engine/etc</outputDirectory>
-            <includes>
-                <include>jbi.xml</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>target</directory>
-            <outputDirectory>apache-cxf-${cxf.version}/samples/integration/JBI/handlers/service-engine/etc</outputDirectory>
+            <outputDirectory>apache-cxf-${cxf.version}/samples/integration/JBI/service-engine/etc</outputDirectory>
             <includes>
                 <include>jbi.xml</include>
             </includes>

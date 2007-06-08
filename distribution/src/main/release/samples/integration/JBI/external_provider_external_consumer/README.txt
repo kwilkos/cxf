@@ -63,7 +63,9 @@ Build Instructions
 Installation & Deployment
 -------------------------
 Ensure that the $SERVICEMIX_HOME/bin is on the path.
-
+To avoid wsdl4j version conflict, we need replace wsdl4j-1.5.1.jar in
+$SERVICEMIX_HOME/lib with
+wsdl4j-1.6.1.jar in $CXF_HOME/lib
 Start ServiceMix
  >servicemix
 And then you can see logs from the shell which you start servicemix, including

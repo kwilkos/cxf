@@ -57,7 +57,9 @@ Build Instructions
 Installation & Deployment
 -------------------------
 Ensure that the $SERVICEMIX_HOME/bin is on the path.
-
+To avoid wsdl4j version conflict, we need replace wsdl4j-1.5.1.jar in
+$SERVICEMIX_HOME/lib with
+wsdl4j-1.6.1.jar in $CXF_HOME/lib
 Start ServiceMix
  >servicemix
 And then you can see logs from the shell which you start servicemix, including
@@ -69,7 +71,7 @@ java launch commandline
 
 Install and start the CXF Service Engine:
 
- > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml install-component -Dsm.install.file=./service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
+ > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml install-component -Dsm.install.file=../service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine -Dsm.username=smx -Dsm.password=smx
 
 Deploy and start the CXF demo service assembly

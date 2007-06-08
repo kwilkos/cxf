@@ -20,14 +20,14 @@
 <project name="cxf-jbi-demo" default="build">
   
   <target name="build">
-    <ant dir="service-engine"/>
+    <ant dir="../service-engine"/>
     <ant dir="service-unit"/>
     <ant dir="service-assembly"/>
   </target>
 
   <target name="clean">
     <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
+    <ant dir="../service-engine" target="clean"/>
     <ant dir="service-assembly" target="clean"/>
   </target>
 
