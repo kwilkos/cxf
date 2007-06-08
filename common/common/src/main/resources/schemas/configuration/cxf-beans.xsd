@@ -53,4 +53,9 @@
         </xsd:attribute>
     </xsd:attributeGroup>
 
+    <xsd:complexType name="ClassOrBeanType">
+       <xsd:attribute name="class" type="xsd:string"/>
+       <xsd:attribute name="bean"  type="xsd:string"/>
+    </xsd:complexType>
+
 </xsd:schema>

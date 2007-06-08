@@ -42,28 +42,13 @@
     <xs:import namespace="http://cxf.apache.org/configuration/beans" 
                schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
 
-    <!-- This are already defined as it can appear in WSDL    
-    <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
-    <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
-      ** The following are in the WSDL http-conf.xsd file because
-      ** they need to be generated.
-      ** Destination Specific Items **
-    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
-    <xs:element name="fixedParameterOrder"  type="xs:boolean" default="false"/>
-   
-    <xs:complexType name="ClassOrBeanType">
-       <xs:attribute name="class" type="xs:string"/>
-       <xs:attribute name="bean"  type="xs:string"/>
-    </xs:complexType>
-    -->
-    
     <!-- Conduit Specific Items -->
 
     <xs:element name="authorization"       type="sec:AuthorizationPolicy"/>
     <xs:element name="proxyAuthorization"  type="sec:ProxyAuthorizationPolicy"/>
     <xs:element name="tlsClientParameters" type="sec:TLSClientParametersType"/>
-    <xs:element name="trustDecider"        type="http-conf:ClassOrBeanType"/>
-    <xs:element name="basicAuthSupplier"   type="http-conf:ClassOrBeanType"/>
+    <xs:element name="trustDecider"        type="cxf-beans:ClassOrBeanType"/>
+    <xs:element name="basicAuthSupplier"   type="cxf-beans:ClassOrBeanType"/>
     
     
     <xs:element name="conduit">
