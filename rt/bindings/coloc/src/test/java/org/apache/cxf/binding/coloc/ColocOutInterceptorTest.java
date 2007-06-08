@@ -45,6 +45,7 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
@@ -346,8 +347,9 @@ public class ColocOutInterceptorTest extends Assert {
         BindingOperationInfo sboi = control.createMock(BindingOperationInfo.class);
         //Local var
         Service ses = control.createMock(Service.class);
-        EndpointInfo sei = control.createMock(EndpointInfo.class);
-        BindingInfo rbi = control.createMock(BindingInfo.class);
+        ServiceInfo ssi = control.createMock(ServiceInfo.class);
+        EndpointInfo sei = control.createMock(EndpointInfo.class);        
+        TestBindingInfo rbi = new TestBindingInfo(ssi, "testBinding");
         Endpoint rep = control.createMock(Endpoint.class);
         Service res = control.createMock(Service.class);
         EndpointInfo rei = control.createMock(EndpointInfo.class);
@@ -362,14 +364,18 @@ public class ColocOutInterceptorTest extends Assert {
         EasyMock.expect(rei.getName()).andReturn(new QName("C", "D"));
         EasyMock.expect(sei.getName()).andReturn(new QName("C", "D"));
         EasyMock.expect(rei.getBinding()).andReturn(rbi);
-        QName op = new QName("E", "F");
-        EasyMock.expect(rbi.getOperation(op)).andReturn(null);
+        EasyMock.expect(sboi.getName()).andReturn(new QName("E", "F"));
+        //Causes ConcurrentModification intermittently
+        //QName op = new QName("E", "F");
+        //EasyMock.expect(rbi.getOperation(op).andReturn(null);
         
         control.replay();
         Server val = colocOut.isColocated(list, sep, sboi);
         assertEquals("Is not a colocated call",
                      null,
                      val);
+        assertEquals("BindingOperation.getOperation was not called", 
+                     1, rbi.getOpCount());
         control.reset();
     }
 
@@ -429,5 +435,23 @@ public class ColocOutInterceptorTest extends Assert {
         protected boolean isSameOperationInfo(BindingOperationInfo s, BindingOperationInfo r) {
             return true;
         }
+    }
+    
+    class TestBindingInfo extends BindingInfo {
+        private int opCount;
+        TestBindingInfo(ServiceInfo si, String bindingId) {
+            super(si, bindingId);
+        }
+        
+        public int getOpCount() {
+            return opCount;
+        }
+        
+        public BindingOperationInfo getOperation(QName opName) {
+            BindingOperationInfo boi = super.getOperation(opName);
+            ++opCount;
+            return boi;
+        }
+        
     }
 }
