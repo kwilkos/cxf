@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import org.xml.sax.SAXParseException;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -35,7 +36,9 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http_jetty.JettyHTTPDestination;
 import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
@@ -49,6 +52,16 @@ public class ApplicationContextTest extends Assert {
         ApplicationContextTest.class.getResource("/META-INF/cxf/cxf-extension-http.xml").toString();
     private static final String S3 = 
         ApplicationContextTest.class.getResource("/META-INF/cxf/cxf-extension-http-jetty.xml").toString();
+    
+    @BeforeClass
+    public static void classUp() {
+        BusFactory.setDefaultBus(null);
+    }
+    
+    @AfterClass
+    public static void classDown() {
+        BusFactory.setDefaultBus(null);
+    }
     
     @Ignore
     @Test

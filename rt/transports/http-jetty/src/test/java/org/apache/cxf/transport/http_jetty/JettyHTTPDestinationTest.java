@@ -424,6 +424,7 @@ public class JettyHTTPDestinationTest extends Assert {
         
 
         transportFactory = new JettyHTTPTransportFactory() {
+            JettyHTTPServerEngineFactory serverEngineFactory;
             @Override
             public JettyHTTPServerEngineFactory getJettyHTTPServerEngineFactory() {
                 if (serverEngineFactory == null) {

@@ -34,12 +34,6 @@ import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 
 public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
 
-    /**
-     * This field contains the JettyHTTPServerEngineFactory.
-     * It holds a cache of engines that may be used for particular ports.
-     */
-    protected JettyHTTPServerEngineFactory serverEngineFactory;
-    
     private Map<String, JettyHTTPDestination> destinations = 
         new HashMap<String, JettyHTTPDestination>();
     
@@ -54,18 +48,24 @@ public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
 
     @PostConstruct
     public void finalizeConfig() {
-        // empty
+        // This call will register the server engine factory
+        // with the Bus.
+        getJettyHTTPServerEngineFactory();
     }
     
     /**
      * This method returns the Jetty HTTP Server Engine Factory.
      */
     protected JettyHTTPServerEngineFactory getJettyHTTPServerEngineFactory() {
-        if (this.serverEngineFactory == null) {
-            serverEngineFactory =
+        // We have got to *always* get this off the bus, because it may have 
+        // been overridden by Spring Configuration initially.
+        // Spring Configuration puts it on the correct bus.
+        JettyHTTPServerEngineFactory serverEngineFactory =
                 getBus().getExtension(JettyHTTPServerEngineFactory.class);
-        }
-        if (this.serverEngineFactory == null) {
+        // If it's not there, then create it and register it.
+        // Spring may override it later, but we need it here for default
+        // with no spring configuration.
+        if (serverEngineFactory == null) {
             serverEngineFactory = new JettyHTTPServerEngineFactory();
             serverEngineFactory.setBus(getBus());
             serverEngineFactory.finalizeConfig();
