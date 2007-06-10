@@ -384,11 +384,14 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             
             if (def != null && schemas != null) {
                 javax.wsdl.Message msg = def.getMessage(header.getMessage());
+                if (msg != null) {
+                    MessageInfo minfo = new MessageInfo(null, msg.getQName());
+                    buildMessage(minfo, msg, schemas);
 
-                MessageInfo minfo = new MessageInfo(null, msg.getQName());
-                buildMessage(minfo, msg, schemas);
-                
-                serviceInfo.addMessage(minfo);
+                    serviceInfo.addMessage(minfo);
+                } else {
+                    //TODO: The header message is not defined in this wsdl, what to do
+                }
             }
         }
     }
