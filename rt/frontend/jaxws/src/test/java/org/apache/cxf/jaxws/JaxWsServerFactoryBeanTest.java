@@ -32,6 +32,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.helpers.XPathUtils;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -51,6 +52,29 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
         
         Server server = sf.create();
         assertNotNull(server);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJaxbExtraClass() {
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setBus(getBus());
+        sf.setAddress("http://localhost:9000/test");
+        sf.setServiceClass(Hello.class);
+        sf.setStart(false);
+        Map props = sf.getProperties();
+        if (props == null) {
+            props = new HashMap<String, Object>();
+        }
+        props.put("jaxb.additionalContextClasses", 
+                  new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class});
+        sf.setProperties(props);
+        Server server = sf.create();
+        assertNotNull(server);
+        Class[] extraClass = ((JAXBDataBinding)sf.getServiceFactory().getDataBinding()).getExtraClass();
+        assertEquals(extraClass.length, 2);
+        assertEquals(extraClass[0], java.rmi.Remote.class);
+        assertEquals(extraClass[1], java.rmi.RemoteException.class);
     }
     
     @Test

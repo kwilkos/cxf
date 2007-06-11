@@ -95,10 +95,11 @@ public final class JAXBDataBinding implements DataBinding {
                                                                                XMLEventWriter.class,
                                                                                XMLStreamWriter.class};
 
-    
+    Class[] extraClass;
     JAXBContext context;
 
     Class cls;
+    
 
     public JAXBDataBinding() {
     }
@@ -327,6 +328,14 @@ public final class JAXBDataBinding implements DataBinding {
             schemaInit.walk();
         }
     }
+    
+    public void setExtraClass(Class[] userExtraClass) {
+        extraClass = userExtraClass;
+    }
+    
+    public Class[] getExtraClass() {
+        return extraClass;
+    }
 
     private List<DOMResult> generateJaxbSchemas() throws IOException {
         final List<DOMResult> results = new ArrayList<DOMResult>();
@@ -349,11 +358,11 @@ public final class JAXBDataBinding implements DataBinding {
     }
     
 
-    public static JAXBContext createJAXBContext(Set<Class<?>> classes) throws JAXBException {
+    public JAXBContext createJAXBContext(Set<Class<?>> classes) throws JAXBException {
         return createJAXBContext(classes, null);
     }
     
-    public static JAXBContext createJAXBContext(Set<Class<?>> classes,
+    public JAXBContext createJAXBContext(Set<Class<?>> classes,
                                                    String defaultNs) throws JAXBException {
         Iterator it = classes.iterator();
         String className = "";
@@ -366,8 +375,8 @@ public final class JAXBDataBinding implements DataBinding {
             }
         }
 
-        for (Class<?> cls : classes) {
-            if (cls.getName().endsWith("ObjectFactory")) {
+        for (Class<?> clz : classes) {
+            if (clz.getName().endsWith("ObjectFactory")) {
                 //kind of a hack, but ObjectFactories may be created with empty namespaces
                 defaultNs = null;
             }
@@ -382,7 +391,17 @@ public final class JAXBDataBinding implements DataBinding {
             // maybe add a way to allow interceptors to add stuff to the
             // context?
         }
-       
+        try {
+            // add user extra class into jaxb context
+            if (extraClass != null && extraClass.length > 0) {
+                for (Class clz : extraClass) {
+                    classes.add(clz);
+                }
+            }
+        } catch (Exception e) {
+           //
+        }
+        
         Map<String, Object> map = new HashMap<String, Object>();
         if (defaultNs != null) {
             map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);

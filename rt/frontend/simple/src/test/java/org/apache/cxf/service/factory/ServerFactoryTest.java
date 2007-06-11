@@ -20,10 +20,13 @@ package org.apache.cxf.service.factory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
@@ -46,6 +49,28 @@ public class ServerFactoryTest extends AbstractSimpleFrontendTest {
 
         ServerImpl server = (ServerImpl)svrBean.create();
         assertTrue(server.getDestination() instanceof CustomDestination);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJaxbExtraClass() throws Exception {
+        ServerFactoryBean svrBean = new ServerFactoryBean();
+        svrBean.setAddress("http://localhost/Hello");
+        svrBean.setServiceClass(HelloService.class);
+        svrBean.setBus(getBus());
+
+        Map props = svrBean.getProperties();
+        if (props == null) {
+            props = new HashMap<String, Object>();
+        }
+        props.put("jaxb.additionalContextClasses", 
+                  new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class});
+        svrBean.setProperties(props);
+        svrBean.create();
+        Class[] extraClass = ((JAXBDataBinding)svrBean.getServiceFactory().getDataBinding()).getExtraClass();
+        assertEquals(extraClass.length, 2);
+        assertEquals(extraClass[0], java.rmi.Remote.class);
+        assertEquals(extraClass[1], java.rmi.RemoteException.class);
     }
 
     public class CustomDestinationFactory extends AbstractTransportFactory implements DestinationFactory {

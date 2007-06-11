@@ -18,12 +18,16 @@
  */
 package org.apache.cxf.frontend;
 
+import java.util.Map;
+
 import org.apache.cxf.BusException;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 
@@ -33,6 +37,7 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
     public ClientFactoryBean() {
         super();
         setServiceFactory(new ReflectionServiceFactoryBean());
+        
     }
 
     public Client create() {
@@ -51,7 +56,7 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
         }
         
         applyFeatures();
-        
+        applyExtraClass();
         return client;
     }
 
@@ -63,6 +68,17 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
         if (getFeatures() != null) {
             for (AbstractFeature feature : getFeatures()) {
                 feature.initialize(client, getBus());
+            }
+        }
+    }
+    
+    protected void applyExtraClass() {
+        DataBinding dataBinding = getServiceFactory().getDataBinding();
+        if (dataBinding instanceof JAXBDataBinding) {
+            Map props = this.getProperties();
+            if (props != null && props.get("jaxb.additionalContextClasses") != null) {
+                Class[] extraClass = (Class[])this.getProperties().get("jaxb.additionalContextClasses");
+                ((JAXBDataBinding)dataBinding).setExtraClass(extraClass);
             }
         }
     }

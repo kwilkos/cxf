@@ -114,9 +114,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Map<String, Object> properties;
     private QName endpointName;
     private boolean populateFromClass;
+    
 
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
+        
         setDataBinding(new JAXBDataBinding());
 
         ignoredClasses.add("java.lang.Object");

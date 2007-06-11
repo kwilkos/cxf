@@ -136,7 +136,7 @@ public class JAXBDataBindingTest extends TestCase {
         try {
             Set<Class<?>> classes = new HashSet<Class<?>>();
             classes.add(Class.forName("java.rmi.RemoteException"));
-            assertNotNull(JAXBDataBinding.createJAXBContext(classes));
+            assertNotNull(new JAXBDataBinding().createJAXBContext(classes));
         } catch (Exception e) {
             assertFalse(true);
         }
@@ -184,6 +184,14 @@ public class JAXBDataBindingTest extends TestCase {
         
         writer = jaxbDataBinding.createWriter(null);
         assertNull(writer);
+    }
+    
+    public void testExtraClass() {
+        Class[] extraClass = new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class};
+        jaxbDataBinding.setExtraClass(extraClass);
+        assertEquals(jaxbDataBinding.getExtraClass().length, 2);
+        assertEquals(jaxbDataBinding.getExtraClass()[0], java.rmi.Remote.class);
+        assertEquals(jaxbDataBinding.getExtraClass()[1], java.rmi.RemoteException.class);
     }
     
 }

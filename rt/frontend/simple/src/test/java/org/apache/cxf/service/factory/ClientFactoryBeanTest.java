@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.service.factory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.wsdl.extensions.soap.SOAPAddress;
@@ -28,6 +29,7 @@ import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.ClientFactoryBean;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -72,5 +74,28 @@ public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
         assertNotNull(sop);
         assertEquals("", sop.getAction());
         assertEquals("document", sop.getStyle());
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testJaxbExtraClass() throws Exception {
+        
+        ClientFactoryBean cfBean = new ClientFactoryBean();
+        cfBean.setAddress("http://localhost/Hello");
+        cfBean.setBus(getBus());
+        cfBean.setServiceClass(HelloService.class);
+        Map props = cfBean.getProperties();
+        if (props == null) {
+            props = new HashMap<String, Object>();
+        }
+        props.put("jaxb.additionalContextClasses", 
+                  new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class});
+        cfBean.setProperties(props);
+        Client client = cfBean.create();
+        assertNotNull(client);
+        Class[] extraClass = ((JAXBDataBinding)cfBean.getServiceFactory().getDataBinding()).getExtraClass();
+        assertEquals(extraClass.length, 2);
+        assertEquals(extraClass[0], java.rmi.Remote.class);
+        assertEquals(extraClass[1], java.rmi.RemoteException.class);
     }
 }

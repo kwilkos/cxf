@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxws;
 
+
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.soap.SOAPBinding;
 
@@ -48,8 +49,10 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     }
     public JaxWsServerFactoryBean(JaxWsServiceFactoryBean serviceFactory) {
         setServiceFactory(serviceFactory);
+        
         JaxWsSoapBindingConfiguration defConfig 
             = new JaxWsSoapBindingConfiguration(serviceFactory);
+        
         setBindingConfig(defConfig);
     }
 
