@@ -51,9 +51,7 @@ Deploy CXF Service Engine into ServiceMix
 Build Instructions
 ------------------
 . Download & Install ServiceMix 
-  http://incubator.apache.org/servicemix/main/servicemix-30.html
-  Note: Must isntall the  ServiceMix 3.0 Release.
-
+  http://incubator.apache.org/servicemix/servicemix-31.html
 . export SERVICEMIX_HOME for your shell envirnoment
 
 
@@ -63,9 +61,7 @@ Build Instructions
 Installation & Deployment
 -------------------------
 Ensure that the $SERVICEMIX_HOME/bin is on the path.
-To avoid wsdl4j version conflict, we need replace wsdl4j-1.5.1.jar in
-$SERVICEMIX_HOME/lib with
-wsdl4j-1.6.1.jar in $CXF_HOME/lib
+
 Start ServiceMix
  >servicemix
 And then you can see logs from the shell which you start servicemix, including
@@ -76,7 +72,7 @@ console, just edit servicemix starup script, add
 java launch commandline
 
 Start cxf server
- > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.0.2.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.1.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0-beta4.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.0.1.jar
+ > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1-incubator-20070103.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar 
 
 Install and start the ServiceMix soap/jms binding component
 copy servicemix-jms-3.0-incubating-installer.zip, servicemix-jms-3.0-incubating-installer.zip and

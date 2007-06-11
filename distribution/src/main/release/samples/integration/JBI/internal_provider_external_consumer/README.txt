@@ -51,9 +51,7 @@ Deploy CXF Service Engine into ServiceMix
 Build Instructions
 ------------------
 . Download & Install ServiceMix 
-  http://incubator.apache.org/servicemix/main/servicemix-30.html
-  Note: Must isntall the  ServiceMix 3.0 Release.
-
+  http://incubator.apache.org/servicemix/servicemix-31.html
 . export SERVICEMIX_HOME for your shell envirnoment
 
 
@@ -62,9 +60,7 @@ Build Instructions
 Installation & Deployment
 -------------------------
 Ensure that the $SERVICEMIX_HOME/bin is on the path.
-To avoid wsdl4j version conflict, we need replace wsdl4j-1.5.1.jar in
-$SERVICEMIX_HOME/lib with
-wsdl4j-1.6.1.jar in $CXF_HOME/lib
+
 Start ServiceMix
  >servicemix
 And then you can see logs from the shell which you start servicemix, including
@@ -81,8 +77,8 @@ Install and start the CXF Service Engine:
 
 Install and start the ServiceMix soap binding component
 
-copy servicemix-http-3.0-incubating-installer.zip and
-servicemix-shared-3.0-incubating-installer.zip to the deploy directory
+copy servicemix-http-3.1-incubating-installer.zip and
+servicemix-shared-3.1-incubating-installer.zip to the deploy directory
 where servicemix monitor on, for a instance, start servicemix from
 $SERVICEMIX_HOME/bin, then copy the two zip files into deploy directory under
 $SERVICEMIX_HOME/bin 
