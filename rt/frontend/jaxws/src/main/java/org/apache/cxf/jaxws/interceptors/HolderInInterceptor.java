@@ -38,8 +38,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
     public static final String CLIENT_HOLDERS = "client.holders";
     
     public HolderInInterceptor() {
-        super();
-        setPhase(Phase.PRE_INVOKE);
+        super(Phase.PRE_INVOKE);
     }
 
     @SuppressWarnings("unchecked")

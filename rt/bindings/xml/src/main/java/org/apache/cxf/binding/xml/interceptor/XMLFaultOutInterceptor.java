@@ -41,8 +41,10 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLFaultOutInterceptor.class);
 
     public XMLFaultOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
+    }
+    public XMLFaultOutInterceptor(String phase) {
+        super(phase);
     }
 
     public void handleMessage(Message message) throws Fault {

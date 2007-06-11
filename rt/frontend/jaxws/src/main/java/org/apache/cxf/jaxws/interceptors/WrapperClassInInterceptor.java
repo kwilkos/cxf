@@ -40,8 +40,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
     private static final Logger LOG = Logger.getLogger(WrapperClassInInterceptor.class.getName());
     
     public WrapperClassInInterceptor() {
-        super();
-        setPhase(Phase.POST_LOGICAL);
+        super(Phase.POST_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {

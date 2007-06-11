@@ -78,8 +78,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * Constructor.
      */
     public MAPAggregator() {
-        super();
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
     }
     
     /**

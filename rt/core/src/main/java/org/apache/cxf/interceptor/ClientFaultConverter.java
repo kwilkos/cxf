@@ -52,8 +52,10 @@ import org.apache.cxf.service.model.MessagePartInfo;
 public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
 
     public ClientFaultConverter() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
+    }
+    public ClientFaultConverter(String phase) {
+        super(phase);
     }
 
     public void handleMessage(Message msg) {

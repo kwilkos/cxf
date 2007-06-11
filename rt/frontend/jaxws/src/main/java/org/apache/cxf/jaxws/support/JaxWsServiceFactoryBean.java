@@ -126,8 +126,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             if (type.equals(SOAPMessage.class)) {
                 getService().getInInterceptors().add(new ProviderInDatabindingInterceptor(type));
                 // hack to get the SOAPMessage set before the SOAPHandlerInterceptor
-                ProviderOutDatabindingInterceptor out = new ProviderOutDatabindingInterceptor();
-                out.setPhase(Phase.PRE_PROTOCOL);
+                ProviderOutDatabindingInterceptor out 
+                    = new ProviderOutDatabindingInterceptor(Phase.PRE_PROTOCOL);
                 out.addBefore(SOAPHandlerInterceptor.class.getName());
                 getService().getOutInterceptors().add(out);
                 

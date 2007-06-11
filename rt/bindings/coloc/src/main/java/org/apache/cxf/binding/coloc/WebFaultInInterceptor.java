@@ -34,8 +34,7 @@ import org.apache.cxf.service.model.UnwrappedOperationInfo;
 public class WebFaultInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public WebFaultInInterceptor() {
-        super();
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {

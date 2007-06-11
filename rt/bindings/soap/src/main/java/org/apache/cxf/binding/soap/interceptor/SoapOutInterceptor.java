@@ -57,8 +57,11 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
     private Bus bus;
     
     public SoapOutInterceptor(Bus b) {
-        super();
-        setPhase(Phase.WRITE);
+        super(Phase.WRITE);
+        bus = b;
+    }
+    public SoapOutInterceptor(Bus b, String phase) {
+        super(phase);
         bus = b;
     }
     
@@ -204,8 +207,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         
     public class SoapOutEndingInterceptor extends AbstractSoapInterceptor {
         public SoapOutEndingInterceptor() {
-            super();
-            setPhase(Phase.WRITE_ENDING);
+            super(SoapOutEndingInterceptor.class.getName(), Phase.WRITE_ENDING);
         }
 
         public void handleMessage(SoapMessage message) throws Fault {

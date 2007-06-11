@@ -32,13 +32,13 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 public class DispatchInterceptor extends AbstractPhaseInterceptor<Message> {
+    
     public static final String RELATIVE_PATH = "relative.path";
     private static final Logger LOG = Logger.getLogger(DispatchInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DispatchInterceptor.class);
 
     public DispatchInterceptor() {
-        super();
-        setPhase(Phase.PRE_STREAM);
+        super(Phase.PRE_STREAM);
     }
 
     public void handleMessage(Message message) {

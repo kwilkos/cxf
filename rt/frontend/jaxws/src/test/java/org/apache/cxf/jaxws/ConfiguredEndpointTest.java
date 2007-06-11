@@ -346,7 +346,7 @@ public class ConfiguredEndpointTest extends Assert {
     }
       
     
-    private AbstractPhaseInterceptor findTestInterceptor(List<Interceptor> interceptors) {
+    private TestInterceptor findTestInterceptor(List<Interceptor> interceptors) {
         for (Interceptor i : interceptors) {
             if (i instanceof TestInterceptor) {
                 return (TestInterceptor)i;
@@ -364,14 +364,12 @@ public class ConfiguredEndpointTest extends Assert {
     
     
     static final class TestInterceptor extends AbstractPhaseInterceptor {
+        public TestInterceptor(String name) {
+            super(name, "");
+        }
     
         public void handleMessage(Message message) throws Fault {
             // TODO Auto-generated method stub
         }
-        
-        public void setName(String n) {
-            setId(n);
-        }
-        
     }
 }

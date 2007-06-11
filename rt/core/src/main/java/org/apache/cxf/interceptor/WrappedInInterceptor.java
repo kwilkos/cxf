@@ -51,8 +51,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
 
     public WrappedInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addAfter(URIMappingInterceptor.class.getName());
     }
 

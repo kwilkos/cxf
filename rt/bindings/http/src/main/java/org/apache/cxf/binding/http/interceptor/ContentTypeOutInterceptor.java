@@ -27,6 +27,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -34,8 +35,8 @@ import org.apache.cxf.phase.Phase;
 public class ContentTypeOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public ContentTypeOutInterceptor() {
-        super();
-        setPhase(Phase.PREPARE_SEND);
+        super(Phase.PREPARE_SEND);
+        addBefore(MessageSenderInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) throws Fault {

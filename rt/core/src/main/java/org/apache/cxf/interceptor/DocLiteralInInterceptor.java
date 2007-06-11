@@ -56,9 +56,9 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DocLiteralInInterceptor.class);
 
     public DocLiteralInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addAfter(URIMappingInterceptor.class.getName());
+        addBefore(WrappedInInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) {

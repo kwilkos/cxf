@@ -28,8 +28,7 @@ import org.apache.cxf.phase.Phase;
 
 public class ThrowFaultInterceptor extends AbstractPhaseInterceptor<Message> {
     public ThrowFaultInterceptor() {
-        super();
-        setPhase(Phase.PREPARE_SEND);
+        super(Phase.PREPARE_SEND);
     }
 
     public void handleMessage(Message message) throws Fault {

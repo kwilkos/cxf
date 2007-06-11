@@ -34,7 +34,7 @@ import org.apache.cxf.phase.Phase;
 public class FaultHandlingInterceptor extends AbstractPhaseInterceptor {
     
     public FaultHandlingInterceptor() {
-        super.setPhase(Phase.USER_LOGICAL);
+        super(Phase.USER_LOGICAL);
     }
     
     public synchronized void handleMessage(Message message) throws Fault {

@@ -22,6 +22,7 @@ package org.apache.cxf.transport.http_jetty;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
@@ -179,13 +180,13 @@ public class JettyHTTPServerEngine
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.log(Level.SEVERE, e.getMessage(), e);
                 //problem starting server
                 try {                    
                     server.stop();
                     server.destroy();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    LOG.log(Level.SEVERE, ex.getMessage(), ex);
                 }    
             }
         }
@@ -200,7 +201,7 @@ public class JettyHTTPServerEngine
             try {                
                 context.start();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOG.log(Level.WARNING, ex.getMessage(), ex);
             }
         }
         

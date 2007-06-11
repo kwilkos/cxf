@@ -43,8 +43,7 @@ public class ClientPolicyInFaultInterceptor extends AbstractPolicyInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(ClientPolicyInFaultInterceptor.class);
     
     public ClientPolicyInFaultInterceptor() {
-        setId(PolicyConstants.CLIENT_POLICY_IN_FAULT_INTERCEPTOR_ID);
-        setPhase(Phase.RECEIVE);
+        super(PolicyConstants.CLIENT_POLICY_IN_FAULT_INTERCEPTOR_ID, Phase.RECEIVE);
     }
     
     protected void handle(Message msg) {        

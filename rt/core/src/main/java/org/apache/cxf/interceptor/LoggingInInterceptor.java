@@ -40,8 +40,7 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingInInterceptor.class);
 
     public LoggingInInterceptor() {
-        super();
-        setPhase(Phase.RECEIVE);
+        super(Phase.RECEIVE);
     }
 
     public void handleMessage(Message message) throws Fault {

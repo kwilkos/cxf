@@ -34,10 +34,11 @@ import org.apache.cxf.transport.Conduit;
  */
 public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(MessageSenderInterceptor.class);
-
+    private MessageSenderEndingInterceptor ending = new MessageSenderEndingInterceptor();
+    
+    
     public MessageSenderInterceptor() {
-        super();
-        setPhase(Phase.PREPARE_SEND);
+        super(Phase.PREPARE_SEND);
     }
 
     public void handleMessage(Message message) {
@@ -48,13 +49,12 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
         }    
         
         // Add a final interceptor to close the conduit
-        message.getInterceptorChain().add(new MessageSenderEndingInterceptor());
+        message.getInterceptorChain().add(ending);
     }
     
     public class MessageSenderEndingInterceptor extends AbstractPhaseInterceptor<Message> {
         public MessageSenderEndingInterceptor() {
-            super();
-            setPhase(Phase.PREPARE_SEND_ENDING);
+            super(Phase.PREPARE_SEND_ENDING);
         }
 
         public void handleMessage(Message message) throws Fault {

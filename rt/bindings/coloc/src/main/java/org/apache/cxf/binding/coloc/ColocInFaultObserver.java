@@ -18,8 +18,8 @@
  */
 package org.apache.cxf.binding.coloc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.InFaultChainInitiatorObserver;
@@ -30,10 +30,10 @@ import org.apache.cxf.phase.PhaseManager;
 
 public class ColocInFaultObserver extends InFaultChainInitiatorObserver {
 
-    private List<Phase> list;
+    private SortedSet<Phase> list;
     public ColocInFaultObserver(Bus bus) {
         super(bus);
-        list = new ArrayList<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
+        list = new TreeSet<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
         ColocUtil.setPhases(list, Phase.PRE_LOGICAL, Phase.PRE_INVOKE);
     }
 
@@ -42,7 +42,7 @@ public class ColocInFaultObserver extends InFaultChainInitiatorObserver {
         chain.add(new WebFaultInInterceptor());
     }
 
-    protected List<Phase> getPhases() {
+    protected SortedSet<Phase> getPhases() {
         return list;
     }
 }

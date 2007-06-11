@@ -48,8 +48,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 public class PushBack401 extends AbstractPhaseInterceptor {
     
     PushBack401() {
-        super();
-        setPhase(Phase.RECEIVE);
+        super(Phase.RECEIVE);
     }
     
     /**

@@ -21,8 +21,9 @@ package org.apache.cxf.ws.rm;
 
 import java.lang.reflect.Method;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
@@ -53,12 +54,15 @@ public class RMOutInterceptorTest extends Assert {
     @Test
     public void testOrdering() {
         Phase p = new Phase(Phase.PRE_LOGICAL, 1);
+        SortedSet<Phase> phases = new TreeSet<Phase>();
+        phases.add(p);
         PhaseInterceptorChain chain = 
-            new PhaseInterceptorChain(Collections.singletonList(p));
+            new PhaseInterceptorChain(phases);
         MAPAggregator map = new MAPAggregator();
         RMOutInterceptor rmi = new RMOutInterceptor();        
         chain.add(rmi);
         chain.add(map);
+        System.out.println(chain);
         Iterator it = chain.iterator();
         assertSame("Unexpected order.", map, it.next());
         assertSame("Unexpected order.", rmi, it.next());                      

@@ -19,7 +19,7 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.List;
+import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,7 +91,7 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
 
     protected abstract boolean isOutboundObserver();
 
-    protected abstract List<Phase> getPhases();
+    protected abstract SortedSet<Phase> getPhases();
 
     protected void initializeInterceptors(Exchange ex, PhaseInterceptorChain chain) {
         

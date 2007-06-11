@@ -45,8 +45,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
 
     public SoapHeaderInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addAfter(BareInInterceptor.class.getName());
         addAfter(RPCInInterceptor.class.getName());
         addAfter(DocLiteralInInterceptor.class.getName());

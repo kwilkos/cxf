@@ -55,8 +55,7 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
     private Service.Mode mode;
     
     public DispatchInInterceptor(Class type, Mode mode) {
-        super();
-        setPhase(Phase.READ);
+        super(Phase.READ);
         
         this.type = type;
         this.mode = mode;

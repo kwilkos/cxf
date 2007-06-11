@@ -35,8 +35,7 @@ public class ObjectDispatchInInterceptor extends AbstractPhaseInterceptor<Messag
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ObjectDispatchInInterceptor.class);
     
     public ObjectDispatchInInterceptor() {
-        super();
-        setPhase(Phase.READ);
+        super(Phase.READ);
     }
 
     public void handleMessage(Message message) throws Fault {

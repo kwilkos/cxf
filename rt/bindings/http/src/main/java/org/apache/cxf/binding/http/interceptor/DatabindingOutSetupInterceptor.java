@@ -38,14 +38,12 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Message> {
-
     private static final WrappedOutInterceptor WRAPPED_OUT = new WrappedOutInterceptor();
     private static final XMLMessageOutInterceptor XML_OUT = new XMLMessageOutInterceptor();
     private static final StaxOutInterceptor STAX_OUT = new StaxOutInterceptor();
     
     public DatabindingOutSetupInterceptor() {
-        super();
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -60,13 +58,11 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
             XMLStreamWriter writer = new W3CDOMStreamWriter(document);
             message.setContent(XMLStreamWriter.class, writer);
            
-            WrappedOutInterceptor wrappedOut = new WrappedOutInterceptor();
-            wrappedOut.setPhase(Phase.PRE_LOGICAL);
+            WrappedOutInterceptor wrappedOut = new WrappedOutInterceptor(Phase.PRE_LOGICAL);
             wrappedOut.addAfter(getId());
             chain.add(wrappedOut);
 
-            XMLMessageOutInterceptor xmlOut = new XMLMessageOutInterceptor();
-            xmlOut.setPhase(Phase.PRE_LOGICAL);
+            XMLMessageOutInterceptor xmlOut = new XMLMessageOutInterceptor(Phase.PRE_LOGICAL);
             xmlOut.addAfter(wrappedOut.getId());
             chain.add(xmlOut);
             

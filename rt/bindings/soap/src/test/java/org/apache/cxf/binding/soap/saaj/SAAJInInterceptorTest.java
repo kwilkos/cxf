@@ -48,12 +48,10 @@ public class SAAJInInterceptorTest extends TestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
-        rhi.setPhase("phase1");
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus(), "phase1");
         chain.add(rhi);
 
-        saajIntc = new SAAJInInterceptor();
-        saajIntc.setPhase("phase2");
+        saajIntc = new SAAJInInterceptor("phase2");
         chain.add(saajIntc);
 
     }

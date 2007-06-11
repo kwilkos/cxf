@@ -20,6 +20,8 @@ package org.apache.cxf.binding.coloc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,7 +82,7 @@ public class ColocMessageObserver extends ChainInitiationObserver {
         }
 
         //Add all interceptors between USER_LOGICAL and INVOKE.
-        List<Phase> phases = new ArrayList<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
+        SortedSet<Phase> phases = new TreeSet<Phase>(bus.getExtension(PhaseManager.class).getInPhases());
         ColocUtil.setPhases(phases, Phase.USER_LOGICAL, Phase.INVOKE);
         InterceptorChain chain = ColocUtil.getInInterceptorChain(ex, phases);
         chain.add(addColocInterceptors());

@@ -52,7 +52,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
 
     XMLStreamWriter writer;
 
-    XMLMessageOutInterceptor out = new XMLMessageOutInterceptor();
+    XMLMessageOutInterceptor out = new XMLMessageOutInterceptor("phase1");
 
     List<Object> params = new ArrayList<Object>();
 
@@ -68,7 +68,6 @@ public class XMLMessageOutInterceptorTest extends TestBase {
 
     public void setUp() throws Exception {
         super.setUp();
-        out.setPhase("phase1");
         chain.add(out);
         prepareMessage(params);
     }

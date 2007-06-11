@@ -42,7 +42,7 @@ public class JBIFaultOutInterceptor extends AbstractPhaseInterceptor<JBIMessage>
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JBIFaultOutInterceptor.class);
 
     public JBIFaultOutInterceptor() {
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
     public void handleMessage(JBIMessage message) throws Fault {

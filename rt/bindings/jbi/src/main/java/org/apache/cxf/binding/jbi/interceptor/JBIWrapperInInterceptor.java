@@ -54,7 +54,7 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     public JBIWrapperInInterceptor() {
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
     }
 
     public void handleMessage(Message message) throws Fault {

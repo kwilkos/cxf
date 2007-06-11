@@ -54,10 +54,16 @@ public class SOAPHandlerFaultOutInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
         SoapInterceptor {
     private static final SAAJOutInterceptor SAAJ_OUT = new SAAJOutInterceptor();
+    private static final String ENDING_ID = SOAPHandlerFaultOutInterceptor.class.getName() + ".ENDING";
+    
+    AbstractSoapInterceptor ending = new AbstractSoapInterceptor(ENDING_ID, Phase.USER_PROTOCOL) {
+        public void handleMessage(SoapMessage message) throws Fault {
+            handleMessageInternal(message);
+        }
+    };
     
     public SOAPHandlerFaultOutInterceptor(Binding binding) {
-        super(binding);
-        setPhase(Phase.PRE_PROTOCOL);
+        super(binding, Phase.PRE_PROTOCOL);
         addAfter(MustUnderstandInterceptor.class.getName());
         addAfter(StaxOutInterceptor.class.getName());
         addAfter(SAAJOutInterceptor.class.getName());
@@ -94,20 +100,7 @@ public class SOAPHandlerFaultOutInterceptor extends
 
             SAAJ_OUT.handleMessage(message);
 
-            message.getInterceptorChain().add(new AbstractSoapInterceptor() {
-                @Override
-                public String getPhase() {
-                    return Phase.USER_PROTOCOL;
-                }
-                @Override
-                public String getId() {
-                    return SOAPHandlerFaultOutInterceptor.class.getName() + ".ENDING";
-                }
-
-                public void handleMessage(SoapMessage message) throws Fault {
-                    handleMessageInternal(message);
-                }
-            });
+            message.getInterceptorChain().add(ending);
         } 
     }
     

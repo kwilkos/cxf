@@ -52,6 +52,20 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     private static final ResourceBundle BUNDLE = BundleUtils
         .getBundle(AbstractInDatabindingInterceptor.class);
 
+    /**
+     * @deprecated
+     */
+    public AbstractInDatabindingInterceptor() {
+        super(null, null);
+    }
+    
+    public AbstractInDatabindingInterceptor(String phase) {
+        super(phase);
+    }
+    public AbstractInDatabindingInterceptor(String i, String phase) {
+        super(i, phase);
+    }
+    
     protected boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE));
     }

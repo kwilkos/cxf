@@ -29,8 +29,7 @@ import org.apache.cxf.phase.Phase;
 public class TestMultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public TestMultipartMessageInterceptor() {
-        super();
-        setPhase(Phase.INVOKE);
+        super(Phase.INVOKE);
     }
 
     public void handleMessage(Message message) throws Fault {

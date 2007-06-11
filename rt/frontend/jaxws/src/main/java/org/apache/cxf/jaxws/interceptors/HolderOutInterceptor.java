@@ -41,9 +41,8 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = Logger.getLogger(HolderOutInterceptor.class.getName());
 
     public HolderOutInterceptor() {
-        super();
+        super(Phase.PRE_LOGICAL);
         addBefore(WrapperClassOutInterceptor.class.getName());
-        setPhase(Phase.PRE_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {

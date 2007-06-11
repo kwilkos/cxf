@@ -73,11 +73,12 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class SwAOutInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(SwAOutInterceptor.class);
     
+    AttachmentOutInterceptor attachOut = new AttachmentOutInterceptor();
+    
     public SwAOutInterceptor() {
-        super();
+        super(Phase.PRE_LOGICAL);
         addAfter(HolderOutInterceptor.class.getName());
         addBefore(WrapperClassOutInterceptor.class.getName());
-        setPhase(Phase.PRE_LOGICAL);
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
@@ -272,7 +273,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
     
     private Collection<Attachment> setupAttachmentOutput(SoapMessage message) {
         // We have attachments, so add the interceptor
-        message.getInterceptorChain().add(new AttachmentOutInterceptor());
+        message.getInterceptorChain().add(attachOut);
         // We should probably come up with another property for this
         message.put(AttachmentOutInterceptor.WRITE_ATTACHMENTS, Boolean.TRUE);
         

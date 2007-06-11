@@ -27,7 +27,8 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
     private Binding binding;
     
-    protected AbstractJAXWSHandlerInterceptor(Binding b) {
+    protected AbstractJAXWSHandlerInterceptor(Binding b, String phase) {
+        super(phase);
         binding = b;
     }
     

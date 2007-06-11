@@ -57,16 +57,13 @@ public class MustUnderstandInterceptorTest extends TestBase {
         
         Bus bus = BusFactory.getDefaultBus();
 
-        rhi = new ReadHeadersInterceptor(bus);
-        rhi.setPhase("phase1");
+        rhi = new ReadHeadersInterceptor(bus, "phase1");
         chain.add(rhi);
 
-        mui = new MustUnderstandInterceptor();
-        mui.setPhase("phase2");
+        mui = new MustUnderstandInterceptor("phase2");
         chain.add(mui);
 
-        dsi = new DummySoapInterceptor();
-        dsi.setPhase("phase3");
+        dsi = new DummySoapInterceptor("phase3");
         chain.add(dsi);
     }
 
@@ -138,6 +135,13 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
         private Set<URI> roles = new HashSet<URI>();
         private Set<QName> understood = new HashSet<QName>();
+
+        public DummySoapInterceptor() {
+            super("");
+        }
+        public DummySoapInterceptor(String phase) {
+            super(phase);
+        }
 
         public void handleMessage(SoapMessage messageParam) {
         }

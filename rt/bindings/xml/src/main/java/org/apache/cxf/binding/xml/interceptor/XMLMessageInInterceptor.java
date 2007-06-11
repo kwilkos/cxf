@@ -50,8 +50,10 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageInInterceptor.class);
     
     public XMLMessageInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        this(Phase.UNMARSHAL);
+    }
+    public XMLMessageInInterceptor(String phase) {
+        super(phase);
         addBefore(DocLiteralInInterceptor.class.getName());
     }
 

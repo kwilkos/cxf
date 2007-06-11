@@ -29,7 +29,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
 public class DatabindingInSetupInterceptor extends AbstractPhaseInterceptor<Message> {
-
+    
     private static final WrappedInInterceptor WRAPPED_IN = new WrappedInInterceptor();
     private static final XMLMessageInInterceptor XML_IN = new XMLMessageInInterceptor();
     private static final DocLiteralInInterceptor DOCLIT_IN = new DocLiteralInInterceptor();
@@ -38,8 +38,7 @@ public class DatabindingInSetupInterceptor extends AbstractPhaseInterceptor<Mess
     private static final DispatchInterceptor DISPATCH_IN = new DispatchInterceptor();
     
     public DatabindingInSetupInterceptor() {
-        super();
-        setPhase(Phase.RECEIVE);
+        super(Phase.RECEIVE);
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -47,9 +46,9 @@ public class DatabindingInSetupInterceptor extends AbstractPhaseInterceptor<Mess
         InterceptorChain chain = message.getInterceptorChain();
         
         if (client) {
-            chain.add(WRAPPED_IN);
-            chain.add(XML_IN);
             chain.add(DOCLIT_IN);
+            chain.add(XML_IN);
+            chain.add(WRAPPED_IN);
             chain.add(STAX_IN);
         } else {
             chain.add(URI_IN);

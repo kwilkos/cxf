@@ -105,4 +105,8 @@ public class Phase implements Comparable {
         }
         return priority - p.priority;
     }
+    
+    public String toString() {
+        return "Phase(" + getName() + ")";
+    }
 }

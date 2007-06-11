@@ -34,7 +34,7 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
     private static final Logger LOG 
         = LogUtils.getL7dLogger(PolicyVerificationOutInterceptor.class);
     public PolicyVerificationOutInterceptor() {
-        setPhase(Phase.POST_STREAM);
+        super(Phase.POST_STREAM);
     }
 
     /** 

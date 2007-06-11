@@ -634,7 +634,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         
         class MessageNumberInterceptor extends AbstractPhaseInterceptor {
             public MessageNumberInterceptor() {
-                setPhase(Phase.USER_LOGICAL);
+                super(Phase.USER_LOGICAL);
             }
             
             public void handleMessage(Message m) {
@@ -703,7 +703,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         
         class SequenceIdInterceptor extends AbstractPhaseInterceptor {
             public SequenceIdInterceptor() {
-                setPhase(Phase.USER_LOGICAL);
+                super(Phase.USER_LOGICAL);
             }
             
             public void handleMessage(Message m) {

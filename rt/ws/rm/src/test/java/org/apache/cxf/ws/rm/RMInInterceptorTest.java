@@ -22,8 +22,9 @@ package org.apache.cxf.ws.rm;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -65,8 +66,10 @@ public class RMInInterceptorTest extends Assert {
     public void testOrdering() {
         control.replay();
         Phase p = new Phase(Phase.PRE_LOGICAL, 1);
+        SortedSet<Phase> phases = new TreeSet<Phase>();
+        phases.add(p);
         PhaseInterceptorChain chain = 
-            new PhaseInterceptorChain(Collections.singletonList(p));
+            new PhaseInterceptorChain(phases);
         MAPAggregator map = new MAPAggregator();
         RMInInterceptor rmi = new RMInInterceptor();        
         chain.add(rmi);

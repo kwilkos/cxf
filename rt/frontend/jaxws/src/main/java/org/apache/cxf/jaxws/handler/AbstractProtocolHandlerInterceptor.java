@@ -32,8 +32,10 @@ public abstract class AbstractProtocolHandlerInterceptor<T extends Message>
     extends AbstractJAXWSHandlerInterceptor<T> {
     
     protected AbstractProtocolHandlerInterceptor(Binding binding) {
-        super(binding);
-        setPhase(Phase.USER_PROTOCOL);
+        super(binding, Phase.USER_PROTOCOL);
+    }
+    protected AbstractProtocolHandlerInterceptor(Binding binding, String phase) {
+        super(binding, phase);
     }
     
     public void handleMessage(T message) {

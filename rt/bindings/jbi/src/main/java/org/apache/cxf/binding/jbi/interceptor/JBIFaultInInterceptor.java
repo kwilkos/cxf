@@ -45,7 +45,8 @@ public class JBIFaultInInterceptor extends AbstractPhaseInterceptor<JBIMessage> 
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JBIFaultInInterceptor.class);
     public JBIFaultInInterceptor() {
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
+        addBefore("*");
     }
     
     public void handleMessage(JBIMessage message) throws Fault {

@@ -165,8 +165,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
     public static class NestedFaultThrower extends AbstractPhaseInterceptor<Message> {
         
         public NestedFaultThrower() {
-            super();
-            setPhase(Phase.PRE_LOGICAL);
+            super(Phase.PRE_LOGICAL);
             addBefore(FaultThrower.class.getName());
         }
 
@@ -183,8 +182,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
     public static class FaultThrower extends AbstractPhaseInterceptor<Message> {
         
         public FaultThrower() {
-            super();
-            setPhase(Phase.PRE_LOGICAL);
+            super(Phase.PRE_LOGICAL);
         }
 
         public void handleMessage(Message message) throws Fault {

@@ -60,8 +60,11 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
 
     private Bus bus;
     public ReadHeadersInterceptor(Bus b) {
-        super();
-        setPhase(Phase.READ);
+        super(Phase.READ);
+        bus = b;
+    }
+    public ReadHeadersInterceptor(Bus b, String phase) {
+        super(phase);
         bus = b;
     }
 

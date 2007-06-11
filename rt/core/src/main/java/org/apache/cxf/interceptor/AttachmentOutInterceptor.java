@@ -35,9 +35,10 @@ public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> 
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AttachmentOutInterceptor.class);
 
+    private AttachmentOutEndingInterceptor ending = new AttachmentOutEndingInterceptor();
+    
     public AttachmentOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_STREAM);
+        super(Phase.PRE_STREAM);
     }
 
     public void handleMessage(Message message) {
@@ -61,13 +62,12 @@ public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> 
         message.setContent(AttachmentSerializer.class, serializer);
         
         // Add a final interceptor to write attachements
-        message.getInterceptorChain().add(new AttachmentOutEndingInterceptor());   
+        message.getInterceptorChain().add(ending);   
     }
     
     public class AttachmentOutEndingInterceptor extends AbstractPhaseInterceptor<Message> {
         public AttachmentOutEndingInterceptor() {
-            super();
-            setPhase(Phase.PRE_STREAM_ENDING);
+            super(Phase.PRE_STREAM_ENDING);
         }
 
         public void handleMessage(Message message) {

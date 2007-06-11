@@ -43,19 +43,10 @@ public class PolicyLoggingInterceptor extends AbstractPhaseInterceptor {
 
     private static final Logger LOG = Logger.getLogger(PolicyLoggingInterceptor.class.getName());
     
-    private boolean outbound;
     private Bus bus;
     
     PolicyLoggingInterceptor(boolean o) {
-        outbound = o;
-        // setPhase(Phase.PRE_LOGICAL);
-        if (outbound) {
-            setPhase(Phase.POST_STREAM);
-            // addBefore(PolicyVerificationOutInterceptor.class.getName());
-        } else {
-            setPhase(Phase.POST_INVOKE);
-            // addBefore(PolicyVerificationInInterceptor.class.getName());
-        }
+        super(o ? Phase.POST_STREAM : Phase.POST_INVOKE);
     }
     
     public void setBus(Bus b) {

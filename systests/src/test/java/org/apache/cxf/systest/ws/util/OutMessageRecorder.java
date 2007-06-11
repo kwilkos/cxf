@@ -22,9 +22,7 @@ package org.apache.cxf.systest.ws.util;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,11 +42,11 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     
     private static final Logger LOG = Logger.getLogger(OutMessageRecorder.class.getName());
     private List<byte[]> outbound;
-    private Set<String> before = Collections.singleton(StaxOutInterceptor.class.getName());
 
     public OutMessageRecorder() {
+        super(Phase.PRE_PROTOCOL);
         outbound = new ArrayList<byte[]>();
-        setPhase(Phase.PRE_PROTOCOL);
+        addBefore(StaxOutInterceptor.class.getName());
     }
     
     public void handleMessage(Message message) throws Fault {
@@ -64,12 +62,6 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         }
     }
    
-    @Override
-    public Set<String> getBefore() {
-        return before;
-    }
-
-
     public List<byte[]> getOutboundMessages() {
         return outbound;
     } 

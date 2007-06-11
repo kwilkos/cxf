@@ -51,8 +51,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIMappingInterceptor.class);
     
     public URIMappingInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
     }
 
     public void handleMessage(Message message) throws Fault {

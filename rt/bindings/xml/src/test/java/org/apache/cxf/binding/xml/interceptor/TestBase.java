@@ -22,8 +22,8 @@ package org.apache.cxf.binding.xml.interceptor;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
@@ -68,7 +68,7 @@ public class TestBase extends TestCase {
     protected ServiceInfo serviceInfo;
     
     public void setUp() throws Exception {
-        List<Phase> phases = new ArrayList<Phase>();
+        SortedSet<Phase> phases = new TreeSet<Phase>();
         Phase phase1 = new Phase("phase1", 1);
         Phase phase2 = new Phase("phase2", 2);
         Phase phase3 = new Phase("phase3", 3);

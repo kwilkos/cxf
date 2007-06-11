@@ -40,7 +40,7 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
         = LogUtils.getL7dLogger(PolicyVerificationInFaultInterceptor.class);
 
     public PolicyVerificationInFaultInterceptor() {
-        setPhase(Phase.PRE_INVOKE);
+        super(Phase.PRE_INVOKE);
     }
 
     /** 

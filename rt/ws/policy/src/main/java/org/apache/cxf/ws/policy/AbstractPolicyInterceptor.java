@@ -36,6 +36,13 @@ public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor
     
     protected Bus bus;
     
+    public AbstractPolicyInterceptor(String phase) {
+        super(phase);
+    }
+    public AbstractPolicyInterceptor(String id, String phase) {
+        super(id, phase);
+    }
+    
     public void setBus(Bus b) {
         bus = b;
     }

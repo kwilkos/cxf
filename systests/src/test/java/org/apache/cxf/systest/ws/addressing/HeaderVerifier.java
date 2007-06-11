@@ -61,8 +61,7 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
     String currentNamespaceURI;
     
     public HeaderVerifier() {
-        super();
-        setPhase(Phase.POST_PROTOCOL);
+        super(Phase.POST_PROTOCOL);
     }
     
     public Set<QName> getUnderstoodHeaders() {

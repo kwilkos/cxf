@@ -18,7 +18,7 @@
  */
 package org.apache.cxf.interceptor;
 
-import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
@@ -42,7 +42,7 @@ public class OutFaultChainInitiatorObserver extends AbstractFaultChainInitiatorO
         chain.add(getBus().getOutFaultInterceptors());
     }
     
-    protected List<Phase> getPhases() {
+    protected SortedSet<Phase> getPhases() {
         return getBus().getExtension(PhaseManager.class).getOutPhases();
     }
 

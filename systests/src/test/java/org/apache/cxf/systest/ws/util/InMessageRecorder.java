@@ -38,8 +38,8 @@ public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
     private List<byte[]> inbound;
 
     public InMessageRecorder() {
+        super(Phase.RECEIVE);
         inbound = new ArrayList<byte[]>();
-        setPhase(Phase.RECEIVE);
     }
 
     public void handleMessage(Message message) throws Fault {

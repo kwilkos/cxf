@@ -19,9 +19,6 @@
 
 package org.apache.cxf.management.interceptor;
 
-import java.util.Collections;
-import java.util.Set;
-
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.ServiceInvokerInterceptor;
 import org.apache.cxf.message.Exchange;
@@ -34,14 +31,11 @@ import org.apache.cxf.phase.Phase;
  * */ 
 public class ResponseTimeMessageInvokerInterceptor 
     extends AbstractMessageResponseTimeInterceptor {
-    //this interceptor should be add after the serviceInvokerInterceptor
-    private Set<String> before = Collections.singleton(ServiceInvokerInterceptor.class.getName());
       
     public ResponseTimeMessageInvokerInterceptor() {
-        super();
-        setPhase(Phase.INVOKE);
-        
-        
+        super(Phase.INVOKE);
+        //this interceptor should be add before the serviceInvokerInterceptor
+        addBefore(ServiceInvokerInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -50,9 +44,5 @@ public class ResponseTimeMessageInvokerInterceptor
             setOneWayMessage(ex); 
         }
     }
-    
-    @Override
-    public Set<String> getBefore() {
-        return before;
-    }
+
 }

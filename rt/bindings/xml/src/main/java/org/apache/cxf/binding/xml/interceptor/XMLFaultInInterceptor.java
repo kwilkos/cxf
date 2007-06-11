@@ -42,8 +42,10 @@ public class XMLFaultInInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLFaultInInterceptor.class);
 
     public XMLFaultInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        this(Phase.UNMARSHAL);
+    }
+    public XMLFaultInInterceptor(String phase) {
+        super(phase);
         addBefore(ClientFaultConverter.class.getName());
     }
     

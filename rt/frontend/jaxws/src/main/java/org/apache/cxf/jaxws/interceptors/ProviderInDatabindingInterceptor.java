@@ -43,8 +43,7 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
     Class type;
     
     public ProviderInDatabindingInterceptor(Class type) {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addAfter(URIMappingInterceptor.class.getName());
         this.type = type;
     }

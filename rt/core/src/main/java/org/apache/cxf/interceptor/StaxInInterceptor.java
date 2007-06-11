@@ -46,8 +46,10 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
     private static Map<Object, XMLInputFactory> factories = new HashMap<Object, XMLInputFactory>();
 
     public StaxInInterceptor() {
-        super();
-        setPhase(Phase.POST_STREAM);
+        super(Phase.POST_STREAM);
+    }
+    public StaxInInterceptor(String phase) {
+        super(phase);
     }
 
     public void handleMessage(Message message) {

@@ -19,7 +19,7 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.message.Message;
@@ -34,7 +34,7 @@ public class ClientOutFaultObserver extends AbstractFaultChainInitiatorObserver 
     }
     
     @Override
-    protected List<Phase> getPhases() {
+    protected SortedSet<Phase> getPhases() {
         return getBus().getExtension(PhaseManager.class).getOutPhases();
     }
     /**

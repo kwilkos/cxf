@@ -35,8 +35,7 @@ import org.apache.cxf.phase.Phase;
 public class MediatorInInterceptor extends AbstractEndpointSelectionInterceptor {
 
     public MediatorInInterceptor() {
-        super();
-        setPhase(Phase.POST_STREAM);
+        super(Phase.POST_STREAM);
         addBefore(StaxInInterceptor.class.getName());
     }
 

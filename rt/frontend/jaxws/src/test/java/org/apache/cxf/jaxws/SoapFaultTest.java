@@ -97,7 +97,7 @@ public class SoapFaultTest extends AbstractJaxWsTest {
 
     public class FaultThrowingInterceptor extends AbstractSoapInterceptor {
         public FaultThrowingInterceptor() {
-            setPhase(Phase.USER_LOGICAL);
+            super(Phase.USER_LOGICAL);
         }
 
         public void handleMessage(SoapMessage message) throws Fault {

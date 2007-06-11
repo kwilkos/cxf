@@ -19,23 +19,33 @@
 
 package org.apache.cxf.phase;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.common.util.SortedArraySet;
 import org.apache.cxf.message.Message;
 
 public abstract class AbstractPhaseInterceptor<T extends Message> implements PhaseInterceptor<T> {
-    private String id;
+    private final String id;
     private String phase;
-    private Set<String> before = new HashSet<String>();
-    private Set<String> after = new HashSet<String>();
+    private final Set<String> before = new SortedArraySet<String>();
+    private final Set<String> after = new SortedArraySet<String>();
 
-    
+    /**
+     * @deprecated
+     */
     public AbstractPhaseInterceptor() {
+        this(null, null);
+    }
+    
+    public AbstractPhaseInterceptor(String phase) {
+        this(null, phase);
+    }
+    public AbstractPhaseInterceptor(String i, String p) {
         super();
-        id = getClass().getName();
+        id = i == null ? getClass().getName() : i;
+        phase = p;
     }
 
     public void addBefore(String i) {
@@ -46,36 +56,20 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
         after.add(i);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.cxf.phase.PhaseInterceptor#getAfter()
-     */
-    public Set<String> getAfter() {
+
+    public final Set<String> getAfter() {
         return after;
     }
 
-    public void setAfter(Set<String> a) {
-        this.after = a;
-    }
-
-    public Set<String> getBefore() {
+    public final Set<String> getBefore() {
         return before;
     }
 
-    public void setBefore(Set<String> b) {
-        this.before = b;
-    }
-
-    public String getId() {
+    public final String getId() {
         return id;
     }
 
-    public void setId(String i) {
-        this.id = i;
-    }
-
-    public String getPhase() {
+    public final String getPhase() {
         return phase;
     }
 

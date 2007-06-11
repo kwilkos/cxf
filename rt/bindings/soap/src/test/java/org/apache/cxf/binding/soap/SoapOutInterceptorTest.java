@@ -40,16 +40,13 @@ public class SoapOutInterceptorTest extends TestBase {
 
     public void setUp() throws Exception {
         super.setUp();
-        StaxInInterceptor sii = new StaxInInterceptor();
-        sii.setPhase("phase1");
+        StaxInInterceptor sii = new StaxInInterceptor("phase1");
         chain.add(sii);
 
-        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
-        rhi.setPhase("phase2");
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus(), "phase2");
         chain.add(rhi);
 
-        soi = new SoapOutInterceptor(BusFactory.getDefaultBus());
-        soi.setPhase("phase3");
+        soi = new SoapOutInterceptor(BusFactory.getDefaultBus(), "phase3");
         chain.add(soi);
     }
 

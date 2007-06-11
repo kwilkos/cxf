@@ -31,9 +31,19 @@ import org.apache.cxf.transport.MultipleEndpointObserver;
 
 public abstract class AbstractEndpointSelectionInterceptor extends AbstractPhaseInterceptor<Message> {
     
+    /**
+     * @deprecated
+     */
     public AbstractEndpointSelectionInterceptor() {
-        super();
-        
+        super(null);
+    }
+    
+    
+    public AbstractEndpointSelectionInterceptor(String phase) {
+        super(phase);
+    }
+    public AbstractEndpointSelectionInterceptor(String id, String phase) {
+        super(id, phase);
     }
 
     public void handleMessage(Message message) throws Fault {

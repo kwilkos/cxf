@@ -32,8 +32,7 @@ public class LogicalHandlerFaultInInterceptor<T extends Message>
     extends AbstractJAXWSHandlerInterceptor<T> {
 
     public LogicalHandlerFaultInInterceptor(Binding binding) {
-        super(binding);
-        setPhase(Phase.PRE_PROTOCOL);
+        super(binding, Phase.PRE_PROTOCOL);
         addAfter(SOAPHandlerFaultInInterceptor.class.getName());       
     }
 

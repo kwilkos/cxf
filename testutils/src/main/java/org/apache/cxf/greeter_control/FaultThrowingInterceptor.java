@@ -38,12 +38,12 @@ public class FaultThrowingInterceptor extends AbstractPhaseInterceptor {
     private static final Logger LOG = Logger.getLogger(FaultThrowingInterceptor.class.getName());
     
     public FaultThrowingInterceptor() {
-        super.setPhase(Phase.USER_LOGICAL);
+        super(Phase.USER_LOGICAL);
     }
     
     
     public FaultThrowingInterceptor(String phase) {
-        super.setPhase(phase);
+        super(phase);
     }
 
     public synchronized void handleMessage(Message message) throws Fault {

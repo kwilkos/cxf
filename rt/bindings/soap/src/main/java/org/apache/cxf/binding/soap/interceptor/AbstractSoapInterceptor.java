@@ -34,6 +34,21 @@ import org.apache.cxf.staxutils.StaxUtils;
 public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<SoapMessage> 
     implements SoapInterceptor {
 
+    /**
+     * @deprecated
+     */
+    public AbstractSoapInterceptor() {
+        super(null);
+    }
+    
+    public AbstractSoapInterceptor(String p) {
+        super(p);
+    }
+    public AbstractSoapInterceptor(String i, String p) {
+        super(i, p);
+    }
+
+    
     protected boolean isRequestor(org.apache.cxf.message.Message message) {
         return Boolean.TRUE.equals(message.containsKey(
             org.apache.cxf.message.Message.REQUESTOR_ROLE));

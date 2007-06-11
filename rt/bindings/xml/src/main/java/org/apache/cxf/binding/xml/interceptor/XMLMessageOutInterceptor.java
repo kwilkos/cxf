@@ -43,8 +43,10 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageOutInterceptor.class);
 
     public XMLMessageOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        this(Phase.MARSHAL);
+    }
+    public XMLMessageOutInterceptor(String phase) {
+        super(phase);
         addAfter(WrappedOutInterceptor.class.getName());
     }
 

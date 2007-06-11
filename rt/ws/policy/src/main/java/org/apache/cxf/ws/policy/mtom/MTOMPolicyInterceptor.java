@@ -30,7 +30,7 @@ import org.apache.cxf.ws.policy.AssertionInfoMap;
 
 public class MTOMPolicyInterceptor extends AbstractPhaseInterceptor<Message> {
     public MTOMPolicyInterceptor() {
-        setPhase(Phase.POST_LOGICAL);
+        super(Phase.POST_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {

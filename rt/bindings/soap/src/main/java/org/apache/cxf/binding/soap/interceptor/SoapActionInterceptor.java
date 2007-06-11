@@ -37,8 +37,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 public class SoapActionInterceptor extends AbstractSoapInterceptor {
     
     public SoapActionInterceptor() {
-        super();
-        setPhase(Phase.POST_LOGICAL);
+        super(Phase.POST_LOGICAL);
     }
     
     public void handleMessage(SoapMessage message) throws Fault {

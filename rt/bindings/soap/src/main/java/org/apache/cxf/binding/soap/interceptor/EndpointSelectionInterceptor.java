@@ -40,8 +40,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 public class EndpointSelectionInterceptor extends AbstractEndpointSelectionInterceptor {
     
     public EndpointSelectionInterceptor() {
-        super();
-        setPhase(Phase.READ);
+        super(Phase.READ);
         getAfter().add(ReadHeadersInterceptor.class.getName());
     }
 

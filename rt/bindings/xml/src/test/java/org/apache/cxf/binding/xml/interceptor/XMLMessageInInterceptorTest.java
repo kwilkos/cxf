@@ -33,12 +33,11 @@ import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
 
 public class XMLMessageInInterceptorTest extends TestBase {
 
-    XMLMessageInInterceptor in = new XMLMessageInInterceptor();
+    XMLMessageInInterceptor in = new XMLMessageInInterceptor("phase1");
     DocLiteralInInterceptor docLitIn = new DocLiteralInInterceptor();
 
     public void setUp() throws Exception {
         super.setUp();
-        in.setPhase("phase1");
         chain.add(in);
     }
 

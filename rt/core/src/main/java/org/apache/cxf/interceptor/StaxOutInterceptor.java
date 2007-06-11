@@ -43,10 +43,11 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(StaxOutInterceptor.class);
     private static Map<Object, XMLOutputFactory> factories = new HashMap<Object, XMLOutputFactory>();
 
+    private StaxOutEndingInterceptor ending = new StaxOutEndingInterceptor();
+    
     public StaxOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_STREAM);
-        getAfter().add(AttachmentOutInterceptor.class.getName());
+        super(Phase.PRE_STREAM);
+        addAfter(AttachmentOutInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) {
@@ -78,7 +79,7 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
         message.setContent(XMLStreamWriter.class, writer);
 
         // Add a final interceptor to write end elements
-        message.getInterceptorChain().add(new StaxOutEndingInterceptor());
+        message.getInterceptorChain().add(ending);
     }
 
     public static XMLOutputFactory getXMLOutputFactory(Message m) throws Fault {
@@ -119,8 +120,7 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
     
     public class StaxOutEndingInterceptor extends AbstractPhaseInterceptor<Message> {
         public StaxOutEndingInterceptor() {
-            super();
-            setPhase(Phase.PRE_STREAM_ENDING);
+            super(Phase.PRE_STREAM_ENDING);
             getAfter().add(AttachmentOutInterceptor.AttachmentOutEndingInterceptor.class.getName());
         }
 

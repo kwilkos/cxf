@@ -39,8 +39,7 @@ import static org.apache.cxf.message.Message.MIME_HEADERS;
 public class SoapPreProtocolOutInterceptor extends AbstractSoapInterceptor {
 
     public SoapPreProtocolOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_STREAM);
+        super(Phase.PRE_STREAM);
         getBefore().add(AttachmentOutInterceptor.class.getName());
     }
 

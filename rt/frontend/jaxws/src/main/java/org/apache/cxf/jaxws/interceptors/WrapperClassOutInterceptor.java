@@ -36,8 +36,7 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message> {
     public WrapperClassOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {

@@ -18,8 +18,8 @@
  */
 package org.apache.cxf.binding.coloc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.interceptor.OutFaultChainInitiatorObserver;
@@ -28,14 +28,14 @@ import org.apache.cxf.phase.PhaseManager;
 
 public class ColocOutFaultObserver extends OutFaultChainInitiatorObserver {
 
-    List<Phase> list;
+    SortedSet<Phase> list;
     public ColocOutFaultObserver(Bus bus) {
         super(bus);
-        list = new ArrayList<Phase>(bus.getExtension(PhaseManager.class).getOutPhases());
+        list = new TreeSet<Phase>(bus.getExtension(PhaseManager.class).getOutPhases());
         ColocUtil.setPhases(list, Phase.SETUP, Phase.USER_LOGICAL);        
     }
 
-    protected List<Phase> getPhases() {
+    protected SortedSet<Phase> getPhases() {
         return list;
     }
 }

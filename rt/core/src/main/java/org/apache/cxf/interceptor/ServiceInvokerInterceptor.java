@@ -40,8 +40,7 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
    
     
     public ServiceInvokerInterceptor() {
-        super();
-        setPhase(Phase.INVOKE);
+        super(Phase.INVOKE);
     }
 
     public void handleMessage(final Message message) {

@@ -47,8 +47,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
     private static final Logger LOG = Logger.getLogger(RPCInInterceptor.class.getName());
     
     public RPCInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addAfter(URIMappingInterceptor.class.getName());
     }
 

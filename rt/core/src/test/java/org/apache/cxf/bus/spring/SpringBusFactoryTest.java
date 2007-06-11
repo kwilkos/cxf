@@ -21,6 +21,7 @@ package org.apache.cxf.bus.spring;
 
 import java.net.URL;
 import java.util.List;
+import java.util.SortedSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -140,18 +141,14 @@ public class SpringBusFactoryTest extends Assert {
         Bus bus = new SpringBusFactory().createBus();
         PhaseManager cxfPM = bus.getExtension(PhaseManager.class);
         PhaseManager defaultPM = new PhaseManagerImpl();
-        List<Phase> cxfPhases = cxfPM.getInPhases();
-        List<Phase> defaultPhases = defaultPM.getInPhases();
+        SortedSet<Phase> cxfPhases = cxfPM.getInPhases();
+        SortedSet<Phase> defaultPhases = defaultPM.getInPhases();
         assertEquals(defaultPhases.size(), cxfPhases.size());
-        for (int i = 0; i < cxfPhases.size(); i++) {
-            assertEquals(0, cxfPhases.get(i).compareTo(defaultPhases.get(i)));
-        }
+        assertTrue(cxfPhases.equals(defaultPhases));
         cxfPhases = cxfPM.getOutPhases();
         defaultPhases = defaultPM.getOutPhases();
         assertEquals(defaultPhases.size(), cxfPhases.size());
-        for (int i = 0; i < cxfPhases.size(); i++) {
-            assertEquals(0, cxfPhases.get(i).compareTo(defaultPhases.get(i)));
-        }
+        assertTrue(cxfPhases.equals(defaultPhases));
     }
 
     @Test

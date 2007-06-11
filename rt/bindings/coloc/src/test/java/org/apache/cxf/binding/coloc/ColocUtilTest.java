@@ -21,6 +21,7 @@ package org.apache.cxf.binding.coloc;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 import javax.xml.namespace.QName;
 
@@ -70,17 +71,17 @@ public class ColocUtilTest extends Assert {
     @Test
     public void testSetColocInPhases() throws Exception {
         PhaseManagerImpl phaseMgr = new PhaseManagerImpl();
-        List<Phase> list = phaseMgr.getInPhases();
+        SortedSet<Phase> list = phaseMgr.getInPhases();
         int size1 = list.size();
         ColocUtil.setPhases(list, Phase.USER_LOGICAL, Phase.INVOKE);
 
         assertNotSame("The list size should not be same",
                       size1, list.size());
         assertEquals("Expecting Phase.USER_LOGICAL",
-                     list.get(0).getName(),
+                     list.first().getName(),
                      Phase.USER_LOGICAL);
         assertEquals("Expecting Phase.POST_INVOKE",
-                     list.get(list.size() - 1).getName(),
+                     list.last().getName(),
                      Phase.INVOKE);
     }
 
@@ -88,17 +89,17 @@ public class ColocUtilTest extends Assert {
     public void testSetColocOutPhases() throws Exception {
         PhaseManagerImpl phaseMgr = new PhaseManagerImpl();
 
-        List<Phase> list = phaseMgr.getOutPhases();
+        SortedSet<Phase> list = phaseMgr.getOutPhases();
         int size1 = list.size();
         ColocUtil.setPhases(list, Phase.SETUP, Phase.POST_LOGICAL);
 
         assertNotSame("The list size should not be same",
                       size1, list.size());
         assertEquals("Expecting Phase.SETUP",
-                     list.get(0).getName(),
+                     list.first().getName(),
                      Phase.SETUP);
         assertEquals("Expecting Phase.POST_LOGICAL",
-                     list.get(list.size() - 1).getName(),
+                     list.last().getName(),
                      Phase.POST_LOGICAL);
 
     }
@@ -106,7 +107,7 @@ public class ColocUtilTest extends Assert {
     @Test
     public void testGetOutInterceptorChain() throws Exception {
         PhaseManagerImpl phaseMgr = new PhaseManagerImpl();
-        List<Phase> list = phaseMgr.getInPhases();
+        SortedSet<Phase> list = phaseMgr.getInPhases();
         ColocUtil.setPhases(list, Phase.SETUP, Phase.POST_LOGICAL);
         
         Endpoint ep = control.createMock(Endpoint.class);
@@ -135,7 +136,7 @@ public class ColocUtilTest extends Assert {
     @Test
     public void testGetInInterceptorChain() throws Exception {
         PhaseManagerImpl phaseMgr = new PhaseManagerImpl();
-        List<Phase> list = phaseMgr.getInPhases();
+        SortedSet<Phase> list = phaseMgr.getInPhases();
         ColocUtil.setPhases(list, Phase.SETUP, Phase.POST_LOGICAL);
         
         Endpoint ep = control.createMock(Endpoint.class);

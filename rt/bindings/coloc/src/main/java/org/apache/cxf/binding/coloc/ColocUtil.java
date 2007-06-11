@@ -21,7 +21,7 @@ package org.apache.cxf.binding.coloc;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.SortedSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,10 +45,10 @@ public final class ColocUtil {
         //Completge
     }
 
-    public static void setPhases(List<Phase> list, String start, String end) {
+    public static void setPhases(SortedSet<Phase> list, String start, String end) {
         Phase startPhase = new Phase(start, 1);
         Phase endPhase = new Phase(end, 2);
-        ListIterator<Phase> iter = list.listIterator();
+        Iterator<Phase> iter = list.iterator();
         boolean remove = true;
         while (iter.hasNext()) {
             Phase p = iter.next();
@@ -63,7 +63,7 @@ public final class ColocUtil {
         }
     }
     
-    public static InterceptorChain getOutInterceptorChain(Exchange ex, List<Phase> phases) {
+    public static InterceptorChain getOutInterceptorChain(Exchange ex, SortedSet<Phase> phases) {
         Bus bus = ex.get(Bus.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(phases);
         
@@ -87,7 +87,7 @@ public final class ColocUtil {
         return chain;
     }
     
-    public static InterceptorChain getInInterceptorChain(Exchange ex, List<Phase> phases) {
+    public static InterceptorChain getInInterceptorChain(Exchange ex, SortedSet<Phase> phases) {
         Bus bus = ex.get(Bus.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(phases);
         

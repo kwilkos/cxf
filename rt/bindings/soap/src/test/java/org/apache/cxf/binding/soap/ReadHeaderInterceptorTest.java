@@ -47,8 +47,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
     public void setUp() throws Exception {
         super.setUp();
 
-        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
-        rhi.setPhase("phase1");
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus(), "phase1");
         chain.add(rhi);
     }
 

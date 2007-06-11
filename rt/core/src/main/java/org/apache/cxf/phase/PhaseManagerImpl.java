@@ -19,22 +19,22 @@
 
 package org.apache.cxf.phase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
 
+import org.apache.cxf.common.util.SortedArraySet;
 import org.apache.cxf.extension.BusExtension;
 
 public class PhaseManagerImpl implements PhaseManager, BusExtension {
 
-    private  List<Phase> inPhases;
-    private  List<Phase> outPhases;
+    private SortedSet<Phase> inPhases;
+    private SortedSet<Phase> outPhases;
 
     public PhaseManagerImpl() {
         createInPhases();
         createOutPhases();
     }
 
-    public PhaseManagerImpl(List<Phase> in, List<Phase> out) {
+    public PhaseManagerImpl(SortedSet<Phase> in, SortedSet<Phase> out) {
         inPhases = in;
         outPhases = out;
     }
@@ -43,20 +43,18 @@ public class PhaseManagerImpl implements PhaseManager, BusExtension {
         return PhaseManager.class;
     }
 
-    public List<Phase> getInPhases() {
+    public SortedSet<Phase> getInPhases() {
         return inPhases;
     }
 
-    public List<Phase> getOutPhases() {
+    public SortedSet<Phase> getOutPhases() {
         return outPhases;
     }
 
     final void createInPhases() {
-
-        inPhases = new ArrayList<Phase>();
         int i = 0;
 
-        inPhases = new ArrayList<Phase>();
+        inPhases = new SortedArraySet<Phase>();
         inPhases.add(new Phase(Phase.RECEIVE, ++i * 1000));
         inPhases.add(new Phase(Phase.PRE_STREAM, ++i * 1000));
         inPhases.add(new Phase(Phase.USER_STREAM, ++i * 1000));
@@ -76,7 +74,7 @@ public class PhaseManagerImpl implements PhaseManager, BusExtension {
 
     final void createOutPhases() {
 
-        outPhases = new ArrayList<Phase>();
+        outPhases = new SortedArraySet<Phase>();
         int i = 0;
 
         outPhases.add(new Phase(Phase.SETUP, ++i * 1000));

@@ -27,7 +27,6 @@ import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
-import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractJAXWSHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
@@ -41,10 +40,8 @@ public class LogicalHandlerInInterceptor<T extends Message>
     extends AbstractJAXWSHandlerInterceptor<T> {
 
     public LogicalHandlerInInterceptor(Binding binding) {
-        super(binding);
-        setPhase(Phase.PRE_PROTOCOL);
+        super(binding, Phase.PRE_PROTOCOL);
         addAfter(MustUnderstandInterceptor.class.getName());
-        addAfter(StaxOutInterceptor.class.getName());
         addAfter(SAAJOutInterceptor.class.getName());
         addAfter(SOAPHandlerInterceptor.class.getName());
     }

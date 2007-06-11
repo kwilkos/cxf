@@ -34,6 +34,10 @@ public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
  
     RMManager manager;
       
+    public RetransmissionInterceptor() {
+        super(Phase.PRE_PROTOCOL);
+    }
+    
     public RMManager getManager() {
         return manager;
     }
@@ -42,10 +46,6 @@ public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
         this.manager = manager;
     }
 
-    @Override
-    public String getPhase() {
-        return Phase.PRE_PROTOCOL;
-    }
 
     public void handleMessage(Message message) throws Fault {
         handle(message, false);
@@ -56,10 +56,6 @@ public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
         handle(message, true);
     }
 
-    public String getId() {
-        return RetransmissionInterceptor.class.getName();
-    }
-    
     void handle(Message message, boolean isFault) {
         
         if (null == getManager().getRetransmissionQueue()) {

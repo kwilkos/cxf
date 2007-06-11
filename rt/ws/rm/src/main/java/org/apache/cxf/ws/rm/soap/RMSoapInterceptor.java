@@ -22,7 +22,6 @@ package org.apache.cxf.ws.rm.soap;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -53,7 +52,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.headers.Header;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -99,32 +97,15 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     private static final String WS_RM_PACKAGE = 
         PackageUtils.getPackageName(SequenceType.class);
     
-    private Set<String> after = Collections.singleton(MAPCodec.class.getName());
-
     /**
      * Constructor.
      */
     public RMSoapInterceptor() {
+        super(Phase.PRE_PROTOCOL);
+        
+        addAfter(MAPCodec.class.getName());
     } 
     
-    // PhaseInterceptor interface
-
-    public Set<String> getBefore() {
-        return CastUtils.cast(Collections.EMPTY_SET);        
-    }
-
-    public Set<String> getAfter() {
-        return after;
-    }
-
-    public String getId() {
-        return RMSoapInterceptor.class.getName();
-    }
-
-    public String getPhase() {
-        return Phase.PRE_PROTOCOL;
-    }
-      
     // AbstractSoapInterceptor interface 
     
     /**

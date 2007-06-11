@@ -47,7 +47,6 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
-import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
@@ -62,11 +61,18 @@ public class SOAPHandlerInterceptor extends
         SoapInterceptor {
     private static final SAAJOutInterceptor SAAJ_OUT = new SAAJOutInterceptor();
     
+    AbstractSoapInterceptor ending = new AbstractSoapInterceptor(
+            SOAPHandlerInterceptor.class.getName() + ".ENDING",
+            Phase.USER_PROTOCOL) {
+
+        public void handleMessage(SoapMessage message) throws Fault {
+            handleMessageInternal(message);
+        }
+    };
+    
     public SOAPHandlerInterceptor(Binding binding) {
-        super(binding);
-        setPhase(Phase.PRE_PROTOCOL);
+        super(binding, Phase.PRE_PROTOCOL);
         addAfter(MustUnderstandInterceptor.class.getName());
-        addAfter(StaxOutInterceptor.class.getName());
         addAfter(SAAJOutInterceptor.class.getName());
     }
 
@@ -98,20 +104,7 @@ public class SOAPHandlerInterceptor extends
 
             SAAJ_OUT.handleMessage(message);
 
-            message.getInterceptorChain().add(new AbstractSoapInterceptor() {
-                @Override
-                public String getPhase() {
-                    return Phase.USER_PROTOCOL;
-                }
-                @Override
-                public String getId() {
-                    return SOAPHandlerInterceptor.class.getName() + ".ENDING";
-                }
-
-                public void handleMessage(SoapMessage message) throws Fault {
-                    handleMessageInternal(message);
-                }
-            });
+            message.getInterceptorChain().add(ending);
         } else {
             handleMessageInternal(message);
             SOAPMessage msg = message.getContent(SOAPMessage.class);

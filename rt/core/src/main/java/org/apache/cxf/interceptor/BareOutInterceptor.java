@@ -33,8 +33,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public BareOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
     public void handleMessage(Message message) {

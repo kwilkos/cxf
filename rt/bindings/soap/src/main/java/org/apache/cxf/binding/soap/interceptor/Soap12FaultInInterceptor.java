@@ -46,8 +46,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class Soap12FaultInInterceptor extends AbstractSoapInterceptor {
     
     public Soap12FaultInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addBefore(ClientFaultConverter.class.getName());
     }
 

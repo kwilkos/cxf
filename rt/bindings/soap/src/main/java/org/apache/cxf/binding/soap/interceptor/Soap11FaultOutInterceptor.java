@@ -44,8 +44,7 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Soap11FaultOutInterceptor.class);
 
     public Soap11FaultOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
     public void handleMessage(SoapMessage message) throws Fault {

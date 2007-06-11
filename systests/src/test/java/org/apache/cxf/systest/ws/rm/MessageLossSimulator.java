@@ -47,8 +47,7 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
     private int appMessageCount; 
     
     public MessageLossSimulator() {
-        super();
-        setPhase(Phase.PREPARE_SEND);
+        super(Phase.PREPARE_SEND);
         addBefore(MessageSenderInterceptor.class.getName());
     }
 

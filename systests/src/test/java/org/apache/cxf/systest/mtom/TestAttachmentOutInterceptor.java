@@ -31,8 +31,7 @@ public class TestAttachmentOutInterceptor extends AbstractPhaseInterceptor<Messa
 
     
     public TestAttachmentOutInterceptor() {
-        super();
-        setPhase(Phase.SEND);
+        super(Phase.SEND);
     }
 
     public void handleMessage(Message message) throws Fault {

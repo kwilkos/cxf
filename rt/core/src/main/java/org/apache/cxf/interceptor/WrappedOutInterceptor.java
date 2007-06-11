@@ -35,9 +35,13 @@ import org.apache.cxf.service.model.MessagePartInfo;
 public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
 
+    private WrappedOutEndingInterceptor ending = new WrappedOutEndingInterceptor();
+    
     public WrappedOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        this(Phase.MARSHAL);
+    }
+    public WrappedOutInterceptor(String phase) {
+        super(phase);
         addBefore(BareOutInterceptor.class.getName());
     }
 
@@ -66,14 +70,13 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
             }
 
             // Add a final interceptor to write end element
-            message.getInterceptorChain().add(new WrappedOutEndingInterceptor());
+            message.getInterceptorChain().add(ending);
         }
     }
     
     public class WrappedOutEndingInterceptor extends AbstractOutDatabindingInterceptor {
         public WrappedOutEndingInterceptor() {
-            super();
-            setPhase(Phase.MARSHAL_ENDING);
+            super(Phase.MARSHAL_ENDING);
         }
 
         public void handleMessage(Message message) throws Fault {

@@ -33,8 +33,10 @@ import org.apache.cxf.service.Service;
 public class ProviderOutDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
     public ProviderOutDatabindingInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
+    }
+    public ProviderOutDatabindingInterceptor(String phase) {
+        super(phase);
     }
 
     public void handleMessage(Message message) throws Fault {

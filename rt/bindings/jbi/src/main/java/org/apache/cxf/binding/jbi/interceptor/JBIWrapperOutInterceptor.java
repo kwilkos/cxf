@@ -42,7 +42,7 @@ public class JBIWrapperOutInterceptor extends AbstractOutDatabindingInterceptor 
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     public JBIWrapperOutInterceptor() {
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
     public void handleMessage(Message message) throws Fault {

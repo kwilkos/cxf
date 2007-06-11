@@ -44,8 +44,10 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     public MustUnderstandInterceptor() {
-        super();
-        setPhase(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_PROTOCOL);
+    }
+    public MustUnderstandInterceptor(String phase) {
+        super(phase);
     }
 
     public void handleMessage(SoapMessage soapMessage) {

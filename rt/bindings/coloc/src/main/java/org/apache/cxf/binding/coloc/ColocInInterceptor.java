@@ -18,8 +18,8 @@
  */
 package org.apache.cxf.binding.coloc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 //import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,13 +38,13 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 
 public class ColocInInterceptor extends AbstractPhaseInterceptor<Message> {
+    
 //    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ColocInInterceptor.class);
     private static final Logger LOG = Logger.getLogger(ColocInInterceptor.class.getName());
 
     
     public ColocInInterceptor() {
-        super();
-        setPhase(Phase.INVOKE);
+        super(Phase.INVOKE);
         addAfter(ServiceInvokerInterceptor.class.getName());
     }
 
@@ -55,7 +55,7 @@ public class ColocInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
 
         Bus bus = ex.get(Bus.class);
-        List<Phase> phases = new ArrayList<Phase>(bus.getExtension(PhaseManager.class).getOutPhases());
+        SortedSet<Phase> phases = new TreeSet<Phase>(bus.getExtension(PhaseManager.class).getOutPhases());
 
         //TODO Set Coloc FaultObserver chain
         ColocUtil.setPhases(phases, Phase.SETUP, Phase.USER_LOGICAL);

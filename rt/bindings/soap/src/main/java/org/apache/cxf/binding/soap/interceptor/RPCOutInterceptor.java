@@ -37,8 +37,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public RPCOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
 

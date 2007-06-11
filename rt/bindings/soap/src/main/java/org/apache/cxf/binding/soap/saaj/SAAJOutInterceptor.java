@@ -58,7 +58,7 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SAAJOutInterceptor.class);
 
     public SAAJOutInterceptor() {
-        setPhase(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_PROTOCOL);
     }
     
     public void handleMessage(SoapMessage message) throws Fault {
@@ -100,8 +100,7 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
     
     public class SAAJOutEndingInterceptor extends AbstractSoapInterceptor {
         public SAAJOutEndingInterceptor() {
-            super();
-            setPhase(Phase.PRE_PROTOCOL_ENDING);
+            super(SAAJOutEndingInterceptor.class.getName(), Phase.PRE_PROTOCOL_ENDING);
         }
 
         public void handleMessage(SoapMessage message) throws Fault {

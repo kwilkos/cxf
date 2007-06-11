@@ -54,8 +54,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(DispatchOutInterceptor.class);
 
     public DispatchOutInterceptor() {
-        super();
-        setPhase(Phase.WRITE);
+        super(Phase.WRITE);
     }
 
     public void handleMessage(Message message) throws Fault {

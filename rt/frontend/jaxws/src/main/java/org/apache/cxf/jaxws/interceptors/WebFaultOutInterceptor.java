@@ -45,8 +45,7 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
     public WebFaultOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_PROTOCOL);
     }
 
     public void handleMessage(Message message) throws Fault {

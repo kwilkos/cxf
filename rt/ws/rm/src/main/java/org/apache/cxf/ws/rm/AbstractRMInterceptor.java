@@ -48,7 +48,7 @@ public abstract class AbstractRMInterceptor<T extends Message> extends AbstractP
     private Bus bus;
     
     protected AbstractRMInterceptor() {
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
     }
      
     public RMManager getManager() {

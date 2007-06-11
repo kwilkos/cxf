@@ -51,12 +51,12 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 
 public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message> {
+    
     private static final Logger LOG = Logger.getLogger(URIParameterInInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIParameterInInterceptor.class);
 
     public URIParameterInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
         addBefore(XMLMessageInInterceptor.class.getName());
     }
 

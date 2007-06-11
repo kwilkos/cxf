@@ -30,10 +30,9 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class DocumentWriterInterceptor extends AbstractPhaseInterceptor<Message> {
-
+    
     public DocumentWriterInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
     public void handleMessage(Message message) throws Fault {

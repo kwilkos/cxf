@@ -18,9 +18,10 @@
  */
 package org.apache.cxf.binding.coloc;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,8 +57,7 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private Bus bus; 
     
     public ColocOutInterceptor() {
-        super();
-        setPhase(Phase.POST_LOGICAL);
+        super(Phase.POST_LOGICAL);
     }
 
     public void setBus(Bus bus) {
@@ -155,7 +155,7 @@ public class ColocOutInterceptor extends AbstractPhaseInterceptor<Message> {
             //Handle Response
             ex.setInMessage(inMsg);
             PhaseManager pm = bus.getExtension(PhaseManager.class);
-            List<Phase> phases = new ArrayList<Phase>(pm.getInPhases());
+            SortedSet<Phase> phases = new TreeSet<Phase>(pm.getInPhases());
             ColocUtil.setPhases(phases, Phase.USER_LOGICAL, Phase.PRE_INVOKE);
             
             InterceptorChain chain = ColocUtil.getInInterceptorChain(ex, phases);        

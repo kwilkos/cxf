@@ -29,8 +29,7 @@ import org.apache.cxf.transport.local.LocalConduit;
 public class ObjectDispatchOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public ObjectDispatchOutInterceptor() {
-        super();
-        setPhase(Phase.SETUP);
+        super(Phase.SETUP);
     }
 
     public void handleMessage(Message message) throws Fault {

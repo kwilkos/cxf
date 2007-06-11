@@ -21,8 +21,6 @@ package org.apache.cxf.interceptor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,10 +37,10 @@ import org.apache.cxf.phase.Phase;
 public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
    
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
-    private Set<String> before = Collections.singleton(StaxOutInterceptor.class.getName());
 
     public LoggingOutInterceptor() {
-        setPhase(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_PROTOCOL);
+        addBefore(StaxOutInterceptor.class.getName());
     }
     
     public void handleMessage(Message message) throws Fault {
@@ -53,11 +51,6 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         if (os instanceof AbstractCachedOutputStream) {
             ((AbstractCachedOutputStream)os).registerCallback(new LoggingCallback());
         }
-    }
-
-    @Override
-    public Set<String> getBefore() {
-        return before;
     }
 
     class LoggingCallback implements CachedOutputStreamCallback {

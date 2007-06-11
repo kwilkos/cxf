@@ -44,8 +44,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = Logger.getLogger(OutgoingChainInterceptor.class.getName());
     public OutgoingChainInterceptor() {
-        super();
-        setPhase(Phase.POST_INVOKE);
+        super(Phase.POST_INVOKE);
     }
 
     public void handleMessage(Message message) {

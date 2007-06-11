@@ -39,8 +39,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 public class SwAInInterceptor extends AbstractSoapInterceptor {
 
     public SwAInInterceptor() {
-        super();
-        setPhase(Phase.PRE_INVOKE);
+        super(Phase.PRE_INVOKE);
         getBefore().add(HolderInInterceptor.class.getName());
     }
 

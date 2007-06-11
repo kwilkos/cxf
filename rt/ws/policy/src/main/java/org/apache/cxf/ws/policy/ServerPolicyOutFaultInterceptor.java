@@ -45,8 +45,7 @@ public class ServerPolicyOutFaultInterceptor extends AbstractPolicyInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(ServerPolicyOutFaultInterceptor.class);
     
     public ServerPolicyOutFaultInterceptor() {
-        setId(PolicyConstants.SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID);
-        setPhase(Phase.SETUP);
+        super(PolicyConstants.SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID, Phase.SETUP);
     }
        
     protected void handle(Message msg) {        

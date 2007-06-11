@@ -47,9 +47,11 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
     
     public static final String ORIGINAL_WRITER = "original_writer";
 
+    LogicalHandlerFaultOutEndingInterceptor<T> ending;
+    
     public LogicalHandlerFaultOutInterceptor(Binding binding) {
-        super(binding);
-        setPhase(Phase.PRE_MARSHAL);
+        super(binding, Phase.PRE_MARSHAL);
+        ending = new LogicalHandlerFaultOutEndingInterceptor<T>(binding);
     }
     
     public void handleMessage(T message) throws Fault {
@@ -67,7 +69,7 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
             message.setContent(XMLStreamWriter.class, writer);
             message.put(ORIGINAL_WRITER, origWriter);
                 
-            message.getInterceptorChain().add(new LogicalHandlerFaultOutEndingInterceptor<T>(getBinding()));
+            message.getInterceptorChain().add(ending);
         } catch (ParserConfigurationException e) {
             throw new Fault(e);
         }
@@ -78,9 +80,7 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
         extends AbstractJAXWSHandlerInterceptor<X> {
     
         public LogicalHandlerFaultOutEndingInterceptor(Binding binding) {
-            super(binding);
-
-            setPhase(Phase.POST_MARSHAL);
+            super(binding, Phase.POST_MARSHAL);
         }
     
         public void handleMessage(X message) throws Fault {            

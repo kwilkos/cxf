@@ -31,7 +31,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 			<list>
 				<bean
 					class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-					<property name="name" value="service-in" />
+					<constructor-arg value="service-in" />
 				</bean>
 			</list>
 		</property>
@@ -39,7 +39,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 			<list>
 				<bean
 					class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-					<property name="name" value="service-in-fault" />
+					<constructor-arg value="service-in-fault" />
 				</bean>
 			</list>
 		</property>
@@ -47,7 +47,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 			<list>
 				<bean
 					class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-					<property name="name" value="service-out" />
+					<constructor-arg value="service-out" />
 				</bean>
 			</list>
 		</property>
@@ -55,7 +55,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 			<list>
 				<bean
 					class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-					<property name="name" value="service-out-fault" />
+					<constructor-arg value="service-out-fault" />
 				</bean>
 			</list>
 		</property>
@@ -65,22 +65,22 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 		createdFromAPI="true">
 		<jaxws:inInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-				<property name="name" value="endpoint-in" />
+				<constructor-arg value="endpoint-in" />
 			</bean>
 		</jaxws:inInterceptors>
 		<jaxws:inFaultInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-				<property name="name" value="endpoint-in-fault" />
+				<constructor-arg value="endpoint-in-fault" />
 			</bean>
 		</jaxws:inFaultInterceptors>
 		<jaxws:outInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-				<property name="name" value="endpoint-out" />
+				<constructor-arg value="endpoint-out" />
 			</bean>
 		</jaxws:outInterceptors>		
 		<jaxws:outFaultInterceptors>
 			<bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">
-				<property name="name" value="endpoint-out-fault" />
+				<constructor-arg value="endpoint-out-fault" />
 			</bean>
 		</jaxws:outFaultInterceptors>
 		<jaxws:properties>

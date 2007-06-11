@@ -64,7 +64,10 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SAAJInInterceptor.class);
 
     public SAAJInInterceptor() {
-        setPhase(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_PROTOCOL);
+    }
+    public SAAJInInterceptor(String phase) {
+        super(phase);
     }
     
     public void handleMessage(SoapMessage message) throws Fault {

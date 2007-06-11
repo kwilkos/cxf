@@ -36,6 +36,20 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    /**
+     * @deprecated
+     */
+    public AbstractOutDatabindingInterceptor() {
+        super(null);
+    }
+    
+    public AbstractOutDatabindingInterceptor(String phase) {
+        super(phase);
+    }
+    public AbstractOutDatabindingInterceptor(String id, String phase) {
+        super(id, phase);
+    }
+    
     protected boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }

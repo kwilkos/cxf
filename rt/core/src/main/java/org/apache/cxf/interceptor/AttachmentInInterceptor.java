@@ -41,8 +41,7 @@ public class AttachmentInInterceptor extends AbstractPhaseInterceptor<Message> {
      */
     
     public AttachmentInInterceptor() {
-        super();
-        setPhase(Phase.RECEIVE);
+        super(Phase.RECEIVE);
     }
     
     public void handleMessage(Message message) {

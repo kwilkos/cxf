@@ -47,15 +47,11 @@ public class XMLFaultInterceptorsTest extends TestBase {
         xmlMessage.setContent(OutputStream.class, baos);
         xmlMessage.setContent(XMLStreamWriter.class, StaxUtils.createXMLStreamWriter(baos));
         xmlMessage.setContent(Exception.class, new Fault(new RuntimeException("dummy exception")));
-        XMLFaultOutInterceptor xfo = new XMLFaultOutInterceptor();
-        xfo.setPhase("phase1");
+        XMLFaultOutInterceptor xfo = new XMLFaultOutInterceptor("phase1");
         chain.add(xfo);
-        InHelpInterceptor ih = new InHelpInterceptor();
-        ClientFaultConverter cfc = new ClientFaultConverter();
-        XMLFaultInInterceptor xfi = new XMLFaultInInterceptor();
-        ih.setPhase("phase2");
-        cfc.setPhase("phase3");
-        xfi.setPhase("phase3");
+        InHelpInterceptor ih = new InHelpInterceptor("phase2");
+        ClientFaultConverter cfc = new ClientFaultConverter("phase3");
+        XMLFaultInInterceptor xfi = new XMLFaultInInterceptor("phase3");
         chain.add(ih);
         chain.add(cfc);
         chain.add(xfi);
@@ -68,6 +64,9 @@ public class XMLFaultInterceptorsTest extends TestBase {
     }
 
     private class InHelpInterceptor extends AbstractInDatabindingInterceptor {
+        InHelpInterceptor(String phase) {
+            super(phase);
+        }
 
         public void handleMessage(Message message) {
 

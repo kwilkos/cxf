@@ -128,12 +128,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
 
         InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
         //Interceptors after SOAPHandlerInterceptor DOMXMLStreamWriter to write
-        chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
-            
-            @Override
-            public String getPhase() {
-                return Phase.MARSHAL;
-            }
+        chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding, Phase.MARSHAL) {
 
             public void handleMessage(SoapMessage message) throws Fault {
                 try {
@@ -328,12 +323,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
 
         InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
         //Interceptors after SOAPHandlerInterceptor DOMXMLStreamWriter to write
-        chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
-
-            @Override
-            public String getPhase() {
-                return Phase.MARSHAL;
-            }
+        chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding, Phase.MARSHAL) {
 
             public void handleMessage(SoapMessage message) throws Fault {
                 try {
