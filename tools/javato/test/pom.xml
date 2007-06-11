@@ -88,7 +88,7 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
-	    <scope>test</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -102,7 +102,7 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
-	    <scope>test</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -131,49 +131,69 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/test</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/test</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-java2wsdl-test</url>
-  </scm>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-java2wsdl-test</url>
+    </scm>
 
     <build>
         <plugins>
-	    <plugin>
-		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-codegen-plugin</artifactId>
-		<version>${project.version}</version>
-		<executions>
-		    <execution>
-			<id>generate-test-sources</id>
-			<phase>generate-test-sources</phase>
-			<configuration>
-			    <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
-			    <wsdlOptions>
-				<wsdlOption>
-				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_async.wsdl</wsdl>
-				</wsdlOption>
-				<wsdlOption>
-				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/doc_wrapped_simple.wsdl</wsdl>
-				</wsdlOption>
-				<wsdlOption>
-				     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_lit.wsdl</wsdl>
-				</wsdlOption>
-				<wsdlOption>
-				     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_wrapped_bare.wsdl</wsdl>
-				</wsdlOption>
-				<wsdlOption>
-				     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_rpc_lit.wsdl</wsdl>
-				</wsdlOption>
-				<wsdlOption>
-				      <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_soap12.wsdl</wsdl>
-				</wsdlOption>
-				
-			    </wsdlOptions>
-			</configuration>
-			<goals>
-			    <goal>wsdl2java</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-       </plugins>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_async.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/doc_wrapped_simple.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_lit.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_doc_wrapped_bare.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_rpc_lit.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_soap12.wsdl</wsdl>
+                                </wsdlOption>
+
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/src/test/generated</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
     </build>
 </project>
