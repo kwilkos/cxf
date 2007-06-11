@@ -132,7 +132,6 @@
         <module>api</module>
         <module>tools</module>
         <module>codegen-plugin</module>
-        <module>wsdlgen-plugin</module>
         <module>testutils</module>
         <module>rt</module>
         <module>integration</module>
