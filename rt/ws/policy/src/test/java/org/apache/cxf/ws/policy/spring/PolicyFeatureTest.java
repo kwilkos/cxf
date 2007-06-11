@@ -39,14 +39,16 @@ import org.junit.After;
 import org.junit.Test;
 
 public class PolicyFeatureTest extends Assert {
+    private Bus bus;
     @After
     public void tearDown() {
+        bus.shutdown(false);
         BusFactory.setDefaultBus(null);
     }
     
     @Test
     public void testServerFactory() {
-        Bus bus = new CXFBusFactory().createBus();
+        bus = new CXFBusFactory().createBus();
         
         Policy p = new Policy();
         p.setId("test");
@@ -54,7 +56,7 @@ public class PolicyFeatureTest extends Assert {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.getFeatures().add(new WSPolicyFeature(p));
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost/test");
+        sf.setAddress("http://localhost:9001/test");
         sf.setStart(false);
         sf.setBus(bus);
         Server server = sf.create();
@@ -72,12 +74,11 @@ public class PolicyFeatureTest extends Assert {
 
     @Test
     public void testServerFactoryWith2007Xml() {
-        Bus bus = 
-            new SpringBusFactory().createBus("/org/apache/cxf/ws/policy/spring/server.xml");
+        bus = new SpringBusFactory().createBus("/org/apache/cxf/ws/policy/spring/server.xml");
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost/test");
+        sf.setAddress("http://localhost:9001/test");
         sf.setStart(false);
         sf.setBus(bus);
         
@@ -101,12 +102,12 @@ public class PolicyFeatureTest extends Assert {
 
     @Test
     public void testServerFactoryWith2004Xml() {
-        Bus bus = 
+        bus = 
             new SpringBusFactory().createBus("/org/apache/cxf/ws/policy/spring/server.xml");
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost/test");
+        sf.setAddress("http://localhost:9001/test");
         sf.setStart(false);
         sf.setBus(bus);
         
@@ -130,12 +131,12 @@ public class PolicyFeatureTest extends Assert {
     
     @Test
     public void testPolicyReference() {
-        Bus bus = 
+        bus = 
             new SpringBusFactory().createBus("/org/apache/cxf/ws/policy/spring/server.xml");
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost/test");
+        sf.setAddress("http://localhost:9001/test");
         sf.setStart(false);
         sf.setBus(bus);
         
