@@ -129,9 +129,9 @@
     </dependencies>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-java2wsdl</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/test</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/test</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-java2wsdl-test</url>
   </scm>
 
     <build>
