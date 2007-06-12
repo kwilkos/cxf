@@ -45,6 +45,7 @@ import org.apache.cxf.ws.addressing.soap.MAPCodec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -280,6 +281,7 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    @Ignore
     public void testDefaultSequentialStrategy() throws Exception {
         strategyTest(REPLICA_B, REPLICA_C, REPLICA_A, false);
     }
