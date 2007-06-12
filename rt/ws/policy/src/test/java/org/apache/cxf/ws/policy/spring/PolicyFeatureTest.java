@@ -56,7 +56,7 @@ public class PolicyFeatureTest extends Assert {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.getFeatures().add(new WSPolicyFeature(p));
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost:9001/test");
+        sf.setAddress("http://localhost/test");
         sf.setStart(false);
         sf.setBus(bus);
         Server server = sf.create();
@@ -78,12 +78,13 @@ public class PolicyFeatureTest extends Assert {
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost:9001/test");
-        sf.setStart(false);
+        sf.setAddress("http://localhost/test");
+        
         sf.setBus(bus);
         
         Configurer c = bus.getExtension(Configurer.class);
         c.configureBean("test", sf);
+        sf.setStart(false);
         
         List<AbstractFeature> features = sf.getFeatures();
         assertEquals(1, features.size());
@@ -107,8 +108,7 @@ public class PolicyFeatureTest extends Assert {
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost:9001/test");
-        sf.setStart(false);
+        sf.setAddress("http://localhost/test");        
         sf.setBus(bus);
         
         Configurer c = bus.getExtension(Configurer.class);
@@ -116,6 +116,7 @@ public class PolicyFeatureTest extends Assert {
         
         List<AbstractFeature> features = sf.getFeatures();
         assertEquals(1, features.size());
+        sf.setStart(false);
         
         Server server = sf.create();
         
@@ -136,8 +137,7 @@ public class PolicyFeatureTest extends Assert {
         
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new GreeterImpl());
-        sf.setAddress("http://localhost:9001/test");
-        sf.setStart(false);
+        sf.setAddress("http://localhost/test");        
         sf.setBus(bus);
         
         Configurer c = bus.getExtension(Configurer.class);
@@ -145,7 +145,7 @@ public class PolicyFeatureTest extends Assert {
         
         List<AbstractFeature> features = sf.getFeatures();
         assertEquals(1, features.size());
-        
+        sf.setStart(false);
         Server server = sf.create();
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
