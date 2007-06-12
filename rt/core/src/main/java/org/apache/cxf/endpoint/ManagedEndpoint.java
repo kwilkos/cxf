@@ -48,6 +48,13 @@ public class ManagedEndpoint implements ManagedComponent, ServerLifeCycleListene
 
     @ManagedOperation        
     public void start() {
+        if (state == State.STARTED) {
+            return;
+        }
+        ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
+        if (mgr != null) {
+            mgr.registerListener(this);
+        }
         server.start();
     }
     
@@ -96,7 +103,12 @@ public class ManagedEndpoint implements ManagedComponent, ServerLifeCycleListene
 
     public void stopServer(Server s) {
         if (server.equals(s)) {
-            state = State.STOPPED;            
+            state = State.STOPPED;
+            // unregister server to avoid the memory leak
+            ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
+            if (mgr != null) {
+                mgr.unRegisterListener(this);                
+            }
         }
     }    
     
