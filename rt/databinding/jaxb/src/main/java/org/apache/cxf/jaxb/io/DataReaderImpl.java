@@ -20,27 +20,30 @@
 package org.apache.cxf.jaxb.io;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.stream.XMLEventWriter;
+import javax.xml.namespace.QName;
 
-import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataBase;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
-public class EventDataWriter extends JAXBDataBase implements DataWriter<XMLEventWriter> {
-
-    public EventDataWriter(JAXBContext ctx) {
+public class DataReaderImpl<T> extends JAXBDataBase implements DataReader<T> {
+    public DataReaderImpl(JAXBContext ctx) {
         setJAXBContext(ctx);
     }
-    
-    public void write(Object obj, XMLEventWriter output) {
-        write(obj, null, output);
+
+    public Object read(T input) {
+        return read(null, input);
     }
-    
-    public void write(Object obj, MessagePartInfo part, XMLEventWriter output) {
-        if (obj != null) {
-            JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
-                                        getAttachmentMarrshaller());
-        }
+
+    public Object read(MessagePartInfo part, T reader) {
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), reader, part, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
+
+    public Object read(QName name, T input, Class type) {
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), input, name, type, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
+    }
+
 }

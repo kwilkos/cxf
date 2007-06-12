@@ -24,7 +24,6 @@ import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -52,7 +51,6 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             assert operation.getName() != null;
 
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-            DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
 
             addOperationNode(nsStack, message, xmlWriter);
 
@@ -69,12 +67,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                 return;
             }
             
-            for (MessagePartInfo part : parts) {
-                int idx = part.getMessageInfo().getMessagePartIndex(part);
-                
-                Object o = objs.get(idx);
-                dataWriter.write(o, part, xmlWriter);
-            }
+            writeParts(message, message.getExchange(), operation, objs, parts);
             
             // Finishing the writing.
             xmlWriter.writeEndElement();            

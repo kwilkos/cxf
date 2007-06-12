@@ -40,7 +40,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
@@ -56,6 +56,7 @@ import org.apache.cxf.ws.rm.RMContextUtils;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
+import org.apache.cxf.ws.rm.RMUtils;
 import org.apache.cxf.ws.rm.RetransmissionCallback;
 import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.SequenceType;
@@ -308,18 +309,21 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
 
             OutputStream os = message.getContent(OutputStream.class);
             List<CachedOutputStreamCallback> callbacks = null;
-            if (os instanceof AbstractCachedOutputStream) {
-                callbacks = ((AbstractCachedOutputStream)os).getCallbacks();
+            
+            if (os instanceof CachedOutputStream) {
+                callbacks = ((CachedOutputStream)os).getCallbacks();
             }
-
+            
             c.prepare(message);
 
             os = message.getContent(OutputStream.class);
-            if (os instanceof AbstractCachedOutputStream
-                && null != callbacks && callbacks.size() > 1) {
+            if (null != callbacks && callbacks.size() > 1) {
+                if (!(os instanceof CachedOutputStream)) {
+                    os = RMUtils.createCachedStream(message, os);
+                }
                 for (CachedOutputStreamCallback cb : callbacks) {
                     if (!(cb instanceof RetransmissionCallback)) {
-                        ((AbstractCachedOutputStream)os).registerCallback(cb);
+                        ((CachedOutputStream)os).registerCallback(cb);
                     }
                 }
             }
@@ -336,7 +340,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             ByteArrayInputStream bis = new ByteArrayInputStream(content);
 
             // copy saved output stream to new output stream in chunks of 1024
-            AbstractCachedOutputStream.copyStream(bis, os, 1024);
+            CachedOutputStream.copyStream(bis, os, 1024);
             os.flush();
             os.close();
         } catch (IOException ex) {

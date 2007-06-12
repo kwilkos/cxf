@@ -82,40 +82,37 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
         }
         
         message.setContent(OutputStream.class, new WrappedOutputStream(message));     
+        
+        message.getInterceptorChain().add(new AbstractPhaseInterceptor<Message>(Phase.PREPARE_SEND_ENDING) {
+
+            public void handleMessage(Message message) throws Fault {
+                try {
+                    message.getContent(OutputStream.class).close();
+                } catch (IOException e) {
+                    throw new Fault(e);
+                }
+            }
+            
+        });
     }
     
     private class WrappedOutputStream extends AbstractWrappedOutputStream {
 
+        private Message outMessage;
+
         public WrappedOutputStream(Message m) {
-            super(m);
-            // TODO Auto-generated constructor stub
+            this.outMessage = m;
         }
 
         @Override
-        protected void doClose() throws IOException {
-            // TODO Auto-generated method stub
-            
-        }
-
-        @Override
-        protected void doFlush() throws IOException {
-            boolean af = alreadyFlushed();
-            if (!af) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    BigInteger nr = RMContextUtils.retrieveRMProperties(outMessage, true)
-                        .getSequence().getMessageNumber();
-                    LOG.fine("Losing message " + nr);
-                }
-                resetOut(new DummyOutputStream(), true);
+        protected void onFirstWrite() throws IOException {
+            if (LOG.isLoggable(Level.FINE)) {
+                BigInteger nr = RMContextUtils.retrieveRMProperties(outMessage, true)
+                    .getSequence().getMessageNumber();
+                LOG.fine("Losing message " + nr);
             }
+            wrappedStream = new DummyOutputStream();
         }
-
-        @Override
-        protected void onWrite() throws IOException {
-            // TODO Auto-generated method stub
-            
-        } 
-        
     }
     
     private class DummyOutputStream extends OutputStream {
@@ -127,7 +124,5 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
         }
         
     }
-    
-    
     
 }

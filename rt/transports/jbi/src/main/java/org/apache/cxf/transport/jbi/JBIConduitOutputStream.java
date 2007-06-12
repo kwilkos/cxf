@@ -38,7 +38,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -46,7 +46,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
-public class JBIConduitOutputStream extends AbstractCachedOutputStream {
+public class JBIConduitOutputStream extends CachedOutputStream {
 
     private static final Logger LOG = LogUtils.getL7dLogger(JBIConduitOutputStream.class);
 

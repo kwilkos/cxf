@@ -210,6 +210,19 @@ public final class DOMUtils {
         }
         return null;
     }
+    /**
+     * Get the first direct child with a given type
+     */
+    public static Element getFirstElement(Node parent) {
+        Node n = parent.getFirstChild();
+        while (n != null && Node.ELEMENT_NODE != n.getNodeType()) {
+            n = n.getNextSibling();
+        }
+        if (n == null) {
+            return null;
+        }
+        return (Element) n;
+    }
 
     /**
      * Get the first direct child with a given type

@@ -71,7 +71,11 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
             System.setProperty("derby.system.home", derbyHome + "-server");
             RMTxStore.deleteDatabaseFiles();
         } finally {
-            System.setProperty("derby.system.home", derbyHome);
+            if (derbyHome != null) {
+                System.setProperty("derby.system.home", derbyHome);
+            } else {
+                System.clearProperty("derby.system.home");
+            }
         }
         
         // run server in process to avoid a problem with UUID generation

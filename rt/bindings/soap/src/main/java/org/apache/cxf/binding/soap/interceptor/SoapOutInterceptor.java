@@ -20,6 +20,7 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 
+import java.io.OutputStream;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -41,8 +42,10 @@ import org.apache.cxf.headers.HeaderManager;
 import org.apache.cxf.headers.HeaderProcessor;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.io.WriteOnCloseOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -51,9 +54,11 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.StaxUtils;
 
-
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
+    public static final String WROTE_ENVELOPE_START = "wrote.envelope.start";
+    
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);
+    
     private Bus bus;
     
     public SoapOutInterceptor(Bus b) {
@@ -66,6 +71,23 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
     }
     
     public void handleMessage(SoapMessage message) {
+        // Yes this is ugly, but it avoids us from having to implement any kind of caching strategy
+        if (!MessageUtils.isTrue(message.get(WROTE_ENVELOPE_START))) {
+            writeSoapEnvelopeStart(message);
+            
+            OutputStream os = message.getContent(OutputStream.class);
+            // Unless we're caching the whole message in memory skip the envelope writing
+            // if there's a fault later.
+            if (!(os instanceof WriteOnCloseOutputStream) && !MessageUtils.isDOMPresent(message)) {
+                message.put(WROTE_ENVELOPE_START, Boolean.TRUE);
+            }
+        }
+
+        // Add a final interceptor to write end elements
+        message.getInterceptorChain().add(new SoapOutEndingInterceptor());
+    }
+    
+    private void writeSoapEnvelopeStart(SoapMessage message) {
         SoapVersion soapVersion = message.getVersion();
         try {            
             XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
@@ -113,9 +135,6 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             throw new SoapFault(
                 new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, soapVersion.getSender());
         }
-
-        // Add a final interceptor to write end elements
-        message.getInterceptorChain().add(new SoapOutEndingInterceptor());
     }
     
     private boolean handleHeaderPart(boolean preexistingHeaders, SoapMessage message) {

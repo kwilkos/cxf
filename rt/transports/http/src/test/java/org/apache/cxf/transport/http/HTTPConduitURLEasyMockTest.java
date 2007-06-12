@@ -297,15 +297,9 @@ public class HTTPConduitURLEasyMockTest extends Assert {
         throws IOException {
         control.verify();
         control.reset();
-                
+
         OutputStream wrappedOS = verifyRequestHeaders(message, expectHeaders);
-        
-        connection.getRequestMethod();
-        EasyMock.expectLastCall().andReturn("POST");
-        
-        os = EasyMock.createMock(ServletOutputStream.class);
-        connection.getOutputStream();
-        EasyMock.expectLastCall().andReturn(os);
+
         os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
         EasyMock.expectLastCall();
         
@@ -353,10 +347,13 @@ public class HTTPConduitURLEasyMockTest extends Assert {
         assertNotNull("expected request headers set", headers);
         assertTrue("expected output stream format",
                    message.getContentFormats().contains(OutputStream.class));
-        OutputStream wrappedOS = message.getContent(OutputStream.class);
-        assertNotNull("expected output stream", wrappedOS);
         
-        wrappedOS.write(PAYLOAD.getBytes());
+        connection.getRequestMethod();
+        EasyMock.expectLastCall().andReturn("POST");
+
+        os = EasyMock.createMock(ServletOutputStream.class);
+        connection.getOutputStream();
+        EasyMock.expectLastCall().andReturn(os);
         
         message.put(HTTPConduit.KEY_HTTP_CONNECTION, connection);
         if (expectHeaders) {
@@ -370,6 +367,17 @@ public class HTTPConduitURLEasyMockTest extends Assert {
                                           EasyMock.eq("charset=utf8"));
             EasyMock.expectLastCall();
         }
+        
+        control.replay();
+        
+        OutputStream wrappedOS = message.getContent(OutputStream.class);
+        assertNotNull("expected output stream", wrappedOS);
+        
+        wrappedOS.write(PAYLOAD.getBytes());
+        
+        control.verify();
+        control.reset();
+
         return wrappedOS;
     }
     

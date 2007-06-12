@@ -32,17 +32,18 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 
 import org.w3c.dom.Document;
-
 import org.xml.sax.InputSource;
 
-import org.apache.cxf.attachment.CachedOutputStream;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
+
+
 
 public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     private static final Logger LOG = LogUtils.getL7dLogger(XMLStreamDataReader.class);

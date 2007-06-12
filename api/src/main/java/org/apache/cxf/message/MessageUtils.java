@@ -19,6 +19,8 @@
 
 package org.apache.cxf.message;
 
+import org.w3c.dom.Node;
+
 
 /**
  * Holder for utility methods relating to messages.
@@ -108,6 +110,18 @@ public final class MessageUtils {
             return true;
         }
         
+        return false;
+    }
+    
+    /**
+     * Returns true if the underlying content format is a W3C DOM or a SAAJ message.
+     */
+    public static boolean isDOMPresent(Message m) {
+        for (Class c : m.getContentFormats()) {
+            if (c.equals(Node.class) || c.getName().equals("javax.xml.soap.SOAPMessage")) {
+                return true;
+            }   
+        }
         return false;
     }
 

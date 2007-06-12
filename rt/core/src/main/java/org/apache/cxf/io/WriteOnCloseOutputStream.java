@@ -17,32 +17,29 @@
  * under the License.
  */
 
-package org.apache.cxf.attachment;
+package org.apache.cxf.io;
 
 import java.io.IOException;
-import java.io.PipedInputStream;
+import java.io.OutputStream;
 
-import org.apache.cxf.io.AbstractCachedOutputStream;
+/**
+ * This outputstream implementation will cache the message until close()
+ * is called, at which point it will write the message to the OutputStream
+ * supplied via the constructor.
+ */
+public class WriteOnCloseOutputStream extends CachedOutputStream {
 
-
-
-public class CachedOutputStream extends AbstractCachedOutputStream {
-
-    public CachedOutputStream() throws IOException {
+    OutputStream flowThroughStream;
+    
+    public WriteOnCloseOutputStream(OutputStream stream) {
         super();
+        flowThroughStream = stream;
     }
 
-    public CachedOutputStream(PipedInputStream stream) throws IOException {
-        super(stream);
+    @Override
+    protected void doClose() throws IOException {
+        resetOut(flowThroughStream, true);
+        flowThroughStream.flush();
+        flowThroughStream.close();
     }
-
-    public void onWrite() throws IOException {
-    }
-
-    public void doClose() {
-    }
-
-    public void doFlush() {
-    }
-
 }

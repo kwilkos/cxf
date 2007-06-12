@@ -23,14 +23,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.apache.cxf.attachment.CachedOutputStream;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -133,9 +132,7 @@ public class LocalConduit extends AbstractConduit {
             }
         };
 
-        final AbstractCachedOutputStream outStream = new CachedOutputStream(stream);
-
-        message.setContent(OutputStream.class, outStream);
+        message.setContent(OutputStream.class, new PipedOutputStream(stream));
 
         // TODO: put on executor
         new Thread(receiver).start();

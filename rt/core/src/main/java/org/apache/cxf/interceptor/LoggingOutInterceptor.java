@@ -25,7 +25,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CacheAndWriteOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -39,41 +40,38 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
 
     public LoggingOutInterceptor() {
-        super(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_STREAM);
         addBefore(StaxOutInterceptor.class.getName());
     }
     
     public void handleMessage(Message message) throws Fault {
-        OutputStream os = message.getContent(OutputStream.class);
+        final OutputStream os = message.getContent(OutputStream.class);
         if (os == null) {
             return;
         }
-        if (os instanceof AbstractCachedOutputStream) {
-            ((AbstractCachedOutputStream)os).registerCallback(new LoggingCallback());
-        }
+        
+        // Write the output while caching it for the log message
+        final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
+        message.setContent(OutputStream.class, newOut);
+        newOut.registerCallback(new LoggingCallback());
     }
 
     class LoggingCallback implements CachedOutputStreamCallback {
 
-        private boolean flushed;
-
-        public void onFlush(AbstractCachedOutputStream cos) {  
-            if (!flushed) {
-                OutputStream os = cos.getOut();
-                if (os instanceof ByteArrayOutputStream) {
-                    ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
-                    if (LOG.isLoggable(Level.INFO)) {
-                        LOG.info("Outbound message: " + bos.toString());
-                    }
-                }
-                flushed = true;
-                // any further changes will not be logged
+        public void onFlush(CachedOutputStream cos) {  
+            
+        }
+        
+        public void onClose(CachedOutputStream cos) {
+            OutputStream os = cos.getOut();
+            if (os instanceof ByteArrayOutputStream && LOG.isLoggable(Level.INFO)) {
+                // TODO - make this work with large messages
+                LOG.info("Outbound Message \n"
+                         + "--------------------------------------\n"
+                         + os.toString()
+                         + "\n--------------------------------------");
             }
         }
         
-        public void onClose(AbstractCachedOutputStream cos) {
-        }
-        
     } 
-    
 }

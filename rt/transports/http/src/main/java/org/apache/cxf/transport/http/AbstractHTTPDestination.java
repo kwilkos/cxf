@@ -374,9 +374,11 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
     private class WrappedOutputStream extends AbstractWrappedOutputStream {
 
         protected HttpServletResponse response;
-
+        private Message outMessage;
+        
         WrappedOutputStream(Message m, HttpServletResponse resp) {
-            super(m);
+            super();
+            this.outMessage = m;
             response = resp;
         }
 
@@ -384,17 +386,23 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
          * Perform any actions required on stream flush (freeze headers,
          * reset output stream ... etc.)
          */
-        protected void doFlush() throws IOException {
+        protected void onFirstWrite() throws IOException {
             OutputStream responseStream = flushHeaders(outMessage);
-            if (null != responseStream && !alreadyFlushed()) {
-                resetOut(responseStream, true);
+            if (null != responseStream) {
+                wrappedStream = responseStream;
             }
         }
 
         /**
          * Perform any actions required on stream closure (handle response etc.)
          */
-        protected void doClose() {
+        protected void doClose() throws IOException {
+            if (wrappedStream == null) {
+                OutputStream responseStream = flushHeaders(outMessage);
+                if (null != responseStream) {
+                    wrappedStream = responseStream;
+                }
+            }
             commitResponse();
         }
 

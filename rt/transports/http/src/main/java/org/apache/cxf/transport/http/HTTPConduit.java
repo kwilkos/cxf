@@ -49,7 +49,9 @@ import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
+import org.apache.cxf.io.CacheAndWriteOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -451,7 +453,6 @@ public class HTTPConduit
      * @param message The message to be sent.
      */
     public void prepare(Message message) throws IOException {
-        
         Map<String, List<String>> headers = getSetProtocolHeaders(message);
         
         // This call can possibly change the conduit endpoint address and 
@@ -537,6 +538,7 @@ public class HTTPConduit
         
         setHeadersByPolicy(message, currentURL, headers);
      
+        
         message.setContent(OutputStream.class,
                 new WrappedOutputStream(
                         message, connection, needToCacheRequest));
@@ -1241,7 +1243,7 @@ public class HTTPConduit
     private HttpURLConnection processRetransmit(
         HttpURLConnection connection,
         Message message,
-        CachedOutputStream cachedStream
+        CacheAndWriteOutputStream cachedStream
     ) throws IOException {
 
         int responseCode = connection.getResponseCode();
@@ -1279,7 +1281,7 @@ public class HTTPConduit
     private HttpURLConnection redirectRetransmit(
         HttpURLConnection connection,
         Message message,
-        CachedOutputStream cachedStream
+        CacheAndWriteOutputStream cachedStream
     ) throws IOException {
         
         // If we are not redirecting by policy, then we don't.
@@ -1380,7 +1382,7 @@ public class HTTPConduit
     private HttpURLConnection authorizationRetransmit(
         HttpURLConnection connection,
         Message message, 
-        CachedOutputStream cachedStream
+        CacheAndWriteOutputStream cachedStream
     ) throws IOException {
 
         // If we don't have a dynamic supply of user pass, then
@@ -1450,7 +1452,7 @@ public class HTTPConduit
             HttpURLConnection  connection,
             URL                newURL,
             Message            message, 
-            CachedOutputStream stream
+            CacheAndWriteOutputStream stream
     ) throws IOException {
         
         // Disconnect the old, and in with the new.
@@ -1500,14 +1502,14 @@ public class HTTPConduit
         // Trust is okay, write the cached request.
         OutputStream out = connection.getOutputStream();
         
-        CachedOutputStream.copyStream(stream.getInputStream(), out, 2048);
+        CacheAndWriteOutputStream.copyStream(stream.getInputStream(), out, 2048);
         out.close();
         
         if (LOG.isLoggable(Level.FINE)) {
             StringBuffer sbuf = new StringBuffer();
             StringBufferOutputStream sout =
                 new StringBufferOutputStream(sbuf);
-            CachedOutputStream.copyStream(stream.getInputStream(), 
+            CacheAndWriteOutputStream.copyStream(stream.getInputStream(), 
                     sout, 2048);
             sout.close();
 
@@ -1629,14 +1631,17 @@ public class HTTPConduit
          * This field contains the output stream with which we cache
          * the request. It maybe null if we are not caching.
          */
-        private CachedOutputStream cachedStream;
+        private CacheAndWriteOutputStream cachedStream;
+
+        private Message outMessage;
         
         WrappedOutputStream(
                 Message m, 
                 HttpURLConnection c, 
                 boolean possibleRetransmit
         ) {
-            super(m);
+            super();
+            this.outMessage = m;
             connection = c;
             cachingForRetransmision = possibleRetransmit;
         }
@@ -1645,54 +1650,55 @@ public class HTTPConduit
          * Perform any actions required on stream flush (freeze headers,
          * reset output stream ... etc.)
          */
-        protected void doFlush() throws IOException {
-            if (!alreadyFlushed()) {
-
-                // Need to set the headers before the trust decision
-                // because they are set before the connect().
-                setURLRequestHeaders(outMessage);
-                
-                //
-                // This point is where the trust decision is made because the
-                // Sun implementation of URLConnection will not let us 
-                // set/addRequestProperty after a connect() call, and 
-                // makeTrustDecision needs to make a connect() call to
-                // make sure the proper information is available.
-                // 
-                makeTrustDecision(outMessage);
-                
-                // Trust is okay, set up for writing the request.
-                
-                // If this is a GET method we must not touch the output
-                // stream as this automagically turns the reqest into a POST.
-                if (connection.getRequestMethod().equals("GET")) {
-                    return;
-                }
-                
-                // This replaces the AbstractCachedOutputStream.currentStream
-                // with the connection's output stream directly presumably
-                // to forgoe copying. If we are caching this output, then 
-                // we need to cache the output stream here.
-                if (cachingForRetransmision) {
-                    cachedStream =
-                        new CachedOutputStream(connection.getOutputStream());
-                    resetOut(cachedStream, true);
-                } else {
-                    resetOut(connection.getOutputStream(), true);
-                }
+        @Override
+        protected void onFirstWrite() throws IOException {
+            handleHeadersTrustCaching();
+        }
+        
+        protected void handleHeadersTrustCaching() throws IOException {
+            // Need to set the headers before the trust decision
+            // because they are set before the connect().
+            setURLRequestHeaders(outMessage);
+            
+            //
+            // This point is where the trust decision is made because the
+            // Sun implementation of URLConnection will not let us 
+            // set/addRequestProperty after a connect() call, and 
+            // makeTrustDecision needs to make a connect() call to
+            // make sure the proper information is available.
+            // 
+            makeTrustDecision(outMessage);
+            
+            // Trust is okay, set up for writing the request.
+            
+            // If this is a GET method we must not touch the output
+            // stream as this automagically turns the reqest into a POST.
+            if (connection.getRequestMethod().equals("GET")) {
+                return;
+            }
+            
+            // If we need to cache for retransmission, store data in a
+            // CacheAndWriteOutputStream. Otherwise write directly to the output stream.
+            if (cachingForRetransmision) {
+                cachedStream =
+                    new CacheAndWriteOutputStream(connection.getOutputStream());
+                wrappedStream = cachedStream;
+            } else {
+                wrappedStream = connection.getOutputStream();
             }
         }
 
         /**
          * Perform any actions required on stream closure (handle response etc.)
          */
-        protected void doClose() throws IOException {
+        public void close() throws IOException {
+            if (!written) {
+                handleHeadersTrustCaching();
+            }
             handleResponse();
+            super.close();
         }
         
-        protected void onWrite() throws IOException {
-            
-        }
         
         /**
          * This procedure handles all retransmits, if any.
@@ -1707,8 +1713,7 @@ public class HTTPConduit
                     StringBuffer sbuf = new StringBuffer();
                     StringBufferOutputStream sout =
                         new StringBufferOutputStream(sbuf);
-                    CachedOutputStream.copyStream(cachedStream.getInputStream(), 
-                            sout, 2048);
+                    IOUtils.copy(cachedStream.getInputStream(), sout, 2048);
                     sout.close();
 
                     LOG.fine("Conduit \""

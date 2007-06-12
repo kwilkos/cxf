@@ -107,9 +107,11 @@ public class ValidationClientServerTest extends AbstractBusClientServerTestBase 
             validation.getComplexStruct("Hello");
             fail("Get ComplexStruct should have thrown ProtocolException");
         } catch (WebServiceException e) {
+            e.printStackTrace();
             assertTrue(e.getCause() instanceof Fault);
             String expected = "'{\"http://apache.org/schema_validation/types\":elem2}' is expected.";
-            assertTrue(e.getCause().getMessage().indexOf(expected) != -1);
+            assertTrue("Found message " + e.getCause().getMessage(), 
+                       e.getCause().getMessage().indexOf(expected) != -1);
         }
 
         try {

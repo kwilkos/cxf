@@ -21,6 +21,7 @@ package org.apache.cxf.binding.http.interceptor;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.http.HttpConstants;
 import org.apache.cxf.binding.http.URIMapper;
@@ -53,7 +54,7 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
         
         if (client) {
             Document document = DOMUtils.createDocument();
-            message.setContent(Document.class, document);
+            message.setContent(Node.class, document);
             
             XMLStreamWriter writer = new W3CDOMStreamWriter(document);
             message.setContent(XMLStreamWriter.class, writer);

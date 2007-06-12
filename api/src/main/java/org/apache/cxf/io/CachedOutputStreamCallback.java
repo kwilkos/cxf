@@ -21,7 +21,7 @@ package org.apache.cxf.io;
 
 public interface CachedOutputStreamCallback {
 
-    void onClose(AbstractCachedOutputStream os);
-    void onFlush(AbstractCachedOutputStream os);
+    void onClose(CachedOutputStream os);
+    void onFlush(CachedOutputStream os);
 
 }

@@ -21,8 +21,11 @@ package org.apache.cxf.ws.rm;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
@@ -35,6 +38,8 @@ import org.apache.cxf.ws.rm.persistence.RMStore;
  */
 public class RetransmissionCallback implements CachedOutputStreamCallback {
     
+    private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionCallback.class);
+
     Message message;
     RMManager manager;
     
@@ -42,12 +47,9 @@ public class RetransmissionCallback implements CachedOutputStreamCallback {
         message = m;
         manager = mgr;
     }
-    public void onClose(AbstractCachedOutputStream cos) {
-        // no-op
-    }
-
-    public void onFlush(AbstractCachedOutputStream cos) {
+    public void onClose(CachedOutputStream cos) {
         OutputStream os = cos.getOut();
+   
         if (os instanceof ByteArrayOutputStream) {
             ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
             message.put(RMMessageConstants.SAVED_OUTPUT_STREAM, bos);  
@@ -70,6 +72,14 @@ public class RetransmissionCallback implements CachedOutputStreamCallback {
                 msg.setContent(bos.toByteArray());
                 store.persistOutgoing(ss, msg); 
             }
+        } else {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_CACHED_STREAM", 
+                                                                   LOG, 
+                                                                   os.getClass()));
         }
+    }
+
+    public void onFlush(CachedOutputStream cos) {
+        
     }
 }

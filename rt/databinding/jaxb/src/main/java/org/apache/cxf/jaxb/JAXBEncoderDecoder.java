@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb;
 
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -101,6 +102,7 @@ public final class JAXBEncoderDecoder {
                 // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to
                 // generate the xml declaration.
                 u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+                u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
             } catch (javax.xml.bind.PropertyException e) {
                 // intentionally empty.
             }
@@ -132,12 +134,14 @@ public final class JAXBEncoderDecoder {
             if (am != null) {
                 u.setAttachmentMarshaller(am);
             }
-            if (source instanceof Node) {
+            if (source instanceof XMLStreamWriter) {
+                u.marshal(mObj, (XMLStreamWriter)source);
+            } else if (source instanceof OutputStream) {
+                u.marshal(mObj, (OutputStream)source);
+            } else if (source instanceof Node) {
                 u.marshal(mObj, (Node)source);
             } else if (source instanceof XMLEventWriter) {
                 u.marshal(mObj, (XMLEventWriter)source);
-            } else if (source instanceof XMLStreamWriter) {
-                u.marshal(mObj, (XMLStreamWriter)source);
             } else {
                 throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.transport.http_jetty;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -40,7 +39,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -65,6 +64,7 @@ import org.junit.Test;
 import org.mortbay.jetty.HttpFields;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
+
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 
 public class JettyHTTPDestinationTest extends Assert {
@@ -747,6 +747,8 @@ public class JettyHTTPDestinationTest extends Assert {
                                        Message outMsg,
                                        int status,
                                        boolean oneway) throws Exception {
+        outMsg.getExchange().setOneWay(oneway);
+
         assertTrue("unexpected back channel type",
                    backChannel instanceof JettyHTTPDestination.BackChannelConduit);
         assertTrue("unexpected content formats",
@@ -754,18 +756,13 @@ public class JettyHTTPDestinationTest extends Assert {
         OutputStream responseOS = outMsg.getContent(OutputStream.class);
         assertNotNull("expected output stream", responseOS);
         assertTrue("unexpected output stream type",
-                   responseOS instanceof AbstractCachedOutputStream);
+                   responseOS instanceof AbstractWrappedOutputStream);
                
         outMsg.put(Message.RESPONSE_CODE, status);          
         responseOS.write(PAYLOAD.getBytes());
         
         setUpResponseHeaders(outMsg);
         
-        OutputStream underlyingOS =
-            ((AbstractCachedOutputStream)responseOS).getOut();
-        assertTrue("unexpected underlying output stream type",
-                   underlyingOS instanceof ByteArrayOutputStream);
-        outMsg.getExchange().setOneWay(oneway);
         responseOS.flush();        
         assertEquals("unexpected status",
                      status,
@@ -775,11 +772,8 @@ public class JettyHTTPDestinationTest extends Assert {
                          "Internal Server Error",
                          response.getReason());
         }*/
-        verifyResponseHeaders(outMsg);        
-        underlyingOS = ((AbstractCachedOutputStream)responseOS).getOut();
-        assertFalse("unexpected underlying output stream type: "
-                    + underlyingOS.getClass(),
-                    underlyingOS instanceof ByteArrayOutputStream);
+        verifyResponseHeaders(outMsg);     
+        
         if (oneway) {
             assertNull("unexpected HTTP response",
                        outMsg.get(JettyHTTPDestination.HTTP_RESPONSE));

@@ -28,6 +28,9 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Binding;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -63,7 +66,9 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
         try {
             
             XMLStreamWriter origWriter = message.getContent(XMLStreamWriter.class);
-            W3CDOMStreamWriter writer = new W3CDOMStreamWriter(XMLUtils.newDocument());
+            Document doc = XMLUtils.newDocument();
+            message.setContent(Node.class, doc);
+            W3CDOMStreamWriter writer = new W3CDOMStreamWriter(doc);
         
             // Replace stax writer with DomStreamWriter
             message.setContent(XMLStreamWriter.class, writer);
@@ -102,6 +107,7 @@ public class LogicalHandlerFaultOutInterceptor<T extends Message>
             } else if (domWriter.getDocument().getDocumentElement() != null) {
                 Source source = new DOMSource(domWriter.getDocument());
                 message.setContent(Source.class, source);
+                message.setContent(Node.class, domWriter.getDocument());
                 message.setContent(XMLStreamReader.class, 
                                    StaxUtils.createXMLStreamReader(domWriter.getDocument()));
             }

@@ -40,7 +40,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -236,7 +236,7 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
     }
 
     
-    private class JMSOutputStream extends AbstractCachedOutputStream {
+    private class JMSOutputStream extends CachedOutputStream {
         private Message outMessage;
         private javax.jms.Message jmsMessage;
         private PooledSession pooledSession;

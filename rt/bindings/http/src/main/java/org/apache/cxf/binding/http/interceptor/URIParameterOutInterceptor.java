@@ -65,7 +65,7 @@ public class URIParameterOutInterceptor extends AbstractPhaseInterceptor<Message
             uri.append(location);
         }
 
-        Document d = message.getContent(Document.class);
+        Document d = (Document) message.getContent(Node.class);
         String encodedUri = encodeIri(uri.toString(), d);
 
         message.put(Message.ENDPOINT_ADDRESS, encodedUri);

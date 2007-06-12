@@ -20,9 +20,6 @@
 package org.apache.cxf.interceptor;
 import java.util.List;
 
-import javax.xml.stream.XMLStreamWriter;
-
-import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -44,9 +41,11 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         if (operation == null) {
             return;
         }
-        
-        DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
-        XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+
+        List<?> objs = message.getContent(List.class);
+        if (objs == null || objs.size() == 0) {
+            return;
+        }
         
         List<MessagePartInfo> parts = null;
         BindingMessageInfo bmsg = null;
@@ -65,17 +64,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             parts = bmsg.getMessageParts();
         }
         
-        List<?> objs = message.getContent(List.class);
-        if (objs == null) {
-            return;
-        }
-        
-        for (MessagePartInfo part : parts) {
-            int idx = part.getMessageInfo().getMessagePartIndex(part);
-            
-            Object o = objs.get(idx);
-            dataWriter.write(o, part, xmlWriter);
-        }
+        writeParts(message, exchange, operation, objs, parts);
     }
-    
+
 }

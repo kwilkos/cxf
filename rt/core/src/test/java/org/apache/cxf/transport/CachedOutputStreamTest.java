@@ -21,6 +21,7 @@ package org.apache.cxf.transport;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.apache.cxf.io.CachedOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 

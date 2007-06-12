@@ -38,7 +38,7 @@ import java.util.List;
 
 import org.apache.cxf.common.util.Base64Utility;
 
-public abstract class AbstractCachedOutputStream extends OutputStream {
+public class CachedOutputStream extends OutputStream {
 
     protected OutputStream currentStream;
 
@@ -54,12 +54,12 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     private List<CachedOutputStreamCallback> callbacks;
 
-    public AbstractCachedOutputStream(PipedInputStream stream) throws IOException {
+    public CachedOutputStream(PipedInputStream stream) throws IOException {
         currentStream = new PipedOutputStream(stream);
         inmem = true;
     }
 
-    public AbstractCachedOutputStream() {
+    public CachedOutputStream() {
         currentStream = new ByteArrayOutputStream();
         inmem = true;
     }
@@ -85,7 +85,9 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      * Perform any actions required on stream flush (freeze headers, reset
      * output stream ... etc.)
      */
-    protected abstract void doFlush() throws IOException;
+    protected void doFlush() throws IOException {
+        
+    }
 
     public void flush() throws IOException {
         currentStream.flush();
@@ -100,17 +102,20 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     /**
      * Perform any actions required on stream closure (handle response etc.)
      */
-    protected abstract void doClose() throws IOException;
+    protected void doClose() throws IOException {
+        
+    }
 
     public void close() throws IOException {
         currentStream.flush();
-        currentStream.close();
-        dispose();
         if (null != callbacks) {
             for (CachedOutputStreamCallback cb : callbacks) {
                 cb.onClose(this);
             }
         }
+        
+        currentStream.close();
+        dispose();
         doClose();
     }
 
@@ -130,8 +135,8 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      * @throws IOException
      */
     public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
-        if (currentStream instanceof AbstractCachedOutputStream) {
-            AbstractCachedOutputStream ac = (AbstractCachedOutputStream) currentStream;
+        if (currentStream instanceof CachedOutputStream) {
+            CachedOutputStream ac = (CachedOutputStream) currentStream;
             InputStream in = ac.getInputStream();
             copyStream(in, out, (int) threshold);
         } else {
@@ -206,7 +211,9 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
             .append("]").toString();
     }
 
-    protected abstract void onWrite() throws IOException;
+    protected void onWrite() throws IOException {
+        
+    }
 
     public void write(byte[] b, int off, int len) throws IOException {
         onWrite();
@@ -285,5 +292,4 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public void setThreshold(long threshold) {
         this.threshold = threshold;
     }
-
 }

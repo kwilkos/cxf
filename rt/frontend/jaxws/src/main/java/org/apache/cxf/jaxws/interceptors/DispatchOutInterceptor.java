@@ -61,6 +61,8 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
         Service.Mode m = message.getExchange().get(Service.Mode.class);
         OutputStream os = message.getContent(OutputStream.class);
         Object obj = message.getContent(Object.class);
+        org.apache.cxf.service.Service service = 
+            message.getExchange().get(org.apache.cxf.service.Service.class);
         
         if (obj == null) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("DISPATCH_OBJECT_CANNOT_BE_NULL", LOG));
@@ -79,7 +81,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     }
                 } else if (m == Service.Mode.PAYLOAD) {
                     SOAPMessage msg = initSOAPMessage();
-                    DataWriter<Node> dataWriter = getDataWriter(message, Node.class);
+                    DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
                     if (obj instanceof SOAPMessage || obj instanceof DataSource) {
                         throw new RuntimeException(obj.getClass()
                                                    + " is not valid in PAYLOAD mode with SOAP/HTTP");
@@ -102,7 +104,9 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                 if (obj instanceof Source || obj instanceof DataSource) {
                     doTransform(obj, os);
                 } else {
-                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
+                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, 
+                                                                           service, 
+                                                                           XMLStreamWriter.class);
                     XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
                     if (xmlWriter == null) {
                         xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");

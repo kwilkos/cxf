@@ -32,6 +32,7 @@ import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 
@@ -48,7 +49,9 @@ public class JBIWrapperOutInterceptor extends AbstractOutDatabindingInterceptor 
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
         XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-        DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
+        Service service = message.getExchange().get(Service.class);
+        
+        DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service, XMLStreamWriter.class);
 
         try {
             xmlWriter.setPrefix("jbi", JBIConstants.NS_JBI_WRAPPER);

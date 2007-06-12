@@ -61,6 +61,7 @@ import org.apache.hello_world.Greeter;
 import org.apache.hello_world.services.SOAPService;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -766,6 +767,7 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
      * supply a series of 401s. See PushBack401.
      */
     @Test
+    @Ignore
     public void testHttpsRedirect401Response() throws Exception {
         startServer("Gordy");
         startServer("Bethal");

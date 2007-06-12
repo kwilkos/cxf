@@ -28,11 +28,14 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
+import org.apache.cxf.io.WriteOnCloseOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.ws.rm.RMUtils;
+import org.apache.cxf.ws.rm.RetransmissionInterceptor;
 
 
 /**
@@ -44,8 +47,9 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     private List<byte[]> outbound;
 
     public OutMessageRecorder() {
-        super(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_STREAM);
         outbound = new ArrayList<byte[]>();
+        addAfter(RetransmissionInterceptor.class.getName());
         addBefore(StaxOutInterceptor.class.getName());
     }
     
@@ -54,23 +58,23 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         if (null == os) {
             return;
         }
-        if (os instanceof AbstractCachedOutputStream) {
-            ((AbstractCachedOutputStream)os).registerCallback(new RecorderCallback());
-        } else {
-            LOG.fine("Can't register recorder callback for output stream of class "
-                     + os.getClass().getName());
-        }
+
+        WriteOnCloseOutputStream stream = RMUtils.createCachedStream(message, os);
+        stream.registerCallback(new RecorderCallback());
     }
-   
+    
     public List<byte[]> getOutboundMessages() {
         return outbound;
     } 
-    
+
     class RecorderCallback implements CachedOutputStreamCallback {
 
-        public void onFlush(AbstractCachedOutputStream cos) {  
-            // LOG.fine("flushing wrapped output stream: " + cos.getOut().getClass().getName());
-            
+        public void onFlush(CachedOutputStream cos) {  
+
+        }
+        
+        public void onClose(CachedOutputStream cos) {
+            // bytes were already copied after flush
             OutputStream os = cos.getOut();
             if (os instanceof ByteArrayOutputStream) {
                 ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
@@ -81,10 +85,6 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
             } else {
                 LOG.fine("Can't record message from output stream class: " + os.getClass().getName());
             }
-        }
-        
-        public void onClose(AbstractCachedOutputStream cos) {
-            // bytes were already copied after flush
         }
         
     }

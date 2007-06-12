@@ -60,7 +60,7 @@ import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.message.Exchange;
@@ -558,7 +558,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         return os;
     }*/
 
-    private class CachedStream extends AbstractCachedOutputStream {
+    private class CachedStream extends CachedOutputStream {
         protected void doFlush() throws IOException {
             currentStream.flush();
         }

@@ -36,10 +36,10 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 
-public class JBIDestinationOutputStream extends AbstractCachedOutputStream {
+public class JBIDestinationOutputStream extends CachedOutputStream {
 
     private static final Logger LOG = LogUtils.getL7dLogger(JBIDestinationOutputStream.class);
     private Message inMessage;

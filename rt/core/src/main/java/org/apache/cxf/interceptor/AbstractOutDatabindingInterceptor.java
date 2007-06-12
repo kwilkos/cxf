@@ -19,23 +19,31 @@
 
 package org.apache.cxf.interceptor;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    public static final String DISABLE_OUTPUTSTREAM_OPTIMIZATION = "disable.outputstream.optimization";
+    
     /**
      * @deprecated
      */
@@ -54,8 +62,60 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
-    protected <T> DataWriter<T> getDataWriter(Message message, Class<T> output) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
+    protected void writeParts(Message message, Exchange exchange, 
+                              BindingOperationInfo operation, List<?> objs, 
+                              List<MessagePartInfo> parts) {
+        OutputStream out = message.getContent(OutputStream.class);
+        XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+        Service service = exchange.get(Service.class);
+        if (out != null 
+            && writeToOutputStream(message, operation.getBinding(), service)
+            && !MessageUtils.isTrue(message.getContextualProperty(DISABLE_OUTPUTSTREAM_OPTIMIZATION))) {
+            if (xmlWriter != null) {
+                try {
+                    xmlWriter.writeCharacters("");
+                    xmlWriter.flush();
+                } catch (XMLStreamException e) {
+                    throw new Fault(e);
+                }
+            }
+            
+            DataWriter<OutputStream> osWriter = getDataWriter(message, service, OutputStream.class);
+            
+            for (MessagePartInfo part : parts) {
+                int idx = part.getMessageInfo().getMessagePartIndex(part);
+                
+                Object o = objs.get(idx);
+                osWriter.write(o, part, out);
+            }
+        } else {
+            DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service, XMLStreamWriter.class);
+            
+            for (MessagePartInfo part : parts) {
+                int idx = part.getMessageInfo().getMessagePartIndex(part);
+                
+                Object o = objs.get(idx);
+                dataWriter.write(o, part, xmlWriter);
+            }
+        }
+    }
+    
+    protected boolean writeToOutputStream(Message m, BindingInfo info, Service s) {
+        /**
+         * Yes, all this code is EXTREMELY ugly. But it gives about a 60-70% performance
+         * boost with the JAXB RI, so its worth it. 
+         */
+        
+        if (s == null) {
+            return false;
+        }
+        
+        return info.getClass().getName().equals("org.apache.cxf.binding.soap.model.SoapBindingInfo") 
+            && s.getDataBinding().getClass().getName().equals("org.apache.cxf.jaxb.JAXBDataBinding")
+            && !MessageUtils.isDOMPresent(m);
+    }
+    
+    protected <T> DataWriter<T> getDataWriter(Message message, Service service, Class<T> output) {
         DataWriter<T> writer = service.getDataBinding().createWriter(output);
         
         Collection<Attachment> atts = message.getAttachments();

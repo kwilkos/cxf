@@ -52,8 +52,9 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         OutputStream os = message.getContent(OutputStream.class);
+        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
 
-        if (os == null) {
+        if (os == null || writer != null) {
             return;
         }
         // assert os != null;
@@ -70,7 +71,6 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
             message.put(Message.ENCODING, encoding);
         }
         
-        XMLStreamWriter writer;
         try {
             writer = getXMLOutputFactory(message).createXMLStreamWriter(os, encoding);
         } catch (XMLStreamException e) {

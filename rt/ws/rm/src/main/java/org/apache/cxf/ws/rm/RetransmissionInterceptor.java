@@ -22,7 +22,8 @@ package org.apache.cxf.ws.rm;
 import java.io.OutputStream;
 
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.interceptor.StaxOutInterceptor;
+import org.apache.cxf.io.WriteOnCloseOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -31,11 +32,12 @@ import org.apache.cxf.phase.Phase;
  * 
  */
 public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
- 
+
     RMManager manager;
-      
+
     public RetransmissionInterceptor() {
-        super(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_STREAM);
+        addBefore(StaxOutInterceptor.class.getName());
     }
     
     public RMManager getManager() {
@@ -45,7 +47,6 @@ public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
     public void setManager(RMManager manager) {
         this.manager = manager;
     }
-
 
     public void handleMessage(Message message) throws Fault {
         handle(message, false);
@@ -57,7 +58,6 @@ public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
     }
 
     void handle(Message message, boolean isFault) {
-        
         if (null == getManager().getRetransmissionQueue()) {
             return;
         }
@@ -67,10 +67,8 @@ public class RetransmissionInterceptor extends AbstractPhaseInterceptor {
             return;
         }
         
-        if (os instanceof AbstractCachedOutputStream) {
-            ((AbstractCachedOutputStream)os).registerCallback(
-                new RetransmissionCallback(message, getManager()));
-        }
+        WriteOnCloseOutputStream stream = RMUtils.createCachedStream(message, os);
+        stream.registerCallback(new RetransmissionCallback(message, getManager()));
     }
 }
     

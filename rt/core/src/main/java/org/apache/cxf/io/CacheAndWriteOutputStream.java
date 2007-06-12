@@ -17,18 +17,22 @@
  * under the License.
  */
 
-package org.apache.cxf.transport.http;
+package org.apache.cxf.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.cxf.io.AbstractCachedOutputStream;
-
-public class CachedOutputStream extends AbstractCachedOutputStream {
+/**
+ * This outputstream implementation will both write to the outputstream
+ * that is specified and cache the data at the same time. This allows us
+ * to go back and retransmit the data at a later time if necessary.
+ *
+ */
+public class CacheAndWriteOutputStream extends CachedOutputStream {
 
     OutputStream flowThroughStream;
     
-    public CachedOutputStream(OutputStream stream) {
+    public CacheAndWriteOutputStream(OutputStream stream) {
         super();
         flowThroughStream = stream;
     }
@@ -37,12 +41,6 @@ public class CachedOutputStream extends AbstractCachedOutputStream {
     protected void doClose() throws IOException {
         flowThroughStream.flush();
         flowThroughStream.close();
-    }
-
-    @Override
-    protected void doFlush() throws IOException {
-        // does nothing
-
     }
 
     @Override

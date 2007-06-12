@@ -59,7 +59,11 @@ public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
             Endpoint.publish(address, implementor);
             LOG.info("Published greeter endpoint.");
         } finally {
-            System.setProperty("derby.system.home", derbyHome);
+            if (derbyHome != null) {
+                System.setProperty("derby.system.home", derbyHome);
+            } else {
+                System.clearProperty("derby.system.home");
+            }
         }
         
         return true;        

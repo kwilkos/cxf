@@ -38,6 +38,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 

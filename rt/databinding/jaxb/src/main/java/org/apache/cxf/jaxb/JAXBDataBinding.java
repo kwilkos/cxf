@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxb;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,12 +64,8 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.jaxb.io.EventDataReader;
-import org.apache.cxf.jaxb.io.EventDataWriter;
-import org.apache.cxf.jaxb.io.NodeDataReader;
-import org.apache.cxf.jaxb.io.NodeDataWriter;
-import org.apache.cxf.jaxb.io.XMLStreamDataReader;
-import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
+import org.apache.cxf.jaxb.io.DataReaderImpl;
+import org.apache.cxf.jaxb.io.DataWriterImpl;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -91,7 +88,8 @@ public final class JAXBDataBinding implements DataBinding {
     private static final Class<?> SUPPORTED_READER_FORMATS[] = new Class<?>[] {Node.class,
                                                                                XMLEventReader.class,
                                                                                XMLStreamReader.class};
-    private static final Class<?> SUPPORTED_WRITER_FORMATS[] = new Class<?>[] {Node.class,
+    private static final Class<?> SUPPORTED_WRITER_FORMATS[] = new Class<?>[] {OutputStream.class,
+                                                                               Node.class,
                                                                                XMLEventWriter.class,
                                                                                XMLStreamWriter.class};
 
@@ -126,11 +124,13 @@ public final class JAXBDataBinding implements DataBinding {
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> c) {
         if (c == XMLStreamWriter.class) {
-            return (DataWriter<T>)new XMLStreamDataWriter(context);
+            return (DataWriter<T>)new DataWriterImpl<XMLStreamWriter>(context);
+        } else if (c == OutputStream.class) {
+            return (DataWriter<T>)new DataWriterImpl<OutputStream>(context);            
         } else if (c == XMLEventWriter.class) {
-            return (DataWriter<T>)new EventDataWriter(context);            
+            return (DataWriter<T>)new DataWriterImpl<XMLEventWriter>(context);           
         } else if (c == Node.class) {
-            return (DataWriter<T>)new NodeDataWriter(context);
+            return (DataWriter<T>)new DataWriterImpl<Node>(context);      
         }
         
         return null;
@@ -144,11 +144,11 @@ public final class JAXBDataBinding implements DataBinding {
     public <T> DataReader<T> createReader(Class<T> c) {
         DataReader<T> dr = null;
         if (c == XMLStreamReader.class) {
-            dr = (DataReader<T>)new XMLStreamDataReader(context);
+            dr = (DataReader<T>)new DataReaderImpl<XMLStreamReader>(context);
         } else if (c == XMLEventReader.class) {
-            dr = (DataReader<T>)new EventDataReader(context);
+            dr = (DataReader<T>)new DataReaderImpl<XMLEventReader>(context);
         } else if (c == Node.class) {
-            dr = (DataReader<T>)new NodeDataReader(context);
+            dr = (DataReader<T>)new DataReaderImpl<Node>(context);
         }
         
         // TODO Auto-generated method stub
