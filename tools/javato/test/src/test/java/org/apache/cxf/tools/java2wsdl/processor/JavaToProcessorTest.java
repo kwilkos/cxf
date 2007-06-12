@@ -20,7 +20,6 @@
 package org.apache.cxf.tools.java2wsdl.processor;
 
 import java.io.File;
-
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
@@ -38,6 +37,7 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -270,7 +270,9 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
 
     }
-    
+
+    @Test
+    @Ignore("Can not load the HelloNoPackage")
     public void testHelloNoPackage() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello-no-package.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "HelloNoPackage");
@@ -286,6 +288,22 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File responseWrapperClass = new File(output, pkgBase + "/SayHiResponse.java");
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
+    }
+
+    @Test
+    public void testResumeClasspath() throws Exception {
+        File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
+
+        String oldCP = System.getProperty("java.class.path");
+    
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.simple.Hello");
+        env.put(ToolConstants.CFG_CLASSPATH, classFile.toString());
+        processor.setEnvironment(env);
+        processor.process();
+
+        String newCP = System.getProperty("java.class.path");
+
+        assertEquals(oldCP, newCP);
     }
     
 }

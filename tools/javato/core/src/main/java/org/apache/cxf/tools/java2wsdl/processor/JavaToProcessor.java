@@ -22,6 +22,7 @@ package org.apache.cxf.tools.java2wsdl.processor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingType;
@@ -50,6 +51,7 @@ import org.apache.cxf.wsdl.WSDLConstants;
 public class JavaToProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToProcessor.class);
     private static final String DEFAULT_ADDRESS = "http://localhost:9090/hello";
+    private static final String JAVA_CLASS_PATH = "java.class.path";
     private ToolContext context;
     private final List<AbstractGenerator> generators = new ArrayList<AbstractGenerator>();
 
@@ -73,11 +75,14 @@ public class JavaToProcessor implements Processor {
     }
     
     public void process() throws ToolException {
-        String oldClassPath = System.getProperty("java.class.path");
+        String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
+        LOG.log(Level.INFO, "OLD_CP", oldClassPath);
         if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
             String newCp = (String)context.get(ToolConstants.CFG_CLASSPATH);
-            System.setProperty("java.class.path", newCp + File.pathSeparator + oldClassPath);
+            System.setProperty(JAVA_CLASS_PATH, newCp + File.pathSeparator + oldClassPath);
+            LOG.log(Level.INFO, "NEW_CP", newCp);
         }
+
         ServiceBuilder builder = getServiceBuilder();
         ServiceInfo service = builder.createService();
 
@@ -93,7 +98,8 @@ public class JavaToProcessor implements Processor {
         generators.add(getFaultBeanGenerator());
         
         generate(service, outputDir);
-        System.setProperty("java.class.path", oldClassPath);
+        System.setProperty(JAVA_CLASS_PATH, oldClassPath);
+        LOG.log(Level.INFO, "RESUME_CP", oldClassPath);
     }
 
     private AbstractGenerator getWrapperBeanGenerator() {
