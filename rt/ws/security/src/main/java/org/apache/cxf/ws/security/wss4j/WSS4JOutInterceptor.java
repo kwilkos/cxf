@@ -65,7 +65,6 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
         long t0 = 0;
         long t1 = 0;
         long t2 = 0;
-        long t3 = 0;
 
         if (doTimeDebug) {
             t0 = System.currentTimeMillis();
@@ -169,14 +168,10 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
 
             if (doTimeDebug) {
                 t2 = System.currentTimeMillis();
-            }
-
-            if (doTimeDebug) {
-                t3 = System.currentTimeMillis();
-                TIME_LOG.fine("Send request: total= " + (t3 - t0)
+                TIME_LOG.fine("Send request: total= " + (t2 - t0)
                         + " request preparation= " + (t1 - t0)
                         + " request processing= " + (t2 - t1)
-                        + " request to CXF= " + (t3 - t2) + "\n");
+                        + "\n");
             }
 
             if (doDebug) {

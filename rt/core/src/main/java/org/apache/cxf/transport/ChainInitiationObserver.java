@@ -19,12 +19,14 @@
 
 package org.apache.cxf.transport;
 
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseChainCache;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
@@ -32,6 +34,8 @@ import org.apache.cxf.service.Service;
 public class ChainInitiationObserver implements MessageObserver {
     protected Endpoint endpoint;
     protected Bus bus;
+    
+    private PhaseChainCache chainCache = new PhaseChainCache();
 
     public ChainInitiationObserver(Endpoint endpoint, Bus bus) {
         super();
@@ -47,27 +51,22 @@ public class ChainInitiationObserver implements MessageObserver {
             exchange.setInMessage(message);
         }
         setExchangeProperties(exchange, message);
-        
+
         // setup chain
-        PhaseInterceptorChain chain = createChain();
+        PhaseInterceptorChain chain = chainCache.get(bus.getExtension(PhaseManager.class).getInPhases(),
+                                                     bus.getInInterceptors(),
+                                                     endpoint.getInInterceptors(),
+                                                     getBinding().getInInterceptors(),
+                                                     endpoint.getService().getInInterceptors());
+        
         
         message.setInterceptorChain(chain);
         
-        chain.add(bus.getInInterceptors());
-        chain.add(endpoint.getInInterceptors());
-        chain.add(getBinding().getInInterceptors());
-        chain.add(endpoint.getService().getInInterceptors());
-
         chain.setFaultObserver(endpoint.getOutFaultObserver());
        
         chain.doIntercept(message);        
     }
 
-    protected PhaseInterceptorChain createChain() {
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
-            .getInPhases());
-        return chain;
-    }
 
     protected Binding getBinding() {
         return endpoint.getBinding();

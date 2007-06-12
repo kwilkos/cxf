@@ -33,6 +33,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseChainCache;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -43,6 +44,9 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = Logger.getLogger(OutgoingChainInterceptor.class.getName());
+    
+    private PhaseChainCache chainCache = new PhaseChainCache();
+    
     public OutgoingChainInterceptor() {
         super(Phase.POST_INVOKE);
     }
@@ -63,7 +67,7 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
             
             InterceptorChain outChain = out.getInterceptorChain();
             if (outChain == null) {
-                outChain = getOutInterceptorChain(ex);
+                outChain = getChain(ex);
                 out.setInterceptorChain(outChain);
             }
             outChain.doIntercept(out);
@@ -121,5 +125,45 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
         chain.setFaultObserver(ep.getOutFaultObserver());
         return chain;
     }
+
+    private PhaseInterceptorChain getChain(Exchange ex) {
+        Bus bus = ex.get(Bus.class);
+        Binding binding = ex.get(Binding.class);
+        
+        Endpoint ep = ex.get(Endpoint.class);
+        
+        List<Interceptor> i1 = ep.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + i1);
+        }
+        List<Interceptor> i2 = ep.getService().getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by service: " + i2);
+        }
+        List<Interceptor> i3 = bus.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + i3);
+        }
+        List<Interceptor> i4 = null;
+        PhaseInterceptorChain chain;
+        if (binding != null) {
+            i4 = binding.getOutInterceptors();
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Interceptors contributed by binding: " + i4);
+            }
+        }
+        if (i4 != null) {
+            chain = chainCache.get(bus.getExtension(PhaseManager.class).getOutPhases(),
+                                   i1, i2, i3, i4);
+        } else {
+            chain = chainCache.get(bus.getExtension(PhaseManager.class).getOutPhases(),
+                                   i1, i2, i3);
+        }
+        
+        chain.setFaultObserver(ep.getOutFaultObserver());
+        return chain;
+    }
+    
+    
 }
 

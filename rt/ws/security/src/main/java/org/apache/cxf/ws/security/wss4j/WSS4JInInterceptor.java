@@ -90,7 +90,6 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
         long t1 = 0;
         long t2 = 0;
         long t3 = 0;
-        long t4 = 0;
 
         if (doTimeLog) {
             t0 = System.currentTimeMillis();
@@ -212,10 +211,11 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
             doResults(msg, actor, doc, wsResult);
 
             if (doTimeLog) {
-                t4 = System.currentTimeMillis();
-                TIME_LOG.fine("Receive request: total= " + (t4 - t0) + " request preparation= " + (t1 - t0)
-                              + " request processing= " + (t2 - t1) + " request to CXF= " + (t3 - t2)
-                              + " header, cert verify, timestamp= " + (t4 - t3) + "\n");
+                t3 = System.currentTimeMillis();
+                TIME_LOG.fine("Receive request: total= " + (t3 - t0) 
+                        + " request preparation= " + (t1 - t0)
+                        + " request processing= " + (t2 - t1) 
+                        + " header, cert verify, timestamp= " + (t3 - t2) + "\n");
             }
 
             if (doDebug) {

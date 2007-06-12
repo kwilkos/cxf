@@ -21,6 +21,10 @@ package org.apache.cxf.ws.security.wss4j;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,10 +38,15 @@ import javax.xml.transform.dom.DOMSource;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.helpers.DOMUtils.NullResolver;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.handler.WSHandlerConstants;
@@ -52,6 +61,22 @@ public class WSS4JInOutTest extends AbstractSecurityTest {
     public WSS4JInOutTest() {
     }
 
+    @Test
+    public void testOrder() throws Exception {
+        //make sure the interceptors get ordered correctly
+        SortedSet<Phase> phases = new TreeSet<Phase>();
+        phases.add(new Phase(Phase.PRE_PROTOCOL, 1));
+        
+        List<Interceptor> lst = new ArrayList<Interceptor>();
+        lst.add(new MustUnderstandInterceptor());
+        lst.add(new WSS4JInInterceptor());
+        lst.add(new SAAJInInterceptor());
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(phases);
+        chain.add(lst);
+        String output = chain.toString();
+        assertTrue(output.contains("MustUnderstandInterceptor, SAAJInInterceptor, WSS4JInInterceptor"));
+    }
+    
     @Test
     public void testSignature() throws Exception {
         Document doc = readDocument("wsse-request-clean.xml");

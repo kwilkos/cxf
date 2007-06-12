@@ -54,8 +54,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private static final Logger LOG = Logger.getLogger(PhaseInterceptorChain.class.getName());
 
     
-    private final Map<String, PhaseHolder> nameMap = new HashMap<String, PhaseHolder>();
-    private final PhaseHolder firstPhase;
+    private final Map<String, Integer> nameMap;
+    private final Phase phases[];
+
+    private InterceptorHolder heads[];
+    private InterceptorHolder tails[];
+    private boolean hasAfters[];
+
     
     private State state;
     private Message pausedMessage;
@@ -66,29 +71,68 @@ public class PhaseInterceptorChain implements InterceptorChain {
     // on nested calling of doIntercept(), which will throw same fault multi-times
     private boolean faultOccured;
     
+    
+    private PhaseInterceptorChain(PhaseInterceptorChain src) {
+        //only used for clone
+        state = State.EXECUTING;
+        
+        //immutable, just repoint
+        nameMap = src.nameMap;
+        phases = src.phases;
+        
+        int length = phases.length;
+        hasAfters = new boolean[length];
+        System.arraycopy(src.hasAfters, 0, hasAfters, 0, length);
+        
+        heads = new InterceptorHolder[length];
+        tails = new InterceptorHolder[length];
+        
+        InterceptorHolder last = null;
+        for (int x = 0; x < length; x++) {
+            InterceptorHolder ih = src.heads[x];
+            while (ih != null
+                && ih.phaseIdx == x) {
+                InterceptorHolder ih2 = new InterceptorHolder(ih);
+                ih2.prev = last;
+                if (last != null) {
+                    last.next = ih2;
+                }
+                if (heads[x] == null) {
+                    heads[x] = ih2;
+                }
+                tails[x] = ih2;
+                last = ih2;
+                ih = ih.next;
+            }
+        }
+    }
+    
     public PhaseInterceptorChain(SortedSet<Phase> ps) {
         state = State.EXECUTING;
+        
+        int numPhases = ps.size();
+        phases = new Phase[numPhases];
+        nameMap = new HashMap<String, Integer>();
 
-        PhaseHolder last = null;
-        PhaseHolder first = null;
+        heads = new InterceptorHolder[numPhases];
+        tails = new InterceptorHolder[numPhases];
+        hasAfters = new boolean[numPhases];
+        
+        int idx = 0;
         for (Phase phase : ps) {
-            PhaseHolder ph = new PhaseHolder(phase);
-            if (first == null) {
-                first = ph;
-            }
-            if (last != null) {
-                last.next = ph;
-            }
-            ph.prev = last;
-            last = ph;
-            nameMap.put(phase.getName(), ph);
+            phases[idx] = phase; 
+            nameMap.put(phase.getName(), idx);
+            ++idx;
         }
-        firstPhase = first;
+    }
+    
+    public PhaseInterceptorChain cloneChain() {
+        return new PhaseInterceptorChain(this);
     }
     
     private void updateIterator() {
         if (iterator == null) {
-            iterator = new PhaseInterceptorIterator(firstPhase);
+            iterator = new PhaseInterceptorIterator(heads);
             outputChainToLog(false);
             //System.out.println(toString());
         }
@@ -121,7 +165,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
 
         String phaseName = pi.getPhase();
         
-        PhaseHolder phase = nameMap.get(phaseName);
+        Integer phase = nameMap.get(phaseName);
         if (phase == null) {
             LOG.fine("Phase " + phaseName + " does not exist. Skipping handler "
                       + i.getClass().getName());
@@ -253,7 +297,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
 
     public void remove(Interceptor i) {
-        PhaseInterceptorIterator it = new PhaseInterceptorIterator(firstPhase);
+        PhaseInterceptorIterator it = new PhaseInterceptorIterator(heads);
         while (it.hasNext()) {
             InterceptorHolder holder = it.nextInterceptorHolder();
             if (holder.interceptor == i) {
@@ -271,7 +315,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         return getIterator();
     }
     public ListIterator<Interceptor<? extends Message>> getIterator() {
-        return new PhaseInterceptorIterator(firstPhase);
+        return new PhaseInterceptorIterator(heads);
     }
 
     private void remove(InterceptorHolder i) {
@@ -281,139 +325,139 @@ public class PhaseInterceptorChain implements InterceptorChain {
         if (i.next != null) {
             i.next.prev = i.prev;
         }
-        PhaseHolder ph = i.phase;
-        if (ph.head == i) {
+        int ph = i.phaseIdx;
+        if (heads[ph] == i) {
             if (i.next != null
-                && i.next.phase == ph) {
-                ph.head = i.next;
+                && i.next.phaseIdx == ph) {
+                heads[ph] = i.next;
             } else {
-                ph.head = null;
-                ph.tail = null;
+                heads[ph] = null;
+                tails[ph] = null;
             }
         }
-        if (ph.tail == i) {
+        if (tails[ph] == i) {
             if (i.prev != null
-                && i.prev.phase == ph) {
-                ph.tail = i.prev;
+                && i.prev.phaseIdx == ph) {
+                tails[ph] = i.prev;
             } else {
-                ph.head = null;
-                ph.tail = null;
+                heads[ph] = null;
+                tails[ph] = null;
             }
         }
     }
-    private void insertInterceptor(PhaseHolder phase, PhaseInterceptor interc, boolean force) {
+    
+    private void insertInterceptor(int phase, PhaseInterceptor interc, boolean force) {
         InterceptorHolder ih = new InterceptorHolder(interc, phase);
-        if (phase.head == null) {
-            phase.head = ih;
-            phase.tail = ih;
+        if (heads[phase] == null) {
+            heads[phase] = ih;
+            tails[phase] = ih;
             
-            PhaseHolder prev = phase.prev;
-            while (prev != null 
-                && prev.tail == null) {
-                prev = prev.prev;
+            int idx = phase - 1;
+            while (idx >= 0) {
+                if (tails[idx] != null) {
+                    break;
+                }
+                --idx;
             }
-            if (prev != null) {
+            if (idx >= 0) {
                 //found something before us
-                ih.prev = prev.tail;
-                ih.next = prev.tail.next;
+                ih.prev = tails[idx];
+                ih.next = tails[idx].next;
                 if (ih.next != null) {
                     ih.next.prev = ih;
                 }
-                prev.tail.next = ih;
+                tails[idx].next = ih;
             } else {
                 //did not find something before us, try after
-                prev = phase.next;
-                while (prev != null 
-                    && prev.head == null) {
-                    prev = prev.next;
+                idx = phase + 1;
+                while (idx < heads.length) {
+                    if (heads[idx] != null) {
+                        break;
+                    }
+                    ++idx;
                 }
-                if (prev != null) {
+                
+                if (idx != heads.length) {
                     //found something after us
-                    ih.next = prev.head;
-                    prev.head.prev = ih;
+                    ih.next = heads[idx];
+                    heads[idx].prev = ih;
                 }
             }
-            phase.hasAfters = !interc.getAfter().isEmpty();
-            if (iterator != null) {
-                outputChainToLog(true);
-            }
-            return;
-        }
-        
-        Set beforeList = interc.getBefore();
-        Set afterList = interc.getAfter();
-        InterceptorHolder before = null;
-        InterceptorHolder after = null;
-        
-        String id = interc.getId();
-        if (phase.hasAfters
-            || !beforeList.isEmpty()) {
-        
-            InterceptorHolder ih2 = phase.head;
-            while (ih2 != phase.tail.next) {
-                PhaseInterceptor cmp = ih2.interceptor;
-                String cmpId = cmp.getId();
-                if (cmpId != null
-                    && before == null
-                    && (beforeList.contains(cmpId)
-                        || cmp.getAfter().contains(id))) {
-                    //first one we need to be before
-                    before = ih2;
-                } 
-                if (cmpId != null 
-                    && afterList.contains(cmpId)) {
-                    after = ih2;
-                }
-                if (!force
-                    && cmpId.equals(id)) {
-                    return;
-                }
-                ih2 = ih2.next;
-            }
-            if (after == null
-                && beforeList.contains("*")) {
-                before = phase.head;
-            }
-            //System.out.print("Didn't skip: " + phase.toString());
-            //System.out.println("             " + interc.getId());
-        } else if (!force) {
-            InterceptorHolder ih2 = phase.head;
-            while (ih2 != phase.tail.next) {
-                PhaseInterceptor cmp = ih2.interceptor;
-                String cmpId = cmp.getId();
-                if (!force
-                    && cmpId.equals(id)) {
-                    return;
-                }
-                ih2 = ih2.next;
-            }
-            
-            //System.out.print("Skipped: " + phase.toString());
-            //System.out.println("         " + interc.getId());
-        }
-        phase.hasAfters |= afterList.isEmpty();
-        
-        if (before == null) {
-            //just add at the end
-            ih.prev = phase.tail;
-            if (phase.tail != null) {
-                ih.next = phase.tail.next;
-                phase.tail.next = ih;
-            }
-            if (ih.next != null) {
-                ih.next.prev = ih;
-            }
-            phase.tail = ih;
+            hasAfters[phase] = !interc.getAfter().isEmpty();
         } else {
-            ih.prev = before.prev;
-            if (ih.prev != null) {
-                ih.prev.next = ih;
-            }
-            ih.next = before;
-            before.prev = ih;
+        
+            Set beforeList = interc.getBefore();
+            Set afterList = interc.getAfter();
+            InterceptorHolder before = null;
+            InterceptorHolder after = null;
             
-            if (phase.head == before) {
-                phase.head = ih;
+            String id = interc.getId();
+            if (hasAfters[phase]
+                || !beforeList.isEmpty()) {
+            
+                InterceptorHolder ih2 = heads[phase];
+                while (ih2 != tails[phase].next) {
+                    PhaseInterceptor cmp = ih2.interceptor;
+                    String cmpId = cmp.getId();
+                    if (cmpId != null
+                        && before == null
+                        && (beforeList.contains(cmpId)
+                            || cmp.getAfter().contains(id))) {
+                        //first one we need to be before
+                        before = ih2;
+                    } 
+                    if (cmpId != null 
+                        && afterList.contains(cmpId)) {
+                        after = ih2;
+                    }
+                    if (!force
+                        && cmpId.equals(id)) {
+                        return;
+                    }
+                    ih2 = ih2.next;
+                }
+                if (after == null
+                    && beforeList.contains("*")) {
+                    before = heads[phase];
+                }
+                //System.out.print("Didn't skip: " + phase.toString());
+                //System.out.println("             " + interc.getId());
+            } else if (!force) {
+                InterceptorHolder ih2 = heads[phase];
+                while (ih2 != tails[phase].next) {
+                    if (ih2.interceptor.getId().equals(id)) {
+                        return;
+                    }
+                    ih2 = ih2.next;
+                }
+                
+                //System.out.print("Skipped: " + phase.toString());
+                //System.out.println("         " + interc.getId());
+            }
+            hasAfters[phase] |= !afterList.isEmpty();
+            
+            if (before == null) {
+                //just add at the end
+                ih.prev = tails[phase];
+                if (tails[phase] != null) {
+                    ih.next = tails[phase].next;
+                    tails[phase].next = ih;
+                }
+                if (ih.next != null) {
+                    ih.next.prev = ih;
+                }
+                tails[phase] = ih;
+            } else {
+                ih.prev = before.prev;
+                if (ih.prev != null) {
+                    ih.prev.next = ih;
+                }
+                ih.next = before;
+                before.prev = ih;
+                
+                if (heads[phase] == before) {
+                    heads[phase] = ih;
+                }
             }
         }
         if (iterator != null) {
@@ -432,22 +476,21 @@ public class PhaseInterceptorChain implements InterceptorChain {
             .append(message)
             .append(". Current flow:\n");
         
-        PhaseHolder ph = firstPhase;
-        while (ph != null) {
-            if (ph.head != null) {
+        for (int x = 0; x < phases.length; x++) {
+            if (heads[x] != null) {
                 chain.append("  ");
-                printPhase(ph, chain);
-            }
-            ph = ph.next;
+                printPhase(x, chain);
+            }            
         }
         return chain.toString();
     }
-    private static void printPhase(PhaseHolder ph, StringBuilder chain) {
-        chain.append(ph.phase.getName())
+    private void printPhase(int ph, StringBuilder chain) {
+        
+        chain.append(phases[ph].getName())
             .append(" [");
-        InterceptorHolder i = ph.head;
+        InterceptorHolder i = heads[ph];
         boolean first = true;
-        while (i != ph.tail.next) {
+        while (i != tails[ph].next) {
             if (first) {
                 first = false;
             } else {
@@ -478,12 +521,12 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
     
     static final class PhaseInterceptorIterator implements ListIterator<Interceptor<? extends Message>> {
-        PhaseHolder firstPhase;
+        InterceptorHolder heads[];
         InterceptorHolder prev;
         InterceptorHolder first;
         
-        public PhaseInterceptorIterator(PhaseHolder f) {
-            firstPhase = f;
+        public PhaseInterceptorIterator(InterceptorHolder h[]) {
+            heads = h;
             first = findFirst();
         }
         
@@ -493,12 +536,10 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
         
         private InterceptorHolder findFirst() {
-            PhaseHolder ph = firstPhase;
-            while (ph != null && ph.head == null) {
-                ph = ph.next;
-            }
-            if (ph != null) {
-                return ph.head;
+            for (int x = 0; x < heads.length; x++) {
+                if (heads[x] != null) {
+                    return heads[x];
+                }
             }
             return null;
         }
@@ -571,42 +612,20 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
     }
 
-
-
-    
     
     static final class InterceptorHolder {
         PhaseInterceptor interceptor;
         InterceptorHolder next;
         InterceptorHolder prev;
-        PhaseHolder phase;
+        int phaseIdx;
         
-        InterceptorHolder(PhaseInterceptor i, PhaseHolder p) {
+        InterceptorHolder(PhaseInterceptor i, int p) {
             interceptor = i;
-            phase = p;
+            phaseIdx = p;
         }
-    }
-    
-    static final class PhaseHolder implements Comparable {
-        Phase phase;
-        PhaseHolder next;
-        PhaseHolder prev;
-        
-        InterceptorHolder head;
-        InterceptorHolder tail;
-        boolean hasAfters;
-        
-        PhaseHolder(Phase p) {
-            phase = p;
-        }
-
-        public int compareTo(Object o) {
-            return phase.compareTo(((PhaseHolder)o).phase);
-        }
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            printPhase(this, builder);
-            return builder.toString();
+        InterceptorHolder(InterceptorHolder p) {
+            interceptor = p.interceptor;
+            phaseIdx = p.phaseIdx;
         }
     }
 
