@@ -22,9 +22,12 @@ package org.apache.cxf.jaxws.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class InitParamResourceResolverTest extends TestCase {
+
+public class InitParamResourceResolverTest extends Assert {
 
     public static final String STRING_PARAM = "stringParam";
     public static final String STRING_VALUE = "a string";
@@ -49,6 +52,7 @@ public class InitParamResourceResolverTest extends TestCase {
     
     private InitParamResourceResolver resolver; 
     
+    @Before
     public void setUp() {
         params.put(STRING_PARAM, STRING_VALUE);
         params.put(INT_PARAM, INT_VALUE);
@@ -66,40 +70,47 @@ public class InitParamResourceResolverTest extends TestCase {
      char, byte, short, int, long, float, double, boolean
      */
     
+    @Test
     public void testResolveChar() {
         doResolveTypeTest(CHAR_PARAM, Character.class, CHAR_VALUE.charAt(0));
     }
     
+    @Test
     public void testResolveByte() {
         doResolveTypeTest(BYTE_PARAM, Byte.class, Byte.valueOf(BYTE_VALUE));
     }
     
+    @Test
     public void testResolveShort() {
         doResolveTypeTest(SHORT_PARAM, Short.class, Short.valueOf(SHORT_VALUE));
     }
     
-    
+    @Test
     public void testResolveLong() {
         doResolveTypeTest(LONG_PARAM, Long.class, Long.valueOf(LONG_VALUE));
     }
     
+    @Test
     public void testResolveFloat() {
         doResolveTypeTest(FLOAT_PARAM, Float.class, Float.valueOf(FLOAT_VALUE));
     }
     
+    @Test
     public void testResolveDouble() {
         doResolveTypeTest(DOUBLE_PARAM, Double.class, Double.valueOf(DOUBLE_VALUE));
     }
     
+    @Test
     public void tesResolveBoolean() {
         doResolveTypeTest(BOOLEAN_PARAM, Boolean.class, Boolean.valueOf(BOOLEAN_VALUE));
     }
     
-    
+    @Test
     public void testResolveInt() {        
         doResolveTypeTest(INT_PARAM, Integer.class, Integer.valueOf(INT_VALUE));
     }
 
+    @Test
     public void testResolveString() {        
         String ret = resolver.resolve(STRING_PARAM, String.class);        
         assertEquals("incorrect string value returned", STRING_VALUE, ret);

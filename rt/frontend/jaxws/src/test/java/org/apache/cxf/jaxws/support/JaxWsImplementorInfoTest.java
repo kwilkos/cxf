@@ -19,10 +19,13 @@
 
 package org.apache.cxf.jaxws.support;
 
-import junit.framework.TestCase;
 import org.apache.cxf.calculator.CalculatorImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JaxWsImplementorInfoTest extends TestCase {
+public class JaxWsImplementorInfoTest extends Assert {
+    
+    @Test
     public void testGetWSDLLocation() throws Exception {
         JaxWsImplementorInfo info = new JaxWsImplementorInfo(CalculatorImpl.class);
         assertEquals("testutils/calculator.wsdl", info.getWsdlLocation());

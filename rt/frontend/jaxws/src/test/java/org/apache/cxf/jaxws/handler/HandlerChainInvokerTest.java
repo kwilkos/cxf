@@ -42,15 +42,17 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import junit.framework.TestCase;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
 import org.apache.cxf.jaxws.handler.soap.SOAPMessageContextImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class HandlerChainInvokerTest extends TestCase {
+public class HandlerChainInvokerTest extends Assert {
 
     private static final int HANDLER_COUNT = 4;
 
@@ -62,6 +64,7 @@ public class HandlerChainInvokerTest extends TestCase {
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
 
+    @Before
     public void setUp() {
         AbstractHandlerBase.clear();
 
@@ -86,12 +89,14 @@ public class HandlerChainInvokerTest extends TestCase {
         
     }
 
+    @Test
     public void testInvokeEmptyHandlerChain() {
         invoker = new HandlerChainInvoker(new ArrayList<Handler>());
         assertTrue(invoker.invokeLogicalHandlers(false, lmc));
         assertTrue(invoker.invokeProtocolHandlers(false, pmc));
     }
 
+    @Test
     public void testHandlerPartitioning() {
 
         assertEquals(HANDLER_COUNT, invoker.getLogicalHandlers().size());
@@ -106,6 +111,7 @@ public class HandlerChainInvokerTest extends TestCase {
 
     }
 
+    @Test
     public void testInvokeHandlersInbound() {
 
         invoker.setInbound();
@@ -128,6 +134,7 @@ public class HandlerChainInvokerTest extends TestCase {
             .getInvokeOrderOfHandleMessage());
     }
 
+    @Test
     public void testLogicalHandlerReturnFalseOutboundResponseExpected() {
 
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
@@ -163,6 +170,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.isInbound());
     }
 
+    @Test
     public void testLogicalHandlerInboundProcessingStoppedResponseExpected() {
 
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
@@ -180,6 +188,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.isOutbound());
     }
     
+    @Test
     public void testHandleMessageReturnsFalseOutbound() {
         protocolHandlers[2].setHandleMessageRet(false);
 
@@ -237,6 +246,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(0, protocolHandlers[2].getHandleFaultCount());    
     }
     
+    @Test
     public void testHandleMessageThrowsProtocolExceptionOutbound() {
         ProtocolException pe = new ProtocolException("banzai");
         protocolHandlers[2].setException(pe);
@@ -322,6 +332,7 @@ public class HandlerChainInvokerTest extends TestCase {
                    < protocolHandlers[1].getInvokeOrderOfHandleFault());
     }
     
+    @Test
     public void testHandleFaultReturnsFalseOutbound() {
         ProtocolException pe = new ProtocolException("banzai");
         protocolHandlers[2].setException(pe);
@@ -390,6 +401,7 @@ public class HandlerChainInvokerTest extends TestCase {
                    < protocolHandlers[1].getInvokeOrderOfHandleFault());
     }
    
+    @Test
     public void testHandleMessageReturnsTrue() {
         assertFalse(invoker.faultRaised());
 
@@ -428,7 +440,8 @@ public class HandlerChainInvokerTest extends TestCase {
     //depend on whether the message exchange pattern (MEP) in use requires a response to the 
     //message currently being processed or not: 
     //Response The message direction is reversed, the runtime invokes handleMessage on the next
-    //handler or dispatches the message (see section 9.1.2.2) if there are no further handlers. 
+    //handler or dispatches the message (see section 9.1.2.2) if there are no further handlers.
+    @Test
     public void testHandleMessageReturnsFalseWithResponseExpected() {
         assertFalse(invoker.faultRaised());
 
@@ -478,7 +491,8 @@ public class HandlerChainInvokerTest extends TestCase {
     //depend on whether the message exchange pattern (MEP) in use requires a response to the 
     //message currently being processed or not: 
     //No response Normal message processing stops, close is called on each previously invoked handler
-    //in the chain, the message is dispatched 
+    //in the chain, the message is dispatched
+    @Test
     public void testHandleMessageReturnsFalseWithNoResponseExpected() {
         assertFalse(invoker.faultRaised());
 
@@ -522,6 +536,7 @@ public class HandlerChainInvokerTest extends TestCase {
     //is reversed, if the message is not already a fault message then it is replaced with a fault message, 
     //and the runtime invokes handleFault on the next handler or dispatches the message (see 
     //section 9.1.2.2) if there are no further handlers.
+    @Test
     public void testHandleMessageThrowsProtocolExceptionWithResponseExpected() {
         assertFalse(invoker.faultRaised());
 
@@ -585,6 +600,7 @@ public class HandlerChainInvokerTest extends TestCase {
     //being processed or not:
     //No response Normal message processing stops, close is called on each previously invoked handler 
     //in the chain, the exception is dispatched
+    @Test
     public void testHandleMessageThrowsProtocolExceptionWithNoResponseExpected() {
         assertFalse(invoker.faultRaised());
 
@@ -630,6 +646,7 @@ public class HandlerChainInvokerTest extends TestCase {
     //processed or not: 
     //Response Normal message processing stops, close is called on each previously invoked handler in 
     //the chain, the message direction is reversed, and the exception is dispatched
+    @Test
     public void testHandleMessageThrowsRuntimeExceptionWithResponseExpected() {
         assertFalse(invoker.faultRaised());
 
@@ -667,6 +684,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertEquals(0, logicalHandlers[3].getCloseCount());
     }
 
+    @Test
     public void testFaultRaised() {
 
         assertFalse(invoker.faultRaised());
@@ -693,7 +711,8 @@ public class HandlerChainInvokerTest extends TestCase {
     // JAXB spec 9.3.2.2: Throw ProtocolException or a subclass This indicates
     // that fault message processing should cease. Fault message processing
     // stops, close is called on each previously invoked handler in the chain, the
-    // exception is dispatched       
+    // exception is dispatched
+    @Test
     public void testHandleFaultThrowsProtocolException() {
         ProtocolException pe = new ProtocolException("banzai");
         ProtocolException pe2 = new ProtocolException("banzai2");
@@ -739,6 +758,7 @@ public class HandlerChainInvokerTest extends TestCase {
     // that fault message processing should cease. Fault message processing stops,
     // close is called on each previously invoked handler in the chain, the exception is
     // dispatched
+    @Test
     public void testHandleFaultThrowsRuntimeException() {
         ProtocolException pe = new ProtocolException("banzai");
         RuntimeException re = new RuntimeException("banzai");
@@ -781,7 +801,8 @@ public class HandlerChainInvokerTest extends TestCase {
     
     //JAXB spec 9.3.2.2: Return true This indicates that fault message processing 
     //should continue. The runtime invokes handle Fault on the next handler or dispatches 
-    //the fault message (see section 9.1.2.2) if there are no further handlers. 
+    //the fault message (see section 9.1.2.2) if there are no further handlers.
+    @Test
     public void testHandleFaultReturnsTrue() {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[2].setException(pe);
@@ -824,7 +845,8 @@ public class HandlerChainInvokerTest extends TestCase {
     
     //JAXB spec 9.3.2.2: Return false This indicates that fault message processing 
     //should cease. Fault message processing stops, close is called on each previously invoked
-    //handler in the chain, the fault message is dispatched 
+    //handler in the chain, the fault message is dispatched
+    @Test
     public void testHandleFaultReturnsFalse() {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[3].setException(pe);
@@ -870,6 +892,7 @@ public class HandlerChainInvokerTest extends TestCase {
                    < logicalHandlers[0].getInvokeOrderOfClose());
     }
     
+    @Test
     public void testMEPComplete() {
 
         invoker.invokeLogicalHandlers(false, lmc);
@@ -892,6 +915,7 @@ public class HandlerChainInvokerTest extends TestCase {
     }
 
 
+    @Test
     public void testResponseExpectedDefault() {
         assertTrue(invoker.isResponseExpected());
     }
@@ -900,6 +924,7 @@ public class HandlerChainInvokerTest extends TestCase {
      * with both protocol and logical handlers in invokedHandlers list.
      *
      */
+    @Test
     public void testInvokedAlreadyInvokedMixed() {
 
         // simulate an invocation being aborted by a logical handler

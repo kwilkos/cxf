@@ -30,33 +30,32 @@ import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ConnectionFactoryImplTest extends TestCase {
+public class ConnectionFactoryImplTest extends Assert {
     ManagedConnectionFactory mockConnectionFactory;
 
     ConnectionManager mockConnectionManager;
 
-    public ConnectionFactoryImplTest(String name) {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
         mockConnectionFactory = EasyMock.createMock(ManagedConnectionFactory.class);
         mockConnectionManager = EasyMock.createMock(ConnectionManager.class);
     }
 
+    @Test
     public void testInstanceOfSerializable() throws Exception {
         ConnectionFactoryImpl cf = new ConnectionFactoryImpl(mockConnectionFactory,
                                                              mockConnectionManager);
         assertTrue("instance of serializable", cf instanceof Serializable);
     }
 
+    @Test
     public void testInstanceOfReferencable() throws Exception {
         ConnectionFactoryImpl cf = new ConnectionFactoryImpl(mockConnectionFactory,
                                                              mockConnectionManager);
@@ -68,6 +67,7 @@ public class ConnectionFactoryImplTest extends TestCase {
         assertEquals("got back what was set", ref, cf.getReference());
     }
 
+    @Test
     public void testGetConnectionReturnsConnectionWithRightManager() throws Exception {
         EasyMock.reset(mockConnectionManager);
         
@@ -92,6 +92,7 @@ public class ConnectionFactoryImplTest extends TestCase {
         EasyMock.verify(mockConnectionManager); 
     }
 
+    @Test
     public void testGetConnectionWithNoPortReturnsConnectionWithRightManager() throws Exception {
         
         EasyMock.reset(mockConnectionManager);
@@ -120,6 +121,7 @@ public class ConnectionFactoryImplTest extends TestCase {
         
     }
 
+    @Test
     public void testGetConnectionWithNoWsdlLocationReturnsConnectionWithRightManager() throws Exception {
         
         EasyMock.reset(mockConnectionManager);
@@ -146,6 +148,7 @@ public class ConnectionFactoryImplTest extends TestCase {
         
     }
 
+    @Test
     public void testGetConnectionWithNoWsdlLocationAndNoPortReturnsConnectionWithRightManager()
         throws Exception {
         EasyMock.reset(mockConnectionManager);
@@ -171,6 +174,7 @@ public class ConnectionFactoryImplTest extends TestCase {
 
     }
 
+    @Test
     public void testGetConnectionWithNonInterface() throws Exception {
         ConnectionFactoryImpl cf = new ConnectionFactoryImpl(mockConnectionFactory,
                                                              mockConnectionManager);
@@ -183,11 +187,6 @@ public class ConnectionFactoryImplTest extends TestCase {
         }
     }
 
-    public static Test suite() {
-        return new TestSuite(ConnectionFactoryImplTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {ConnectionFactoryImplTest.class.getName()});
-    }
+    
+    
 }

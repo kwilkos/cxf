@@ -23,16 +23,21 @@ import java.util.HashMap;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ToolContextTest extends TestCase {
+
+public class ToolContextTest extends Assert {
 
     ToolContext context = new ToolContext();
-    
+
+    @Before
     public void setUp() {        
         context.setParameters(new HashMap<String, Object>());
     }
     
+    @Test
     public void testGetQName() throws Exception {
         assertNull(context.getQName(ToolConstants.CFG_SERVICENAME));
         

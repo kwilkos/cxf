@@ -21,13 +21,16 @@ package org.apache.cxf.tools.wsdlto;
 
 import java.net.URISyntaxException;
 
-import junit.framework.TestCase;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class WSDLToJavaContainerTest extends TestCase {
+public class WSDLToJavaContainerTest extends Assert {
+    
+    @Test
     public void testNoPlugin() throws Exception {
         WSDLToJavaContainer container = new WSDLToJavaContainer("dummy", null);
 

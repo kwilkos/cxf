@@ -35,7 +35,6 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -57,6 +56,10 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.apache.cxf.message.Message.MIME_HEADERS;
 import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
@@ -66,7 +69,7 @@ import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PRO
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 
 
-public class MAPCodecTest extends TestCase {
+public class MAPCodecTest extends Assert {
 
     private MAPCodec codec;
     private IMocksControl control;
@@ -79,11 +82,13 @@ public class MAPCodecTest extends TestCase {
     private Exchange correlatedExchange;
     private boolean expectRelatesTo;
 
+    @Before
     public void setUp() {
         codec = new MAPCodec();
         control = EasyMock.createNiceControl();
     }
 
+    @After
     public void tearDown() {
         expectedNames = null;
         expectedDeclaredTypes = null;
@@ -94,6 +99,7 @@ public class MAPCodecTest extends TestCase {
         correlatedExchange = null;
     }
 
+    @Test
     public void testGetHeaders() throws Exception {
         Set<QName> headers = codec.getUnderstoodHeaders();
         assertTrue("expected From header", 
@@ -110,6 +116,7 @@ public class MAPCodecTest extends TestCase {
                    headers.contains(Names.WSA_MESSAGEID_QNAME));
     }
 
+    @Test
     public void testRequestorOutbound() throws Exception {
         SoapMessage message = setUpMessage(true, true);
         codec.handleMessage(message);
@@ -117,6 +124,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, true, true, true);
     }
     
+    @Test
     public void testRequestorOutboundPreExistingSOAPAction() throws Exception {
         SoapMessage message = setUpMessage(true, true, false, true);
         codec.handleMessage(message);
@@ -125,6 +133,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, true, true, true);
     }
     
+    @Test
     public void testRequestorOutboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -134,6 +143,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, true, true, false);
     }
     
+    @Test
     public void testResponderInbound() throws Exception {
         SoapMessage message = setUpMessage(false, false);
         codec.handleMessage(message);
@@ -141,6 +151,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, false, true);
     }
 
+    @Test
     public void testResponderOutbound() throws Exception {
         SoapMessage message = setUpMessage(false, true);
         codec.handleMessage(message);
@@ -148,6 +159,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, true);
     }
     
+    @Test
     public void testResponderInboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -157,6 +169,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, false, false);
     }
     
+    @Test
     public void testResponderOutboundInvalidMAP() throws Exception {
         SoapMessage message = setUpMessage(false, true, true);
         try {
@@ -171,6 +184,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, true);
     }
     
+    @Test
     public void testResponderOutboundPreExistingSOAPAction() throws Exception {
         SoapMessage message = setUpMessage(false, true, false, true);
         codec.handleMessage(message);
@@ -179,6 +193,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, true);
     }
 
+    @Test
     public void testResponderOutboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -188,6 +203,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, false);
     }
     
+    @Test
     public void testRequestorInbound() throws Exception {
         SoapMessage message = setUpMessage(true, false);
         codec.handleMessage(message);
@@ -195,6 +211,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, true, false, true);
     }
     
+    @Test
     public void testRequestorInboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 

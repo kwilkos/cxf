@@ -21,7 +21,6 @@ package org.apache.cxf.binding.soap;
 
 import javax.wsdl.extensions.soap.SOAPAddress;
 
-import junit.framework.TestCase;
 
 import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 
@@ -34,8 +33,12 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SoapDestinationFactoryTest extends TestCase {
+public class SoapDestinationFactoryTest extends Assert {
+    
+    @Test
     public void testDestination() throws Exception {
         String wsdlSoapNs = "http://schemas.xmlsoap.org/wsdl/soap/";
         String transportURI = "http://foo/transport";

@@ -30,7 +30,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -57,12 +56,15 @@ import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class BareInInterceptorTest extends TestCase {
+public class BareInInterceptorTest extends Assert {
     
     PhaseInterceptorChain chain;
     MessageImpl message;
@@ -74,6 +76,7 @@ public class BareInInterceptorTest extends TestCase {
     EndpointImpl endpoint;
     BindingOperationInfo operation;
     
+    @Before
     public void setUp() throws Exception {
         bus = BusFactory.newInstance().createBus();
 
@@ -90,6 +93,7 @@ public class BareInInterceptorTest extends TestCase {
     
     }
     
+    @Test
     public void testInterceptorInbound() throws Exception {
         setUpUsingHelloWorld();
 
@@ -112,6 +116,7 @@ public class BareInInterceptorTest extends TestCase {
         assertEquals("TestSOAPInputPMessage", greet.getRequestType());        
     }
 
+    @Test
     public void testInterceptorInbound1() throws Exception {
         setUpUsingDocLit();
 
@@ -135,6 +140,7 @@ public class BareInInterceptorTest extends TestCase {
         assertEquals("CXF", greet.getTickerSymbol());        
     }
     
+    @Test
     public void testInterceptorInboundBareNoParameter() throws Exception {
         setUpUsingDocLit();
         
@@ -158,6 +164,7 @@ public class BareInInterceptorTest extends TestCase {
         assertNull(parameters);
     }
     
+    @Test
     public void testInterceptorOutbound() throws Exception {
         setUpUsingHelloWorld();
 

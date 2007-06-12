@@ -29,20 +29,24 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11.JAXWSDefinitionBuilder;
 import org.apache.cxf.transport.jms.AddressType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JAXWSDefinitionBuilderTest extends TestCase {
+public class JAXWSDefinitionBuilderTest extends Assert {
     private ToolContext env;
 
+    @Before
     public void setUp() {
         env = new ToolContext();
     }
 
 
+    @Test
     public void testBuildDefinitionWithXMLBinding() {
         String qname = "http://apache.org/hello_world_xml_http/bare";
         String wsdlUrl = getClass().getResource("resources/hello_world_xml_bare.wsdl").toString();
@@ -80,6 +84,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         assertTrue(input.getExtensibilityElements().get(0) instanceof XMLBindingMessageFormat);
     }
 
+    @Test
     public void testBuildDefinitionWithJMSTransport() {
         String qname = "http://cxf.apache.org/hello_world_jms";
         String wsdlUrl = getClass().getResource("resources/jms_test.wsdl").toString();

@@ -33,11 +33,14 @@ import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SoapOutInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;
     private SoapOutInterceptor soi;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         StaxInInterceptor sii = new StaxInInterceptor("phase1");
@@ -50,6 +53,7 @@ public class SoapOutInterceptorTest extends TestBase {
         chain.add(soi);
     }
 
+    @Test
     public void testHandleMessage() throws Exception {
         prepareSoapMessage();
 

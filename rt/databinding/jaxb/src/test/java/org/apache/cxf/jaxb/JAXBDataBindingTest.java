@@ -38,7 +38,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -57,8 +56,12 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JAXBDataBindingTest extends TestCase {
+public class JAXBDataBindingTest extends Assert {
 
     private static final Logger LOG = Logger.getLogger(JAXBDataBindingTest.class.getName());
     private static final String WSDL_PATH = "/wsdl/hello_world.wsdl";
@@ -75,6 +78,7 @@ public class JAXBDataBindingTest extends TestCase {
     private Map<String, SchemaInfo> schemaMap;
     private DestinationFactoryManager destinationFactoryManager;
 
+    @Before
     public void setUp() throws Exception {
         jaxbDataBinding = new JAXBDataBinding();
         String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
@@ -116,10 +120,12 @@ public class JAXBDataBindingTest extends TestCase {
         schemaMap = jaxbDataBinding.getSchemas(serviceInfo);
     }
 
+    @After
     public void tearDown() throws Exception {
 
     }
 
+    @Test
     public void testGetSchemas() throws Exception {
         assertEquals(schemaMap.size(), 2);
         assertTrue(schemaMap.containsKey("http://schemas.xmlsoap.org/wsdl/"));
@@ -132,6 +138,7 @@ public class JAXBDataBindingTest extends TestCase {
         assertEquals(jmsSchema.getNamespaceURI(), "http://cxf.apache.org/transports/jms");
     }
     
+    @Test
     public void testCreateJAXBContext() throws Exception {
         try {
             Set<Class<?>> classes = new HashSet<Class<?>>();
@@ -142,6 +149,7 @@ public class JAXBDataBindingTest extends TestCase {
         }
         
     }
+    @Test
     public void testCreateReader() {
         DataReader reader = jaxbDataBinding.createReader(XMLStreamReader.class);
         assertTrue(reader instanceof XMLStreamDataReader);
@@ -156,6 +164,7 @@ public class JAXBDataBindingTest extends TestCase {
         assertNull(reader);
     }
 
+    @Test
     public void testSupportedFormats() {
         List<Class<?>> cls = Arrays.asList(jaxbDataBinding.getSupportedWriterFormats());
         assertNotNull(cls);
@@ -172,6 +181,7 @@ public class JAXBDataBindingTest extends TestCase {
         assertTrue(cls.contains(Node.class));
     }
 
+    @Test
     public void testCreateWriter() {
         DataWriter writer = jaxbDataBinding.createWriter(XMLStreamWriter.class);
         assertTrue(writer instanceof XMLStreamDataWriter);
@@ -186,6 +196,7 @@ public class JAXBDataBindingTest extends TestCase {
         assertNull(writer);
     }
     
+    @Test
     public void testExtraClass() {
         Class[] extraClass = new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class};
         jaxbDataBinding.setExtraClass(extraClass);

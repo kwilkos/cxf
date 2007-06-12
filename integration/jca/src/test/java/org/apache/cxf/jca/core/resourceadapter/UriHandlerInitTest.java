@@ -20,19 +20,16 @@ package org.apache.cxf.jca.core.resourceadapter;
 
 import java.util.Properties;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class UriHandlerInitTest extends TestCase {
+
+public class UriHandlerInitTest extends Assert {
     private static final String PROP_NAME = "java.protocol.handler.pkgs";
 
     private static final String PKG_ADD = "do.do";
     
-    public UriHandlerInitTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testAppendToProp() {
         final Properties properties = System.getProperties();
         final String origVal = properties.getProperty(PROP_NAME);
@@ -58,8 +55,6 @@ public class UriHandlerInitTest extends TestCase {
 
    
 
-    public static Test suite() {
-        return new TestSuite(UriHandlerInitTest.class);
-    }
+    
    
 }

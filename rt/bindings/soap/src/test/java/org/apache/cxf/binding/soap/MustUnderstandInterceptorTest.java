@@ -40,6 +40,8 @@ import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.junit.Before;
+import org.junit.Test;
 
 public class MustUnderstandInterceptorTest extends TestBase {
 
@@ -51,6 +53,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
     private DummySoapInterceptor dsi;
     private ReadHeadersInterceptor rhi;
 
+    @Before
     public void setUp() throws Exception {
 
         super.setUp();
@@ -67,6 +70,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         chain.add(dsi);
     }
 
+    @Test
     public void testHandleMessageSucc() throws Exception {
         prepareSoapMessage();
         dsi.getUnderstoodHeaders().add(RESERVATION);
@@ -78,6 +82,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
             .isCalledGetUnderstood());
     }
 
+    @Test
     public void testHandleMessageFail() throws Exception {
         prepareSoapMessage();
 
@@ -98,6 +103,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         }
     }
 
+    @Test
     public void testHandleMessageWithHeaderParam() throws Exception {
         prepareSoapMessage();
         dsi.getUnderstoodHeaders().add(RESERVATION);

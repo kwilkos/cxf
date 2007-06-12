@@ -36,12 +36,15 @@
  */
 package org.apache.cxf.binding.http;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.binding.http.strategy.EnglishInflector;
 import org.apache.cxf.binding.http.strategy.Inflector;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class InflectorTest extends TestCase {
+public class InflectorTest extends Assert {
+    
+    @Test
     public void testPluralization() {
         Inflector i = new EnglishInflector();
         assertEquals("quizzes", i.pluralize("quiz"));
@@ -51,7 +54,7 @@ public class InflectorTest extends TestCase {
         assertEquals("kids", i.pluralize("kid"));
         assertEquals("bashes", i.pluralize("bash"));
     }
-    
+    @Test
     public void testSingularization() {
         Inflector i = new EnglishInflector();
         assertEquals("matrix", i.singularlize("matrices"));

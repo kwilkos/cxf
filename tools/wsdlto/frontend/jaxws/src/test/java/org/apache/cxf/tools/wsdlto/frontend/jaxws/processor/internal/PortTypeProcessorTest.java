@@ -19,10 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class PortTypeProcessorTest extends TestCase {
+
+public class PortTypeProcessorTest extends Assert {
     
+    @Test
     public void testProcess() throws Exception {
     }
 }

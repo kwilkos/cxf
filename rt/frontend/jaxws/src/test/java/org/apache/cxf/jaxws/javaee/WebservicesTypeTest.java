@@ -24,10 +24,13 @@ import java.io.InputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class WebservicesTypeTest extends TestCase {
 
+public class WebservicesTypeTest extends Assert {
+
+    @Test
     public void testReadWebservicesXml() throws Exception {
         JAXBContext ctx = JAXBContext.newInstance(WebservicesType.class);
         InputStream in = this.getClass().getClassLoader().getResourceAsStream("webservices.xml");

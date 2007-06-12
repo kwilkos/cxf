@@ -19,13 +19,15 @@
 
 package org.apache.cxf.binding.soap;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SoapBindingTest extends TestCase {
+public class SoapBindingTest extends Assert {
     
+    @Test
     public void testCreateMessage() throws Exception {
         Message message = new MessageImpl();
         SoapBinding sb = new SoapBinding(null);

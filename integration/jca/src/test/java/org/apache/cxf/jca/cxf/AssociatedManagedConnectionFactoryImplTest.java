@@ -26,20 +26,16 @@ import javax.resource.ResourceException;
 //import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ResourceAdapter;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 import org.apache.cxf.Bus;
 //import org.apache.cxf.jca.cxf.test.DummyBus;
 import org.easymock.classextension.EasyMock;
+import org.junit.Test;
 
 public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectionFactoryImplTest {
     
-    public AssociatedManagedConnectionFactoryImplTest(String name) {
-        super(name);
-    }
-
+    
+    @Test
     public void testSetResourceAdapter() throws Exception {
         TestableAssociatedManagedConnectionFactoryImpl mci = 
             new TestableAssociatedManagedConnectionFactoryImpl();
@@ -48,6 +44,7 @@ public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectio
         assertEquals("ResourceAdapter is set", mci.getResourceAdapter(), rai);
     }
 
+    @Test
     public void testSetWrongResourceAdapterThrowException() throws Exception {
         TestableAssociatedManagedConnectionFactoryImpl mci =
             new TestableAssociatedManagedConnectionFactoryImpl();
@@ -60,6 +57,7 @@ public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectio
         }
     }
 
+    @Test
     public void testRegisterBusThrowExceptionIfResourceAdapterNotSet() throws Exception {
         TestableAssociatedManagedConnectionFactoryImpl mci =
             new TestableAssociatedManagedConnectionFactoryImpl();
@@ -99,6 +97,7 @@ public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectio
         }
     }
     */
+    @Test
     public void testMergeNonDuplicateResourceAdapterProps() throws ResourceException {
         Properties props = new Properties();
         props.setProperty("key1", "value1");
@@ -128,13 +127,7 @@ public class AssociatedManagedConnectionFactoryImplTest extends ManagedConnectio
         return mci;
     }
 
-    public static Test suite() {
-        return new TestSuite(AssociatedManagedConnectionFactoryImplTest.class);
-    }
 
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {AssociatedManagedConnectionFactoryImplTest.class.getName()});
-    }
 }
 
 class DummyResourceAdapterImpl extends ResourceAdapterImpl {

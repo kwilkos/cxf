@@ -18,16 +18,13 @@
  */
 package org.apache.cxf.jca.cxf.handlers;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
-//import org.apache.cxf.Bus;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 import org.apache.cxf.jca.cxf.CXFManagedConnection;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
@@ -35,11 +32,15 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
     ProxyInvocationHandler testObject;
     CXFInvocationHandlerData data;
 
+    public ProxyInvocationHandlerTest() {
+        super();
+    }
+    
     public ProxyInvocationHandlerTest(String name) {
         super(name);
     }
 
-
+    @Before
     public void setUp() { 
         super.setUp(); 
         data = new CXFInvocationHandlerDataImpl();
@@ -54,6 +55,7 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
     }
 
    
+    @Test
     public void testInvokeSetsBusCurrent() throws Throwable {
         Bus oldBus = BusFactory.getDefaultBus();
         
@@ -66,13 +68,6 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
         BusFactory.setDefaultBus(oldBus);
     }
 
-    public static Test suite() {
-        return new TestSuite(ProxyInvocationHandlerTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {ProxyInvocationHandlerTest.class.getName()});
-    }
 }
 
 

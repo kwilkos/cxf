@@ -32,8 +32,6 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.service.model.MessageInfo;
@@ -44,13 +42,19 @@ import org.apache.cxf.wsdl11.WSDLLocatorImpl;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JaxWsServiceConfigurationTest extends TestCase {
+public class JaxWsServiceConfigurationTest extends Assert {
 
+
+    @Before
     public void setUp() throws Exception {
 
     }
 
+    @Test
     public void testGetInPartName() throws Exception {
         QName opName = new QName("http://cxf.com/", "sayHello");
         Method sayHelloMethod = Hello.class.getMethod("sayHello", new Class[]{String.class, String.class});
@@ -73,6 +77,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         assertEquals("get wrong in partName for first param", new QName("http://cxf.com/", "arg1"), partName);
     }
 
+    @Test
     public void testDefaultStyle() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(HelloDefault.class);
@@ -83,6 +88,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         assertNull(jwsc.isWrapped());
     }
 
+    @Test
     public void testRPCStyle() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(HelloRPC.class);
@@ -93,6 +99,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         assertFalse(jwsc.isWrapped());
     }
 
+    @Test
     public void testDocumentWrappedStyle() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(HelloWrapped.class);
@@ -103,6 +110,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         assertTrue(jwsc.isWrapped());
     }
 
+    @Test
     public void testDocumentBareStyle() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(HelloBare.class);
@@ -113,6 +121,7 @@ public class JaxWsServiceConfigurationTest extends TestCase {
         assertFalse(jwsc.isWrapped());
     }
 
+    @Test
     public void testGetOutPartName() throws Exception {
         QName opName = new QName("http://cxf.com/", "sayHi");
         Method sayHiMethod = Hello.class.getMethod("sayHi", new Class[]{});

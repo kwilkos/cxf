@@ -19,24 +19,29 @@
 
 package org.apache.cxf.jbi.se.state;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.jbi.se.state.ServiceEngineStateMachine.SEOperation;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ServiceEngineStateFactoryTest extends TestCase {
+public class ServiceEngineStateFactoryTest extends Assert {
     private ServiceEngineStateFactory stateFactory;
     private ServiceEngineStateMachine state;
         
+    @Before
     public void setUp() throws Exception {
         stateFactory = ServiceEngineStateFactory.getInstance();
         state = stateFactory.getShutdownState();
     }
     
+    @Test
     public void testSinglton() throws Exception {
         assertSame(stateFactory, 
                    ServiceEngineStateFactory.getInstance());
     }
     
+    @Test
     public void testLifeCycle() throws Exception {
         stateFactory.setCurrentState(state);
         assertSame(state, stateFactory.getCurrentState());

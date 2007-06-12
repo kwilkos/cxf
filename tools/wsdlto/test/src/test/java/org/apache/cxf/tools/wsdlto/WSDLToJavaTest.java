@@ -19,11 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class WSDLToJavaTest extends TestCase {
 
-    
+public class WSDLToJavaTest extends Assert {
+
+    @Test
     public void testGetFrontEndName() throws Exception {
         WSDLToJava w2j = new WSDLToJava();
         assertEquals("jaxws", w2j.getFrontEndName(new String[]{"-frontend", "jaxws"}));
@@ -34,6 +36,7 @@ public class WSDLToJavaTest extends TestCase {
         assertNull(w2j.getFrontEndName(null));
     }
 
+    @Test
     public void testGetDataBindingName() throws Exception {
         WSDLToJava w2j = new WSDLToJava();
         assertEquals("jaxb", w2j.getDataBindingName(new String[]{"-databinding", "jaxb"}));
@@ -45,6 +48,7 @@ public class WSDLToJavaTest extends TestCase {
         assertNull(w2j.getDataBindingName(new String[]{"-frontend", "jaxws"}));
     }
 
+    @Test
     public void testIsVerbose() {
         WSDLToJava w2j = new WSDLToJava();
         w2j.setArguments(new String[]{"-V"});

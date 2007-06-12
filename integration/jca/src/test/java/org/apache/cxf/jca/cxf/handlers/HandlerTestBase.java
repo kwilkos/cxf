@@ -20,16 +20,17 @@ package org.apache.cxf.jca.cxf.handlers;
 
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFManagedConnection;
 import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
 import org.apache.cxf.jca.cxf.ManagedConnectionImpl;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class HandlerTestBase extends TestCase {
+public class HandlerTestBase extends Assert {
     protected Bus mockBus = EasyMock.createMock(Bus.class);
     protected CXFManagedConnection mockManagedConnection = 
                 EasyMock.createMock(CXFManagedConnection.class);
@@ -44,10 +45,14 @@ public class HandlerTestBase extends TestCase {
     protected Method testMethod;
     protected TestTarget target = new TestTarget();
     
+    public HandlerTestBase() {
+    }
+    
     public HandlerTestBase(String aName) {
-        super(aName);
+        
     }
 
+    @Before
     public void setUp() {
         EasyMock.reset(mcf);
         EasyMock.reset(mci);
@@ -67,6 +72,7 @@ public class HandlerTestBase extends TestCase {
         
     }
 
+    @Test
     public void testNullTestTarget() {
        // do nothing here ,just for avoid the junit test warning
     }

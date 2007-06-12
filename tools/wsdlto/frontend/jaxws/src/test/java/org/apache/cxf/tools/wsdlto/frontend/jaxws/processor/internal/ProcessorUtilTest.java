@@ -19,14 +19,17 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ProcessorUtilTest extends TestCase {
+
+public class ProcessorUtilTest extends Assert {
 
     private boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
     }
     
+    @Test
     public void testGetAbsolutePath() throws Exception {
         assertEquals("http://cxf.org",
                      ProcessorUtil.getAbsolutePath("http://cxf.org"));

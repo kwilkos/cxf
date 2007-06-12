@@ -18,16 +18,15 @@
  */
 package org.apache.cxf.jca.core.resourceadapter;
 
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class ResourceBeanTest extends TestCase {
 
-    public ResourceBeanTest(String name) {
-        super(name);
-    }
+public class ResourceBeanTest extends Assert {
 
- 
+
+    @Test
     public void testDisableConsoleLogging() throws Exception {
         ResourceBean rb = new ResourceBean();
         rb.setDisableConsoleLogging(true);

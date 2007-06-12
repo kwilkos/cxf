@@ -20,48 +20,43 @@ package org.apache.cxf.jca.servant;
 
 //import java.lang.reflect.Method;
 
+import java.lang.reflect.Method;
+
 import javax.ejb.EJBObject;
 import javax.naming.InitialContext;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jca.cxf.JCABusFactory;
 import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class CXFConnectEJBServantTest extends TestCase { 
+public class CXFConnectEJBServantTest extends Assert { 
   
     protected CXFConnectEJBServant ejbservant;
 
-    public CXFConnectEJBServantTest(String name) throws Exception {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
         Bus mockBus = createMockBus();
         ejbservant = createCXFConnectEJBServant(mockBus);
     }
 
+    @After
     public void tearDown() {
     }
 
-    public static Test suite() {
-        return new TestSuite(CXFConnectEJBServantTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[]{CXFConnectEJBServantTest.class.getName()});
-    }
-
+    @Test
     public void testConstructor() throws Exception {
         assertTrue("constructor works", 
                    createCXFConnectEJBServant(createMockBus()) instanceof CXFConnectEJBServant);
     }
     
+    @Test
     public void testGetTargetObjectSetsThreadContextClassloader() throws Exception {
         final ClassLoader cl = EasyMock.createMock(ClassLoader.class);
         final EJBObject ejb = EasyMock.createMock(EJBObject.class);
@@ -104,7 +99,8 @@ public class CXFConnectEJBServantTest extends TestCase {
         EasyMock.verify(rai);
        
     }
-    /*    
+        
+    @Ignore
     public void testServantInvoke() throws Exception { 
 
         Greeter target = new GreeterImpl(); 
@@ -117,8 +113,8 @@ public class CXFConnectEJBServantTest extends TestCase {
             e.printStackTrace();
         }
     }
-    */
     /*
+    @Ignore
     public void testServantInvokeThrowBusExceptionIfEJBThrowRuntimeException() throws Exception {
         final String msg = "jjljljlj";
         GreeterImpl target = new GreeterImpl();
@@ -137,8 +133,8 @@ public class CXFConnectEJBServantTest extends TestCase {
             assertTrue("cause is RuntimeException", ex.getCause() instanceof RuntimeException);
             assertTrue("exception message contains " + msg, ex.getMessage().indexOf(msg)!=-1);
         }
-    }
-*/
+    }*/
+
     protected Bus createMockBus() {
         return EasyMock.createMock(Bus.class);
     }

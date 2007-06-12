@@ -23,23 +23,25 @@ import java.io.File;
 
 import javax.xml.ws.Service;
 
-import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 
 
-public class ProviderFactoryTest extends TestCase {
+public class ProviderFactoryTest extends Assert {
 
     private String epAddr = "http://cxf.apache.org/";
 
     private ProviderFactory ph;
     private AbstractDOMProvider dpMock;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         dpMock = EasyMock.createMock(AbstractDOMProvider.class);
         ph = new ProviderFactory(epAddr) {
                 protected AbstractDOMProvider createProvider(Service.Mode mode,
@@ -54,6 +56,7 @@ public class ProviderFactoryTest extends TestCase {
             };
     }
 
+    @Test
     public void testMsgJSFile() throws Exception {
         dpMock.publish();
         dpMock.publish();
@@ -63,6 +66,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testBadJSFile() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "broken.js";
@@ -77,6 +81,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testEmptyJSFile() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "empty.js";
@@ -92,6 +97,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testNoSuchJSFile() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "none.js";
@@ -107,6 +113,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testIllegalServiceMode() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "illegal1.js";
@@ -122,6 +129,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testIllegalServiceModeType() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "illegal2.js";
@@ -137,6 +145,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testProviderException() throws Exception {
         dpMock.publish();
         EasyMock.expectLastCall()

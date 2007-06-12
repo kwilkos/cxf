@@ -24,18 +24,21 @@ import java.util.Set;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.security.auth.Subject;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
+import org.junit.Test;
 
 public class InvocationHandlerFactoryTest extends HandlerTestBase {
+    
+    public InvocationHandlerFactoryTest() {
+        super();
+    }
     
     public InvocationHandlerFactoryTest(String name) {
         super(name);
     }
     
+    @Test
     public void testCreateHandlerChain() 
         throws ResourceAdapterInternalException {
 
@@ -86,11 +89,5 @@ public class InvocationHandlerFactoryTest extends HandlerTestBase {
 
     
 
-    public static Test suite() {
-        return new TestSuite(InvocationHandlerFactoryTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {InvocationHandlerFactoryTest.class.getName()});
-    }
+    
 }

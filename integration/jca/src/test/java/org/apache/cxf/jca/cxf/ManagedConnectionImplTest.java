@@ -30,15 +30,13 @@ import javax.resource.spi.security.PasswordCredential;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 
 import org.apache.cxf.connector.Connection;
 import org.apache.cxf.jca.cxf.handlers.ProxyInvocationHandler;
 import org.apache.hello_world_soap_http.Greeter;
 import org.easymock.classextension.EasyMock;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
 
@@ -46,26 +44,14 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
     protected QName serviceName;
     protected QName portName;
 
-    public ManagedConnectionImplTest(String name) {
-        super(name);
-    }
-
-    /*
-    public void setUp() {
-        subj = new Subject();
-        wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
-        serviceName = new QName("http://apache.org/hello_world_soap_http", "SOAPService");
-        portName = new QName("http://apache.org/hello_world_soap_http", "SoapPort");
-        cri = new CXFConnectionRequestInfo(Greeter.class, wsdl, serviceName, portName);
-    }
-    */
-   
+    @Test   
     public void testInstanceOfConnection() throws Exception {
         assertTrue("instance of Connection", mci instanceof Connection);
         ((Connection)mci).close();
     }
 
-    public void untestGetConnectionServiceGetPortThrows() throws Exception {
+    @Ignore
+    public void testGetConnectionServiceGetPortThrows() throws Exception {
         
         cri = new CXFConnectionRequestInfo(Foo.class, null, serviceName, null);
         
@@ -78,15 +64,17 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         }
     }
 
-    /*
+    
+    @Ignore
     public void testThreadContextClassLoaderIsSet() throws Exception {
         //set the threadContextClassLoader for Bus 
         //TODO njiang classloader things
         //check the threadContextClassLoader 
         mci.getConnection(subj, cri);
     }
-    */
-    public void untestGetConnectionWithNoWSDLInvokesCreateClientWithTwoParameters() throws Exception {
+    
+    @Ignore
+    public void testGetConnectionWithNoWSDLInvokesCreateClientWithTwoParameters() throws Exception {
 
 
         cri = new CXFConnectionRequestInfo(Greeter.class, null, serviceName, portName);
@@ -97,7 +85,8 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         assertTrue("checking implementation of passed interface", o instanceof Greeter);
     }
     
-    public void untestGetConnectionWithNoWSDLInvokesCreateClientWithTwoArgs()
+    @Ignore
+    public void testGetConnectionWithNoWSDLInvokesCreateClientWithTwoArgs()
         throws Exception {
 
         cri = new CXFConnectionRequestInfo(Greeter.class, null, serviceName, null);
@@ -110,7 +99,8 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
 
     }
 
-    public void untestGetConnectionWithNoPortReturnsConnection() throws Exception {
+    @Ignore
+    public void testGetConnectionWithNoPortReturnsConnection() throws Exception {
 
         cri = new CXFConnectionRequestInfo(Greeter.class, 
                                            wsdl,
@@ -123,6 +113,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         assertTrue("returned connect does not implement Connection interface", o instanceof Greeter);
     }
 
+    @Test
     public void testGetConnectionReturnsConnection() throws ResourceException {
         Object o = mci.getConnection(subj, cri);
         assertTrue("returned connect does not implement Connection interface", o instanceof Connection);
@@ -137,12 +128,14 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
                      Proxy.getInvocationHandler(o).getClass());
     }
 
+    @Test
     public void testGetConnectionWithDudSubjectA() throws ResourceException {
         Object o = mci.getConnection(subj, cri);
 
         verifyProxyInterceptors(o);
     }
 
+    @Test
     public void testGetConnectionWithDudSubjectB() throws ResourceException {
         String user = new String("user");
         char password[] = {'a', 'b', 'c'};
@@ -153,6 +146,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         verifyProxyInterceptors(o);
     }
 
+    @Test
     public void testGetConnectionWithSubject() throws ResourceException {
         String user = new String("user");
         char password[] = {'a', 'b', 'c'};
@@ -165,6 +159,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
     }
  
 
+    @Test
     public void testCloseConnection() throws Exception {
       
         final Connection conn = (Connection)mci.getConnection(subj, cri);
@@ -175,6 +170,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         conn.close();
     }
 
+    @Test
     public void testAssociateConnection() throws Exception {
 
         // Create the additional ManagedConnectionImpl ..
@@ -211,6 +207,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
 
     }
 
+    @Test
     public void testAssociateConnectionThrowsException() throws Throwable {
 
         
@@ -229,6 +226,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
 
     }
 
+    @Test
     public void testGetMetaData() throws Exception {
         try {
             mci.getMetaData();
@@ -238,11 +236,4 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         }
     }
   
-    public static Test suite() {
-        return new TestSuite(ManagedConnectionImplTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {ManagedConnectionImplTest.class.getName()});
-    }
 }

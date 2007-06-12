@@ -22,22 +22,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class HandlerTest extends TestCase {
+
+public class HandlerTest extends Assert {
     Handler h; 
     
-    public HandlerTest(String name) {
-        super(name);
-    }
-
+    
+    @Before
     public void setUp() throws ClassNotFoundException { 
         h = new Handler();
     } 
     
+    @Test
     public void testGetStreamToThisResource() throws Exception { 
         String urlpath = HandlerTest.class.getName().replace('.', '/') + ".class";
         String urls = "resourceadapter:" + urlpath;
@@ -47,6 +46,7 @@ public class HandlerTest extends TestCase {
     }
 
 
+    @Test
     public void testGetStreamToNonExistantResourceThrows() throws Exception { 
         String path = "some gobbledy rubbish/that/does/not/exist";
         String urls = "resourceadapter:" + path;
@@ -61,12 +61,6 @@ public class HandlerTest extends TestCase {
     }
 
        
-    public static Test suite() {
-        return new TestSuite(HandlerTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {HandlerTest.class.getName()});
-    }
+    
 }
 

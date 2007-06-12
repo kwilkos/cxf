@@ -25,29 +25,20 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class PlugInClassLoaderTest extends TestCase {
+
+public class PlugInClassLoaderTest extends Assert {
     private static final Logger LOG = Logger.getLogger(PlugInClassLoaderTest.class.getName());
     private static boolean debug;
     PlugInClassLoader plugInClassLoader;
    
-    public PlugInClassLoaderTest(String name) {
-        super(name);
-    }
+    
 
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {PlugInClassLoaderTest.class.getName()});
-    }
-
-    public static Test suite() {
-        return new TestSuite(PlugInClassLoaderTest.class);
-    }
-
+    @Before
     public void setUp() throws Exception {
         plugInClassLoader = new PlugInClassLoader(getClass().getClassLoader());
         if (debug) {
@@ -57,6 +48,7 @@ public class PlugInClassLoaderTest extends TestCase {
         }
     }
 
+    @Test
     public void testLoadClassWithPlugInClassLoader() throws Exception {
         Class resultClass = plugInClassLoader.loadClass(
                 "org.apache.cxf.jca.dummy.Dummy");
@@ -66,6 +58,7 @@ public class PlugInClassLoaderTest extends TestCase {
             plugInClassLoader, resultClass.getClassLoader());
     }
 
+    @Test
     public void testInheritsClassLoaderProtectionDomain()
         throws Exception {
         Class resultClass = plugInClassLoader.loadClass(
@@ -78,6 +71,7 @@ public class PlugInClassLoaderTest extends TestCase {
             pd1, pd2);
     }
 
+    @Test
     public void testLoadClassWithParentClassLoader() throws Exception {
         Class resultClass = plugInClassLoader.loadClass("org.omg.CORBA.ORB");
         assertEquals("wrong class", "org.omg.CORBA.ORB", resultClass.getName());
@@ -85,6 +79,7 @@ public class PlugInClassLoaderTest extends TestCase {
             !(plugInClassLoader.equals(resultClass.getClassLoader())));
     }
 
+    @Test
     public void testLoadNonExistentClassWithPlugInClassLoader()
         throws Exception {
         try {
@@ -98,6 +93,7 @@ public class PlugInClassLoaderTest extends TestCase {
         }
     }
 
+    @Test
     public void testLoadNonFilteredButAvailableClassWithPlugInClassLoader()
         throws Exception {
         String className = "javax.resource.ResourceException";
@@ -113,6 +109,7 @@ public class PlugInClassLoaderTest extends TestCase {
         }
     }
 
+    @Test
     public void testLoadResourceWithPluginClassLoader()
         throws Exception {
         Class resultClass = plugInClassLoader.loadClass(
@@ -135,6 +132,7 @@ public class PlugInClassLoaderTest extends TestCase {
         assertEquals("unexpected dummy.txt contents.", "blah,blah.", result);
     }
 
+    @Test
     public void testLoadSlashResourceWithPluginClassLoader()
         throws Exception {
         Class resultClass = plugInClassLoader.loadClass(
@@ -156,6 +154,7 @@ public class PlugInClassLoaderTest extends TestCase {
         assertTrue("unexpected dummy.txt contents:"  + result, result.indexOf("Manifest-Version: 1.0") != -1);
     }
 
+    @Test
     public void testLoadNonExistentResourceWithPluginClassLoader()
         throws Exception {
         Class resultClass = plugInClassLoader.loadClass(
@@ -164,11 +163,13 @@ public class PlugInClassLoaderTest extends TestCase {
         assertNull("url must be null. ", url);
     }
 
+    @Test
     public void testLoadNonExistentDirectory() throws Exception {
         URL url = plugInClassLoader.findResource("foo/bar/");
         assertNull("url must be null. ", url);
     }
 
+    @Test
     public void testLoadNonExistentNestedDirectory() throws Exception {
         URL url = plugInClassLoader.findResource("foo!/bar/");
         assertNull("url must be null. ", url);

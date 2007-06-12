@@ -42,6 +42,9 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RPCOutInterceptorTest extends TestBase {
 
@@ -53,6 +56,7 @@ public class RPCOutInterceptorTest extends TestBase {
 
     private IMocksControl control = EasyMock.createNiceControl();
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         ServiceInfo si = getMockedServiceModel(this.getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl")
@@ -84,10 +88,12 @@ public class RPCOutInterceptorTest extends TestBase {
         soapMessage.setContent(List.class, param);
     }
 
+    @After
     public void tearDown() throws Exception {
         baos.close();
     }
 
+    @Test
     public void testWriteOutbound() throws Exception {
         RPCOutInterceptor interceptor = new RPCOutInterceptor();
 
@@ -115,6 +121,7 @@ public class RPCOutInterceptorTest extends TestBase {
         assertEquals("elem1", reader.getText());
     }
 
+    @Test
     public void testWriteInbound() throws Exception {
         RPCOutInterceptor interceptor = new RPCOutInterceptor();
         soapMessage.setContent(XMLStreamWriter.class, XMLOutputFactory.newInstance().createXMLStreamWriter(

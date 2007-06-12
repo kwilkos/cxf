@@ -20,15 +20,18 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper;
 
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
 
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaInterface;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class InterfaceMapperTest extends TestCase {
+public class InterfaceMapperTest extends Assert {
+    
+    @Test
     public void testMap() throws Exception {
         InterfaceInfo interfaceInfo = new InterfaceInfo(new ServiceInfo(),
                                                         new QName("http://apache.org/hello_world_soap_http",
@@ -47,6 +50,7 @@ public class InterfaceMapperTest extends TestCase {
         assertEquals("http://localhost/?wsdl", intf.getLocation());
     }
     
+    @Test
     public void testMapWithUniqueWsdlLoc() throws Exception {
         InterfaceInfo interfaceInfo = new InterfaceInfo(new ServiceInfo(),
                                                         new QName("http://apache.org/hello_world_soap_http",

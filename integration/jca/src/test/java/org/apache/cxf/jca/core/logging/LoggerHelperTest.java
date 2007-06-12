@@ -23,24 +23,25 @@ import java.io.Writer;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class LoggerHelperTest extends TestCase {
+
+public class LoggerHelperTest extends Assert {
     public static final String TEST_LOGGER_NAME = "test.logger";
 
-    public LoggerHelperTest(String name) {
-        super(name);
-    }
 
+    @Before
     public void setUp() {
     }
 
+    @After
     public void tearDown() {
     }
 
+    @Test
     public void testEnableDisableConsoleLogging() {
         Logger rootLogger = Logger.getLogger("");
         Handler handler;
@@ -59,6 +60,7 @@ public class LoggerHelperTest extends TestCase {
         assertNull("Unexpected appender after disable", handler);
     }
 
+    @Test
     public void testSettingLogLevel() {
         LoggerHelper.setRootLoggerName(TEST_LOGGER_NAME);
         LoggerHelper.setLogLevel("INFO");
@@ -67,6 +69,7 @@ public class LoggerHelperTest extends TestCase {
             .getLevel().toString());
     }
 
+    @Test
     public void testSetWriter() {
         // setup an dummy writer
         DummyWriter writer = new DummyWriter();
@@ -75,10 +78,6 @@ public class LoggerHelperTest extends TestCase {
         LoggerHelper.setLogLevel("INFO");
         LoggerHelper.getRootCXFLogger().severe("Test String");
         assertTrue("The DummyWriter didn't be setup", writer.writed);
-    }
-
-    public static Test suite() {
-        return new TestSuite(LoggerHelperTest.class);
     }
 
     class DummyWriter extends Writer {
@@ -103,7 +102,5 @@ public class LoggerHelperTest extends TestCase {
 
     }
 
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {LoggerHelperTest.class.getName()});
-    }
+    
 }

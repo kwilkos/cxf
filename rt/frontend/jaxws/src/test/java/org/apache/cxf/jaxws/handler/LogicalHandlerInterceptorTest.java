@@ -30,7 +30,6 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.message.Exchange;
@@ -40,13 +39,17 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.handlers.types.AddNumbersResponse;
 import org.easymock.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class LogicalHandlerInterceptorTest extends TestCase {
+public class LogicalHandlerInterceptorTest extends Assert {
 
     private IMocksControl control;
     private Binding binding;
@@ -54,6 +57,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     private Message message;
     private Exchange exchange;
 
+    @Before
     public void setUp() {
         control = createNiceControl();
         binding = control.createMock(Binding.class);
@@ -62,9 +66,11 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         exchange = control.createMock(Exchange.class);
     }
 
+    @After
     public void tearDown() {
     }
 
+    @Test
     public void testInterceptSuccess() {
         List<LogicalHandler> list = new ArrayList<LogicalHandler>();
         list.add(new LogicalHandler() {

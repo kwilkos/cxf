@@ -26,14 +26,16 @@ import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
 import javax.ejb.RemoveException;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+
+
 
 public class ThreadContextCheckerHome implements EJBHome {
     final Object ejb;
     final ClassLoader cl;
-    final TestCase test;
+    final Assert test;
 
-    public ThreadContextCheckerHome(Object ejbObj, ClassLoader cLoader, TestCase tCase) {
+    public ThreadContextCheckerHome(Object ejbObj, ClassLoader cLoader, Assert tCase) {
         this.ejb = ejbObj;
         this.cl = cLoader;
         this.test = tCase;
@@ -41,7 +43,7 @@ public class ThreadContextCheckerHome implements EJBHome {
 
     public Object create() throws RemoteException {
         ClassLoader current = Thread.currentThread().getContextClassLoader();
-        TestCase.assertSame("thread context classloader is set as expected, current=" + current,
+        Assert.assertSame("thread context classloader is set as expected, current=" + current,
                             current, cl);
         return ejb;
     }

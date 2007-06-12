@@ -26,21 +26,21 @@ import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.security.auth.Subject;
 
-import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ManagedConnectionImplTest extends TestCase {
+public class ManagedConnectionImplTest extends Assert {
     private DummyManagedConnectionImpl mc;
-
-    public ManagedConnectionImplTest(String arg0) {
-        super(arg0);
-    }
-
+    
+    @Before
     public void setUp() throws Exception {
         mc = new DummyManagedConnectionImpl(null, null, null);
     }
 
+    @Test
     public void testGetSetLogWriter() throws Exception {
         PrintWriter writer = EasyMock.createMock(PrintWriter.class);
         mc.setLogWriter(writer);
@@ -53,10 +53,12 @@ public class ManagedConnectionImplTest extends TestCase {
 
     }
 
+    @Test
     public void testSetNullLogWriterOk() throws Exception {
         mc.setLogWriter(null);
     }
 
+    @Test
     public void testRemoveConnectionEventListener() throws Exception {
         ConnectionEvent event = new ConnectionEvent(mc, ConnectionEvent.CONNECTION_ERROR_OCCURRED);
 
@@ -73,10 +75,12 @@ public class ManagedConnectionImplTest extends TestCase {
 
     }
 
+    @Test
     public void testCleanupDoesNothing() throws Exception {
         mc.cleanup();
     }
 
+    @Test
     public void testGetMetaData() throws Exception {
         try {
             mc.getMetaData();
@@ -86,12 +90,14 @@ public class ManagedConnectionImplTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetSetSubject() {
         Subject s = new Subject();
         mc.setSubject(s);
         assertEquals("got back what we set", s, mc.getSubject());
     }
 
+    @Test
     public void testGetSetConnectionRequestInfo() {
         ConnectionRequestInfo ri = new ConnectionRequestInfo() {
         };
@@ -100,6 +106,7 @@ public class ManagedConnectionImplTest extends TestCase {
         assertEquals("got back what we set", ri, mc.getConnectionRequestInfo());
     }
 
+    @Test
     public void testClose() throws Exception {
         final Object o = new Object();
         ConnectionEventListener listener = EasyMock.createMock(ConnectionEventListener.class);
@@ -111,16 +118,18 @@ public class ManagedConnectionImplTest extends TestCase {
         EasyMock.verify(listener);
     }
 
+    @Test
     public void testError() throws Exception {
         ConnectionEventListener listener = EasyMock.createMock(ConnectionEventListener.class);
         mc.addConnectionEventListener(listener);
         listener.connectionErrorOccurred(EasyMock.isA(ConnectionEvent.class));
         EasyMock.expectLastCall();
         EasyMock.replay(listener);
-        mc.error(new Exception(getName()));
+        mc.error(new Exception());
         EasyMock.verify(listener);
     }
 
+    @Test
     public void testSendEventError() throws Exception {
         ConnectionEvent event = new ConnectionEvent(mc, ConnectionEvent.CONNECTION_ERROR_OCCURRED);
         ConnectionEventListener listener = EasyMock.createMock(ConnectionEventListener.class);
@@ -132,6 +141,7 @@ public class ManagedConnectionImplTest extends TestCase {
         EasyMock.verify(listener);
     }
 
+    @Test
     public void testSendEventTxStarted() throws Exception {
         ConnectionEvent event = new ConnectionEvent(mc, ConnectionEvent.LOCAL_TRANSACTION_STARTED);
         ConnectionEventListener listener = EasyMock.createMock(ConnectionEventListener.class);
@@ -143,6 +153,7 @@ public class ManagedConnectionImplTest extends TestCase {
         EasyMock.verify(listener);
     }
 
+    @Test
     public void testSendEventTxCommitted() throws Exception {
         ConnectionEvent event = new ConnectionEvent(mc, ConnectionEvent.LOCAL_TRANSACTION_COMMITTED);
         ConnectionEventListener listener = EasyMock.createMock(ConnectionEventListener.class);
@@ -154,6 +165,7 @@ public class ManagedConnectionImplTest extends TestCase {
         EasyMock.verify(listener);
     }
 
+    @Test
     public void testSendEventTxRolledBack() throws Exception {
         ConnectionEvent event = new ConnectionEvent(mc, ConnectionEvent.LOCAL_TRANSACTION_ROLLEDBACK);
         ConnectionEventListener listener = EasyMock.createMock(ConnectionEventListener.class);

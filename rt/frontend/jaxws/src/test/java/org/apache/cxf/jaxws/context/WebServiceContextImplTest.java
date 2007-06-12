@@ -23,16 +23,20 @@ package org.apache.cxf.jaxws.context;
 
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class WebServiceContextImplTest extends TestCase {
+public class WebServiceContextImplTest extends Assert {
 
+    @After
     public void tearDown() { 
         WebServiceContextImpl.clear();
     } 
 
+    @Test
     public void testConstructor() { 
         MessageImpl msg = new MessageImpl();
         WrappedMessageContext msgCtx = new WrappedMessageContext(msg); 
@@ -40,6 +44,7 @@ public class WebServiceContextImplTest extends TestCase {
         assertSame(msgCtx, ctx.getMessageContext());
     }     
 
+    @Test
     public void testGetSetMessageContext() { 
         WebServiceContextImpl wsci = new WebServiceContextImpl(); 
         assertNull(wsci.getMessageContext());

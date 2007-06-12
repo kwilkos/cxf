@@ -21,13 +21,14 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper;
 
 import javax.wsdl.OperationType;
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
 
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaMethod;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class MethodMapperTest extends TestCase {
+public class MethodMapperTest extends Assert {
 
     private OperationInfo getOperation() {
         OperationInfo operation = new OperationInfo();
@@ -35,6 +36,7 @@ public class MethodMapperTest extends TestCase {
         return operation;
     }
     
+    @Test
     public void testMap() throws Exception {
         JavaMethod method = new MethodMapper().map(getOperation());
         assertNotNull(method);
@@ -47,6 +49,7 @@ public class MethodMapperTest extends TestCase {
         assertFalse(method.isOneWay());
     }
 
+    @Test
     public void testMapOneWayOperation() throws Exception {
         OperationInfo operation = getOperation();
 
@@ -58,6 +61,7 @@ public class MethodMapperTest extends TestCase {
         assertTrue(method.isOneWay());
     }
 
+    @Test
     public void testMapWrappedOperation() throws Exception {
         OperationInfo operation = getOperation();
         operation.setUnwrappedOperation(operation);

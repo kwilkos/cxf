@@ -21,13 +21,15 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class WebMethodAnnotatorTest extends TestCase {
+public class WebMethodAnnotatorTest extends Assert {
 
+    @Test
     public void testAddWebMethodAnnotation() throws Exception {
         JavaMethod method = new JavaMethod();
         method.setName("echoFoo");
@@ -39,6 +41,7 @@ public class WebMethodAnnotatorTest extends TestCase {
         assertEquals("WebMethod", annotations.keySet().iterator().next());
     }
 
+    @Test
     public void testAddWebResultAnnotation() throws Exception {
         JavaMethod method = new JavaMethod();
         method.annotate(new WebResultAnnotator());

@@ -21,24 +21,29 @@ package org.apache.cxf.jbi.se.state;
 
 import javax.jbi.JBIException;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.jbi.se.state.ServiceEngineStateMachine.SEOperation;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ServiceEngineStartTest extends TestCase {
+public class ServiceEngineStartTest extends Assert {
     private ServiceEngineStateFactory stateFactory;
     private ServiceEngineStateMachine start;
     
+    @Before
     public void setUp() throws Exception {
         stateFactory = ServiceEngineStateFactory.getInstance();
         start = stateFactory.getStartState();
     }
     
+    @Test
     public void testStopOperation() throws Exception {
         start.changeState(SEOperation.stop, null);
         assertTrue(stateFactory.getCurrentState() instanceof ServiceEngineStop);
     }
     
+    @Test
     public void testStartOperation() throws Exception {
         try {
             start.changeState(SEOperation.start, null);
@@ -48,6 +53,7 @@ public class ServiceEngineStartTest extends TestCase {
         fail();
     }
     
+    @Test
     public void testInitOperation() throws Exception {
         try {
             start.changeState(SEOperation.init, null);
@@ -57,6 +63,7 @@ public class ServiceEngineStartTest extends TestCase {
         fail();
     }
     
+    @Test
     public void testShutdownOperation() throws Exception {
         try {
             start.changeState(SEOperation.shutdown, null);

@@ -38,12 +38,15 @@ import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Attachment;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReadHeaderInterceptorTest extends TestBase {
 
     private ReadHeadersInterceptor rhi;
     private StaxInInterceptor staxIntc = new StaxInInterceptor();
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
 
@@ -51,6 +54,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
         chain.add(rhi);
     }
 
+    @Test
     public void testBadSOAPEnvelopeNamespace() throws Exception {
         soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         InputStream in = getClass().getResourceAsStream("test-bad-env.xml");
@@ -67,6 +71,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
         }
     }
 
+    @Test
     public void testHandleHeader() {
         try {
             prepareSoapMessage("test-soap-header.xml");

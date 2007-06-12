@@ -23,18 +23,21 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
 import org.apache.cxf.message.AbstractWrappedMessage;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class AbstractProtocolHandlerInterceptorTest extends TestCase {
+public class AbstractProtocolHandlerInterceptorTest extends Assert {
     
     private IMocksControl control;
     private Binding binding;
@@ -42,6 +45,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     private IIOPMessage message;
     private Exchange exchange;
     
+    @Before
     public void setUp() {
         control = createNiceControl();
         invoker = control.createMock(HandlerChainInvoker.class);
@@ -50,10 +54,12 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         
     }
     
+    @After
     public void tearDown() {
         control.verify();
     }
 
+    @Test
     public void testInterceptSuccess() {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
@@ -67,6 +73,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         pi.handleMessage(message);
     }
 
+    @Test
     public void testInterceptFailure() {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();

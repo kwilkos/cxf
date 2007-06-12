@@ -99,8 +99,8 @@ public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
             Holder<DataHandler> param = new Holder<DataHandler>();
             byte[] data = new byte[(int) fileSize];
             this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(data);
-            param.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
             
+            param.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
             Holder<String> name = new Holder<String>("call detail");
             mtomPort.testXop(name, param);
             assertEquals("name unchanged", "return detail + call detail", name.value);

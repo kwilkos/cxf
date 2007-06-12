@@ -19,12 +19,12 @@
 
 package org.apache.cxf.systest.mtom;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.junit.Assert;
 
 public class TestMultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -33,7 +33,7 @@ public class TestMultipartMessageInterceptor extends AbstractPhaseInterceptor<Me
     }
 
     public void handleMessage(Message message) throws Fault {
-        TestCase.assertNotNull(message.getAttachments());
-        TestCase.assertEquals(1, message.getAttachments().size());
+        Assert.assertNotNull(message.getAttachments());
+        Assert.assertEquals(1, message.getAttachments().size());
     }
 }

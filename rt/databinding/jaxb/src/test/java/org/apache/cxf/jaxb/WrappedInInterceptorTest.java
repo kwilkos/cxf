@@ -27,9 +27,11 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.junit.Test;
 
 public class WrappedInInterceptorTest extends TestBase {
-
+    
+    @Test
     public void testInterceptorInbound() throws Exception {
         WrappedInInterceptor interceptor = new WrappedInInterceptor();
 
@@ -53,6 +55,7 @@ public class WrappedInInterceptorTest extends TestBase {
         assertEquals("TestSOAPInputPMessage", gm.getRequestType());
     }
 
+    @Test
     public void testInterceptorOutbound() throws Exception {
         WrappedInInterceptor interceptor = new WrappedInInterceptor();
 

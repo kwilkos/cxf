@@ -23,17 +23,20 @@ import java.util.Map;
 
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
 
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class WebParamAnnotatorTest extends TestCase {
+public class WebParamAnnotatorTest extends Assert {
 
     JavaMethod method;
     JavaParameter parameter;
 
+    @Before
     public void setUp() {
         method = new JavaMethod();
         parameter = new JavaParameter();
@@ -50,6 +53,7 @@ public class WebParamAnnotatorTest extends TestCase {
         param.setPartName("y");
     }
     
+    @Test
     public void testAnnotateDOCWrapped() throws Exception {
         init(method, parameter, SOAPBinding.Style.DOCUMENT, true);
         parameter.annotate(new WebParamAnnotator());
@@ -65,6 +69,7 @@ public class WebParamAnnotatorTest extends TestCase {
         //             annotation.toString());
     }
 
+    @Test
     public void testAnnotateDOCBare() throws Exception {
         init(method, parameter, SOAPBinding.Style.DOCUMENT, false);
 
@@ -83,6 +88,7 @@ public class WebParamAnnotatorTest extends TestCase {
         //             annotation.toString());
     }
 
+    @Test
     public void testAnnotateRPC() throws Exception {
         init(method, parameter, SOAPBinding.Style.RPC, true);
         parameter.annotate(new WebParamAnnotator());

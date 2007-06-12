@@ -37,6 +37,8 @@ import org.apache.cxf.binding.soap.TestUtil;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.StaxInInterceptor;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class SAAJInInterceptorTest extends TestBase {
@@ -45,6 +47,7 @@ public class SAAJInInterceptorTest extends TestBase {
     private StaxInInterceptor staxIntc = new StaxInInterceptor();
     private SAAJInInterceptor saajIntc;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
 
@@ -56,6 +59,7 @@ public class SAAJInInterceptorTest extends TestBase {
 
     }
 
+    @Test
     public void testHandleHeader() {
         try {
             prepareSoapMessage("../test-soap-header.xml");

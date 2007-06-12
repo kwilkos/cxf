@@ -22,28 +22,24 @@ import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class JarLoaderTest extends TestCase {
+
+public class JarLoaderTest extends Assert {
     private static final Logger LOG = Logger.getLogger(JarLoaderTest.class.getName());
     private URL exampleRarURL;
 
-    public JarLoaderTest(String name) {
-        super(name);
-    }
 
-    public static Test suite() {
-        return new TestSuite(JarLoaderTest.class);
-    }
 
+    @Before
     public void setUp() throws Exception {
         exampleRarURL = getClass().getClassLoader().getResource("blackbox-notx.rar");
     }    
         
-
+    @Test
     public void testGetBytesFromImputStream() throws Exception {
         byte[] bytes = JarLoader.getBytesFromInputStream(exampleRarURL
                 .openStream());
@@ -52,6 +48,7 @@ public class JarLoaderTest extends TestCase {
         LOG.fine("bytes length. : " + bytes.length);
     }
 
+    @Test
     public void testGetJarContents() throws Exception {
         String urlPath = exampleRarURL.toString();
         

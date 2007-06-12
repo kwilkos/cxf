@@ -31,23 +31,22 @@ import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.security.auth.Subject;
 
-import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ManagedConnectionFactoryImplTest extends TestCase {
+public class ManagedConnectionFactoryImplTest extends Assert {
     DummyManagedConnectionFactoryImpl mcf = new DummyManagedConnectionFactoryImpl();
 
-    public ManagedConnectionFactoryImplTest(String name) {
-        super(name);
-    }
 
+    @Test
     public void testManagedConnectionFactoryImplInstanceOfResourceBean() throws Exception {
         assertNotNull("mcf is not null", mcf);
         assertTrue("ManagedConnectionFactoryImpl is ResourceBean", mcf instanceof ResourceBean);
     }
 
-    
+    @Test
     public void testMatchConnectionSameConnectioRequestInfoNotBound() throws Exception {
         Subject subject = null;
         Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
@@ -59,7 +58,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(con1, mcon);
     }
 
-   
+    @Test
     public void testMatchConnectionSameConnectioRequestInfoBound() throws Exception {
         Subject subject = null;
         Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
@@ -72,7 +71,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(con1, mcon);
     }
 
-    
+    @Test
     public void testMatchConnectionDifferentConnectioRequestInfoNotBound() throws Exception {
         ConnectionRequestInfo cri1 = new DummyConnectionRequestInfo();
         ConnectionRequestInfo cri2 = new DummyConnectionRequestInfo();
@@ -88,7 +87,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals("incorrect connection returned", con1, mcon);
     }
 
-   
+    @Test
     public void testMatchConnectionDifferentConnectioRequestInfoBound() throws Exception {
         ConnectionRequestInfo cri1 = new DummyConnectionRequestInfo();
         ConnectionRequestInfo cri2 = new DummyConnectionRequestInfo();
@@ -106,7 +105,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertTrue("should not get a match", mcon == null);
     }
 
-    
+    @Test
     public void testMatchConnectionInvalidatedWithSameConnectioRequestInfo() throws Exception {
         Subject subject = null;
         Set<AbstractManagedConnectionImpl> connectionSet = new HashSet<AbstractManagedConnectionImpl>();
@@ -121,6 +120,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertTrue("Connection must be null", mcon == null);
     }
 
+    @Test
     public void testGetSetLogWriter() throws Exception {
         PrintWriter writer = EasyMock.createMock(PrintWriter.class); 
         writer.write(EasyMock.isA(String.class));
@@ -136,6 +136,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         EasyMock.verify(writer);
     }
 
+    @Test
     public void testSetNullLogWriter() throws Exception {
         try {
             mcf.setLogWriter(null);

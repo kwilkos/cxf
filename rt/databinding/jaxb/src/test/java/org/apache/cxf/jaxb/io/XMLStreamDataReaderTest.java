@@ -27,8 +27,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -37,21 +35,28 @@ import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
  
-public class XMLStreamDataReaderTest extends TestCase {
+public class XMLStreamDataReaderTest extends Assert {
 
     private XMLInputFactory factory;
     private XMLStreamReader reader;
     private InputStream is;
     
+    @Before
     public void setUp() throws Exception {
         factory = XMLInputFactory.newInstance();
     }
 
+    @After
     public void tearDown() throws IOException {
         is.close();
     }
 
+    @Test
     public void testReadWrapper() throws Exception {
         JAXBDataBinding db = getDataBinding(GreetMe.class);
         
@@ -66,6 +71,7 @@ public class XMLStreamDataReaderTest extends TestCase {
         assertEquals("TestSOAPInputPMessage", ((GreetMe)val).getRequestType());
     }
 
+    @Test
     public void testReadWrapperReturn() throws Exception {
         JAXBDataBinding db = getDataBinding(GreetMeResponse.class);
 
@@ -82,6 +88,7 @@ public class XMLStreamDataReaderTest extends TestCase {
         assertEquals("TestSOAPOutputPMessage", ((GreetMeResponse)retValue).getResponseType());
     }
 
+    @Test
     public void testReadRPC() throws Exception {
         JAXBDataBinding db = getDataBinding(MyComplexStruct.class);
 
@@ -106,6 +113,7 @@ public class XMLStreamDataReaderTest extends TestCase {
     }
 
 
+    @Test
     public void testReadBare() throws Exception {
         JAXBDataBinding db = getDataBinding(TradePriceData.class);
 

@@ -23,19 +23,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
-import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ServerAppTest extends TestCase {
+public class ServerAppTest extends Assert {
 
     private String epAddr = "http://cxf.apache.org/";
 
     private ProviderFactory phMock;
     private String emptyFile;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         phMock = EasyMock.createMock(ProviderFactory.class);
         emptyFile = getClass().getResource("empty/empty.js").toURI().getPath();
     }
@@ -48,6 +50,7 @@ public class ServerAppTest extends TestCase {
             };
     }
 
+    @Test
     public void testNoArgs() {
         EasyMock.replay(phMock);
         try {
@@ -61,6 +64,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testUknownOption() {
         EasyMock.replay(phMock);
         try {
@@ -74,6 +78,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testMissingOptionA() {
         EasyMock.replay(phMock);
         try {
@@ -87,6 +92,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testBrokenOptionA() {
         EasyMock.replay(phMock);
         try {
@@ -100,6 +106,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testMissingOptionB() {
         EasyMock.replay(phMock);
         try {
@@ -113,6 +120,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testBrokenOptionB() {
         EasyMock.replay(phMock);
         try {
@@ -126,6 +134,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testFileOnly() throws Exception {
         phMock.createAndPublish(new File(emptyFile), null, false);
         EasyMock.replay(phMock);
@@ -135,6 +144,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testOptionsAB() throws Exception {
         phMock.createAndPublish(new File(emptyFile), epAddr, true);
         EasyMock.replay(phMock);
@@ -144,6 +154,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testOptionA() throws Exception {
         phMock.createAndPublish(new File(emptyFile), epAddr, false);
         EasyMock.replay(phMock);
@@ -153,6 +164,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testOptionAWithOptionV() throws Exception {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         PrintStream pout = new PrintStream(bout);
@@ -172,6 +184,7 @@ public class ServerAppTest extends TestCase {
         }
     }
 
+    @Test
     public void testOptionB() throws Exception {
         phMock.createAndPublish(new File(emptyFile), epAddr, true);
         EasyMock.replay(phMock);
@@ -181,6 +194,7 @@ public class ServerAppTest extends TestCase {
         EasyMock.verify(phMock);
     }
 
+    @Test
     public void testOptionBWithOptionV() throws Exception {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         PrintStream pout = new PrintStream(bout);
@@ -200,6 +214,7 @@ public class ServerAppTest extends TestCase {
         }
     }
 
+    @Test
     public void testDirectory() throws Exception {
         File f = new File(emptyFile);
         String dir = f.getParent();

@@ -37,6 +37,8 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
+import org.junit.Before;
+import org.junit.Test;
 
 public class XMLMessageOutInterceptorTest extends TestBase {
 
@@ -66,12 +68,14 @@ public class XMLMessageOutInterceptorTest extends TestBase {
 
     QName wrapRequestTypeQName = new QName(wrapNsType, "requestType");
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         chain.add(out);
         prepareMessage(params);
     }
    
+    @Test
     public void testBareOutSingle() throws Exception {
 
         MyComplexStructType myComplexStruct = new MyComplexStructType();
@@ -100,6 +104,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         assertEquals(myComplexStruct.getElem1(), dxr.getText());
     }
 
+    @Test
     public void testBareOutMultiWithRoot() throws Exception {
 
         MyComplexStructType myComplexStruct = new MyComplexStructType();
@@ -147,6 +152,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         }
     }
 
+    @Test
     public void testWrapOut() throws Exception {
         GreetMe greetMe = new GreetMe();
         greetMe.setRequestType("tli");

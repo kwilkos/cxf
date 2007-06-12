@@ -21,16 +21,17 @@ package org.apache.cxf.tools.wsdlto.core;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class PluginLoaderTest extends TestCase {
+public class PluginLoaderTest extends Assert {
    
-    
+    @Test
     public void testLoadPlugins() throws Exception {
         PluginLoader loader = PluginLoader.getInstance();
         assertEquals(2, loader.getPlugins().size());

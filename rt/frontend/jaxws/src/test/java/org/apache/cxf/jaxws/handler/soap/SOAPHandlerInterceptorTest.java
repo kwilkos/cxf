@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
@@ -72,21 +71,28 @@ import org.apache.cxf.phase.PhaseManagerImpl;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class SOAPHandlerInterceptorTest extends TestCase {
+public class SOAPHandlerInterceptorTest extends Assert {
 
+    @Before
     public void setUp() {
     }
 
+    @After
     public void tearDown() {
     }
 
     // SAAJ tree is created from DOMXMLStreamWriter. Any changes to SOAPMessage should be streamed back to
     // outputStream
+    @Test
     public void testChangeSOAPBodyOutBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
@@ -179,6 +185,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("100", elem3Element.getTextContent());
     }
 
+    @Test
     public void testChangeSOAPHeaderInBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
@@ -272,6 +279,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("false", requiredHeader.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
     }
 
+    @Test
     public void testChangeSOAPHeaderOutBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
@@ -366,6 +374,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("false", headerElementNew.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
     }
 
+    @Test
     public void testGetSOAPMessageInBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
@@ -422,6 +431,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("sendReceiveData", qn.getLocalPart());
     }
 
+    @Test
     public void testGetUnderstoodHeadersReturnsNull() {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {

@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import javax.jbi.component.ComponentContext;
 import javax.jbi.management.DeploymentException;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -32,8 +31,12 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class CXFServiceUnitManagerTest extends TestCase {
+public class CXFServiceUnitManagerTest extends Assert {
     
     private static final Logger LOG = LogUtils.getL7dLogger(CXFServiceUnitManagerTest.class);
 
@@ -43,6 +46,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
     private ComponentContext ctx = EasyMock.createMock(ComponentContext.class);
     private Bus bus;    
     
+    @Before
     public void setUp() throws Exception {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         
@@ -54,10 +58,12 @@ public class CXFServiceUnitManagerTest extends TestCase {
         csuManager = new CXFServiceUnitManager(bus, ctx, componentClassLoader);
     }
     
+    @After
     public void tearDown() throws Exception {
         bus.shutdown(false);
     }
     
+    @Test
     public void testShutdownWithNull() throws Exception {
         
         try {
@@ -69,6 +75,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testShutdownWithEmpty() throws Exception {
         
         try {
@@ -80,6 +87,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testShutdownWithUndeployedSU() {
         try {
             csuManager.shutDown("dummySU");
@@ -91,6 +99,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
     }
     
 
+    @Test
     public void testDeployWithNullSUName() throws Exception {
         
         try {
@@ -102,6 +111,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testDeployWithEmptySUName() throws Exception {
         
         try {
@@ -113,6 +123,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testDeployWithDuplicatedSU() {
         try {
             csuManager.deploy("dummySU", "dummyRoot");
@@ -125,6 +136,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");
     }
 
+    @Test
     public void testDeployWithNullSURoot() throws Exception {
         
         try {
@@ -136,6 +148,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testDeployWithEmptySURoot() throws Exception {
         
         try {
@@ -147,6 +160,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testUndeployWithNullSUName() throws Exception {
         
         try {
@@ -158,6 +172,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testUndeployWithEmptySUName() throws Exception {
         
         try {
@@ -170,6 +185,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
     }
     
     
+    @Test
     public void testUndeployWithNullSURoot() throws Exception {
         
         try {
@@ -181,6 +197,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testUndeployWithEmptySURoot() throws Exception {
         
         try {
@@ -192,6 +209,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testInitWithNullSUName() throws Exception {
         
         try {
@@ -203,6 +221,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testInitWithEmptySUName() throws Exception {
         
         try {
@@ -215,6 +234,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
     }
     
     
+    @Test
     public void testInitWithNullSURoot() throws Exception {
         
         try {
@@ -226,6 +246,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testInitWithEmptySURoot() throws Exception {
         
         try {
@@ -237,6 +258,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testStartWithNullSUName() throws Exception {
         
         try {
@@ -248,6 +270,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testStartWithEmptySUName() throws Exception {
         
         try {
@@ -259,6 +282,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testStopWithNullSUName() throws Exception {
         
         try {
@@ -270,6 +294,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         fail("should get DeploymentException");        
     }
     
+    @Test
     public void testStopWithEmptySUName() throws Exception {
         
         try {

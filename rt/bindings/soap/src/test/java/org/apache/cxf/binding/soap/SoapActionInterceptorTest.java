@@ -22,16 +22,18 @@ package org.apache.cxf.binding.soap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SoapActionInterceptorTest extends TestCase {
+public class SoapActionInterceptorTest extends Assert {
 
+    
+    @Test
     public void testSoapAction() throws Exception {
         Message message = new MessageImpl();
         message.setExchange(new ExchangeImpl());

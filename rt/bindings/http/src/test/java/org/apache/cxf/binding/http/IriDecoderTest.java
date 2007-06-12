@@ -20,11 +20,13 @@ package org.apache.cxf.binding.http;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.binding.http.IriDecoderHelper.Param;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class IriDecoderTest extends TestCase {
+public class IriDecoderTest extends Assert {
+    
+    @Test
     public void testPaths() {
         List<Param> params = IriDecoderHelper.decodeIri("test/123.xml", "test/{id}.xml");
         assertEquals(1, params.size());

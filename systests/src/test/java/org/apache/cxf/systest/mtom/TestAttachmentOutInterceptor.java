@@ -19,13 +19,13 @@
 
 package org.apache.cxf.systest.mtom;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.junit.Assert;
 
 public class TestAttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -35,10 +35,10 @@ public class TestAttachmentOutInterceptor extends AbstractPhaseInterceptor<Messa
     }
 
     public void handleMessage(Message message) throws Fault {
-        TestCase.assertEquals("check attachment count", message.getAttachments().size(), 1);
+        Assert.assertEquals("check attachment count", message.getAttachments().size(), 1);
         Attachment att = message.getAttachments().iterator().next();
-        TestCase.assertNotNull("Attachment is null", att);
-        TestCase.assertNotNull("Attachment content-type is null", att.getDataHandler().getDataSource()
+        Assert.assertNotNull("Attachment is null", att);
+        Assert.assertNotNull("Attachment content-type is null", att.getDataHandler().getDataSource()
                 .getContentType());
     }
 

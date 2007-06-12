@@ -29,8 +29,6 @@ import javax.xml.namespace.QName;
 
 import org.xml.sax.InputSource;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -48,14 +46,18 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class SoapBindingFactoryTest extends TestCase {
+public class SoapBindingFactoryTest extends Assert {
     IMocksControl control;
     
+    @Before
     public void setUp() {
         control = createNiceControl();
     }
@@ -71,6 +73,7 @@ public class SoapBindingFactoryTest extends TestCase {
         return bfm;
     }
 
+    @Test
     public void testFactory() throws Exception {        
         Definition d = createDefinition("/wsdl/hello_world.wsdl");
 
@@ -117,6 +120,7 @@ public class SoapBindingFactoryTest extends TestCase {
     }
     
     
+    @Test
     public void testSoap12Factory() throws Exception {        
         Definition d = createDefinition("/wsdl/hello_world_soap12.wsdl");
 

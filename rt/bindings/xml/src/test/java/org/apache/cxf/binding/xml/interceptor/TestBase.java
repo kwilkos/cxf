@@ -30,8 +30,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -54,8 +52,11 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-public class TestBase extends TestCase {
+public class TestBase extends Assert {
 
     protected PhaseInterceptorChain chain;
 
@@ -67,6 +68,7 @@ public class TestBase extends TestCase {
     
     protected ServiceInfo serviceInfo;
     
+    @Before
     public void setUp() throws Exception {
         SortedSet<Phase> phases = new TreeSet<Phase>();
         Phase phase1 = new Phase("phase1", 1);
@@ -84,6 +86,7 @@ public class TestBase extends TestCase {
         xmlMessage = messageImpl;
     }
 
+    @After
     public void tearDown() throws Exception {
     }
 

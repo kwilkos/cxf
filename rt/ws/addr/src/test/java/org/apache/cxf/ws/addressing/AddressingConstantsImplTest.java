@@ -22,39 +22,48 @@ package org.apache.cxf.ws.addressing;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class AddressingConstantsImplTest extends TestCase {
+
+public class AddressingConstantsImplTest extends Assert {
     private AddressingConstants constants;
 
+    @Before
     public void setUp() {
         constants = new AddressingConstantsImpl();
     }
 
+    @Test
     public void testGetNamespaceURI() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/08/addressing",
                      constants.getNamespaceURI());
     }
 
+    @Test
     public void testGetNamespacePrefix() throws Exception {
         assertEquals("unexpected constant",
                      "wsa",
                      constants.getNamespacePrefix());
     }
 
+    @Test
     public void testGetWSDLNamespaceURI() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/08/addressing/wsdl",
                      constants.getWSDLNamespaceURI());
     }
 
+    @Test
     public void testGetWSDLNamespacePrefix() throws Exception {
         assertEquals("unexpected constant",
                      "wsaw",
                      constants.getWSDLNamespacePrefix());
     }
 
+    @Test
     public void testGetWSDLExtensibility() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing/wsdl",
@@ -62,6 +71,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getWSDLExtensibilityQName());
     }
 
+    @Test
     public void testGetWSDLActionQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing/wsdl",
@@ -69,18 +79,21 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getWSDLActionQName());
     }
 
+    @Test
     public void testGetAnonymousURI() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/08/addressing/anonymous",
                      constants.getAnonymousURI());
     }
 
+    @Test
     public void testGetNoneURI() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/08/addressing/none",
                      constants.getNoneURI());
     }
 
+    @Test
     public void testGetFromQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -88,6 +101,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getFromQName());
     }
 
+    @Test
     public void testGetToQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -95,6 +109,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getToQName());
     }
 
+    @Test
     public void testGetReplyToQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -102,6 +117,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getReplyToQName());
     }
 
+    @Test
     public void testGetFaultToQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -109,6 +125,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getFaultToQName());
     }
 
+    @Test
     public void testGetActionQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -116,6 +133,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getActionQName());
     }
 
+    @Test
     public void testGetMessageIDQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -123,12 +141,14 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getMessageIDQName());
     }
 
+    @Test
     public void testGetRelationshipReply() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/08/addressing/reply",
                      constants.getRelationshipReply());
     }
 
+    @Test
     public void testGetRelatesToQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -136,6 +156,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getRelatesToQName());
     }
 
+    @Test
     public void testGetRelationshipTypeQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -143,6 +164,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getRelationshipTypeQName());
     }
 
+    @Test
     public void testGetMetadataQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -150,6 +172,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getMetadataQName());
     }
 
+    @Test
     public void testGetAddressQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -157,12 +180,14 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getAddressQName());
     }
 
+    @Test
     public void testGetPackageName() throws Exception {
         assertEquals("unexpected constant",
                      "org.apache.cxf.ws.addressing",
                      constants.getPackageName());
     }
 
+    @Test
     public void testGetIsReferenceParameterQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -170,6 +195,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getIsReferenceParameterQName());
     }
 
+    @Test
     public void testGetInvalidMapQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -177,6 +203,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getInvalidMapQName());
     }
 
+    @Test
     public void testMapRequiredQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -184,6 +211,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getMapRequiredQName());
     }
 
+    @Test
     public void testDestinationUnreachableQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -191,6 +219,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getDestinationUnreachableQName());
     }
 
+    @Test
     public void testActionNotSupportedQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -198,6 +227,7 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getActionNotSupportedQName());
     }
 
+    @Test
     public void testEndpointUnavailableQName() throws Exception {
         assertEquals("unexpected constant",
                      new QName("http://www.w3.org/2005/08/addressing",
@@ -205,30 +235,35 @@ public class AddressingConstantsImplTest extends TestCase {
                      constants.getEndpointUnavailableQName());
     }
 
+    @Test
     public void testDefaultFaultAction() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/08/addressing/fault",
                      constants.getDefaultFaultAction());
     }
 
+    @Test
     public void testActionNotSupportedText() throws Exception {
         assertEquals("unexpected constant",
                      "Action {0} not supported",
                      constants.getActionNotSupportedText());
     }
 
+    @Test
     public void testDestinationUnreachableText() throws Exception {
         assertEquals("unexpected constant",
                      "Destination {0} unreachable",
                      constants.getDestinationUnreachableText());
     }
 
+    @Test
     public void testEndpointUnavailableText() throws Exception {
         assertEquals("unexpected constant",
                      "Endpoint {0} unavailable",
                      constants.getEndpointUnavailableText());
     }
 
+    @Test
     public void testGetInvalidMapText() throws Exception {
         assertEquals("unexpected constant",
                      "Invalid Message Addressing Property {0}",
@@ -236,12 +271,14 @@ public class AddressingConstantsImplTest extends TestCase {
     }
 
 
+    @Test
     public void testMapRequiredText() throws Exception {
         assertEquals("unexpected constant",
                      "Message Addressing Property {0} required",
                      constants.getMapRequiredText());
     }
 
+    @Test
     public void testDuplicateMessageIDText() throws Exception {
         assertEquals("unexpected constant",
                      "Duplicate Message ID {0}",

@@ -29,8 +29,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -40,13 +38,18 @@ import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class XMLStreamDataWriterTest extends TestCase {
+public class XMLStreamDataWriterTest extends Assert {
 
     private ByteArrayOutputStream baos;
     private XMLStreamWriter streamWriter;
     private XMLInputFactory inFactory;
 
+    @Before
     public void setUp() throws Exception {
         baos =  new ByteArrayOutputStream();
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
@@ -55,10 +58,12 @@ public class XMLStreamDataWriterTest extends TestCase {
         inFactory = XMLInputFactory.newInstance();
     }
 
+    @After
     public void tearDown() throws Exception {
         baos.close();
     }
 
+    @Test
     public void testWriteRPCLit1() throws Exception {
         JAXBDataBinding db = getTestWriterFactory();
         
@@ -86,6 +91,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertEquals("TESTOUTPUTMESSAGE", reader.getText());
     }
 
+    @Test
     public void testWriteRPCLit2() throws Exception {
         JAXBDataBinding db = getTestWriterFactory(MyComplexStruct.class);
         
@@ -123,6 +129,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertEquals("This is element 1", reader.getText());
     }
 
+    @Test
     public void testWriteBare() throws Exception {
         JAXBDataBinding db = getTestWriterFactory(TradePriceData.class);
         
@@ -157,6 +164,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertEquals("This is a symbol", reader.getText());
     }
     
+    @Test
     public void testWriteWrapper() throws Exception {
         JAXBDataBinding db = getTestWriterFactory(GreetMe.class);
         
@@ -186,6 +194,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertEquals("Hello", reader.getText());
     }
 
+    @Test
     public void testWriteWrapperReturn() throws Exception {
         JAXBDataBinding db = getTestWriterFactory(GreetMeResponse.class);
         

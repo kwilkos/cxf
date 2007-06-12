@@ -21,32 +21,29 @@ package org.apache.cxf.jca.core.resourceadapter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ResourceAdapterInternalExceptionTest extends TestCase {
+
+public class ResourceAdapterInternalExceptionTest extends Assert {
     private static final Logger EXCEPTION_LOGGER = 
         Logger.getLogger(ResourceAdapterInternalException.class.getName());
     private Level logLevel;  
 
-    public ResourceAdapterInternalExceptionTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ResourceAdapterInternalExceptionTest.class);        
-    }
-    
+    @Before    
     public void setUp() throws Exception { 
         logLevel = EXCEPTION_LOGGER.getLevel();
         EXCEPTION_LOGGER.setLevel(Level.SEVERE);
     } 
     
+    @After
     public void tearDown() throws Exception {
         EXCEPTION_LOGGER.setLevel(logLevel);
     }
     
+    @Test
     public void testMessage() {
         final String msg = "msg1";
         msg.intern();
@@ -57,6 +54,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertEquals(e.getMessage(), msg);
     }
 
+    @Test
     public void testMessageWithNullTx() {
         final String msg = "msg1";
         msg.intern();
@@ -69,6 +67,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertNull(e.getCause());        
     }
 
+    @Test
     public void testMessageWithEx() throws Exception {
         final String msg = "msg";
         final String causeMsg = "cause";
@@ -83,6 +82,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertEquals(e.getCause(), cause);
     }
 
+    @Test
     public void testMessageWithThrowable() throws Exception {
         final String msg = "msg";
         final String causeMsg = "cause";
@@ -97,6 +97,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
 
     }
 
+    @Test
     public void testMessageWithIteEx() throws Exception {
         final String msg = "msg";
         final String causeMsg = "cause";
@@ -114,6 +115,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertEquals(re.getCause(), cause);
     }
 
+    @Test
     public void testMessageWithIteErroriNotThrow() throws Exception {
         final String msg = "msg";
         final String causeMsg = "cause";
@@ -126,22 +128,25 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertEquals(re.getCause(), cause);
     }
 
-    /*
+    
+    /*@Ignore
     public void testGetLinkedExceptionReturnNullIfNoCause() throws Exception {
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex");
         assertNull("getLinkedException return null", re.getLinkedException());
     }
 
+    @Ignore
     public void testGetLinkedExceptionReturnNullIfCauseIsError() throws Exception {
         java.lang.Throwable cause = new java.lang.UnknownError("error");
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex", cause);
         assertNull("getLinkedException return null", re.getLinkedException());
     }
 
+    @Ignore
     public void testGetLinkedExceptionReturnNotNullIfCauseIsException() throws Exception {
         java.lang.Throwable cause = new RuntimeException("runtime exception");
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex", cause);
         assertEquals("get same exception", cause, re.getLinkedException());
-    }
-    */
+    }*/
+    
 }

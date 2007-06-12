@@ -44,8 +44,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb_misc.Base64WithDefaultValueType;
@@ -58,12 +56,15 @@ import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.StringStruct;
 import org.apache.type_test.doc.TypeTestPortType;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * JAXBEncoderDecoderTest
  * @author apaibir
  */
-public class JAXBEncoderDecoderTest extends TestCase {
+public class JAXBEncoderDecoderTest extends Assert {
     public static final QName  SOAP_ENV = 
             new QName("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
     public static final QName  SOAP_BODY = 
@@ -73,17 +74,16 @@ public class JAXBEncoderDecoderTest extends TestCase {
     JAXBContext context;
     Schema schema;
     
+    public JAXBEncoderDecoderTest() {
+    }
+
+    
     public JAXBEncoderDecoderTest(String arg0) {
-        super(arg0);
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JAXBEncoderDecoderTest.class);
-    }
-
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
+        
         context = JAXBContext.newInstance(new Class[] {
             GreetMe.class,
             GreetMeResponse.class,
@@ -100,6 +100,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertNotNull(schema);
     }
 
+    @Test
     public void testMarshallIntoDOM() throws Exception {
         String str = new String("Hello");
         QName inCorrectElName = new QName("http://test_jaxb_marshall", "requestType");
@@ -152,6 +153,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         }
     }
 
+    @Test
     public void testMarshallIntoStax() throws Exception {
         GreetMe obj = new GreetMe();
         obj.setRequestType("Hello");
@@ -188,6 +190,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
                      ((GreetMe)val).getRequestType());
     }
 
+    @Test
     public void testUnmarshallFromStax() throws Exception {
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
@@ -214,6 +217,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         is.close();
     }
     
+    @Test
     public void testMarshalRPCLit() throws Exception {
         QName elName = new QName("http://test_jaxb_marshall", "in");
         MessagePartInfo part = new MessagePartInfo(elName, null);
@@ -231,6 +235,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
     }
 
     
+    @Test
     public void testUnMarshall() throws Exception {
         //Hello World Wsdl generated namespace
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
@@ -303,6 +308,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         }
     }
 
+    @Test
     public void testUnmarshallWithoutClzInfo() throws Exception {
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
@@ -320,6 +326,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
         assertEquals("Hello Test", ((GreetMe)obj).getRequestType());
     }
 
+    @Test
     public void testMarshallWithoutQNameInfo() throws Exception {
         GreetMe obj = new GreetMe();
         obj.setRequestType("Hello");
@@ -351,6 +358,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
                      ((GreetMe)val).getRequestType());
     }
     
+    @Test
     public void testGetClassFromType() throws Exception {
         Method testByte = TestUtil.getMethod(TypeTestPortType.class, "testByte");
         Type[] genericParameterTypes = testByte.getGenericParameterTypes();
@@ -374,7 +382,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
             idx++;
         }
     }
-    
+ 
+    @Test
     public void testDefaultValueConverter() throws Exception {
         Base64WithDefaultValueType testData = (new ObjectFactory()).createBase64WithDefaultValueType();
         byte[] checkValue = testData.getAttributeWithDefaultValue();

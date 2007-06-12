@@ -19,13 +19,14 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 
-import junit.framework.TestCase;
+
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaClass;
 import org.apache.cxf.tools.common.model.JavaField;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class WrapperBeanFieldAnnotatorTest extends TestCase {
+public class WrapperBeanFieldAnnotatorTest extends Assert {
 
     @Test
     public void testAnnotate() {

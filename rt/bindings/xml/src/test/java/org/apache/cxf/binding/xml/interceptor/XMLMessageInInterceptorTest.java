@@ -30,17 +30,21 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
+import org.junit.Before;
+import org.junit.Test;
 
 public class XMLMessageInInterceptorTest extends TestBase {
 
     XMLMessageInInterceptor in = new XMLMessageInInterceptor("phase1");
     DocLiteralInInterceptor docLitIn = new DocLiteralInInterceptor();
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         chain.add(in);
     }
 
+    @Test
     public void testHandleMessageOnBareMultiParam() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-multi-param.xml");
@@ -61,6 +65,7 @@ public class XMLMessageInInterceptorTest extends TestBase {
         assertEquals("method input in1 is String tli", true, ((String) list.get(1)).indexOf("tli") >= 0);
     }
 
+    @Test
     public void testHandleMessageOnBareSingleChild() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-single-param-element.xml");
@@ -77,6 +82,7 @@ public class XMLMessageInInterceptorTest extends TestBase {
         assertEquals("method input me is String tli", true, ((String) list.get(0)).indexOf("tli") >= 0);
     }
 
+    @Test
     public void testHandleMessageWrapped() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/wrapped";
         prepareMessage("/message-wrap.xml");

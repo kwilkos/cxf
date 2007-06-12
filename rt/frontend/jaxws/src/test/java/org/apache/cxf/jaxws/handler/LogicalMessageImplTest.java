@@ -25,18 +25,21 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 
-import junit.framework.TestCase;
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.handlers.types.AddNumbers;
 import org.apache.handlers.types.ObjectFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class LogicalMessageImplTest extends TestCase {
+public class LogicalMessageImplTest extends Assert {
     AddNumbers req;
     List<Object> args;
 
+    @Before
     public void setUp() {
         req = new AddNumbers();        
         req.setArg0(10);
@@ -45,6 +48,7 @@ public class LogicalMessageImplTest extends TestCase {
         args.add(req);
     }
 
+    @Test
     public void testGetPayloadOfJAXB() throws Exception {
         //using Dispatch
         JAXBContext ctx = JAXBContext.newInstance(ObjectFactory.class);

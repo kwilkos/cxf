@@ -22,17 +22,14 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class CXFConnectionRequestInfoTest extends TestCase {
 
-    public CXFConnectionRequestInfoTest(String name) {
-        super(name);
-    }
+public class CXFConnectionRequestInfoTest extends Assert {
 
+    
+    @Test
     public void testCXFConnectionRequestInfoEquals() throws Exception {
 
         CXFConnectionRequestInfo cr1 = new CXFConnectionRequestInfo(Foo.class,
@@ -92,11 +89,5 @@ public class CXFConnectionRequestInfoTest extends TestCase {
 
     }
 
-    public static Test suite() {
-        return new TestSuite(CXFConnectionRequestInfoTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {CXFConnectionRequestInfoTest.class.getName()});
-    }
+    
 }

@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -33,10 +32,11 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.junit.Assert;
 import org.junit.Test;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
-public class LocalTransportFactoryTest extends TestCase {
+public class LocalTransportFactoryTest extends Assert {
     @Test
     public void testTransportFactory() throws Exception {
         LocalTransportFactory factory = new LocalTransportFactory();

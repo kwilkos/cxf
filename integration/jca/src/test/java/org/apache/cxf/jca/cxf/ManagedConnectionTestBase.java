@@ -26,7 +26,6 @@ import javax.resource.spi.ConnectionEventListener;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 
 
 import org.apache.cxf.Bus;
@@ -34,9 +33,11 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.hello_world_soap_http.Greeter;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
 
 
-public abstract class ManagedConnectionTestBase extends TestCase {
+public abstract class ManagedConnectionTestBase extends Assert {
     protected Subject subj;
 
     protected CXFConnectionRequestInfo cri;
@@ -54,10 +55,11 @@ public abstract class ManagedConnectionTestBase extends TestCase {
     protected ConnectionEventListener mockListener = 
         EasyMock.createMock(ConnectionEventListener.class);
     
-    public ManagedConnectionTestBase(String name) {
-        super(name);
+    public ManagedConnectionTestBase() {
+        
     }
     
+    @Before
     public void setUp() throws ResourceException, MalformedURLException, BusException {
                
         subj = new Subject();

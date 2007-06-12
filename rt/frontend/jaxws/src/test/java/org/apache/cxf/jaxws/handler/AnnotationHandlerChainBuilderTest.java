@@ -29,13 +29,18 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class AnnotationHandlerChainBuilderTest extends TestCase {
 
+public class AnnotationHandlerChainBuilderTest extends Assert {
+
+    @Before
     public void setUp() {
     }
 
+    @Test
     public void testFindHandlerChainAnnotation() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
@@ -49,6 +54,7 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
         assertEquals(TestProtocolHandler.class, handlers.get(4).getClass());
     }    
     
+    @Test
     public void testFindHandlerChainAnnotationPerPort() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();

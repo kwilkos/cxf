@@ -29,7 +29,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -53,11 +52,14 @@ import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class TestBase extends TestCase {
+public class TestBase extends Assert {
 
     PhaseInterceptorChain chain;
     MessageImpl message;
@@ -69,6 +71,7 @@ public class TestBase extends TestCase {
     EndpointImpl endpoint;
     BindingOperationInfo operation;
 
+    @Before
     public void setUp() throws Exception {
         bus = BusFactory.newInstance().createBus();
 
@@ -112,6 +115,7 @@ public class TestBase extends TestCase {
         exchange.put(Binding.class, endpoint.getBinding());
     }
 
+    @After
     public void tearDown() throws Exception {
     }
 

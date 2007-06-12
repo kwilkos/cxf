@@ -21,8 +21,6 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
@@ -32,8 +30,12 @@ import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.WSDLToJavaProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11.JAXWSDefinitionBuilder;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JAXWSProfileTest extends TestCase {
+public class JAXWSProfileTest extends Assert {
+    
+    @Test
     public void testLoadPlugins() {
         PluginLoader loader = PluginLoader.getInstance();
         assertNotNull(loader);

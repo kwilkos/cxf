@@ -19,15 +19,16 @@
 
 package org.apache.cxf.binding.xml;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingInfo;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class XMLBindingFactoryTest extends TestCase {
+public class XMLBindingFactoryTest extends Assert {
     
+    @Test
     public void testContainsInAttachmentInterceptor() {
         XMLBindingFactory xbf = new XMLBindingFactory();
         Binding b = xbf.createBinding(new BindingInfo(null, null));

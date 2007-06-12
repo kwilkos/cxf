@@ -23,11 +23,14 @@ import java.lang.reflect.Method;
 
 import javax.jws.WebParam;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestRPCHeaderTest extends TestCase {
+
+public class TestRPCHeaderTest extends Assert {
     Class<TestRPCHeader> cls = TestRPCHeader.class;
 
+    @Test
     public void testHeader1() {
         Method meths[] = cls.getMethods();
         for (Method m : meths) {
@@ -46,6 +49,7 @@ public class TestRPCHeaderTest extends TestCase {
         
     }
 
+    @Test
     public void testInOutHeader() {
         Method meths[] = cls.getMethods();
         for (Method m : meths) {

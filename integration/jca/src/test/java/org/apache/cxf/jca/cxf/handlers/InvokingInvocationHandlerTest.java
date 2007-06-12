@@ -20,12 +20,11 @@ package org.apache.cxf.jca.cxf.handlers;
 
 import java.lang.reflect.Proxy;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
+import org.junit.Before;
+import org.junit.Test;
 
 public class InvokingInvocationHandlerTest 
     extends AbstractInvocationHandlerTest {
@@ -40,6 +39,10 @@ public class InvokingInvocationHandlerTest
         super(name);
     }
     
+    public InvokingInvocationHandlerTest() {
+        super();
+    }
+    @Before
     public void setUp() {
         super.setUp();
         target = new TestTarget();
@@ -63,12 +66,14 @@ public class InvokingInvocationHandlerTest
      * override this test - this handler is alway the last in the chain and is
      * responsible for delegating the invocation to the target object
      */
+    @Test
     public void testHandlerInvokesNext() throws Throwable {
         assertTrue("target method  must not have be called", !target.methodInvoked);
         handler.invoke(target, testMethod, new Object[0]);
         assertTrue("target method must be called", target.methodInvoked);
     }
 
+    @Test
     public void testInvocationThroughProxy() throws IllegalArgumentException {
 
         assertTrue("target object must no have been invoked", !target.methodInvoked);
@@ -81,11 +86,5 @@ public class InvokingInvocationHandlerTest
         return handler;
     }
 
-    public static Test suite() {
-        return new TestSuite(InvokingInvocationHandlerTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {InvokingInvocationHandlerTest.class.getName()});
-    }
+    
 }

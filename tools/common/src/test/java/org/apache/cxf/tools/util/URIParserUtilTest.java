@@ -19,17 +19,22 @@
 
 package org.apache.cxf.tools.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class URIParserUtilTest extends TestCase {
 
+public class URIParserUtilTest extends Assert {
+
+    @Test
     public void testGetPackageName() {
+        
         String packageName = URIParserUtil.getPackageName("http://www.cxf.iona.com");
         assertEquals(packageName, "com.iona.cxf");
         packageName = URIParserUtil.getPackageName("urn://www.class.iona.com");
         assertEquals(packageName, "com.iona._class");
     }
 
+    @Test
     public void testNormalize() throws Exception {
         String uri = "wsdl/hello_world.wsdl";
         assertEquals("file:wsdl/hello_world.wsdl", URIParserUtil.normalize(uri));
@@ -53,6 +58,7 @@ public class URIParserUtilTest extends TestCase {
         assertEquals("file:/c:/hello.wsdl", URIParserUtil.normalize(uri));
     }
 
+    @Test
     public void testGetAbsoluteURI() throws Exception {
         String uri = "wsdl/hello_world.wsdl";
         String uri2 = URIParserUtil.getAbsoluteURI(uri);

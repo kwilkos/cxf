@@ -38,6 +38,9 @@ import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class BareOutInterceptorTest extends TestBase {
@@ -47,6 +50,7 @@ public class BareOutInterceptorTest extends TestBase {
     private ByteArrayOutputStream baos;
     private XMLStreamWriter writer;
     
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         
@@ -61,10 +65,12 @@ public class BareOutInterceptorTest extends TestBase {
         control.replay();
     }
 
+    @After
     public void tearDown() throws Exception {
         baos.close();
     }
 
+    @Test
     public void testWriteOutbound() throws Exception {
         GreetMeResponse greetMe = new GreetMeResponse();
         greetMe.setResponseType("responseType");
@@ -91,6 +97,7 @@ public class BareOutInterceptorTest extends TestBase {
                      reader.getName());
     }
 
+    @Test
     public void testWriteInbound() throws Exception {
         GreetMe greetMe = new GreetMe();
         greetMe.setRequestType("requestType");

@@ -20,9 +20,11 @@
 package org.apache.cxf.tools.util;
 import java.io.File;
 import java.io.IOException;
-import junit.framework.TestCase;
 
-public class FileWriterUtilTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Test;
+
+public class FileWriterUtilTest extends Assert {
 
     private void cleanDir(File dir) {
         try {
@@ -39,6 +41,7 @@ public class FileWriterUtilTest extends TestCase {
         dir.delete();
     }
 
+    @Test
     public void testGetFile() throws Exception {
         FileWriterUtil fileWriter = null;    
         String tmpDir = System.getProperty("java.io.tmpdir");
@@ -59,6 +62,7 @@ public class FileWriterUtilTest extends TestCase {
 
     }
 
+    @Test
     public void testGetWriter() throws Exception {
         FileWriterUtil fileWriter = null;
         String tmpDir = System.getProperty("java.io.tmpdir");

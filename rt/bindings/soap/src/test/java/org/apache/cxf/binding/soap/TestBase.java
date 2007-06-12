@@ -34,7 +34,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -47,15 +46,19 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-public class TestBase extends TestCase {
+public class TestBase extends Assert {
 
     protected PhaseInterceptorChain chain;
     protected SoapMessage soapMessage;
 
     
     
-    
+
+    @Before
     public void setUp() throws Exception {
         SortedSet<Phase> phases = new TreeSet<Phase>();
         Phase phase1 = new Phase("phase1", 1);
@@ -71,6 +74,7 @@ public class TestBase extends TestCase {
         soapMessage = TestUtil.createEmptySoapMessage(Soap11.getInstance(), chain);
     }
 
+    @After
     public void tearDown() throws Exception {
     }
 

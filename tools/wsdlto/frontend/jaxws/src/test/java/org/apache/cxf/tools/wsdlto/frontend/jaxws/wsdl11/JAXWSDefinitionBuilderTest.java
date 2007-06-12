@@ -28,19 +28,22 @@ import javax.wsdl.PortType;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JAXWSDefinitionBuilderTest extends TestCase {
+public class JAXWSDefinitionBuilderTest extends Assert {
     private ToolContext env;
 
+    @Before
     public void setUp() {
         env = new ToolContext();
     }
 
+    @Test
     public void testCustomization() {
         env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("resources/hello_world.wsdl").toString());
         env.put(ToolConstants.CFG_BINDING, getClass().getResource("resources/binding2.xml").toString());
@@ -86,7 +89,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
     
     
     
-    
+    @Test
     public void testCustomizationWithDifferentNS() {
         env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("resources/hello_world.wsdl").toString());
         env.put(ToolConstants.CFG_BINDING, getClass().getResource("resources/binding3.xml").toString());
@@ -131,6 +134,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
     }
 
     // tests the error case described in JIRA CXF-556
+    @Test
     public void testCustomizationWhereURINotAnExactStringMatch() {
         // set up a URI with ./../wsdl11/hello_world.wsdl instead of
         // ./hello_world.wsdl 

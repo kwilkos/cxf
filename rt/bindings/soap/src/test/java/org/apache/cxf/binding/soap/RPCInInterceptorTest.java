@@ -36,6 +36,8 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RPCInInterceptorTest extends TestBase {
 
@@ -45,6 +47,7 @@ public class RPCInInterceptorTest extends TestBase {
 
     private IMocksControl control = EasyMock.createNiceControl();
     
+    @Before
     public void setUp() throws Exception {
         super.setUp();
         ServiceInfo si = getMockedServiceModel(this.getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl")
@@ -71,7 +74,7 @@ public class RPCInInterceptorTest extends TestBase {
         control.replay();
     }
 
-    
+    @Test
     public void testInterceptorRPCLitOutbound() throws Exception {
         RPCInInterceptor interceptor = new RPCInInterceptor();
 
@@ -92,6 +95,7 @@ public class RPCInInterceptorTest extends TestBase {
         assertEquals(45, s.getElem3());
     }
 
+    @Test
     public void testInterceptorRPCLitInbound() throws Exception {
         RPCInInterceptor interceptor = new RPCInInterceptor();
         soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(

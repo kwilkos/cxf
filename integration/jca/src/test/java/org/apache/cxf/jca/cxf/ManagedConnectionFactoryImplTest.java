@@ -31,20 +31,18 @@ import javax.resource.spi.ManagedConnection;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.connector.CXFConnectionFactory;
 import org.apache.hello_world_soap_http.Greeter;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class ManagedConnectionFactoryImplTest extends TestCase {
+public class ManagedConnectionFactoryImplTest extends Assert {
 
     protected ManagedConnectionFactoryImpl mci;
 
@@ -54,10 +52,8 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
 
     protected CXFConnectionRequestInfo cri3;
 
-    public ManagedConnectionFactoryImplTest(String name) {
-        super(name);
-    }
 
+    @Before
     public void setUp() throws Exception {
         
         mci = createManagedConnectionFactoryImpl();
@@ -77,6 +73,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
                                               new QName("fooPort3"));
     }
 
+    @Test
     public void testSetConfigurationDomain() throws Exception {
         final String domainName = "SomeDomain";
         Properties p = new Properties();
@@ -87,12 +84,14 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(domainName, mcf.getConfigurationDomain());
     }
 
+    @Test
     public void testGetConfigurationDomainReturnsDefaultValue() throws Exception {
         Properties p = new Properties();
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl(p);
         assertEquals(ManagedConnectionFactoryImpl.CONFIG_DOMAIN, mcf.getConfigurationDomain());
     }
 
+    @Test
     public void testSetConfigurationScope() throws Exception {
         final String name = "a.b.c";
         Properties p = new Properties();
@@ -103,13 +102,15 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(name, mcf.getConfigurationScope());
     }
 
+    @Test
     public void testGetConfigurationScopeReturnsDefaultValue() throws Exception {
         Properties p = new Properties();
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl(p);
         assertEquals(ManagedConnectionFactoryImpl.CONFIG_SCOPE, mcf.getConfigurationScope());
     }
 
-   
+
+    @Test
     public void testSetEJBServicePropertiesURL() throws Exception {
         final String name = "file://foo.txt";
         Properties p = new Properties();
@@ -120,6 +121,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(name, mcf.getEJBServicePropertiesURL());
     }
 
+    @Test
     public void testSetMonitorEJBServiceProperties() throws Exception {
         final Boolean value = Boolean.TRUE;
         Properties p = new Properties();
@@ -130,6 +132,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(value, mcf.getMonitorEJBServiceProperties());
     }
 
+    @Test
     public void testSetEJBServicePropertiesPollInterval() throws Exception {
         final Integer value = new Integer(10);
         Properties p = new Properties();
@@ -140,7 +143,8 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals(value, mcf.getEJBServicePropertiesPollInterval());
     }
 
-    
+
+    @Test
     public void testSetLogLevelSetsLevelOnPlugin() throws Exception {
         Properties props = new Properties();
         ManagedConnectionFactoryImpl propsmcf = new ManagedConnectionFactoryImpl(props);
@@ -151,6 +155,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
     }
   
 
+    @Test
     public void testGetPropsURLFromBadURL() throws Exception {
         try {
             ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
@@ -165,6 +170,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         }
     }
 
+    @Test
     public void testImplementsEqualsAndHashCode() throws Exception {
         Method equalMethod = mci.getClass().getMethod("equals", new Class[] {Object.class});
         Method hashCodeMethod = mci.getClass().getMethod("hashCode", (Class[])null);
@@ -178,6 +184,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertTrue("not equal with another thing", !mci.equals(this));
     }
 
+    @Test
     public void testMatchManagedConnectionsWithUnboundConnection() throws Exception {
         mci = new ManagedConnectionFactoryImplTester();
         Object unboundMC = mci.createManagedConnection(null, null);
@@ -188,6 +195,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
                    mci.matchManagedConnections(mcSet, null, cri), unboundMC);
     }
 
+    @Test
     public void testMatchManagedConnectionsWithBoundConnections() throws Exception {
 
     
@@ -225,11 +233,13 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         bus.shutdown(true);
     }
 
+    @Test
     public void testValidateConnection() throws Exception {
         // call the no action method
         mci.validateReference(null, null);
     }
 
+    @Test
     public void testCreateConnectionFactoryNoArgsThrowsNotSupported() throws Exception {
         try {
             mci.createConnectionFactory();
@@ -239,6 +249,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         }
     }
 
+    @Test
     public void testCreateConnectionFactoryNullCMThrows() throws Exception {
         try {
             mci.createConnectionFactory(null);
@@ -248,6 +259,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         }
     }
 
+    @Test
     public void testCreateConnectionFactoryCM() throws Exception {
         ManagedConnectionFactoryImplTester mcit = new ManagedConnectionFactoryImplTester();
         ConnectionManager connManager = EasyMock.createMock(ConnectionManager.class);
@@ -256,6 +268,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals("init was called once", 1, mcit.initCalledCount);
     }
 
+    @Test
     public void testCreateManagedConnection() throws Exception {
         ManagedConnectionFactoryImplTester mcit = new ManagedConnectionFactoryImplTester();
         assertTrue("We get a ManagedConnection back",
@@ -263,6 +276,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         assertEquals("init was called once", 1, mcit.initCalledCount);
     }
 
+    @Test
     public void testCloseDoesNothing() throws Exception {
         mci.close();
     }
@@ -328,13 +342,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         return new ManagedConnectionFactoryImpl();
     }
 
-    public static Test suite() {
-        return new TestSuite(ManagedConnectionFactoryImplTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {ManagedConnectionFactoryImplTest.class.getName()});
-    }
+    
 }
 
 class ManagedConnectionFactoryImplTester extends ManagedConnectionFactoryImpl {

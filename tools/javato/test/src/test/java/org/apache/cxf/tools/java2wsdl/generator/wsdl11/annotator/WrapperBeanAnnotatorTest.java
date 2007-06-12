@@ -22,11 +22,12 @@ package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 import java.util.List;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class WrapperBeanAnnotatorTest extends TestCase {
+public class WrapperBeanAnnotatorTest extends Assert {
 
     @Test
     public void testAnnotate() {

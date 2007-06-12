@@ -19,9 +19,13 @@
 
 package org.apache.cxf.tools.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class NameUtilTest extends TestCase {
+
+public class NameUtilTest extends Assert {
+    
+    @Test
     public void testMangleToClassName() {
         assertEquals("Abc100Xyz",
                      NameUtil.mangleNameToClassName("abc100xyz"));
@@ -32,6 +36,7 @@ public class NameUtilTest extends TestCase {
         assertEquals("Int", NameUtil.mangleNameToClassName("int"));
     }
 
+    @Test
     public void testMangleToVariableName() {
         assertEquals("abc100Xyz",
                      NameUtil.mangleNameToVariableName("abc100xyz"));
@@ -43,6 +48,7 @@ public class NameUtilTest extends TestCase {
                      NameUtil.mangleNameToVariableName("int"));
     }
 
+    @Test
     public void testIsJavaIdentifier() {
         assertFalse(NameUtil.isJavaIdentifier("int"));
     }

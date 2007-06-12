@@ -30,22 +30,21 @@ import javax.resource.ResourceException;
 import javax.resource.spi.BootstrapContext;
 import javax.resource.spi.ResourceAdapter;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jca.core.resourceadapter.ResourceBean;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class ResourceAdapterImplTest extends TestCase {
+public class ResourceAdapterImplTest extends Assert {
 
-    public ResourceAdapterImplTest(String name) {
-        super(name);
+    public ResourceAdapterImplTest() {
+        
     }
 
+    @Test
     public void testConstructorWithoutProperties() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         assertTrue("constructed without props", rai instanceof ResourceAdapterImpl);
@@ -54,6 +53,7 @@ public class ResourceAdapterImplTest extends TestCase {
         assertTrue("constructed without props", rai instanceof Serializable);
     }
 
+    @Test
     public void testConstructorWithProperties() throws Exception {
         Properties props = new Properties();
         ResourceAdapterImpl rai = new ResourceAdapterImpl(props);
@@ -63,6 +63,7 @@ public class ResourceAdapterImplTest extends TestCase {
         assertTrue("constructed with props", rai instanceof Serializable);
     }
 
+    @Test
     public void testSerializability() throws Exception {
         final String key = "key";
         final String value = "value";
@@ -92,6 +93,7 @@ public class ResourceAdapterImplTest extends TestCase {
             .getProperty(key));
     }
 
+    @Test
     public void testRegisterBusOfNull() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         rai.registerBus(null);
@@ -99,6 +101,7 @@ public class ResourceAdapterImplTest extends TestCase {
         assertTrue("bus null registered", rai.getBusCache().contains(null));
     }
 
+    @Test
     public void testRegisterBusNotNull() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         Bus bus = EasyMock.createMock(Bus.class);
@@ -107,6 +110,7 @@ public class ResourceAdapterImplTest extends TestCase {
         assertTrue("bus registered", rai.getBusCache().contains(bus));
     }
 
+    @Test
     public void testStartWithNullBootstrapContextThrowException() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         try {
@@ -119,6 +123,7 @@ public class ResourceAdapterImplTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetCorrectBootstrapContext() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         BootstrapContext bc = EasyMock.createMock(BootstrapContext.class);
@@ -127,6 +132,7 @@ public class ResourceAdapterImplTest extends TestCase {
         assertEquals("BootstrapContext set", rai.getBootstrapContext(), bc);
     }
 
+    @Test
     public void testStopWithEmptyBusCache() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         rai.setBusCache(new HashSet<Bus>());
@@ -139,6 +145,7 @@ public class ResourceAdapterImplTest extends TestCase {
         }
     }
 
+    @Test
     public void testStopWithNonEmptyBusCache() throws Exception {
         ResourceAdapterImpl rai = new ResourceAdapterImpl();
         rai.setBusCache(new HashSet<Bus>());
@@ -151,11 +158,5 @@ public class ResourceAdapterImplTest extends TestCase {
         EasyMock.verify(bus);
     }
 
-    public static Test suite() {
-        return new TestSuite(ResourceAdapterImplTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {ResourceAdapterImplTest.class.getName()});
-    }
+    
 }

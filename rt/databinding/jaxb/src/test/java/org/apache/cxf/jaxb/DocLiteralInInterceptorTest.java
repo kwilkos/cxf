@@ -30,7 +30,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -57,11 +56,14 @@ import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-public class DocLiteralInInterceptorTest extends TestCase {
+public class DocLiteralInInterceptorTest extends Assert {
     PhaseInterceptorChain chain;
     MessageImpl message;
     Bus bus;
@@ -72,6 +74,7 @@ public class DocLiteralInInterceptorTest extends TestCase {
     EndpointImpl endpoint;
     BindingOperationInfo operation;
 
+    @Before
     public void setUp() throws Exception {
         bus = BusFactory.newInstance().createBus();
 
@@ -87,6 +90,7 @@ public class DocLiteralInInterceptorTest extends TestCase {
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bf);
     }
 
+    @Test
     public void testInterceptorInboundWrapped() throws Exception {
         setUpUsingHelloWorld();
 
@@ -114,6 +118,7 @@ public class DocLiteralInInterceptorTest extends TestCase {
         assertEquals("TestSOAPInputPMessage", greet.getRequestType());
     }
 
+    @Test
     public void testInterceptorInboundBare() throws Exception {
         setUpUsingDocLit();
 
@@ -140,6 +145,7 @@ public class DocLiteralInInterceptorTest extends TestCase {
         assertEquals("CXF", greet.getTickerSymbol());
     }
 
+    @Test
     public void testInterceptorInboundBareNoParameter() throws Exception {
         setUpUsingDocLit();
 

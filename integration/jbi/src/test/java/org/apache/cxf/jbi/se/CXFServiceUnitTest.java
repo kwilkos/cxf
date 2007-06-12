@@ -25,8 +25,6 @@ import java.util.logging.Logger;
 import javax.jbi.JBIException;
 import javax.jbi.component.ComponentContext;
 import javax.jbi.messaging.DeliveryChannel;
- 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -37,9 +35,12 @@ import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.jbi.JBITransportFactory;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class CXFServiceUnitTest extends TestCase {
+public class CXFServiceUnitTest extends Assert {
 
     private static final Logger LOG = LogUtils.getL7dLogger(CXFServiceUnitTest.class);
     private static final String ROOT_PATH =
@@ -55,6 +56,7 @@ public class CXFServiceUnitTest extends TestCase {
     private Bus bus;
     private JBITransportFactory jbiTransportFactory;
      
+    @Before
     public void setUp() throws Exception {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         absCsuPath = getClass().getResource(ROOT_PATH).toURI().getPath();
@@ -77,10 +79,12 @@ public class CXFServiceUnitTest extends TestCase {
         EasyMock.replay(channel);
     }
      
+    @Test
     public void tearDown() throws Exception {
         bus.shutdown(false);
     }
      
+    @Test
     public void testPrepare() throws Exception {
         csu.prepare(ctx);
         assertTrue(csu.isServiceProvider());
@@ -88,20 +92,24 @@ public class CXFServiceUnitTest extends TestCase {
         assertEquals(csu.getServiceName().getLocalPart(), "HelloWorldService");
     }
      
+    @Test
     public void testEndpintName() throws Exception {
         assertEquals(csu.getEndpointName(), "SE_Endpoint");
     }
      
+    @Test
     public void testServiceName() throws Exception {
         csu.prepare(ctx);
         assertEquals(csu.getServiceName().getNamespaceURI(), "http://apache.org/hello_world");
         assertEquals(csu.getServiceName().getLocalPart(), "HelloWorldService");
     }
      
+    @Test
     public void testStart() throws Exception {
          
     }
-     
+    
+    @Test
     public void testStop() throws Exception {
          
     }

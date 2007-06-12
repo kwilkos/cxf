@@ -31,7 +31,6 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.headers.Header;
@@ -41,8 +40,11 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.easymock.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ContextPropertiesMappingTest extends TestCase {
+public class ContextPropertiesMappingTest extends Assert {
     private static final String ADDRESS = "test address";
     private static final String REQUEST_METHOD = "GET";
     private static final String HEADER = "header";
@@ -52,7 +54,7 @@ public class ContextPropertiesMappingTest extends TestCase {
     private Map<String, Object> requestContext = new HashMap<String, Object>();
     private Map<String, Object> responseContext = new HashMap<String, Object>();
     
-    
+    @Before
     public void setUp() throws Exception {
         message.clear();
         message.put(Message.ENDPOINT_ADDRESS, ADDRESS);
@@ -65,6 +67,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         responseContext.clear();
     }
     
+    @Test
     public void testMapRequestfromJaxws2Cxf() {
         Object address = requestContext.get(Message.ENDPOINT_ADDRESS);
         assertNull("address should be null", address);
@@ -80,6 +83,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         assertEquals("the message PROTOCOL_HEADERS should be updated", header, HEADER + "jaxws");
     }
     
+    @Test
     public void testMapResponseCxf2Jaxws() {        
         responseContext.putAll(message);
         Object requestMethod = responseContext.get(MessageContext.HTTP_REQUEST_METHOD);
@@ -93,6 +97,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         assertEquals("the HTTP_RESPONSE_HEADERS should be updated", header, HEADER);
     }
     
+    @Test
     public void testCreateWebServiceContext() {
         Exchange exchange = new ExchangeImpl();
         Message inMessage = new MessageImpl();
@@ -119,6 +124,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         assertTrue("no inbound attachments expected", ((Map)inAttachments).isEmpty());
     }
     
+    @Test
     public void testUpdateWebServiceContext() {
         Exchange xchng = new ExchangeImpl();
         Message outMsg = new MessageImpl();
@@ -151,6 +157,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         assertEquals("incorrect response code returned", RESPONSE_CODE, respCode);
     }
 
+    @Test
     @SuppressWarnings("unchecked")
     public void testCreateWebServiceContextWithInAttachments() {
         Exchange exchange = new ExchangeImpl();
