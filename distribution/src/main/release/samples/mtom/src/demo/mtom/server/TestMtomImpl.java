@@ -18,7 +18,9 @@
  */
 
 package demo.mtom.server;
+import java.io.InputStream;
 
+import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
@@ -37,5 +39,18 @@ public class TestMtomImpl implements TestMtom {
         System.out.println("The image holder data length is " + attachinfo.value.length);        
         name.value = "return detail + " + name.value;        
     }
+
+    public void testMtom(Holder<String> name, Holder<DataHandler> attachinfo) {
+        try {
+            System.out.println("Received image holder data with mtom enable from client");
+            InputStream mtomIn = attachinfo.value.getInputStream();
+            long fileSize = 0;
+            System.out.println("The image holder data length is " + mtomIn.available());
+            name.value = "return detail + " + name.value;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

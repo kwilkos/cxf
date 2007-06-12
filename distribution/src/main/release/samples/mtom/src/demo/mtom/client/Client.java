@@ -26,8 +26,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
+import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
-
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -76,7 +77,7 @@ public final class Client {
         }
         Holder<byte[]> param = new Holder<byte[]>();
         param.value = new byte[(int) fileSize];
-        System.out.println("Start test the XML-binary Optimized Packaging!");
+        System.out.println("Start test without Mtom enable!");
         System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
 
         InputStream in = client.getClass().getResourceAsStream("me.bmp");
@@ -88,7 +89,24 @@ public final class Client {
         Image image = ImageIO.read(new ByteArrayInputStream(param.value));
         System.out.println("build image with the returned byte[] back from server successfully, hashCode="
                 + image.hashCode());
-        System.out.println("Successfully run demo mtom/xop");
+        System.out.println("Successfully run demo without mtom enable");
+
+        System.out.println("Start test with Mtom enable!");        
+        System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
+        Holder<DataHandler> handler = new Holder<DataHandler>();
+        byte[] data = new byte[(int) fileSize];
+        client.getClass().getResourceAsStream("me.bmp").read(data);
+        handler.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
+        port.testMtom(name, handler);
+        InputStream mtomIn = handler.value.getInputStream();
+        fileSize = 0;
+        
+        for (int i = mtomIn.read(); i != -1; i = mtomIn.read()) {
+            fileSize++;
+        }
+
+        System.out.println("received DataHandler back from server, the size is " + fileSize);
+        System.out.println("Successfully run demo with mtom enable");
         System.exit(0);
     }
 

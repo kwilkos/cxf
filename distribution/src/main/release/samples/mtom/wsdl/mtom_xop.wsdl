@@ -22,7 +22,9 @@
 <wsdl:definitions name="SOAPBuilders-mime-cr-test" xmlns:types="http://cxf.apache.org/mime/types"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://cxf.apache.org/mime"
-    xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://cxf.apache.org/mime">
+    xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" 
+    xmlns:xmime="http://www.w3.org/2005/05/xmlmime"    
+    targetNamespace="http://cxf.apache.org/mime">
 
     <wsdl:types>
         <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://cxf.apache.org/mime/types"
@@ -30,11 +32,20 @@
             <complexType name="XopType">
                 <sequence>
                     <element name="name" type="xsd:string" />
-                    <element name="attachinfo" type="xsd:base64Binary" />
+                    <element name="attachinfo" type="xsd:base64Binary"/>
                 </sequence>
             </complexType>
             <element name="testXop" type="types:XopType" />
             <element name="testXopResponse" type="types:XopType" />
+            
+            <complexType name="MtomType">
+                <sequence>
+                    <element name="name" type="xsd:string" />
+                    <element name="attachinfo" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
+                </sequence>
+            </complexType>
+            <element name="testMtom" type="types:MtomType" />
+            <element name="testMtomResponse" type="types:MtomType" />
         </schema>
 
     </wsdl:types>
@@ -49,6 +60,15 @@
     </wsdl:message>
 
 
+    <wsdl:message name="testMtomIn">
+        <wsdl:part name="data" element="types:testMtom" />
+    </wsdl:message>
+
+    <wsdl:message name="testMtomOut">
+        <wsdl:part name="data" element="types:testMtomResponse" />
+    </wsdl:message>
+
+
     <wsdl:portType name="TestMtom">
 
         <wsdl:operation name="testXop">
@@ -56,12 +76,26 @@
             <wsdl:output message="tns:testXopOut" />
         </wsdl:operation>
 
+        <wsdl:operation name="testMtom">
+            <wsdl:input message="tns:testMtomIn" />
+            <wsdl:output message="tns:testMtomOut" />
+        </wsdl:operation>
     </wsdl:portType>
 
     <wsdl:binding name="TestMtomBinding" type="tns:TestMtom">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
 
         <wsdl:operation name="testXop">
+            <soap:operation soapAction="" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+
+        <wsdl:operation name="testMtom">
             <soap:operation soapAction="" />
             <wsdl:input>
                 <soap:body use="literal" />
