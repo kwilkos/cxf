@@ -41,13 +41,12 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.handler.WSHandlerConstants;
-import org.junit.Ignore;
 import org.junit.Test;
+
 
 /**
  * Ensures that the signature round trip process works.
  */
-@Ignore
 public class WSS4JInOutTest extends AbstractSecurityTest {
 
     public WSS4JInOutTest() {
