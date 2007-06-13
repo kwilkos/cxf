@@ -23,6 +23,7 @@ import java.io.File;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.frontend.AbstractServiceFactory;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 
@@ -37,6 +38,7 @@ public class JaxwsServiceBuilder extends AbstractServiceFactory {
         serviceFactory.setPopulateFromClass(true);
         
         setServiceFactory(serviceFactory);
+        setBindingConfig(new JaxWsSoapBindingConfiguration(serviceFactory));
     }
 
     public File getOutputFile() {
@@ -47,4 +49,7 @@ public class JaxwsServiceBuilder extends AbstractServiceFactory {
         }
         return super.getOutputFile();
     }
+    
+   
+    
 }

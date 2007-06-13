@@ -304,4 +304,22 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertEquals(oldCP, newCP);
     }
     
+    
+    public void testRPCHello() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc-hello.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.RPCHello");
+        processor.setEnvironment(env);
+        processor.process();
+        
+        File wsdlFile = new File(output, "rpc-hello.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        
+        
+        String expectedFile = getClass().getResource("expected/rpc_hello.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "rpc-hello.wsdl"));
+
+    }
+    
+    
+    
 }
