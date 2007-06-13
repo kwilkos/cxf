@@ -69,7 +69,6 @@ public class WSDLToXML extends AbstractCXFToolContainer {
                 processor.process();
             }
         } catch (ToolException ex) {
-            ex.printStackTrace();
             System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
@@ -79,7 +78,6 @@ public class WSDLToXML extends AbstractCXFToolContainer {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
