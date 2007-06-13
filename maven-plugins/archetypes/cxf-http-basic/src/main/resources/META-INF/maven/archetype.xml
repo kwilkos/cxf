@@ -1,0 +1,11 @@
+<archetype>
+  <id>cxf-spring-basic</id>
+  <sources>
+      <source>src/main/java/HelloWorldImpl.java</source>
+      <source>src/main/java/HelloWorld.java</source>
+  </sources>
+  <resources>
+    <resource>src/main/webapp/WEB-INF/beans.xml</resource>
+    <resource>src/main/webapp/WEB-INF/web.xml</resource>
+  </resources>
+</archetype>

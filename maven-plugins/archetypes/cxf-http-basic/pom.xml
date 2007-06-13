@@ -1,0 +1,17 @@
+<?xml version="1.0"?><project>
+  <parent>
+    <artifactId>maven-archetypes</artifactId>
+    <groupId>org.apache.cxf</groupId>
+    <version>2.0-incubator-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-http-basic</artifactId>
+  <name>Archetype - cxf-http-basic</name>
+  <version>2.0-incubator-SNAPSHOT</version>
+  <url>http://maven.apache.org</url>
+  
+  <build>
+  
+ </build>
+</project>
