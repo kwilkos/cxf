@@ -41,7 +41,7 @@ import org.apache.cxf.staxutils.W3CDOMStreamReader;
 public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
     Class type;
-    
+
     public ProviderInDatabindingInterceptor(Class type) {
         super(Phase.UNMARSHAL);
         addAfter(URIMappingInterceptor.class.getName());
@@ -51,20 +51,22 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
     public void handleMessage(Message message) throws Fault {
         Exchange ex = message.getExchange();
         Endpoint e = ex.get(Endpoint.class);
-        BindingOperationInfo bop = e.getEndpointInfo().getBinding().getOperations().iterator().next();
-        ex.put(BindingOperationInfo.class, bop);
-        getMessageInfo(message, bop);
-        
+        if (e.getEndpointInfo().getBinding().getOperations().iterator().hasNext()) {
+            BindingOperationInfo bop = e.getEndpointInfo().getBinding().getOperations().iterator().next();
+            ex.put(BindingOperationInfo.class, bop);
+            getMessageInfo(message, bop);
+        }
+
         List<Object> params = new ArrayList<Object>();
-        
+
         if (isGET(message)) {
             params.add(null);
             message.setContent(Object.class, params);
             return;
         }
-        
+
         Service s = ex.get(Service.class);
-        
+
         if (SOAPMessage.class.equals(type)) {
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             params.add(msg);
@@ -74,14 +76,14 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
             if (r != null) {
                 if (r instanceof W3CDOMStreamReader) {
                     Node nd = ((W3CDOMStreamReader)r).getCurrentElement();
-                    DataReader<Node> reader = 
+                    DataReader<Node> reader =
                         s.getDataBinding().createReader(Node.class);
                     Object object = reader.read(null, nd, type);
                     params.add(object);
                 } else {
-                    DataReader<XMLStreamReader> reader = 
+                    DataReader<XMLStreamReader> reader =
                         s.getDataBinding().createReader(XMLStreamReader.class);
-                    
+
                     Object object = reader.read(null, r, type);
                     params.add(object);
                 }
