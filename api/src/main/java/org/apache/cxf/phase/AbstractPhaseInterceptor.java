@@ -73,6 +73,11 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
         return phase;
     }
 
+    /**
+     * @deprecated Pass the phase into the constructor.  This method will 
+     * be removed shortly
+     * @param p
+     */
     public void setPhase(String p) {
         this.phase = p;
     }
