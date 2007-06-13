@@ -155,6 +155,9 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
     }
 
     public Object getServiceBean() {
+        if (serviceBean == null) {
+            return getServiceFactory().getServiceClass();
+        }
         return serviceBean;
     }
 

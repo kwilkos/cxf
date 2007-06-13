@@ -19,17 +19,30 @@
 package org.apache.cxf.jaxws;
 
 
+
+import java.util.List;
+
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
+import org.apache.cxf.jaxws.context.WebServiceContextResourceResolver;
+import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingInfo;
 
@@ -44,8 +57,11 @@ import org.apache.cxf.service.model.BindingInfo;
  * This will start a server for you and register it with the ServerManager. 
  */
 public class JaxWsServerFactoryBean extends ServerFactoryBean {
+    protected boolean doInit;
+    
     public JaxWsServerFactoryBean() {
         this(new JaxWsServiceFactoryBean());
+        doInit = true;
     }
     public JaxWsServerFactoryBean(JaxWsServiceFactoryBean serviceFactory) {
         setServiceFactory(serviceFactory);
@@ -54,6 +70,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
             = new JaxWsSoapBindingConfiguration(serviceFactory);
         
         setBindingConfig(defConfig);
+        doInit = true;
     }
 
     @Override
@@ -121,5 +138,60 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         return bindingInfo;
     }
     
+    public Server create() {
+        Server server = super.create();
+        init();
+        return server;
+    }
     
+    private synchronized void init() {
+        if (doInit) {
+            try {
+                injectResources(getServiceBean());
+                buildHandlerChain();
+            } catch (Exception ex) {
+                if (ex instanceof WebServiceException) { 
+                    throw (WebServiceException)ex; 
+                }
+                throw new WebServiceException("Creation of Endpoint failed", ex);
+            }
+        }
+        doInit = false;
+    }
+    
+    
+    /**
+     * Obtain handler chain from annotations.
+     *
+     */
+    private void buildHandlerChain() {
+        AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
+
+        List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBean().getClass(),
+                                                                 getEndpointName());
+        for (Handler h : chain) {
+            injectResources(h);
+        }
+        
+        ((JaxWsEndpointImpl)getServer().getEndpoint()).getJaxwsBinding().setHandlerChain(chain);
+    }
+    
+    /**
+     * inject resources into servant.  The resources are injected
+     * according to @Resource annotations.  See JSR 250 for more
+     * information.
+     */
+    /**
+     * @param instance
+     */
+    protected void injectResources(Object instance) {
+        if (instance != null) {
+            ResourceManager resourceManager = getBus().getExtension(ResourceManager.class);
+            List<ResourceResolver> resolvers = resourceManager.getResourceResolvers();
+            resourceManager = new DefaultResourceManager(resolvers); 
+            resourceManager.addResourceResolver(new WebServiceContextResourceResolver());
+            ResourceInjector injector = new ResourceInjector(resourceManager);
+            injector.inject(instance);
+        }
+    }  
 }
