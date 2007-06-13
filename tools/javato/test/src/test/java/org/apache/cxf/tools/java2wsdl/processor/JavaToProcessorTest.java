@@ -37,7 +37,6 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
@@ -272,7 +271,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
 
     @Test
-    @Ignore("Can not load the HelloNoPackage")
     public void testHelloNoPackage() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello-no-package.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "HelloNoPackage");
@@ -284,14 +282,13 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         
         
         String pkgBase = "defaultnamespace";
-        File requestWrapperClass = new File(output, pkgBase + "/SayHi.java");
-        File responseWrapperClass = new File(output, pkgBase + "/SayHiResponse.java");
+        File requestWrapperClass = new File(output, pkgBase + "/jaxws/SayHi.java");
+        File responseWrapperClass = new File(output, pkgBase + "/jaxws/SayHiResponse.java");
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
     }
 
     @Test
-    @Ignore
     public void testResumeClasspath() throws Exception {
         File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
 
