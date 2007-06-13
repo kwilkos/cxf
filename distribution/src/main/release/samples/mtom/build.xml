@@ -44,7 +44,7 @@
         <copy toFile="${build.classes.dir}/demo/mtom/client/me.bmp" file="${basedir}/src/demo/mtom/client/me.bmp"/>
         <cxfwar wsdl="*.*" filename="mtom.war"/>
 	</target>
-
+    <property name="cxf.war.file.name" value="mtom"/>
     <target name="client-servlet" description="run demo client hitting servlet" depends="build">
         <property name="param" value=""/>
         <cxfrun classname="demo.mtom.client.Client" param1="${base.url}/mtom/services/mtom?wsdl" param2="${op}"/>

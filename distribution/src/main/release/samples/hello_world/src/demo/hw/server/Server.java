@@ -25,7 +25,6 @@ public class Server {
 
     protected Server() throws Exception {
         System.out.println("Starting Server");
-        System.setProperty("spring.validation.mode", "VALIDATION_NONE");
         Object implementor = new GreeterImpl();
         String address = "http://localhost:9000/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
