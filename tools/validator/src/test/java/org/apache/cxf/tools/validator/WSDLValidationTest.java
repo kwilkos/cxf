@@ -189,6 +189,37 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Test
+    public void testWSIBPR2203() throws Exception {
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/header_rpc_lit.wsdl")};
+            WSDLValidator.main(args);
+            assertTrue(getStdOut().indexOf("Passed Validation : Valid WSDL") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("No exception expected here, header_rpc_lit is a valid wsdl");
+        }
+
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/header_rpc_lit_2203_in.wsdl")};
+            WSDLValidator.main(args);
+            assertTrue(getStdErr().indexOf("soapbind:body element(s), only to wsdl:part element(s)") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/header_rpc_lit_2203_out.wsdl")};
+            WSDLValidator.main(args);
+            assertTrue(getStdErr().indexOf("soapbind:body element(s), only to wsdl:part element(s)") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected String getLocation(String wsdlFile) throws Exception {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
@@ -35,6 +34,7 @@ import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.wsdl.PortType;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -111,8 +111,8 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         SoapBody outSoapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
         if (inSoapBody != null && StringUtils.isEmpty(inSoapBody.getNamespaceURI())
             || outSoapBody != null && StringUtils.isEmpty(outSoapBody.getNamespaceURI())) {
-            addErrorMessage("Violate WSI-BP-1.0 R2717 operation '"
-                            + bop.getName() + "' soapBody MUST have namespace attribute");
+            addErrorMessage("Violate WSI-BP-1.0 R2717 soapBody in the input/output of the binding operation '"
+                            + bop.getName() + "' MUST have namespace attribute");
             return false;
         }
 
@@ -267,6 +267,22 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         return true;
     }
 
+    private boolean isHeaderPart(final BindingOperation bop, final Part part) {
+        QName elementName = part.getElementName();
+        if (elementName != null) {
+            String partName = elementName.getLocalPart();
+            SoapHeader inSoapHeader = SOAPBindingUtil.getBindingInputSOAPHeader(bop);
+            if (inSoapHeader != null) {
+                return partName.equals(inSoapHeader.getPart());
+            }
+            SoapHeader outSoapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
+            if (outSoapHeader != null) {
+                return partName.equals(outSoapHeader.getPart());
+            }
+        }
+        return false;
+    }
+    
     public boolean checkR2203And2204() {
 
         for (Iterator ite = def.getBindings().values().iterator(); ite.hasNext();) {
@@ -278,12 +294,14 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
             for (Iterator ite2 = binding.getPortType().getOperations().iterator(); ite2.hasNext();) {
                 Operation operation = (Operation)ite2.next();
+                BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
                 if (operation.getInput() != null && operation.getInput().getMessage() != null) {
                     Message inMess = operation.getInput().getMessage();
 
                     for (Iterator ite3 = inMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null) {
+                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null
+                            && !isHeaderPart(bop, p)) {
                             addErrorMessage("An rpc-literal binding in a DESCRIPTION MUST refer, "
                                             + "in its soapbind:body element(s), only to "
                                             + "wsdl:part element(s) that have been defined "
@@ -306,7 +324,8 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                     Message outMess = operation.getOutput().getMessage();
                     for (Iterator ite3 = outMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null) {
+                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null
+                            &&  !isHeaderPart(bop, p)) {
                             addErrorMessage("An rpc-literal binding in a DESCRIPTION MUST refer, "
                                             + "in its soapbind:body element(s), only to "
                                             + "wsdl:part element(s) that have been defined "
