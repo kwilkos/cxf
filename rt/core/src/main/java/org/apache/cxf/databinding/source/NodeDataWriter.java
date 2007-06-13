@@ -43,6 +43,8 @@ import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 public class NodeDataWriter implements DataWriter<Node> {
     private static final Logger LOG = LogUtils.getL7dLogger(NodeDataWriter.class);
 
+    private String encoding;
+    
     public void write(Object obj, MessagePartInfo part, Node output) {
         write(obj, output);
     }
@@ -68,7 +70,14 @@ public class NodeDataWriter implements DataWriter<Node> {
     }
 
     public void setAttachments(Collection<Attachment> attachments) {
-        // TODO Auto-generated method stub
-        
+ 
     }
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+    
 }

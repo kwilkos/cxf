@@ -44,7 +44,9 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     private AegisDatabinding databinding;
 
     private Collection<Attachment> attachments;
-
+    
+    private String encoding;
+    
     public XMLStreamDataWriter(AegisDatabinding databinding) {
         this.databinding = databinding;
     }
@@ -96,4 +98,12 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         write(obj, null, output);
     }
 
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+    
 }

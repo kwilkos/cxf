@@ -81,6 +81,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
             }
             
             DataWriter<OutputStream> osWriter = getDataWriter(message, service, OutputStream.class);
+            osWriter.setEncoding((String)message.get(Message.ENCODING));
             
             for (MessagePartInfo part : parts) {
                 int idx = part.getMessageInfo().getMessagePartIndex(part);

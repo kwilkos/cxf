@@ -27,7 +27,8 @@ import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
 public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
-
+    private String encoding;
+    
     public DataWriterImpl(JAXBContext ctx) {
         setJAXBContext(ctx);
     }
@@ -39,7 +40,16 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
     public void write(Object obj, MessagePartInfo part, T output) {
         if (obj != null) {
             JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
-                                        getAttachmentMarrshaller());
+                                        getAttachmentMarrshaller(), encoding);
         }
     }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+    
 }

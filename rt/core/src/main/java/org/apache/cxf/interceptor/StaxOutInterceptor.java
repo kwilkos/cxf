@@ -60,16 +60,7 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
         // assert os != null;
 
         // TODO: where does encoding constant go?
-        String encoding = (String)message.get(Message.ENCODING);
-        if (encoding == null && message.getExchange().getInMessage() != null) {
-            encoding = (String) message.getExchange().getInMessage().get(Message.ENCODING);
-            message.put(Message.ENCODING, encoding);
-        }
-        
-        if (encoding == null) {
-            encoding = "UTF-8";
-            message.put(Message.ENCODING, encoding);
-        }
+        String encoding = getEncoding(message);
         
         try {
             writer = getXMLOutputFactory(message).createXMLStreamWriter(os, encoding);
@@ -80,6 +71,20 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
         // Add a final interceptor to write end elements
         message.getInterceptorChain().add(ending);
+    }
+
+    private String getEncoding(Message message) {
+        String encoding = (String)message.get(Message.ENCODING);
+        if (encoding == null && message.getExchange().getInMessage() != null) {
+            encoding = (String) message.getExchange().getInMessage().get(Message.ENCODING);
+            message.put(Message.ENCODING, encoding);
+        }
+        
+        if (encoding == null) {
+            encoding = "UTF-8";
+            message.put(Message.ENCODING, encoding);
+        }
+        return encoding;
     }
 
     public static XMLOutputFactory getXMLOutputFactory(Message m) throws Fault {
