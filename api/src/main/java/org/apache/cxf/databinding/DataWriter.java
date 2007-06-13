@@ -31,5 +31,4 @@ public interface DataWriter<T> {
     void write(Object obj, MessagePartInfo part, T output);
     void setSchema(Schema s);
     void setAttachments(Collection<Attachment> attachments);
-    void setEncoding(String encoding);
 }

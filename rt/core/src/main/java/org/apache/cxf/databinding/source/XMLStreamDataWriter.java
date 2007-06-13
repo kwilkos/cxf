@@ -39,8 +39,6 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     private static final Logger LOG = LogUtils.getL7dLogger(XMLStreamDataWriter.class);
 
-    private String encoding;
-    
     public void write(Object obj, MessagePartInfo part, XMLStreamWriter output) {
         write(obj, output);
     }
@@ -66,14 +64,5 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
 
     public void setAttachments(Collection<Attachment> attachments) {
 
-    }
-    
-    public String getEncoding() {
-        return encoding;
-    }
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-    }
-    
+    }   
 }

@@ -81,8 +81,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
             }
             
             DataWriter<OutputStream> osWriter = getDataWriter(message, service, OutputStream.class);
-            osWriter.setEncoding((String)message.get(Message.ENCODING));
-            
+
             for (MessagePartInfo part : parts) {
                 int idx = part.getMessageInfo().getMessagePartIndex(part);
                 
@@ -111,9 +110,11 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
             return false;
         }
         
+        String enc = (String)m.get(Message.ENCODING);
         return info.getClass().getName().equals("org.apache.cxf.binding.soap.model.SoapBindingInfo") 
             && s.getDataBinding().getClass().getName().equals("org.apache.cxf.jaxb.JAXBDataBinding")
-            && !MessageUtils.isDOMPresent(m);
+            && !MessageUtils.isDOMPresent(m)
+            && (enc == null || "UTF-8".equals(enc));
     }
     
     protected <T> DataWriter<T> getDataWriter(Message message, Service service, Class<T> output) {

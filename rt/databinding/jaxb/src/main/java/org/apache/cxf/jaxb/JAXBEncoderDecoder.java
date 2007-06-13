@@ -81,7 +81,7 @@ public final class JAXBEncoderDecoder {
                                 Object elValue, 
                                 MessagePartInfo part,
                                 Object source, 
-                                AttachmentMarshaller am, String encoding) {
+                                AttachmentMarshaller am) {
         Class<?> cls = null;
         if (part != null) {
             cls = part.getTypeClass();
@@ -103,10 +103,6 @@ public final class JAXBEncoderDecoder {
                 // generate the xml declaration.
                 u.setProperty(Marshaller.JAXB_FRAGMENT, true);
                 u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-                
-                if (encoding != null) {
-                    u.setProperty(Marshaller.JAXB_ENCODING, encoding);
-                }
             } catch (javax.xml.bind.PropertyException e) {
                 // intentionally empty.
             }
@@ -162,14 +158,14 @@ public final class JAXBEncoderDecoder {
     }
 
     public static void marshall(JAXBContext context, Schema schema, Object elValue, Object source) {
-        marshall(context, schema, elValue, null, source, null, null);
+        marshall(context, schema, elValue, null, source, null);
     }
 
     public static void marshall(JAXBContext context, Schema schema, 
                                 Object elValue, 
                                 MessagePartInfo part,
                                 Object source) {
-        marshall(context, schema, elValue, part, source, null, null);
+        marshall(context, schema, elValue, part, source, null);
     }
 
     private static Unmarshaller createUnmarshaller(JAXBContext context, Class<?> cls) throws JAXBException {
