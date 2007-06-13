@@ -75,8 +75,8 @@ Start cxf server
  > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1-incubator-20070103.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar 
 
 Install and start the ServiceMix soap/jms binding component
-copy servicemix-jms-3.0-incubating-installer.zip, servicemix-jms-3.0-incubating-installer.zip and
-servicemix-shared-3.0-incubating-installer.zip to the deploy directory
+copy servicemix-jms-3.1-incubating-installer.zip, servicemix-http-3.1-incubating-installer.zip and
+servicemix-shared-3.1-incubating-installer.zip to the deploy directory
 where servicemix monitor on, for a instance, start servicemix from
 $SERVICEMIX_HOME/bin, then copy the three zip files into deploy directory under
 $SERVICEMIX_HOME/bin 
