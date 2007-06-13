@@ -390,13 +390,13 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
             OutputStream responseStream = flushHeaders(outMessage);
             if (null != responseStream) {
                 wrappedStream = responseStream;
-            }
+            }            
         }
 
         /**
          * Perform any actions required on stream closure (handle response etc.)
          */
-        protected void doClose() throws IOException {
+        public void close() throws IOException {
             if (wrappedStream == null) {
                 OutputStream responseStream = flushHeaders(outMessage);
                 if (null != responseStream) {
@@ -406,8 +406,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
             commitResponse();
         }
 
-        protected void onWrite() throws IOException {
-        }
+        
 
         private void commitResponse() {
             try {
