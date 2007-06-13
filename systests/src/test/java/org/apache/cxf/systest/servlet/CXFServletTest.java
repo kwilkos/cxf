@@ -89,13 +89,13 @@ public class CXFServletTest extends AbstractServletTest {
         WebResponse res = client.getResponse(CONTEXT_URL + "/services");    
         
         WebLink[] links = res.getLinks();
-        assertEquals("There should get one link for service", 1, links.length);
+        assertEquals("There should get two link for service", 2, links.length);
         assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
         
         res = client.getResponse(CONTEXT_URL + "/services");
         links = res.getLinks();
-        assertEquals("There should get one link for service", 1, links.length);
+        assertEquals("There should get two link for service", 2, links.length);
         assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
         assertEquals("text/html", res.getContentType());
         
@@ -117,6 +117,23 @@ public class CXFServletTest extends AbstractServletTest {
                    res.getText().contains("<wsdl:operation name=\"greetMe\">"));
         assertTrue("the soap address should changed",
                    res.getText().contains("<soap:address location=\"" + CONTEXT_URL + "/services/greeter\""));
+        
+    }
+    
+    @Test
+    public void testGetWSDLWithXMLBinding() throws Exception {
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(true);
+        
+        WebRequest req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/greeter2?wsdl");
+        
+        WebResponse res = client.getResponse(req); 
+        assertEquals(200, res.getResponseCode());
+        assertEquals("text/xml", res.getContentType());
+        assertTrue("the wsdl should contain the opertion greetMe",
+                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
+        assertTrue("the http address should changed",
+                   res.getText().contains(CONTEXT_URL + "/services/greeter2\""));
         
     }
 

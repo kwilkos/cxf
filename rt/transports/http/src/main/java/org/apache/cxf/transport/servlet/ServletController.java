@@ -41,6 +41,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class ServletController {
     
@@ -68,6 +69,9 @@ public class ServletController {
             if (ad.equals(path)
                 || ad.equals(lastBase + path)) {
                 d2.getEndpointInfo().setAddress(base + path);
+                if (d2.getEndpointInfo().getExtensor(AddressType.class) != null) {
+                    d2.getEndpointInfo().getExtensor(AddressType.class).setLocation(base + path);
+                }
             }
         }
         lastBase = base;
