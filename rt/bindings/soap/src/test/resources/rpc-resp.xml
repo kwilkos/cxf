@@ -20,7 +20,7 @@
 <ns1:sendReceiveDataResponse xmlns:ns1="http://apache.org/hello_world_rpclit">
     <ns3:out xmlns:ns3="http://apache.org/hello_world_rpclit"
         xmlns:ns2="http://apache.org/hello_world_rpclit/types"
-        xmlns="http://www.w3.org/2005/08/addressing/wsdl">
+        xmlns="http://www.w3.org/2005/02/addressing/wsdl">
         <ns2:elem1>elem1</ns2:elem1>
         <ns2:elem2>elem2</ns2:elem2>
         <ns2:elem3>45</ns2:elem3>

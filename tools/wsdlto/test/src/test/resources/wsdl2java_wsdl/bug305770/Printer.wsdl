@@ -13,7 +13,7 @@
 	xmlns:pr="http://docs.oasis-open.org/wsrf/primer-1.2-examples-cd-02/Printer/Printer.xsd"
 	xmlns:prw="http://docs.oasis-open.org/wsrf/primer-1.2-examples-cd-02/Printer/Printer.wsdl"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-	xmlns:wsaw="http://www.w3.org/2005/08/addressing/wsdl"
+	xmlns:wsaw="http://www.w3.org/2005/02/addressing/wsdl"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
 	xmlns:wsrf-rlw="http://docs.oasis-open.org/wsrf/rlw-2"
@@ -37,7 +37,7 @@
 				namespace="http://docs.oasis-open.org/wsrf/primer-1.2-examples-cd-02/Printer/Printer.xsd"
 				schemaLocation="./Printer.xsd" />
 			<xsd:import
-				namespace="http://www.w3.org/2005/08/addressing/wsdl"
+				namespace="http://www.w3.org/2005/02/addressing/wsdl"
 				schemaLocation="/schemas/wsdl/ws-addr-wsdl.xsd" />
 		</xsd:schema>
 	</wsdl:types>
@@ -777,13 +777,13 @@
 			<soap:address
 				location="http://localhost:9000/PrinterService/PrinterSOAPPort" />
 			<wswa:UsingAddressing
-				xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl" />
+				xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl" />
 		</wsdl:port>
 		<wsdl:port binding="prw:Job_SOAPBinding" name="JobSOAPPort">
 			<soap:address
 				location="http://localhost:9000/PrinterService/JobSOAPPort" />
 			<wswa:UsingAddressing
-				xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl" />
+				xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl" />
 		</wsdl:port>
 	</wsdl:service>
 

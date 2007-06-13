@@ -19,13 +19,13 @@
 -->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Header>
-    <ns3:SOAPHeaderInfo xmlns:ns3="http://apache.org/headers/types" xmlns:ns2="http://www.w3.org/2005/08/addressing/wsdl">
+    <ns3:SOAPHeaderInfo xmlns:ns3="http://apache.org/headers/types" xmlns:ns2="http://www.w3.org/2005/02/addressing/wsdl">
       <originator>in originator</originator>
       <message>in message</message>
     </ns3:SOAPHeaderInfo>
   </soap:Header>
   <soap:Body>
-    <ns3:inHeader xmlns:ns3="http://apache.org/headers/types" xmlns:ns2="http://www.w3.org/2005/08/addressing/wsdl">
+    <ns3:inHeader xmlns:ns3="http://apache.org/headers/types" xmlns:ns2="http://www.w3.org/2005/02/addressing/wsdl">
       <requestType>in request type</requestType>
     </ns3:inHeader>
   </soap:Body>

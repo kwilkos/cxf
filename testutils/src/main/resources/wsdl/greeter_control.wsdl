@@ -276,7 +276,7 @@
     <wsdl:service name="GreeterService">
         <wsdl:port binding="tns:GreeterSOAPBinding" name="GreeterPort">
             <soap:address location="http://localhost:9020/SoapContext/GreeterPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
    
@@ -303,7 +303,7 @@
     <wsdl:service name="ClusteredGreeterService">
         <wsdl:port binding="tns:GreeterSOAPBinding" name="ReplicatedPortA">
             <soap:address location="http://localhost:9051/SoapContext/ReplicatedPortA"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
         <wsdl:port binding="tns:GreeterSOAPBinding" name="ReplicatedPortB">
             <soap:address location="http://localhost:9052/SoapContext/ReplicatedPortB"/>

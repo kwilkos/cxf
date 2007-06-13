@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<customer xmlns="http://cxf.apache.org/jra" xmlns:ns2="http://www.w3.org/2005/08/addressing/wsdl">
+<customer xmlns="http://cxf.apache.org/jra" xmlns:ns2="http://www.w3.org/2005/02/addressing/wsdl">
 <id>123</id>
 <name>Danno Manno</name>
 </customer>

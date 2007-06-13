@@ -16,7 +16,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<ns2:greetMe xmlns="http://www.w3.org/2005/08/addressing/wsdl"
+<ns2:greetMe xmlns="http://www.w3.org/2005/02/addressing/wsdl"
 	xmlns:ns2="http://apache.org/hello_world_xml_http/wrapped/types">
 	<ns2:requestType>tli</ns2:requestType>
 </ns2:greetMe>

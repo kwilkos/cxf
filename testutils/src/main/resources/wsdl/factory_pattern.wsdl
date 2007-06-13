@@ -128,7 +128,7 @@
 			<wsdlsoap:address
 				location="http://localhost:9006/NumberFactoryService/NumberFactoryPort" />
 			<wswa:UsingAddressing
-				xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl" />
+				xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl" />
 		</wsdl:port>
 	</wsdl:service>
 	<wsdl:service name="NumberService">
@@ -137,7 +137,7 @@
 			<wsdlsoap:address
 				location="http://localhost:9006/NumberService/NumberPort/" />
 			<wswa:UsingAddressing
-				xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl" />
+				xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl" />
 		</wsdl:port>
 		<wsdl:port name="NumberPortJMS"
 			binding="tns:NumberServiceSoapJmsBinding">
@@ -151,7 +151,7 @@
 					value="tcp://localhost:61500" />
 			</jms:address>
 			<wswa:UsingAddressing
-				xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl" />
+				xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>

@@ -346,7 +346,7 @@ public final class JAXBDataBinding implements DataBinding {
                 DOMResult result = new DOMResult();
                 result.setSystemId(file);
                 // Don't include WS-Addressing bits
-                if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
+                if ("http://www.w3.org/2005/02/addressing/wsdl".equals(ns)) {
                     return result;
                 }
                 results.add(result);

@@ -79,8 +79,24 @@ public final class EndpointReferenceUtils {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
 
-    private static final QName WSDL_LOCATION = new QName("http://www.w3.org/2006/01/wsdl-instance",
-                                                         "wsdlLocation");
+    private static final String WSDL_INSTANCE_NAMESPACE = 
+        "http://www.w3.org/2006/01/wsdl-instance";
+    private static final String WSA_WSDL_NAMESPACE =
+        "http://www.w3.org/2005/02/addressing/wsdl";
+    private static final String WSA_WSDL_NAMESPACE_PREFIX = "wsaw";
+    private static final QName WSA_WSDL_NAMESPACE_NS =
+        new QName("xmlns:" + WSA_WSDL_NAMESPACE_PREFIX);
+    private static final String XML_SCHEMA_NAMESPACE =
+        "http://www.w3.org/2001/XMLSchema";
+    private static final String XML_SCHEMA_NAMESPACE_PREFIX = "xs";
+    private static final QName XML_SCHEMA_NAMESPACE_NS =
+        new QName("xmlns:" + XML_SCHEMA_NAMESPACE_PREFIX);
+    private static final String XML_SCHEMA_INSTANCE_NAMESPACE =
+        "http://www.w3.org/2001/XMLSchema-instance";
+    private static final QName WSDL_LOCATION =
+        new QName(WSDL_INSTANCE_NAMESPACE, "wsdlLocation");
+    private static final QName XSI_TYPE = 
+        new QName(XML_SCHEMA_INSTANCE_NAMESPACE, "type", "xsi");
     
     private static final org.apache.cxf.ws.addressing.wsdl.ObjectFactory WSA_WSDL_OBJECT_FACTORY = 
         new org.apache.cxf.ws.addressing.wsdl.ObjectFactory();
@@ -136,7 +152,10 @@ public final class EndpointReferenceUtils {
         ServiceNameType serviceNameType = WSA_WSDL_OBJECT_FACTORY.createServiceNameType();
         serviceNameType.setValue(serviceName);
         serviceNameType.setEndpointName(portName);
-        
+        serviceNameType.getOtherAttributes().put(WSA_WSDL_NAMESPACE_NS, WSA_WSDL_NAMESPACE);
+        serviceNameType.getOtherAttributes().put(XSI_TYPE, 
+                                                 WSA_WSDL_NAMESPACE_PREFIX + ":" 
+                                                 + serviceNameType.getClass().getSimpleName());
         return WSA_WSDL_OBJECT_FACTORY.createServiceName(serviceNameType);
     }
     
@@ -151,7 +170,7 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl") 
+                    if (node.getNamespaceURI().equals(WSA_WSDL_NAMESPACE) 
                         && node.getLocalName().equals("ServiceName")) {
                         String content = node.getTextContent();
                         String namespaceURI = node.getFirstChild().getNamespaceURI();
@@ -190,7 +209,7 @@ public final class EndpointReferenceUtils {
             for (Object obj : metadata.getAny()) {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
-                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
+                    if (node.getNamespaceURI().equals(WSA_WSDL_NAMESPACE)
                         && node.getNodeName().contains("ServiceName")) {
                         return node.getAttributes().getNamedItem("EndpointName").getTextContent();
                     }
@@ -207,12 +226,33 @@ public final class EndpointReferenceUtils {
         return null;
     }
     
+    public static void setPortName(EndpointReferenceType ref, String portName) {
+        MetadataType metadata = ref.getMetadata();
+        if (metadata != null) {
+            for (Object obj : metadata.getAny()) {
+                if (obj instanceof JAXBElement) {
+                    Object val = ((JAXBElement)obj).getValue();
+                    if (val instanceof ServiceNameType) {
+                        ((ServiceNameType)val).setEndpointName(portName);
+                    }
+                } else if (obj instanceof ServiceNameType) {
+                    ((ServiceNameType)obj).setEndpointName(portName);
+                }
+            }
+        }
+    }
+    
     public static void setInterfaceName(EndpointReferenceType ref, QName portTypeName) {
         if (null != portTypeName) {
             AttributedQNameType interfaceNameType =
                 WSA_WSDL_OBJECT_FACTORY.createAttributedQNameType();
             
             interfaceNameType.setValue(portTypeName);
+            interfaceNameType.getOtherAttributes().put(XML_SCHEMA_NAMESPACE_NS, 
+                                                       XML_SCHEMA_NAMESPACE);
+            interfaceNameType.getOtherAttributes().put(XSI_TYPE,
+                                                       XML_SCHEMA_NAMESPACE_PREFIX + ":"
+                                                       + portTypeName.getClass().getSimpleName());
             
             JAXBElement<AttributedQNameType> jaxbElement = 
                 WSA_WSDL_OBJECT_FACTORY.createInterfaceName(interfaceNameType);
@@ -233,7 +273,7 @@ public final class EndpointReferenceUtils {
                 if (obj instanceof Element) {
                     Node node = (Element)obj;
                     System.out.println(node.getNamespaceURI() + ":" + node.getNodeName());
-                    if (node.getNamespaceURI().equals("http://www.w3.org/2005/08/addressing/wsdl")
+                    if (node.getNamespaceURI().equals(WSA_WSDL_NAMESPACE)
                         && node.getNodeName().contains("InterfaceName")) {
                         
                         String content = node.getTextContent();
