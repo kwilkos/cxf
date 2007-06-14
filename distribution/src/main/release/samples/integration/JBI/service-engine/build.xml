@@ -25,22 +25,17 @@
   <property name="src.dir" location="./src"/>
 
   <property environment="env"/> 
-  <path id="build.classpath">
-    <fileset dir="${env.CXF_HOME}/modules">
-      <include name="cxf-manifest-incubator.jar"/>
-    </fileset>
-    <pathelement location="./build/classes"/>
-  </path>
-  
   <target name="build" depends="build-service-engine"/>
-
+  <condition property="integration.jar.dir" value="${env.CXF_HOME}/modules/integration" else="${env.CXF_HOME}/lib">
+      <available file="${env.CXF_HOME}/modules/integration" type="dir"/>
+  </condition>
+  <echo message="the integration jar is in ${integration.jar.dir}"/>
   <target name="build-service-engine">
     <mkdir dir="${build.lib.dir}"/>
 
-    <jar destfile="${build.lib.dir}/cxf-service-engine.jar">
+    <jar destfile="${build.lib.dir}/cxf-service-engine.jar" duplicate="preserve">
       <fileset dir="${env.CXF_HOME}/lib">
-	<include name="cxf-2.0-incubator-SNAPSHOT.jar"/>
-        <include name="cxf-manifest-incubator.jar"/>
+        <include name="cxf*.jar"/>
         <include name="jaxb*.jar"/>
         <include name="neethi-2.0.jar"/>
         <include name="jaxws-api-2.0.jar"/>
@@ -51,8 +46,8 @@
         <include name="XmlSchema-1.2.jar"/>
         <include name="wstx-asl-3.2.1.jar"/>
       </fileset>
-      <fileset dir="${env.CXF_HOME}/modules/integration">
-        <include name="*.jar"/>
+      <fileset dir="${integration.jar.dir}">
+        <include name="cxf*.jar"/>
       </fileset>
       <metainf dir="./etc">
 	<include name="jbi.xml"/>

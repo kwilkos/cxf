@@ -31,6 +31,9 @@
   <property file="${env.CXF_HOME}/etc/version.properties"/>
   <!-- reuse the macros defined in CXF samples -->
   <import file="${env.CXF_HOME}/samples/common_build.xml"/>        
+  <condition property="integration.jar.dir" value="${env.CXF_HOME}/modules/integration" else="${env.CXF_HOME}/lib">
+      <available file="${env.CXF_HOME}/modules/integration" type="dir"/>
+  </condition>  
 
   <path id="build.classpath">
     <pathelement location="${build.classes.dir}"/>
@@ -38,7 +41,7 @@
     <fileset dir="${env.CXF_HOME}/lib">
       <include name="cxf-manifest-incubator.jar"/>
     </fileset>
-    <fileset dir="${env.CXF_HOME}/modules/integration">
+    <fileset dir="${integration.jar.dir}">
       <include name="cxf-integration-jbi-${cxf.version}.jar"/>
     </fileset>
   </path>
