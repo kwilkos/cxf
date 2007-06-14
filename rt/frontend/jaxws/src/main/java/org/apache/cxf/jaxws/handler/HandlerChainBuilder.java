@@ -134,7 +134,18 @@ public class HandlerChainBuilder {
      * @return A URL object or null if no resource with this name is found
      */    
     protected URL resolveHandlerChainFile(Class clz, String filename) {
-        return clz.getResource(filename);
+        URL handlerFile = clz.getResource(filename);
+        if (handlerFile == null) {
+            //the file location might be an absolute java.net.URL in externalForm.
+            try {
+                handlerFile = new URL(filename);
+                //test if the URL can be opened
+                handlerFile.openStream();
+            } catch (Exception e) {
+                //do nothing
+            } 
+        }
+        return handlerFile;
     } 
     
     private void configureHandler(Handler handler, PortComponentHandlerType h) {

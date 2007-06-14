@@ -36,6 +36,7 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;
@@ -74,6 +75,12 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                         .newInstance(org.apache.cxf.jaxws.javaee.ObjectFactory.class);
                 Unmarshaller u = jc.createUnmarshaller();                
                 URL handlerFileURL  = resolveHandlerChainFile(clz, hcAnn.getFileName()); 
+                
+                if (handlerFileURL == null) {
+                    throw new WebServiceException(new Message("HANDLER_CFG_FILE_NOT_FOUND_EXC", BUNDLE, hcAnn
+                        .getFileName()).toString());
+                }
+                
                 JAXBElement<?> o = (JAXBElement<?>)u.unmarshal(handlerFileURL);
 
                 HandlerChainsType handlerChainsType = (HandlerChainsType) o.getValue();
