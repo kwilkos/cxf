@@ -21,9 +21,12 @@ package org.apache.cxf.customer.bare;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.customer.Customer;
 import org.apache.cxf.customer.CustomerNotFoundDetails;
@@ -40,7 +43,10 @@ import org.codehaus.jra.Put;
 public class CustomerService {
     long currentId = 1;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
-
+    
+    @Resource 
+    private WebServiceContext context; 
+    
     public CustomerService() {
         Customer customer = createCustomer();
         customers.put(customer.getId(), customer);
@@ -52,6 +58,11 @@ public class CustomerService {
     public Customers getCustomers(@WebParam(name = "GetCustomers") GetCustomers req) {
         Customers cbean = new Customers();
         cbean.setCustomer(customers.values());
+        
+        if (context == null || context.getMessageContext() == null) {
+            throw new WebServiceException("WebServiceContext is null!");
+        }
+        
         return cbean;
     }
 
