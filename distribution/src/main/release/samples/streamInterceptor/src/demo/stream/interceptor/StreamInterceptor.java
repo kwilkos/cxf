@@ -26,7 +26,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -55,10 +55,10 @@ public class StreamInterceptor extends AbstractPhaseInterceptor<Message> {
 
             try {
                 cs.flush();
-                AbstractCachedOutputStream csnew = (AbstractCachedOutputStream) message
+                CachedOutputStream csnew = (CachedOutputStream) message
                     .getContent(OutputStream.class);
                 GZIPOutputStream zipOutput = new GZIPOutputStream(os);
-                AbstractCachedOutputStream.copyStream(csnew.getInputStream(), zipOutput, 1024);
+                CachedOutputStream.copyStream(csnew.getInputStream(), zipOutput, 1024);
 
                 cs.close();
                 zipOutput.close();
@@ -83,7 +83,7 @@ public class StreamInterceptor extends AbstractPhaseInterceptor<Message> {
     }
     
 
-    private class CachedStream extends AbstractCachedOutputStream {
+    private class CachedStream extends CachedOutputStream {
         public CachedStream() {
             super();
         }
