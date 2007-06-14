@@ -21,8 +21,6 @@ package org.apache.cxf.service.factory;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.databinding.DataBinding;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.interceptor.ServiceInvokerInterceptor;
 import org.apache.cxf.service.Service;
@@ -37,9 +35,6 @@ public abstract class AbstractServiceFactoryBean {
     protected void initializeDefaultInterceptors() {
         service.getInInterceptors().add(new ServiceInvokerInterceptor());
         service.getInInterceptors().add(new OutgoingChainInterceptor());
-        service.getInInterceptors().add(new LoggingInInterceptor());
-        service.getOutInterceptors().add(new LoggingOutInterceptor());
-        service.getOutFaultInterceptors().add(new LoggingOutInterceptor());
     }
     
     protected void initializeDataBindings() {

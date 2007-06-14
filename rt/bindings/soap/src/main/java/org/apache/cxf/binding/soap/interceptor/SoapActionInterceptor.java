@@ -19,7 +19,7 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +41,12 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
     }
     
     public void handleMessage(SoapMessage message) throws Fault {
-        // TODO Auto-generated method stub
         if (!(message == message.getExchange().getInMessage())) {
             setSoapAction(message);
         }
     }
 
     private void setSoapAction(SoapMessage message) {
-        List<String> value = new ArrayList<String>();
-        
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
         
         // The soap action is set on the wrapped operation.
@@ -57,28 +54,39 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
             boi = boi.getWrappedOperation();
         }
         
+        String action = null;
         if (boi == null) {
-            value.add("\"\"");
+            action = "\"\"";
         } else {
             SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
-            String action = soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction();
+            action = soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction();
             if (!action.startsWith("\"")) {
                 action = new StringBuffer().append("\"").append(action).append("\"").toString();
             }
             
-            value.add(action);
         }
-        Map<String, List<String>> reqHeaders = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
-        if (reqHeaders == null) {
-            reqHeaders = new HashMap<String, List<String>>();
-        }
-        if (reqHeaders.size() == 0) {
-            message.put(Message.PROTOCOL_HEADERS, reqHeaders);
-        }
-        if (message.getVersion() instanceof Soap11 && !reqHeaders.containsKey("SOAPAction")) {            
-            reqHeaders.put("SOAPAction", value);            
-        } else if (message.getVersion() instanceof Soap12 && !reqHeaders.containsKey("action")) {
-            reqHeaders.put("action", value);
+        
+        if (message.getVersion() instanceof Soap11) {
+            Map<String, List<String>> reqHeaders = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
+            if (reqHeaders == null) {
+                reqHeaders = new HashMap<String, List<String>>();
+            }
+            
+            if (reqHeaders.size() == 0) {
+                message.put(Message.PROTOCOL_HEADERS, reqHeaders);
+            }
+            
+            if (!reqHeaders.containsKey("SOAPAction")) {            
+                reqHeaders.put("SOAPAction", Collections.singletonList(action));
+            }
+        } else if (message.getVersion() instanceof Soap12 && !"\"\"".equals(action)) {
+            String ct = (String) message.get(Message.CONTENT_TYPE);
+            
+            if (ct.indexOf("action=\"") == -1) {
+                ct = new StringBuilder().append(ct)
+                    .append("; action=").append(action).toString();
+                message.put(Message.CONTENT_TYPE, ct);
+            }
         }
     }
 

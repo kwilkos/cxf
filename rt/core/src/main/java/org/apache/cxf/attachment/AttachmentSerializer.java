@@ -50,6 +50,7 @@ public class AttachmentSerializer {
         bodyBoundary = AttachmentUtil.getUniqueBoundaryValue(0);
         
         String bodyCt = (String) message.get(Message.CONTENT_TYPE);
+        bodyCt = bodyCt.replaceAll("\"", "\\\"");
         String enc = (String) message.get(Message.ENCODING);
         if (enc == null) {
             enc = "UTF-8";
