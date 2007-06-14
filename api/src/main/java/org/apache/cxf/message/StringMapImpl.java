@@ -25,8 +25,9 @@ public class StringMapImpl
     extends HashMap<String, Object> 
     implements StringMap {
     
+    @SuppressWarnings("unchecked")
     public <T> T get(Class<T> key) {
-        return key.cast(get(key.getName()));
+        return (T)get(key.getName());
     }
 
     public <T> void put(Class<T> key, T value) {

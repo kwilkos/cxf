@@ -457,7 +457,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         SoapMessage message = control.createMock(SoapMessage.class);
         Exchange exchange = control.createMock(Exchange.class);
         expect(binding.getHandlerChain()).andReturn(list);
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(message.keySet()).andReturn(new HashSet<String>());
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         control.replay();

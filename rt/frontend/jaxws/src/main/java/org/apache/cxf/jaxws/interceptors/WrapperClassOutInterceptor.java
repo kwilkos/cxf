@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.WrapperHelper;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -40,7 +41,8 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
     }
 
     public void handleMessage(Message message) throws Fault {
-        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+        Exchange ex = message.getExchange();
+        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
 
         MessageInfo messageInfo = message.get(MessageInfo.class);
         if (messageInfo == null || bop == null || !bop.isUnwrapped()) {
@@ -78,13 +80,13 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                 objs = new ArrayList<Object>(1);
                 objs.add(wrapperType);
                 message.setContent(List.class, objs);
-            } catch (Exception ex) {
-                throw new Fault(ex);
+            } catch (Exception exc) {
+                throw new Fault(exc);
             }
             
             // we've now wrapped the object, so use the wrapped binding op
-            message.getExchange().put(BindingOperationInfo.class, newbop);
-            message.getExchange().put(OperationInfo.class, newbop.getOperationInfo());
+            ex.put(BindingOperationInfo.class, newbop);
+            ex.put(OperationInfo.class, newbop.getOperationInfo());
             
             if (messageInfo == bop.getOperationInfo().getInput()) {
                 message.put(MessageInfo.class, newbop.getOperationInfo().getInput());

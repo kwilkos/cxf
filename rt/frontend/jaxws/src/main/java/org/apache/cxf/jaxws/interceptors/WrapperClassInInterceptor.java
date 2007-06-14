@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.WrapperHelper;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -44,12 +45,13 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
     }
 
     public void handleMessage(Message message) throws Fault {
-        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        Exchange ex = message.getExchange();
+        BindingOperationInfo boi = ex.get(BindingOperationInfo.class);
         if (boi == null) {
             return;
         }
                
-        Method method = message.getExchange().get(Method.class);
+        Method method = ex.get(Method.class);
 
         if (method != null && method.getName().endsWith("Async")) {
             Class<?> retType = method.getReturnType();
@@ -103,8 +105,8 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             if (lst != null) {
                 message.put(MessageInfo.class, messageInfo);
                 message.put(BindingMessageInfo.class, bmi);
-                message.getExchange().put(BindingOperationInfo.class, boi2);
-                message.getExchange().put(OperationInfo.class, op);
+                ex.put(BindingOperationInfo.class, boi2);
+                ex.put(OperationInfo.class, op);
             }
             if (isGET(message)) {
                 LOG.info("WrapperClassInInterceptor skipped in HTTP GET method");

@@ -20,7 +20,7 @@
 package org.apache.cxf.message;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,11 +31,15 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Destination;
 
 public class MessageImpl extends StringMapImpl implements Message {
+    static int count;
+    
     private Collection<Attachment> attachments;
     private Exchange exchange;
     private String id;
     private InterceptorChain interceptorChain;
-    private Map<Class<?>, Object> contents = new HashMap<Class<?>, Object>();
+    private Map<Class<?>, Object> contents = new IdentityHashMap<Class<?>, Object>(6);
+    
+    
     
     public Collection<Attachment> getAttachments() {
         return attachments;
@@ -101,8 +105,9 @@ public class MessageImpl extends StringMapImpl implements Message {
     public Object getContextualProperty(String key) {
         Object val = get(key);
         
+        Exchange ex = getExchange();
         if (val == null) {
-            val = getExchange().get(key);
+            val = ex.get(key);
         }
         
         if (val == null) {
@@ -113,7 +118,7 @@ public class MessageImpl extends StringMapImpl implements Message {
         }
         
         if (val == null) {
-            Endpoint ep = getExchange().get(Endpoint.class); 
+            Endpoint ep = ex.get(Endpoint.class); 
             if (ep != null) {
                 val = ep.get(key);
                 
@@ -129,7 +134,7 @@ public class MessageImpl extends StringMapImpl implements Message {
         }
         
         if (val == null) {
-            Service ep = getExchange().get(Service.class); 
+            Service ep = ex.get(Service.class); 
             if (ep != null) {
                 val = ep.get(key);
             }

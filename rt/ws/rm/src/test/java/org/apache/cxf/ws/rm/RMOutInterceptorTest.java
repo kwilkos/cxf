@@ -62,7 +62,6 @@ public class RMOutInterceptorTest extends Assert {
         RMOutInterceptor rmi = new RMOutInterceptor();        
         chain.add(rmi);
         chain.add(map);
-        System.out.println(chain);
         Iterator it = chain.iterator();
         assertSame("Unexpected order.", map, it.next());
         assertSame("Unexpected order.", rmi, it.next());                      

@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler;
 
 import javax.xml.ws.Binding;
 
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
@@ -33,32 +34,40 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     }
     
     protected boolean isOutbound(T message) {
-        return message == message.getExchange().getOutMessage()
-            || message == message.getExchange().getOutFaultMessage();
+        return isOutbound(message, message.getExchange());
     }
+    
+    private boolean isOutbound(T message, Exchange ex) {
+        return message == ex.getOutMessage()
+            || message == ex.getOutFaultMessage();
+    }
+    
     
     protected boolean isRequestor(T message) {
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
     protected HandlerChainInvoker getInvoker(T message) {
+        Exchange ex = message.getExchange();
         HandlerChainInvoker invoker = 
-            message.getExchange().get(HandlerChainInvoker.class);
+            ex.get(HandlerChainInvoker.class);
         if (null == invoker) {
             invoker = new HandlerChainInvoker(binding.getHandlerChain(),
                                               isOutbound(message));
-            message.getExchange().put(HandlerChainInvoker.class, invoker);
+            ex.put(HandlerChainInvoker.class, invoker);
         }
-        if (isOutbound(message)) {
+        
+        boolean outbound = isOutbound(message, ex);
+        if (outbound) {
             invoker.setOutbound();
         } else {
             invoker.setInbound();
         }
         invoker.setRequestor(isRequestor(message));
         
-        if (message.getExchange().isOneWay()
-            || ((isRequestor(message) && !isOutbound(message)) 
-                || (!isRequestor(message) && isOutbound(message)))) {
+        if (ex.isOneWay()
+            || ((isRequestor(message) && !outbound) 
+                || (!isRequestor(message) && outbound))) {
             invoker.setResponseExpected(false);
         } else { 
             invoker.setResponseExpected(true);

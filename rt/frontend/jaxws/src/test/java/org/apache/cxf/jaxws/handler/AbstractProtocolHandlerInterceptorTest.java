@@ -63,8 +63,7 @@ public class AbstractProtocolHandlerInterceptorTest extends Assert {
     public void testInterceptSuccess() {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
-        expect(
-                invoker.invokeProtocolHandlers(eq(false),
+        expect(invoker.invokeProtocolHandlers(eq(false),
                         isA(MessageContext.class))).andReturn(true);
         expect(exchange.getOutMessage()).andReturn(message);
         control.replay();

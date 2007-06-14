@@ -119,11 +119,11 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             }
 
             message.setContent(List.class, newObjects);
-            message.getExchange().put(HolderInInterceptor.CLIENT_HOLDERS, holders);
+            exchange.put(HolderInInterceptor.CLIENT_HOLDERS, holders);
         } else {
             // Add necessary holders so we match the method signature of the service class
             List<Object> reqObjects =
-                CastUtils.cast(message.getExchange().getInMessage().getContent(List.class));
+                CastUtils.cast(exchange.getInMessage().getContent(List.class));
     
             int outIdx = 0;
             boolean holderOutIsFirst = false;

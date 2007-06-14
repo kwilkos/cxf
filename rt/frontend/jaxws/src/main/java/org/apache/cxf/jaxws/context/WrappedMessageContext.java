@@ -27,13 +27,14 @@ import java.util.Set;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 
 public class WrappedMessageContext implements MessageContext {
     public static final String SCOPES = WrappedMessageContext.class.getName() + ".SCOPES";
     
-    private Map<String, Object> contextMap;
-    private Message message;
+    private final Map<String, Object> contextMap;
+    private final Message message;
     private Map<String, Scope> scopes;
     private Scope defaultScope;
 
@@ -82,12 +83,13 @@ public class WrappedMessageContext implements MessageContext {
         return Boolean.TRUE.equals(contextMap.containsKey(Message.REQUESTOR_ROLE));
     }
     protected final boolean isOutbound() {
+        Exchange ex = message.getExchange();
         return message != null 
-            && (message == message.getExchange().getOutMessage()
-                || message == message.getExchange().getOutFaultMessage());
+            && (message == ex.getOutMessage()
+                || message == ex.getOutFaultMessage());
     }
     
-    public Message getWrappedMessage() {
+    public final Message getWrappedMessage() {
         return message;
     }
     
@@ -95,71 +97,71 @@ public class WrappedMessageContext implements MessageContext {
         contextMap.clear();      
     }
 
-    public boolean containsKey(Object key) {
+    public final boolean containsKey(Object key) {
         return contextMap.containsKey(key);
     }
 
-    public boolean containsValue(Object value) {
+    public final boolean containsValue(Object value) {
         return contextMap.containsValue(value);
     }
 
-    public Set<Entry<String, Object>> entrySet() {
+    public final Set<Entry<String, Object>> entrySet() {
         return contextMap.entrySet();
     }
 
-    public Object get(Object key) {
+    public final Object get(Object key) {
         return contextMap.get(key);
     }
 
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return contextMap.isEmpty();
     }
 
-    public Set<String> keySet() {
+    public final Set<String> keySet() {
         return contextMap.keySet();
     }
 
-    public Object put(String key, Object value) {
+    public final Object put(String key, Object value) {
         if (!MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(key)
             && !scopes.containsKey(key)) {
             scopes.put(key, defaultScope);
         }
         return contextMap.put(key, value);
     }
-    public Object put(String key, Object value, Scope scope) {
+    public final Object put(String key, Object value, Scope scope) {
         if (!MessageContext.MESSAGE_OUTBOUND_PROPERTY.equals(key)) {
             scopes.put(key, scope);
         }
         return contextMap.put(key, value);
     }
 
-    public void putAll(Map<? extends String, ? extends Object> t) {
+    public final void putAll(Map<? extends String, ? extends Object> t) {
         for (Map.Entry<? extends String, ? extends Object> s : t.entrySet()) {
             put(s.getKey(), s.getValue());
         }
     }
 
-    public Object remove(Object key) {
+    public final Object remove(Object key) {
         scopes.remove(key);
         return contextMap.remove(key);
     }
 
-    public int size() {
+    public final int size() {
         return contextMap.size();
     }
 
-    public Collection<Object> values() {
+    public final Collection<Object> values() {
         return contextMap.values();
     }
 
-    public void setScope(String key, Scope arg1) {
+    public final void setScope(String key, Scope arg1) {
         if (!this.containsKey(key)) {
             throw new IllegalArgumentException("non-existant property-" + key + "is specified");    
         }
         scopes.put(key, arg1);        
     }
 
-    public Scope getScope(String key) {
+    public final Scope getScope(String key) {
         if (containsKey(key)) {
             if (scopes.containsKey(key)) {
                 return scopes.get(key);
@@ -170,7 +172,7 @@ public class WrappedMessageContext implements MessageContext {
         throw new IllegalArgumentException("non-existant property-" + key + "is specified");
     }
     
-    public Map<String, Scope> getScopes() {
+    public final Map<String, Scope> getScopes() {
         return scopes;
     }
     

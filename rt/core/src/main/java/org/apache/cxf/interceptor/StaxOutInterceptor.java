@@ -30,6 +30,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -53,7 +54,6 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
     public void handleMessage(Message message) {
         OutputStream os = message.getContent(OutputStream.class);
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
-
         if (os == null || writer != null) {
             return;
         }
@@ -74,9 +74,10 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     private String getEncoding(Message message) {
+        Exchange ex = message.getExchange();
         String encoding = (String)message.get(Message.ENCODING);
-        if (encoding == null && message.getExchange().getInMessage() != null) {
-            encoding = (String) message.getExchange().getInMessage().get(Message.ENCODING);
+        if (encoding == null && ex.getInMessage() != null) {
+            encoding = (String) ex.getInMessage().get(Message.ENCODING);
             message.put(Message.ENCODING, encoding);
         }
         

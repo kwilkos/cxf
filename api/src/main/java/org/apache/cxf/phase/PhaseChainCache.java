@@ -25,6 +25,7 @@ import java.util.ListIterator;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 import org.apache.cxf.interceptor.Interceptor;
 
 
@@ -74,11 +75,12 @@ public final class PhaseChainCache {
         
         if (last == null 
             || !last.matches(providers)) {
-        
+            
             PhaseInterceptorChain chain = new PhaseInterceptorChain(phaseList);
-            List<List<Interceptor>> copy = new ArrayList<List<Interceptor>>(providers.length);
+            List<ModCountCopyOnWriteArrayList<Interceptor>> copy 
+                = new ArrayList<ModCountCopyOnWriteArrayList<Interceptor>>(providers.length);
             for (List<Interceptor> p : providers) {
-                copy.add(new ArrayList<Interceptor>(p));
+                copy.add(new ModCountCopyOnWriteArrayList<Interceptor>(p));
                 chain.add(p);
             }
             last = new ChainHolder(chain, copy);
@@ -90,10 +92,10 @@ public final class PhaseChainCache {
     }
     
     private static class ChainHolder {
-        List<List<Interceptor>> lists;
+        List<ModCountCopyOnWriteArrayList<Interceptor>> lists;
         PhaseInterceptorChain chain;
         
-        ChainHolder(PhaseInterceptorChain c, List<List<Interceptor>> l) {
+        ChainHolder(PhaseInterceptorChain c, List<ModCountCopyOnWriteArrayList<Interceptor>> l) {
             lists = l;
             chain = c;
         }
@@ -105,12 +107,19 @@ public final class PhaseChainCache {
                         return false;
                     }
                     
-                    ListIterator<Interceptor> i1 = lists.get(x).listIterator();
-                    ListIterator<Interceptor> i2 = providers[x].listIterator();
-                    
-                    while (i1.hasNext()) {
-                        if (i1.next() != i2.next()) {
+                    if (providers[x] instanceof ModCountCopyOnWriteArrayList) {
+                        if (((ModCountCopyOnWriteArrayList)providers[x]).getModCount()
+                            != lists.get(x).getModCount()) {
                             return false;
+                        }
+                    } else {
+                        ListIterator<Interceptor> i1 = lists.get(x).listIterator();
+                        ListIterator<Interceptor> i2 = providers[x].listIterator();
+                        
+                        while (i1.hasNext()) {
+                            if (i1.next() != i2.next()) {
+                                return false;
+                            }
                         }
                     }
                 }

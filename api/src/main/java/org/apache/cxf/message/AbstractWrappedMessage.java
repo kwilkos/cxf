@@ -87,7 +87,7 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getExchange();
     }
 
-    public void setExchange(Exchange exchange) {
+    public final void setExchange(Exchange exchange) {
         message.setExchange(exchange);
     }
 

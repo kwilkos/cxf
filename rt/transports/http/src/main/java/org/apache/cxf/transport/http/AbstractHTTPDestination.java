@@ -46,6 +46,7 @@ import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
@@ -155,8 +156,9 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
      * @param message the message under consideration
      * @return true iff the message has been marked as oneway
      */    
-    protected boolean isOneWay(Message message) {
-        return message.getExchange() != null && message.getExchange().isOneWay();
+    protected final boolean isOneWay(Message message) {
+        Exchange ex = message.getExchange();
+        return ex == null ? false : ex.isOneWay();
     }
 
     /**
@@ -302,6 +304,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
         updateResponseHeaders(outMessage);
         Object responseObj = outMessage.get(HTTP_RESPONSE);
         OutputStream responseStream = null;
+        boolean oneWay = isOneWay(outMessage);
         if (responseObj instanceof HttpServletResponse) {
             HttpServletResponse response = (HttpServletResponse)responseObj;
 
@@ -323,7 +326,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
             copyResponseHeaders(outMessage, response);
             responseStream = response.getOutputStream();
 
-            if (isOneWay(outMessage)) {
+            if (oneWay) {
                 response.flushBuffer();
             }
         } else if (null != responseObj) {
@@ -337,7 +340,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
             throw new IOException(m);
         }
 
-        if (isOneWay(outMessage)) {
+        if (oneWay) {
             outMessage.remove(HTTP_RESPONSE);
         }
         return responseStream;

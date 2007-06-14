@@ -52,12 +52,12 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
         Runnable invocation = new Runnable() {
 
             public void run() {
-
-                Object result = invoker.invoke(message.getExchange(), getInvokee(message));
+                Exchange runableEx = message.getExchange();
+                Object result = invoker.invoke(runableEx, getInvokee(message));
                 if (!exchange.isOneWay()) {
                     Endpoint ep = exchange.get(Endpoint.class);
                     
-                    Message outMessage = message.getExchange().getOutMessage();
+                    Message outMessage = runableEx.getOutMessage();
                     if (outMessage == null) {
                         outMessage = ep.getBinding().createMessage();
                         exchange.setOutMessage(outMessage);

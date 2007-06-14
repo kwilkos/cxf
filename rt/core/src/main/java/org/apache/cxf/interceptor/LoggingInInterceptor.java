@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
@@ -50,22 +51,24 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
             return;
         }
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            IOUtils.copy(is, bos);
+        if (LOG.isLoggable(Level.INFO)) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try {
+                IOUtils.copy(is, bos);
 
-            is.close();
-            bos.close();
+                is.close();
+                bos.close();
 
-            LOG.info("Inbound Message\n" 
-                     + "--------------------------------------\n"
-                     + bos.toString()
-                     + "\n--------------------------------------");
-            
-            message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
+                LOG.info("Inbound Message\n" 
+                         + "--------------------------------------\n"
+                         + bos.toString()
+                         + "\n--------------------------------------");
+                
+                message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
 
-        } catch (IOException e) {
-            throw new Fault(e);
+            } catch (IOException e) {
+                throw new Fault(e);
+            }
         }
     }
     

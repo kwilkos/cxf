@@ -62,6 +62,7 @@ import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
@@ -82,7 +83,8 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
-        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+        Exchange ex = message.getExchange();
+        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
         if (bop == null) {
             return;
         }
@@ -101,7 +103,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
         SoapBodyInfo sbi = bmi.getExtensor(SoapBodyInfo.class);
         
         if (sbi == null || sbi.getAttachments() == null || sbi.getAttachments().size() == 0) {
-            Service s = message.getExchange().get(Service.class);
+            Service s = ex.get(Service.class);
             DataBinding db = s.getDataBinding();
             if (db instanceof JAXBDataBinding
                 && hasSwaRef((JAXBDataBinding) db)) {

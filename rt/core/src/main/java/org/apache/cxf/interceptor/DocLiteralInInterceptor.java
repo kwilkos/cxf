@@ -260,9 +260,10 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
         MessageInfo msgInfo = getMessageInfo(message, operation, requestor);
         message.put(MessageInfo.class, msgInfo);
 
-        message.getExchange().put(BindingOperationInfo.class, operation);
-        message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
-        message.getExchange().setOneWay(operation.getOperationInfo().isOneWay());
+        Exchange ex = message.getExchange();
+        ex.put(BindingOperationInfo.class, operation);
+        ex.put(OperationInfo.class, operation.getOperationInfo());
+        ex.setOneWay(operation.getOperationInfo().isOneWay());
 
         //Set standard MessageContext properties required by JAX_WS, but not specific to JAX_WS.
         message.put(Message.WSDL_OPERATION, operation.getName());
@@ -273,16 +274,20 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
         QName interfaceQName = si.getInterface().getName();
         message.put(Message.WSDL_INTERFACE, interfaceQName);
 
-        EndpointInfo endpointInfo = message.getExchange().get(Endpoint.class).getEndpointInfo();
+        EndpointInfo endpointInfo = ex.get(Endpoint.class).getEndpointInfo();
         QName portQName = endpointInfo.getName();
         message.put(Message.WSDL_PORT, portQName);
 
-        String address = endpointInfo.getAddress();
-        URI wsdlDescription = null;
-        try {
-            wsdlDescription = new URI(address + "?wsdl");
-        } catch (URISyntaxException e) {
-            //do nothing
+        
+        URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+        if (wsdlDescription == null) {
+            String address = endpointInfo.getAddress();
+            try {
+                wsdlDescription = new URI(address + "?wsdl");
+            } catch (URISyntaxException e) {
+                //do nothing
+            }
+            endpointInfo.setProperty("URI", wsdlDescription);
         }
         message.put(Message.WSDL_DESCRIPTION, wsdlDescription);
 
