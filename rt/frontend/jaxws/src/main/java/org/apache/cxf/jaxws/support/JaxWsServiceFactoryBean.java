@@ -108,10 +108,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
-        if (getJaxWsImplementorInfo() == null) {
-            setJaxWsImplementorInfo(new JaxWsImplementorInfo(serviceClass));
-        }
-
+        setJaxWsImplementorInfo(new JaxWsImplementorInfo(serviceClass));
         super.setServiceClass(serviceClass);
     }
 
