@@ -34,7 +34,7 @@ import org.apache.cxf.tools.fortest.classnoanno.docbare.Stock;
 import org.apache.cxf.tools.fortest.withannotation.doc.Hello;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
 import org.apache.cxf.tools.util.AnnotationUtil;
-import org.apache.hello_world_rpclit.GreeterRPCLit;
+import org.apache.hello_world_rpclit.javato.GreeterRPCLit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

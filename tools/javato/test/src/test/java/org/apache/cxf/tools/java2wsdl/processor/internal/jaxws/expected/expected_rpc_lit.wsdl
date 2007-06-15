@@ -17,9 +17,9 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<wsdl:definitions name="GreeterRPCLitService" targetNamespace="http://apache.org/hello_world_rpclit" xmlns:ns1="http://apache.org/hello_world_rpclit" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://apache.org/hello_world_rpclit/types" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="GreeterRPCLitService" targetNamespace="http://apache.org/hello_world_rpclit/javato" xmlns:ns1="http://apache.org/hello_world_rpclit/javato" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://apache.org/hello_world_rpclit/javato/types" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/hello_world_rpclit/types" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/hello_world_rpclit/types">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/hello_world_rpclit/javato/types" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/hello_world_rpclit/javato/types">
 <xs:complexType name="myComplexStruct">
 <xs:sequence>
 <xs:element form="qualified" name="elem1" type="xs:string"/>
@@ -29,16 +29,6 @@
 </xs:complexType>
 </xs:schema>
   </wsdl:types>
-  <wsdl:message name="greetUs">
-    <wsdl:part name="you" type="xsd:string">
-    </wsdl:part>
-    <wsdl:part name="me" type="xsd:string">
-    </wsdl:part>
-  </wsdl:message>
-  <wsdl:message name="greetUsResponse">
-    <wsdl:part name="out" type="xsd:string">
-    </wsdl:part>
-  </wsdl:message>
   <wsdl:message name="greetMeResponse">
     <wsdl:part name="out" type="xsd:string">
     </wsdl:part>
@@ -74,12 +64,6 @@
       <wsdl:output name="greetMeResponse" message="ns1:greetMeResponse">
     </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="greetUs">
-      <wsdl:input name="greetUs" message="ns1:greetUs">
-    </wsdl:input>
-      <wsdl:output name="greetUsResponse" message="ns1:greetUsResponse">
-    </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="sayHi">
       <wsdl:input name="sayHi" message="ns1:sayHi">
     </wsdl:input>
@@ -92,37 +76,28 @@
     <wsdl:operation name="sendReceiveData">
       <soap:operation soapAction="" style="rpc"/>
       <wsdl:input name="sendReceiveData">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
+        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit/javato"/>
       </wsdl:input>
       <wsdl:output name="sendReceiveDataResponse">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
+        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit/javato"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="greetMe">
       <soap:operation soapAction="" style="rpc"/>
       <wsdl:input name="greetMe">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
+        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit/javato"/>
       </wsdl:input>
       <wsdl:output name="greetMeResponse">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="greetUs">
-      <soap:operation soapAction="" style="rpc"/>
-      <wsdl:input name="greetUs">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
-      </wsdl:input>
-      <wsdl:output name="greetUsResponse">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
+        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit/javato"/>
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="sayHi">
       <soap:operation soapAction="" style="rpc"/>
       <wsdl:input name="sayHi">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
+        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit/javato"/>
       </wsdl:input>
       <wsdl:output name="sayHiResponse">
-        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit"/>
+        <soap:body use="literal" namespace="http://apache.org/hello_world_rpclit/javato"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
