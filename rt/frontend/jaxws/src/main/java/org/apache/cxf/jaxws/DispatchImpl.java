@@ -56,7 +56,7 @@ import org.apache.cxf.endpoint.UpfrontConduitSelector;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
-import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
@@ -230,7 +230,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
                 // TODO: what for non soap bindings?
             }
             //endpoint.getInInterceptors().add(new LogicalHandlerInInterceptor(jaxwsBinding));         
-            chain.add(new LogicalHandlerInInterceptor(jaxwsBinding));
+            chain.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
         }   
         
         chain.add(new MessageSenderInterceptor());

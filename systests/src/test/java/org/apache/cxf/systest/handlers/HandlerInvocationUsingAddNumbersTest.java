@@ -85,7 +85,7 @@ public class HandlerInvocationUsingAddNumbersTest extends AbstractBusClientServe
     }
     
     @Test
-    @Ignore
+    @Ignore("This does not work. CXF-732")
     public void testInvokeFromDispatchWithJAXBPayload() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);

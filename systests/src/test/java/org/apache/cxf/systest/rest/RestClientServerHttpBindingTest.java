@@ -21,9 +21,7 @@ package org.apache.cxf.systest.rest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -41,10 +39,8 @@ import javax.xml.ws.Service;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.http.HTTPBinding;
 
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class RestClientServerHttpBindingTest extends AbstractBusClientServerTestBase {
@@ -81,40 +77,6 @@ public class RestClientServerHttpBindingTest extends AbstractBusClientServerTest
         String tempstring = source2String(result);
         assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
         assertTrue("Result should have CustomerID", tempstring.lastIndexOf(">123456<") > 0);
-    }
-    
-    @Test
-    @Ignore
-    public void testHttpGETDispatchHTTPBinding() throws Exception { 
-        Service service = Service.create(serviceName); 
-        URI endpointURI = new URI(endpointAddress);
-        String path = null; 
-        if (endpointURI != null) { 
-            path = endpointURI.getPath(); 
-        } 
-        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress);
-        Dispatch<Source> d = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
-        Map<String, Object> requestContext = d.getRequestContext();
-        Map<String, Object> responseContext = d.getResponseContext();
-        
-        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "GET");
-        requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
-        //this is the original path part of uri 
-        requestContext.put(MessageContext.PATH_INFO, path);        
-        Source result = d.invoke(null);
-        
-        // varify the responseContext;
-        Map<String, List<String>> responseHeader =
-            CastUtils.cast((Map)responseContext.get(MessageContext.HTTP_RESPONSE_HEADERS));
-        assertNotNull("the response header should not be null", responseHeader);
-        
-        List<String> values = responseHeader.get("REST");
-        assertNotNull("the response rest header should not be null", values);
-        assertEquals("the list size wrong", 2, values.size());        
-        assertNotNull("result shoud not be null", result);        
-        String tempstring = source2String(result);
-        assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
-        assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
     }
     
     private String source2String(Source source) throws Exception {
