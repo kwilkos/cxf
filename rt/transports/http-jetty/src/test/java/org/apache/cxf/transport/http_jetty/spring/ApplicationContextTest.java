@@ -32,6 +32,7 @@ import org.apache.cxf.test.TestApplicationContext;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http_jetty.JettyHTTPDestination;
@@ -92,24 +93,21 @@ public class ApplicationContextTest extends Assert {
         
         ConfigurerImpl cfg = new ConfigurerImpl(ctx);
         
-        ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setName(new QName("bla", "Service"));        
-        EndpointInfo info = new EndpointInfo(serviceInfo, "");
-        info.setName(new QName("urn:test:ns", "Foo"));
-        info.setAddress("http://localhost:9000");
+        EndpointInfo info = getEndpointInfo("bla", "Foo", "http://localhost:9000");
         
         Bus bus = (Bus) ctx.getBean("cxf");
         bus.setExtension(cfg, Configurer.class);
         
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        Destination d = 
-            dfm.getDestinationFactory("http://schemas.xmlsoap.org/soap/http").getDestination(info);
+        DestinationFactory factory = dfm.getDestinationFactory("http://schemas.xmlsoap.org/soap/http");
+        Destination d = factory.getDestination(info);
         assertTrue(d instanceof JettyHTTPDestination);
         JettyHTTPDestination jd = (JettyHTTPDestination) d;        
         assertEquals("foobar", jd.getServer().getContentEncoding());   
         
         JettyHTTPServerEngine engine = (JettyHTTPServerEngine)jd.getEngine();
         assertEquals(111, engine.getThreadingParameters().getMinThreads());
+        assertEquals(120, engine.getThreadingParameters().getMaxThreads());
         
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
         ConduitInitiator ci = cim.getConduitInitiator("http://schemas.xmlsoap.org/soap/http");
@@ -119,6 +117,32 @@ public class ApplicationContextTest extends Assert {
         info.setName(new QName("urn:test:ns", "Bar"));
         conduit = (HTTPConduit) ci.getConduit(info);
         assertEquals(79, conduit.getClient().getConnectionTimeout());
+
+        JettyHTTPDestination jd2 = 
+            (JettyHTTPDestination)factory.getDestination(
+                getEndpointInfo("foo", "bar", "http://localhost:9001"));
         
+        engine = (JettyHTTPServerEngine)jd2.getEngine();
+        assertEquals(99, engine.getThreadingParameters().getMinThreads());
+        assertEquals(777, engine.getThreadingParameters().getMaxThreads());
+        
+        JettyHTTPDestination jd3 = 
+            (JettyHTTPDestination)factory.getDestination(
+                getEndpointInfo("sna", "foo", "http://localhost:9100"));
+        
+        engine = (JettyHTTPServerEngine)jd3.getEngine();
+        assertEquals(99, engine.getThreadingParameters().getMinThreads());
+        assertEquals(777, engine.getThreadingParameters().getMaxThreads());
+    }
+    
+    private EndpointInfo getEndpointInfo(String serviceNS, 
+                                         String endpointLocal, 
+                                         String address) {
+        ServiceInfo serviceInfo2 = new ServiceInfo();
+        serviceInfo2.setName(new QName(serviceNS, "Service"));        
+        EndpointInfo info2 = new EndpointInfo(serviceInfo2, "");
+        info2.setName(new QName("urn:test:ns", endpointLocal));
+        info2.setAddress(address);
+        return info2;
     }
 }

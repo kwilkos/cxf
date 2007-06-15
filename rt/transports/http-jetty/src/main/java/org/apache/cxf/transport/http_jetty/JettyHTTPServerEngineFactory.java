@@ -42,7 +42,8 @@ import org.apache.cxf.transport.http_jetty.spring.JettyHTTPServerEngineFactoryCo
 public class JettyHTTPServerEngineFactory {
     private static final Logger LOG =
         LogUtils.getL7dLogger(JettyHTTPServerEngineFactory.class);
-
+    
+    private static final int FALLBACK_THREADING_PARAMS_KEY = 0;
 
     /**
      * This map holds references for allocated ports.
@@ -203,10 +204,7 @@ public class JettyHTTPServerEngineFactory {
 
         ref.setProgrammaticTlsServerParameters(tlsParams);
         
-        ThreadingParameters tparams = threadingParametersMap.get(port);
-        if (tparams != null) {
-            ref.setThreadingParameters(tparams);
-        }
+        applyThreadingParameters(ref, port);
         
         ref.finalizeConfig();
         portMap.put(port, ref);
@@ -241,13 +239,31 @@ public class JettyHTTPServerEngineFactory {
                     + port + " is not configured for TLS");
         }
         
-        ThreadingParameters threadingParams = threadingParametersMap.get(port);
-        if (threadingParams != null) {
-            ref.setThreadingParameters(threadingParams);
-        }
+        applyThreadingParameters(ref, port);
+        
         ref.finalizeConfig();
         portMap.put(port, ref);
         return ref;
+    }
+
+    /**
+     * Apply the thread paramaters to the newly created engine,
+     * falling back to non-port specific values if necessary.
+     * 
+     * @param engine the new created engine
+     * @param port the listen port
+     */
+    protected void applyThreadingParameters(JettyHTTPServerEngine engine, int port) {
+        ThreadingParameters params = threadingParametersMap.get(port);
+        if (params != null) {
+            engine.setThreadingParameters(params);
+        } else {
+            ThreadingParameters fallback =
+                threadingParametersMap.get(FALLBACK_THREADING_PARAMS_KEY);
+            if (fallback != null) {
+                engine.setThreadingParameters(fallback);
+            }
+        }
     }
     
     /**

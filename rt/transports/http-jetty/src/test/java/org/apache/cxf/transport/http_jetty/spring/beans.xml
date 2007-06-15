@@ -55,5 +55,9 @@
 	      <hj:threadingParametersRef id="sampleThreading1"/>
 	   </hj:engine>
 	   
+	   <hj:engine port="0">
+	      <hj:threadingParameters minThreads="99" maxThreads="777"/>
+	   </hj:engine>
+	   
 	</hj:engine-factory>
 </beans>
