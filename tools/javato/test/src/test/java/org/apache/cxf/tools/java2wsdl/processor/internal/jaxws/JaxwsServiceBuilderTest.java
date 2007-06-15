@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
     WSDL11Generator generator = new WSDL11Generator();
@@ -100,6 +99,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
     
 
+    // REVISIT two fault elements in schema
     @Test
     public void testDocLitWrapped() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_lit.Greeter.class);
@@ -116,8 +116,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
  
     @Test
-    //FIXME CXF-561: generated duplicate scheams because @RequestWrapper does not
-    //contain namespace
     public void testDocWrappedWithLocalName() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.Stock.class);
         ServiceInfo service = builder.createService();
@@ -134,8 +132,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
 
     @Test
-    //FIXME CXF-561: generated duplicate scheams because @RequestWrapper does not
-    //contain namespace
     public void testDocWrappedNoWebParam() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.doc.HelloWithNoWebParam.class);
         ServiceInfo service = builder.createService();
@@ -146,12 +142,13 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(output);
         assertTrue(output.exists());
 
-        //String expectedFile = this.getClass()
-        //    .getResource("expected/expected_doc_lit_wrapped_no_webparam.wsdl").getFile();
-        //assertFileEquals(expectedFile, output.getAbsolutePath());
+        String expectedFile = this.getClass()
+            .getResource("expected/expected_doc_lit_wrapped_no_webparam.wsdl").getFile();
+        assertFileEquals(expectedFile, output.getAbsolutePath());
     }
     
     @Test
+    @Ignore("Duplicate header elements")
     //FIXME: CXF-564, generated wsdl is invalid -
     //"invalid XML schema: "header" must refer to an existing element"
     public void testHolder() throws Exception {
@@ -196,12 +193,12 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(file);
         assertTrue(output.exists());
 
-        //String expectedFile = this.getClass().getResource("resources/expected_rpc_lit.wsdl").getFile();
-        //compareTextFile(expectedFile, output.getAbsolutePath());
-
+        String expectedFile = this.getClass().getResource("expected/expected_rpc_lit.wsdl").getFile();
+        assertFileEquals(expectedFile, file.getAbsolutePath());
     }
 
-    // TODO:
+
+    // TODO assertFileEquals
     @Test
     public void testDocWrapparBare() throws Exception {
         builder.setServiceClass(org.apache.hello_world_doc_wrapped_bare.Greeter.class);
@@ -215,9 +212,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
     }
 
-    // TODO:
+    // TODO assertFileEquals
     @Test
-    @Ignore
     public void testRPCWithoutParentBindingAnnotation() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.Hello.class);
         ServiceInfo service = builder.createService();
@@ -227,12 +223,11 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertNotNull(output);
         generator.generate(file);
         assertTrue(output.exists());
-
     }
 
-    // TODO:
+    // TODO: SOAPBinding can not on method with RPC style
     @Test
-    @Ignore
+    @Ignore("RuntimeException: org.apache.cxf.interceptor.Fault: Method [sayHi] pro")
     public void testSOAPBindingRPCOnMethod() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.withannotation.rpc.HelloWrongAnnotation.class);
         ServiceInfo service = builder.createService();
@@ -242,7 +237,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertNotNull(output);
         generator.generate(file);
         assertTrue(output.exists());
-
     }
 
     @Test
@@ -261,9 +255,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertFileEquals(new File(expectedFile), file);
     }
 
-    // TODO:
+    // TODO: assertFileEquals
     @Test
-    @Ignore
     public void testCXF188() throws Exception {
         Class clz = AnnotationUtil.loadClass("org.apache.cxf.tools.fortest.cxf188.Demo", getClass()
             .getClassLoader());
@@ -297,11 +290,9 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String s = IOUtils.toString(new FileInputStream(output));
         assertTrue(s.indexOf("EchoPort") != -1);
-        /*
         String expectedFile = this.getClass()
-            .getResource("expected/expected_doc_lit_wrapped_with_wrapperclass.wsdl").getFile();
+            .getResource("expected/expected_rpclist_no_sei.wsdl").getFile();
         assertFileEquals(expectedFile, output.getAbsolutePath());
-        */
     }
 
     @Test

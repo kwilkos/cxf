@@ -19,7 +19,7 @@
 -->
 <wsdl:definitions name="GreeterService" targetNamespace="http://apache.org/hello_world_doc_lit" xmlns:ns1="http://apache.org/hello_world_doc_lit" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://apache.org/hello_world_doc_lit/types" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/hello_world_doc_lit/types" version="1.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/hello_world_doc_lit/types" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/hello_world_doc_lit/types">
 <xs:element name="faultDetail">
 <xs:complexType>
 <xs:sequence>
@@ -65,6 +65,8 @@
 </xs:sequence>
 </xs:complexType>
 </xs:element>
+<xs:element name="faultDetail" nillable="true"/>
+<xs:element name="faultDetail" nillable="true"/>
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="faultDetail">

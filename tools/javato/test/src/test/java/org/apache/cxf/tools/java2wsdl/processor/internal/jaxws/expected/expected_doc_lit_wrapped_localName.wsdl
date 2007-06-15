@@ -19,7 +19,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="StockService" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/" xmlns:ns1="http://doc.withannotation.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/" version="1.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://doc.withannotation.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/">
 <xs:element name="getPrice">
 <xs:complexType>
 <xs:sequence>
