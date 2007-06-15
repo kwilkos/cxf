@@ -33,7 +33,6 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.MultipleEndpointObserver;
 import org.apache.cxf.transport.local.LocalTransportFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class SoapBindingSelectionTest extends AbstractSimpleFrontendTest {
@@ -41,8 +40,7 @@ public class SoapBindingSelectionTest extends AbstractSimpleFrontendTest {
     boolean service1Invoked;
     boolean service2Invoked;
     
-    @Test
-    @Ignore
+    @Test    
     public void testMultipleSoapBindings() throws Exception {
         ServerFactoryBean svrBean1 = new ServerFactoryBean();
         svrBean1.setAddress("http://localhost/Hello");

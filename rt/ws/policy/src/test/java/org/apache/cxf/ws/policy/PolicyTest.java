@@ -58,7 +58,7 @@ public class PolicyTest extends Assert {
     }
     
     @Test
-    @Ignore
+    @Ignore ("need to change the print to assert check point")
     public void testMergeIdentical() {
         Policy p1 = new Policy();
         Assertion a1 = new TestAssertion(new QName("http://x.y.z", "a"));
@@ -93,7 +93,7 @@ public class PolicyTest extends Assert {
     }
     
     @Test
-    @Ignore
+    @Ignore ("need to change the print to assert check point")
     public void testNormalisePrimitives() {
         Policy p;
         /*
@@ -110,7 +110,7 @@ public class PolicyTest extends Assert {
     }  
     
     @Test
-    @Ignore
+    @Ignore ("need to change the print to assert check point")
     public void testMergePolciesWithAlternatives() {
         String uri1 = "http://x.y.z";
         Policy p1 = new Policy();
