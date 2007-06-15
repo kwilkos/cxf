@@ -39,7 +39,6 @@ import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 
@@ -63,7 +62,7 @@ public class ApplicationContextTest extends Assert {
         BusFactory.setDefaultBus(null);
     }
     
-    @Ignore
+ 
     @Test
     public void testInvalid() throws Exception {
         String s4 = getClass()

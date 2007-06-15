@@ -26,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AutomaticWorkQueueTest extends Assert {
@@ -326,8 +325,7 @@ public class AutomaticWorkQueueTest extends Assert {
         assertTrue("threads_total()", workqueue.getPoolSize() <= DEFAULT_LOW_WATER_MARK);
     }
 
-    @Test
-    @Ignore
+    @Test    
     public void testShutdown() {
         workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
                                                INITIAL_SIZE, INITIAL_SIZE, 250);
