@@ -39,7 +39,6 @@ import org.apache.hello_world_soap_http.any.SOAPService;
 import org.apache.hello_world_soap_http.any_types.GreeterImpl;
 import org.apache.hello_world_soap_http.any_types.SayHi.Port;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public final class AnyClientServerTest extends AbstractBusClientServerTestBase {
@@ -76,7 +75,6 @@ public final class AnyClientServerTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    //@Ignore
     public void testAny() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/any.wsdl");
         assertNotNull(wsdl);
@@ -104,7 +102,6 @@ public final class AnyClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testList() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/any.wsdl");
         assertNotNull(wsdl);

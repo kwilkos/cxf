@@ -75,9 +75,13 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             boolean found = false;
             
             int idx = mpi.getMessageInfo().getMessagePartIndex(mpi);
-            while (idx >= inObjects.size()) {
+            /*while (idx >= inObjects.size()) {
                 inObjects.add(null);
-            }
+            }*/
+            
+            //fix for testSwaWithHeaders of ClientServerSwaTest
+            inObjects.add(idx, null);
+            
             if (inObjects.get(idx) != null) {
                 continue;
             }

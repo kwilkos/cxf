@@ -36,7 +36,6 @@ import org.apache.cxf.swa.types.OutputResponseAll;
 import org.apache.cxf.swa.types.VoidRequest;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
@@ -75,7 +74,6 @@ public class ClientServerSwaTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testSwaWithHeaders() throws Exception {
         SwAService service = new SwAService();
         

@@ -45,7 +45,6 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.hello_world_soap_http.GreeterImpl;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
@@ -96,7 +95,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertNotNull(mpi.getTypeClass());
     }
     
-    @Ignore
+    @Test
     public void testHolder() throws Exception {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
