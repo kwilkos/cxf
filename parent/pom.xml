@@ -148,6 +148,7 @@
                                 <linkXRef>false</linkXRef>
                                 <suppressionsLocation>cxf-checkstyle-suppressions.xml</suppressionsLocation>
                                 <sourceDirectory>${basedir}/src</sourceDirectory>
+				<excludes>**/archetype-resources/**/*.java</excludes>
                             </configuration>
                             <goals>
                                 <goal>checkstyle</goal>

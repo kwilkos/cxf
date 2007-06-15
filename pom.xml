@@ -136,6 +136,7 @@
         <module>rt</module>
         <module>integration</module>
         <module>systests</module>
+	<module>maven-plugins/archetypes</module>
     </modules>
 
     <profiles>
