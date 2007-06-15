@@ -54,7 +54,6 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -178,7 +177,6 @@ public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testWithAddressingAnonymousReplies() throws Exception {
         setupGreeter("org/apache/cxf/systest/interceptor/addr.xml", false);
 
