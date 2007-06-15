@@ -70,7 +70,7 @@ public class ServiceImplTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore
+    @Ignore("this test does not work, see CXF-735 ")
     public void testNonSpecificGetPort() throws Exception {
         SOAPService service = new SOAPService();
         

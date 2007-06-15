@@ -66,7 +66,6 @@ import org.apache.hello_world_soap_http.SOAPServiceMultiPortTypeTest;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientServerTest extends AbstractBusClientServerTestBase {
@@ -270,7 +269,6 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
     
     
     @Test
-    @Ignore
     public void testBasicConnection2() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
