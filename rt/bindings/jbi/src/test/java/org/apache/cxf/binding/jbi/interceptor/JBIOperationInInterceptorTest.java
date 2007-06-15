@@ -70,7 +70,6 @@ public class JBIOperationInInterceptorTest extends Assert {
             interceptor.handleMessage(msg);
             fail("shouldn't found SayHi operation");
         } catch (Fault fault) {
-            LOG.info(fault.getMessage());
             assertEquals(fault.getMessage(), new Message("UNKNOWN_OPERATION", BUNDLE, 
                                                  msg.getJbiExchange().getOperation().toString()).toString());
         }
