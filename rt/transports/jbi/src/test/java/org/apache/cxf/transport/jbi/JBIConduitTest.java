@@ -21,6 +21,7 @@ package org.apache.cxf.transport.jbi;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -39,8 +40,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.easymock.classextension.EasyMock;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JBIConduitTest extends AbstractJBITest {
@@ -62,7 +63,6 @@ public class JBIConduitTest extends AbstractJBITest {
     }
     
     @Test
-    @Ignore
     public void testSendOut() throws Exception {
         LOG.info("test send");
         JBIConduit conduit = setupJBIConduit(true, false); 
@@ -106,8 +106,11 @@ public class JBIConduitTest extends AbstractJBITest {
         OutputStream os = message.getContent(OutputStream.class);
         assertTrue("The OutputStream should not be null ", os != null);
         os.write("HelloWorld".getBytes());
-        os.close();               
-        XMLStreamReader reader = inMessage.getContent(XMLStreamReader.class);
+        os.close();              
+        InputStream is = inMessage.getContent(InputStream.class);
+        assertNotNull(is);
+        XMLStreamReader reader = StaxUtils.createXMLStreamReader(is, null);
+        assertNotNull(reader);
         reader.nextTag();
          
         String reponse = reader.getElementText();
