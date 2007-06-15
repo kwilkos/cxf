@@ -39,7 +39,6 @@ public class FaultHandlingInterceptor extends AbstractPhaseInterceptor {
     
     public synchronized void handleMessage(Message message) throws Fault {
         FaultMode mode = MessageUtils.getFaultMode(message);
-        System.out.println("FaultMode: " + mode);
         if (null != mode) {
             Throwable cause = message.getContent(Exception.class).getCause();
             
