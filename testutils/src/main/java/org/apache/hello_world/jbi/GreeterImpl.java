@@ -32,21 +32,17 @@ import org.apache.hello_world.types.jbi.FaultDetail;
 public class GreeterImpl implements Greeter {
 
     public String sayHi() {
-        System.out.println("Call sayHi here ");
         return "Bonjour";
     }
 
     public String greetMe(String requestType) {
-        System.out.println("Reached here :" + requestType);
         return "Hello " + requestType;
     }
 
     public void greetMeOneWay(String requestType) {
-        System.out.println("*********  greetMeOneWay: " + requestType);        
     }
 
     public void pingMe() throws PingMeFault {
-        System.out.println("Reached pingMe");
         FaultDetail faultDetail = new FaultDetail();
         faultDetail.setMajor((short)2);
         faultDetail.setMinor((short)1);
