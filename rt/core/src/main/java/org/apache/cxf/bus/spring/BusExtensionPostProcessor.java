@@ -33,9 +33,20 @@ public class BusExtensionPostProcessor implements BeanPostProcessor, Application
     private Bus bus;
 
     public void setApplicationContext(ApplicationContext ctx) {
-        bus = (Bus)ctx.getBean("cxf");
+        //nothing to do
+        if (bus == null) {
+            bus = (Bus)ctx.getBean("cxf");
+        }
     }
 
+    public void setBus(Bus b) {
+        bus = b;
+    } 
+    
+    public Bus getBus() {
+        return bus;
+    }
+    
     public int getOrder() {
         return 1001;
     }

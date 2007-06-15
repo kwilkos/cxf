@@ -331,7 +331,7 @@ public class AutomaticWorkQueueTest extends Assert {
                                                INITIAL_SIZE, INITIAL_SIZE, 500);
 
         assertEquals(0, workqueue.getSize());
-        DeadLockThread dead = new DeadLockThread(workqueue, 100, 5L);
+        DeadLockThread dead = new DeadLockThread(workqueue, 10, 5L);
         dead.start();
         checkCompleted(dead);
 

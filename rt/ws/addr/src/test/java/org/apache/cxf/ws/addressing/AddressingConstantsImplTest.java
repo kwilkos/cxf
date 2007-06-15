@@ -43,24 +43,10 @@ public class AddressingConstantsImplTest extends Assert {
     }
 
     @Test
-    public void testGetNamespacePrefix() throws Exception {
-        assertEquals("unexpected constant",
-                     "wsa",
-                     constants.getNamespacePrefix());
-    }
-
-    @Test
     public void testGetWSDLNamespaceURI() throws Exception {
         assertEquals("unexpected constant",
                      "http://www.w3.org/2005/02/addressing/wsdl",
                      constants.getWSDLNamespaceURI());
-    }
-
-    @Test
-    public void testGetWSDLNamespacePrefix() throws Exception {
-        assertEquals("unexpected constant",
-                     "wsaw",
-                     constants.getWSDLNamespacePrefix());
     }
 
     @Test

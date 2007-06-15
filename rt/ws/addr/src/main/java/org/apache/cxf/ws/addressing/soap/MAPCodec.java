@@ -47,6 +47,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.helpers.CastUtils;
@@ -196,12 +197,6 @@ public class MAPCodec extends AbstractSoapInterceptor {
                 int len = children.getLength();
                 for (int i = 0; i < len; i++) {
                     Node node = children.item(i);
-                    
-                    if (node instanceof Element) {
-                        ((Element) node).setAttributeNS("http://www.w3.org/2000/xmlns/",
-                                "xmlns:" + Names.WSA_NAMESPACE_PREFIX,
-                                maps.getNamespaceURI());
-                    }
               
                     Header holder = new Header(
                             new QName(node.getNamespaceURI(), node.getLocalName()), 
@@ -239,7 +234,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         marshaller.marshal(jaxbEl, header);
                         
                         Element lastAdded = (Element)header.getLastChild();
-                        addIsReferenceParameterMarkerAttribute(lastAdded);
+                        addIsReferenceParameterMarkerAttribute(lastAdded, maps.getNamespaceURI());
                     } else {
                         LOG.log(Level.WARNING, "IGNORE_NON_ELEMENT_REF_PARAM_MSG", o);
                     }
@@ -247,13 +242,33 @@ public class MAPCodec extends AbstractSoapInterceptor {
             }
         }
     }
-
-    private void addIsReferenceParameterMarkerAttribute(Element lastAdded) {
+ 
+    private void addIsReferenceParameterMarkerAttribute(Element lastAdded, String namespaceURI) {
+        String pfx = lastAdded.lookupPrefix(namespaceURI);
+        if (StringUtils.isEmpty(pfx)) {
+            //attributes cannot be in empty namespace...
+            if (lastAdded.lookupNamespaceURI("wsa") == null) {
+                pfx = "wsa";
+                lastAdded.setAttributeNS("http://www.w3.org/2000/xmlns/",
+                                         "xmlns:wsa",
+                                         namespaceURI);
+            } else if (lastAdded.lookupNamespaceURI("wsa").equals(namespaceURI)) {
+                pfx = "wsa";
+            } else {
+                int cnt = 1;
+                while (lastAdded.lookupNamespaceURI("wsa" + cnt) != null) {
+                    cnt++;
+                }
+                pfx = "wsa" + cnt;
+                lastAdded.setAttributeNS("http://www.w3.org/2000/xmlns/",
+                                         "xmlns:wsa" + cnt,
+                                         namespaceURI);
+            }
+        }
         Attr isRefParamAttr = 
-            lastAdded.getOwnerDocument().createAttributeNS(Names.WSA_NAMESPACE_PREFIX, 
-                                                           IS_REFERENCE_PARAM_ATTR_NAME);
+            lastAdded.getOwnerDocument().createAttributeNS(namespaceURI, 
+                                                           pfx + ":" + IS_REFERENCE_PARAM_ATTR_NAME);
         isRefParamAttr.setTextContent("1");
-        isRefParamAttr.setPrefix(Names.WSA_NAMESPACE_PREFIX);
         lastAdded.setAttributeNodeNS(isRefParamAttr);
     }
     
@@ -560,7 +575,6 @@ public class MAPCodec extends AbstractSoapInterceptor {
         if (faultName != null) {
             String reason = ContextUtils.retrieveMAPFaultReason(message);
             throw createSOAPFaut(faultName, 
-                                           Names.WSA_NAMESPACE_PREFIX,
                                            Names.WSA_NAMESPACE_NAME,
                                            reason);
         }
@@ -575,8 +589,8 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @param reason the fault reason
      * @return a new SoapFault
      */ 
-    private SoapFault createSOAPFaut(String localName, String prefix, String namespace, String reason) {
-        return new SoapFault(reason, new QName(namespace, localName, prefix));
+    private SoapFault createSOAPFaut(String localName, String namespace, String reason) {
+        return new SoapFault(reason, new QName(namespace, localName));
     }
     
     /**

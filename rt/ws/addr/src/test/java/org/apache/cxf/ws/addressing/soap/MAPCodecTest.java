@@ -319,10 +319,12 @@ public class MAPCodecTest extends Assert {
             Element child = control.createMock(Element.class);
             children.item(i);
             EasyMock.expectLastCall().andReturn(child);
+            /*
             child.setAttributeNS(EasyMock.eq("http://www.w3.org/2000/xmlns/"),
-                                 EasyMock.eq("xmlns:" + Names.WSA_NAMESPACE_PREFIX),
+                                 EasyMock.eq("xmlns:wsa"),
                                  EasyMock.eq(maps.getNamespaceURI()));
             EasyMock.expectLastCall();
+            */
             child.getNamespaceURI();
             EasyMock.expectLastCall().andReturn(expectedNames[i].getNamespaceURI());
             child.getLocalName();

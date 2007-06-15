@@ -45,12 +45,6 @@ public class AddressingConstantsImpl implements AddressingConstants {
         return Names.WSA_NAMESPACE_NAME;
     }
 
-    /**
-     * @return prefix associated with the WS-Addressing namespace
-     */
-    public String getNamespacePrefix() {
-        return Names.WSA_NAMESPACE_PREFIX;
-    }
 
     /**
      * @return namespace defined by the normative WS-Addressing WSDL bindings
@@ -60,13 +54,6 @@ public class AddressingConstantsImpl implements AddressingConstants {
         return Names.WSA_NAMESPACE_WSDL_NAME;
     }
 
-    /**
-     * @return prefix associated with the WS-Addressing WSDL bindings schema
-     */
-    public String getWSDLNamespacePrefix() {
-        return Names.WSA_NAMESPACE_WSDL_PREFIX;
-    }
-    
     /**
      * @return QName of the WSDL extensiblity element
      */
