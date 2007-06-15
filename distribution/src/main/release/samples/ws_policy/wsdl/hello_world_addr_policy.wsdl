@@ -172,7 +172,7 @@
                     <wsp:Policy/>
                 </wsam:Addressing>
             </wsp:Policy>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
