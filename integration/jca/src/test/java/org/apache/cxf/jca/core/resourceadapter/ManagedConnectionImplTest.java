@@ -125,6 +125,7 @@ public class ManagedConnectionImplTest extends Assert {
         listener.connectionErrorOccurred(EasyMock.isA(ConnectionEvent.class));
         EasyMock.expectLastCall();
         EasyMock.replay(listener);
+        mc.setLogWriter(null);
         mc.error(new Exception());
         EasyMock.verify(listener);
     }

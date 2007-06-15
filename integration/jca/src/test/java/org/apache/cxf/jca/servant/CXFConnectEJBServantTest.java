@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.jca.servant;
 
-//import java.lang.reflect.Method;
 
 import java.lang.reflect.Method;
 
@@ -100,7 +99,8 @@ public class CXFConnectEJBServantTest extends Assert {
        
     }
         
-    @Ignore
+    @Ignore("There are duplicate code in the CXFConnectEJBServant and JCABusFactory"
+            + "Need to refactor this code")
     public void testServantInvoke() throws Exception { 
 
         Greeter target = new GreeterImpl(); 
@@ -113,27 +113,24 @@ public class CXFConnectEJBServantTest extends Assert {
             e.printStackTrace();
         }
     }
-    /*
-    @Ignore
+    
+    
+    @Ignore("There are duplicate code in the CXFConnectEJBServant and JCABusFactory"
+            + "Need to refactor this code")
     public void testServantInvokeThrowBusExceptionIfEJBThrowRuntimeException() throws Exception {
         final String msg = "jjljljlj";
         GreeterImpl target = new GreeterImpl();
-        target.mockInvoke = new MockInvoke() {
-                public Object invoke(Object[] args) throws Exception {
-                    throw new NullPointerException(msg);
-                }
-        };
-
+       
         Method method = target.getClass().getMethod("sayHi", new Class[0]);
         try {
             ejbservant.invoke(target, method, new Object[0]);
             fail("exception expected");
-        } catch (Exception ex) {
-            assertTrue("target method invoked. ex: " + ex, target.sayHiCalled);
+        } catch (Throwable ex) {
+            assertTrue("target method invoked. ex: " + ex, target.getSayHiCalled());
             assertTrue("cause is RuntimeException", ex.getCause() instanceof RuntimeException);
-            assertTrue("exception message contains " + msg, ex.getMessage().indexOf(msg)!=-1);
+            assertTrue("exception message contains " + msg, ex.getMessage().indexOf(msg) != -1);
         }
-    }*/
+    }
 
     protected Bus createMockBus() {
         return EasyMock.createMock(Bus.class);

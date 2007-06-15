@@ -24,7 +24,6 @@ import java.lang.reflect.Proxy;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -58,7 +57,8 @@ public class ObjectMethodInvocationHandlerTest extends AbstractInvocationHandler
     @Test
     public void testToString() throws Throwable  { 
 
-        Method toString = Object.class.getMethod("toString", new Class[0]); 
+        Method toString = Object.class.getMethod("toString", new Class[0]);
+        
         Object result = handler.invoke(testTarget, toString, null); 
         assertTrue("object method must not be passed to next handler in chain", 
                    !dummyHandler.invokeCalled); 
@@ -66,7 +66,7 @@ public class ObjectMethodInvocationHandlerTest extends AbstractInvocationHandler
         assertTrue("checking toString method ", ((String)result).startsWith("ConnectionHandle"));
     } 
 
-    @Ignore
+    @Test
     public void testHashCode() throws Throwable { 
 
         Method hashCode = Object.class.getMethod("hashCode", new Class[0]); 
@@ -127,12 +127,10 @@ public class ObjectMethodInvocationHandlerTest extends AbstractInvocationHandler
         handler.invoke(testTarget, method, args); 
 
         assertTrue("object method must not be passed to next handler in chain",
-                   dummyHandler.invokeCalled); 
+                   !dummyHandler.invokeCalled); 
         assertEquals(method + " must be invoked directly on target object",
                      method.getName(), target.lastMethod.getName()); 
-    } 
-
-
+    }    
 
     public CXFInvocationHandler getHandler() { 
         return handler;

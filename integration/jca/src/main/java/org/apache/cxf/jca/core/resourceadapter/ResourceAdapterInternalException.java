@@ -71,7 +71,7 @@ public class ResourceAdapterInternalException extends javax.resource.spi.Resourc
         }
     }
 
-    /*
+    
     public Exception getLinkedException() {
         Exception linkedEx = null;
         if (getCause() instanceof Exception) {
@@ -79,5 +79,5 @@ public class ResourceAdapterInternalException extends javax.resource.spi.Resourc
         }
         return linkedEx;
     }
-    */
+    
 }

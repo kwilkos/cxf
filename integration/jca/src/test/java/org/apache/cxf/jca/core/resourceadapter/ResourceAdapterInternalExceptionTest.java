@@ -129,24 +129,24 @@ public class ResourceAdapterInternalExceptionTest extends Assert {
     }
 
     
-    /*@Ignore
+    @Test
     public void testGetLinkedExceptionReturnNullIfNoCause() throws Exception {
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex");
         assertNull("getLinkedException return null", re.getLinkedException());
     }
 
-    @Ignore
+    @Test
     public void testGetLinkedExceptionReturnNullIfCauseIsError() throws Exception {
         java.lang.Throwable cause = new java.lang.UnknownError("error");
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex", cause);
         assertNull("getLinkedException return null", re.getLinkedException());
     }
 
-    @Ignore
+    @Test
     public void testGetLinkedExceptionReturnNotNullIfCauseIsException() throws Exception {
         java.lang.Throwable cause = new RuntimeException("runtime exception");
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex", cause);
         assertEquals("get same exception", cause, re.getLinkedException());
-    }*/
+    }
     
 }

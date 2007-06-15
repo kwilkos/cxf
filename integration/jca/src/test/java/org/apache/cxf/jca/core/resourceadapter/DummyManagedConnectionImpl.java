@@ -19,15 +19,20 @@
 
 package org.apache.cxf.jca.core.resourceadapter;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.LocalTransaction;
 import javax.security.auth.Subject;
 
-//import org.apache.cxf.jca.cxf.CXFManagedConnectionFactory;
+import org.apache.cxf.common.logging.LogUtils;
+
 
 
 public class DummyManagedConnectionImpl extends AbstractManagedConnectionImpl {
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractManagedConnectionImpl.class);
     boolean bound;
     Object con;
 
@@ -36,6 +41,8 @@ public class DummyManagedConnectionImpl extends AbstractManagedConnectionImpl {
         ConnectionRequestInfo crInfo, Subject subject)
         throws ResourceException {
         super(managedFactory, crInfo, subject);
+        // trun off the noise error logger
+        LOG.setLevel(Level.OFF);
     }
 
     public void associateConnection(Object arg0) throws ResourceException {

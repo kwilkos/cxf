@@ -50,22 +50,22 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         ((Connection)mci).close();
     }
 
-    @Ignore
+    @Test
     public void testGetConnectionServiceGetPortThrows() throws Exception {
         
         cri = new CXFConnectionRequestInfo(Foo.class, null, serviceName, null);
         
         try {
+            //current cxf supprot pojo simple frontend, so it is ok to create proxy now
             mci.getConnection(subj, cri);
-            fail("Expected ResourceAdapterInternalException");
+            
         } catch (ResourceAdapterInternalException raie) {
-            assertTrue("asserting ResourceException.", raie.getMessage()
-                .indexOf("Failed to create proxy") != -1);            
+            fail("NotExpected ResourceAdapterInternalException");           
         }
     }
 
     
-    @Ignore
+    @Ignore("need to check the classloader")
     public void testThreadContextClassLoaderIsSet() throws Exception {
         //set the threadContextClassLoader for Bus 
         //TODO njiang classloader things
@@ -73,7 +73,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         mci.getConnection(subj, cri);
     }
     
-    @Ignore
+    @Test
     public void testGetConnectionWithNoWSDLInvokesCreateClientWithTwoParameters() throws Exception {
 
 
@@ -85,7 +85,7 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         assertTrue("checking implementation of passed interface", o instanceof Greeter);
     }
     
-    @Ignore
+    @Test
     public void testGetConnectionWithNoWSDLInvokesCreateClientWithTwoArgs()
         throws Exception {
 
