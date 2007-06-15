@@ -143,6 +143,7 @@ public class ServerImpl implements Server {
             ((MultipleEndpointObserver) mo).getEndpoints().remove(endpoint);
         } else {
             getDestination().setMessageObserver(null);
+            getDestination().shutdown();
         }
         
         if (null != serverRegistry) {

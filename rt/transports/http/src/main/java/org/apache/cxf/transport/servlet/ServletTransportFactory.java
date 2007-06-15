@@ -58,12 +58,17 @@ public class ServletTransportFactory extends AbstractTransportFactory
         this.bus = bus;
     }
     
+    public void removeDestination(String path) {
+        destinations.remove(path);
+    }
+    
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
         ServletDestination d = getDestinationForPath(endpointInfo.getAddress());
         if (d == null) { 
-            d = new ServletDestination(bus, null, endpointInfo);
-            destinations.put(getTrimmedPath(endpointInfo.getAddress()), d);
+            String path = getTrimmedPath(endpointInfo.getAddress());
+            d = new ServletDestination(bus, null, endpointInfo, this, path);
+            destinations.put(path, d);
         }
         return d;
     }
@@ -73,7 +78,7 @@ public class ServletTransportFactory extends AbstractTransportFactory
         return destinations.get(getTrimmedPath(path));
     }
 
-    private String getTrimmedPath(String path) {
+    static String getTrimmedPath(String path) {
         if (path == null) {
             return "/";
         }

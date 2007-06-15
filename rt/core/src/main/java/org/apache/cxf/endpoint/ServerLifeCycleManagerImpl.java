@@ -19,14 +19,15 @@
 
 package org.apache.cxf.endpoint;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.cxf.extension.BusExtension;
 
 public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager, BusExtension {
     
-    private List<ServerLifeCycleListener> listeners = new ArrayList<ServerLifeCycleListener>();
+    private List<ServerLifeCycleListener> listeners = 
+            new CopyOnWriteArrayList<ServerLifeCycleListener>();
 
     public Class<?> getRegistrationType() {
         return ServerLifeCycleManager.class;
@@ -37,25 +38,13 @@ public class ServerLifeCycleManagerImpl implements ServerLifeCycleManager, BusEx
     }
 
     public void startServer(Server server) {
-        List<ServerLifeCycleListener> listenersToNotify = null;
-        synchronized (this) {
-            listenersToNotify = new ArrayList<ServerLifeCycleListener>();
-            listenersToNotify.addAll(listeners);
-        }
-        
-        for (ServerLifeCycleListener listener : listenersToNotify) {
+        for (ServerLifeCycleListener listener : listeners) {
             listener.startServer(server);
         }
     }
 
     public void stopServer(Server server) {
-        List<ServerLifeCycleListener> listenersToNotify = null;
-        synchronized (this) {
-            listenersToNotify = new ArrayList<ServerLifeCycleListener>();
-            listenersToNotify.addAll(listeners);
-        }
-        
-        for (ServerLifeCycleListener listener : listenersToNotify) {
+        for (ServerLifeCycleListener listener : listeners) {
             listener.stopServer(server);
         }
     }

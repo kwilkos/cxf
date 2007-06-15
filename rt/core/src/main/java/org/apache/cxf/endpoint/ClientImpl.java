@@ -45,6 +45,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.phase.PhaseChainCache;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
@@ -72,6 +73,9 @@ public class ClientImpl
     protected ConduitSelector conduitSelector;
     protected ClientOutFaultObserver outFaultObserver; 
     protected int synchronousTimeout = 10000; // default 10 second timeout
+    
+    protected PhaseChainCache outboundChainCache = new PhaseChainCache();
+    protected PhaseChainCache inboundChainCache = new PhaseChainCache();
 
     public ClientImpl(Bus b, Endpoint e) {
         this(b, e, (ConduitSelector)null);
@@ -355,29 +359,30 @@ public class ClientImpl
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         message.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getInPhases());
+        
+        
+        
+        List<Interceptor> i1 = bus.getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + i1);
+        }
+        List<Interceptor> i2 = endpoint.getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + i2);
+        }
+        List<Interceptor> i3 = getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by client: " + i3);
+        }
+        List<Interceptor> i4 = endpoint.getBinding().getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by binding: " + i4);
+        }
+        
+        PhaseInterceptorChain chain = inboundChainCache.get(pm.getInPhases(), i1, i2, i3, i4); 
         message.setInterceptorChain(chain);
         
-        List<Interceptor> il = bus.getInInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by bus: " + il);
-        }
-        chain.add(il);
-        il = endpoint.getInInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by endpoint: " + il);
-        }
-        chain.add(il);
-        il = getInInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by client: " + il);
-        }
-        chain.add(il);
-        il = endpoint.getBinding().getInInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by binding: " + il);
-        }
-        chain.add(il);
+        
         chain.setFaultObserver(outFaultObserver);
         
         // execute chain
@@ -450,29 +455,24 @@ public class ClientImpl
     protected PhaseInterceptorChain setupInterceptorChain(Endpoint endpoint) { 
 
         PhaseManager pm = bus.getExtension(PhaseManager.class);
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
-        List<Interceptor> il = bus.getOutInterceptors();
+        List<Interceptor> i1 = bus.getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by bus: " + il);
+            LOG.fine("Interceptors contributed by bus: " + i1);
         }
-        chain.add(il);
-        il = endpoint.getOutInterceptors();
+        List<Interceptor> i2 = endpoint.getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by endpoint: " + il);
+            LOG.fine("Interceptors contributed by endpoint: " + i2);
         }
-        chain.add(il);
-        il = getOutInterceptors();
+        List<Interceptor> i3 = getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by client: " + il);
+            LOG.fine("Interceptors contributed by client: " + i3);
         }
-        chain.add(il);
-        il = endpoint.getBinding().getOutInterceptors();
+        List<Interceptor> i4 = endpoint.getBinding().getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by binding: " + il);
+            LOG.fine("Interceptors contributed by binding: " + i4);
         }
-        chain.add(il);        
-        return chain;
+        return outboundChainCache.get(pm.getOutPhases(), i1, i2, i3, i4);
     }
 
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {

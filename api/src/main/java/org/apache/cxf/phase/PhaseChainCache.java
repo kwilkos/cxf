@@ -107,7 +107,7 @@ public final class PhaseChainCache {
                         return false;
                     }
                     
-                    if (providers[x] instanceof ModCountCopyOnWriteArrayList) {
+                    if (providers[x].getClass() == ModCountCopyOnWriteArrayList.class) {
                         if (((ModCountCopyOnWriteArrayList)providers[x]).getModCount()
                             != lists.get(x).getModCount()) {
                             return false;

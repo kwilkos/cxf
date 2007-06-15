@@ -22,7 +22,7 @@ package org.apache.cxf.common.util;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ModCountCopyOnWriteArrayList<T> extends CopyOnWriteArrayList<T> {
+public final class ModCountCopyOnWriteArrayList<T> extends CopyOnWriteArrayList<T> {
     int modCount;
     
     public ModCountCopyOnWriteArrayList() {
@@ -35,11 +35,11 @@ public class ModCountCopyOnWriteArrayList<T> extends CopyOnWriteArrayList<T> {
         }
     }
     
-    public final int getModCount() {
+    public int getModCount() {
         return modCount;
     }
     
-    public final void setModCount(int i) {
+    public void setModCount(int i) {
         modCount = i;
     }
     

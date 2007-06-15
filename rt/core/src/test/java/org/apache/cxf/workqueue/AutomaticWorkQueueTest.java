@@ -328,7 +328,7 @@ public class AutomaticWorkQueueTest extends Assert {
     @Test    
     public void testShutdown() {
         workqueue = new AutomaticWorkQueueImpl(DEFAULT_MAX_QUEUE_SIZE, INITIAL_SIZE,
-                                               INITIAL_SIZE, INITIAL_SIZE, 250);
+                                               INITIAL_SIZE, INITIAL_SIZE, 500);
 
         assertEquals(0, workqueue.getSize());
         DeadLockThread dead = new DeadLockThread(workqueue, 100, 5L);

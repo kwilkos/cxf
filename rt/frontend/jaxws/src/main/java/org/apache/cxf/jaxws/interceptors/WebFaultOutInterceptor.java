@@ -47,12 +47,31 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
     public WebFaultOutInterceptor() {
         super(Phase.PRE_PROTOCOL);
     }
+    
+    private QName getFaultName(WebFault wf) {
+        return new QName(wf.targetNamespace(), wf.name());
+    }
+    
 
+    private WebFault getWebFaultAnnotation(Class<?> t) {
+        WebFault fault = t.getAnnotation(WebFault.class);
+        if (fault == null
+            && t.getSuperclass() != null
+            && Throwable.class.isAssignableFrom(t.getSuperclass())) {
+            fault = getWebFaultAnnotation(t.getSuperclass());
+        }
+        return fault;
+    }
+    
     public void handleMessage(Message message) throws Fault {
         Fault f = (Fault)message.getContent(Exception.class);
 
         Throwable cause = f.getCause();
-        if (cause instanceof Exception && cause.getClass().isAnnotationPresent(WebFault.class)) {
+        WebFault fault = null;
+        if (cause != null) {
+            fault = getWebFaultAnnotation(cause.getClass());
+        }
+        if (cause instanceof Exception && fault != null) {
             Exception ex = (Exception)cause;
             try {
                 Method method = cause.getClass().getMethod("getFaultInfo", new Class[0]);
@@ -63,7 +82,7 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
 
                 OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
-                QName faultName = getFaultName(ex);
+                QName faultName = getFaultName(fault);
                 MessagePartInfo part = getFaultMessagePart(faultName, op);
                 writer.write(faultInfo, part, f.getOrCreateDetail());
 
@@ -80,12 +99,6 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
         }
     }
 
-    private QName getFaultName(Exception webFault) {
-        WebFault wf = webFault.getClass().getAnnotation(WebFault.class);
-
-        return new QName(wf.targetNamespace(), wf.name());
-    }
-    
     private MessagePartInfo getFaultMessagePart(QName qname, OperationInfo op) {
         for (FaultInfo faultInfo : op.getFaults()) {
             for (MessagePartInfo mpi : faultInfo.getMessageParts()) {

@@ -40,6 +40,8 @@ public class ServletDestination extends AbstractHTTPDestination {
         
     private static final long serialVersionUID = 1L;        
     
+    final ServletTransportFactory factory;
+    final String path;
     
     /**
      * Constructor, allowing subsititution of configuration.
@@ -52,10 +54,14 @@ public class ServletDestination extends AbstractHTTPDestination {
      */    
     public ServletDestination(Bus b,
                               ConduitInitiator ci,
-                              EndpointInfo ei)
+                              EndpointInfo ei,
+                              ServletTransportFactory fact,
+                              String p)
         throws IOException {
         // would add the default port to the address
         super(b, ci, ei, false);
+        factory = fact;
+        path = p;
     }
     
     
@@ -94,10 +100,17 @@ public class ServletDestination extends AbstractHTTPDestination {
             incomingObserver.onMessage(inMessage);
             
         } finally {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }        
+    }
+    
+    @Override
+    public void shutdown() {
+        factory.removeDestination(path);
+        
+        super.shutdown();
     }
     
     public MessageObserver getMessageObserver() {
