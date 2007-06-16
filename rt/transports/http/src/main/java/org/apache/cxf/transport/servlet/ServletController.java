@@ -188,8 +188,8 @@ public class ServletController {
 
     public void invokeDestination(final HttpServletRequest request, HttpServletResponse response,
                                   ServletDestination d) throws ServletException {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Service http request on thread: " + Thread.currentThread());
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Service http request on thread: " + Thread.currentThread());
         }
 
         try {
