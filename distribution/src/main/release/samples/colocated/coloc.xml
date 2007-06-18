@@ -19,9 +19,11 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
        xmlns:coloc="http://cxf.apache.org/binding/coloc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="faultOutbound" class="demo.colocated.common.ThrowFaultInterceptor"/>
 
@@ -32,12 +34,13 @@
             </list>
         </property>
     </bean>
+
     <!-- Avoid upfront Conduit creation, as client-side transport resources
          are not required in the coloc case -->
-    <jaxws:client id="{http://apache.org/hello_world_soap_http}SoapPort"
-                  createdFromAPI="true">
-        <jaxws:features>
-            <coloc:enableColoc/>
-        </jaxws:features>
+     <jaxws:client name="{http://apache.org/hello_world_soap_http}SoapPort"
+                   createdFromAPI="true">
+         <jaxws:features>
+             <coloc:enableColoc/>
+         </jaxws:features>
     </jaxws:client>
 </beans>
