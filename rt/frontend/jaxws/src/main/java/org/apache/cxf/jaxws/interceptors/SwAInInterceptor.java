@@ -75,16 +75,6 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             boolean found = false;
             
             int idx = mpi.getMessageInfo().getMessagePartIndex(mpi);
-            /*while (idx >= inObjects.size()) {
-                inObjects.add(null);
-            }*/
-            
-            //fix for testSwaWithHeaders of ClientServerSwaTest
-            inObjects.add(idx, null);
-            
-            if (inObjects.get(idx) != null) {
-                continue;
-            }
             
             for (Attachment a : message.getAttachments()) {
                 if (a.getId().startsWith(start)) {
@@ -110,16 +100,24 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
                         o = dh;
                     }
                     
-                    inObjects.set(idx, o);
+                    // If the current index is greater than the # of objects,
+                    // just append the attachment to the end
+                    if (idx >= inObjects.size()) {
+                        inObjects.add(o);
+                    } else {
+                        inObjects.add(idx, o);
+                    }
                     found = true;
                     break;
                 }
             }
             
             if (!found) {
-
-                
-                inObjects.add(idx, null);
+                if (idx >= inObjects.size()) {
+                    inObjects.add(null);
+                } else {
+                    inObjects.add(idx, null);
+                }
             }
         }
     }
