@@ -19,7 +19,9 @@
 package org.apache.cxf.jaxws.interceptors;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
@@ -66,6 +68,7 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             return;
         }
         
+        Set<Integer> foundAtts = new HashSet<Integer>();
         List<Object> inObjects = CastUtils.cast(message.getContent(List.class));
 
         for (MessagePartInfo mpi : sbi.getAttachments()) {
@@ -75,6 +78,10 @@ public class SwAInInterceptor extends AbstractSoapInterceptor {
             boolean found = false;
             
             int idx = mpi.getMessageInfo().getMessagePartIndex(mpi);
+            if (foundAtts.contains(mpi.getIndex())) {
+                continue;
+            }
+            foundAtts.add(mpi.getIndex());
             
             for (Attachment a : message.getAttachments()) {
                 if (a.getId().startsWith(start)) {
