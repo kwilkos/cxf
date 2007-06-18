@@ -47,7 +47,6 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CodeGenTest extends ProcessorTestBase {
@@ -392,7 +391,6 @@ public class CodeGenTest extends ProcessorTestBase {
     }
 
     @Test
-    @Ignore
     public void testSchemaImport() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
         processor.setContext(env);
