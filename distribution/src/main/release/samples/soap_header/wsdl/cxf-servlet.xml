@@ -30,5 +30,9 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         id="soap_headers"
         implementor="demo.soap_header.server.HeaderTesterImpl"
         wsdlLocation="WEB-INF/wsdl/soap_header.wsdl"
-        address="/soap_header" />
+        address="/soap_header">
+        <jaxws:features>
+            <bean class="org.apache.cxf.feature.LoggingFeature"/>
+        </jaxws:features>
+    </jaxws:endpoint>
 </beans>

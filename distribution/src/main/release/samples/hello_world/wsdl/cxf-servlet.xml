@@ -31,13 +31,8 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         implementor="demo.hw.server.GreeterImpl"
         wsdlLocation="WEB-INF/wsdl/hello_world.wsdl"
         address="/hello_world">
-                <jaxws:inInterceptors>
-                        <bean class="org.apache.cxf.interceptor.LoggingInInterceptor">
-                        </bean>
-                </jaxws:inInterceptors>
-                <jaxws:outInterceptors>
-                        <bean class="org.apache.cxf.interceptor.LoggingOutInterceptor">
-                        </bean>
-                </jaxws:outInterceptors>
+                <jaxws:features>
+ 		    <bean class="org.apache.cxf.feature.LoggingFeature"/>
+                </jaxws:features>
     </jaxws:endpoint>
 </beans>

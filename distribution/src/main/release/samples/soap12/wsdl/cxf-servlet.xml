@@ -30,6 +30,10 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         id="hello_world_soap12"       
         implementor="demo.hw.server.GreeterImpl"
         wsdlLocation="WEB-INF/wsdl/hello_world_soap12.wsdl"
-        address="/hello_world_soap12" />
+        address="/hello_world_soap12">
+         <jaxws:features>
+             <bean class="org.apache.cxf.feature.LoggingFeature"/>
+         </jaxws:features>
+    </jaxws:endpoint>
 
 </beans>
