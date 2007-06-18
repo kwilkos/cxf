@@ -76,8 +76,6 @@
                 <exclude>**/build</exclude>
                 <exclude>**/build/**/*</exclude>
                 <exclude>integration/JBI/**/build.properties</exclude>
-                <exclude>**/colocated/**/*</exclude>
-                <exclude>**/colocated</exclude>
             </excludes>
         </fileSet>
         <fileSet>
