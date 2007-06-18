@@ -81,6 +81,7 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
 
     public Server create() {
         try {
+            applyExtraClass();
             if (serviceBean != null && getServiceClass() == null) {
                 setServiceClass(serviceBean.getClass());
             }
@@ -107,7 +108,6 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
         }
         
         applyFeatures();
-        applyExtraClass();
         return server;
     }
 

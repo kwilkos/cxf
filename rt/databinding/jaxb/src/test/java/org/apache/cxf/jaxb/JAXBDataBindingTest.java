@@ -51,6 +51,8 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+import org.apache.hello_world.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeOneWay;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.After;
@@ -196,11 +198,11 @@ public class JAXBDataBindingTest extends Assert {
     
     @Test
     public void testExtraClass() {
-        Class[] extraClass = new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class};
+        Class[] extraClass = new Class[] {GreetMe.class, GreetMeOneWay.class};
         jaxbDataBinding.setExtraClass(extraClass);
         assertEquals(jaxbDataBinding.getExtraClass().length, 2);
-        assertEquals(jaxbDataBinding.getExtraClass()[0], java.rmi.Remote.class);
-        assertEquals(jaxbDataBinding.getExtraClass()[1], java.rmi.RemoteException.class);
+        assertEquals(jaxbDataBinding.getExtraClass()[0], GreetMe.class);
+        assertEquals(jaxbDataBinding.getExtraClass()[1], GreetMeOneWay.class);
     }
     
 }

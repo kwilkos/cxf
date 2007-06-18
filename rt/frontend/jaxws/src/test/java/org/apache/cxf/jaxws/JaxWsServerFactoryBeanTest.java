@@ -33,6 +33,8 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.javaee.DescriptionType;
+import org.apache.cxf.jaxws.javaee.DisplayNameType;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -67,14 +69,14 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
             props = new HashMap<String, Object>();
         }
         props.put("jaxb.additionalContextClasses", 
-                  new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class});
+                  new Class[] {DescriptionType.class, DisplayNameType.class});
         sf.setProperties(props);
         Server server = sf.create();
         assertNotNull(server);
         Class[] extraClass = ((JAXBDataBinding)sf.getServiceFactory().getDataBinding()).getExtraClass();
         assertEquals(extraClass.length, 2);
-        assertEquals(extraClass[0], java.rmi.Remote.class);
-        assertEquals(extraClass[1], java.rmi.RemoteException.class);
+        assertEquals(extraClass[0], DescriptionType.class);
+        assertEquals(extraClass[1], DisplayNameType.class);
     }
     
     @Test

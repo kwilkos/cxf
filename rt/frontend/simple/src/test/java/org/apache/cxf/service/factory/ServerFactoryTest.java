@@ -35,6 +35,8 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.hello_world.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeOneWay;
 import org.junit.Test;
 
 public class ServerFactoryTest extends AbstractSimpleFrontendTest {
@@ -64,13 +66,13 @@ public class ServerFactoryTest extends AbstractSimpleFrontendTest {
             props = new HashMap<String, Object>();
         }
         props.put("jaxb.additionalContextClasses", 
-                  new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class});
+                  new Class[] {GreetMe.class, GreetMeOneWay.class});
         svrBean.setProperties(props);
         svrBean.create();
         Class[] extraClass = ((JAXBDataBinding)svrBean.getServiceFactory().getDataBinding()).getExtraClass();
         assertEquals(extraClass.length, 2);
-        assertEquals(extraClass[0], java.rmi.Remote.class);
-        assertEquals(extraClass[1], java.rmi.RemoteException.class);
+        assertEquals(extraClass[0], GreetMe.class);
+        assertEquals(extraClass[1], GreetMeOneWay.class);
     }
 
     public class CustomDestinationFactory extends AbstractTransportFactory implements DestinationFactory {

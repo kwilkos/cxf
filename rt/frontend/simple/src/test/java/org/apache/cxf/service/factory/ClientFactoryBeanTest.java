@@ -34,6 +34,8 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.hello_world.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeOneWay;
 import org.junit.Test;
 
 public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
@@ -89,13 +91,13 @@ public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
             props = new HashMap<String, Object>();
         }
         props.put("jaxb.additionalContextClasses", 
-                  new Class[] {java.rmi.Remote.class, java.rmi.RemoteException.class});
+                  new Class[] {GreetMe.class, GreetMeOneWay.class});
         cfBean.setProperties(props);
         Client client = cfBean.create();
         assertNotNull(client);
         Class[] extraClass = ((JAXBDataBinding)cfBean.getServiceFactory().getDataBinding()).getExtraClass();
         assertEquals(extraClass.length, 2);
-        assertEquals(extraClass[0], java.rmi.Remote.class);
-        assertEquals(extraClass[1], java.rmi.RemoteException.class);
+        assertEquals(extraClass[0], GreetMe.class);
+        assertEquals(extraClass[1], GreetMeOneWay.class);
     }
 }

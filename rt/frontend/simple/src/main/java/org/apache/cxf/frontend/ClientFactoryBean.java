@@ -41,10 +41,11 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
     }
 
     public Client create() {
+        
         if (client != null) {
             return client;
         }
-        
+        applyExtraClass();
         try {
             Endpoint ep = createEndpoint();
             
@@ -56,7 +57,6 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
         }
         
         applyFeatures();
-        applyExtraClass();
         return client;
     }
 
