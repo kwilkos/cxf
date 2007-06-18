@@ -148,9 +148,6 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
     }
     
     @Test
-    @Ignore("Duplicate header elements")
-    //FIXME: CXF-564, generated wsdl is invalid -
-    //"invalid XML schema: "header" must refer to an existing element"
     public void testHolder() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.holder.HolderService.class);
         ServiceInfo service = builder.createService();
@@ -161,8 +158,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         generator.generate(output);
         assertTrue(output.exists());
 
-        String expectedFile = this.getClass()
-            .getResource("expected/expected_holder.wsdl").getFile();
+        String expectedFile = this.getClass().getResource("expected/expected_holder.wsdl").getFile();
         assertFileEquals(expectedFile, output.getAbsolutePath());
     }
     

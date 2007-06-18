@@ -165,7 +165,9 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_soap12.wsdl</wsdl>
                                 </wsdlOption>
-
+                                <wsdlOption>
+				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_bare.wsdl</wsdl>
+                                </wsdlOption>
                             </wsdlOptions>
                         </configuration>
                         <goals>

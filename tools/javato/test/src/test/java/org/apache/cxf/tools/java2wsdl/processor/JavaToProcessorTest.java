@@ -287,6 +287,37 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
     }
+    
+    @Test
+    public void testRPCHello() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc-hello.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.RPCHello");
+        processor.setEnvironment(env);
+        processor.process();
+        
+        File wsdlFile = new File(output, "rpc-hello.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        String expectedFile = getClass().getResource("expected/rpc-hello-expected.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "rpc-hello.wsdl"));
+
+    }
+    
+    
+    @Test
+    public void testXMlBare() {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/xml-bare.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.xml_bare.Greeter");
+        processor.setEnvironment(env);
+        processor.process();
+        
+        File wsdlFile = new File(output, "xml-bare.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        String expectedFile = getClass().getResource("expected/xml-bare-expected.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "/xml-bare.wsdl"));
+               
+    }
+    
+    
 
     @Test
     public void testResumeClasspath() throws Exception {
@@ -305,20 +336,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
     
     
-    public void testRPCHello() throws Exception {
-        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc-hello.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.RPCHello");
-        processor.setEnvironment(env);
-        processor.process();
-        
-        File wsdlFile = new File(output, "rpc-hello.wsdl");
-        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
-        
-        
-        String expectedFile = getClass().getResource("expected/rpc_hello.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "rpc-hello.wsdl"));
-
-    }
     
     
     

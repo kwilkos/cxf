@@ -84,7 +84,9 @@ public class CodeFirstTest extends AbstractJaxWsTest {
 
         assertValid("/wsdl:definitions/wsdl:binding/wsdl:operation[@name='getGreetings']"
                     + "/wsdlsoap:operation[@soapAction='myaction']",
-                    wsdl);        
+                    wsdl);
+        
+        
     }
 
     @Test
@@ -280,6 +282,9 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         
         assertValid("//xsd:schema[@targetNamespace='http://namespace3']", doc);
         assertValid("//xsd:schema[@targetNamespace='http://namespace5']", doc);
+        
+        assertValid("//xsd:element[@name='FooEcho2HeaderRequest'][1]", doc);
+        assertInvalid("//xsd:element[@name='FooEcho2HeaderRequest'][2]", doc);
     }
 
     @Test
@@ -297,5 +302,5 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertValid("//xsd:schema[@targetNamespace='http://namespace3']", doc);
         assertValid("//xsd:schema[@targetNamespace='http://namespace5']", doc);
     }
-
+    
 }

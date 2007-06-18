@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -16,7 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="HolderServiceService" targetNamespace="http://holder.fortest.tools.cxf.apache.org/" xmlns:ns1="http://holder.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://holder.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://holder.fortest.tools.cxf.apache.org/">

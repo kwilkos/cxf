@@ -468,8 +468,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         XmlSchemaElement el = new XmlSchemaElement();
         el.setQName(mpi.getElementQName());
         el.setName(mpi.getElementQName().getLocalPart());
-        schema.getItems().add(el);
-
+        if (!isExistSchemaElement(schema, mpi.getElementQName())) {
+            schema.getItems().add(el);
+        }
         el.setMinOccurs(1);
         el.setMaxOccurs(0);
         el.setNillable(true);
@@ -557,7 +558,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             XmlSchemaElement el = new XmlSchemaElement();
             el.setQName(qname);
             el.setName(qname.getLocalPart());
-            schema.getItems().add(el);
+            
+            if (!isExistSchemaElement(schema, qname)) {
+                schema.getItems().add(el);
+            }
 
             el.setMinOccurs(1);
             el.setMaxOccurs(0);
