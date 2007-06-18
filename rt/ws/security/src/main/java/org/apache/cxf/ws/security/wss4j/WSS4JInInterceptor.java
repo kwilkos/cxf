@@ -255,9 +255,11 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(new DOMSource(body));
         // advance just past body
         int evt = reader.next();
-        while (reader.hasNext() 
-             && (evt == XMLStreamConstants.END_ELEMENT || evt == XMLStreamConstants.START_ELEMENT)) {
-            evt = reader.next();
+        int i = 0;
+        while (reader.hasNext() && i < 1
+               && (evt != XMLStreamConstants.END_ELEMENT || evt != XMLStreamConstants.START_ELEMENT)) {
+            reader.next();
+            i++;
         }
         msg.setContent(XMLStreamReader.class, reader);
     }
