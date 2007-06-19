@@ -72,7 +72,6 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.ws.addressing.ObjectFactory;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -365,7 +364,7 @@ public final class JAXBDataBinding implements DataBinding {
     }
     
     public JAXBContext createJAXBContext(Set<Class<?>> classes,
-                                                   String defaultNs) throws JAXBException {
+                                          String defaultNs) throws JAXBException {
         Iterator it = classes.iterator();
         String className = "";
         Object remoteExceptionObject = null;
@@ -389,27 +388,31 @@ public final class JAXBDataBinding implements DataBinding {
                 defaultNs = null;
             }
         }
-
-        if (classes.contains(EndpointReferenceType.class)
-            || classes.contains(ObjectFactory.class)) {
-            //ws-addressing is used, lets add the specific types
-            try {
-                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
-                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
-                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
-            } catch (ClassNotFoundException e) {
-                // REVISIT - ignorable if WS-ADDRESSING not available?
-                // maybe add a way to allow interceptors to add stuff to the
-                // context?
-            }
-        }
         
         Map<String, Object> map = new HashMap<String, Object>();
         if (defaultNs != null) {
             map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
         }
         
-        return JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
+        JAXBContext ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
+        if (ctx instanceof JAXBContextImpl) {
+            JAXBContextImpl rictx = (JAXBContextImpl)ctx;
+            if (rictx.getBeanInfo(EndpointReferenceType.class) != null) {
+                //ws-addressing is used, lets add the specific types
+                try {
+                    classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
+                    classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType")); 
+                    classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
+                    ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
+                } catch (ClassNotFoundException e) {
+                    // REVISIT - ignorable if WS-ADDRESSING not available?
+                    // maybe add a way to allow interceptors to add stuff to the
+                    // context?
+                } 
+            }
+        }
+        
+        return ctx;
     }
 
 }
