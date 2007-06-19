@@ -31,10 +31,13 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.activation.DataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -56,7 +59,7 @@ import org.apache.cxf.endpoint.UpfrontConduitSelector;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
-import org.apache.cxf.jaxws.handler.logical.LogicalHandlerOutInterceptor;
+import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
@@ -139,6 +142,15 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         setExchangeProperties(exchange, endpoint);
 
         message.setContent(Object.class, obj);
+        
+        if (obj instanceof SOAPMessage) {
+            message.setContent(SOAPMessage.class, obj);
+        } else if (obj instanceof Source) {
+            message.setContent(Source.class, obj);
+        } else if (obj instanceof DataSource) {
+            message.setContent(DataSource.class, obj);
+        }
+  
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
 
         PhaseInterceptorChain chain = getDispatchOutChain(endpoint);
@@ -228,9 +240,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
                 chain.add(new SOAPHandlerInterceptor(jaxwsBinding));
             } else {
                 // TODO: what for non soap bindings?
-            }
-            //endpoint.getInInterceptors().add(new LogicalHandlerInInterceptor(jaxwsBinding));         
-            chain.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
+            }       
+            chain.add(new DispatchLogicalHandlerOutInterceptor(jaxwsBinding));
         }   
         
         chain.add(new MessageSenderInterceptor());

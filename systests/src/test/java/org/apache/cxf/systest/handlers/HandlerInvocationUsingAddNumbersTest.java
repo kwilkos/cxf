@@ -26,10 +26,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
+import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 
 import org.apache.cxf.Bus;
@@ -41,7 +44,6 @@ import org.apache.handlers.AddNumbersService;
 import org.apache.handlers.types.AddNumbersResponse;
 import org.apache.handlers.types.ObjectFactory;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -85,7 +87,6 @@ public class HandlerInvocationUsingAddNumbersTest extends AbstractBusClientServe
     }
     
     @Test
-    @Ignore("This does not work. CXF-732")
     public void testInvokeFromDispatchWithJAXBPayload() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
@@ -97,8 +98,26 @@ public class HandlerInvocationUsingAddNumbersTest extends AbstractBusClientServe
         Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
  
         SmallNumberHandler sh = new SmallNumberHandler();
-        addHandlersProgrammatically(disp, sh);
-        
+        TestSOAPHandler soapHandler = new TestSOAPHandler<SOAPMessageContext>(false) {
+            public boolean handleMessage(SOAPMessageContext ctx) {
+                super.handleMessage(ctx);
+                Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                if (outbound) {
+                    try {
+                        SOAPMessage msg = ctx.getMessage();
+                        //System.out.println("aaaaaaaaaaaa");
+                        //msg.writeTo(System.out);
+                        assertNotNull(msg);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        fail(e.toString());
+                    }
+                }
+                return true;
+            }
+        };
+        addHandlersProgrammatically(disp, sh, soapHandler);
+      
         org.apache.handlers.types.AddNumbers req = new org.apache.handlers.types.AddNumbers();        
         req.setArg0(10);
         req.setArg1(20);        

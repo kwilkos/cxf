@@ -52,9 +52,11 @@ import org.apache.cxf.wsdl.WSDLConstants;
 
 public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(DispatchOutInterceptor.class);
+    private DispatchOutEndingInterceptor ending;
 
     public DispatchOutInterceptor() {
         super(Phase.WRITE);
+        ending = new DispatchOutEndingInterceptor();
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -71,24 +73,24 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
         try {
             if (message instanceof SoapMessage) {
                 if (m == Service.Mode.MESSAGE) {
-                    if (obj instanceof SOAPMessage) {
-                        ((SOAPMessage)obj).writeTo(os);
-                    } else if (obj instanceof Source) {
-                        doTransform(obj, os);
-                    } else if (obj instanceof DataSource) {
+                    if (obj instanceof DataSource) {
                         throw new RuntimeException(obj.getClass()
                                                    + " is not valid in Message mode for SOAP/HTTP");
                     }
                 } else if (m == Service.Mode.PAYLOAD) {
-                    SOAPMessage msg = initSOAPMessage();
-                    DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
                     if (obj instanceof SOAPMessage || obj instanceof DataSource) {
                         throw new RuntimeException(obj.getClass()
                                                    + " is not valid in PAYLOAD mode with SOAP/HTTP");
-                    } else {
-                        dataWriter.write(obj, msg.getSOAPBody());
                     }
-                    msg.writeTo(os);
+                    
+                    //Convert Source or JAXB element to SOAPMessage
+                    SOAPMessage msg = initSOAPMessage();
+                    DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
+                    dataWriter.write(obj, msg.getSOAPBody());
+                    message.setContent(Object.class, msg);
+                    message.setContent(SOAPMessage.class, msg);   
+                    msg.writeTo(System.out);
+                    //msg.writeTo(os);
                 }
             } else if (message instanceof XMLMessage) {
                 if (m == Service.Mode.MESSAGE
@@ -99,30 +101,58 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                                || obj instanceof DataSource)) {
                     throw new RuntimeException(obj.getClass()
                                                + " is not valid in PAYLOAD mode with XML/HTTP");
+                }                
+
+                DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
+                                                                       XMLStreamWriter.class);
+                XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+                if (xmlWriter == null) {
+                    xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");
                 }
-                
-                if (obj instanceof Source || obj instanceof DataSource) {
-                    doTransform(obj, os);
-                } else {
-                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, 
-                                                                           service, 
-                                                                           XMLStreamWriter.class);
-                    XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
-                    if (xmlWriter == null) {
-                        xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");
-                    }
-                    dataWriter.write(obj, xmlWriter);
-                    
-                    xmlWriter.flush();
-                }
+                dataWriter.write(obj, xmlWriter);
+                message.setContent(XMLStreamWriter.class, xmlWriter);
+                // xmlWriter.flush();
+
             }
             // Finish the message processing, do flush
-            os.flush();
+            // os.flush();
         } catch (Exception ex) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
         }
+        
+        message.getInterceptorChain().add(ending);
+    }
+    
+    private class DispatchOutEndingInterceptor extends AbstractOutDatabindingInterceptor {
+        public DispatchOutEndingInterceptor() {
+            super(Phase.WRITE_ENDING);
+        }
+        
+        public void handleMessage(Message message) throws Fault {
+            OutputStream os = message.getContent(OutputStream.class);
+            Object obj = message.getContent(Object.class);
+            XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+            
+            try {
+                if (xmlWriter != null) {
+                    xmlWriter.flush();
+                } else if (obj instanceof SOAPMessage) {
+                    ((SOAPMessage)obj).writeTo(os);
+                } else if (obj instanceof Source || obj instanceof DataSource) {
+                    doTransform(obj, os);
+                }
+
+                // Finish the message processing, do flush
+                os.flush();
+            } catch (Exception ex) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
+            }
+
+        }
+      
     }
 
+        
     private SOAPMessage initSOAPMessage() throws SOAPException {
         SOAPMessage msg = MessageFactory.newInstance().createMessage();
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
