@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0-incubator</version>
+        <version>2.1-incubator-SNAPSHOT</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
@@ -76,9 +76,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator/rt/bindings/object</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator/rt/bindings/object</developerConnection>
-      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubatorcxf-parent/cxf-rt-bindings-object</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/bindings/object</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/bindings/object</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-bindings-object</url>
   </scm>
 
 </project>
