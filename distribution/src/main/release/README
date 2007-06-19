@@ -1,14 +1,28 @@
 Welcome to Apache Incubator CXF!
 ======================
-Apache Incubator CXF simplifies the construction, integration, and flexible 
-reuse of technical and business components using a standards-based, 
-service-oriented architecture (SOA). It provides a pluggable architecture that 
-supports not only XML but also non-XML bindings in combination with any type 
-of transport. It also supports several programming models including JAX-WS, 
-JBI, SCA, and CORBA. It is designed for flexible deployment in a variety of 
-containers including Spring-based, JBI, SCA, Servlet and J2EE containers. This 
-broad range of flexibility makes it possible to create and integrate Web 
-services and legacy services using a single framework.
+Apache CXF is an open source services framework. CXF helps you build and 
+develop services using frontend programming APIs, like JAX-WS. These 
+services can speak a variety of protocols such as SOAP, XML/HTTP, RESTful 
+HTTP, or CORBA and work over a variety of transports such as HTTP, JMS or JBI.
+
+CXF includes a broad feature set, but it is primarily focused on the following 
+areas:
+
+    * Web Services Standards Support: CXF supports a variety of web service 
+      standards including SOAP, the Basic Profile, WSDL, WS-Addressing, 
+      WS-Policy, WS-ReliableMessaging, and WS-Security.
+    * Frontends: CXF supports a variety of "frontend" programming models. CXF
+      implements the JAX-WS APIs. It also includes a "simple frontend" which 
+      allows creation of clients and endpoints without annotations. CXF supports 
+      both contract first development with WSDL and code first development 
+      starting from Java.
+    * Ease of use: CXF is designed to be intuitive and easy to use. There 
+      are simple APIs to quickly build code-first services, Maven plug-ins to 
+      make tooling integration easy, JAX-WS API support, Spring 2.0 XML support 
+      to make configuration a snap, and much more.
+    * Binary and Legacy Protocol Support: CXF has been designed to provide a 
+      pluggable architecture that supports not only XML but also non-XML type 
+      bindings, such as JSON and CORBA, in combination with any type of transport.
 
 
 Incubation Disclaimer
