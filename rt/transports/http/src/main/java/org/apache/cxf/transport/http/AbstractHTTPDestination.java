@@ -406,17 +406,8 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
                     wrappedStream = responseStream;
                 }
             }
-            commitResponse();
-        }
-
-        
-
-        private void commitResponse() {
-            try {
-                response.flushBuffer();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            wrappedStream.close();
+            response.flushBuffer();
         }
     }
 
