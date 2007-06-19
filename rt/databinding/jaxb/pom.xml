@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0-incubator-SNAPSHOT</version>
+        <version>2.0-incubator</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
@@ -180,9 +180,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/databinding/jaxb</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/databinding/jaxb</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-databinding-jaxb</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator/rt/databinding/jaxb</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubator/rt/databinding/jaxb</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0-incubatorcxf-parent/cxf-rt-databinding-jaxb</url>
   </scm>
 
 </project>
