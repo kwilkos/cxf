@@ -22,6 +22,7 @@ package org.apache.cxf.jaxb;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -234,13 +235,21 @@ public final class JAXBEncoderDecoder {
             if (au != null) {
                 u.setAttachmentUnmarshaller(au);
             }
+            boolean unmarshalWithClass = true;
+            
+            if (clazz == null || (!clazz.isPrimitive() && !clazz.isArray() && !clazz.isEnum() 
+                && (Modifier.isAbstract(clazz.getModifiers()) 
+                || Modifier.isInterface(clazz.getModifiers())))) {
+                unmarshalWithClass = false;
+            }
             if (source instanceof Node) {
-                obj = (clazz != null) ? u.unmarshal((Node)source, clazz) : u.unmarshal((Node)source);
+                obj = unmarshalWithClass ? u.unmarshal((Node)source, clazz) : u.unmarshal((Node)source);
             } else if (source instanceof XMLStreamReader) {
-                obj = (clazz != null) ? u.unmarshal((XMLStreamReader)source, clazz) : u
+                
+                obj = unmarshalWithClass ? u.unmarshal((XMLStreamReader)source, clazz) : u
                     .unmarshal((XMLStreamReader)source);
             } else if (source instanceof XMLEventReader) {
-                obj = (clazz != null) ? u.unmarshal((XMLEventReader)source, clazz) : u
+                obj = unmarshalWithClass ? u.unmarshal((XMLEventReader)source, clazz) : u
                     .unmarshal((XMLEventReader)source);
             } else {
                 throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
