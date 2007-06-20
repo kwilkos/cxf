@@ -42,7 +42,7 @@
         <include name="geronimo-annotation_1.0_spec-1.1.jar"/>
         <include name="xml-resolver-1.2.jar"/>
         <include name="saaj*.jar"/>
-        <include name="geronimo-ws-metadata_2.0_spec-1.1.jar"/>
+        <include name="geronimo-ws-metadata_2.0_spec-*.jar"/>
         <include name="XmlSchema-1.2.jar"/>
         <include name="wstx-asl-3.2.1.jar"/>
       </fileset>
