@@ -64,7 +64,7 @@ public class ServerGenerator extends AbstractJAXWSGenerator {
         if (passthrough()) {
             return;
         }
-        String address = "";
+        String address = "CHANGE_ME";
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
         
         if (javaModel.getServiceClasses().size() == 0) {

@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPBinding;
 import javax.wsdl.extensions.mime.MIMEContent;
@@ -37,6 +36,7 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -64,7 +64,6 @@ import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
-
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 
 public class ServiceProcessor extends AbstractProcessor {
@@ -214,8 +213,14 @@ public class ServiceProcessor extends AbstractProcessor {
         jport.setPortType(portType);
         
         JAXWSBinding infBinding = infInfo.getExtensor(JAXWSBinding.class);
+
         
         if (infBinding != null) {
+            if (infBinding.getJaxwsClass() != null
+                && !StringUtils.isEmpty(infBinding.getJaxwsClass().getClassName())) {
+                jport.setPortType(infBinding.getJaxwsClass().getClassName());
+            }
+            
             if (!infBinding.isEnableAsyncMapping()) {
                 jaxwsBinding.setEnableAsyncMapping(false);
             }
