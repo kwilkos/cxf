@@ -243,8 +243,8 @@ public final class JAXBEncoderDecoder {
                 unmarshalWithClass = false;
             } 
             
-            if (clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")
-                    || clazz.getName().equals("javax.xml.datatype.Duration")) {
+            if (clazz != null && (clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")
+                    || clazz.getName().equals("javax.xml.datatype.Duration"))) {
                 //special treat two jaxb defined built-in abstract types
                 unmarshalWithClass = true;
             }
