@@ -241,6 +241,12 @@ public final class JAXBEncoderDecoder {
                 && (Modifier.isAbstract(clazz.getModifiers()) 
                 || Modifier.isInterface(clazz.getModifiers())))) {
                 unmarshalWithClass = false;
+            } 
+            
+            if (clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")
+                    || clazz.getName().equals("javax.xml.datatype.Duration")) {
+                //special treat two jaxb defined built-in abstract types
+                unmarshalWithClass = true;
             }
             if (source instanceof Node) {
                 obj = unmarshalWithClass ? u.unmarshal((Node)source, clazz) : u.unmarshal((Node)source);
