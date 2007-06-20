@@ -85,6 +85,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         Endpoint endpoint = getClient().getEndpoint();
+        String address = endpoint.getEndpointInfo().getAddress();
         MethodDispatcher dispatcher = (MethodDispatcher)endpoint.getService().get(
                                                                                   MethodDispatcher.class
                                                                                       .getName());
@@ -172,7 +173,7 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                 throw new WebServiceException(ex);
             }
         } finally {
-            if (endpoint != getClient().getEndpoint()) {
+            if (addressChanged(address)) {
                 setupEndpointAddressContext(getClient().getEndpoint());
             }
         }
@@ -189,6 +190,12 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         }
         return result;
 
+    }
+    
+    private boolean addressChanged(String address) {
+        return !(address == null
+                 || getClient().getEndpoint().getEndpointInfo() == null
+                 || address.equals(getClient().getEndpoint().getEndpointInfo().getAddress()));
     }
 
     private Object invokeAsync(Method method, BindingOperationInfo oi, Object[] params,
