@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -33,19 +34,25 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
+
 
 /**
  * @author <a href=""mailto:gnodet [at] gmail.com">Guillaume Nodet</a>
  */
 public final class IriDecoderHelper {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(IriDecoderHelper.class);
 
     private IriDecoderHelper() {
         
@@ -202,11 +209,13 @@ public final class IriDecoderHelper {
             if (cplxType == null) {
                 cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
             }
-        }
-        if (schemaAnnotation instanceof XmlSchemaComplexType) {
+        } else if (schemaAnnotation instanceof XmlSchemaComplexType) {
             cplxType = (XmlSchemaComplexType)schemaAnnotation;
             qname = cplxType.getQName();
+        } else if (schemaAnnotation instanceof XmlSchemaSimpleType) {
+            throw new Fault(new Message("SIMPLE_TYPE", BUNDLE));
         }
+        
         Document doc = DOMUtils.createDocument();
          
               

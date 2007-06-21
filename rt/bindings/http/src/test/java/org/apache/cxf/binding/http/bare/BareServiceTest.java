@@ -31,6 +31,7 @@ import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.customer.bare.CustomerService;
 import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.junit.Test;
@@ -147,6 +148,64 @@ public class BareServiceTest extends AbstractRestTest {
         c.setRequestMethod("GET");
         
         assertEquals("text/plain", c.getContentType());
+
+        svr.stop();
+    }
+
+    @Test
+    public void testGetOnBadUnwrappedParam() throws Exception {
+        BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
+        HttpBindingFactory factory = new HttpBindingFactory();
+        factory.setBus(getBus());
+        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
+        
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setBus(getBus());
+        sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
+        sf.setServiceBean(new TestService());
+        sf.getServiceFactory().setWrapped(false);
+        sf.setAddress("http://localhost:9001/test/");
+
+        ServerImpl svr = (ServerImpl) sf.create();
+        
+        URL url = new URL("http://localhost:9001/test/topics/123");
+        HttpURLConnection c = (HttpURLConnection)url.openConnection();
+        c.setRequestMethod("GET");
+        
+        assertEquals("text/xml", c.getContentType());
+        
+        Document doc = DOMUtils.readXml(c.getErrorStream());
+        assertValid("//*[text()='You can not map a URI parameter to a "
+                    + "simple type when in unwrapped mode!']", doc);
+
+        svr.stop();
+    }
+    
+    @Test
+    public void testQueryParam() throws Exception {
+        BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
+        HttpBindingFactory factory = new HttpBindingFactory();
+        factory.setBus(getBus());
+        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, factory);
+        
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setBus(getBus());
+        sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
+        sf.setServiceBean(new TestService());
+        sf.getServiceFactory().setWrapped(false);
+        sf.setAddress("http://localhost:9001/test/");
+
+        ServerImpl svr = (ServerImpl) sf.create();
+        
+        URL url = new URL("http://localhost:9001/test/rest/foo");
+        HttpURLConnection c = (HttpURLConnection)url.openConnection();
+        c.setRequestMethod("GET");
+        
+        assertEquals("text/xml", c.getContentType());
+        
+        Document doc = DOMUtils.readXml(c.getInputStream());
+        addNamespace("b", "http://bare.http.binding.cxf.apache.org/");
+        assertValid("//b:getDataResponse", doc);
 
         svr.stop();
     }
