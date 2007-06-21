@@ -41,7 +41,9 @@ run_client and run_client.bat can take these argument:
     -BasedOn Time   setup the invoking count with time
     -Amount   define the invoke times , if based on time it means second
     -PacketSize  define the packet size which client send to server
-    -Threads   define the thread number to run the perform test	
+    -Threads   define the thread number to run the perform test
+    -HostName  define the service provider's host name
+    -Port      define the service provider's listen port number	
  
 
 	

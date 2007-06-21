@@ -22,7 +22,8 @@ BASEDON=Time
 AMOUNT=30
 PACKETSIZE=1
 THREADS=1
-PIPE=
+HOST=localhost
+PORT=20003
 
 for i in $@
 do 
@@ -51,13 +52,18 @@ do
 	THREADS=$2
   fi
 
-  if [ "$i" = "-Pipe" ]
-  then
-	PIPE=-Dpipe=-Pipe
+  if [ "$i" = "-HostName" ]
+  then 
+        HOST=$2
+  fi
+
+  if [ "$i" = "-PortName" ]
+  then 
+        PORT=$2
   fi
 
   shift
 done
 
 cd .. 
-ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS $PIPE
+ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS 

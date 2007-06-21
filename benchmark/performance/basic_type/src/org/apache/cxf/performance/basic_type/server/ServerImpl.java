@@ -23,7 +23,9 @@ import java.util.logging.Logger;
 import org.apache.cxf.performance.basic_type.BasicPortType;
 @javax.jws.WebService(portName = "SoapHttpPort", serviceName = "BasicService",                                                                                
                       targetNamespace = "http://cxf.apache.org/performance/basic_type",
-                      endpointInterface = "org.apache.cxf.performance.basic_type.BasicPortType")
+                      endpointInterface = "org.apache.cxf.performance.basic_type.BasicPortType",
+                      wsdlLocation = "wsdl/basic_type.wsdl" 
+)
 
 public class ServerImpl implements BasicPortType {
 

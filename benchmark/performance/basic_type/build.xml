@@ -26,7 +26,7 @@
         <property name="param" value=""/>
         <property name="pipe" value=""/>
         <cxf.client.run classname="org.apache.cxf.performance.basic_type.client.Client" argline=
-                "-WSDL ${wsdl.dir}/${wsdl.file} 
+                "-WSDL http://${cxf.host.name}:${cxf.port.name}/performance/basic_type/SoapPort?wsdl 
 			 -Amount ${cxf.running.time} 
 			 -BasedOn ${cxf.basedon}
 			 -Operation ${cxf.operation}

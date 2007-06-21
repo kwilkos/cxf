@@ -125,16 +125,7 @@ public final class Client extends TestCaseBase {
         port.sendReceiveData(complexTypeSeq);
     }
 
-    public void getPort() {
-        if (usePipe) {
-            try {
-                new Server("pipe://localhost:20000/performance/complex_type/ComplexPort");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            System.out.println("not using pipe");
-        }
+    public void getPort() {        
         try{ 
             URL wsdl = null;
             if ((wsdlPath.startsWith("file://")) || (wsdlPath.startsWith("http://"))) {
@@ -146,12 +137,7 @@ public final class Client extends TestCaseBase {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        port = cs.getSoapPort();
-        if (usePipe) {
-             javax.xml.ws.BindingProvider provider = (javax.xml.ws.BindingProvider)port;
-             provider.getRequestContext().put(provider.ENDPOINT_ADDRESS_PROPERTY,
-                                            "pipe://localhost:20000/performance/complex_type/ComplexPort");
-         }
+        port = cs.getSoapPort();        
     }
 
     public void printUsage() {

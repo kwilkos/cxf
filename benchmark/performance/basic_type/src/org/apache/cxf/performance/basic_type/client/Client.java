@@ -114,13 +114,7 @@ public final class Client extends TestCaseBase {
     }
 
     public void getPort() {
-        if (usePipe) {
-            try {
-                new Server("pipe://localhost:20000/performance/basic_type/SoapPort");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+       
         try {
             URL wsdl = null;
             if ((wsdlPath.startsWith("file://")) || (wsdlPath.startsWith("http://"))) {
@@ -133,12 +127,7 @@ public final class Client extends TestCaseBase {
             e.printStackTrace();
         }
         port = ss.getSoapHttpPort();
-
-        if (usePipe) {
-            javax.xml.ws.BindingProvider provider = (javax.xml.ws.BindingProvider)port;
-            provider.getRequestContext().put(provider.ENDPOINT_ADDRESS_PROPERTY,
-                                             "pipe://localhost:20000/performance/basic_type/SoapPort");
-        }
+      
 
     }
 } 

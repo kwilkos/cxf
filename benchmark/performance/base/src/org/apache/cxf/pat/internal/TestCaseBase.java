@@ -187,6 +187,7 @@ public abstract class TestCaseBase {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -262,13 +263,13 @@ public abstract class TestCaseBase {
 
     public abstract void printUsage();
 
-    public void printSetting(String settingType) {
+    public void printSetting(String settingType) {        
+        System.out.println(settingType + "  wsdl location is " + wsdlPath );
         System.out.println(settingType + "  [Service] -- > " + serviceName);
         System.out.println(settingType + "  [Port] -- > " + portName);
         System.out.println(settingType + "  [Operation] -- > " + operationName);
         System.out.println(settingType + "  [Threads] -- > " + numberOfThreads);
-        System.out.println(settingType + "  [Packet Size] -- > " + packetSize
-                           + " packet(s) ");
+        System.out.println(settingType + "  [Packet Size] -- > " + packetSize + " packet(s) ");
         if (usingTime) {
             System.out.println(settingType + "  [Running] -->  " + amount + " (secs)");
         } else {
@@ -279,7 +280,7 @@ public abstract class TestCaseBase {
 
     public void printTitle() {
         System.out.println(" ---------------------------------");
-        System.out.println(name + "  Client (JAVA Version)");
+        System.out.println(name + "  Client (JAVA Version)");       
         System.out.println(" ---------------------------------");
     }
 
