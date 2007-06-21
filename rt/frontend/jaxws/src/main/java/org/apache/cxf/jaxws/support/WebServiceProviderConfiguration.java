@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.support;
 
 import java.lang.reflect.Method;
 
+import javax.activation.DataSource;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
@@ -36,7 +37,8 @@ public class WebServiceProviderConfiguration extends JaxWsServiceConfiguration {
         return method.getName().equals("invoke") 
             && method.getParameterTypes().length == 1
             && (Source.class.isAssignableFrom(method.getParameterTypes()[0])
-                || SOAPMessage.class.isAssignableFrom(method.getParameterTypes()[0]));
+                || SOAPMessage.class.isAssignableFrom(method.getParameterTypes()[0])
+                || DataSource.class.isAssignableFrom(method.getParameterTypes()[0]));
     }
 
 

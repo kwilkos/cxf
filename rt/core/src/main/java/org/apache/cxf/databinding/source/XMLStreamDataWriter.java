@@ -18,9 +18,11 @@
  */
 package org.apache.cxf.databinding.source;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+import javax.activation.DataSource;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -45,16 +47,24 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
 
     public void write(Object obj, XMLStreamWriter writer) {
         try {
-            Source s = (Source) obj;
-            if (s instanceof DOMSource
-                && ((DOMSource) s).getNode() == null) {
-                return;
-            }
+            XMLStreamReader reader = null;
+            if (obj instanceof DataSource) {
+                DataSource ds = (DataSource)obj;
+                reader = StaxUtils.createXMLStreamReader(ds.getInputStream());
+            } else {
+                Source s = (Source) obj;
+                if (s instanceof DOMSource
+                    && ((DOMSource) s).getNode() == null) {
+                    return;
+                }
             
-            XMLStreamReader reader = StaxUtils.createXMLStreamReader(s);
+                reader = StaxUtils.createXMLStreamReader(s);
+            }
             StaxUtils.copy(reader, writer);
             reader.close();
         } catch (XMLStreamException e) {
+            throw new Fault(new Message("COULD_NOT_READ_XML_STREAM", LOG), e);
+        } catch (IOException e) {
             throw new Fault(new Message("COULD_NOT_READ_XML_STREAM", LOG), e);
         }
     }
