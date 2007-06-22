@@ -60,6 +60,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerOutInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
@@ -236,7 +237,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (endpoint instanceof JaxWsEndpointImpl) {
             Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
             if (endpoint.getBinding() instanceof SoapBinding) {
-                //endpoint.getInInterceptors().add(new SOAPHandlerInterceptor(jaxwsBinding));
                 chain.add(new SOAPHandlerInterceptor(jaxwsBinding));
             } else {
                 // TODO: what for non soap bindings?
@@ -266,10 +266,13 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         }
         chain.add(il);
 
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by endpoint: " + il);
-        }
-        chain.add(endpoint.getInInterceptors());
+        if (endpoint instanceof JaxWsEndpointImpl) {
+            Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
+            if (endpoint.getBinding() instanceof SoapBinding) {
+                chain.add(new SOAPHandlerInterceptor(jaxwsBinding));
+            }      
+            chain.add(new LogicalHandlerInInterceptor(jaxwsBinding));
+        }           
 
         List<Interceptor> inInterceptors = new ArrayList<Interceptor>();
         inInterceptors.add(new DispatchInInterceptor(cl, mode));
