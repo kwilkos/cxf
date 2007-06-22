@@ -160,44 +160,60 @@ public final class ManagementConsole {
         
         int i;
         String arg;
-        for (i = 0; i < args.length; i++) {
-            arg = args[i];
-            if ("--port".equals(arg) || "-p".equals(arg)) {
-                portName = args[++i];
-                continue;
+        try {
+            for (i = 0; i < args.length; i++) {
+                arg = args[i];
+                if ("--port".equals(arg) || "-p".equals(arg)) {
+                    portName = args[++i];
+                    continue;
+                }
+                if ("--service".equals(arg) || "-s".equals(arg)) {
+                    serviceName = args[++i];
+                    continue;
+                }
+                if ("--jmx".equals(arg) || "-j".equals(arg)) {
+                    jmxServerURL = args[++i];
+                    continue;
+                }
+                if ("--operation".equals(arg) || "-o".equals(arg)) {
+                    operationName = args[++i];
+                    // it is the key option
+                    result = true;
+                    continue;
+                }
             }
-            if ("--service".equals(arg) || "-s".equals(arg)) {
-                serviceName = args[++i];
-                continue;
-            }
-            if ("--jmx".equals(arg) || "-j".equals(arg)) {
-                jmxServerURL = args[++i];
-                continue;
-            }
-            if ("--operation".equals(arg) || "-o".equals(arg)) {
-                operationName = args[++i];
-                result = true;
-                continue;
-            }
-        }  
+        } catch (Exception ex) {
+            // can't paraser the argument rightly
+            return false;
+        }
         return result;
     }
     
     private static void printUsage() {
-        System.out.println("Managed Console for CXF");
-        System.out.println("\t Valid options");
-        System.out.println("-j [--jmx] arg \t\t the jmxServerURL that need to connet mbean server ");
-        System.out.println("\t\t\t the default value is " 
-            + "service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi");
-        System.out.println("-p [--port] arg \t the port name of the managed endpoint");
-        System.out.println("\t\t\t the arg is the Qname of port");
-        System.out.println("-s [--service] arg \t the service name of the managed endpoint");
-        System.out.println("\t\t\t the arg format the Qname of service");
-        System.out.println("-o [--operation] {list|start|stop|restart} \t call the jmx functions");
-        System.out.println("\t\t\t list: show all the managed endpoints' objectNames and attributs ");
-        System.out.println("\t\t\t start: start the endpoint with the --port and --service arguments");
-        System.out.println("\t\t\t stop: stop the endpoint with the --port and --service arguments");
-        System.out.println("\t\t\t restart: restart the endpoint with the --port and --service arguments");
+        System.out.println("Managed Console for the CXF Managed Endpoints");
+        System.out.println("You can start and stop the endpoints which export as the JMX managed Objects");
+        System.out.println("Usage: -o list ");
+        System.out.println("       -o {start|stop|restart} -p PORTQNAME -s SERVICEQNAME ");
+        System.out.println("Valid options:");        
+        System.out.println(" -o [--operation] {list|start|stop|restart}  call the managed endpoint "
+                        + "operation");
+        System.out.println("                          list: show all the managed endpoints' objectNames and");
+        System.out.println("                                attributs");
+        System.out.println("                          start: start the endpoint with the -p and -s "
+                        + "arguments");
+        System.out.println("                          stop: stop the endpoint with the -p and -s arguments");
+        System.out.println("                          restart: restart the endpoint with the -p and -s "
+                        + "arguments");       
+        
+        System.out.println(" -p [--port] arg          ARG: the port Qname of the managed endpoint");        
+        System.out.println(" -s [--service] arg       ARG: the service Qname of the managed endpoint");
+        System.out.println(" -j [--jmx] arg           ARG: set the JMXServerURL that uses to connect mbean " 
+                           + "server");
+        System.out.println("                           if not using this option, the JMXServerURL will be "
+                           + "set as");
+        System.out.println("                           \"service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi"
+                        + "\"");
+        
         
     }
     
