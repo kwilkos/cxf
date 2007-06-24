@@ -95,6 +95,7 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                     }
                 }
                 message.setContent(Object.class, obj);
+                message.setContent(SOAPMessage.class, soapMessage);               
             } else if (message instanceof XMLMessage) {
                 new StaxInInterceptor().handleMessage(message);
                 

@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
+import javax.xml.bind.JAXBElement;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -72,54 +73,62 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         try {
             if (message instanceof SoapMessage) {
-                if (m == Service.Mode.MESSAGE) {
-                    if (obj instanceof DataSource) {
-                        throw new RuntimeException(obj.getClass()
-                                                   + " is not valid in Message mode for SOAP/HTTP");
-                    }
-                } else if (m == Service.Mode.PAYLOAD) {
+                if (m == Service.Mode.PAYLOAD) {
                     if (obj instanceof SOAPMessage || obj instanceof DataSource) {
                         throw new RuntimeException(obj.getClass()
-                                                   + " is not valid in PAYLOAD mode with SOAP/HTTP");
+                                                   + " is not valid in PAYLOAD mode with SOAP/HTTP binding");
+                    } else {
+                        // Input is Source or JAXB in payload mode, need to wrap it
+                        // with a SOAPMessage
+                        SOAPMessage msg = initSOAPMessage();
+                        DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
+                        dataWriter.write(obj, msg.getSOAPBody());
+                        message.setContent(Object.class, msg);
+                        message.setContent(SOAPMessage.class, msg);
                     }
-                    
-                    //Convert Source or JAXB element to SOAPMessage
-                    SOAPMessage msg = initSOAPMessage();
-                    DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
-                    dataWriter.write(obj, msg.getSOAPBody());
-                    message.setContent(Object.class, msg);
-                    message.setContent(SOAPMessage.class, msg);   
-                    msg.writeTo(System.out);
-                    //msg.writeTo(os);
+                } else {
+                    if (obj instanceof DataSource) {
+                        throw new RuntimeException(
+                            "DataSource is not valid in MESSAGE mode with SOAP/HTTP binding");
+                    } else if (obj instanceof JAXBElement) {
+                        // REVISIT: Not sure if this is a valid combination
+                    } else {
+                        //Input is Source or SOAPMessage, no conversion needed
+                    }
                 }
             } else if (message instanceof XMLMessage) {
-                if (m == Service.Mode.MESSAGE
-                    && obj instanceof SOAPMessage) {
-                    throw new RuntimeException("SOAPMessage is not valid in MESSAGE mode with XML/HTTP");
-                } else if (m == Service.Mode.PAYLOAD
-                           && (obj instanceof SOAPMessage
-                               || obj instanceof DataSource)) {
-                    throw new RuntimeException(obj.getClass()
-                                               + " is not valid in PAYLOAD mode with XML/HTTP");
-                }                
-
-                DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
-                                                                       XMLStreamWriter.class);
-                XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
-                if (xmlWriter == null) {
-                    xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");
+                if (obj instanceof SOAPMessage) {
+                    throw new RuntimeException("SOAPMessage is not valid with XML/HTTP binding");
                 }
-                dataWriter.write(obj, xmlWriter);
-                message.setContent(XMLStreamWriter.class, xmlWriter);
-                // xmlWriter.flush();
 
+                if (m == Service.Mode.PAYLOAD && obj instanceof DataSource) {
+                    throw new RuntimeException(
+                        "DataSource is not valid in PAYLOAD mode with XML/HTTP binding");
+                }
+
+                if (obj instanceof Source || obj instanceof DataSource) {
+                    // no conversion needed
+                } else {
+                    //JAXB element
+                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
+                                                                           XMLStreamWriter.class);
+                    XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+                    //W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
+                    
+                    if (xmlWriter == null) { 
+                        xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8"); 
+                    }
+                     
+                    dataWriter.write(obj, xmlWriter);
+                    message.setContent(XMLStreamWriter.class, xmlWriter);
+
+                }
             }
-            // Finish the message processing, do flush
-            // os.flush();
-        } catch (Exception ex) {
+        } catch (Exception e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
+
         }
-        
+
         message.getInterceptorChain().add(ending);
     }
     
@@ -147,11 +156,8 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
             } catch (Exception ex) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
             }
-
-        }
-      
+        }      
     }
-
         
     private SOAPMessage initSOAPMessage() throws SOAPException {
         SOAPMessage msg = MessageFactory.newInstance().createMessage();

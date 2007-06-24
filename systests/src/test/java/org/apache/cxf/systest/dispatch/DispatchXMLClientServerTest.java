@@ -28,7 +28,6 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
 
@@ -37,8 +36,6 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
-import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
-import org.apache.hello_world_xml_http.wrapped.GreeterImpl;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
 import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
 import org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse;
@@ -51,28 +48,6 @@ public class DispatchXMLClientServerTest extends AbstractBusClientServerTestBase
                                                 "XMLService");
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", 
                                              "XMLDispatchPort");
-
-    public static class Server extends AbstractBusTestServerBase {        
-
-        protected void run() {
-            Object implementor = new GreeterImpl();
-            String address = "http://localhost:9007/XMLService/XMLDispatchPort";
-            Endpoint.publish(address, implementor);
-
-        }
-
-        public static void main(String[] args) {
-            try {
-                Server s = new Server();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                System.out.println("done!");
-            }
-        }
-    }
 
     @BeforeClass
     public static void startServers() throws Exception {

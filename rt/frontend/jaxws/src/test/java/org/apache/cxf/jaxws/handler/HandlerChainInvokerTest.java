@@ -46,6 +46,8 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
 import org.apache.cxf.jaxws.handler.soap.SOAPMessageContextImpl;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.junit.Assert;
@@ -81,6 +83,8 @@ public class HandlerChainInvokerTest extends Assert {
         invoker = new HandlerChainInvoker(handlers);
         
         message = new MessageImpl();
+        Exchange e = new ExchangeImpl();
+        message.setExchange(e);
         lmc = new LogicalMessageContextImpl(message);
         pmc = new WrappedMessageContext(message);      
 /*        

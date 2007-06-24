@@ -34,8 +34,6 @@ import org.apache.cxf.transport.MessageObserver;
 
 public class DispatchLogicalHandlerOutInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
-    
-    public static final String ORIGINAL_WRITER = "original_writer";
      
     public DispatchLogicalHandlerOutInterceptor(Binding binding) {
         super(binding, Phase.PRE_MARSHAL);
@@ -53,29 +51,23 @@ public class DispatchLogicalHandlerOutInterceptor<T extends Message>
         
         ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), lctx, requestor);          
         
-        if (!invoker.invokeLogicalHandlers(requestor, lctx)) {
-            if (requestor) {
-                // client side - abort
-                message.getInterceptorChain().abort();
-                Endpoint e = message.getExchange().get(Endpoint.class);
-                Message responseMsg = e.getBinding().createMessage();            
+        if (!invoker.invokeLogicalHandlers(requestor, lctx) && requestor) {
+            // client side - abort
+            message.getInterceptorChain().abort();
+            Endpoint e = message.getExchange().get(Endpoint.class);
+            Message responseMsg = e.getBinding().createMessage();
 
-                MessageObserver observer = (MessageObserver)message.getExchange()
-                            .get(MessageObserver.class);
-                if (observer != null) {
-                    //client side outbound, the request message becomes the response message
-                    responseMsg.setContent(XMLStreamReader.class, message
-                        .getContent(XMLStreamReader.class));                        
-                    
-                    message.getExchange().setInMessage(responseMsg);
-                    responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
-                                    LogicalHandlerInInterceptor.class.getName());
-                    observer.onMessage(responseMsg);
-                }
-            } else {
-                // server side - abort
-                //System.out.println("Logical handler server side aborting");
+            MessageObserver observer = (MessageObserver)message.getExchange().get(MessageObserver.class);
+            if (observer != null) {
+                //client side outbound, the request message becomes the response message
+                responseMsg.setContent(XMLStreamReader.class, message.getContent(XMLStreamReader.class));
+
+                message.getExchange().setInMessage(responseMsg);
+                responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
+                                LogicalHandlerInInterceptor.class.getName());
+                observer.onMessage(responseMsg);
             }
+
         }
     }
 }

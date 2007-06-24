@@ -66,11 +66,9 @@ public class SmallNumberHandler extends TestHandlerBase implements LogicalHandle
 
             if (outbound) {
                 // get the LogicalMessage from our context
-                //
                 LogicalMessage msg = messageContext.getMessage();
 
                 // check the payload, if its an AddNumbers request, we'll intervene
-                //
                 JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
                 Object payload = msg.getPayload(jaxbContext);
                 if (payload instanceof JAXBElement) {
@@ -81,7 +79,6 @@ public class SmallNumberHandler extends TestHandlerBase implements LogicalHandle
                     AddNumbers req = (AddNumbers)payload;
 
                     // now, if the arguments are small, let's do the calculation here
-                    //
                     int a = req.getArg0();
                     int b = req.getArg1();
 

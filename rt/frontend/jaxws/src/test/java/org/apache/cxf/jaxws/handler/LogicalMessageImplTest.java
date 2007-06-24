@@ -27,6 +27,8 @@ import javax.xml.bind.JAXBElement;
 
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageContextImpl;
 import org.apache.cxf.jaxws.handler.logical.LogicalMessageImpl;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.handlers.types.AddNumbers;
@@ -53,6 +55,8 @@ public class LogicalMessageImplTest extends Assert {
         //using Dispatch
         JAXBContext ctx = JAXBContext.newInstance(ObjectFactory.class);
         Message message = new MessageImpl();
+        Exchange e = new ExchangeImpl();
+        message.setExchange(e);
         LogicalMessageContextImpl lmci = new LogicalMessageContextImpl(message);
 
         JAXBElement<AddNumbers> el = new ObjectFactory().createAddNumbers(req);

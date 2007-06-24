@@ -61,6 +61,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerOutInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
+import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
@@ -237,7 +238,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (endpoint instanceof JaxWsEndpointImpl) {
             Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
             if (endpoint.getBinding() instanceof SoapBinding) {
-                chain.add(new SOAPHandlerInterceptor(jaxwsBinding));
+                chain.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
             } else {
                 // TODO: what for non soap bindings?
             }       
