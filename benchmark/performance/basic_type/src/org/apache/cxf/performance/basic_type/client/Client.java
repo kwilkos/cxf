@@ -48,7 +48,7 @@ public final class Client extends TestCaseBase {
     private BasicPortType port;
 
     public Client(String[] args) {
-        super("Base TestCase", args);
+        super("Basic Type TestCase", args);
         serviceName = "BasicService";
         portName = "BasicPortType";
         operationName = "echoString";

@@ -51,7 +51,7 @@ public final class Client extends TestCaseBase {
     private final NestedComplexTypeSeq complexTypeSeq = new NestedComplexTypeSeq();
        
     public Client(String[] args) {
-        super("Base TestCase", args);
+        super("Complex Type TestCase", args);
         serviceName = "ComplexService";
         portName = "ComplexPortType";
         operationName = "sendReceiveData";
