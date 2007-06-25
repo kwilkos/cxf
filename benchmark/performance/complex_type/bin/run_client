@@ -66,4 +66,4 @@ do
 done
 
 cd .. 
-ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS 
+ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS -Dcxf.host.name=$HOST -Dcxf.port.name=$PORT
