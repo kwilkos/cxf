@@ -22,7 +22,7 @@
     <property name="wsdl.dir" location="${basedir}/wsdl"/>
     <property name="wsdl.file" value="basic_type.wsdl"/>
 
-    <target name="client" description="run basic_type client">
+    <target name="client" description="run basic_type client" depends="build">
         <property name="param" value=""/>
         <property name="pipe" value=""/>
         <cxf.client.run classname="org.apache.cxf.performance.basic_type.client.Client" argline=
@@ -34,7 +34,7 @@
 			 -Threads ${cxf.threads} ${pipe}"/>
     </target>
 
-    <target name="server" description="run basic_type server">
+    <target name="server" description="run basic_type server" depends="build">
         <cxf.server.run classname="org.apache.cxf.performance.basic_type.server.Server" argline="-WSDL ${basedir}/wsdl/${wsdl.file}"/>
     </target>
 
