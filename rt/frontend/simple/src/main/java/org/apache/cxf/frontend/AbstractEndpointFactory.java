@@ -19,7 +19,6 @@
 package org.apache.cxf.frontend;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -47,7 +46,7 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
@@ -99,7 +98,8 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         
         if (ei == null) {
             if (getAddress() == null) {
-                ei = findBestEndpointInfo(service.getServiceInfos());
+                ei = ServiceModelUtil.findBestEndpointInfo(serviceFactory.getInterfaceName(), service
+                    .getServiceInfos());
             }
             if (ei == null) {
                 ei = createEndpointInfo();
@@ -117,6 +117,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ep = serviceFactory.createEndpoint(ei);
             ((EndpointImpl)ep).initializeActiveFeatures(getFeatures());
         } else {
+            serviceFactory.setEndpointName(ei.getName());
             if (ep.getActiveFeatures() == null) {
                 ((EndpointImpl)ep).initializeActiveFeatures(getFeatures());
             }
@@ -141,34 +142,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ep.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
         }
         return ep;
-    }
-
-    protected EndpointInfo findBestEndpointInfo(List<ServiceInfo> serviceInfos) {
-        
-        QName qn = serviceFactory.getInterfaceName();
-        for (ServiceInfo serviceInfo : serviceInfos) {
-            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
-            for (EndpointInfo ep : eps) {
-                if (ep.getInterface().getName().equals(qn)) {
-                    return ep;
-                }
-            }
-        }        
-        
-        EndpointInfo best = null;
-        for (ServiceInfo serviceInfo : serviceInfos) {
-            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
-            for (EndpointInfo ep : eps) {
-                if (best == null) {
-                    best = ep;
-                }
-                if (ep.getTransportId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
-                    return ep;
-                }
-            }
-        }
-        
-        return best;
     }
 
     protected EndpointInfo createEndpointInfo() throws BusException {

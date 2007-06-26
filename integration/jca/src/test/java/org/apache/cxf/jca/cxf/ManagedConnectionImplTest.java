@@ -56,11 +56,12 @@ public class ManagedConnectionImplTest extends ManagedConnectionTestBase {
         cri = new CXFConnectionRequestInfo(Foo.class, null, serviceName, null);
         
         try {
-            //current cxf supprot pojo simple frontend, so it is ok to create proxy now
+            //Can not create JAX-WS proxy using pojo
             mci.getConnection(subj, cri);
-            
+            fail("Did not get expected ResourceAdapterInternalException");         
+           
         } catch (ResourceAdapterInternalException raie) {
-            fail("NotExpected ResourceAdapterInternalException");           
+            //do nothing
         }
     }
 

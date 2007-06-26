@@ -42,7 +42,6 @@ import org.apache.cxf.endpoint.NullConduitSelector;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ServiceImplTest extends AbstractJaxWsTest {
@@ -70,7 +69,6 @@ public class ServiceImplTest extends AbstractJaxWsTest {
     }
     
     @Test
-    @Ignore("this test does not work, see CXF-735 ")
     public void testNonSpecificGetPort() throws Exception {
         SOAPService service = new SOAPService();
         

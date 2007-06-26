@@ -20,6 +20,7 @@
 package org.apache.cxf.service.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -107,5 +108,31 @@ public final class ServiceModelUtil {
             }
         }
         return names;
+    }  
+    
+    public static EndpointInfo findBestEndpointInfo(QName qn, List<ServiceInfo> serviceInfos) {
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
+            for (EndpointInfo ep : eps) {
+                if (ep.getInterface().getName().equals(qn)) {
+                    return ep;
+                }
+            }
+        }        
+        
+        EndpointInfo best = null;
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
+            for (EndpointInfo ep : eps) {
+                if (best == null) {
+                    best = ep;
+                }
+                if (ep.getTransportId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                    return ep;
+                }
+            }
+        }
+        
+        return best;
     }    
 }

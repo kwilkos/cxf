@@ -32,6 +32,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Dispatch;
@@ -67,6 +68,8 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.workqueue.OneShotAsyncExecutor;
@@ -301,11 +304,24 @@ public class ServiceImpl extends ServiceDelegate {
         }
         
         if (portName == null) {
-            clientFac.create();
-            portName = serviceFactory.getEndpointName();
-        } else {
-            serviceFactory.setEndpointName(portName);
+            QName portTypeName = getPortTypeName(serviceEndpointInterface);
+            
+            Service service = serviceFactory.getService();
+            if (service == null) {
+                serviceFactory.setServiceClass(serviceEndpointInterface);
+                serviceFactory.setBus(getBus());
+                service = serviceFactory.create();
+            }
+            
+            EndpointInfo ei = ServiceModelUtil.findBestEndpointInfo(portTypeName, service.getServiceInfos());
+            if (ei != null) {
+                portName = ei.getName();
+            } else {
+                portName = serviceFactory.getEndpointName();
+            }
         }
+ 
+        serviceFactory.setEndpointName(portName);
         
         if (epr != null) {
             clientFac.setEndpointReference(epr);
@@ -345,7 +361,7 @@ public class ServiceImpl extends ServiceDelegate {
         ports.add(portName);
         return serviceEndpointInterface.cast(obj);
     }
-
+    
     private EndpointInfo createEndpointInfo(AbstractServiceFactoryBean serviceFactory, 
                                             QName portName,
                                             PortInfoImpl portInfo) throws BusException {
@@ -393,7 +409,47 @@ public class ServiceImpl extends ServiceDelegate {
         // TODO if the portName null ?
         return portInfos.get(portName);
     }
+    
+    private QName getPortTypeName(Class<?> serviceEndpointInterface) {
+        Class<?> seiClass = serviceEndpointInterface;
+        if (!serviceEndpointInterface.isAnnotationPresent(WebService.class)) {
+            Message msg = new Message("SEI_NO_WEBSERVICE_ANNOTATION", BUNDLE, serviceEndpointInterface
+                .getCanonicalName());
+            throw new WebServiceException(msg.toString());
+        }
+ 
+        if (!serviceEndpointInterface.isInterface()) {
+            WebService webService = serviceEndpointInterface.getAnnotation(WebService.class);
+            String epi = webService.endpointInterface();
+            if (epi.length() > 0) {
+                try {
+                    seiClass = Thread.currentThread().getContextClassLoader().loadClass(epi);
+                } catch (ClassNotFoundException e) {
+                    Message msg = new Message("COULD_NOT_LOAD_CLASS", BUNDLE,
+                                              seiClass.getCanonicalName());
+                    throw new WebServiceException(msg.toString());   
+                }
+                if (!seiClass.isAnnotationPresent(javax.jws.WebService.class)) {
+                    Message msg = new Message("SEI_NO_WEBSERVICE_ANNOTATION", BUNDLE,
+                                              seiClass.getCanonicalName());
+                    throw new WebServiceException(msg.toString());                
+                }
+            }
+        }
 
+        WebService webService = seiClass.getAnnotation(WebService.class);
+        String name = webService.name();
+        if (name.length() == 0) {
+            name = seiClass.getSimpleName();
+        }
+
+        String tns = webService.targetNamespace();
+        if (tns.length() == 0) {
+            tns = URIParserUtil.getNamespace(seiClass.getPackage().getName());
+        }
+
+        return new QName(tns, name);
+    }
     
     
     //  TODO JAX-WS 2.1
