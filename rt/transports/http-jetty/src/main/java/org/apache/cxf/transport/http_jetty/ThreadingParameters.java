@@ -30,10 +30,12 @@ public class ThreadingParameters {
     private boolean maxThreadsSet;
     
     public void setMinThreads(int number) {
+        minThreadsSet = true;
         minThreads = number;
     }
     
     public void setMaxThreads(int number) {
+        maxThreadsSet = true;
         maxThreads = number;
     }
     
