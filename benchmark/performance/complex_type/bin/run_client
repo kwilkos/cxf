@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-OPERARTION=sendReceiveData
+OPERATION=sendReceiveData
 BASEDON=Time
 AMOUNT=30
 PACKETSIZE=1
@@ -27,9 +27,9 @@ PORT=20003
 
 for i in $@
 do 
-  if [ "$i" = "-Operartion" ]
+  if [ "$i" = "-Operation" ]
   then
-	OPERARTION=$2
+	OPERATION=$2
   fi
 
   if [ "$i" = "-BasedOn" ]
@@ -66,4 +66,4 @@ do
 done
 
 cd .. 
-ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS -Dcxf.host.name=$HOST -Dcxf.port.name=$PORT
+ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERATION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS -Dcxf.host.name=$HOST -Dcxf.port.name=$PORT
