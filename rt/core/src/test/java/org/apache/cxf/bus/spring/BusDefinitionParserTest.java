@@ -16,21 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
 
-import org.apache.cxf.frontend.spring.ClientProxyFactoryBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+package org.apache.cxf.bus.spring;
 
-public class JaxWsProxyFactoryBeanDefinitionParser extends ClientProxyFactoryBeanDefinitionParser {
+import java.util.List;
 
-    @Override
-    protected Class getFactoryClass() {
-        return JaxWsProxyFactoryBean.class;
+import org.apache.cxf.Bus;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class BusDefinitionParserTest extends Assert {
+    
+    @Test
+    public void testFeatures() {
+        String cfgFile = "org/apache/cxf/bus/spring/bus.xml";
+        Bus bus = new SpringBusFactory().createBus(cfgFile, true);
+        
+        List<Interceptor> in = bus.getInInterceptors();
+        boolean found = false;
+        for (Interceptor i : in) {
+            if (i instanceof LoggingInInterceptor) {
+                found = true;
+            }
+        }
+        assertTrue("could not find logging interceptor.", found);
     }
-
-    @Override
-    protected String getSuffix() {
-        return ".jaxws-client";
-    }
-
+    
 }

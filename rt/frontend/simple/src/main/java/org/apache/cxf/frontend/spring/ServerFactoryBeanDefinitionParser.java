@@ -71,11 +71,11 @@ public class ServerFactoryBeanDefinitionParser extends AbstractBeanDefinitionPar
     }
 
     @Override
-    protected void mapAttribute(BeanDefinitionBuilder bean, String name, String val) {
+    protected void mapAttribute(BeanDefinitionBuilder bean, Element e, String name, String val) {
         if (name.equals(IMPLEMENTOR)) {
             loadImplementor(bean, val);
         } else {
-            super.mapAttribute(bean, name, val);
+            super.mapAttribute(bean, e, name, val);
         }
     }
 

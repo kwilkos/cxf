@@ -57,7 +57,6 @@ public class SpringBeansTest extends Assert {
         assertTrue(sbc.getVersion() instanceof Soap12);
     }
     
-
     @Test
     public void testClients() throws Exception {
         ClassPathXmlApplicationContext ctx = 

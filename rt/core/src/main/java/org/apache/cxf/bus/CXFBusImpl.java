@@ -19,12 +19,14 @@
 
 package org.apache.cxf.bus;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 
 public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus {    
@@ -33,6 +35,7 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
     private BusLifeCycleManager lifeCycleManager;
     private String id;
     private BusState state;      
+    private Collection<AbstractFeature> features;
     
     public CXFBusImpl() {
         this(null);
@@ -100,6 +103,18 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
         }
     }
 
+    public void initialize() {
+        initializeFeatures();
+    }
+
+    private void initializeFeatures() {
+        if (features != null) {
+            for (AbstractFeature f : features) {
+                f.initialize(this);
+            }
+        }
+    }
+
     public void shutdown(boolean wait) {
         lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
         if (null != lifeCycleManager) {
@@ -120,4 +135,17 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
     protected BusState getState() {
         return state;
     }
+
+    public Collection<AbstractFeature> getFeatures() {
+        return features;
+    }
+
+    public synchronized void setFeatures(Collection<AbstractFeature> features) {
+        this.features = features;
+        
+        if (state == BusState.RUNNING) {
+            initializeFeatures();
+        }
+    }
+    
 }
