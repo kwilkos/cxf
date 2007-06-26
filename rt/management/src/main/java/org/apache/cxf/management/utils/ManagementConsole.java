@@ -190,15 +190,15 @@ public final class ManagementConsole {
     }
     
     private static void printUsage() {
-        System.out.println("Managed Console for the CXF Managed Endpoints");
-        System.out.println("You can start and stop the endpoints which export as the JMX managed Objects");
+        System.out.println("Management Console for CXF Managed Endpoints");
+        System.out.println("You can start and stop the endpoints which export as JMX managed objects");
         System.out.println("Usage: -o list ");
         System.out.println("       -o {start|stop|restart} -p PORTQNAME -s SERVICEQNAME ");
         System.out.println("Valid options:");        
         System.out.println(" -o [--operation] {list|start|stop|restart}  call the managed endpoint "
                         + "operation");
         System.out.println("                          list: show all the managed endpoints' objectNames and");
-        System.out.println("                                attributs");
+        System.out.println("                                attributes");
         System.out.println("                          start: start the endpoint with the -p and -s "
                         + "arguments");
         System.out.println("                          stop: stop the endpoint with the -p and -s arguments");
@@ -207,7 +207,7 @@ public final class ManagementConsole {
         
         System.out.println(" -p [--port] arg          ARG: the port Qname of the managed endpoint");        
         System.out.println(" -s [--service] arg       ARG: the service Qname of the managed endpoint");
-        System.out.println(" -j [--jmx] arg           ARG: set the JMXServerURL that uses to connect mbean " 
+        System.out.println(" -j [--jmx] arg           ARG: the JMXServerURL for connecting to the mbean " 
                            + "server");
         System.out.println("                           if not using this option, the JMXServerURL will be "
                            + "set as");
