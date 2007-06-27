@@ -40,4 +40,8 @@ public abstract class AbstractServiceFactory extends AbstractEndpointFactory imp
         super.setServiceClass(clz);
         getServiceFactory().setServiceClass(clz);
     }
+
+    public void validate() {
+        // nothing to validate here
+    }
 }

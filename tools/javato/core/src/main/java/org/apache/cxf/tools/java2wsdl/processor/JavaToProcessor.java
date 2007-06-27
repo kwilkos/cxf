@@ -73,8 +73,8 @@ public class JavaToProcessor implements Processor {
             service.setName(new QName(service.getName().getNamespaceURI(), svName));
         }
     }
-    
-    public void process() throws ToolException {
+
+    public void process() throws ToolException {        
         String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
         LOG.log(Level.INFO, "OLD_CP", oldClassPath);
         if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
@@ -141,6 +141,9 @@ public class JavaToProcessor implements Processor {
         // TODO check if user specify the style from cli arguments
         //      builderFactory.setStyle(style/from/command/line);
         ServiceBuilder builder = builderFactory.newBuilder();
+
+        builder.validate();
+        
         if (context.get(ToolConstants.CFG_ADDRESS) != null) {
             String address = (String)context.get(ToolConstants.CFG_ADDRESS);
             builder.setAddress(address);

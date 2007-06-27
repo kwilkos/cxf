@@ -34,4 +34,6 @@ public interface ServiceBuilder {
     void setServiceClass(Class clz);
 
     File getOutputFile();
+
+    void validate();
 }

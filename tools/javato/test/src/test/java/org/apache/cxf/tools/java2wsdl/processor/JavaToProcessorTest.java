@@ -351,8 +351,14 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertEquals(oldCP, newCP);
     }
     
-    
-    
-    
-    
+    @Test
+    public void testWrongInterface() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.java2wsdl.processor.Hello");
+        processor.setEnvironment(env);
+        try {
+            processor.process();
+        } catch (RuntimeException e) {
+            assertEquals("JAXWS SEI can not implement java.rmi.Remote interface.", e.getMessage());
+        }
+    }
 }
