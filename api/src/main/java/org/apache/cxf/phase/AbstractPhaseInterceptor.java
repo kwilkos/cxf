@@ -73,10 +73,10 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
         return phase;
     }
 
-    /**
-     * @deprecated Pass the phase into the constructor.  This method will 
-     * be removed shortly
-     * @param p
+    /*
+     * REVISIT: Not sure why this was deprecated, need to reset Phase especially
+     * when same interceptor is added into inbound and outbound chain, thus need
+     * different Phases.
      */
     public void setPhase(String p) {
         this.phase = p;

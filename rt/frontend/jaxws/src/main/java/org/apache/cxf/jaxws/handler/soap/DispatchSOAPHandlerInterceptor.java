@@ -119,7 +119,6 @@ public class DispatchSOAPHandlerInterceptor extends
                 // stops, but the inbound interceptor chain still continues, dispatch the message
                 //By onCompletion here, we can skip following Logical handlers 
                 onCompletion(message);
-                //System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         }
     }

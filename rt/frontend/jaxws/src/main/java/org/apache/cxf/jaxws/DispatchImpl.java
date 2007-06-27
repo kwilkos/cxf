@@ -59,10 +59,8 @@ import org.apache.cxf.endpoint.UpfrontConduitSelector;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
-import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerOutInterceptor;
-import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
+import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
-import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
@@ -70,6 +68,7 @@ import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.transport.MessageObserver;
@@ -242,7 +241,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             } else {
                 // TODO: what for non soap bindings?
             }       
-            chain.add(new DispatchLogicalHandlerOutInterceptor(jaxwsBinding));
+            chain.add(new DispatchLogicalHandlerInterceptor(jaxwsBinding));
         }   
         
         chain.add(new MessageSenderInterceptor());
@@ -270,9 +269,11 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (endpoint instanceof JaxWsEndpointImpl) {
             Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
             if (endpoint.getBinding() instanceof SoapBinding) {
-                chain.add(new SOAPHandlerInterceptor(jaxwsBinding));
+                chain.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
             }      
-            chain.add(new LogicalHandlerInInterceptor(jaxwsBinding));
+            DispatchLogicalHandlerInterceptor slhi = new DispatchLogicalHandlerInterceptor(jaxwsBinding);
+            slhi.setPhase(Phase.USER_LOGICAL);            
+            chain.add(slhi);
         }           
 
         List<Interceptor> inInterceptors = new ArrayList<Interceptor>();

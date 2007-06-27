@@ -32,10 +32,10 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.MessageObserver;
 
 
-public class DispatchLogicalHandlerOutInterceptor<T extends Message> 
+public class DispatchLogicalHandlerInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
      
-    public DispatchLogicalHandlerOutInterceptor(Binding binding) {
+    public DispatchLogicalHandlerInterceptor(Binding binding) {
         super(binding, Phase.PRE_MARSHAL);
     }
     
@@ -52,22 +52,31 @@ public class DispatchLogicalHandlerOutInterceptor<T extends Message>
         ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), lctx, requestor);          
         
         if (!invoker.invokeLogicalHandlers(requestor, lctx) && requestor) {
-            // client side - abort
-            message.getInterceptorChain().abort();
-            Endpoint e = message.getExchange().get(Endpoint.class);
-            Message responseMsg = e.getBinding().createMessage();
+            if (isOutbound(message)) {
+                // client side outbound - the request message becomes the
+                // response message
+                message.getInterceptorChain().abort();
+                Endpoint e = message.getExchange().get(Endpoint.class);
+                Message responseMsg = e.getBinding().createMessage();
 
-            MessageObserver observer = (MessageObserver)message.getExchange().get(MessageObserver.class);
-            if (observer != null) {
-                //client side outbound, the request message becomes the response message
-                responseMsg.setContent(XMLStreamReader.class, message.getContent(XMLStreamReader.class));
+                MessageObserver observer = (MessageObserver)message.getExchange().get(MessageObserver.class);
+                if (observer != null) {
+                    responseMsg.setContent(XMLStreamReader.class, message.getContent(XMLStreamReader.class));
 
-                message.getExchange().setInMessage(responseMsg);
-                responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
-                                LogicalHandlerInInterceptor.class.getName());
-                observer.onMessage(responseMsg);
+                    message.getExchange().setInMessage(responseMsg);
+                    responseMsg.put(PhaseInterceptorChain.STARTING_AT_INTERCEPTOR_ID,
+                                    LogicalHandlerInInterceptor.class.getName());
+                    observer.onMessage(responseMsg);
+                }
+            } else {
+                //Client side inbound, thus no response expected, do nothing, the close will  
+                //be handled by MEPComplete later
             }
-
+        }
+        
+        //If this is the inbound and end of MEP, call MEP completion
+        if (!isOutbound(message) && isMEPComlete(message)) {
+            onCompletion(message);
         }
     }
 }
