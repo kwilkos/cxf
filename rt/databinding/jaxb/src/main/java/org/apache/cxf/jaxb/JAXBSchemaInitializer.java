@@ -38,6 +38,7 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
+import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 
@@ -184,22 +185,22 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         Class<?> cls = part.getTypeClass();
         Class<?> cl2 = (Class)fault.getProperty(Class.class.getName());
         if (cls != cl2) {
-            QName name = part.getMessageInfo().getName();
-            part.setElementQName(name);
-            
+            QName name = fault.getFaultName();
+            part.setElementQName(name);           
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(cls);
-
-
             SchemaInfo schemaInfo = null;
             for (SchemaInfo s : serviceInfo.getSchemas()) {
                 if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())) {
                     schemaInfo = s;
-
+                    
                     XmlSchemaElement el = new XmlSchemaElement();
                     el.setQName(part.getElementQName());
                     el.setName(part.getElementQName().getLocalPart());
                     el.setNillable(true);
-                    schemaInfo.getSchema().getItems().add(el);
+                    
+                    if (!isExistSchemaElement(schemaInfo.getSchema(), part.getElementQName())) {
+                        schemaInfo.getSchema().getItems().add(el);
+                    }
                     
                     Iterator<QName> itr = beanInfo.getTypeNames().iterator();
                     if (!itr.hasNext()) {
@@ -239,7 +240,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         } else {
             schema = schemaInfo.getSchema();
         }
-
+        
         XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
         ct.setName(part.getElementQName().getLocalPart());
         // Before updating everything, make sure we haven't added this 
@@ -304,5 +305,21 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             el.setSchemaTypeName(beanInfo.getTypeName(null));
         }
         seq.getItems().add(el);
+    }
+    
+    
+    private boolean isExistSchemaElement(XmlSchema schema, QName qn) {
+        boolean isExist = false;
+        for (Iterator ite = schema.getItems().getIterator(); ite.hasNext();) {
+            XmlSchemaObject obj = (XmlSchemaObject)ite.next();
+            if (obj instanceof XmlSchemaElement) {
+                XmlSchemaElement xsEle = (XmlSchemaElement)obj;
+                if (xsEle.getQName().equals(qn)) {
+                    isExist = true;
+                    break;
+                }
+            }
+        }
+        return isExist;
     }
 }

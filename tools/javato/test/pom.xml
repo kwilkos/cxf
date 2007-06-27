@@ -168,6 +168,9 @@
                                 <wsdlOption>
 				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_bare.wsdl</wsdl>
                                 </wsdlOption>
+                                <wsdlOption>
+				    <wsdl>${basedir}/src/test/resources/java2wsdl_wsdl/hello_world_fault.wsdl</wsdl>
+                                </wsdlOption>                                
                             </wsdlOptions>
                         </configuration>
                         <goals>

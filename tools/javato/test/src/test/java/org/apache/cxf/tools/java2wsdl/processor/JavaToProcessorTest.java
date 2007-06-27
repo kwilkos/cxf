@@ -318,6 +318,22 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     }
     
     
+    @Test
+    public void testFault() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/fault.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.fault.Greeter");
+        processor.setEnvironment(env);
+        processor.process();
+        
+        File wsdlFile = new File(output, "fault.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        
+        String expectedFile = getClass().getResource("expected/hello_world_fault_expected.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "/fault.wsdl"));
+
+    }
+    
+    
 
     @Test
     public void testResumeClasspath() throws Exception {

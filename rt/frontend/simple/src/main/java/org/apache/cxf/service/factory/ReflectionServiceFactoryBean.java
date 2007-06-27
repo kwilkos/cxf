@@ -804,6 +804,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         MessagePartInfo part = fault.addMessagePart("fault");
         part.setElement(true);
         if (part.getElementQName() == null) {
+            System.out.println("----fault.getFaultname --- " + fault.getFaultName());
             part.setElementQName(fault.getFaultName());
         }
     }
@@ -1080,10 +1081,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
         QName faultName = getFaultName(service, op, exClass, beanClass);
-        FaultInfo fi = op.addFault(faultName, faultName);
+        FaultInfo fi = op.addFault(faultName, 
+                                   new QName(op.getName().getNamespaceURI(), faultName.getLocalPart()));
         fi.setProperty(Class.class.getName(), exClass);
-
-        MessagePartInfo mpi = fi.addMessagePart(new QName(op.getName().getNamespaceURI(), "fault"));
+        MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(), "fault"));
         mpi.setTypeClass(beanClass);
         return fi;
     }
@@ -1095,6 +1096,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 .addMessagePart(new QName(fi.getName().getNamespaceURI(), field.getName()));
             mpi.setProperty(Class.class.getName(), field.getType());
         }
+        
         MessagePartInfo mpi = fi.addMessagePart(new QName(fi.getName().getNamespaceURI(), "message"));
         mpi.setProperty(Class.class.getName(), String.class);
     }

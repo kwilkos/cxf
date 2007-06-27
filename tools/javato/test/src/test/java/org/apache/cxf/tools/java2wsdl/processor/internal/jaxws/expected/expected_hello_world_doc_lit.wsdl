@@ -65,8 +65,6 @@
 </xs:sequence>
 </xs:complexType>
 </xs:element>
-<xs:element name="faultDetail" nillable="true"/>
-<xs:element name="faultDetail" nillable="true"/>
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="faultDetail">
@@ -123,7 +121,7 @@
     </wsdl:input>
       <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
     </wsdl:output>
-      <wsdl:fault name="faultDetail" message="ns2:faultDetail">
+      <wsdl:fault name="faultDetail" message="ns1:faultDetail">
     </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
