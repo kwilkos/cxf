@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
-import javax.xml.bind.JAXBElement;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -71,64 +70,72 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
             throw new Fault(new org.apache.cxf.common.i18n.Message("DISPATCH_OBJECT_CANNOT_BE_NULL", LOG));
         }
 
-        try {
-            if (message instanceof SoapMessage) {
-                if (m == Service.Mode.PAYLOAD) {
-                    if (obj instanceof SOAPMessage || obj instanceof DataSource) {
-                        throw new RuntimeException(obj.getClass()
-                                                   + " is not valid in PAYLOAD mode with SOAP/HTTP binding");
-                    } else {
-                        // Input is Source or JAXB in payload mode, need to wrap it
-                        // with a SOAPMessage
+        if (message instanceof SoapMessage) {
+            if (m == Service.Mode.PAYLOAD) {
+                if (obj instanceof SOAPMessage || obj instanceof DataSource) {
+                    throw new Fault(
+                                    new org.apache.cxf.common.i18n.Message(
+                                        "DISPATCH_OBJECT_NOT_SUPPORTED_SOAPBINDING",
+                                        LOG, obj.getClass(), "PAYLOAD"));
+                } else {
+                    // Input is Source or JAXB in payload mode, need to wrap it
+                    // with a SOAPMessage
+                    try {
                         SOAPMessage msg = initSOAPMessage();
                         DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
                         dataWriter.write(obj, msg.getSOAPBody());
                         message.setContent(Object.class, msg);
                         message.setContent(SOAPMessage.class, msg);
+                    } catch (SOAPException e) {
+                        throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT",
+                                                                               LOG), e);
                     }
+                }
+            } else {
+                if (obj instanceof DataSource) {
+                    throw new Fault(
+                                    new org.apache.cxf.common.i18n.Message(
+                                        "DISPATCH_OBJECT_NOT_SUPPORTED_SOAPBINDING",
+                                        LOG, "DataSource", "MESSAGE"));
+                } else if (obj instanceof Source || obj instanceof SOAPMessage) {
+                    // Input is Source or SOAPMessage, no conversion needed
                 } else {
-                    if (obj instanceof DataSource) {
-                        throw new RuntimeException(
-                            "DataSource is not valid in MESSAGE mode with SOAP/HTTP binding");
-                    } else if (obj instanceof JAXBElement) {
-                        // REVISIT: Not sure if this is a valid combination
-                    } else {
-                        //Input is Source or SOAPMessage, no conversion needed
-                    }
-                }
-            } else if (message instanceof XMLMessage) {
-                if (obj instanceof SOAPMessage) {
-                    throw new RuntimeException("SOAPMessage is not valid with XML/HTTP binding");
-                }
-
-                if (m == Service.Mode.PAYLOAD && obj instanceof DataSource) {
-                    throw new RuntimeException(
-                        "DataSource is not valid in PAYLOAD mode with XML/HTTP binding");
-                }
-
-                if (obj instanceof Source || obj instanceof DataSource) {
-                    // no conversion needed
-                } else {
-                    //JAXB element
-                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
-                                                                           XMLStreamWriter.class);
-                    XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
-                    //W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
-                    
-                    if (xmlWriter == null) { 
-                        xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8"); 
-                    }
-                     
-                    dataWriter.write(obj, xmlWriter);
-                    message.setContent(XMLStreamWriter.class, xmlWriter);
-
+                    //REVISIT: JAXB element in Message mode, is this a valid input?
                 }
             }
-        } catch (Exception e) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
+        } else if (message instanceof XMLMessage) {
+            if (obj instanceof SOAPMessage) {
+                throw new Fault(
+                                new org.apache.cxf.common.i18n.Message(
+                                    "DISPATCH_OBJECT_NOT_SUPPORTED_XMLBINDING",
+                                    LOG, "SOAPMessage", "PAYLOAD/MESSAGE"));
+            }
 
+            if (m == Service.Mode.PAYLOAD && obj instanceof DataSource) {
+                throw new Fault(
+                                new org.apache.cxf.common.i18n.Message(
+                                    "DISPATCH_OBJECT_NOT_SUPPORTED_XMLBINDING",
+                                    LOG, "DataSource", "PAYLOAD"));
+            }
+
+            if (obj instanceof Source || obj instanceof DataSource) {
+                // no conversion needed
+            } else {
+                // JAXB element
+                DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
+                                                                       XMLStreamWriter.class);
+                XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+                // W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
+
+                if (xmlWriter == null) {
+                    xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");
+                }
+
+                dataWriter.write(obj, xmlWriter);
+                message.setContent(XMLStreamWriter.class, xmlWriter);
+
+            }
         }
-
         message.getInterceptorChain().add(ending);
     }
     

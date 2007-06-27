@@ -183,8 +183,8 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
             disp.invoke(soapReq);
             fail("Did not get expected exception");
         } catch (SOAPFaultException e) {
-            assertEquals("Exception occured while marshalling Dispatch object to stream", e.getMessage());
-            e.printStackTrace();
+            assertTrue("Did not get expected exception message",  e.getMessage()
+                       .indexOf("is not valid in PAYLOAD mode with SOAP/HTTP binding") > -1);
         }
     }
      
