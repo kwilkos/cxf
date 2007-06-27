@@ -18,11 +18,15 @@
  */
 package org.apache.cxf.bus.spring;
 
+import org.apache.cxf.configuration.spring.SimpleBeanDefinitionParser;
+import org.apache.cxf.feature.LoggingFeature;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 public class NamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
         registerBeanDefinitionParser("bus",
                                      new BusDefinitionParser());
+        registerBeanDefinitionParser("logging",
+                                     new SimpleBeanDefinitionParser(LoggingFeature.class));
     }
 }

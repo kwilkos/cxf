@@ -21,13 +21,19 @@
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:cxf-beans="http://cxf.apache.org/configuration/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  targetNamespace="http://cxf.apache.org/bus" 
+  targetNamespace="http://cxf.apache.org/core" 
   elementFormDefault="qualified"
   attributeFormDefault="unqualified"  >
 
   <xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans.xsd"/>
   <xsd:import namespace="http://cxf.apache.org/configuration/beans" schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
 
+  <xsd:element name="logging">
+    <xsd:complexType>
+      <xsd:sequence />
+    </xsd:complexType>
+  </xsd:element>
+  
   <xsd:element name="bus">
     <xsd:complexType>
       <xsd:all>

@@ -18,16 +18,16 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:b="http://cxf.apache.org/bus"
+  xmlns:c="http://cxf.apache.org/core"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-http://cxf.apache.org/bus http://cxf.apache.org/schemas/bus.xsd">
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
 
-  <b:bus>
-    <b:features>
-      <bean class="org.apache.cxf.feature.LoggingFeature" />
-    </b:features>
-  </b:bus>
+  <c:bus>
+    <c:features>
+      <c:logging />
+    </c:features>
+  </c:bus>
 
 </beans>

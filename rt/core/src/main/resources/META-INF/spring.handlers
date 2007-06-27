@@ -19,4 +19,4 @@
 #
 #
 http\://cxf.apache.org/clustering=org.apache.cxf.clustering.spring.NamespaceHandler
-http\://cxf.apache.org/bus=org.apache.cxf.bus.spring.NamespaceHandler
+http\://cxf.apache.org/core=org.apache.cxf.bus.spring.NamespaceHandler

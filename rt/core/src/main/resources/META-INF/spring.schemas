@@ -18,4 +18,4 @@
 #    under the License.
 #
 #
-http\://cxf.apache.org/schemas/bus.xsd=schemas/bus.xsd
+http\://cxf.apache.org/schemas/core.xsd=schemas/core.xsd
