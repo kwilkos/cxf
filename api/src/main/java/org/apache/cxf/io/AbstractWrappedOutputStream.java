@@ -65,5 +65,18 @@ public abstract class AbstractWrappedOutputStream extends OutputStream {
         }
         wrappedStream.write(b);
     }
+    
+    @Override
+    public void close() throws IOException {
+        if (wrappedStream != null) {
+            wrappedStream.close();
+        }
+    }
 
+    @Override
+    public void flush() throws IOException {
+        if (written) {
+            wrappedStream.flush();
+        }
+    }
 }

@@ -160,6 +160,11 @@ public class HTTPConduit
      * Endpoint Qname to give the configuration name of this conduit.
      */
     private static final String SC_HTTP_CONDUIT_SUFFIX = ".http-conduit";
+    
+    /**
+     * Buffer to use to suck unread bytes off of input streams
+     */
+    private static final byte BUFFER[] = new byte[1024];
 
 
     /**
@@ -512,8 +517,8 @@ public class HTTPConduit
                 && !needToCacheRequest) {
                 //TODO: The chunking mode be configured or at least some
                 // documented client constant.
-                LOG.log(Level.FINER, "Chunking is set at 2048.");
-                connection.setChunkedStreamingMode(2048);
+                //use -1 and allow the URL connection to pick a default value
+                connection.setChunkedStreamingMode(-1);
             }
         }
         
@@ -546,6 +551,25 @@ public class HTTPConduit
         // We are now "ready" to "send" the message. 
     }
     
+    public void close(Message msg) throws IOException {
+        InputStream in = msg.getContent(InputStream.class);
+        try {
+            if (in != null) {
+                int count = 0;
+                while (in.read(BUFFER) != -1
+                    && count < 25) {
+                    //don't do anything, we just need to pull off the unread data (like
+                    //closing tags that we didn't need to read
+                    
+                    //however, limit it so we don't read off gigabytes of data we won't use.
+                    ++count;
+                }
+            } 
+        } finally {
+            super.close(msg);
+        }
+    }
+
     /**
      * This call must take place before anything is written to the 
      * URLConnection. The URLConnection.connect() will be called in order 
@@ -1695,8 +1719,8 @@ public class HTTPConduit
             if (!written) {
                 handleHeadersTrustCaching();
             }
-            handleResponse();
             super.close();
+            handleResponse();
         }
         
         

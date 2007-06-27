@@ -212,7 +212,7 @@ public class HTTPConduitURLEasyMockTest extends Assert {
             if (!autoRedirect) {
                 connection.getRequestMethod();
                 EasyMock.expectLastCall().andReturn("POST");
-                connection.setChunkedStreamingMode(2048);
+                connection.setChunkedStreamingMode(-1);
                 EasyMock.expectLastCall();                    
             }
 

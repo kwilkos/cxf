@@ -28,17 +28,10 @@ import org.apache.cxf.message.Message;
 
 public abstract class AbstractPhaseInterceptor<T extends Message> implements PhaseInterceptor<T> {
     private final String id;
-    private String phase;
+    private final String phase;
     private final Set<String> before = new SortedArraySet<String>();
     private final Set<String> after = new SortedArraySet<String>();
 
-    /**
-     * @deprecated
-     */
-    public AbstractPhaseInterceptor() {
-        this(null, null);
-    }
-    
     public AbstractPhaseInterceptor(String phase) {
         this(null, phase);
     }
@@ -73,14 +66,6 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
         return phase;
     }
 
-    /*
-     * REVISIT: Not sure why this was deprecated, need to reset Phase especially
-     * when same interceptor is added into inbound and outbound chain, thus need
-     * different Phases.
-     */
-    public void setPhase(String p) {
-        this.phase = p;
-    }
 
     public void handleFault(T message) {
     }

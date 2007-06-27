@@ -271,8 +271,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             if (endpoint.getBinding() instanceof SoapBinding) {
                 chain.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
             }      
-            DispatchLogicalHandlerInterceptor slhi = new DispatchLogicalHandlerInterceptor(jaxwsBinding);
-            slhi.setPhase(Phase.USER_LOGICAL);            
+            DispatchLogicalHandlerInterceptor slhi 
+                = new DispatchLogicalHandlerInterceptor(jaxwsBinding, Phase.USER_LOGICAL);            
             chain.add(slhi);
         }           
 

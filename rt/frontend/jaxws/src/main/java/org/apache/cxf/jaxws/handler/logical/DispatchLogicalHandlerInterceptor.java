@@ -38,6 +38,9 @@ public class DispatchLogicalHandlerInterceptor<T extends Message>
     public DispatchLogicalHandlerInterceptor(Binding binding) {
         super(binding, Phase.PRE_MARSHAL);
     }
+    public DispatchLogicalHandlerInterceptor(Binding binding, String phase) {
+        super(binding, phase);
+    }
     
     public void handleMessage(T message) throws Fault {
         HandlerChainInvoker invoker = getInvoker(message);
