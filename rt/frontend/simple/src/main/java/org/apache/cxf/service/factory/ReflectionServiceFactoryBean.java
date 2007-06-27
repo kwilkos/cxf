@@ -804,7 +804,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         MessagePartInfo part = fault.addMessagePart("fault");
         part.setElement(true);
         if (part.getElementQName() == null) {
-            System.out.println("----fault.getFaultname --- " + fault.getFaultName());
             part.setElementQName(fault.getFaultName());
         }
     }
