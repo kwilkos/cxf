@@ -36,6 +36,9 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
 import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.servlet.HashSessionIdManager;
+import org.mortbay.jetty.servlet.HashSessionManager;
+import org.mortbay.jetty.servlet.SessionHandler;
 import org.mortbay.thread.BoundedThreadPool;
 
 
@@ -196,6 +199,14 @@ public class JettyHTTPServerEngine
         ContextHandler context = new ContextHandler();
         context.setContextPath(contextName);
         context.setHandler(handler);
+        // just add the session manager here by code
+        // TODO adding the configuration support for session manager
+        HashSessionManager sessionManager = new HashSessionManager();
+        SessionHandler sessionHandler = new SessionHandler(sessionManager);
+        HashSessionIdManager idManager = new HashSessionIdManager();
+        sessionManager.setIdManager(idManager);
+        context.addHandler(sessionHandler);
+        
         contexts.addHandler(context);
         if (contexts.isStarted()) {           
             try {                
