@@ -87,7 +87,7 @@ public class Soap12ClientServerTest extends AbstractBusClientServerTestBase {
         
         InputStream in = httpConnection.getInputStream();        
         assertNotNull(in);
-        assertEquals("application/soap+xml; charset=utf-8", httpConnection.getContentType());
+        assertEquals("application/soap+xml; charset=utf-8", httpConnection.getContentType().toLowerCase());
        
         Document doc = XMLUtils.parse(in);
         assertNotNull(doc);
@@ -115,7 +115,7 @@ public class Soap12ClientServerTest extends AbstractBusClientServerTestBase {
 
         InputStream in = httpConnection.getErrorStream();
         assertNotNull(in);     
-        assertEquals("application/soap+xml; charset=utf-8", httpConnection.getContentType());
+        assertEquals("application/soap+xml; charset=utf-8", httpConnection.getContentType().toLowerCase());
         
         Document doc = XMLUtils.parse(in);
         assertNotNull(doc);        
@@ -152,7 +152,7 @@ public class Soap12ClientServerTest extends AbstractBusClientServerTestBase {
         
         assertEquals(500, httpConnection.getResponseCode());
 
-        assertEquals("application/soap+xml; charset=utf-8", httpConnection.getContentType());
+        assertEquals("application/soap+xml; charset=utf-8", httpConnection.getContentType().toLowerCase());
         
         assertEquals("Internal Server Error", httpConnection.getResponseMessage());
 
