@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -69,26 +67,6 @@ public class ServletDestination extends AbstractHTTPDestination {
         return LOG;
     }
 
-    /**
-     * Copy the response headers into the response.
-     * 
-     * @param message the current message
-     * @param headers the current set of headers
-     */
-    protected void copyResponseHeaders(Message message, HttpServletResponse response) {
-        String ct = (String) message.get(Message.CONTENT_TYPE);
-        String enc = (String) message.get(Message.ENCODING);
-        
-        if (null != ct) {
-            if (enc != null && ct.indexOf("charset=") == -1) {
-                ct = ct + "; charset=" + enc;
-            }
-            response.setContentType(ct);
-        } else if (enc != null) {
-            response.setContentType("text/xml; charset=" + enc);
-        }
-        
-    }
     
     protected void doMessage(MessageImpl inMessage) throws IOException {
         try {

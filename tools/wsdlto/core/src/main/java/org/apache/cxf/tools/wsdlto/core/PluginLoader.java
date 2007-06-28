@@ -44,6 +44,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.toolspec.ToolContainer;
 import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
@@ -284,8 +285,8 @@ public final class PluginLoader {
         return processor;
     }
 
-    private Class loadContainerClass(String fullClzName) {
-        Class clz = null;
+    private Class<? extends ToolContainer> loadContainerClass(String fullClzName) {
+        Class<?> clz = null;
         try {
             clz = Class.forName(fullClzName);
         } catch (Exception e) {
@@ -293,7 +294,14 @@ public final class PluginLoader {
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
-        return clz;
+        
+        if (!ToolContainer.class.isAssignableFrom(clz)) {
+            Message message = new Message("CLZ_SHOULD_IMPLEMENT_INTERFACE", LOG, clz.getName());
+            LOG.log(Level.SEVERE, message.toString());
+            throw new ToolException(message);
+        }
+
+        return clz.asSubclass(ToolContainer.class);
     }
 
     private String getFrontEndProfileClass(FrontEnd frontend) {

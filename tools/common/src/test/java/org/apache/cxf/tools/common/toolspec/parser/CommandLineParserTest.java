@@ -244,7 +244,7 @@ public class CommandLineParserTest extends Assert {
 
     private boolean isQuolifiedVersion() {
         try {
-            Class c = Class.forName("org.apache.xerces.impl.Version");
+            Class<?> c = Class.forName("org.apache.xerces.impl.Version");
             Object o = c.newInstance();
             String v =  (String) c.getMethod("getVersion").invoke(o);
             float vn = Float.parseFloat(StringUtils.getFirstFound(v, "(\\d+.\\d+)"));

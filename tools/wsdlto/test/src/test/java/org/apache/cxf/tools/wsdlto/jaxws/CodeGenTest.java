@@ -162,7 +162,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(files.length, 3);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
 
         javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
 
@@ -172,7 +172,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
         assertEquals("Generate operation error", 3, clz.getMethods().length);
 
-        Class paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
+        Class<?> paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
         Method method = clz.getMethod("sendReceiveData", new Class[] {paraClass});
         assertEquals("MyComplexStruct", method.getReturnType().getSimpleName());
 
@@ -205,7 +205,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File[] files = async.listFiles();
         assertEquals(4, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
 
         Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
                                                                             javax.xml.ws.AsyncHandler.class});
@@ -243,7 +243,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(7, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
             .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface", Modifier.isInterface(clz
@@ -307,7 +307,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
             .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface", Modifier.isInterface(clz
@@ -380,7 +380,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(mapping.exists());
         File[] files = mapping.listFiles();
         assertEquals(9, files.length);
-        Class clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
+        Class<?> clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
         Method method = clz.getMethod("doSomething", new Class[] {int.class, javax.xml.ws.Holder.class,
                                                                   javax.xml.ws.Holder.class});
         assertEquals("boolean", method.getReturnType().getSimpleName());
@@ -417,7 +417,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = schemaImport.listFiles();
         assertEquals(4, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.schema_import.Greeter");
         assertEquals(4, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
@@ -451,7 +451,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = invoice.listFiles();
         assertEquals(files.length, 9);
 
-        Class clz = classLoader.loadClass("org.apache.invoiceserver.InvoiceServer");
+        Class<?> clz = classLoader.loadClass("org.apache.invoiceserver.InvoiceServer");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("getInvoicesForCustomer", new Class[] {String.class, String.class});
@@ -534,7 +534,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File[] files = apache.listFiles();
         assertEquals(12, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.HeaderTester");
+        Class<?> clz = classLoader.loadClass("org.apache.HeaderTester");
         assertEquals(3, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -542,7 +542,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("LITERAL", soapBindingAnno.use().name());
         assertEquals("DOCUMENT", soapBindingAnno.style().name());
 
-        Class para = classLoader.loadClass("org.apache.InoutHeader");
+        Class<?> para = classLoader.loadClass("org.apache.InoutHeader");
 
         Method method = clz.getMethod("inoutHeader", new Class[] {para, Holder.class});
 
@@ -563,7 +563,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
         assertEquals(1, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -571,7 +571,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("LITERAL", soapBindingAnno.use().name());
         assertEquals("DOCUMENT", soapBindingAnno.style().name());
 
-        Class para = classLoader.loadClass("org.apache.hello_world_holder.types.GreetMe");
+        Class<?> para = classLoader.loadClass("org.apache.hello_world_holder.types.GreetMe");
         Method method = clz.getMethod("sayHi", new Class[] {Holder.class, para});
         assertEquals("GreetMeResponse", method.getReturnType().getSimpleName());
 
@@ -604,7 +604,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File handlerConfig = new File(address, "Greeter_handler.xml");
         assertTrue(handlerConfig.exists());
 
-        Class clz = classLoader.loadClass("ws.address.Greeter");
+        Class<?> clz = classLoader.loadClass("ws.address.Greeter");
         HandlerChain handlerChainAnno = AnnotationUtil.getPrivClassAnnotation(clz, HandlerChain.class);
         assertEquals("Greeter_handler.xml", handlerChainAnno.file());
         assertNotNull("Handler chain xml generate fail!", classLoader
@@ -632,7 +632,7 @@ public class CodeGenTest extends ProcessorTestBase {
         files = xsd.listFiles();
         assertEquals(4, files.length);
 
-        Class clz = classLoader
+        Class<?> clz = classLoader
             .loadClass("org.soapinterop.wsdlinteroptestdoclit.WSDLInteropTestDocLitPortType");
 
         Method method = clz.getMethod("echoVoid", new Class[] {});
@@ -661,7 +661,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File helloWorld = new File(apache, "hello_world");
         assertTrue(helloWorld.exists());
 
-        Class clz = classLoader.loadClass("org.apache.hello_world.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world.Greeter");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
@@ -688,7 +688,7 @@ public class CodeGenTest extends ProcessorTestBase {
         File invoice = new File(apache, "invoice");
         assertTrue(invoice.exists());
 
-        Class clz = classLoader.loadClass("org.apache.invoiceserver.NoSuchCustomerFault");
+        Class<?> clz = classLoader.loadClass("org.apache.invoiceserver.NoSuchCustomerFault");
         WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
         assertEquals("WebFault annotaion name attribute error", "NoSuchCustomer", webFault.name());
 
@@ -718,7 +718,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug161/header2.wsdl"));
         processor.setContext(env);
         processor.execute();
-        Class clz = classLoader.loadClass("org.apache.header2.Header2Test");
+        Class<?> clz = classLoader.loadClass("org.apache.header2.Header2Test");
         Class header = classLoader.loadClass("org.apache.header2.Header");
         Method method = clz.getMethod("headerMethod", new Class[] {Holder.class, header});
         assertNotNull("method should be generated", method);
@@ -731,7 +731,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class clz = classLoader.loadClass("org.apache.xml_http_bare.GreetingPortType");
+        Class<?> clz = classLoader.loadClass("org.apache.xml_http_bare.GreetingPortType");
 
         Method method = clz.getMethod("sayHello", new Class[] {java.lang.String.class});
         assertNotNull("sayHello is not be generated", method);
@@ -746,7 +746,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_wrapped.wsdl"));
         processor.setContext(env);
         processor.execute();
-        Class clz = classLoader.loadClass("org.apache.xml_http_wrapped.GreetingPortType");
+        Class<?> clz = classLoader.loadClass("org.apache.xml_http_wrapped.GreetingPortType");
 
         Method method = clz.getMethod("sayHello", new Class[] {java.lang.String.class});
         assertNotNull("sayHello is not be generated", method);
@@ -761,7 +761,7 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_doc_lit.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_doc_lit.Greeter");
 
         Method method = clz.getMethod("greetMe", new Class[] {java.lang.String.class});
         assertNotNull("greetMe is not be generated", method);
@@ -783,8 +783,8 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
-        Class sayHi = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class<?> sayHi = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
         Method method = clz.getMethod("_do", new Class[] {sayHi});
         assertNotNull("method which name contains java keywords is not be generated", method);
 
@@ -818,7 +818,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/swa-mime-binding.xml"));
         processor.setContext(env);
         processor.execute();
-        Class clz = classLoader.loadClass("org.apache.cxf.swa.SwAServiceInterface");
+        Class<?> clz = classLoader.loadClass("org.apache.cxf.swa.SwAServiceInterface");
 
         Method method1 = clz.getMethod("echoData", new Class[] {javax.xml.ws.Holder.class,
                                                                 javax.xml.ws.Holder.class});

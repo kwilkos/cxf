@@ -222,7 +222,7 @@ public class BeanType extends Type {
      * This is a hack to get the write method from the implementation class for
      * an interface.
      */
-    private Method getWriteMethodFromImplClass(Class impl, PropertyDescriptor pd) throws Exception {
+    private Method getWriteMethodFromImplClass(Class<?> impl, PropertyDescriptor pd) throws Exception {
         String name = pd.getName();
         name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
 

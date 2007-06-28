@@ -44,7 +44,7 @@ public class WrapperTest extends Assert {
     @Test
     public void testGetWrapperBeanClassFromMethod() throws Exception {
         String pkgName = "org.apache.cxf.tools.fortest.classnoanno.docwrapped";
-        Class stockClass = Class.forName(pkgName + ".Stock");
+        Class<?> stockClass = Class.forName(pkgName + ".Stock");
         Method method = stockClass.getMethod("getPrice", String.class);
 
         Wrapper wrapper = new Wrapper();
@@ -69,7 +69,7 @@ public class WrapperTest extends Assert {
     @Test
     public void testIsWrapperBeanClassNotExist() throws Exception {
         String pkgName = "org.apache.cxf.tools.fortest.classnoanno.docwrapped";
-        Class stockClass = Class.forName(pkgName + ".Stock");
+        Class<?> stockClass = Class.forName(pkgName + ".Stock");
         Method method = stockClass.getMethod("getPrice", String.class);
         
         Wrapper wrapper = new RequestWrapper();
@@ -93,7 +93,7 @@ public class WrapperTest extends Assert {
         assertEquals("GetPrice", wrapper.getJavaClass().getName());
 
         pkgName = "org.apache.cxf.tools.fortest.withannotation.doc";
-        Class clz = Class.forName(pkgName + ".Greeter");
+        Class<?> clz = Class.forName(pkgName + ".Greeter");
         method = clz.getMethod("sayHi");
 
         wrapper = new RequestWrapper();

@@ -187,7 +187,7 @@ public class URIResolver {
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("File was deleted! " + uriStr, e);
             }
-            url = file.toURL();
+            url = file.toURI().toURL();
         } else if (is == null) {
             tryClasspath(uriStr);
         }

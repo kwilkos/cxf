@@ -193,11 +193,20 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
      * @param headers the current set of headers
      */
     protected void copyResponseHeaders(Message message, HttpServletResponse response) {
+        String ct  = (String)message.get(Message.CONTENT_TYPE);
+        String enc = (String)message.get(Message.ENCODING);
+        
+        if (null != ct 
+            && null != enc
+            && ct.indexOf("charset=") == -1) {
+            ct = ct + "; charset=" + enc;
+        }
+
         Map<?, ?> headers = (Map<?, ?>)message.get(Message.PROTOCOL_HEADERS);
         if (null != headers) {
             
             if (!headers.containsKey(Message.CONTENT_TYPE)) {
-                response.setContentType((String) message.get(Message.CONTENT_TYPE));
+                response.setContentType(ct);
             }
             
             for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
@@ -208,7 +217,7 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
                 }
             }
         } else {
-            response.setContentType((String) message.get(Message.CONTENT_TYPE));
+            response.setContentType(ct);
         }
     }
     
@@ -366,7 +375,8 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
          */
         public void prepare(Message message) throws IOException {
             message.put(HTTP_RESPONSE, response);
-            message.setContent(OutputStream.class, new WrappedOutputStream(message, response));
+            message.setContent(OutputStream.class, 
+                               new WrappedOutputStream(message, response));
         }
     }
 
@@ -408,6 +418,11 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
             }
             wrappedStream.close();
             response.flushBuffer();
+        }
+        
+        public void flush() throws IOException {
+            //ignore until we close 
+            // or we'll force chunking and cause all kinds of network packets
         }
     }
 

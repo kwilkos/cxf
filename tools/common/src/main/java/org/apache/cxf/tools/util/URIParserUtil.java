@@ -52,7 +52,7 @@ public final class URIParserUtil {
             File file = new File(st.nextToken());
             URL url = null;
             try {
-                url = file.toURL();
+                url = file.toURI().toURL();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

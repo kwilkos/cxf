@@ -168,7 +168,7 @@ public final class ProcessorUtil {
         if (location.startsWith("http://")) {
             return new URL(location);
         } else {
-            return new File(getAbsolutePath(location)).toURL();
+            return new File(getAbsolutePath(location)).toURI().toURL();
         }
     }
 
@@ -243,7 +243,7 @@ public final class ProcessorUtil {
             try {
                 return escapeSpace(new URL(fileOrURL).toExternalForm());
             } catch (MalformedURLException e) {
-                return new File(fileOrURL).getCanonicalFile().toURL().toExternalForm();
+                return new File(fileOrURL).getCanonicalFile().toURI().toURL().toExternalForm();
             }
         } catch (Exception e) {
             return fileOrURL;
@@ -266,7 +266,7 @@ public final class ProcessorUtil {
         // absolutize all the system IDs in the input,
         // so that we can map system IDs to DOM trees.
         try {
-            URL baseURL = new File(".").getCanonicalFile().toURL();
+            URL baseURL = new File(".").getCanonicalFile().toURI().toURL();
             return new URL(baseURL, name.replaceAll(" ", "%20")).toExternalForm();
         } catch (IOException e) {
             // ignore

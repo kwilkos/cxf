@@ -128,7 +128,7 @@ public class ClientServerXMLTest extends AbstractBusClientServerTestBase {
 
         assertEquals(200, httpConnection.getResponseCode());
 
-        assertEquals("text/xml", httpConnection.getContentType());
+        assertEquals("text/xml; charset=utf-8", httpConnection.getContentType());
         assertEquals("OK", httpConnection.getResponseMessage());
 
         InputStream in = httpConnection.getInputStream();
@@ -264,7 +264,7 @@ public class ClientServerXMLTest extends AbstractBusClientServerTestBase {
             BindingProvider bp = (BindingProvider) greeter;
             Map<String, Object> responseContext = bp.getResponseContext();
             String contentType = (String) responseContext.get(Message.CONTENT_TYPE);
-            assertEquals("text/xml", contentType);
+            assertEquals("text/xml; charset=utf-8", contentType);
             Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
             assertEquals(500, responseCode.intValue());
         }

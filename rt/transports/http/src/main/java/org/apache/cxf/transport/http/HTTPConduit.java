@@ -1845,8 +1845,8 @@ public class HTTPConduit
             }
             inMessage.put(Message.PROTOCOL_HEADERS, headers);
             inMessage.put(Message.RESPONSE_CODE, responseCode);
-            inMessage.put(Message.CONTENT_TYPE, 
-                    connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
+            inMessage.put(Message.CONTENT_TYPE, connection.getContentType());
+            inMessage.put(Message.ENCODING, connection.getContentEncoding());
             
             if (maintainSession) {
                 String cookieStr = connection.getHeaderField("Set-Cookie");

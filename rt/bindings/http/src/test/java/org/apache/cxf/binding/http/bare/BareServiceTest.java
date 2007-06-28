@@ -172,7 +172,7 @@ public class BareServiceTest extends AbstractRestTest {
         HttpURLConnection c = (HttpURLConnection)url.openConnection();
         c.setRequestMethod("GET");
         
-        assertEquals("text/xml", c.getContentType());
+        assertEquals("text/xml; charset=utf-8", c.getContentType());
         
         Document doc = DOMUtils.readXml(c.getErrorStream());
         assertValid("//*[text()='You can not map a URI parameter to a "
@@ -201,7 +201,7 @@ public class BareServiceTest extends AbstractRestTest {
         HttpURLConnection c = (HttpURLConnection)url.openConnection();
         c.setRequestMethod("GET");
         
-        assertEquals("text/xml", c.getContentType());
+        assertEquals("text/xml; charset=utf-8", c.getContentType());
         
         Document doc = DOMUtils.readXml(c.getInputStream());
         addNamespace("b", "http://bare.http.binding.cxf.apache.org/");

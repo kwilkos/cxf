@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
@@ -73,6 +72,18 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class SwAOutInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(SwAOutInterceptor.class);
+    private static final boolean HAS_SWA_REF_METHOD;
+    static {
+        Class<?> cls = JAXBContextImpl.class;
+        Method m = null;
+        try {
+            m = cls.getMethod("hasSwaRef", new Class[0]);
+        } catch (Exception e) {
+            //ignore
+        }
+        HAS_SWA_REF_METHOD = m != null;
+    }
+    
     
     AttachmentOutInterceptor attachOut = new AttachmentOutInterceptor();
     
@@ -193,20 +204,9 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
     }
     private boolean hasSwaRef(JAXBDataBinding db) {
         JAXBContext context = db.getContext();
-        if (context instanceof JAXBContextImpl) {
-            JAXBContextImpl riCtx = (JAXBContextImpl) context;
-            
-            try {
-                // We're using reflection here because this won't work on
-                // JAXB < 2.0.5 and Java 6 ships with 2.0.2.  This means
-                // SwA won't work correctly unless you're using at least 
-                // JAXB 2.0.5.
-                Method m = riCtx.getClass().getMethod("hasSwaRef", new Class[0]);
-                
-                return (Boolean) m.invoke(riCtx, new Object[0]);
-            } catch (Exception e) {
-                LOG.log(Level.FINER, "Could not check hasSwaRef", e);
-            }
+        if (HAS_SWA_REF_METHOD
+            && context instanceof JAXBContextImpl) {
+            return ((JAXBContextImpl)context).hasSwaRef();
         }
         
         return false;

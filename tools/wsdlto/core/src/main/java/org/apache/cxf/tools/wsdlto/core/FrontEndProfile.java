@@ -23,19 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
+import org.apache.cxf.tools.common.toolspec.ToolContainer;
 
 public class FrontEndProfile {
     List<FrontEndGenerator> generators = new ArrayList<FrontEndGenerator>();
     Processor processor;
-    Class containerClz;
+    Class<? extends ToolContainer> containerClz;
     String toolspec;
     AbstractWSDLBuilder<? extends Object> builder;
 
-    public void setContainerClass(Class c) {
+    public void setContainerClass(Class<? extends ToolContainer> c) {
         this.containerClz = c;
     }
 
-    public Class getContainerClass() {
+    public Class<? extends ToolContainer> getContainerClass() {
         return this.containerClz;
     }
 

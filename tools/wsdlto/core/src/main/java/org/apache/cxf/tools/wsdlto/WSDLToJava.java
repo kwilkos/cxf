@@ -27,6 +27,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.toolspec.ToolContainer;
 import org.apache.cxf.tools.common.toolspec.ToolRunner;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
@@ -95,7 +96,7 @@ public class WSDLToJava {
         
         context.put(DataBindingProfile.class, databinding);
         
-        Class containerClass = frontend.getContainerClass();
+        Class<? extends ToolContainer> containerClass = frontend.getContainerClass();
 
         InputStream toolspecStream = getResourceAsStream(containerClass, frontend.getToolspec());
          

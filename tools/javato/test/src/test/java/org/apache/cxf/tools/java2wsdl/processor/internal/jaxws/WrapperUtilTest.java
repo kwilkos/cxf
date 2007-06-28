@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class WrapperUtilTest extends Assert {
     String pkgName = "org.apache.cxf.tools.fortest.classnoanno.docwrapped";
-    Class stockClass;
+    Class<?> stockClass;
     Method method;
 
     @Before
@@ -45,7 +45,7 @@ public class WrapperUtilTest extends Assert {
 
     @Test
     public void testWrapperClassNotExists() throws Exception {
-        Class helloClass = Class.forName("org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
+        Class<?> helloClass = Class.forName("org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
         assertNotNull(helloClass);
         Method helloMethod = helloClass.getMethod("sayHiWithoutWrapperClass");
         assertNotNull(helloMethod);
