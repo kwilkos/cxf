@@ -494,6 +494,8 @@ public class HTTPConduit
         } else {
             connection.setRequestMethod("POST");
         }
+        
+        boolean isChunking = false;
         // We must cache the request if we have basic auth supplier
         // without preemptive basic auth.
         if (basicAuthSupplier != null) {
@@ -519,6 +521,7 @@ public class HTTPConduit
                 // documented client constant.
                 //use -1 and allow the URL connection to pick a default value
                 connection.setChunkedStreamingMode(-1);
+                isChunking = true;
             }
         }
         
@@ -546,7 +549,8 @@ public class HTTPConduit
         
         message.setContent(OutputStream.class,
                 new WrappedOutputStream(
-                        message, connection, needToCacheRequest));
+                        message, connection,
+                        needToCacheRequest, isChunking));
         
         // We are now "ready" to "send" the message. 
     }
@@ -1652,6 +1656,12 @@ public class HTTPConduit
         private boolean cachingForRetransmision;
         
         /**
+         * If we are going to be chunking, we won't flush till close which causes
+         * new chunks, small network packets, etc..
+         */
+        private final boolean chunking;
+        
+        /**
          * This field contains the output stream with which we cache
          * the request. It maybe null if we are not caching.
          */
@@ -1662,12 +1672,14 @@ public class HTTPConduit
         WrappedOutputStream(
                 Message m, 
                 HttpURLConnection c, 
-                boolean possibleRetransmit
+                boolean possibleRetransmit,
+                boolean isChunking
         ) {
             super();
             this.outMessage = m;
             connection = c;
             cachingForRetransmision = possibleRetransmit;
+            chunking = isChunking;
         }
 
         /**
@@ -1712,6 +1724,12 @@ public class HTTPConduit
             }
         }
 
+        public void flush() throws IOException {
+            if (!chunking) {
+                super.flush();
+            }
+        }
+        
         /**
          * Perform any actions required on stream closure (handle response etc.)
          */
@@ -1719,6 +1737,7 @@ public class HTTPConduit
             if (!written) {
                 handleHeadersTrustCaching();
             }
+            super.flush();
             super.close();
             handleResponse();
         }
