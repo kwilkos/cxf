@@ -78,7 +78,6 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         if (beanInfo == null) {
             if (Exception.class.isAssignableFrom(clazz)) {
                 QName name = (QName)part.getMessageInfo().getProperty("elementName");
-                System.out.println("---name --- " + name);
                 part.setElementQName(name);
                 buildExceptionType(part, clazz);
             }
