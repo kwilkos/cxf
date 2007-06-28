@@ -69,17 +69,17 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
                 processor.process();
             }
         } catch (ToolException ex) {
-            System.err.println("Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
+            System.err.println("WSDLToSoap Error : " + ex.getMessage());
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
             System.err.println();
+            System.err.println("WSDLToSoap Error : " + ex.getMessage());
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
@@ -119,8 +119,12 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
                                WSDLToSoap.class.getResourceAsStream("wsdl2soap.xml"),
                                false,
                                pargs);
+        } catch (ToolException ex) {
+            System.err.println("WSDL2Soap Error : " + ex.getMessage());
+            System.err.println();
+            ex.printStackTrace();
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("WSDL2Soap Error : " + ex.getMessage());
             System.err.println();
             ex.printStackTrace();
         }

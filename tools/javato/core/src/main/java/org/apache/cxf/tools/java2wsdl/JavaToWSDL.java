@@ -41,7 +41,7 @@ public class JavaToWSDL {
         try {
             j2w.run();
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("JavaToWSDL Error : " + ex.getMessage());
             System.err.println();
             if (j2w.isVerbose()) {
                 ex.printStackTrace();

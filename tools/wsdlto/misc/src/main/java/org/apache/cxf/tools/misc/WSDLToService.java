@@ -67,17 +67,17 @@ public class WSDLToService extends AbstractCXFToolContainer {
                 processor.process();
             }
         } catch (ToolException ex) {
-            System.err.println("Tools Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
+            System.err.println("WSDLToService Error : " + ex.getMessage());
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
-            System.err.println("Unexpected Error : " + ex.getMessage());
             System.err.println();
+            System.err.println("WSDLToService Error : " + ex.getMessage());
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
