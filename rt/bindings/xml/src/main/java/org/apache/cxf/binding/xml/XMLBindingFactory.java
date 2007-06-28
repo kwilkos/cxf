@@ -38,12 +38,17 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
 
+    public static final String XML_PARSER_DISABLED = "xml.parser.disabled";
+    public static final String ATTACHMENT_PARSER_DISABLED = "xml.parser.disabled";
+    
     public Binding createBinding(BindingInfo binding) {
         XMLBinding xb = new XMLBinding(binding);
-        
-        xb.getInInterceptors().add(new AttachmentInInterceptor());
-        xb.getInInterceptors().add(new StaxInInterceptor());
-        
+        if (!Boolean.TRUE.equals(binding.getProperty(ATTACHMENT_PARSER_DISABLED))) {
+            xb.getInInterceptors().add(new AttachmentInInterceptor());
+        }
+        if (!Boolean.TRUE.equals(binding.getProperty(XML_PARSER_DISABLED))) {
+            xb.getInInterceptors().add(new StaxInInterceptor());
+        }
         xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         
         xb.getOutInterceptors().add(new StaxOutInterceptor());

@@ -39,15 +39,26 @@ public abstract class AbstractProvider<T> implements WebProvider {
         T ret = null;
         if ("GET".equalsIgnoreCase(method)) {
             ret = get(req);
+        }  else if ("POST".equalsIgnoreCase(method)) {
+            ret = post(req);
         }
+
         return ret;
     }
 
-    protected abstract T get(T req);
+    protected  T get(T req) {
+        return req;
+    }
+
     
     public WebServiceContext getWebServiceContext() { 
         return wsContext;
     }
+    
+    protected T post(T req) {
+        return req;
+    }
+
     
     public void publish(String url) { 
         Endpoint ep = Endpoint.create(HTTPBinding.HTTP_BINDING, this);

@@ -42,6 +42,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -349,5 +350,13 @@ public final class XMLUtils {
         }
 
         return new QName(ns, localName, prefix);        
+    }
+    
+    public static Node  fromSource(Source src) throws Exception {
+
+        Transformer trans = TransformerFactory.newInstance().newTransformer();
+        DOMResult res = new DOMResult();
+        trans.transform(src, res);
+        return res.getNode();
     }
 }

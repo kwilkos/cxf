@@ -20,6 +20,8 @@
 package org.apache.cxf.systest.provider.datasource;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Properties;
@@ -32,6 +34,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,31 +47,54 @@ public class DataSourceProviderTest extends Assert {
 
     static final Logger LOG = Logger.getLogger(DataSourceProviderTest.class.getName());
     private static final String TEST_URI = "http://localhost:9000/test/foo";
+    private static final String BOUNDARY = "----=_Part_4_701508.1145579811786";
+    private HttpURLConnection conn;
+    private URL url;
 
     @Before 
     public void launchServer() { 
         TestProvider tp = new TestProvider();
         tp.publish(TEST_URI);
+        
     }
     
+    @Before
+    public void createConnection() throws Exception {
+        url = new URL("http://localhost:9000/test/foo");
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setDoOutput(true);
+    }
+
 
     @Test 
     public void invokeOnServer() throws Exception { 
-        URL url = new URL("http://localhost:9000/test/foo");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        url = new URL("http://localhost:9000/test/foo");
+        conn = (HttpURLConnection) url.openConnection();
         printSource(new StreamSource(conn.getInputStream())); 
     }
     
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void postAttachmentToServer() throws Exception {
+        String contentType = "multipart/related; type=\"text/xml\"; "
+            + "start=\"attachmentData\"; "
+            + "boundary=\"" + BOUNDARY + "\"";
 
-        URL url = new URL("http://localhost:9000/test/foo");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        String header = conn.getHeaderField("WWW-Authenticate");
-        LOG.info("header: " + header);
-        printSource(new StreamSource(conn.getInputStream())); 
+        InputStream in = getClass().getResourceAsStream("/attachmentBinaryData");
+        assertNotNull("could not load test data", in);
+
+        conn.setRequestMethod("POST");
+        conn.addRequestProperty("Content-Type", contentType);
+        OutputStream out = conn.getOutputStream();
+        IOUtils.copy(in, out);
+        out.close();
+
+        Document d = (Document)XMLUtils.fromSource(new StreamSource(conn.getInputStream()));
+        Node n = d.getFirstChild();
+        assertEquals("bodyParts", n.getNodeName());
+        assertEquals("incorrect number of parts received by server", 2, Integer.parseInt(n.getTextContent()));
     }
 
-    private static void printSource(Source source) {
+    private void printSource(Source source) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             StreamResult sr = new StreamResult(bos);
@@ -79,4 +109,7 @@ public class DataSourceProviderTest extends Assert {
             e.printStackTrace();
         }
     }
+    
+    
+
 }

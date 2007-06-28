@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws;
 
 import java.util.List;
 
+import javax.activation.DataSource;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
@@ -31,6 +32,7 @@ import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.binding.xml.XMLBindingFactory;
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -132,6 +134,10 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
                 && messageMode
                 && !implInfo.getProviderParameterType().equals(SOAPMessage.class)) {
                 bindingInfo.setProperty(SoapBindingFactory.MESSAGE_PROCESSING_DISABLED, Boolean.TRUE);
+            }
+            if (implInfo.getProviderParameterType().equals(DataSource.class)) {
+                bindingInfo.setProperty(XMLBindingFactory.XML_PARSER_DISABLED, Boolean.TRUE);
+                bindingInfo.setProperty(XMLBindingFactory.ATTACHMENT_PARSER_DISABLED, Boolean.TRUE);
             }
         }
             

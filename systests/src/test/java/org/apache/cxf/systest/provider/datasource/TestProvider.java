@@ -20,7 +20,16 @@
 package org.apache.cxf.systest.provider.datasource;
 
 
+/*import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;*/
+import java.util.Properties;
+import java.util.logging.Logger;
+
 import javax.activation.DataSource;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.Provider;
@@ -29,12 +38,17 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 
+//import org.apache.cxf.helpers.IOUtils;
+
+
 
 @WebServiceProvider(serviceName = "ModelProvider")
 @ServiceMode(value = Service.Mode.PAYLOAD)
 @BindingType(value = "http://cxf.apache.org/bindings/xformat")
 public class TestProvider extends AbstractProvider<DataSource> implements Provider<DataSource> {
 
+    static final Logger LOG = Logger.getLogger(TestProvider.class.getName());
+    
     @javax.annotation.Resource
     public void setWebServiceContext(WebServiceContext wsc) {
         super.setWebServiceContext(wsc);
@@ -44,6 +58,27 @@ public class TestProvider extends AbstractProvider<DataSource> implements Provid
     public DataSource invoke(DataSource req) {
         return super.invoke(req); 
     }
+    
+    protected DataSource post(DataSource req) {
+        String msg;
+        try {
+            LOG.info("content type: " + req.getContentType());
+
+            Session session = Session.getDefaultInstance(new Properties());
+            MimeMessage mm = new MimeMessage(session, req.getInputStream());
+                        
+            mm.addHeaderLine("Content-Type:" + req.getContentType());
+            MimeMultipart multipart = (MimeMultipart) mm.getContent();
+            msg = "<bodyParts>" + multipart.getCount() + "</bodyParts>";
+            
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            msg = "<fail/>";
+        }
+        return new ByteArrayDataSource(msg.getBytes(), "text/xml");
+    }
+
     
     @Override
     protected DataSource get(DataSource req) {

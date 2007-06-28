@@ -18,9 +18,13 @@
  */
 package org.apache.cxf.jaxws.interceptors;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
 
@@ -48,9 +52,14 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
         this.type = type;
     }
 
+    public Class getType() {
+        return type;
+    }
+    
     public void handleMessage(Message message) throws Fault {
         Exchange ex = message.getExchange();
         Endpoint e = ex.get(Endpoint.class);
+        
         if (e.getEndpointInfo().getBinding().getOperations().iterator().hasNext()) {
             BindingOperationInfo bop = e.getEndpointInfo().getBinding().getOperations().iterator().next();
             ex.put(BindingOperationInfo.class, bop);
@@ -70,6 +79,13 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
         if (SOAPMessage.class.equals(type)) {
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             params.add(msg);
+        } else if (DataSource.class.equals(type)) {
+            InputStream is = message.getContent(InputStream.class);
+            try {
+                params.add(new ByteArrayDataSource(is, (String) message.get(Message.CONTENT_TYPE)));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         } else {
 
             XMLStreamReader r = message.getContent(XMLStreamReader.class);
@@ -92,5 +108,7 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
         message.setContent(Object.class, params);
 
     }
+    
+    
 
 }
