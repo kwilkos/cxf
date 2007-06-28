@@ -125,7 +125,6 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
                 if (part.isElement()) {
                     reader.next();
                 }
-                reader.next();
             }
             int ev = reader.getEventType();
             while (ev != XMLStreamConstants.END_ELEMENT 
