@@ -73,13 +73,13 @@ public class WSDLToXML extends AbstractCXFToolContainer {
                 printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
-            System.err.println("WSDLToXML Eroor: " + ex.getMessage());
+            System.err.println("WSDLToXML Error: " + ex.getMessage());
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
             System.err.println();
-            System.err.println("WSDLToXML Eroor: " + ex.getMessage());
+            System.err.println("WSDLToXML Error: " + ex.getMessage());
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
