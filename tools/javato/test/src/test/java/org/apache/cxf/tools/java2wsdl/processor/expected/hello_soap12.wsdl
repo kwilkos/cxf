@@ -54,7 +54,7 @@
     <wsdl:part name="parameters" element="ns2:sayHiResponse">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="faultDetail">
+  <wsdl:message name="PingMeFault">
     <wsdl:part name="fault" element="ns2:faultDetail">
     </wsdl:part>
   </wsdl:message>
@@ -78,7 +78,7 @@
     </wsdl:input>
       <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
     </wsdl:output>
-      <wsdl:fault name="faultDetail" message="ns1:faultDetail">
+      <wsdl:fault name="PingMeFault" message="ns1:PingMeFault">
     </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
@@ -101,8 +101,8 @@
       <wsdl:output name="pingMeResponse">
         <soap12:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="faultDetail">
-        <soap12:fault name="faultDetail" use="literal"/>
+      <wsdl:fault name="PingMeFault">
+        <soap12:fault name="PingMeFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>

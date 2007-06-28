@@ -66,7 +66,7 @@ under the License.
 </xs:complexType>
 </xs:schema>
   </wsdl:types>
-  <wsdl:message name="BadRecordLit">
+  <wsdl:message name="BadRecordLitFault">
     <wsdl:part name="fault" element="ns2:BadRecordLit">
     </wsdl:part>
   </wsdl:message>
@@ -82,7 +82,7 @@ under the License.
     <wsdl:part name="parameters" element="ns2:testDocLitFaultResponse">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="NoSuchCodeLit">
+  <wsdl:message name="NoSuchCodeLitFault">
     <wsdl:part name="fault" element="ns2:NoSuchCodeLit">
     </wsdl:part>
   </wsdl:message>
@@ -96,7 +96,7 @@ under the License.
     </wsdl:input>
       <wsdl:output name="greetMeResponse" message="ns1:greetMeResponse">
     </wsdl:output>
-      <wsdl:fault name="NoSuchCodeLit" message="ns1:NoSuchCodeLit">
+      <wsdl:fault name="NoSuchCodeLitFault" message="ns1:NoSuchCodeLitFault">
     </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="testDocLitFault">
@@ -104,9 +104,9 @@ under the License.
     </wsdl:input>
       <wsdl:output name="testDocLitFaultResponse" message="ns1:testDocLitFaultResponse">
     </wsdl:output>
-      <wsdl:fault name="NoSuchCodeLit" message="ns1:NoSuchCodeLit">
+      <wsdl:fault name="NoSuchCodeLitFault" message="ns1:NoSuchCodeLitFault">
     </wsdl:fault>
-      <wsdl:fault name="BadRecordLit" message="ns1:BadRecordLit">
+      <wsdl:fault name="BadRecordLitFault" message="ns1:BadRecordLitFault">
     </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
@@ -120,8 +120,8 @@ under the License.
       <wsdl:output name="greetMeResponse">
         <soap:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="NoSuchCodeLit">
-        <soap:fault name="NoSuchCodeLit" use="literal"/>
+      <wsdl:fault name="NoSuchCodeLitFault">
+        <soap:fault name="NoSuchCodeLitFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="testDocLitFault">
@@ -132,11 +132,11 @@ under the License.
       <wsdl:output name="testDocLitFaultResponse">
         <soap:body use="literal"/>
       </wsdl:output>
-      <wsdl:fault name="NoSuchCodeLit">
-        <soap:fault name="NoSuchCodeLit" use="literal"/>
+      <wsdl:fault name="NoSuchCodeLitFault">
+        <soap:fault name="NoSuchCodeLitFault" use="literal"/>
       </wsdl:fault>
-      <wsdl:fault name="BadRecordLit">
-        <soap:fault name="BadRecordLit" use="literal"/>
+      <wsdl:fault name="BadRecordLitFault">
+        <soap:fault name="BadRecordLitFault" use="literal"/>
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>

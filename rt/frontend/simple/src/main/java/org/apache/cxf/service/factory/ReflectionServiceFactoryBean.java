@@ -1080,9 +1080,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
         QName faultName = getFaultName(service, op, exClass, beanClass);
-        FaultInfo fi = op.addFault(faultName, 
-                                   new QName(op.getName().getNamespaceURI(), faultName.getLocalPart()));
+        FaultInfo fi = op.addFault(new QName(op.getName().getNamespaceURI(), exClass.getSimpleName()),
+                                   new QName(op.getName().getNamespaceURI(), exClass.getSimpleName()));
         fi.setProperty(Class.class.getName(), exClass);
+        fi.setProperty("elementName", faultName);
         MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(), "fault"));
         mpi.setTypeClass(beanClass);
         return fi;

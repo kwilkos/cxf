@@ -77,7 +77,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
         if (beanInfo == null) {
             if (Exception.class.isAssignableFrom(clazz)) {
-                QName name = part.getMessageInfo().getName();
+                QName name = (QName)part.getMessageInfo().getProperty("elementName");
+                System.out.println("---name --- " + name);
                 part.setElementQName(name);
                 buildExceptionType(part, clazz);
             }
@@ -184,8 +185,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         MessagePartInfo part = fault.getMessageParts().get(0); 
         Class<?> cls = part.getTypeClass();
         Class<?> cl2 = (Class)fault.getProperty(Class.class.getName());
-        if (cls != cl2) {
-            QName name = fault.getFaultName();
+        if (cls != cl2) {            
+            QName name = (QName)fault.getProperty("elementName");
             part.setElementQName(name);           
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(cls);
             SchemaInfo schemaInfo = null;
