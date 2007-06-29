@@ -34,6 +34,7 @@ import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.greeter_control.types.GreetMeResponse;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.MessageRecorder;
@@ -101,14 +102,18 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
         LOG.fine("Created bus " + greeterBus + " with cfg : " + CFG);        
         BusFactory.setDefaultBus(greeterBus);
         
-        // avoid soon cliejt resends
+        // avoid early client resends
         greeterBus.getExtension(RMManager.class).getRMAssertion().getBaseRetransmissionInterval()
             .setMilliseconds(new BigInteger("60000"));
         GreeterService gs = new GreeterService();
         Greeter greeter = gs.getGreeterPort();
         
         LOG.fine("Created greeter client.");
-  
+ 
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
+
         Client c = ClientProxy.getClient(greeter);
         HTTPConduit hc = (HTTPConduit)(c.getConduit());
         HTTPClientPolicy cp = hc.getClient();
@@ -148,7 +153,8 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
     }
     
     void verifyMissingResponse(Response<GreetMeResponse> responses[]) throws Exception {
-        awaitMessages(4, 7);
+        awaitMessages(4, 7, 20000);
+
         // wait another while to prove that response to second request is indeed lost
         Thread.sleep(1000);
         int nDone = 0;
@@ -216,7 +222,7 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
     }
   
     
-    private void awaitMessages(int nExpectedOut, int nExpectedIn) {
+    protected void awaitMessages(int nExpectedOut, int nExpectedIn) {
         awaitMessages(nExpectedOut, nExpectedIn, 10000);
     }
     

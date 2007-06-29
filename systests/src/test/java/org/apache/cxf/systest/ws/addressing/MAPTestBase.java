@@ -61,8 +61,11 @@ import static org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PRO
  */
 public abstract class MAPTestBase extends AbstractClientServerTestBase implements VerificationCache {
 
+    protected static Bus staticBus;
+
     static final String INBOUND_KEY = "inbound";
     static final String OUTBOUND_KEY = "outbound";
+
 
     private static MAPVerifier mapVerifier;
     private static HeaderVerifier headerVerifier;
@@ -76,9 +79,7 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
     
     private static Map<Object, Map<String, String>> messageIDs =
         new HashMap<Object, Map<String, String>>();
-    private static Bus staticBus;
-    
-    private Greeter greeter;
+    protected Greeter greeter;
     private String verified;
     
     

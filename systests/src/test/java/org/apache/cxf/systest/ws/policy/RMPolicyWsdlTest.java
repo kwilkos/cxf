@@ -31,6 +31,7 @@ import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.greeter_control.ReliableGreeterService;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.MessageRecorder;
@@ -106,6 +107,10 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
         ReliableGreeterService gs = new ReliableGreeterService();
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
+
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
 
         // oneway
 

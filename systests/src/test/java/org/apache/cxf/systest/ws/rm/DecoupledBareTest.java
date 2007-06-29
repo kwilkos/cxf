@@ -27,6 +27,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.DocLitBare;
@@ -87,6 +88,10 @@ public class DecoupledBareTest extends AbstractBusClientServerTestBase {
         assertNotNull(service);
 
         DocLitBare greeter = service.getSoapPort();
+
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
        
         BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
         assertNotNull("no response for operation testDocLitBare", bareres);

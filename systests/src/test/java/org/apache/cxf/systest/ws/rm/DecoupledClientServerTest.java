@@ -30,6 +30,7 @@ import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.junit.BeforeClass;
@@ -100,7 +101,11 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
         GreeterService gs = new GreeterService();
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
-        
+       
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
+
         class TwowayThread extends Thread {
 
             String response;

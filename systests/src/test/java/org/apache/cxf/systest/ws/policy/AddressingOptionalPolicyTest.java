@@ -31,6 +31,7 @@ import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.OutMessageRecorder;
@@ -104,6 +105,10 @@ public class AddressingOptionalPolicyTest extends AbstractBusClientServerTestBas
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
+
         // oneway
 
         greeter.greetMeOneWay("CXF");
@@ -150,6 +155,10 @@ public class AddressingOptionalPolicyTest extends AbstractBusClientServerTestBas
         BasicGreeterService gs = new BasicGreeterService();
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
+
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
 
         // oneway
 

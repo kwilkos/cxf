@@ -34,6 +34,7 @@ import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.policy.ServerPolicyInInterceptor;
@@ -92,6 +93,10 @@ public class AddressingInlinePolicyTest extends AbstractBusClientServerTestBase 
         BasicGreeterService gs = new BasicGreeterService();
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
+
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
 
         Client client = ClientProxy.getClient(greeter);
         List<ServiceInfo> sis = client.getEndpoint().getService().getServiceInfos();

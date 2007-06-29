@@ -43,6 +43,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.systest.ws.util.InMessageRecorder;
 import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.MessageRecorder;
@@ -165,6 +166,10 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         GreeterService gs = new GreeterService();
         greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
+
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
 
         greeter.greetMeOneWay("once");
 
@@ -1308,6 +1313,10 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
 
         greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
+
+        if ("HP-UX".equals(System.getProperty("os.name"))) {
+            ConnectionHelper.setKeepAliveConnection(greeter, true);
+        }
 
         if (!useDecoupledEndpoint) {
             return;
