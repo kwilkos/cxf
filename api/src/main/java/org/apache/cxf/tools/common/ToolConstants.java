@@ -84,6 +84,7 @@ public final class ToolConstants {
     public static final String CFG_GEN_ANT = "genAnt"; 
     public static final String CFG_GEN_SERVICE = "genService";
     public static final String CFG_GEN_OVERWRITE = "overwrite";
+    public static final String CFG_GEN_FAULT = "genFault";
 
     // Java2WSDL Constants
 
