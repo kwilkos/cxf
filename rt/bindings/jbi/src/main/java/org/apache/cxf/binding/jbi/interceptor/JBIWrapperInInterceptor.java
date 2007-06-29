@@ -107,7 +107,7 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
             for (MessagePartInfo part : messageInfo.getMessageParts()) {
                 if (!StaxUtils.skipToStartOfElement(reader)) {
                     throw new Fault(new org.apache.cxf.common.i18n.Message(
-                            "NO_ENOUGH_PARTS", BUNDLE));
+                            "NOT_ENOUGH_PARTS", BUNDLE));
                 }
                 startQName = reader.getName();
                 if (!startQName.equals(JBIConstants.JBI_WRAPPER_PART)) {
@@ -135,7 +135,7 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
             }
             if (ev == XMLStreamConstants.START_ELEMENT) {
                 System.err.println(reader.getEventType());
-                throw new Fault(new org.apache.cxf.common.i18n.Message("TOO_MUCH_PARTS", BUNDLE));
+                throw new Fault(new org.apache.cxf.common.i18n.Message("TOO_MANY_PARTS", BUNDLE));
             }
             message.setContent(List.class, parameters);
         } catch (XMLStreamException e) {

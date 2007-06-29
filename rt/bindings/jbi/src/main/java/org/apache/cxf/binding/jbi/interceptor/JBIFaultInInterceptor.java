@@ -56,7 +56,7 @@ public class JBIFaultInInterceptor extends AbstractPhaseInterceptor<JBIMessage> 
         try {            
             
             if (!StaxUtils.toNextElement(reader)) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("ILLEAGAL_JBIFAULT_FORMAT", BUNDLE));
+                throw new Fault(new org.apache.cxf.common.i18n.Message("ILLEGAL_JBIFAULT_FORMAT", BUNDLE));
             }
             Fault fault = new JBIFault(new org.apache.cxf.common.i18n.Message(JBIFault.JBI_FAULT_STRING, 
                                                                               (ResourceBundle) null));
