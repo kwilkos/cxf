@@ -20,15 +20,12 @@
 package org.apache.cxf.systest.provider.datasource;
 
 
-/*import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;*/
-import java.util.Properties;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.BindingType;
@@ -38,7 +35,8 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 
-//import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.IOUtils;
+
 
 
 
@@ -64,14 +62,15 @@ public class TestProvider extends AbstractProvider<DataSource> implements Provid
         try {
             LOG.info("content type: " + req.getContentType());
 
-            Session session = Session.getDefaultInstance(new Properties());
-            MimeMessage mm = new MimeMessage(session, req.getInputStream());
-                        
-            mm.addHeaderLine("Content-Type:" + req.getContentType());
-            MimeMultipart multipart = (MimeMultipart) mm.getContent();
-            msg = "<bodyParts>" + multipart.getCount() + "</bodyParts>";
-            
-            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.copy(req.getInputStream(), baos);
+            LOG.info("body [" + new String(baos.toByteArray())  + "]");
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            msg = "<ok/>";
+
+            MimeMultipart multipart = DataSourceProviderTest.readAttachmentParts(req.getContentType(), bais);
+            LOG.info("found " + multipart.getCount() + " parts");
+            return new ByteArrayDataSource(baos.toByteArray(), req.getContentType());
         } catch (Exception e) {
             e.printStackTrace();
             msg = "<fail/>";
@@ -85,4 +84,6 @@ public class TestProvider extends AbstractProvider<DataSource> implements Provid
         String msg = "<doc><response>Hello</response></doc>";
         return new ByteArrayDataSource(msg.getBytes(), "application/octet-stream");
     }
+    
+    
 }

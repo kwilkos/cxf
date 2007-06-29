@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.provider.datasource;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -27,6 +28,10 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -34,11 +39,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.helpers.XMLUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,10 +89,11 @@ public class DataSourceProviderTest extends Assert {
         IOUtils.copy(in, out);
         out.close();
 
-        Document d = (Document)XMLUtils.fromSource(new StreamSource(conn.getInputStream()));
-        Node n = d.getFirstChild();
-        assertEquals("bodyParts", n.getNodeName());
-        assertEquals("incorrect number of parts received by server", 2, Integer.parseInt(n.getTextContent()));
+        MimeMultipart mm = readAttachmentParts(conn.getRequestProperty("Content-Type"),
+                                                        conn.getInputStream());
+
+        assertEquals("incorrect number of parts received by server", 3, mm.getCount());
+
     }
 
     private void printSource(Source source) {
@@ -110,6 +112,13 @@ public class DataSourceProviderTest extends Assert {
         }
     }
     
-    
+    public static MimeMultipart readAttachmentParts(String contentType, InputStream bais) throws 
+        MessagingException, IOException {
+        Session session = Session.getDefaultInstance(new Properties());
+        MimeMessage mm = new MimeMessage(session, bais);
+        mm.addHeaderLine("Content-Type:" + contentType);
+        return (MimeMultipart) mm.getContent();
+    }
+
 
 }

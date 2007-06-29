@@ -18,12 +18,16 @@
  */
 package org.apache.cxf.jaxws.interceptors;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
+import javax.activation.DataSource;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -52,6 +56,14 @@ public class ProviderOutDatabindingInterceptor extends AbstractInDatabindingInte
             if (o != null) {
                 if (o instanceof SOAPMessage) {
                     message.setContent(SOAPMessage.class, o);
+                } else if (o instanceof DataSource) { 
+                    try { 
+                        message.removeContent(XMLStreamWriter.class);
+                        OutputStream out = message.getContent(OutputStream.class); 
+                        IOUtils.copy(((DataSource)o).getInputStream(), out);
+                    } catch (IOException ex) { 
+                        throw new Fault(ex);
+                    } 
                 } else {
                     writer.write(o, xsw);
                 }
