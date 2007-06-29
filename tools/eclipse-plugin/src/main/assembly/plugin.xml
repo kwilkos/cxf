@@ -40,6 +40,13 @@
                 <include>MANIFEST.MF</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>target/maven-shared-archive-resources</directory>
+            <outputDirectory>plugins/org.apache.cxf_${cxf.version}/</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
