@@ -84,7 +84,7 @@ public class JBIFaultOutInterceptor extends AbstractPhaseInterceptor<JBIMessage>
         Exception e = message.getContent(Exception.class);
         Fault fault;
         if (e == null) {
-            throw new IllegalStateException("No exception on this message!");
+            throw new IllegalStateException(new Message("NO_EXCEPTION", BUNDLE).toString());
         } else if (e instanceof Fault) {
             fault = (Fault) e;
         } else {
@@ -96,7 +96,7 @@ public class JBIFaultOutInterceptor extends AbstractPhaseInterceptor<JBIMessage>
     protected XMLStreamWriter getWriter(JBIMessage message) {
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
         if (writer == null) {
-            throw new IllegalStateException("No XMLStreamWriter on this message");
+            throw new IllegalStateException(new Message("NO_XML_STREAM_WRITER", BUNDLE).toString());
         }
         return writer;
     }

@@ -68,7 +68,7 @@ public class JBIWrapperOutInterceptor extends AbstractOutDatabindingInterceptor 
             List<?> objs = (List<?>) message.getContent(List.class);                
             if (objs.size() < parts.size()) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message(
-                        "The number of arguments is not equal!", BUNDLE));
+                        "NOT_EQUAL_ARG_NUM", BUNDLE));
             }
             for (int idx = 0; idx < parts.size(); idx++) {
                 MessagePartInfo part = parts.get(idx);

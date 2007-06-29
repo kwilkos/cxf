@@ -69,7 +69,8 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
         Endpoint ep = message.getExchange().get(Endpoint.class);
         BindingInfo binding = ep.getEndpointInfo().getBinding();
         if (!(binding instanceof JBIBindingInfo)) {
-            throw new IllegalStateException("BindingInfo should be a JbiBindingInfo");
+            throw new IllegalStateException(
+                  new org.apache.cxf.common.i18n.Message("NEED_JBIBINDING", BUNDLE).toString());
         }
 
         if (!StaxUtils.toNextElement(reader)) {
@@ -138,7 +139,7 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
             }
             message.setContent(List.class, parameters);
         } catch (XMLStreamException e) {
-            throw new RuntimeException("Couldn't parse stream.", e);
+            throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE), e);
         }
     }
 
