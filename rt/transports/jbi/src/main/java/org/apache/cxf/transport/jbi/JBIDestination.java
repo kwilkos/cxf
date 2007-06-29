@@ -143,11 +143,11 @@ public class JBIDestination extends AbstractDestination {
                 do {
                     MessageExchange exchange = null;
                     synchronized (channel) {
-                    	try {
-                    		exchange = channel.accept();
-                    	} catch (Exception e) {
-                    		//ignore
-                    	}
+                        try {
+                            exchange = channel.accept();
+                        } catch (Exception e) {
+                            // ignore
+                        }
                     }
 
                     if (exchange != null) {
