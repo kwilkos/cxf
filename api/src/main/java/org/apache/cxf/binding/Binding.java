@@ -29,9 +29,23 @@ import org.apache.cxf.service.model.BindingInfo;
  */
 public interface Binding extends InterceptorProvider {
     
+    /**
+     * Create a Message for this Binding.
+     * @return the Binding message
+     */
     Message createMessage();
-
+    
+    /**
+     * Create a Message form the messge.
+     * 
+     * @param m the message used for creating a binding message
+     * @return the Binding message
+     */ 
     Message createMessage(Message m);
     
+    /**
+     * Get the BindingInfor
+     * @return the BingdingInfo Object     
+     */
     BindingInfo getBindingInfo();
 }

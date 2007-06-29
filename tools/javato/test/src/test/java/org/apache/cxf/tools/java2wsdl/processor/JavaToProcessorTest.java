@@ -358,7 +358,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         try {
             processor.process();
         } catch (RuntimeException e) {
-            assertEquals("JAXWS SEI can not implement java.rmi.Remote interface.", e.getMessage());
+            assertEquals("JAXWS SEIs may not implement the java.rmi.Remote interface.", e.getMessage());
         }
     }
 }

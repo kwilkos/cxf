@@ -16,7 +16,7 @@
       <xsd:documentation>
       To define the enumeration of all the supported topic types.
       Note that topic types are logical categories of events.
-      The following MTOSI events are not bound to any topic types; Heartbeat, EventLossOccured, EventLossCleared
+      The following MTOSI events are not bound to any topic types: Heartbeat, EventLossOccurred, EventLossCleared
       Refer to the Event_T definition.
       </xsd:documentation>
     </xsd:annotation>
@@ -24,28 +24,28 @@
       <xsd:enumeration value="Inventory">
         <xsd:annotation>
           <xsd:documentation>
-          The topic type for these events; ObjectCreation, ObjectDeletion, AttributeValueChange, StateChange, ObjectDiscovery.  
+          The topic type for these events: ObjectCreation, ObjectDeletion, AttributeValueChange, StateChange, ObjectDiscovery.  
           </xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="Fault">
         <xsd:annotation>
           <xsd:documentation>
-          The topic type for these events; Alarm.  
+          The topic type for these events: Alarm.  
           </xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="Protection">
         <xsd:annotation>
           <xsd:documentation>
-          The topic type for these events; ProtectionSwitch, EProtectionSwitch.  
+          The topic type for these events: ProtectionSwitch, EProtectionSwitch.  
           </xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>
       <xsd:enumeration value="FileTransferStatus">
         <xsd:annotation>
           <xsd:documentation>
-          The topic type for these events; FileTransferStatus.  
+          The topic type for these events: FileTransferStatus.  
           </xsd:documentation>
         </xsd:annotation>
       </xsd:enumeration>

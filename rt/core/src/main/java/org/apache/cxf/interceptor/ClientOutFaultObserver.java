@@ -41,7 +41,7 @@ public class ClientOutFaultObserver extends AbstractFaultChainInitiatorObserver 
      * override the super class method
      */
     public void onMessage(Message m) {
-        // do nothing for exception occured during client sending out request
+        // do nothing for exception occurred during client sending out request
     }
 
     protected boolean isOutboundObserver() {

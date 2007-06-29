@@ -401,10 +401,10 @@ Vendor extension of the VendorNotification_T structure
     <xsd:attribute name="tmf854Version" type="TMF854_Version_T" use="optional"/>
   </xsd:complexType>
   <!-- ================= -->
-  <xsd:complexType name="EventLossOccuredExt_T">
+  <xsd:complexType name="EventLossOccurredExt_T">
     <xsd:annotation>
       <xsd:documentation>
-Vendor extension of the EventLossOccured_T structure
+Vendor extension of the EventLossOccurred_T structure
             </xsd:documentation>
     </xsd:annotation>
     <xsd:sequence>

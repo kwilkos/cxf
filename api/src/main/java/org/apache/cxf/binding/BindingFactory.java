@@ -33,11 +33,12 @@ public interface BindingFactory {
      * Create a Binding from the BindingInfo metadata.
      * 
      * @param binding
+     * @return the Binding object
      */
     Binding createBinding(BindingInfo binding);
 
     /**
-     * Creates a "default" BindingInfo object for the service. Can return a subclass. 
+     * Create a "default" BindingInfo object for the service. Can return a subclass. 
      * @param service
      * @param namespace
      * @param configObject - binding specific configuration object
@@ -45,5 +46,12 @@ public interface BindingFactory {
      */
     BindingInfo createBindingInfo(Service service, String namespace, Object configObject);
     
+    /**
+     * Set the destionation's message observer which is created by using the endpoint to
+     * listen the incoming message
+     * @param d the destination that will be set the MessageObserver 
+     * @param e the endpoint to build up the MessageObserver
+     * @return the BindingInfo object 
+     */
     void addListener(Destination d, Endpoint e);
 }

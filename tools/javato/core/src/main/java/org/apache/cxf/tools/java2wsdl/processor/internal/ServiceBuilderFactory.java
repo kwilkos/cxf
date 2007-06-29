@@ -49,7 +49,7 @@ public final class ServiceBuilderFactory {
             String clzName = getBuilderClassName(s);
             builder = (ServiceBuilder) Class.forName(clzName).newInstance();
         } catch (Exception e) {
-            throw new ToolException("Can not find or initialize the ServiceBulider for style: " + s
+            throw new ToolException("Can not find or initialize the ServiceBuilder for style: " + s
                                     + " Reason: \n" + e.getMessage(),
                                     e);
         }

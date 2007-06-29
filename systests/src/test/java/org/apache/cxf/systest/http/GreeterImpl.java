@@ -45,15 +45,13 @@ public class GreeterImpl implements Greeter {
 
     public String greetMe(String me) {
         LOG.info("Executing operation greetMe");
-        //System.out.println("Executing operation greetMe");
-        //System.out.println("Message received: " + me + "\n");
+        LOG.info("Message received: " + me);
         return "Hello " + me;
     }
     
 
     public String sayHi() {
-        LOG.info("Executing operation sayHi");
-        //System.out.println("Executing operation sayHi\n");
+        LOG.info("Executing operation sayHi");        
         return "Bonjour from " + myName;
     }
     

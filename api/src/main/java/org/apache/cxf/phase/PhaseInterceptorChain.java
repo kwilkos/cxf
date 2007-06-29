@@ -69,7 +69,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     
     // currently one chain for one request/response, use below as signal to avoid duplicate fault processing
     // on nested calling of doIntercept(), which will throw same fault multi-times
-    private boolean faultOccured;
+    private boolean faultOccurred;
     
     
     private PhaseInterceptorChain(PhaseInterceptorChain src) {
@@ -206,9 +206,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 currentInterceptor.handleMessage(message);
                 
             } catch (RuntimeException ex) {
-                if (!faultOccured) {
+                if (!faultOccurred) {
  
-                    faultOccured = true;
+                    faultOccurred = true;
                     if (LOG.isLoggable(Level.INFO)) {
                         LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
                     }

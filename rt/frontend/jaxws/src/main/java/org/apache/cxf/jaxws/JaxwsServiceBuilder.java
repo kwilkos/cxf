@@ -45,7 +45,7 @@ public class JaxwsServiceBuilder extends AbstractServiceFactory {
     public void validate() {
         Class clz = getServiceClass();
         if (java.rmi.Remote.class.isAssignableFrom(clz)) {
-            throw new RuntimeException("JAXWS SEI can not implement java.rmi.Remote interface.");
+            throw new RuntimeException("JAXWS SEIs may not implement the java.rmi.Remote interface.");
         }
     }
     

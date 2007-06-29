@@ -306,6 +306,10 @@ public abstract class AbstractBeanDefinitionParser
         return new QName(ns, local, pre);
     }
 
+    /* This id-or-name resolution logic follows that in Spring's
+     * org.springframework.beans.factory.xml.BeanDefinitionParserDelegate object
+     * Intent is to have resolution of CXF custom beans follow that of Spring beans
+     */    
     protected String getIdOrName(Element elem) {
         String id = elem.getAttribute(BeanDefinitionParserDelegate.ID_ATTRIBUTE);
         
