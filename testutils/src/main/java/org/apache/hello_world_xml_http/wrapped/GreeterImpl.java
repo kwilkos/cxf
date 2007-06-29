@@ -32,7 +32,7 @@ import org.apache.hello_world_xml_http.wrapped.types.FaultDetail;
 public class GreeterImpl implements Greeter {
 
     public String greetMe(String me) {        
-        System.out.println("Executing operation greetMe\n");
+        System.out.println("Executing operation greetMe\n" + me);
         return "Hello " + me;
     }
 

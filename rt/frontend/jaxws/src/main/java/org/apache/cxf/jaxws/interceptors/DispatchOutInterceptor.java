@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -32,6 +33,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Service;
 
@@ -47,7 +49,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.wsdl.WSDLConstants;
 
 public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
@@ -61,7 +63,6 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public void handleMessage(Message message) throws Fault {
         Service.Mode m = message.getExchange().get(Service.Mode.class);
-        OutputStream os = message.getContent(OutputStream.class);
         Object obj = message.getContent(Object.class);
         org.apache.cxf.service.Service service = 
             message.getExchange().get(org.apache.cxf.service.Service.class);
@@ -122,18 +123,18 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                 // no conversion needed
             } else {
                 // JAXB element
-                DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
-                                                                       XMLStreamWriter.class);
-                XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
-                // W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
+                try {
+                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
+                                                                           XMLStreamWriter.class);
+                    W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
+                    dataWriter.write(obj, xmlWriter);                    
 
-                if (xmlWriter == null) {
-                    xmlWriter = StaxUtils.createXMLStreamWriter(os, "UTF-8");
+                    Source source = new DOMSource(xmlWriter.getDocument().getDocumentElement());   
+                    message.setContent(Object.class, source);                
+                } catch (ParserConfigurationException e) {
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT",
+                                                                           LOG), e);
                 }
-
-                dataWriter.write(obj, xmlWriter);
-                message.setContent(XMLStreamWriter.class, xmlWriter);
-
             }
         }
         message.getInterceptorChain().add(ending);

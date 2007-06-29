@@ -108,9 +108,7 @@ public class LogicalMessageImpl implements LogicalMessage {
                     }
                 } else {
                     //JAXBElement
-                    W3CDOMStreamWriter xmlWriter = (W3CDOMStreamWriter)message
-                        .getContent(XMLStreamWriter.class);
-                    source = new DOMSource(xmlWriter.getDocument().getDocumentElement());               
+                    source = message.getContent(Source.class);              
                 }              
             }
         } else {

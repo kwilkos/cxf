@@ -19,16 +19,21 @@
 
 package org.apache.cxf.jaxws.interceptors;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
+import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 
@@ -39,6 +44,7 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -47,6 +53,7 @@ import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
 
@@ -70,11 +77,14 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
 
         try {
             InputStream is = message.getContent(InputStream.class);
-
+            Object obj = null;
+            org.apache.cxf.service.Service service = 
+                message.getExchange().get(org.apache.cxf.service.Service.class);
+            
+            
             if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = newSOAPMessage(is, ((SoapMessage)message).getVersion());
 
-                Object obj;
                 if (type.equals(SOAPMessage.class)) {
                     obj = soapMessage;
                 } else if (type.equals(SOAPBody.class)) {
@@ -94,21 +104,40 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                         obj = dataReader.read(n);
                     }
                 }
-                message.setContent(Object.class, obj);
+
                 message.setContent(SOAPMessage.class, soapMessage);               
             } else if (message instanceof XMLMessage) {
-                new StaxInInterceptor().handleMessage(message);
-                
-                DataReader<XMLStreamReader> dataReader = getDataReader(message);
-                Class<?> readType = type;
-                if (readType == Object.class) {
-                    readType = null;
+                if (type.equals(DataSource.class)) {
+                    try {
+                        obj = new ByteArrayDataSource(is, (String) message.get(Message.CONTENT_TYPE));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+
+                } else {
+                    new StaxInInterceptor().handleMessage(message);
+
+                    DataReader<XMLStreamReader> dataReader = getDataReader(message);
+                    Class<?> readType = type;
+                    if (readType == Object.class) {
+                        readType = null;
+                    }
+                    obj = dataReader.read(null, message.getContent(XMLStreamReader.class), readType);
+                    
+                    if (!type.equals(Source.class)) {
+                        //JAXB, need to make a Source format available for Logical handler                   
+                        DataWriter<XMLStreamWriter> dataWriter =
+                            service.getDataBinding().createWriter(XMLStreamWriter.class);
+                        W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
+                        dataWriter.write(obj, xmlWriter);                       
+
+                        Source source = new DOMSource(xmlWriter.getDocument().getDocumentElement()); 
+                        message.setContent(Source.class, source);
+                    }
                 }
-                Object obj = dataReader.read(null, message.getContent(XMLStreamReader.class), readType);
-                
-                message.setContent(Object.class, obj);
             }
             
+            message.setContent(Object.class, obj);
             is.close();
         } catch (Exception e) {
             throw new Fault(e);

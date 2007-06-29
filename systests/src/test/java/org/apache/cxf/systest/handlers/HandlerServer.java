@@ -28,6 +28,10 @@ public class HandlerServer extends AbstractBusTestServerBase {
         Object implementor = new AddNumbersImpl();
         String address = "http://localhost:9025/handlers/AddNumbersService/AddNumbersPort";
         Endpoint.publish(address, implementor);
+        
+        Object implementor1 = new org.apache.hello_world_xml_http.wrapped.GreeterImpl();
+        String address1 = "http://localhost:9007/XMLService/XMLDispatchPort";
+        Endpoint.publish(address1, implementor1);
     }
 
     public static void main(String[] args) {
