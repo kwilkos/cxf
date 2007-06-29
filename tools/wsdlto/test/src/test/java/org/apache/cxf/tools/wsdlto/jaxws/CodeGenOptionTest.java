@@ -69,8 +69,8 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_GEN_IMPL, ToolConstants.CFG_GEN_IMPL);
         env.put(ToolConstants.CFG_GEN_SERVICE, ToolConstants.CFG_GEN_SERVICE);
         env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
+        env.put(ToolConstants.CFG_GEN_FAULT, ToolConstants.CFG_GEN_FAULT);
         env.put(ToolConstants.CFG_GEN_ANT, ToolConstants.CFG_GEN_ANT);
-        
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
         processor.setContext(env);
         processor.execute();

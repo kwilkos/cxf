@@ -51,7 +51,8 @@ public class ClientGenerator extends AbstractJAXWSGenerator {
             || env.optionSet(ToolConstants.CFG_GEN_IMPL)
             || env.optionSet(ToolConstants.CFG_GEN_SEI)
             || env.optionSet(ToolConstants.CFG_GEN_SERVER)
-            || env.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
+            || env.optionSet(ToolConstants.CFG_GEN_SERVICE)
+            || env.optionSet(ToolConstants.CFG_GEN_FAULT)) {
             return true;
         }
         

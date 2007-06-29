@@ -40,11 +40,12 @@ public class FaultGenerator extends AbstractJAXWSGenerator {
 
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_GEN_TYPES)
+        if (env.optionSet(ToolConstants.CFG_GEN_FAULT)
             || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         } 
         if (env.optionSet(ToolConstants.CFG_GEN_ANT)
+            || env.optionSet(ToolConstants.CFG_GEN_TYPES)
             || env.optionSet(ToolConstants.CFG_GEN_CLIENT)
             || env.optionSet(ToolConstants.CFG_GEN_IMPL)
             || env.optionSet(ToolConstants.CFG_GEN_SEI)
