@@ -27,7 +27,7 @@
 
     <fileSets>
         <fileSet>
-            <directory>src/main/resources/</directory>
+            <directory>target/classes/</directory>
             <outputDirectory>plugins/org.apache.cxf_${cxf.version}</outputDirectory>
             <includes>
                 <include>**/*</include>
@@ -43,6 +43,13 @@
         <fileSet>
             <directory>target/maven-shared-archive-resources</directory>
             <outputDirectory>plugins/org.apache.cxf_${cxf.version}/</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>target/maven-shared-archive-resources/META-INF</directory>
+            <outputDirectory>plugins/org.apache.cxf_${cxf.version}/about_files</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
