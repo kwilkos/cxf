@@ -133,10 +133,6 @@ public class JBIWrapperInInterceptor extends AbstractInDatabindingInterceptor {
                     && ev != XMLStreamConstants.END_DOCUMENT) {
                 ev = reader.next();
             }
-            if (ev == XMLStreamConstants.START_ELEMENT) {
-                System.err.println(reader.getEventType());
-                throw new Fault(new org.apache.cxf.common.i18n.Message("TOO_MANY_PARTS", BUNDLE));
-            }
             message.setContent(List.class, parameters);
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE), e);
