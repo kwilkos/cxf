@@ -26,7 +26,7 @@ import org.apache.cxf.common.logging.LogUtils;
 
 public class ResourceAdapterInternalException extends javax.resource.spi.ResourceAdapterInternalException {
 
-    private static final long serialVersionUID = 6769505138041263456L;    
+    private static final long serialVersionUID = 6769505138041263456L;
     private static final String REASON_PREFIX = ", reason: ";
     private static final Logger LOGGER = LogUtils.getL7dLogger(ResourceAdapterInternalException.class);
 
@@ -41,7 +41,7 @@ public class ResourceAdapterInternalException extends javax.resource.spi.Resourc
             if (null != LOGGER.getLevel()
                  && LOGGER.getLevel().intValue() < Level.INFO.intValue()) {
                 cause.printStackTrace();
-            }    
+            }
             LOGGER.warning(cause.toString());
         }
     }
@@ -71,7 +71,8 @@ public class ResourceAdapterInternalException extends javax.resource.spi.Resourc
         }
     }
 
-    
+
+    @SuppressWarnings("deprecation")
     public Exception getLinkedException() {
         Exception linkedEx = null;
         if (getCause() instanceof Exception) {
@@ -79,5 +80,5 @@ public class ResourceAdapterInternalException extends javax.resource.spi.Resourc
         }
         return linkedEx;
     }
-    
+
 }
