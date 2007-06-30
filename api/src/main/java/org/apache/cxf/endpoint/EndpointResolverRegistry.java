@@ -84,7 +84,7 @@ public interface EndpointResolverRegistry {
      * Walk the list of registered EndpointResolvers, so as to mint a new 
      * abstract EPR for a given service name.
      * 
-     * @param serviceName
+     * @param serviceName 
      * @return the newly minted EPR if appropriate, null otherwise
      */
     EndpointReferenceType mint(QName serviceName);
@@ -93,7 +93,7 @@ public interface EndpointResolverRegistry {
      * Walk the list of registered EndpointResolvers, so as to mint a new 
      * abstract EPR for a gievn physical EPR.
      * 
-     * @param serviceName
+     * @param physical 
      * @return the newly minted EPR if appropriate, null otherwise
      */
     EndpointReferenceType mint(EndpointReferenceType physical);

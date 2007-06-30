@@ -29,9 +29,8 @@ public class BinaryDataTest extends AbstractAegisTest {
         createService(BinaryDataService.class, null);
 
         runTests();
-    }
-    
-    //    
+    }    
+      
     private void runTests() throws Exception {
         Node res = invoke("BinaryDataService",
                           "/org/apache/cxf/aegis/services/base64/binary.xml");
@@ -39,10 +38,9 @@ public class BinaryDataTest extends AbstractAegisTest {
         addNamespace("b", "http://base64.services.aegis.cxf.apache.org");
         assertValid("//b:return[text()='OK']", res);
 
-//        res = invoke("BinaryDataService", 
-//                     LocalTransportFactory.TRANSPORT_ID,
-//                     "/org/apache/cxf/aegis/services/base64/binaryEmpty.xml");
-//        assertValid("//b:out[text()='OK']", res);
+        res = invoke("BinaryDataService",                     
+                     "/org/apache/cxf/aegis/services/base64/binaryEmpty.xml");
+        assertValid("//b:return[text()='OK']", res);
     }
 
 }

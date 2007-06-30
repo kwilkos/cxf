@@ -32,8 +32,7 @@ public interface FailoverStrategy {
     /**
      * Get the alternate endpoints for this invocation.
      * 
-     * @param exchange the current Exchange
-     * @param invocation the current InvocationContext
+     * @param exchange the current Exchange     
      * @return a failover endpoint if one is available
      */
     List<Endpoint> getAlternateEndpoints(Exchange exchange);
@@ -41,7 +40,7 @@ public interface FailoverStrategy {
     /**
      * Select one of the alternate endpoints for a retried invocation.
      * 
-     * @param a List of alternate endpoints if available
+     * @param alternates List of alternate endpoints if available
      * @return the selected endpoint
      */
     Endpoint selectAlternateEndpoint(List<Endpoint> alternates);
