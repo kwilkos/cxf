@@ -66,7 +66,7 @@ public interface EndpointResolver {
     /**
      * Mint a new abstract EPR for a given concrete EPR
      * 
-     * @param serviceName
+     * @param physical
      * @return the newly minted EPR if appropriate, null otherwise
      */
     EndpointReferenceType mint(EndpointReferenceType physical);
