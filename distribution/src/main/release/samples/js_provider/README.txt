@@ -27,10 +27,6 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-You also need to download js-1.6R5.jar from
-(http://repo1.maven.org/maven2/rhino/js/1.6R5/) and xbean-2.2.0.jar 
-from (http://repo1.maven.org/maven2/xmlbeans/xbean/2.2.0/) and place
-these two jars under CXF_HOME/lib directory. 
 
 
 Building and running the demo using ant
