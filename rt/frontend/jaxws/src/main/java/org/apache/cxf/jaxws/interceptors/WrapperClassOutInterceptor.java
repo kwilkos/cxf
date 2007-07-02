@@ -65,23 +65,45 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
 
         if (wrapped != null) {
             List<Object> objs = CastUtils.cast(message.getContent(List.class));
-            
-            try {
-                Object wrapperType = wrapped.newInstance();
-                int i = 0;
-                for (MessagePartInfo p : messageInfo.getMessageParts()) {
-                    Object part = objs.get(i);
 
-                    WrapperHelper.setWrappedPart(p.getName().getLocalPart(), wrapperType, part);
-
-                    i++;
-                }
+            WrapperHelper helper = parts.get(0).getProperty("WRAPPER_CLASS", WrapperHelper.class);
+            if (helper == null) {
+                List<String> partNames = new ArrayList<String>();
+                List<String> elTypeNames = new ArrayList<String>();
+                List<Class<?>> partClasses = new ArrayList<Class<?>>();
                 
+                for (MessagePartInfo p : messageInfo.getMessageParts()) {
+                    partNames.add(p.getName().getLocalPart());
+                    
+                    String elementType = null;
+                    if (p.isElement()) {
+                        elementType = p.getElementQName().getLocalPart();
+                    } else {
+                        if (p.getTypeQName() == null) {
+                            // handling anonymous complex type
+                            elementType = null;
+                        } else {
+                            elementType = p.getTypeQName().getLocalPart();
+                        }
+                    }
+                    
+                    elTypeNames.add(elementType);
+                    partClasses.add(p.getClass());
+                }
+                helper = WrapperHelper.createWrapperHelper(wrapped,
+                                                           partNames,
+                                                           elTypeNames,
+                                                           partClasses);
+
+                parts.get(0).setProperty("WRAPPER_CLASS", helper);
+            }
+            try {
+                Object o2 = helper.createWrapperObject(objs);
                 objs = new ArrayList<Object>(1);
-                objs.add(wrapperType);
+                objs.add(o2);
                 message.setContent(List.class, objs);
-            } catch (Exception exc) {
-                throw new Fault(exc);
+            } catch (Exception e) {
+                throw new Fault(e);
             }
             
             // we've now wrapped the object, so use the wrapped binding op

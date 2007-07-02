@@ -22,261 +22,222 @@ package org.apache.cxf.jaxb;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElement;
 
-public final class WrapperHelper {
+import org.apache.cxf.helpers.CastUtils;
 
-    private WrapperHelper() {
-        // complete
-    }
-
-    public static void setWrappedPart(String partName, Object wrapperType, Object part)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-
-        if (part instanceof List) {
-            setWrappedListProperty(partName, wrapperType, part);
-        } else {
-            String fieldName = partName;
-            if (JAXBUtils.isJavaKeyword(partName)) {
-                fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
-            }
-
-
-            if (part == null) {
-                XmlElement el = null;
-                Field elField = null;
-                for (Field field : wrapperType.getClass().getDeclaredFields()) {
-                    if (field.getName().equals(fieldName)) {
-                        elField = field;
-                        el = elField.getAnnotation(XmlElement.class);
-                        break;
-                    }
-                }
-                if (el != null 
-                    && !el.nillable() 
-                    && elField.getType().isPrimitive()) {
-                    throw new IllegalArgumentException("null value for field not permitted.");
-                }
-                return;
-            }
-
-            String modifier = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.SETTER);
-            String modifier2 = modifier;
-            if ("return".equals(partName)) {
-                //some versions of jaxb map "return" to "set_return" instead of "setReturn"
-                modifier2 = "set_return";
-            }
-
-            boolean setInvoked = false;
-            for (Method method : wrapperType.getClass().getMethods()) {
-                if (method.getParameterTypes() != null && method.getParameterTypes().length == 1
-                    && (modifier.equals(method.getName())
-                        || modifier2.equals(method.getName()))) {
-                    if ("javax.xml.bind.JAXBElement".equals(method.getParameterTypes()[0].getName())) {
-                        if (!setJAXBElementValueIntoWrapType(method, wrapperType, part)) {
-                            throw new RuntimeException("Failed to set the part value (" + part 
-                                + ") to wrapper type (" + wrapperType.getClass() + ")");
-                        }
-                    } else {
-                        method.invoke(wrapperType, part);
-                    }
-                    setInvoked = true;
-                    break;
-                }
-            }
-            if (!setInvoked) {
-                Field elField = getField(wrapperType, partName, fieldName);
-                // JAXB Type get XmlElement Annotation
-                if (elField != null) {
-                    elField.setAccessible(true);
-                    elField.set(wrapperType, part);
-                    setInvoked = true;
-                }
-            }
-            if (!setInvoked) {
-                throw new IllegalArgumentException("Could not find a modifier method on Wrapper Type for "
-                                                   + partName);
-            }
-        }
-    }
-
-    private static Field getField(Object wrapperType, String partName, String fieldName) {
-        // match fieldName and partName first
-        for (Field field : wrapperType.getClass().getDeclaredFields()) {
-            if (field.getName().equals(fieldName)) {
-                XmlElement el = field.getAnnotation(XmlElement.class);
-                if (el != null && el.name().equals(partName)) {
-                    return field;
-                }
-            }
-        }
-        // if above fails, check partName only
-        for (Field field : wrapperType.getClass().getDeclaredFields()) {
-            XmlElement el = field.getAnnotation(XmlElement.class);
-            if (el != null && el.name().equals(partName)) {
-                return field;
-            }
-        }
-        return null;
-    }
-
-    private static boolean setJAXBElementValueIntoWrapType(Method method, Object wrapType, Object value) {
-        String typeClassName = wrapType.getClass().getCanonicalName();
-        String objectFactoryClassName = typeClassName.substring(0, typeClassName.lastIndexOf('.'))
-                                        + ".ObjectFactory";
-        try {
-            Object objectFactory = wrapType.getClass().getClassLoader().loadClass(objectFactoryClassName)
-                .newInstance();
-            String methodName = "create" + wrapType.getClass().getSimpleName()
-                                + method.getName().substring(3);
-            Method objectFactoryMethod = objectFactory.getClass().getMethod(methodName, value.getClass());
-            if (objectFactoryMethod != null) {
-                JAXBElement je = (JAXBElement)objectFactoryMethod.invoke(objectFactory, value);
-                method.invoke(wrapType, je);
-            } else {
-                return false;
-            }
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-
-    }
-
-    private static void setWrappedListProperty(String partName, Object wrapperType, Object part)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-
-        String accessorName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
-        for (Method method : wrapperType.getClass().getMethods()) {
-            if (accessorName.equals(method.getName()) 
-                && List.class.isAssignableFrom(method.getReturnType())) {
-                Object ret = method.invoke(wrapperType);
-                Method addAll = ret.getClass().getMethod("addAll", Collection.class);
-                addAll.invoke(ret, part);
-                break;
-            }
-        }
-    }
-
-    public static Object getWrappedPart(String partName, Object wrapperType, Class<?> partClazz)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-
-        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
-
-        if (partClazz.equals(boolean.class) || partClazz.equals(Boolean.class)) {
-            // JAXB Exception to get the Boolean property
-            accessor = accessor.replaceFirst("get", "is");
-        }
-
-        for (Method method : wrapperType.getClass().getMethods()) {
-            if (method.getParameterTypes().length == 0 && accessor.equals(method.getName())) {
-
-                return getValue(method, wrapperType);
-            }
-        }
-        return null;
-    }
-
-    public static Object getWrappedPart(String partName, Object wrapperType, String elementType)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-
-        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
-        Method method = null;
-        NoSuchMethodException nsex = null;
-        try {
-            method = wrapperType.getClass().getMethod(accessor, new Class[0]); 
-        } catch (NoSuchMethodException ex) {
-            //ignore for now
-            nsex = (NoSuchMethodException)ex.fillInStackTrace();
-        }
-
-        Field elField = null;
-        if (method == null
-            && elementType != null
-            && "boolean".equals(elementType.toLowerCase())) {
-            
-            elField = getElField(partName, wrapperType);
-                
-            if (elField == null
-                || (!Collection.class.isAssignableFrom(elField.getType())
-                && !elField.getType().isArray())) {
+public class WrapperHelper {
+    private static final Class NO_PARAMS[] = new Class[0]; 
     
+    final Class<?> wrapperType;
+    final Method setMethods[];
+    final Method getMethods[];
+    final Method jaxbObjectMethods[];
+    final Field fields[];
+    final Object objectFactory;
+                 
+    WrapperHelper(Class<?> wt,
+                  Method sets[],
+                  Method gets[],
+                  Method jaxbs[],
+                  Field f[],
+                  Object of) {
+        setMethods = sets;
+        getMethods = gets;
+        fields = f;
+        jaxbObjectMethods = jaxbs;
+        wrapperType = wt;
+        objectFactory = of;
+    }
+    
+    public Object createWrapperObject(List<?> lst) 
+        throws InstantiationException, IllegalAccessException, 
+        IllegalArgumentException, InvocationTargetException {
+        
+        Object ret = wrapperType.newInstance();
+        
+        for (int x = 0; x < setMethods.length; x++) {
+            Object o = lst.get(x);
+            if (jaxbObjectMethods[x] != null) {
+                o = jaxbObjectMethods[x].invoke(objectFactory, o);
+            }
+            if (o instanceof List) {
+                List<Object> col = CastUtils.cast((List)getMethods[x].invoke(ret));
+                List<Object> olst = CastUtils.cast((List)o);
+                col.addAll(olst);
+            } else if (setMethods[x] != null) {
+                setMethods[x].invoke(ret, o);
+            } else {
+                fields[x].set(ret, lst.get(x));
+            }
+        }
+        
+        return ret;
+    }
+    
+    public List<Object> getWrapperParts(Object o) 
+        throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        
+        List<Object> ret = new ArrayList<Object>(getMethods.length);
+        for (int x = 0; x < getMethods.length; x++) {
+            if (getMethods[x] != null) {
+                ret.add(getValue(getMethods[x], o));
+            } else if (fields[x] != null) {
+                ret.add(fields[x].get(o));
+            } else {
+                //placeholder
+                ret.add(null);
+            }
+        }
+        
+        return ret;
+    }
+    
+    public static WrapperHelper createWrapperHelper(Class<?> wrapperType,
+                                                    List<String> partNames,
+                                                    List<String> elTypeNames,
+                                                    List<Class<?>> partClasses) {
+        List<Method> getMethods = new ArrayList<Method>(partNames.size());
+        List<Method> setMethods = new ArrayList<Method>(partNames.size());
+        List<Method> jaxbMethods = new ArrayList<Method>(partNames.size());
+        List<Field> fields = new ArrayList<Field>(partNames.size());
+        
+        Method allMethods[] = wrapperType.getMethods();
+        
+        String objectFactoryClassName = wrapperType.getPackage().getName()
+                                        + ".ObjectFactory";
+
+        Object objectFactory = null;
+        try {
+            objectFactory = wrapperType.getClassLoader().loadClass(objectFactoryClassName).newInstance();
+        } catch (Exception e) {
+            //ignore, probably won't need it
+        }
+        Method allOFMethods[];
+        if (objectFactory != null) {
+            allOFMethods = objectFactory.getClass().getMethods(); 
+        } else {
+            allOFMethods = new Method[0];
+        }
+        
+        for (int x = 0; x < partNames.size(); x++) {
+            String partName = partNames.get(x);
+            if (partName == null) {
+                getMethods.add(null);
+                setMethods.add(null);
+                fields.add(null);
+                jaxbMethods.add(null);
+                continue;
+            }
+            
+            String elementType = elTypeNames.get(x);
+            
+            String getAccessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
+            String setAccessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.SETTER);
+            Method getMethod = null;
+            Method setMethod = null;
+            try {
+                getMethod = wrapperType.getMethod(getAccessor, NO_PARAMS); 
+            } catch (NoSuchMethodException ex) {
+                //ignore for now
+            }
+
+            Field elField = getElField(partName, wrapperType);
+            if (getMethod == null
+                && elementType != null
+                && "boolean".equals(elementType.toLowerCase())
+                && (elField == null
+                    || (!Collection.class.isAssignableFrom(elField.getType())
+                    && !elField.getType().isArray()))) {
+        
                 try {
-                    method = wrapperType.getClass().getMethod(accessor.replaceFirst("get", "is"),
-                                                              new Class[0]); 
+                    String newAcc = getAccessor.replaceFirst("get", "is");
+                    getMethod = wrapperType.getMethod(newAcc, NO_PARAMS); 
                 } catch (NoSuchMethodException ex) {
                     //ignore for now
                 }            
-            }
-        }
-        if (method == null 
-            && "return".equals(partName)) {
-            //RI generated code uses this
-            try {
-                method = wrapperType.getClass().getMethod("get_return", new Class[0]);
-            } catch (NoSuchMethodException ex) {
+            }                        
+            if (getMethod == null 
+                && "return".equals(partName)) {
+                //RI generated code uses this
                 try {
-                    method = wrapperType.getClass().getMethod("is_return",
-                                                              new Class[0]);
-                } catch (NoSuchMethodException ex2) {
-                    //ignore for now
-                } 
-            }                
-        }
-        
-        if (method != null) {
-            return getValue(method, wrapperType);
-        }
-        if (elField == null) {
-            elField = getElField(partName, wrapperType);
-        }
-        if (elField != null) {
-            // JAXB Type get XmlElement Annotation
-            XmlElement el = elField.getAnnotation(XmlElement.class);
-            if (el != null
-                && partName.equals(el.name())) {
-                elField.setAccessible(true);
-                return elField.get(wrapperType);
+                    getMethod = wrapperType.getClass().getMethod("get_return", NO_PARAMS);
+                } catch (NoSuchMethodException ex) {
+                    try {
+                        getMethod = wrapperType.getClass().getMethod("is_return",
+                                                                  new Class[0]);
+                    } catch (NoSuchMethodException ex2) {
+                        //ignore for now
+                    } 
+                }                
             }
-        } else if (nsex != null) {
-            throw nsex;
+            String setAccessor2 = setAccessor;
+            if ("return".equals(partName)) {
+                //some versions of jaxb map "return" to "set_return" instead of "setReturn"
+                setAccessor2 = "set_return";
+            }
+
+            for (Method method : allMethods) {
+                if (method.getParameterTypes() != null && method.getParameterTypes().length == 1
+                    && (setAccessor.equals(method.getName())
+                        || setAccessor2.equals(method.getName()))) {
+                    setMethod = method;
+                    break;
+                }
+            }
+            
+            getMethods.add(getMethod);
+            setMethods.add(setMethod);
+            if (setMethod != null
+                && JAXBElement.class.isAssignableFrom(setMethod.getParameterTypes()[0])) {
+                
+                String methodName = "create" + wrapperType.getSimpleName()
+                    + setMethod.getName().substring(3);
+
+                for (Method m : allOFMethods) {
+                    if (m.getName().equals(methodName)) {
+                        jaxbMethods.add(m);
+                    }
+                }
+            } else {
+                jaxbMethods.add(null);
+            }
+            
+            if (elField != null) {
+                // JAXB Type get XmlElement Annotation
+                XmlElement el = elField.getAnnotation(XmlElement.class);
+                if (el != null
+                    && partName.equals(el.name())) {
+                    elField.setAccessible(true);
+                    fields.add(elField);
+                } else {
+                    fields.add(null);
+                } 
+            } else {
+                fields.add(null);
+            }
+            
         }
-        
-        return null;
+        return new WrapperHelper(wrapperType,
+                                 setMethods.toArray(new Method[setMethods.size()]),
+                                 getMethods.toArray(new Method[getMethods.size()]),
+                                 jaxbMethods.toArray(new Method[jaxbMethods.size()]),
+                                 fields.toArray(new Field[fields.size()]),
+                                 objectFactory);
     }
 
-    private static Field getElField(String partName, Object wrapperType) {
+    private static Field getElField(String partName, Class<?> wrapperType) {
         String fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
-        Field elField = null;
-        for (Field field : wrapperType.getClass().getDeclaredFields()) {
+        for (Field field : wrapperType.getDeclaredFields()) {
             if (field.getName().equals(fieldName)) {
-                elField = field;
-                break;
+                return field;
             }
         }        
-        return elField;
-    }
-    
-    public static Object getWrappedPart(String partName, Object wrapperType) throws IllegalAccessException,
-        NoSuchMethodException, InvocationTargetException {
-        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
-
-        // TODO: There must be a way to determine the class by inspecting
-        // wrapperType
-        // if (partClazz.equals(boolean.class) ||
-        // partClazz.equals(Boolean.class)) {
-        // //JAXB Exception to get the Boolean property
-        // accessor = accessor.replaceFirst("get", "is");
-        // }
-        for (Method method : wrapperType.getClass().getMethods()) {
-            if (method.getParameterTypes().length == 0 && accessor.equals(method.getName())) {
-                return getValue(method, wrapperType);
-            }
-        }
         return null;
     }
 

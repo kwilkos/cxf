@@ -86,6 +86,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             }
             Class<?> wrapperClass = null;
             Object wrappedObject = null;
+            MessagePartInfo wrapperPart = null;
             if (wrappedMessageInfo != null) {
                 for (MessagePartInfo part : wrappedMessageInfo.getMessageParts()) {
                     //headers should appear in both, find the part that doesn't
@@ -94,6 +95,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                         for (Object o : lst) {
                             if (wrapperClass.isInstance(o)) {
                                 wrappedObject = o;
+                                wrapperPart = part;
                                 break;
                             }
                         }
@@ -116,36 +118,63 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 return;
             }
             
-            List<Object> newParams = new ArrayList<Object>();
-            for (MessagePartInfo part : messageInfo.getMessageParts()) {
-                if (wrappedMessageInfo.getMessagePart(part.getName()) != null) {
-                    newParams.add(lst.get(part.getIndex()));
-                } else {
-                    try {
-                        String elementType = null;
-                        if (part.isElement()) {
-                            elementType = part.getElementQName().getLocalPart();
-                        } else {
-                            if (part.getTypeQName() == null) {
-                                // handling anonymous complex type
-                                elementType = null;
-                            } else {
-                                elementType = part.getTypeQName().getLocalPart();
-                            }
-                        }
-                        Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(), 
-                                                                  wrappedObject,
-                                                                  elementType);
-                    
-                        newParams.add(obj);
-                    } catch (Exception e) {
-                        // TODO - fault
-                        throw new Fault(e);
+            WrapperHelper helper = wrapperPart.getProperty("WRAPPER_CLASS", WrapperHelper.class);
+            if (helper == null) {
+                helper = createWrapperHelper(messageInfo, wrappedMessageInfo, wrapperClass);
+                wrapperPart.setProperty("WRAPPER_CLASS", helper);
+            }            
+            List<Object> newParams;
+            try {
+                newParams = helper.getWrapperParts(wrappedObject);
+                
+                int idx = 0;
+                for (MessagePartInfo part : messageInfo.getMessageParts()) {
+                    if (wrappedMessageInfo.getMessagePart(part.getName()) != null) {
+                        newParams.set(idx, lst.get(part.getIndex()));
                     }
+                    ++idx;
                 }
+            } catch (Exception e) {
+                throw new Fault(e);
             }
+            
             message.setContent(List.class, newParams);
         }
     }
-
+    
+    private WrapperHelper createWrapperHelper(MessageInfo messageInfo,
+                                              MessageInfo wrappedMessageInfo,
+                                              Class<?> wrapperClass) {
+        List<String> partNames = new ArrayList<String>();
+        List<String> elTypeNames = new ArrayList<String>();
+        List<Class<?>> partClasses = new ArrayList<Class<?>>();
+        
+        for (MessagePartInfo p : messageInfo.getMessageParts()) {
+            if (wrappedMessageInfo.getMessagePart(p.getName()) != null) {
+                elTypeNames.add(null);
+                partClasses.add(null);
+                partNames.add(null);
+            } else {
+                String elementType = null;
+                if (p.isElement()) {
+                    elementType = p.getElementQName().getLocalPart();
+                } else {
+                    if (p.getTypeQName() == null) {
+                        // handling anonymous complex type
+                        elementType = null;
+                    } else {
+                        elementType = p.getTypeQName().getLocalPart();
+                    }
+                }
+                
+                elTypeNames.add(elementType);
+                partClasses.add(p.getClass());
+                partNames.add(p.getName().getLocalPart());
+            }
+        }
+        return WrapperHelper.createWrapperHelper(wrapperClass,
+                                                  partNames,
+                                                  elTypeNames,
+                                                  partClasses);
+    }
 }
