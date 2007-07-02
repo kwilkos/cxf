@@ -87,7 +87,6 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
     private void addPartialResponseHeader(SoapMessage message) {
         try {
             // add piggybacked wsa:From header to partial response
-//            Element header = message.getHeaders(Element.class);
             List<Header> header = message.getHeaders();
             Document doc = DOMUtils.createDocument();
             SoapVersion ver = message.getVersion();
@@ -125,11 +124,15 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
                 recordWSAHeaders(headers,
                                  wsaHeaders,
                                  VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+                recordWSAHeaders(headers,
+                                 wsaHeaders,
+                                 MAPTestBase.CUSTOMER_NAME.getNamespaceURI());
             }
             boolean partialResponse = isIncomingPartialResponse(message)
                                       || outgoingPartialResponse;
             verificationCache.put(MAPTest.verifyHeaders(wsaHeaders, 
-                                                        partialResponse));
+                                                        partialResponse,
+                                                        isRequestLeg(message)));
         } catch (SOAPException se) {
             verificationCache.put("SOAP header verification failed: " + se);
         }
@@ -144,22 +147,24 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
             if (obj instanceof Element) {
                 Element hdr = (Element) obj;
                 if (namespaceURI.equals(hdr.getNamespaceURI())) {
-                    currentNamespaceURI = namespaceURI;
-                    wsaHeaders.add(hdr.getLocalName());
+                    if (namespaceURI.endsWith("addressing")) {
+                        currentNamespaceURI = namespaceURI;
+                        wsaHeaders.add(hdr.getLocalName());
+                    } else if (MAPTestBase.CUSTOMER_NAME.getNamespaceURI().equals(namespaceURI)) {
+                        String headerText = hdr.getTextContent();
+                        if (MAPTestBase.CUSTOMER_KEY.equals(headerText)) {
+                            wsaHeaders.add(hdr.getLocalName());
+                        }
+                    }
                 }
             }
             
         }
-    
-//        NodeList headerElements =
-//            headers.getElementsByTagNameNS(namespaceURI, "*");
-//        for (int i = 0; i < headerElements.getLength(); i++) {
-//            Node headerElement = headerElements.item(i);
-//            if (namespaceURI.equals(headerElement.getNamespaceURI())) {
-//                currentNamespaceURI = namespaceURI;
-//                wsaHeaders.add(headerElement.getLocalName());
-//            }
-//        }
+    }
+
+    private boolean isRequestLeg(SoapMessage message) {
+        return (ContextUtils.isRequestor(message) && ContextUtils.isOutbound(message))
+               || (!ContextUtils.isRequestor(message) && !ContextUtils.isOutbound(message));     
     }
 
     private boolean isOutgoingPartialResponse(SoapMessage message) {

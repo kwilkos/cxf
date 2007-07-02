@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
@@ -34,12 +35,16 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.ServiceImpl;
+import org.apache.cxf.jaxws.support.ServiceDelegateAccessor;
 import org.apache.cxf.testutil.common.AbstractClientServerTestBase;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.ContextUtils;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.Names;
+import org.apache.cxf.ws.addressing.ReferenceParametersType;
 import org.apache.cxf.ws.addressing.soap.VersionTransformer;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
@@ -66,14 +71,15 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
     static final String INBOUND_KEY = "inbound";
     static final String OUTBOUND_KEY = "outbound";
 
+    static final QName CUSTOMER_NAME =
+        new QName("http://example.org/customer", "CustomerKey", "customer");
+    static final String CUSTOMER_KEY = "Key#123456789";
 
     private static MAPVerifier mapVerifier;
     private static HeaderVerifier headerVerifier;
 
     private static final QName SERVICE_NAME = 
         new QName("http://apache.org/hello_world_soap_http", "SOAPServiceAddressing");
-    private static final QName PORT_NAME =
-        new QName("http://apache.org/hello_world_soap_http", "SoapPort");
     private static final String NOWHERE = "http://nowhere.nada.nothing.nought:5555";
     private static final String DECOUPLED = "http://localhost:9999/decoupled_endpoint";
     
@@ -133,9 +139,19 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
         addInterceptors(staticBus.getOutFaultInterceptors(), interceptors);
         addInterceptors(staticBus.getInFaultInterceptors(), interceptors);
         
+        EndpointReferenceType target = 
+            EndpointReferenceUtils.getEndpointReference(Server.ADDRESS);
+        ReferenceParametersType params = 
+            ContextUtils.WSA_OBJECT_FACTORY.createReferenceParametersType();
+        JAXBElement<String> param =
+             new JAXBElement<String>(CUSTOMER_NAME, String.class, CUSTOMER_KEY);
+        params.getAny().add(param);
+        target.setReferenceParameters(params);
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
-        SOAPService service = new SOAPService(wsdl, SERVICE_NAME);
-        greeter = (Greeter)service.getPort(PORT_NAME, Greeter.class);
+        ServiceImpl serviceImpl = 
+            ServiceDelegateAccessor.get(new SOAPService(wsdl, SERVICE_NAME));
+        greeter = serviceImpl.getPort(target, Greeter.class);
+
         mapVerifier.verificationCache = this;
         headerVerifier.verificationCache = this;
     }
@@ -300,6 +316,7 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
             throw (Exception)ex.getCause();
         }
     }
+
     //--VerificationCache implementation
 
     public void put(String verification) {
@@ -364,7 +381,9 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
      * @param parial true if partial response
      * @return null if all expected headers present, otherwise an error string.
      */
-    protected static String verifyHeaders(List<String> wsaHeaders, boolean partial) {
+    protected static String verifyHeaders(List<String> wsaHeaders,
+                                          boolean partial,
+                                          boolean requestLeg) {
         //System.out.println("verifying headers: " + wsaHeaders);
         String ret = null;
         if (!wsaHeaders.contains(Names.WSA_MESSAGEID_NAME)) {
@@ -387,6 +406,9 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
             //if (!wsaHeaders.contains(Names.WSA_ACTION_NAME)) {
             //    ret = "expected Action header";
             //}            
+        }
+        if (requestLeg && !(wsaHeaders.contains(CUSTOMER_NAME.getLocalPart()))) {
+            ret = "expected CustomerKey header";
         }
         return ret;
     }

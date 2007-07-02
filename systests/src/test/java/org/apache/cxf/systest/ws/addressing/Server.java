@@ -33,7 +33,8 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 public class Server extends AbstractBusTestServerBase implements VerificationCache {
-    
+    static final String ADDRESS = "http://localhost:9008/SoapContext/SoapPort";
+
     private String verified;
  
     protected void run()  {
@@ -46,9 +47,8 @@ public class Server extends AbstractBusTestServerBase implements VerificationCac
         addVerifiers();
 
         GreeterImpl implementor = new GreeterImpl();
-        implementor.verificationCache = this;         
-        String address = "http://localhost:9008/SoapContext/SoapPort";
-        Endpoint.publish(address, implementor);
+        implementor.verificationCache = this;
+        Endpoint.publish(ADDRESS, implementor);
     }
 
     protected void addVerifiers() {
@@ -99,6 +99,7 @@ public class Server extends AbstractBusTestServerBase implements VerificationCac
      */
     protected boolean verify(Logger log) {
         if (verified != null) {
+            System.out.println("MAP/Header verification failed: " + verified);
             log.log(Level.WARNING, 
                     "MAP/Header verification failed: {0}",
                     verified);
