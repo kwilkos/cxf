@@ -26,6 +26,7 @@ For JAX-WS support:
 - jaxws-api.jar
 - saaj-api.jar
 - saaj-impl.jar
+- asm.jar (optional, but helps with performance of wrapper types)
 
 For XML Configuration support:
 - aopalliance.jar

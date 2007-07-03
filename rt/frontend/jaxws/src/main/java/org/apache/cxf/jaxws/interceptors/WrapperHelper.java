@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxb;
+package org.apache.cxf.jaxws.interceptors;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -30,73 +30,18 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxb.JAXBUtils;
 
-public class WrapperHelper {
-    private static final Class NO_PARAMS[] = new Class[0]; 
+public abstract class WrapperHelper {
+    private static final Class NO_PARAMS[] = new Class[0];
+
     
-    final Class<?> wrapperType;
-    final Method setMethods[];
-    final Method getMethods[];
-    final Method jaxbObjectMethods[];
-    final Field fields[];
-    final Object objectFactory;
-                 
-    WrapperHelper(Class<?> wt,
-                  Method sets[],
-                  Method gets[],
-                  Method jaxbs[],
-                  Field f[],
-                  Object of) {
-        setMethods = sets;
-        getMethods = gets;
-        fields = f;
-        jaxbObjectMethods = jaxbs;
-        wrapperType = wt;
-        objectFactory = of;
-    }
+    public abstract Object createWrapperObject(List<?> lst) 
+        throws Fault;
     
-    public Object createWrapperObject(List<?> lst) 
-        throws InstantiationException, IllegalAccessException, 
-        IllegalArgumentException, InvocationTargetException {
-        
-        Object ret = wrapperType.newInstance();
-        
-        for (int x = 0; x < setMethods.length; x++) {
-            Object o = lst.get(x);
-            if (jaxbObjectMethods[x] != null) {
-                o = jaxbObjectMethods[x].invoke(objectFactory, o);
-            }
-            if (o instanceof List) {
-                List<Object> col = CastUtils.cast((List)getMethods[x].invoke(ret));
-                List<Object> olst = CastUtils.cast((List)o);
-                col.addAll(olst);
-            } else if (setMethods[x] != null) {
-                setMethods[x].invoke(ret, o);
-            } else {
-                fields[x].set(ret, lst.get(x));
-            }
-        }
-        
-        return ret;
-    }
-    
-    public List<Object> getWrapperParts(Object o) 
-        throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        
-        List<Object> ret = new ArrayList<Object>(getMethods.length);
-        for (int x = 0; x < getMethods.length; x++) {
-            if (getMethods[x] != null) {
-                ret.add(getValue(getMethods[x], o));
-            } else if (fields[x] != null) {
-                ret.add(fields[x].get(o));
-            } else {
-                //placeholder
-                ret.add(null);
-            }
-        }
-        
-        return ret;
-    }
+    public abstract List<Object> getWrapperParts(Object o) throws Fault;
+
     
     public static WrapperHelper createWrapperHelper(Class<?> wrapperType,
                                                     List<String> partNames,
@@ -223,7 +168,8 @@ public class WrapperHelper {
             }
             
         }
-        return new WrapperHelper(wrapperType,
+        
+        return createWrapperHelper(wrapperType,
                                  setMethods.toArray(new Method[setMethods.size()]),
                                  getMethods.toArray(new Method[getMethods.size()]),
                                  jaxbMethods.toArray(new Method[jaxbMethods.size()]),
@@ -250,4 +196,112 @@ public class WrapperHelper {
             return method.invoke(in);
         }
     }
+    private static WrapperHelper createWrapperHelper(Class<?> wrapperType,
+                                                      Method setMethods[],
+                                                      Method getMethods[],
+                                                      Method jaxbMethods[],
+                                                      Field fields[],
+                                                      Object objectFactory) {
+        WrapperHelper wh = compileWrapperHelper(wrapperType,
+                                                setMethods,
+                                                getMethods,
+                                                jaxbMethods,
+                                                fields,
+                                                objectFactory);
+        if (wh == null) {
+            wh = new ReflectWrapperHelper(wrapperType,
+                                          setMethods,
+                                          getMethods,
+                                          jaxbMethods,
+                                          fields,
+                                          objectFactory);
+        }
+        return wh;
+    }
+    private static WrapperHelper compileWrapperHelper(Class<?> wrapperType,
+                                                     Method setMethods[],
+                                                     Method getMethods[],
+                                                     Method jaxbMethods[],
+                                                     Field fields[],
+                                                     Object objectFactory) {
+        try {
+            Class.forName("org.objectweb.asm.ClassWriter");
+            return WrapperHelperCompiler.compileWrapperHelper(wrapperType, setMethods, getMethods,
+                                                              jaxbMethods, fields, objectFactory);
+        } catch (ClassNotFoundException e) {
+            //ASM not found, just use reflection based stuff
+        }
+        return null;
+    }    
+    
+    static class ReflectWrapperHelper extends WrapperHelper {
+        final Class<?> wrapperType;
+        final Method setMethods[];
+        final Method getMethods[];
+        final Method jaxbObjectMethods[];
+        final Field fields[];
+        final Object objectFactory;
+                     
+        ReflectWrapperHelper(Class<?> wt,
+                      Method sets[],
+                      Method gets[],
+                      Method jaxbs[],
+                      Field f[],
+                      Object of) {
+            setMethods = sets;
+            getMethods = gets;
+            fields = f;
+            jaxbObjectMethods = jaxbs;
+            wrapperType = wt;
+            objectFactory = of;
+        }
+        
+        public Object createWrapperObject(List<?> lst) 
+            throws Fault {
+            
+            try {
+                Object ret = wrapperType.newInstance();
+                
+                for (int x = 0; x < setMethods.length; x++) {
+                    Object o = lst.get(x);
+                    if (jaxbObjectMethods[x] != null) {
+                        o = jaxbObjectMethods[x].invoke(objectFactory, o);
+                    }
+                    if (o instanceof List) {
+                        List<Object> col = CastUtils.cast((List)getMethods[x].invoke(ret));
+                        List<Object> olst = CastUtils.cast((List)o);
+                        col.addAll(olst);
+                    } else if (setMethods[x] != null) {
+                        setMethods[x].invoke(ret, o);
+                    } else {
+                        fields[x].set(ret, lst.get(x));
+                    }
+                }
+                return ret;
+            } catch (Exception ex) {
+                throw new Fault(ex);
+            }
+        }
+        
+        public List<Object> getWrapperParts(Object o) throws Fault {
+            try {
+                List<Object> ret = new ArrayList<Object>(getMethods.length);
+                for (int x = 0; x < getMethods.length; x++) {
+                    if (getMethods[x] != null) {
+                        ret.add(getValue(getMethods[x], o));
+                    } else if (fields[x] != null) {
+                        ret.add(fields[x].get(o));
+                    } else {
+                        //placeholder
+                        ret.add(null);
+                    }
+                }
+                
+                return ret;
+            } catch (Exception ex) {
+                throw new Fault(ex);
+            }
+        }
+    }
+    
 }

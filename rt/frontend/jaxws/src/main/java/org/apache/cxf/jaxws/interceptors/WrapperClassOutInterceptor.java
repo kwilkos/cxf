@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxb.WrapperHelper;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;

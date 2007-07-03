@@ -60,6 +60,10 @@
             <artifactId>jaxws-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
@@ -140,7 +144,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/frontend/jaxws</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/frontend/jaxws</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-frontend-jaxws</url>
-  </scm>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-frontend-jaxws</url>
+    </scm>
 
 </project>

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxb.WrapperHelper;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;

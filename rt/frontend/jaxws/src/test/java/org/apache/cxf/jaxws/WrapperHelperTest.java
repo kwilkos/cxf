@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxb;
+package org.apache.cxf.jaxws;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.cxf.jaxws.interceptors.WrapperHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,21 +39,28 @@ public class WrapperHelperTest extends Assert {
     public void getBooleanTypeWrappedPart() throws Exception {
         SetIsOK ok = new SetIsOK();
         ok.setParameter3(new boolean[] {true, false});
+        ok.setParameter4("hello");
         
         List<String> partNames = Arrays.asList(new String[] {
             "Parameter1",
             "Parameter2",
-            "Parameter3"
+            "Parameter3",
+            "Parameter4",
+            "Parameter5",
         });
         List<String> elTypeNames = Arrays.asList(new String[] {
             "boolean",
             "int",
-            "boolean"
+            "boolean",
+            "string",
+            "string",
         });
         List<Class<?>> partClasses = Arrays.asList(new Class<?>[] {
             Boolean.TYPE,
             Integer.TYPE,
-            boolean[].class
+            boolean[].class,
+            String.class,
+            List.class,
         });
         
         WrapperHelper wh = WrapperHelper.createWrapperHelper(SetIsOK.class,
@@ -60,14 +69,13 @@ public class WrapperHelperTest extends Assert {
                                           partClasses);
         
         List<Object> lst = wh.getWrapperParts(ok);
-        assertEquals(3, lst.size());
+        assertEquals(5, lst.size());
         assertTrue(lst.get(0) instanceof Boolean);
         assertTrue(lst.get(1) instanceof Integer);
-        
-        
         assertTrue(lst.get(2) instanceof boolean[]);
         assertTrue(((boolean[])lst.get(2))[0]);
         assertFalse(((boolean[])lst.get(2))[1]);
+        assertEquals("hello", (String)lst.get(3));
 
         lst.set(0, Boolean.TRUE);
         Object o = wh.createWrapperObject(lst);
@@ -76,11 +84,12 @@ public class WrapperHelperTest extends Assert {
         assertTrue(ok.isParameter1());
         assertTrue(ok.getParameter3()[0]);
         assertFalse(ok.getParameter3()[1]);
+        assertEquals("hello", ok.getParameter4());
     }
 
 
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = { "parameter1", "parameter2", "parameter3" })
+    @XmlType(name = "", propOrder = { "parameter1", "parameter2", "parameter3", "parameter4" })
     @XmlRootElement(name = "setIsOK")
     public static class SetIsOK {
 
@@ -90,7 +99,12 @@ public class WrapperHelperTest extends Assert {
         protected int parameter2;
         @XmlElement(name = "Parameter3")
         protected boolean parameter3[];
-
+        @XmlElement(name = "Parameter4")
+        protected String parameter4;
+        @XmlElement(name = "Parameter5")
+        protected List<String> parameter5 = new ArrayList<String>();
+        
+        
         /**
          * Gets the value of the parameter1 property.
          * 
@@ -138,6 +152,17 @@ public class WrapperHelperTest extends Assert {
          */
         public void setParameter3(boolean value[]) {
             this.parameter3 = value;
+        }
+        
+        public String getParameter4() {
+            return parameter4;
+        }
+        public void setParameter4(String value) {
+            this.parameter4 = value;
+        }
+
+        public List<String> getParameter5() {
+            return parameter5;
         }
     }
 }
