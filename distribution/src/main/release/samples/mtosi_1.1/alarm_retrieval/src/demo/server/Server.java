@@ -32,7 +32,7 @@ public class Server {
         implementor.addAlarm(2);
         implementor.addAlarm(3);
 
-        String address = "http://localhost:9090/mtosi/v1/AlarmRetrieval";
+        String address = "http://localhost:9091/mtosi/v1/AlarmRetrieval";
         Endpoint.publish(address, implementor);
     }
     
