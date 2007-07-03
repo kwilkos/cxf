@@ -20,24 +20,16 @@
 package org.apache.cxf.transport.jbi;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jbi.messaging.DeliveryChannel;
 import javax.jbi.messaging.MessageExchange;
-import javax.jbi.messaging.NormalizedMessage;
-import javax.xml.namespace.QName;
 
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-
-
-
 import org.apache.cxf.transport.AbstractConduit;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
@@ -48,14 +40,13 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 public class JBIDestination extends AbstractDestination {
     
     private static final Logger LOG = LogUtils.getL7dLogger(JBIDestination.class);
-    
-    private final DeliveryChannel channel;
-    private JBIDispatcher dispatcher;
-    private volatile boolean running;
-    
+    private JBIDispatcherUtil dispatcherUtil;
+    private DeliveryChannel channel;
     public JBIDestination(EndpointInfo info,
+                          JBIDispatcherUtil dispatcher,
                           DeliveryChannel dc) {
         super(getTargetReference(info, null), info);
+        this.dispatcherUtil = dispatcher;
         this.channel = dc;
     }
 
@@ -74,18 +65,15 @@ public class JBIDestination extends AbstractDestination {
     }
     
     public void shutdown() {
-        running = false;
+        dispatcherUtil.deactivateDispatch();
     }
 
     public void deactivate() {
-        running = false;
+        dispatcherUtil.deactivateDispatch();
     }
 
     public void activate()  {
-        getLogger().info(new org.apache.cxf.common.i18n.Message(
-            "ACTIVE.JBI.SERVER.TRANSPORT", getLogger()).toString());
-        dispatcher = new JBIDispatcher();
-        new Thread(dispatcher).start();
+        dispatcherUtil.activateDispatch();
     }
 
     
@@ -131,69 +119,4 @@ public class JBIDestination extends AbstractDestination {
         }
     }
     
-    
-    private class JBIDispatcher implements Runnable {
-
-        public final void run() {
-
-            try {
-                running = true;
-                getLogger().info(new org.apache.cxf.common.i18n.Message(
-                    "RECEIVE.THREAD.START", getLogger()).toString());
-                do {
-                    MessageExchange exchange = null;
-                    synchronized (channel) {
-                        try {
-                            exchange = channel.accept();
-                        } catch (Exception e) {
-                            // ignore
-                        }
-                    }
-
-                    if (exchange != null) {
-                        try {
-                            getLogger().info(new org.apache.cxf.common.i18n.Message(
-                                    "DISPATCH.TO.SU", getLogger()).toString());
-                            dispatch(exchange);
-                            
-                        } finally {
-                            //
-                        }
-                    }
-                } while(running);
-            } catch (Exception ex) {
-                getLogger().log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
-                    "ERROR.DISPATCH.THREAD", getLogger()).toString(), ex);
-            }
-            getLogger().fine(new org.apache.cxf.common.i18n.Message(
-                                 "JBI.SERVER.TRANSPORT.MESSAGE.PROCESS.THREAD.EXIT", getLogger()).toString());
-        }
-    }
-    
-            
-
-    public void dispatch(MessageExchange exchange) throws IOException {
-        QName opName = exchange.getOperation(); 
-        getLogger().info("dispatch method: " + opName);
-                
-        NormalizedMessage nm = exchange.getMessage("in");
-        try {
-
-            MessageImpl inMessage = new MessageImpl();
-            inMessage.put(MessageExchange.class, exchange);
-            
-            
-            final InputStream in = JBIMessageHelper.convertMessageToInputStream(nm.getContent());
-            inMessage.setContent(InputStream.class, in);
-                                           
-            inMessage.setDestination(this);
-            getMessageObserver().onMessage(inMessage);
-            
-        } catch (Exception ex) {
-            getLogger().log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
-                "ERROR.PREPARE.MESSAGE", getLogger()).toString(), ex);
-            throw new IOException(ex.getMessage());
-        }
-
-    }
 }

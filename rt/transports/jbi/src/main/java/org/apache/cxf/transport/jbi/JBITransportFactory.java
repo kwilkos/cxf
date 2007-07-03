@@ -124,13 +124,16 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     }
 
     public Destination getDestination(EndpointInfo ei) throws IOException {
-        JBIDestination destination = new JBIDestination(ei, getDeliveryChannel());
+        JBIDestination destination = new JBIDestination(ei, 
+                                         JBIDispatcherUtil.getInstance(this, getDeliveryChannel()), 
+                                         getDeliveryChannel());
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(destination);
         }
         try {
-            putDestination(ei.getAddress(), destination);
+            putDestination(ei.getService().getName().toString()
+                + ei.getInterface().getName().toString(), destination);
         } catch (JBIException e) {
             throw new IOException(e.getMessage());
         }
