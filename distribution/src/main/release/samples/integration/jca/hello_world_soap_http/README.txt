@@ -62,7 +62,9 @@ Deploy the Apache CXF J2EE Connector
     deployment will be shared by all of the demos, so this step need
     only be completed once.  
 
-
+    If you embed CXF in software product which have license, please copy
+    the license file into $CXF_HOME/etc/ and save name with licenses.txt
+    
     How to deploy the Apache CXF J2EE Connector is dependent on your 
     application server. Please consult your vendor documentation
     on connector deployment. Here are basic instructions to deploy

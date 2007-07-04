@@ -38,6 +38,14 @@
     <property name="wsdl.location" value="${wsdl.dir}/hello_world.wsdl"/>
     <property name="war.name" value="helloworld.war"/>
     <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
+
+    <property environment="env"/>
+    <condition property="module.jar.dir" value="${env.CXF_HOME}/modules" else="${env.CXF_HOME}/lib">
+        <available file="${env.CXF_HOME}/modules" type="dir"/>
+    </condition>
+    <condition property="integration.jar.dir" value="${env.CXF_HOME}/modules/integration" else="${env.CXF_HOME}/lib">
+        <available file="${env.CXF_HOME}/modules/integration" type="dir"/>
+    </condition>
     
     <import file="../../../common_build.xml"/>
  
@@ -90,17 +98,22 @@
 
     <target name="generate.rar" depends="prepare,update.jboss.endorsed,init">
         <copy file="${cxf.home}/etc/ra.xml" todir="${build.classes.dir}/cxf-rar/META-INF"/>
-        <copy todir="${build.classes.dir}/cxf-rar">
+        <copy file="${cxf.home}/etc/licenses.txt" todir="${build.classes.dir}/cxf-rar" failonerror="no"/>
+
+        <copy todir="${build.classes.dir}/cxf-rar" failonerror="no">
             <fileset dir="${cxf.home}/lib">
                 <include name="*.jar"/>
                 <exclude name="cxf*.jar"/>
-            </fileset>
-            <fileset dir="${cxf.home}/modules">
-                <include name="*.jar"/>
                 <exclude name="*manifest*.jar"/>
+                <exclude name="*-jbi-*.jar"/>
             </fileset>
-            <fileset dir="${cxf.home}/modules/integration">
-                <include name="*.jar"/>
+            <fileset dir="${module.jar.dir}">
+                <include name="cxf*.jar"/>
+                <exclude name="*manifest*.jar"/>
+                <exclude name="*-jbi-*.jar"/>
+            </fileset>
+            <fileset dir="${integration.jar.dir}">
+                <include name="*-jca-*.jar"/>
                 <exclude name="*-jbi-*.jar"/>
             </fileset>
         </copy>
@@ -141,13 +154,6 @@
             <fileset dir="${build.classes.dir}/cxf-rar" includes="**/*"/>
         </delete>
     </target>
-
-
-    <!--target name="server" description="run demo server" depends="build">
-      <property name="param" value=""/>
-      <cxfrun classname="demo.hw.server.Server"
-                 param1="${wsdl.dir}/hello_world.wsdl"/>
-    </target-->
 
     <target name="build-war">
         <copy file="${wsdl.location}" todir="${basedir}/src" />
