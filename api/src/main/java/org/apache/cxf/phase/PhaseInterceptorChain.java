@@ -203,6 +203,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
+                //System.out.println("-----------" + currentInterceptor);
                 currentInterceptor.handleMessage(message);
                 
             } catch (RuntimeException ex) {

@@ -34,7 +34,6 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -44,11 +43,10 @@ import org.apache.cxf.staxutils.W3CDOMStreamReader;
 
 public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
-    Class type;
+    private Class type;
 
     public ProviderInDatabindingInterceptor(Class type) {
-        super(Phase.UNMARSHAL);
-        addAfter(URIMappingInterceptor.class.getName());
+        super(Phase.PRE_STREAM);
         this.type = type;
     }
 
@@ -106,9 +104,5 @@ public class ProviderInDatabindingInterceptor extends AbstractInDatabindingInter
             }
         }
         message.setContent(Object.class, params);
-
-    }
-    
-    
-
+    } 
 }

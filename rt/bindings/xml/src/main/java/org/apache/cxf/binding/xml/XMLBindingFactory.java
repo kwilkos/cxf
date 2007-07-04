@@ -37,29 +37,22 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
-
-    public static final String XML_PARSER_DISABLED = "xml.parser.disabled";
-    public static final String ATTACHMENT_PARSER_DISABLED = "xml.parser.disabled";
     
     public Binding createBinding(BindingInfo binding) {
         XMLBinding xb = new XMLBinding(binding);
-        if (!Boolean.TRUE.equals(binding.getProperty(ATTACHMENT_PARSER_DISABLED))) {
-            xb.getInInterceptors().add(new AttachmentInInterceptor());
-        }
-        if (!Boolean.TRUE.equals(binding.getProperty(XML_PARSER_DISABLED))) {
-            xb.getInInterceptors().add(new StaxInInterceptor());
-        }
-        xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
-        
-        xb.getOutInterceptors().add(new StaxOutInterceptor());
         
         if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
+            xb.getInInterceptors().add(new AttachmentInInterceptor());    
+            xb.getInInterceptors().add(new StaxInInterceptor());
+            xb.getOutInterceptors().add(new StaxOutInterceptor());
+            
             xb.getInInterceptors().add(new URIMappingInterceptor());
             xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
             xb.getInInterceptors().add(new DocLiteralInInterceptor());
             xb.getInInterceptors().add(new XMLMessageInInterceptor());
-        }
-        
+        }        
+
+        xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         xb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         xb.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
         

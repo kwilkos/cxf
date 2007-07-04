@@ -21,9 +21,12 @@ package org.apache.cxf.jaxws.provider;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Provider;
+import javax.xml.ws.Service;
+import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
 
 @WebServiceProvider()
+@ServiceMode(value = Service.Mode.MESSAGE)
 public class SAAJProvider implements Provider<SOAPMessage> {
 
     public SAAJProvider() {

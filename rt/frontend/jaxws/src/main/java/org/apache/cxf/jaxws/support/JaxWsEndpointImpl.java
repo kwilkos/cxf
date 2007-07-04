@@ -61,33 +61,52 @@ import org.apache.cxf.service.model.EndpointInfo;
 public class JaxWsEndpointImpl extends EndpointImpl {
 
     private Binding jaxwsBinding;
+    private JaxWsImplementorInfo implInfo; 
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
+        this(bus, s, ei, null);
+    }
+
+    public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo)
+        throws EndpointException {
         super(bus, s, ei);
-
-        createJaxwsBinding();
-
-        //Inbound chain
-        List<Interceptor> in = super.getInInterceptors();
-        in.add(new LogicalHandlerInInterceptor(jaxwsBinding));
-        in.add(new WrapperClassInInterceptor());
-        in.add(new HolderInInterceptor());
-        if (getBinding() instanceof SoapBinding) {
-            in.add(new SOAPHandlerInterceptor(jaxwsBinding));
-            in.add(new SwAInInterceptor());
-            getOutInterceptors().add(new SwAOutInterceptor());
-        } else {
-             // TODO: what for non soap bindings?
-        }
+        this.implInfo = implementorInfo;
         
-        //Outbound chain       
+        createJaxwsBinding();
+        
+        List<Interceptor> in = super.getInInterceptors();       
         List<Interceptor> out = super.getOutInterceptors();
-        out.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
-        out.add(new WrapperClassOutInterceptor());
-        out.add(new HolderOutInterceptor());       
-        if (getBinding() instanceof SoapBinding) {
-            out.add(new SOAPHandlerInterceptor(jaxwsBinding));
+        
+        if (implInfo != null && implInfo.isWebServiceProvider()) {
+            in.add(new LogicalHandlerInInterceptor(jaxwsBinding));
+            out.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
+
+            if (getBinding() instanceof SoapBinding) {
+                in.add(new SOAPHandlerInterceptor(jaxwsBinding));
+                out.add(new SOAPHandlerInterceptor(jaxwsBinding));
+            } 
+        } else {
+            // Inbound chain
+            in.add(new LogicalHandlerInInterceptor(jaxwsBinding));
+            in.add(new WrapperClassInInterceptor());
+            in.add(new HolderInInterceptor());
+            if (getBinding() instanceof SoapBinding) {
+                in.add(new SOAPHandlerInterceptor(jaxwsBinding));
+                in.add(new SwAInInterceptor());
+                getOutInterceptors().add(new SwAOutInterceptor());
+            } else {
+                // TODO: what for non soap bindings?
+            }
+
+            // Outbound chain
+            out.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
+            out.add(new WrapperClassOutInterceptor());
+            out.add(new HolderOutInterceptor());
+            if (getBinding() instanceof SoapBinding) {
+                out.add(new SOAPHandlerInterceptor(jaxwsBinding));
+            }
         }
+      
         
         //Outbound fault chain
         List<Interceptor> outFault = super.getOutFaultInterceptors();    

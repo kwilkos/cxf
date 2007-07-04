@@ -29,15 +29,11 @@ import java.util.logging.Logger;
 
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Service;
+import javax.xml.ws.Service.Mode;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.model.SoapBindingInfo;
-import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
-import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.source.SourceDataBinding;
@@ -46,11 +42,9 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
-import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
-import org.apache.cxf.jaxws.interceptors.ProviderInDatabindingInterceptor;
-import org.apache.cxf.jaxws.interceptors.ProviderOutDatabindingInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
-import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -120,36 +114,16 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
         if (implInfo.isWebServiceProvider()) {
             Class<?> type = implInfo.getProviderParameterType();
-            if (type.equals(SOAPMessage.class)) {
-                getService().getInInterceptors().add(new ProviderInDatabindingInterceptor(type));
-                // hack to get the SOAPMessage set before the SOAPHandlerInterceptor
-                ProviderOutDatabindingInterceptor out 
-                    = new ProviderOutDatabindingInterceptor(Phase.PRE_PROTOCOL);
-                out.addBefore(SOAPHandlerInterceptor.class.getName());
-                getService().getOutInterceptors().add(out);
-                
-                getService().getInInterceptors().add(new SAAJInInterceptor());
-                getService().getOutInterceptors().add(new SAAJOutInterceptor());
-            } else {
-                getService().getInInterceptors().add(new ProviderInDatabindingInterceptor(type));
-                getService().getOutInterceptors().add(new ProviderOutDatabindingInterceptor());
-            }
+            Mode mode = implInfo.getServiceMode();
 
-            boolean messageMode = implInfo.getServiceMode().equals(javax.xml.ws.Service.Mode.MESSAGE);
-            if (getEndpointInfo() != null) {
-                for (BindingInfo bi : getEndpointInfo().getService().getBindings()) {
-                    if ((bi instanceof SoapBindingInfo) 
-                        && messageMode && !type.equals(SOAPMessage.class)) {
-                        bi.setProperty(SoapBindingFactory.MESSAGE_PROCESSING_DISABLED, Boolean.TRUE);
-                    }
-                }
-            }
+            getService().getInInterceptors().add(new DispatchInInterceptor(type, mode));
+            getService().getOutInterceptors().add(new DispatchOutInterceptor(mode));
         }
     }
 
     @Override
     public Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
-        return new JaxWsEndpointImpl(getBus(), getService(), ei);
+        return new JaxWsEndpointImpl(getBus(), getService(), ei, implInfo);
     }
 
     @Override

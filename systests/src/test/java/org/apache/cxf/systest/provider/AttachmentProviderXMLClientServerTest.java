@@ -25,7 +25,6 @@ import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.ws.Endpoint;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,40 +33,20 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
-import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AttachmentProviderXMLClientServerTest extends AbstractBusClientServerTestBase {
 
-    public static class Server extends AbstractBusTestServerBase {
-
-        protected void run() {
-            Object implementor = new AttachmentStreamSourceXMLProvider();
-            String address = "http://localhost:9033/XMLServiceAttachment";
-            Endpoint.publish(address, implementor);
-        }
-
-        public static void main(String[] args) {
-            try {
-                Server s = new Server();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                System.out.println("done!");
-            }
-        }
-    }
-
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly",
-                launchServer(Server.class, true));
+                launchServer(AttachementServer.class, true));
     }
 
     @Test
+    @Ignore("REVISIT: I do not think it is valid to use Provider to receive a StreamSource with attachement")
     public void testRequestWithAttachment() throws Exception {
         
         HttpURLConnection connection =  

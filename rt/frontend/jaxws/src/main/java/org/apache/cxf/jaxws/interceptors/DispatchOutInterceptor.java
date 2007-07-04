@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.interceptors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
@@ -36,6 +37,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Service;
+import javax.xml.ws.Service.Mode;
 
 import org.w3c.dom.Node;
 
@@ -55,24 +57,35 @@ import org.apache.cxf.wsdl.WSDLConstants;
 public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(DispatchOutInterceptor.class);
     private DispatchOutEndingInterceptor ending;
-
-    public DispatchOutInterceptor() {
+    
+    private Service.Mode mode;
+    
+    public DispatchOutInterceptor(Mode mode) {
         super(Phase.WRITE);
         ending = new DispatchOutEndingInterceptor();
+        
+        this.mode = mode;
     }
 
     public void handleMessage(Message message) throws Fault {
-        Service.Mode m = message.getExchange().get(Service.Mode.class);
-        Object obj = message.getContent(Object.class);
         org.apache.cxf.service.Service service = 
             message.getExchange().get(org.apache.cxf.service.Service.class);
-        
+
+        Object obj = null;
+        Object result = message.getContent(List.class);
+        if (result != null) {
+            obj = ((List)result).get(0);
+            message.setContent(Object.class, obj);
+        } else {
+            obj = message.getContent(Object.class);
+        }
+
         if (obj == null) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("DISPATCH_OBJECT_CANNOT_BE_NULL", LOG));
         }
 
         if (message instanceof SoapMessage) {
-            if (m == Service.Mode.PAYLOAD) {
+            if (mode == Service.Mode.PAYLOAD) {
                 if (obj instanceof SOAPMessage || obj instanceof DataSource) {
                     throw new Fault(
                                     new org.apache.cxf.common.i18n.Message(
@@ -112,7 +125,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                                     LOG, "SOAPMessage", "PAYLOAD/MESSAGE"));
             }
 
-            if (m == Service.Mode.PAYLOAD && obj instanceof DataSource) {
+            if (mode == Service.Mode.PAYLOAD && obj instanceof DataSource) {
                 throw new Fault(
                                 new org.apache.cxf.common.i18n.Message(
                                     "DISPATCH_OBJECT_NOT_SUPPORTED_XMLBINDING",
@@ -162,6 +175,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                 // Finish the message processing, do flush
                 os.flush();
             } catch (Exception ex) {
+                ex.printStackTrace();
                 throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG));
             }
         }      

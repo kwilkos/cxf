@@ -96,8 +96,6 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     public static final String SOAP_11_BINDING = "http://schemas.xmlsoap.org/wsdl/soap/";
     public static final String SOAP_12_BINDING = "http://schemas.xmlsoap.org/wsdl/soap12/";
     
-    public static final String MESSAGE_PROCESSING_DISABLED = "disable.header.processing";
-    
     private boolean mtomEnabled = true;
 
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object conf) {
@@ -323,16 +321,17 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             throw new RuntimeException("Can not initialize SoapBinding, BindingInfo is not SoapBindingInfo");
         }
 
-        sb.getInInterceptors().add(new AttachmentInInterceptor());
-        sb.getInInterceptors().add(new StaxInInterceptor()); 
-        
-        sb.getOutInterceptors().add(new SoapActionInterceptor());
-        sb.getOutInterceptors().add(new AttachmentOutInterceptor());
-        sb.getOutInterceptors().add(new StaxOutInterceptor());
-        
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
 
+        //Do not add any interceptors if it is Provider/Dispatch
         if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
+            sb.getInInterceptors().add(new AttachmentInInterceptor());
+            sb.getInInterceptors().add(new StaxInInterceptor());             
+            
+            sb.getOutInterceptors().add(new SoapActionInterceptor());
+            sb.getOutInterceptors().add(new AttachmentOutInterceptor());
+            sb.getOutInterceptors().add(new StaxOutInterceptor());                     
+            
             if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
                 sb.getInInterceptors().add(new RPCInInterceptor());
                 sb.getOutInterceptors().add(new RPCOutInterceptor());
@@ -348,9 +347,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 sb.getOutInterceptors().add(new BareOutInterceptor());
             }
             sb.getInInterceptors().add(new SoapHeaderInterceptor());
-        }
-        
-        if (!Boolean.TRUE.equals(binding.getProperty(MESSAGE_PROCESSING_DISABLED))) {
+            
             sb.getInInterceptors().add(new ReadHeadersInterceptor(getBus()));
             sb.getInInterceptors().add(new MustUnderstandInterceptor());
             sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
@@ -360,9 +357,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             // REVISIT: The phase interceptor chain seems to freak out if this added
             // first. Not sure what the deal is at the moment, I suspect the
             // ordering algorithm needs to be improved
-            sb.getInInterceptors().add(new URIMappingInterceptor());
+            sb.getInInterceptors().add(new URIMappingInterceptor());          
         }
-        
+
         if (version.getVersion() == 1.1) {
             sb.getInFaultInterceptors().add(new Soap11FaultInInterceptor());
             sb.getOutFaultInterceptors().add(new Soap11FaultOutInterceptor());

@@ -33,7 +33,7 @@ public class Server extends AbstractBusTestServerBase {
         implementor = new HWDOMSourceMessageProvider();
         address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit2";
         Endpoint.publish(address, implementor);
-
+        
         implementor = new HWDOMSourcePayloadProvider();
         address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit3";
         Endpoint.publish(address, implementor);
@@ -53,6 +53,7 @@ public class Server extends AbstractBusTestServerBase {
         implementor = new HWStreamSourcePayloadProvider();
         address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit7";
         Endpoint.publish(address, implementor);
+    
     }
 
     public static void main(String[] args) {

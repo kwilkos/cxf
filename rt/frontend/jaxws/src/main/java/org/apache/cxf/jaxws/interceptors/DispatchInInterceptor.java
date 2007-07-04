@@ -21,6 +21,8 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
@@ -45,14 +47,17 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
@@ -69,12 +74,24 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     public void handleMessage(Message message) throws Fault {
+        Exchange ex = message.getExchange();     
+        Endpoint ep = ex.get(Endpoint.class);
+        
+        if (ep.getEndpointInfo().getBinding().getOperations().iterator().hasNext()) {
+            BindingOperationInfo bop = ep.getEndpointInfo().getBinding().getOperations().iterator().next();
+            ex.put(BindingOperationInfo.class, bop);
+            getMessageInfo(message, bop);
+        }
+        
+        List<Object> params = new ArrayList<Object>();          
         
         if (isGET(message)) {
+            params.add(null);
+            message.setContent(List.class, params);
             LOG.info("DispatchInInterceptor skipped in HTTP GET method");
             return;
-        }
-
+        }       
+     
         try {
             InputStream is = message.getContent(InputStream.class);
             Object obj = null;
@@ -124,7 +141,7 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                     }
                     obj = dataReader.read(null, message.getContent(XMLStreamReader.class), readType);
                     
-                    if (!type.equals(Source.class)) {
+                    if (!Source.class.isAssignableFrom(type)) {
                         //JAXB, need to make a Source format available for Logical handler                   
                         DataWriter<XMLStreamWriter> dataWriter =
                             service.getDataBinding().createWriter(XMLStreamWriter.class);
@@ -136,8 +153,10 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                     }
                 }
             }
+            params.add(obj);           
+            message.setContent(Object.class, obj);    
+            message.setContent(List.class, params);
             
-            message.setContent(Object.class, obj);
             is.close();
         } catch (Exception e) {
             throw new Fault(e);

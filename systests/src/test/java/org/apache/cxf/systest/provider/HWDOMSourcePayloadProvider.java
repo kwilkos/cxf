@@ -22,13 +22,11 @@ import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 //The following wsdl file is used.
@@ -61,11 +59,11 @@ public class HWDOMSourcePayloadProvider implements Provider<DOMSource> {
     public DOMSource invoke(DOMSource request) {
         DOMSource response = new DOMSource();
         try {
-            SOAPMessage msg = factory.createMessage();            
+/*            SOAPMessage msg = factory.createMessage();            
             SOAPBody body = msg.getSOAPBody();
-            body.addDocument((Document)request.getNode());
+            body.addDocument((Document)request.getNode());*/
 
-            Node n = getElementChildNode(body);
+            Node n = request.getNode();
             if (n.getLocalName().equals(sayHi.getLocalPart())) {
                 response.setNode(sayHiResponse.getSOAPBody().extractContentAsDocument());
             } else if (n.getLocalName().equals(greetMe.getLocalPart())) {
@@ -76,7 +74,7 @@ public class HWDOMSourcePayloadProvider implements Provider<DOMSource> {
         }
         return response;
     }
-    
+/*    
     private Node getElementChildNode(SOAPBody body) {
         Node n = body.getFirstChild();
 
@@ -85,5 +83,5 @@ public class HWDOMSourcePayloadProvider implements Provider<DOMSource> {
         }
         
         return n;        
-    }
+    }*/
 }

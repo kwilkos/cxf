@@ -17,21 +17,23 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.provider.datasource;
+package org.apache.cxf.systest.provider;
+
+import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
+public class XMLServer extends AbstractBusTestServerBase {
 
-public class Server extends AbstractBusTestServerBase {
-    
-    protected void run() {            
-        TestProvider servant = new TestProvider();
-        servant.publish("http://localhost:9000/test/foo");
+    protected void run() {
+        Object implementor = new HWDOMSourcePayloadXMLBindingProvider();
+        String address = "http://localhost:9022/XMLService/XMLProviderPort";
+        Endpoint.publish(address, implementor);
     }
-    
-    public static void main(String[] args) throws Exception { 
+
+    public static void main(String[] args) {
         try {
-            Server s = new Server();
+            XMLServer s = new XMLServer();
             s.start();
         } catch (Exception ex) {
             ex.printStackTrace();

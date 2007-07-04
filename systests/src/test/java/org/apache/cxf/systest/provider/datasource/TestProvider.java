@@ -41,8 +41,8 @@ import org.apache.cxf.helpers.IOUtils;
 
 
 @WebServiceProvider(serviceName = "ModelProvider")
-@ServiceMode(value = Service.Mode.PAYLOAD)
 @BindingType(value = "http://cxf.apache.org/bindings/xformat")
+@ServiceMode(value = Service.Mode.MESSAGE)
 public class TestProvider extends AbstractProvider<DataSource> implements Provider<DataSource> {
 
     static final Logger LOG = Logger.getLogger(TestProvider.class.getName());

@@ -246,7 +246,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         
         chain.add(new MessageSenderInterceptor());
 
-        chain.add(new DispatchOutInterceptor());
+        chain.add(new DispatchOutInterceptor(mode));
         return chain;
     }
 

@@ -25,7 +25,6 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 
 import org.w3c.dom.Document;
@@ -33,7 +32,6 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
-import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,31 +43,10 @@ public class ProviderXMLClientServerTest extends AbstractBusClientServerTestBase
     private final QName portName = new QName(
             "http://apache.org/hello_world_xml_http/wrapped", "XMLProviderPort");
 
-    public static class Server extends AbstractBusTestServerBase {
-
-        protected void run() {
-            Object implementor = new HWDOMSourcePayloadXMLBindingProvider();
-            String address = "http://localhost:9022/XMLService/XMLProviderPort";
-            Endpoint.publish(address, implementor);
-        }
-
-        public static void main(String[] args) {
-            try {
-                Server s = new Server();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                System.out.println("done!");
-            }
-        }
-    }
-
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly",
-                launchServer(Server.class));
+                launchServer(XMLServer.class));
     }
 
     @Test

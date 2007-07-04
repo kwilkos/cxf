@@ -40,23 +40,22 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.cxf.helpers.IOUtils;
-import org.junit.Assert;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class DataSourceProviderTest extends Assert {
+public class DataSourceProviderTest extends AbstractBusClientServerTestBase {
 
     static final Logger LOG = Logger.getLogger(DataSourceProviderTest.class.getName());
-    private static final String TEST_URI = "http://localhost:9000/test/foo";
     private static final String BOUNDARY = "----=_Part_4_701508.1145579811786";
     private HttpURLConnection conn;
     private URL url;
 
-    @Before 
-    public void launchServer() { 
-        TestProvider tp = new TestProvider();
-        tp.publish(TEST_URI);
-        
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly",
+                launchServer(Server.class, true));
     }
     
     @Before
