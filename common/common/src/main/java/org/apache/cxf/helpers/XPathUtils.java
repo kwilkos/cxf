@@ -19,7 +19,6 @@
 
 package org.apache.cxf.helpers;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
@@ -32,55 +31,33 @@ import org.w3c.dom.Node;
 public class XPathUtils {
 
     XPath xpath;
-    
-    public XPathUtils() {   
-        this(null);
-    }
-    
-    public XPathUtils(Map<String, String> ns) {
+
+    public XPathUtils() {
         xpath = XPathFactory.newInstance().newXPath();
+    }
+
+    public XPathUtils(final Map<String, String> ns) {
+        this();
 
         if (ns != null) {
             xpath.setNamespaceContext(new MapNamespaceContext(ns));
-        }         
+        }
     }
-    
-    public Object getValue(String xpathExpression, Node node, QName type) {    
+
+    public XPathUtils(final NamespaceContext ctx) {
+        this();
+        xpath.setNamespaceContext(ctx);
+    }
+
+    public Object getValue(String xpathExpression, Node node, QName type) {
         try {
             return xpath.evaluate(xpathExpression, node, type);
         } catch (Exception e) {
-            return null;    
+            return null;
         }
     }
 
     public boolean isExist(String xpathExpression, Node node, QName type) {
         return getValue(xpathExpression, node, type) != null;
-    }
-    
-    class MapNamespaceContext implements NamespaceContext {
-        private Map<String, String> namespaces;
-
-        public MapNamespaceContext(Map<String, String> namespaces) {
-            super();
-            this.namespaces = namespaces;
-        }
-
-        public String getNamespaceURI(String prefix) {
-            return namespaces.get(prefix);
-        }
-
-        public String getPrefix(String namespaceURI) {
-            for (Map.Entry<String, String> e : namespaces.entrySet()) {
-                if (e.getValue().equals(namespaceURI)) {
-                    return e.getKey();
-                }
-            }
-            return null;
-        }
-
-        public Iterator getPrefixes(String namespaceURI) {
-            return null;
-        }
-
     }
 }

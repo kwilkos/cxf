@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.WSDLException;
@@ -41,7 +42,7 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 
 public class WSDL11Generator extends AbstractGenerator<Definition> {
-    
+
     public Definition generate(final File dir) {
         File file = getOutputBase();
         if (file == null && dir != null) {
@@ -61,7 +62,7 @@ public class WSDL11Generator extends AbstractGenerator<Definition> {
             WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
             ServiceWSDLBuilder builder = new ServiceWSDLBuilder(getBus(), getServiceModel());
             builder.setUseSchemaImports(this.allowImports());
-            
+
             String name = file.getName();
             if (name.endsWith(".wsdl")) {
                 name = name.substring(0, name.lastIndexOf(".wsdl"));
@@ -86,13 +87,15 @@ public class WSDL11Generator extends AbstractGenerator<Definition> {
                     wsdlOs.close();
                 }
             }
-            
+
             for (Map.Entry<String, SchemaInfo> imp : imports.entrySet()) {
                 File impfile = new File(file.getParentFile(), imp.getKey());
                 os = new BufferedOutputStream(new FileOutputStream(impfile));
                 imp.getValue().getSchema().write(os);
                 os.close();
             }
+
+            customizing(outputdir, name, imports.keySet());
         } catch (WSDLException wex) {
             wex.printStackTrace();
         } catch (FileNotFoundException fnfe) {
@@ -101,6 +104,19 @@ public class WSDL11Generator extends AbstractGenerator<Definition> {
             e.printStackTrace();
         }
         return def;
+    }
+
+    private void customizing(final File outputdir,
+                             final String wsdlName,
+                             final Set<String> imports) {
+        DateTypeCustomGenerator generator = new DateTypeCustomGenerator();
+
+        generator.setWSDLName(wsdlName);
+        generator.setServiceModel(getServiceModel());
+        generator.setAllowImports(allowImports());
+        generator.addSchemaFiles(imports);
+
+        generator.generate(outputdir);
     }
 }
 

@@ -29,5 +29,3 @@ Bundle-ClassPath: #foreach ($jarfile in $jars)
 
 #end
 Eclipse-LazyStart: true
-Eclipse-RegisterBuddy: org.eclipse.stp.sc.common
-Require-Bundle: org.eclipse.stp.sc.common

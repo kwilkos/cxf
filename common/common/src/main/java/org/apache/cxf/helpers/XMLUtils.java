@@ -95,7 +95,7 @@ public final class XMLUtils {
         IOException {
         return getParser().parse(is.getSystemId());
     }
-    
+
     public static Document parse(File is) throws ParserConfigurationException, SAXException,
         IOException {
         return getParser().parse(is);
@@ -329,12 +329,12 @@ public final class XMLUtils {
         }
         return ret;
     }
-    
-    public static QName getQName(String value, Node node) {        
+
+    public static QName getQName(String value, Node node) {
         if (value == null) {
             return null;
         }
-        
+
         int index = value.indexOf(":");
 
         if (index == -1) {
@@ -349,9 +349,9 @@ public final class XMLUtils {
             throw new RuntimeException("Invalid QName in mapping: " + value);
         }
 
-        return new QName(ns, localName, prefix);        
+        return new QName(ns, localName, prefix);
     }
-    
+
     public static Node  fromSource(Source src) throws Exception {
 
         Transformer trans = TransformerFactory.newInstance().newTransformer();

@@ -21,7 +21,6 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
 import java.util.Iterator;
 import java.util.List;
-
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
@@ -71,24 +70,24 @@ public class JAXWSDefinitionBuilderTest extends Assert {
 
         assertEquals("Customized enable EnableWrapperStyle name does not been parsered", true, binding
             .isEnableWrapperStyle());
-       
+
         List opList = portType.getOperations();
         Operation operation = (Operation)opList.get(0);
         List extList = operation.getExtensibilityElements();
         binding = (JAXWSBinding)extList.get(0);
 
         assertEquals("Customized method name does not parsered", "echoMeOneWay", binding.getMethodName());
-        
-        
+
+
         assertEquals("Customized parameter element name does not parsered", "tns:number1", binding
             .getJaxwsPara().getElementName());
         assertEquals("Customized parameter message name does not parsered", "greetMeOneWayRequest", binding
             .getJaxwsPara().getMessageName());
         assertEquals("customized parameter name does not parsered", "num1", binding.getJaxwsPara().getName());
     }
-    
-    
-    
+
+
+
     @Test
     public void testCustomizationWithDifferentNS() {
         env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("resources/hello_world.wsdl").toString());
@@ -117,15 +116,15 @@ public class JAXWSDefinitionBuilderTest extends Assert {
 
         assertEquals("Customized enable EnableWrapperStyle name does not been parsered", true, binding
             .isEnableWrapperStyle());
-       
+
         List opList = portType.getOperations();
         Operation operation = (Operation)opList.get(0);
         List extList = operation.getExtensibilityElements();
         binding = (JAXWSBinding)extList.get(0);
 
         assertEquals("Customized method name does not parsered", "echoMeOneWay", binding.getMethodName());
-        
-        
+
+
         assertEquals("Customized parameter element name does not parsered", "tns:number1", binding
             .getJaxwsPara().getElementName());
         assertEquals("Customized parameter message name does not parsered", "greetMeOneWayRequest", binding
@@ -137,16 +136,16 @@ public class JAXWSDefinitionBuilderTest extends Assert {
     @Test
     public void testCustomizationWhereURINotAnExactStringMatch() {
         // set up a URI with ./../wsdl11/hello_world.wsdl instead of
-        // ./hello_world.wsdl 
-        env.put(ToolConstants.CFG_WSDLURL, 
+        // ./hello_world.wsdl
+        env.put(ToolConstants.CFG_WSDLURL,
             getClass().getResource(".").toString() + "../wsdl11/resources/hello_world.wsdl");
-        env.put(ToolConstants.CFG_BINDING, 
+        env.put(ToolConstants.CFG_BINDING,
             getClass().getResource("resources/cxf556_binding.xml").toString());
 
         JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
         builder.setContext(env);
         builder.build();
-        
+
         // this call will fail before CXF-556
         builder.customize();
 

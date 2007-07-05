@@ -60,11 +60,11 @@ public class JavaToProcessor implements Processor {
             String ns = (String)context.get(ToolConstants.CFG_TNS);
             service.setTargetNamespace(ns);
         }
-        
+
         if (context.containsKey(ToolConstants.CFG_PORT)) {
             String portName = (String)context.get(ToolConstants.CFG_PORT);
             EndpointInfo einfo = service.getEndpoints().iterator().next();
-            QName qn = new QName(einfo.getName().getNamespaceURI(), portName); 
+            QName qn = new QName(einfo.getName().getNamespaceURI(), portName);
             einfo.setName(qn);
         }
 
@@ -74,7 +74,7 @@ public class JavaToProcessor implements Processor {
         }
     }
 
-    public void process() throws ToolException {        
+    public void process() throws ToolException {
         String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
         LOG.log(Level.INFO, "OLD_CP", oldClassPath);
         if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
@@ -92,15 +92,24 @@ public class JavaToProcessor implements Processor {
                                       service.getName().getLocalPart() + ".wsdl");
 
         File outputDir = getOutputDir(wsdlFile);
-        
+
         generators.add(getWSDLGenerator(wsdlFile));
         generators.add(getWrapperBeanGenerator());
         generators.add(getFaultBeanGenerator());
-        
+        //generators.add(getDateTypeCustGenerator(wsdlFile));
+
         generate(service, outputDir);
         System.setProperty(JAVA_CLASS_PATH, oldClassPath);
         LOG.log(Level.INFO, "RESUME_CP", oldClassPath);
     }
+
+//     private AbstractGenerator getDateTypeCustGenerator(final File wsdlFile) {
+//         DateTypeCustomGenerator generator = new DateTypeCustomGenerator();
+//         generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
+//         generator.setWSDLFile(wsdlFile);
+//         generator.setServiceClass(getServiceClass());
+//         return generator;
+//     }
 
     private AbstractGenerator getWrapperBeanGenerator() {
         WrapperBeanGenerator generator = new WrapperBeanGenerator();
@@ -108,7 +117,7 @@ public class JavaToProcessor implements Processor {
         generator.setCompileToDir(getClassesDir());
         return generator;
     }
-    
+
     private AbstractGenerator getFaultBeanGenerator() {
         FaultBeanGenerator generator = new FaultBeanGenerator();
         generator.setOutputBase(getSourceDir());
@@ -135,7 +144,7 @@ public class JavaToProcessor implements Processor {
     }
 
     public ServiceBuilder getServiceBuilder() throws ToolException {
-        
+
         ServiceBuilderFactory builderFactory = ServiceBuilderFactory.getInstance();
         builderFactory.setServiceClass(getServiceClass());
         // TODO check if user specify the style from cli arguments
@@ -143,7 +152,7 @@ public class JavaToProcessor implements Processor {
         ServiceBuilder builder = builderFactory.newBuilder();
 
         builder.validate();
-        
+
         if (context.get(ToolConstants.CFG_ADDRESS) != null) {
             String address = (String)context.get(ToolConstants.CFG_ADDRESS);
             builder.setAddress(address);
@@ -171,7 +180,7 @@ public class JavaToProcessor implements Processor {
             return WSDLConstants.SOAP11_NAMESPACE;
         }
     }
-    
+
     protected boolean isSOAP12() {
         if (!this.context.optionSet(ToolConstants.CFG_SOAP12)) {
             BindingType bType = getServiceClass().getAnnotation(BindingType.class);
@@ -194,14 +203,14 @@ public class JavaToProcessor implements Processor {
         }
         return new File(dir);
     }
-    
+
     protected File getOutputFile(File nameFromClz, String defaultOutputFile) {
         String output = (String) context.get(ToolConstants.CFG_OUTPUTFILE);
         String dir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
         if (dir == null) {
             dir = "./";
         }
-        
+
         File result;
         if (output != null) {
             result = new File(output);
@@ -214,7 +223,7 @@ public class JavaToProcessor implements Processor {
         if (nameFromClz != null) {
             result = nameFromClz;
         }
-        
+
         // rename the exising wsdl file
         if (result.exists()
             && !result.renameTo(new File(result.getParent(), result.getName()))) {
@@ -255,7 +264,7 @@ public class JavaToProcessor implements Processor {
         }
         return new File(dir);
     }
-    
+
     public Bus getBus() {
         return BusFactory.getDefaultBus();
     }

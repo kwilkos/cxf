@@ -68,7 +68,7 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
-    
+
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     private static final String SERVICE_VALIDATOR = "META-INF/service.validator.xml";
@@ -159,9 +159,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 for (ServiceInfo service : serviceList) {
 
                     context.put(ServiceInfo.class, service);
-                    
+
                     ((ClassNameProcessor)processor).processClassNames();
-                    
+
                     context.put(ServiceInfo.class, null);
                 }
             }
@@ -397,7 +397,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (!context.containsKey(ToolConstants.CFG_WSDL_VERSION)) {
             context.put(ToolConstants.CFG_WSDL_VERSION, WSDLConstants.WSDL11);
         }
-        
+
         loadDefaultNSPackageMapping(context);
         setPackageAndNamespaces(context);
         setExcludePackageAndNamespaces(context);
@@ -494,7 +494,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     public List<ServiceValidator> getServiceValidators() {
         List<ServiceValidator> validators = new ArrayList<ServiceValidator>();
-        
+
         Properties initialExtensions = null;
         try {
             initialExtensions = PropertiesLoaderUtils.loadAllProperties(SERVICE_VALIDATOR, Thread

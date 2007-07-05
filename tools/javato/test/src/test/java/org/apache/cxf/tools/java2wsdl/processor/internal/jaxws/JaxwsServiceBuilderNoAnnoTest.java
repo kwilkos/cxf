@@ -32,8 +32,8 @@ import org.junit.Test;
 public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     JaxwsServiceBuilder builder = new JaxwsServiceBuilder();
     WSDL11Generator generator = new WSDL11Generator();
-    
-    
+
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -42,9 +42,9 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
     }
 
     public void tearDown() {
-        
+
     }
-    
+
     @Test
     public void testGeneratedWithElementryClass() throws Exception {
         builder.setServiceClass(org.apache.cxf.tools.fortest.classnoanno.docbare.Stock.class);
@@ -54,7 +54,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         File output = getOutputFile("stock_noanno_bare.wsdl");
         generator.generate(output);
         assertTrue(output.exists());
-        
+
         String expectedFile = getClass().getResource("expected/stock_noanno_bare.wsdl").getFile();
         assertFileEquals(expectedFile, output.getAbsolutePath());
     }
@@ -76,7 +76,6 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
 
     // Revisit:
     // * Missing wsdl:types
-    // * Binding style should be RPC not Document (FIXED CXF-522)
     // * input message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // * output message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // CXF-527

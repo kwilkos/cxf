@@ -45,11 +45,11 @@ public class ProcessorTestBase extends Assert {
     public void setUp() throws Exception {
         URL url = getClass().getResource(".");
         output = new File(url.toURI());
-        output = new File(output, "/resources");
+        output = new File(output, "/generated");
         FileUtils.mkDir(output);
     }
 
-    
+
     @After
     public void tearDown() {
         FileUtils.removeDir(output);
@@ -62,10 +62,10 @@ public class ProcessorTestBase extends Assert {
         StringBuffer classPath = new StringBuffer();
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlLoader = (URLClassLoader)loader;
-            for (URL url : urlLoader.getURLs()) {               
+            for (URL url : urlLoader.getURLs()) {
                 File file;
                 file = new File(url.toURI());
-                String filename = file.getAbsolutePath();                
+                String filename = file.getAbsolutePath();
                 if (filename.indexOf("junit") == -1) {
                     classPath.append(filename);
                     classPath.append(System.getProperty("path.separator"));
@@ -74,7 +74,7 @@ public class ProcessorTestBase extends Assert {
         }
         return classPath.toString();
     }
-    
+
     protected String getLocation(String wsdlFile) throws URISyntaxException {
         return getClass().getResource(wsdlFile).toString();
     }
@@ -82,11 +82,11 @@ public class ProcessorTestBase extends Assert {
     protected void assertFileEquals(String f1, String f2) {
         assertFileEquals(new File(f1), new File(f2));
     }
-    
+
     protected void assertFileEquals(File location1, File location2) {
         String str1 = getStringFromFile(location1);
         String str2 = getStringFromFile(location2);
-        
+
         StringTokenizer st1 = new StringTokenizer(str1, " \t\n\r\f(),");
         StringTokenizer st2 = new StringTokenizer(str2, " \t\n\r\f(),");
 
@@ -112,7 +112,7 @@ public class ProcessorTestBase extends Assert {
                     unmatched.add(tok2);
                 }
             }
-            assertEquals("Compare failed " + location1.getAbsolutePath() 
+            assertEquals("Compare failed " + location1.getAbsolutePath()
                          + " != " + location2.getAbsolutePath(), tok1, tok2);
         }
 
@@ -142,7 +142,7 @@ public class ProcessorTestBase extends Assert {
 
         return result;
     }
-    
+
     private String normalizeCRLF(InputStream instream) {
         BufferedReader in = new BufferedReader(new InputStreamReader(instream));
         StringBuffer result = new StringBuffer();

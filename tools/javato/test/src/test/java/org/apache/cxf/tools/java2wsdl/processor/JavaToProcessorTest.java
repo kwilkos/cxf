@@ -50,11 +50,11 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         System.setProperty("java.class.path", getClassPath());
     }
     @After
-    public void tearDown() {      
+    public void tearDown() {
         super.tearDown();
         System.setProperty("java.class.path", classPath);
     }
-        
+
     @Test
     public void testGetWSDLVersion() {
         processor.setEnvironment(new ToolContext());
@@ -111,22 +111,22 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_soap12_http.Greeter");
         env.put(ToolConstants.CFG_SOAP12, "soap12");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/hello_soap12.wsdl");
-        
+
         processor.setEnvironment(env);
         processor.process();
 
         String expectedFile = getClass().getResource("expected/hello_soap12.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
     }
-    
+
     @Test
     public void testDocLitUseClassPathFlag() throws Exception {
         File classFile = new java.io.File(output.getCanonicalPath() + "/classes");
         classFile.mkdir();
-        
+
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
                            + File.separatorChar);
-        
+
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
         env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
@@ -138,14 +138,14 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         JAXWSContainer w2jProcessor = new JAXWSContainer(null);
         w2jProcessor.setContext(env);
         w2jProcessor.execute();
-        
-        
+
+
         String tns = "http://apache.org/sepecifiedTns";
         String serviceName = "cxfService";
         String portName = "cxfPort";
 
         System.setProperty("java.class.path", "");
-        
+
         //      test flag
         String[] args = new String[] {"-o",
                                       "java2wsdl.wsdl",
@@ -167,17 +167,17 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         Definition def = wsdlHelper.getDefinition(wsdlFile);
         Service wsdlService = def.getService(new QName(tns, serviceName));
         assertNotNull("Generate WSDL Service Error", wsdlService);
-        
+
         Port wsdlPort = wsdlService.getPort(portName);
         assertNotNull("Generate service port error ", wsdlPort);
-        
+
     }
 
     @Test
     public void testDataBase() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf523.Database");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/db.wsdl");
-        
+
         processor.setEnvironment(env);
         processor.process();
 
@@ -201,7 +201,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_SOAP12, "soap12");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_hello_soap12.wsdl");
         env.put(ToolConstants.CFG_SERVICENAME, "MyService");
-        
+
         processor.setEnvironment(env);
         processor.process();
 
@@ -213,7 +213,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSNAME,
                 "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_calculator.wsdl");
-        
+
         processor.setEnvironment(env);
         processor.process();
 
@@ -228,7 +228,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     public void testNoNeedGenWrapperBeanClasses() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.Stock");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_stock.wsdl");
-        
+
         processor.setEnvironment(env);
         processor.process();
 
@@ -245,7 +245,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
                 "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_stock.wsdl");
         env.put(ToolConstants.CFG_SOURCEDIR, output.getPath() + "/beans");
-        
+
         processor.setEnvironment(env);
         processor.process();
 
@@ -255,8 +255,8 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
     }
-    
-    
+
+
     @Test
     //test for CXF-704 and CXF-705
     public void testHello() throws Exception {
@@ -264,7 +264,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.Hello");
         processor.setEnvironment(env);
         processor.process();
-        
+
         File wsdlFile = new File(output, "hello.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
 
@@ -276,64 +276,64 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSNAME, "HelloNoPackage");
         processor.setEnvironment(env);
         processor.process();
-        
+
         File wsdlFile = new File(output, "hello-no-package.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
-        
-        
+
+
         String pkgBase = "defaultnamespace";
         File requestWrapperClass = new File(output, pkgBase + "/jaxws/SayHi.java");
         File responseWrapperClass = new File(output, pkgBase + "/jaxws/SayHiResponse.java");
         assertTrue(requestWrapperClass.exists());
         assertTrue(responseWrapperClass.exists());
     }
-    
+
     @Test
     public void testRPCHello() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc-hello.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.RPCHello");
         processor.setEnvironment(env);
         processor.process();
-        
+
         File wsdlFile = new File(output, "rpc-hello.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
         String expectedFile = getClass().getResource("expected/rpc-hello-expected.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "rpc-hello.wsdl"));
 
     }
-    
-    
+
+
     @Test
     public void testXMlBare() {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/xml-bare.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.xml_bare.Greeter");
         processor.setEnvironment(env);
         processor.process();
-        
+
         File wsdlFile = new File(output, "xml-bare.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
         String expectedFile = getClass().getResource("expected/xml-bare-expected.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "/xml-bare.wsdl"));
-               
+
     }
-    
-    
+
+
     @Test
     public void testFault() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/fault.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.fault.Greeter");
         processor.setEnvironment(env);
         processor.process();
-        
+
         File wsdlFile = new File(output, "fault.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
-        
+
         String expectedFile = getClass().getResource("expected/hello_world_fault_expected.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "/fault.wsdl"));
 
     }
-    
-    
+
+
 
     @Test
     public void testResumeClasspath() throws Exception {
@@ -350,7 +350,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
         assertEquals(oldCP, newCP);
     }
-    
+
     @Test
     public void testWrongInterface() throws Exception {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.java2wsdl.processor.Hello");
@@ -360,5 +360,37 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         } catch (RuntimeException e) {
             assertEquals("JAXWS SEIs may not implement the java.rmi.Remote interface.", e.getMessage());
         }
+    }
+
+    @Test
+    public void testDateAdapter() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.date.EchoDate");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/echo_date.wsdl");
+        processor.setEnvironment(env);
+        processor.process();
+
+        File wsdlFile = new File(output, "echo_date.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        File bindingFile = new File(output, "echo_date.xjb");
+        assertTrue(bindingFile.exists());
+
+        String expectedFile = getClass().getResource("expected/echo_date.xjb").getFile();
+        assertFileEquals(new File(expectedFile), bindingFile);
+    }
+
+    @Test
+    public void testCalendarAdapter() throws Exception {
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.date.EchoCalendar");
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/echo_calendar.wsdl");
+        processor.setEnvironment(env);
+        processor.process();
+
+        File wsdlFile = new File(output, "echo_calendar.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        File bindingFile = new File(output, "echo_calendar.xjb");
+        assertTrue(bindingFile.exists());
+
+        String expectedFile = getClass().getResource("expected/echo_calendar.xjb").getFile();
+        assertFileEquals(new File(expectedFile), bindingFile);
     }
 }

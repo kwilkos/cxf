@@ -45,22 +45,22 @@ public class FaultBeanGeneratorTest extends ProcessorTestBase {
 
     @After
     public void tearDown() {
-        //super.tearDown();
+        super.tearDown();
         System.setProperty("java.class.path", classPath);
     }
-    
+
     private ServiceInfo getServiceInfo() {
         return processor.getServiceBuilder().createService();
     }
-    
+
     @Test
     public void testGenFaultBean() throws Exception {
         String testingClass = "org.apache.cxf.tools.fortest.cxf523.Database";
         env.put(ToolConstants.CFG_CLASSNAME, testingClass);
-        
+
         FaultBeanGenerator generator = new FaultBeanGenerator();
         generator.setServiceModel(getServiceInfo());
-        
+
         generator.generate(output);
 
         String pkgBase = "org/apache/cxf/tools/fortest/cxf523/jaxws";
@@ -76,10 +76,10 @@ public class FaultBeanGeneratorTest extends ProcessorTestBase {
     public void testGenFaultBeanWithCustomization() throws Exception {
         String testingClass = "org.apache.cxf.tools.fortest.jaxws.rpc.GreeterFault";
         env.put(ToolConstants.CFG_CLASSNAME, testingClass);
-        
+
         FaultBeanGenerator generator = new FaultBeanGenerator();
         generator.setServiceModel(getServiceInfo());
-        
+
         generator.generate(output);
 
         String pkgBase = "org/apache/cxf/tools/fortest/jaxws/rpc/types";
@@ -102,7 +102,7 @@ public class FaultBeanGeneratorTest extends ProcessorTestBase {
         assertEquals(0, classes.size());
 
         classes.clear();
-        
+
         seiClass = Class.forName("org.apache.cxf.tools.fortest.cxf523.Database");
         for (Method method : seiClass.getMethods()) {
             classes.addAll(generator.getExceptionClasses(method));

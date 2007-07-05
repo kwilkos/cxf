@@ -80,6 +80,12 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
             <exclusions>
