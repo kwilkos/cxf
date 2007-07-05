@@ -75,7 +75,8 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         
-        Class greeterServer = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterServer");
+        Class greeterServer = classLoader
+            .loadClass("org.apache.hello_world_soap_http.Greeter_SoapPort_Server");
         assertNotNull("Server should be generated", greeterServer);
       
     }
@@ -89,7 +90,8 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
             
-        Class greeterServer = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterServer");
+        Class greeterServer = classLoader
+            .loadClass("org.apache.hello_world_soap_http.Greeter_SoapPort_Server");
         assertNotNull("Server should be generated", greeterServer);
     }
      
@@ -110,6 +112,20 @@ public class CodeGenOptionTest extends ProcessorTestBase {
 
         Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
         assertEquals(3, clz.getMethods().length);
+
+    }
+    
+    @Test
+    public void testGenFault() throws Exception {         
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+        env.remove(ToolConstants.CFG_COMPILE);
+        env.remove(ToolConstants.CFG_IMPL);
+        env.put(ToolConstants.CFG_GEN_FAULT, ToolConstants.CFG_GEN_FAULT);
+        processor.setContext(env);
+        processor.execute();
+        
+        File file = new File(output, "org/apache/hello_world_soap_http");
+        assertEquals(2, file.list().length);
 
     }
 }

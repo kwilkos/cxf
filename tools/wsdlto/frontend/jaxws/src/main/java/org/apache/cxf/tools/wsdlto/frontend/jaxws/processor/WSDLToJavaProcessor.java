@@ -79,7 +79,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor implements ClassNamePro
             map.put(serviceInfo.getName(), javaModel);
         }
         context.put(JavaModel.class, javaModel);
-
+        
         List<JavaInterface> interfaces = new ArrayList<JavaInterface>();
         interfaces.addAll(javaModel.getInterfaces().values());
         

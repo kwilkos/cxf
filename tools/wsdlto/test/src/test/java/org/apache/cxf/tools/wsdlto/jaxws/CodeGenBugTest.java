@@ -377,7 +377,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         WebServiceClient webServiceClient = AnnotationUtil
             .getPrivClassAnnotation(clz, WebServiceClient.class);
         assertEquals("http://apache.org/hello_world_soap_http/service", webServiceClient.targetNamespace());
-        File file = new File(output, "org/apache/hello_world_soap_http/GreeterClient.java");
+        File file = new File(output, "org/apache/hello_world_soap_http/Greeter_SoapPortTest1_Client.java");
         FileInputStream fin = new FileInputStream(file);
         byte[] buffer = new byte[30000];
         int index = -1;
@@ -534,7 +534,26 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     }
     
-    
-    
-
+    @Test
+    //Test for CXF-765
+    public void testClientServer() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug765/hello_world_ports.wsdl"));
+        env.remove(ToolConstants.CFG_COMPILE);
+        env.remove(ToolConstants.CFG_IMPL);
+        env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
+        env.put(ToolConstants.CFG_GEN_CLIENT, ToolConstants.CFG_GEN_CLIENT);
+        processor.setContext(env);
+        processor.execute();
+        
+        File file = new File(output, "org/apache/hello_world_soap_http");
+        assertEquals(4, file.list().length);
+        file = new File(output, "org/apache/hello_world_soap_http/DocLitBare_DocLitBarePort_Client.java");
+        assertTrue("DocLitBare_DocLitBarePort_Client is not found", file.exists());
+        file = new File(output, "org/apache/hello_world_soap_http/DocLitBare_DocLitBarePort_Server.java");
+        assertTrue("DocLitBare_DocLitBarePort_Server is not found", file.exists());
+        file = new File(output, "org/apache/hello_world_soap_http/Greeter_GreeterPort_Client.java");
+        assertTrue("Greeter_GreeterPort_Client is not found", file.exists());
+        file = new File(output, "org/apache/hello_world_soap_http/Greeter_GreeterPort_Server.java");
+        assertTrue("Greeter_GreeterPort_Server is not found", file.exists());
+    }
 }

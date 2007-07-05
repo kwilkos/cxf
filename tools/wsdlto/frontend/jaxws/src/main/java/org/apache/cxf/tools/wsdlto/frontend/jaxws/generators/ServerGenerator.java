@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -31,6 +32,7 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
+import org.apache.cxf.tools.util.NameUtil;
 
 public class ServerGenerator extends AbstractJAXWSGenerator {
 
@@ -41,17 +43,13 @@ public class ServerGenerator extends AbstractJAXWSGenerator {
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_GEN_SERVER)
-            || env.optionSet(ToolConstants.CFG_SERVER)
+        if (env.optionSet(ToolConstants.CFG_GEN_SERVER) || env.optionSet(ToolConstants.CFG_SERVER)
             || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
-        } 
-        if (env.optionSet(ToolConstants.CFG_GEN_ANT)
-            || env.optionSet(ToolConstants.CFG_GEN_TYPES)
-            || env.optionSet(ToolConstants.CFG_GEN_CLIENT)
-            || env.optionSet(ToolConstants.CFG_GEN_IMPL)
-            || env.optionSet(ToolConstants.CFG_GEN_SEI)
-            || env.optionSet(ToolConstants.CFG_GEN_SERVICE)
+        }
+        if (env.optionSet(ToolConstants.CFG_GEN_ANT) || env.optionSet(ToolConstants.CFG_GEN_TYPES)
+            || env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_IMPL)
+            || env.optionSet(ToolConstants.CFG_GEN_SEI) || env.optionSet(ToolConstants.CFG_GEN_SERVICE)
             || env.optionSet(ToolConstants.CFG_GEN_FAULT)) {
             return true;
         }
@@ -67,7 +65,7 @@ public class ServerGenerator extends AbstractJAXWSGenerator {
         }
         String address = "CHANGE_ME";
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
-        
+
         if (javaModel.getServiceClasses().size() == 0) {
             ServiceInfo serviceInfo = (ServiceInfo)env.get(ServiceInfo.class);
             String wsdl = serviceInfo.getDescription().getBaseURI();
@@ -77,46 +75,31 @@ public class ServerGenerator extends AbstractJAXWSGenerator {
             }
             return;
         }
-        
-        for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
-            String interfaceName = (String)iter.next();
-            JavaInterface intf = interfaces.get(interfaceName);
-            Iterator it = javaModel.getServiceClasses().values().iterator();
-            while (it.hasNext()) {
-                JavaServiceClass js = (JavaServiceClass)it.next();
-                Iterator i = js.getPorts().iterator();
-                while (i.hasNext()) {
-                    JavaPort jp = (JavaPort)i.next();
-                    if (interfaceName.equals(jp.getPortType())) {
-                        address = jp.getBindingAdress();
-                        break;
-                    }
+        Iterator it = javaModel.getServiceClasses().values().iterator();
+        while (it.hasNext()) {
+            JavaServiceClass js = (JavaServiceClass)it.next();
+            Iterator i = js.getPorts().iterator();
+            while (i.hasNext()) {
+                JavaPort jp = (JavaPort)i.next();
+                String interfaceName = jp.getPortType();
+                JavaInterface intf = interfaces.get(interfaceName);
+                address = StringUtils.isEmpty(jp.getBindingAdress()) ? address : jp.getBindingAdress();
+                String serverClassName = interfaceName + "_"
+                                         + NameUtil.mangleNameToClassName(jp.getPortName()) + "_Server";
+
+                clearAttributes();
+                setAttributes("serverClassName", serverClassName);
+                setAttributes("intf", intf);
+                if (penv.optionSet(ToolConstants.CFG_IMPL_CLASS)) {
+                    setAttributes("impl", (String)penv.get(ToolConstants.CFG_IMPL_CLASS));
+                } else {
+                    setAttributes("impl", intf.getName() + "Impl");
                 }
-                if (!"".equals(address)) {
-                    break;
-                }
+                setAttributes("address", address);
+                setCommonAttributes();
+
+                doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), serverClassName));           
             }
-
-
-            String serverClassName = interfaceName + "Server";
-
-            while (isCollision(intf.getPackageName(), serverClassName)) {
-                serverClassName = serverClassName + "_Server";
-            }
-
-            clearAttributes();
-            setAttributes("serverClassName", serverClassName);
-            setAttributes("intf", intf);
-            if (penv.optionSet(ToolConstants.CFG_IMPL_CLASS)) {
-                setAttributes("impl", 
-                              (String)penv.get(ToolConstants.CFG_IMPL_CLASS));
-            } else {
-                setAttributes("impl", intf.getName() + "Impl");
-            }
-            setAttributes("address", address);
-            setCommonAttributes();
-
-            doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), serverClassName));
         }
     }
 

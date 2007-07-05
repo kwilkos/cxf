@@ -464,21 +464,22 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             || context.optionSet(ToolConstants.CFG_GEN_IMPL)
             || context.optionSet(ToolConstants.CFG_GEN_SEI)
             || context.optionSet(ToolConstants.CFG_GEN_SERVER)
-            || context.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
+            || context.optionSet(ToolConstants.CFG_GEN_SERVICE)
+            || context.optionSet(ToolConstants.CFG_GEN_FAULT)) {
             return true;
         }
         return false;
     }
 
-    public void generateTypes() throws ToolException {
-        if (passthrough()) {
-            return;
-        }
-
+    public void generateTypes() throws ToolException {        
         DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
         if (dataBindingProfile == null) {
             Message msg = new Message("FOUND_NO_DATABINDING", LOG);
             throw new ToolException(msg);
+        }
+        dataBindingProfile.initialize(context);
+        if (passthrough()) {
+            return;
         }
         dataBindingProfile.generate(context);
     }

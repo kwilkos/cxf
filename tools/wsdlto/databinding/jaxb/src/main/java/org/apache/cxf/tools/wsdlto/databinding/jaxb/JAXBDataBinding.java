@@ -67,7 +67,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     private ToolContext context;
 
     @SuppressWarnings("unchecked")
-    private void initialize(ToolContext c) throws ToolException {
+    public void initialize(ToolContext c) throws ToolException {
         this.context = c;
 
         
