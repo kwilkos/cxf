@@ -48,7 +48,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.http.HTTPException;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.handlers.AddNumbersService;
 import org.apache.handlers.types.AddNumbersResponse;
@@ -64,12 +63,12 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
     private final QName portName = new QName("http://apache.org/handlers", "AddNumbersPort");
 
     private final QName portNameXML = new QName("http://apache.org/hello_world_xml_http/wrapped",
-                                                "XMLDispatchPort");   
+                                                "XMLDispatchPort");
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(HandlerServer.class));
     }
-    
+
     @Test
     public void testInvokeWithJAXBPayloadMode() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
@@ -80,16 +79,16 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
 
         JAXBContext jc = JAXBContext.newInstance("org.apache.handlers.types");
         Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
- 
+
         TestHandler handler = new TestHandler();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
-        org.apache.handlers.types.AddNumbers req = new org.apache.handlers.types.AddNumbers();        
+
+        org.apache.handlers.types.AddNumbers req = new org.apache.handlers.types.AddNumbers();
         req.setArg0(10);
-        req.setArg1(20);        
-        ObjectFactory factory = new ObjectFactory();        
-        JAXBElement e = factory.createAddNumbers(req);        
+        req.setArg1(20);
+        ObjectFactory factory = new ObjectFactory();
+        JAXBElement e = factory.createAddNumbers(req);
 
         JAXBElement response = (JAXBElement)disp.invoke(e);
         assertNotNull(response);
@@ -106,16 +105,15 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
         assertNotNull(service);
 
         Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Mode.MESSAGE);
- 
+
         TestHandler handler = new TestHandler();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
         InputStream is = this.getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage soapReq = factory.createMessage(null, is);
-        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());   
+        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());
 
-        //XMLUtils.writeTo(domReqMessage, System.out);
         DOMSource response = disp.invoke(domReqMessage);
         assertNotNull(response);
     }
@@ -129,17 +127,16 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
         assertNotNull(service);
 
         Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Mode.PAYLOAD);
- 
+
         TestHandler handler = new TestHandler();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         InputStream is2 =  this.getClass().getResourceAsStream("resources/GreetMeDocLiteralReqPayload.xml");
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage soapReq = factory.createMessage(null, is2);
-        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());   
+        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());
 
-        //XMLUtils.writeTo(domReqMessage, System.out);
         DOMSource response = disp.invoke(domReqMessage);
         assertNotNull(response);
     }
@@ -153,20 +150,20 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
         assertNotNull(service);
 
         Dispatch<SOAPMessage> disp = service.createDispatch(portName, SOAPMessage.class, Mode.MESSAGE);
- 
+
         TestHandler handler = new TestHandler();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         InputStream is2 =  this.getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage soapReq = factory.createMessage(null, is2);
-  
+
         SOAPMessage response = disp.invoke(soapReq);
         assertNotNull(response);
         //response.writeTo(System.out);
     }
-    
+
     @Test
     public void testInvokeWithSOAPMessagePayloadMode() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
@@ -176,15 +173,15 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
         assertNotNull(service);
 
         Dispatch<SOAPMessage> disp = service.createDispatch(portName, SOAPMessage.class, Mode.PAYLOAD);
- 
+
         TestHandler handler = new TestHandler();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         InputStream is2 =  this.getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage soapReq = factory.createMessage(null, is2);
-  
+
         try {
             disp.invoke(soapReq);
             fail("Did not get expected exception");
@@ -193,91 +190,89 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
                        .indexOf("is not valid in PAYLOAD mode with SOAP/HTTP binding") > -1);
         }
     }
-    
+
     @Test
     public void testInvokeWithDOMSourcMessageModeXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
-        
+
         XMLService service = new XMLService();
         assertNotNull(service);
 
         Dispatch<DOMSource> disp = service.createDispatch(portNameXML, DOMSource.class, Mode.MESSAGE);
- 
+
         TestHandlerXMLBinding handler = new TestHandlerXMLBinding();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         InputStream is = getClass().getResourceAsStream("/messages/XML_GreetMeDocLiteralReq.xml");
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage soapReq = factory.createMessage(null, is);
-        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());   
+        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());
 
-        //XMLUtils.writeTo(domReqMessage, System.out);
         DOMSource response = disp.invoke(domReqMessage);
         assertNotNull(response);
-    }    
-    
+    }
+
     @Test
     public void testInvokeWithDOMSourcPayloadModeXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
-        
+
         XMLService service = new XMLService();
         assertNotNull(service);
 
         Dispatch<DOMSource> disp = service.createDispatch(portNameXML, DOMSource.class, Mode.PAYLOAD);
- 
+
         TestHandlerXMLBinding handler = new TestHandlerXMLBinding();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         InputStream is = getClass().getResourceAsStream("/messages/XML_GreetMeDocLiteralReq.xml");
         MessageFactory factory = MessageFactory.newInstance();
         SOAPMessage soapReq = factory.createMessage(null, is);
-        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());   
+        DOMSource domReqMessage = new DOMSource(soapReq.getSOAPPart());
 
-        //XMLUtils.writeTo(domReqMessage, System.out);
         DOMSource response = disp.invoke(domReqMessage);
         assertNotNull(response);
-    } 
-    
+    }
+
     @Test
     public void testInvokeWithDataSourcMessageModeXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
-        
+
         XMLService service = new XMLService();
         assertNotNull(service);
 
         Dispatch<DataSource> disp = service.createDispatch(portNameXML, DataSource.class, Mode.MESSAGE);
- 
+
         TestHandlerXMLBinding handler = new TestHandlerXMLBinding();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         URL is = getClass().getResource("/messages/XML_GreetMeDocLiteralReq.xml");
         DataSource ds = new URLDataSource(is);
 
         DataSource response = disp.invoke(ds);
         assertNotNull(response);
         //IOUtils.copy(response.getInputStream(), System.out);
-    } 
-    
+    }
+
     @Test
     public void testInvokeWithDataSourcPayloadModeXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
-        
+
         XMLService service = new XMLService();
         assertNotNull(service);
 
         Dispatch<DataSource> disp = service.createDispatch(portNameXML, DataSource.class, Mode.PAYLOAD);
- 
+
         TestHandlerXMLBinding handler = new TestHandlerXMLBinding();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
+
         URL is = getClass().getResource("/messages/XML_GreetMeDocLiteralReq.xml");
         DataSource ds = new URLDataSource(is);
 
@@ -288,80 +283,80 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
             assertEquals(e.getCause().getMessage(),
                          "DataSource is not valid in PAYLOAD mode with XML/HTTP binding.");
         }
-    } 
- 
+    }
+
     @Test
     public void testInvokeWithJAXBMessageModeXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
-        
+
         XMLService service = new XMLService();
         assertNotNull(service);
 
-        JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_xml_http.wrapped.types"); 
+        JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_xml_http.wrapped.types");
         Dispatch<Object> disp = service.createDispatch(portNameXML, jc, Mode.MESSAGE);
- 
+
         TestHandlerXMLBinding handler = new TestHandlerXMLBinding();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
-        org.apache.hello_world_xml_http.wrapped.types.GreetMe req = 
+
+        org.apache.hello_world_xml_http.wrapped.types.GreetMe req =
             new org.apache.hello_world_xml_http.wrapped.types.GreetMe();
-        req.setRequestType("tli");   
+        req.setRequestType("tli");
 
         Object response = disp.invoke(req);
         assertNotNull(response);
-        org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse value = 
+        org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse value =
             (org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse)response;
         assertEquals("Hello tli", value.getResponseType());
-    }     
-  
+    }
+
     @Test
     public void testInvokeWithJAXBPayloadModeXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
-        
+
         XMLService service = new XMLService();
         assertNotNull(service);
 
-        JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_xml_http.wrapped.types"); 
+        JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_xml_http.wrapped.types");
         Dispatch<Object> disp = service.createDispatch(portNameXML, jc, Mode.PAYLOAD);
- 
+
         TestHandlerXMLBinding handler = new TestHandlerXMLBinding();
         TestSOAPHandler soapHandler = new TestSOAPHandler();
         addHandlersProgrammatically(disp, handler, soapHandler);
-      
-        org.apache.hello_world_xml_http.wrapped.types.GreetMe req = 
+
+        org.apache.hello_world_xml_http.wrapped.types.GreetMe req =
             new org.apache.hello_world_xml_http.wrapped.types.GreetMe();
-        req.setRequestType("tli");   
+        req.setRequestType("tli");
 
         Object response = disp.invoke(req);
         assertNotNull(response);
-        org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse value = 
+        org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse value =
             (org.apache.hello_world_xml_http.wrapped.types.GreetMeResponse)response;
         assertEquals("Hello tli", value.getResponseType());
     }
-    
+
     public void addHandlersProgrammatically(BindingProvider bp, Handler...handlers) {
         List<Handler> handlerChain = bp.getBinding().getHandlerChain();
         assertNotNull(handlerChain);
         for (Handler h : handlers) {
             handlerChain.add(h);
-        }    
+        }
     }
-    
+
     class TestHandler implements LogicalHandler<LogicalMessageContext> {
         public boolean handleMessage(LogicalMessageContext ctx) {
             try {
                 Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
                 if (outbound) {
-                    LogicalMessage msg = ctx.getMessage();                        
+                    LogicalMessage msg = ctx.getMessage();
                     JAXBContext jaxbContext = JAXBContext
                         .newInstance(ObjectFactory.class,
                                      org.apache.hello_world_xml_http.wrapped.types.ObjectFactory.class);
 
                     Object payload = ((JAXBElement)msg.getPayload(jaxbContext)).getValue();
-                    org.apache.handlers.types.AddNumbers req = 
+                    org.apache.handlers.types.AddNumbers req =
                         (org.apache.handlers.types.AddNumbers)payload;
 
                     assertEquals(10, req.getArg0());
@@ -370,7 +365,7 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
                     LogicalMessage msg = ctx.getMessage();
                     JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
                     Object payload = ((JAXBElement)msg.getPayload(jaxbContext)).getValue();
-                    org.apache.handlers.types.AddNumbersResponse res = 
+                    org.apache.handlers.types.AddNumbersResponse res =
                         (org.apache.handlers.types.AddNumbersResponse)payload;
 
                     assertEquals(200, res.getReturn());
@@ -380,14 +375,14 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
                 fail(e.toString());
             }
             return true;
-        }        
+        }
         public boolean handleFault(LogicalMessageContext ctx) {
             return true;
-        }        
+        }
         public void close(MessageContext arg0) {
         }
     }
-    
+
     class TestHandlerXMLBinding implements LogicalHandler<LogicalMessageContext> {
         public boolean handleMessage(LogicalMessageContext ctx) {
             try {
@@ -395,26 +390,19 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
 
                 Source payload = msg.getPayload();
                 assertNotNull(payload);
-
-                if (payload instanceof DOMSource) {
-                    DOMSource ds = (DOMSource)payload;
-                    System.out.println("-------------");
-                    XMLUtils.writeTo(ds, System.out);
-                } 
-
             } catch (Exception e) {
                 e.printStackTrace();
                 fail(e.toString());
             }
             return true;
-        }        
+        }
         public boolean handleFault(LogicalMessageContext ctx) {
             return true;
-        }        
+        }
         public void close(MessageContext arg0) {
         }
     }
-    
+
     class TestSOAPHandler implements SOAPHandler<SOAPMessageContext> {
         public boolean handleMessage(SOAPMessageContext ctx) {
             try {
@@ -433,8 +421,8 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
         }
         public boolean handleFault(SOAPMessageContext ctx) {
             return true;
-        }        
+        }
         public void close(MessageContext arg0) {
-        }     
-    }   
+        }
+    }
 }
