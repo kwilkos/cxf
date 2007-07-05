@@ -46,7 +46,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     private JAXWSContainer processor;
     private ClassLoader classLoader;
 
-    
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -66,7 +66,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     }
 
-    
+
     @After
     public void tearDown() {
         super.tearDown();
@@ -175,9 +175,9 @@ public class CodeGenBugTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
-    
-    
-    
+
+
+
 
     @Test
     public void testBug305772() throws Exception {
@@ -214,11 +214,11 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", com.exists());
         File iona = new File(com, "iona");
         assertFalse("Generated file has been excluded", iona.exists());
-        
+
         File implFile = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
         String str = getStringFromFile(implFile);
         assertTrue(str.indexOf("com.iona.BareDocumentResponse") > 0);
-        
+
         File org = new File(output, "org");
         File apache = new File(org, "apache");
         File invoice = new File(apache, "Invoice");
@@ -240,7 +240,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", com.exists());
 
     }
-     
+
     @Test
     public void testCommandLine() throws Exception {
         String[] args = new String[] {"-compile", "-d", output.getCanonicalPath(), "-classdir",
@@ -309,14 +309,14 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                           getLocation("/wsdl2java_wsdl/bug305924/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            fail("Error during wsdl2java: \n" + e.getMessage());
         }
         try {
             Class clz = classLoader
                 .loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            fail("Can not load the inner class MyProcess, the customization failed: \n" + e.getMessage());
         }
     }
 
@@ -386,7 +386,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         while (size != -1) {
             bout.write(buffer, 0, size);
             index = bout.toString()
-                .indexOf("new QName(\"http://apache.org/hello_world_soap_http/service\"," 
+                .indexOf("new QName(\"http://apache.org/hello_world_soap_http/service\","
                         + " \"SOAPService_Test1\")");
             if (index > 0) {
                 break;
@@ -424,28 +424,28 @@ public class CodeGenBugTest extends ProcessorTestBase {
         File address = new File(ws, "addressing");
         assertTrue(address.exists());
     }
-    
-    
+
+
     @Test
     public void testDefatultNsMapExclude() throws Exception {
         env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
-        env.put(ToolConstants.CFG_NEXCLUDE, 
+        env.put(ToolConstants.CFG_NEXCLUDE,
                 "http://www.w3.org/2005/08/addressing=org.apache.cxf.ws.addressing");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf492/locator.wsdl"));
         processor.setContext(env);
         processor.execute();
-        
+
         File org = new File(output, "org");
         assertTrue("org directory is not exist", org.exists());
         File apache = new File(org, "apache");
         assertTrue(apache.exists());
         File ws = new File(output, "org/apache/cxf/ws/addressing");
         assertFalse(ws.exists());
-        
+
         File orginal = new File(output, "org.w3._2005._08.addressing");
         assertFalse(orginal.exists());
     }
-    
+
     @Test
     public void testHelloWorldExternalBindingFile() throws Exception {
         Server server = new Server(8585);
@@ -457,18 +457,18 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_BINDING, "http://localhost:8585/remote-hello_world_binding.xsd");
         processor.setContext(env);
         processor.execute();
-        server.stop();      
-        
+        server.stop();
+
     }
-    
-    
+
+
     @Test
     public void testDefaultNSWithPkg() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-p", "org.cxf",
                                       getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
 
         WSDLToJava.main(args);
-        
+
         assertNotNull(output);
         File org = new File(output, "org");
         assertTrue(org.exists());
@@ -483,43 +483,43 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
         File[] files = address.listFiles();
         assertEquals(11, files.length);
-        
+
         cxf = new File(output, "org/cxf");
         assertTrue(cxf.exists());
         files = cxf.listFiles();
         assertEquals(5, files.length);
 
     }
-    
+
     @Test
     public void testCXF677() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(),
-                                      "-b", 
+                                      "-b",
                                       getLocation("/wsdl2java_wsdl/hello-mime-binding.xml"),
                                       getLocation("/wsdl2java_wsdl/hello-mime.wsdl")};
 
-        WSDLToJava.main(args); 
-        assertFileEquals(getClass().getResource("expected/expected_hello_mime").getFile(), 
+        WSDLToJava.main(args);
+        assertFileEquals(getClass().getResource("expected/expected_hello_mime").getFile(),
                          output.getCanonicalPath() + "/org/apache/hello_world_mime/Hello.java");
 
 
 
     }
-    
-    
+
+
     @Test
     public void testWebResult() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/sayHi.wsdl"));
         processor.setContext(env);
         processor.execute();
-        
-        assertFileEquals(getClass().getResource("expected/expected_sayHi").getFile(), 
+
+        assertFileEquals(getClass().getResource("expected/expected_sayHi").getFile(),
                          output.getCanonicalPath() + "/org/apache/sayhi/SayHi.java");
-        
+
     }
-    
-    
+
+
     @Test
     public void testCXF627() throws Exception {
 
@@ -527,13 +527,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/bug627/async_binding.xml"));
         processor.setContext(env);
         processor.execute();
-        
-        
+
+
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
-        assertEquals(3, clz.getDeclaredMethods().length); 
+        assertEquals(3, clz.getDeclaredMethods().length);
 
     }
-    
+
     @Test
     //Test for CXF-765
     public void testClientServer() throws Exception {
@@ -544,7 +544,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_GEN_CLIENT, ToolConstants.CFG_GEN_CLIENT);
         processor.setContext(env);
         processor.execute();
-        
+
         File file = new File(output, "org/apache/hello_world_soap_http");
         assertEquals(4, file.list().length);
         file = new File(output, "org/apache/hello_world_soap_http/DocLitBare_DocLitBarePort_Client.java");

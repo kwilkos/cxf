@@ -60,7 +60,7 @@ public class CustomizationParserTest extends ProcessorTestBase {
         Node jaxwsBindingNode = selector.queryNode(binding, "//jaxws:bindings[@node]");
         Node schemaNode = selector.queryNode(schema, "//xsd:schema");
 
-        parser.copyAllJaxbDeclarations(schemaNode, jaxwsBindingNode);
+        parser.copyAllJaxbDeclarations(schemaNode, (Element)jaxwsBindingNode);
 
         File file = new File(output, "custom_test.xsd");
         XMLUtils.writeTo(schemaNode, new FileOutputStream(file));
@@ -119,6 +119,28 @@ public class CustomizationParserTest extends ProcessorTestBase {
             new String[]{base + "jaxb:globalBindings/jaxb:javaType"};
 
         File file = new File(output, "custom_test.wsdl");
+        XMLUtils.writeTo(wsdlDoc, new FileOutputStream(file));
+        Document testNode = XMLUtils.parse(file);
+
+        checking(testNode, checkingPoints);
+    }
+
+    @Test
+    public void testInternalizeBinding4() throws Exception {
+        Element wsdlDoc = getDocumentElement("resources/hello_world.wsdl");
+        Element jaxwsBinding = getDocumentElement("resources/binding2.xml");
+        parser.setWSDLNode(wsdlDoc);
+        parser.internalizeBinding(jaxwsBinding, "");
+
+        String checkingPoint = "wsdl:definitions/wsdl:types/xsd:schema";
+        checkingPoint += "/xsd:element[@name='CreateProcess']/xsd:complexType/xsd:sequence";
+        checkingPoint += "/xsd:element[@name='MyProcess']/xsd:simpleType/xsd:annotation/xsd:appinfo";
+        checkingPoint += "/jaxb:typesafeEnumClass/jaxb:typesafeEnumMember[@name='BLUE']";
+
+        String[] checkingPoints =
+            new String[]{checkingPoint};
+
+        File file = new File(output, "custom_test4.wsdl");
         XMLUtils.writeTo(wsdlDoc, new FileOutputStream(file));
         Document testNode = XMLUtils.parse(file);
 

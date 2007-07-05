@@ -165,7 +165,24 @@ public final class CustomizationParser {
         return nodes;
     }
 
-    protected void copyAllJaxbDeclarations(final Node schemaNode, final Node jaxwsBindingNode) {
+    private void appendJaxbVersion(final Element schemaElement) {
+        String jaxbPrefix = schemaElement.lookupPrefix(ToolConstants.NS_JAXB_BINDINGS);
+        if (jaxbPrefix == null) {
+            schemaElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+            schemaElement.setAttribute("jaxb:version", "2.0");
+        }
+    }
+
+    protected void copyAllJaxbDeclarations(final Node schemaNode, final Element jaxwsBindingNode) {
+        Element jaxbBindingElement = getJaxbBindingElement(jaxwsBindingNode);
+        appendJaxbVersion((Element)schemaNode);
+        if (jaxbBindingElement != null) {
+            copyAllJaxbDeclarations(nodeSelector.queryNode(schemaNode,
+                                                           jaxbBindingElement.getAttribute("node")),
+                                    jaxbBindingElement);
+            return;
+        }
+
         Node[] embededNodes  = getAnnotationNodes(schemaNode);
         Node annotationNode = embededNodes[0];
         Node appinfoNode = embededNodes[1];
@@ -173,17 +190,12 @@ public final class CustomizationParser {
         NodeList childNodes = jaxwsBindingNode.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node childNode = childNodes.item(i);
-            if (!isJaxbBindings(childNode)) {
+            if (!isJaxbBindings(childNode) || isJaxbBindingsElement(childNode)) {
                 continue;
             }
 
             final Element schemaElement = (Element) schemaNode;
             final Node jaxbNode = childNode;
-            String jaxbPrefix = schemaElement.lookupPrefix(ToolConstants.NS_JAXB_BINDINGS);
-            if (jaxbPrefix == null) {
-                schemaElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
-                schemaElement.setAttribute("jaxb:version", "2.0");
-            }
 
             Node cloneNode = ProcessorUtil.cloneNode(schemaNode.getOwnerDocument(), jaxbNode, true);
             appinfoNode.appendChild(cloneNode);
@@ -415,6 +427,18 @@ public final class CustomizationParser {
 
     private boolean isJaxbBindings(Node bindings) {
         return ToolConstants.NS_JAXB_BINDINGS.equals(bindings.getNamespaceURI());
+    }
+
+    private boolean isJaxbBindingsElement(Node bindings) {
+        return "bindings".equals(bindings.getLocalName());
+    }
+
+    protected Element getJaxbBindingElement(final Element bindings) {
+        NodeList list = bindings.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "bindings");
+        if (list.getLength() > 0) {
+            return (Element) list.item(0);
+        }
+        return null;
     }
 
     protected boolean hasJaxbBindingDeclaration(Node bindings) {
