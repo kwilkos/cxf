@@ -71,7 +71,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      */
 
     private Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
-    
+    private boolean usingAddressingAdvisory;    
+
     private boolean allowDuplicates = true;
     
     /**
@@ -97,6 +98,29 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         allowDuplicates = ad;
     }
 
+    /**
+     * Whether the presence of the <wsaw:UsingAddressing> element
+     * in the WSDL is purely advisory, i.e. its absence doesn't prevent
+     * the encoding of WS-A headers.
+     *
+     * @return true if the presence of the <wsaw:UsingAddressing> element is 
+     * advisory
+     */
+    public boolean isUsingAddressingAdvisory() {
+        return usingAddressingAdvisory;
+    }
+
+    /**
+     * Controls whether the presence of the <wsaw:UsingAddressing> element
+     * in the WSDL is purely advisory, i.e. its absence doesn't prevent
+     * the encoding of WS-A headers.
+     *
+     * @param advisory true if the presence of the <wsaw:UsingAddressing>
+     * element is to be advisory
+     */
+    public void setUsingAddressingAdvisory(boolean advisory) {
+        usingAddressingAdvisory = advisory;
+    }
 
     /**
      * Invoked for normal processing of inbound and outbound messages.
@@ -124,7 +148,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean usingAddressing(Message message) {
         boolean ret = false;
         if (ContextUtils.isRequestor(message)) {
-            ret =  WSAContextUtils.retrieveUsingAddressing(message)
+            ret = usingAddressingAdvisory
+                || WSAContextUtils.retrieveUsingAddressing(message)
                 || hasUsingAddressing(message) 
                 || hasAddressingAssertion(message);
         } else {

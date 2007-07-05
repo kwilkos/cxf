@@ -50,4 +50,12 @@ public class WSAddressingFeature extends AbstractFeature {
     public boolean isAllowDuplicates() {
         return mapAggregator.allowDuplicates();
     }
+
+    public void setUsingAddressingAdvisory(boolean advisory) {
+        mapAggregator.setUsingAddressingAdvisory(advisory);
+    }
+    
+    public boolean isUsingAddressingAdvisory() {
+        return mapAggregator.isUsingAddressingAdvisory();
+    }
 }

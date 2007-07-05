@@ -27,7 +27,9 @@ public class BindingMessageInfo extends AbstractPropertiesHolder {
     BindingOperationInfo op;
     private List<MessagePartInfo> messageParts;
     
-    
+    public BindingMessageInfo() {
+    }
+
     protected BindingMessageInfo(MessageInfo m, BindingOperationInfo boi) {
         op = boi;
         msg = m;

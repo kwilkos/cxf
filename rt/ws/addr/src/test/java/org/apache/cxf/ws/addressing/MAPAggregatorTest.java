@@ -37,6 +37,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -758,9 +759,20 @@ public class MAPAggregatorTest extends Assert {
         String op();
     }
     
+    private static class TestBindingMessageInfo extends BindingMessageInfo {
+    }
+
     private static class TestBindingOperationInfo extends BindingOperationInfo {
         public TestBindingOperationInfo(OperationInfo oi) {
             opInfo = oi;
+        }
+
+        public BindingMessageInfo getInput() {
+            return new TestBindingMessageInfo();
+        }
+    
+        public BindingMessageInfo getOutput() {
+            return new TestBindingMessageInfo();
         }
     }
 }
