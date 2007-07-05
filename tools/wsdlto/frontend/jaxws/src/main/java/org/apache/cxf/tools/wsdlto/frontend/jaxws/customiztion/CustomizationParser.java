@@ -194,7 +194,6 @@ public final class CustomizationParser {
                 continue;
             }
 
-            final Element schemaElement = (Element) schemaNode;
             final Node jaxbNode = childNode;
 
             Node cloneNode = ProcessorUtil.cloneNode(schemaNode.getOwnerDocument(), jaxbNode, true);
