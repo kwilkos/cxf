@@ -34,8 +34,7 @@ import org.apache.cxf.phase.Phase;
 public class StreamInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public StreamInterceptor() {
-        super();
-        setPhase(Phase.PRE_STREAM);
+        super(Phase.PRE_STREAM);
         addBefore(SoapPreProtocolOutInterceptor.class.getName());
     }
     
