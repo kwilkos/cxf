@@ -117,6 +117,9 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         } else {
             cls = JAXBUtils.getValidClass(cls);
             if (null != cls) {
+                if (classes.contains(cls)) {
+                    return;
+                }
                 if (cls.isEnum()) {
                     // The object factory stuff doesn't work for enums
                     classes.add(cls);

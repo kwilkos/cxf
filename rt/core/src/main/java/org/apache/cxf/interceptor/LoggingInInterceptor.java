@@ -18,16 +18,14 @@
  */
 package org.apache.cxf.interceptor;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -52,7 +50,7 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
         }
 
         if (LOG.isLoggable(Level.INFO)) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            CachedOutputStream bos = new CachedOutputStream();
             try {
                 IOUtils.copy(is, bos);
 
@@ -61,27 +59,15 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
 
                 LOG.info("Inbound Message\n" 
                          + "--------------------------------------\n"
-                         + bos.toString()
+                         + bos.getOut().toString()
                          + "\n--------------------------------------");
                 
-                message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
+                message.setContent(InputStream.class, bos.getInputStream());
 
             } catch (IOException e) {
                 throw new Fault(e);
             }
         }
     }
-    
-    public static void copy(final InputStream input,
-                            final OutputStream output,
-                            final int bufferSize)
-        throws IOException {
-        final byte[] buffer = new byte[bufferSize];
-        int n = 0;
-        n = input.read(buffer);
-        while (-1 != n) {
-            output.write(buffer, 0, n);
-            n = input.read(buffer);
-        }
-    }
+
 }

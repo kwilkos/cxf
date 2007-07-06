@@ -155,7 +155,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
                 // TODO: make this streamable. This is one of my pet
                 // peeves in JAXB RI as well, so if you fix this, submit the 
                 // code to the JAXB RI as well (see RuntimeBuiltinLeafInfoImpl)! - DD
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream(2048);
                 Iterator<ImageWriter> writers = ImageIO.getImageWritersByMIMEType(ct);
                 if (writers.hasNext()) {
                     ImageWriter writer = writers.next();
@@ -219,9 +219,9 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
             ds = (DataSource) o;
         } else if (o instanceof StreamSource) {
             StreamSource src = (StreamSource)o;
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try {
                 if (src.getInputStream() != null) {
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream(2048);
                     IOUtils.copy(src.getInputStream(), bos, 1024);
                     ds = new ByteArrayDataSource(bos.toByteArray(), ct);
                 } else {

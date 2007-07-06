@@ -41,6 +41,10 @@ public abstract class JAXBDataBase {
     protected boolean attachmentProcessingEnabled;
     protected boolean unwrapJAXBElement = true;
     
+    protected JAXBDataBase(JAXBContext ctx) {
+        context = ctx;
+    }
+    
     public void setSchema(Schema s) {
         this.schema = s;
     }

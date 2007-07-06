@@ -17,28 +17,26 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxb.io;
+package org.apache.cxf.jaxb_misc;
 
-import javax.xml.bind.JAXBContext;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
-import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.jaxb.JAXBDataBase;
-import org.apache.cxf.jaxb.JAXBEncoderDecoder;
-import org.apache.cxf.service.model.MessagePartInfo;
-
-public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
-    public DataWriterImpl(JAXBContext ctx) {
-        super(ctx);
-    }
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "TestJAXBClass", propOrder = { "endPart" })
+public class TestJAXBClass {
+    @XmlElement(name = "EndPart", required = true)
+    protected String endPart;
     
-    public void write(Object obj, T output) {
-        write(obj, null, output);
-    }
     
-    public void write(Object obj, MessagePartInfo part, T output) {
-        if (obj != null) {
-            JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
-                                        getAttachmentMarrshaller());
-        }
+    public String getEndPart() {
+        return endPart;
     }
+
+    public void setEndPart(String value) {
+        this.endPart = value;
+    }
+
 }

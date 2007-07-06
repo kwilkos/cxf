@@ -19,8 +19,6 @@
 
 package org.apache.cxf.attachment;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -130,7 +128,7 @@ public class AttachmentDeserializer {
     }
 
     private String findBoundaryFromInputStream() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        CachedOutputStream bos = new CachedOutputStream();
 
         InputStream is = message.getContent(InputStream.class);
         IOUtils.copy(is, bos);
@@ -140,7 +138,7 @@ public class AttachmentDeserializer {
         String msg = bos.toString();
 
         // Reset the input stream since we'll need it again later
-        message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
+        message.setContent(InputStream.class, bos.getInputStream());
 
         // Use regex to get the boundary and return null if it's not found
         Matcher m = INPUT_STREAM_BOUNDARY_PATTERN.matcher(msg);

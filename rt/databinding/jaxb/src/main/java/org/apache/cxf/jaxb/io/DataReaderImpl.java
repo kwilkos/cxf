@@ -29,7 +29,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 
 public class DataReaderImpl<T> extends JAXBDataBase implements DataReader<T> {
     public DataReaderImpl(JAXBContext ctx) {
-        setJAXBContext(ctx);
+        super(ctx);
     }
 
     public Object read(T input) {

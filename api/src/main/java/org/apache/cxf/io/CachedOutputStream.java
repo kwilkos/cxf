@@ -60,7 +60,7 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public CachedOutputStream() {
-        currentStream = new ByteArrayOutputStream();
+        currentStream = new ByteArrayOutputStream(2048);
         inmem = true;
     }
 
@@ -271,7 +271,14 @@ public class CachedOutputStream extends OutputStream {
             }
         } else {
             try {
-                return new FileInputStream(tempFile);
+                return new FileInputStream(tempFile) {
+                    public void close() throws IOException {
+                        super.close();
+                        tempFile.delete();
+                        currentStream = new ByteArrayOutputStream();
+                        inmem = true;
+                    }
+                };
             } catch (FileNotFoundException e) {
                 throw new IOException("Cached file was deleted, " + e.toString());
             }

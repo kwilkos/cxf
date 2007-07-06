@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb;
 
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
@@ -39,6 +41,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
+import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -47,6 +50,8 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxb.io.DataReaderImpl;
 import org.apache.cxf.jaxb.io.DataWriterImpl;
+import org.apache.cxf.jaxb_misc.ObjectFactory;
+import org.apache.cxf.jaxb_misc.TestJAXBClass;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -203,6 +208,18 @@ public class JAXBDataBindingTest extends Assert {
         assertEquals(jaxbDataBinding.getExtraClass().length, 2);
         assertEquals(jaxbDataBinding.getExtraClass()[0], GreetMe.class);
         assertEquals(jaxbDataBinding.getExtraClass()[1], GreetMeOneWay.class);
+    }
+    
+    @Test 
+    public void testJaxbIndex() throws Exception {
+        JAXBDataBinding db = new JAXBDataBinding();
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        classes.add(ObjectFactory.class);
+        JAXBContext ctx = db.createJAXBContext(classes);
+        if (ctx instanceof JAXBContextImpl) {
+            JAXBContextImpl rictx = (JAXBContextImpl)ctx;
+            assertNotNull(rictx.getBeanInfo(TestJAXBClass.class));
+        }
     }
     
 }

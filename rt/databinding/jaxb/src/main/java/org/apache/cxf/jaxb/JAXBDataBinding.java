@@ -19,7 +19,10 @@
 
 package org.apache.cxf.jaxb;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +61,7 @@ import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
@@ -392,6 +396,50 @@ public final class JAXBDataBinding implements DataBinding {
         Map<String, Object> map = new HashMap<String, Object>();
         if (defaultNs != null) {
             map.put("com.sun.xml.bind.defaultNamespaceRemap", defaultNs);
+        }
+        
+        //try and read any jaxb.index files that are with the other classes.  This should 
+        //allow loading of extra classes (such as subclasses for inheritance reasons) 
+        //that are in the same package.
+        Map<String, InputStream> packages = new HashMap<String, InputStream>();
+        Map<String, ClassLoader> packageLoaders = new HashMap<String, ClassLoader>();
+        for (Class<?> jcls : classes) {
+            if (!packages.containsKey(PackageUtils.getPackageName(jcls))) {
+                packages.put(PackageUtils.getPackageName(jcls), jcls.getResourceAsStream("jaxb.index"));
+                packageLoaders.put(PackageUtils.getPackageName(jcls), jcls.getClassLoader());
+            }
+        }
+        for (Map.Entry<String, InputStream> entry : packages.entrySet()) {
+            if (entry.getValue() != null) {
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(entry.getValue(),
+                                                                                     "UTF-8"));
+                    String pkg = entry.getKey();
+                    ClassLoader loader = packageLoaders.get(pkg);
+                    if (!StringUtils.isEmpty(pkg)) {
+                        pkg += ".";
+                    }
+                    
+                    String line = reader.readLine();
+                    while (line != null) {
+                        line = line.trim();
+                        if (line.indexOf("#") != -1) {
+                            line = line.substring(0, line.indexOf("#"));
+                        }
+                        if (!StringUtils.isEmpty(line)) {
+                            try {
+                                Class<?> ncls = Class.forName(pkg + line, false, loader);
+                                classes.add(ncls);
+                            } catch (Exception e) {
+                                //ignore
+                            }
+                        }
+                        line = reader.readLine();
+                    }
+                } catch (Exception e) {
+                    //ignore
+                }
+            }
         }
         
         JAXBContext ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
