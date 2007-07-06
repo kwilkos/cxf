@@ -357,6 +357,7 @@ public class RMEndpointTest extends Assert {
         assertEquals(7, intf.getOperations().size());
 
         String ns = si.getName().getNamespaceURI();
+        ns = RMConstants.getNamespace();
         OperationInfo oi = intf.getOperation(new QName(ns, "CreateSequence"));
         assertNotNull("No operation info.", oi);
         assertTrue("Operation is oneway.", !oi.isOneWay());

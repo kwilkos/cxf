@@ -92,28 +92,28 @@ public final class RMConstants {
         new QName(WSRM_WSDL_NAMESPACE_NAME, "SequenceAbstractSoapPort"); 
     
     private static final QName WSRM_CREATE_SEQUENCE_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequence");
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequence");
     
     private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequenceResponse");
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponse");
     
     private static final QName WSRM_CREATE_SEQUENCE_ONEWAY_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequenceOneway");
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceOneway");
     
     private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_ONEWAY_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequenceResponseOneway");
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponseOneway");
     
     private static final QName WSRM_TERMINATE_SEQUENCE_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "TerminateSequence");
+        new QName(WSRM_NAMESPACE_NAME, "TerminateSequence");
     
     private static final QName WSRM_SEQUENCE_ACKNOWLEDGEMENT_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "SequenceAcknowledgement");
+        new QName(WSRM_NAMESPACE_NAME, "SequenceAcknowledgement");
     
     private static final QName WSRM_LAST_MESSAGE_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "LastMessage");
+        new QName(WSRM_NAMESPACE_NAME, "LastMessage");
     
     private static final QName WSRM_ACK_REQ_QNAME =
-        new QName(WSRM_WSDL_NAMESPACE_NAME, "AckRequested");
+        new QName(WSRM_NAMESPACE_NAME, "AckRequested");
  
 
     // actions
