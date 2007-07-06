@@ -37,7 +37,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiWithoutWrapperClassResponse">
-    <wsdl:part name="parameters" element="ns1:sayHiWithoutWrapperClassResponse">
+    <wsdl:part name="result" element="ns1:sayHiWithoutWrapperClassResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Hello">

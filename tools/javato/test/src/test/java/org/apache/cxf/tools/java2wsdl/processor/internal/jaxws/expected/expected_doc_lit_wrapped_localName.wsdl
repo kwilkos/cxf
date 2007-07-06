@@ -37,7 +37,7 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="getPriceResponse">
-    <wsdl:part name="parameters" element="ns1:getPriceResponse">
+    <wsdl:part name="result" element="ns1:getPriceResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getPrice">

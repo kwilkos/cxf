@@ -51,7 +51,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiResponse">
-    <wsdl:part name="parameters" element="ns2:sayHiResponse">
+    <wsdl:part name="result" element="ns2:sayHiResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="PingMeFault">
@@ -59,7 +59,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMeResponse">
-    <wsdl:part name="parameters" element="ns2:pingMeResponse">
+    <wsdl:part name="result" element="ns2:pingMeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMe">

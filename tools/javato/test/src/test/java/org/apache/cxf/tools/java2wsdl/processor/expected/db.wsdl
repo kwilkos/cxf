@@ -58,7 +58,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="operation0Response">
-    <wsdl:part name="parameters" element="ns1:operation0Response">
+    <wsdl:part name="result" element="ns1:operation0Response">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="DatabasePortType">

@@ -839,7 +839,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo outMsg) {
-        MessagePartInfo part = outMsg.addMessagePart("parameters");
+        MessagePartInfo part = outMsg.addMessagePart("result");
         part.setElement(true);
         part.setIndex(-1);
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {

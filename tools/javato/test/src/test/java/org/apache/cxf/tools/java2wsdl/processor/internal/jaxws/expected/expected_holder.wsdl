@@ -68,7 +68,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo3Response">
-    <wsdl:part name="parameters" element="ns1:echo3Response">
+    <wsdl:part name="result" element="ns1:echo3Response">
     </wsdl:part>
     <wsdl:part name="header" element="ns1:header">
     </wsdl:part>
@@ -78,11 +78,11 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echoResponse">
-    <wsdl:part name="parameters" element="ns1:echoResponse">
+    <wsdl:part name="result" element="ns1:echoResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo2Response">
-    <wsdl:part name="parameters" element="ns1:echo2Response">
+    <wsdl:part name="result" element="ns1:echo2Response">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="echo3">
@@ -141,7 +141,7 @@
       <wsdl:output name="echo3Response">
         <soap:header message="ns1:echo3Response" part="header" use="literal">
         </soap:header>
-        <soap:body parts="parameters" use="literal"/>
+        <soap:body parts="result" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>

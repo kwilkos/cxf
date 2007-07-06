@@ -104,7 +104,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
                     + "/wsdl:part[@element='ns1:sayHi'][@name='parameters']",
                     wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHiResponse']"
-                    + "/wsdl:part[@element='ns1:sayHiResponse'][@name='parameters']",
+                    + "/wsdl:part[@element='ns1:sayHiResponse'][@name='result']",
                     wsdl);
         assertValid("//xsd:complexType[@name='sayHi']"
                     + "/xsd:sequence/xsd:element[@name='arg0']",
