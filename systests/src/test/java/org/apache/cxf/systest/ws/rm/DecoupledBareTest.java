@@ -89,9 +89,7 @@ public class DecoupledBareTest extends AbstractBusClientServerTestBase {
 
         DocLitBare greeter = service.getSoapPort();
 
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
        
         BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
         assertNotNull("no response for operation testDocLitBare", bareres);

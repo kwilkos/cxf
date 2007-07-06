@@ -98,10 +98,8 @@ public class AddressingPolicyTest extends AbstractBusClientServerTestBase {
         
         BasicGreeterService gs = new BasicGreeterService();
         final Greeter greeter = gs.getGreeterPort();
-        LOG.fine("Created greeter client.");
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        LOG.fine("Created greeter client.");     
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
 
         // oneway
 

@@ -167,9 +167,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
 
         greeter.greetMeOneWay("once");
 
@@ -1314,9 +1312,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
 
         if (!useDecoupledEndpoint) {
             return;

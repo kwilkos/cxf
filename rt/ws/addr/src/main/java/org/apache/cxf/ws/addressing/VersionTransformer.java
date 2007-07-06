@@ -317,9 +317,9 @@ public class VersionTransformer {
         public static final String WSA_NAMESPACE_NAME = 
             "http://schemas.xmlsoap.org/ws/2004/08/addressing";
         public static final String WSA_ANONYMOUS_ADDRESS = 
-            WSA_NAMESPACE_NAME + "/anonymous";
+            WSA_NAMESPACE_NAME + "/role/anonymous";
         public static final String WSA_NONE_ADDRESS =
-            WSA_NAMESPACE_NAME + "/none";
+            WSA_NAMESPACE_NAME + "/role/none";
         public static final ObjectFactory WSA_OBJECT_FACTORY = 
             new ObjectFactory();
         public static final String WS_ADDRESSING_PACKAGE =

@@ -74,10 +74,10 @@ public final class RMConstants {
         new QName(WSRM_NAMESPACE_NAME, WSRM_ACK_REQUESTED_NAME);
     
     private static final String WSA_ANONYMOUS_ADDRESS = 
-        WSA_NAMESPACE_NAME + "/anonymous";
+        WSA_NAMESPACE_NAME + "/role/anonymous";
     
     private static final String WSA_NONE_ADDRESS =
-        WSA_NAMESPACE_NAME + "/none";
+        WSA_NAMESPACE_NAME + "/role/none";
     
     private static final String RMASSERTION_NAME = "RMAssertion";
     

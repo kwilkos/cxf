@@ -94,9 +94,7 @@ public class AddressingInlinePolicyTest extends AbstractBusClientServerTestBase 
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
 
         Client client = ClientProxy.getClient(greeter);
         List<ServiceInfo> sis = client.getEndpoint().getService().getServiceInfos();

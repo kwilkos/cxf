@@ -102,9 +102,7 @@ public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
         final Greeter greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
        
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
 
         class TwowayThread extends Thread {
 

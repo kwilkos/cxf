@@ -29,17 +29,24 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
  * 
  */
 public final class ConnectionHelper {
-    
+
     private ConnectionHelper() {
     }
     
     public static void setKeepAliveConnection(Object proxy, boolean keepAlive) {
-        Client client = ClientProxy.getClient(proxy);
-        HTTPConduit hc = (HTTPConduit)client.getConduit();
-        HTTPClientPolicy cp = hc.getClient();
-        cp.setConnection(keepAlive ? ConnectionType.KEEP_ALIVE : ConnectionType.CLOSE);
+        setKeepAliveConnection(proxy, keepAlive, true);
     }
-    
+
+    public static void setKeepAliveConnection(Object proxy, boolean keepAlive, boolean force) {
+        if (force || "HP-UX".equals(System.getProperty("os.name"))
+            || "Windows XP".equals(System.getProperty("os.name"))) {
+            Client client = ClientProxy.getClient(proxy);
+            HTTPConduit hc = (HTTPConduit)client.getConduit();
+            HTTPClientPolicy cp = hc.getClient();
+            cp.setConnection(keepAlive ? ConnectionType.KEEP_ALIVE : ConnectionType.CLOSE);
+        }
+    }
+
     public static boolean isKeepAliveConnection(Object proxy) {
         Client client = ClientProxy.getClient(proxy);
         HTTPConduit hc = (HTTPConduit)client.getConduit();

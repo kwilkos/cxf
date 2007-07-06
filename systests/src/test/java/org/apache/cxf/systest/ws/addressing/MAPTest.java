@@ -37,7 +37,8 @@ public class MAPTest extends MAPTestBase {
     private static final String CONFIG;
     static {
         CONFIG = "org/apache/cxf/systest/ws/addressing/cxf" 
-            + ("HP-UX".equals(System.getProperty("os.name")) ? "-hpux" : "")
+            + (("HP-UX".equals(System.getProperty("os.name"))
+                || "Windows XP".equals(System.getProperty("os.name"))) ? "-hpux" : "")
             + ".xml";
     }
     

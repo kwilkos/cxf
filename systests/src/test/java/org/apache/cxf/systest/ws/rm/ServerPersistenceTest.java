@@ -110,9 +110,7 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
         
         LOG.fine("Created greeter client.");
  
-        if ("HP-UX".equals(System.getProperty("os.name"))) {
-            ConnectionHelper.setKeepAliveConnection(greeter, true);
-        }
+        ConnectionHelper.setKeepAliveConnection(greeter, true);
 
         Client c = ClientProxy.getClient(greeter);
         HTTPConduit hc = (HTTPConduit)(c.getConduit());
