@@ -477,6 +477,8 @@ public class WSDLServiceBuilder {
         if (factory instanceof WSDLBindingFactory) {
             WSDLBindingFactory wFactory = (WSDLBindingFactory)factory;
             bi = wFactory.createBindingInfo(service, binding, ns.toString());
+            copyExtensors(bi, binding.getExtensibilityElements());
+            copyExtensionAttributes(bi, binding);
         }
         if (bi == null) {
             bi = new BindingInfo(service, ns.toString());
