@@ -57,7 +57,6 @@ import org.apache.handler_test.types.PingOneWay;
 import org.apache.handler_test.types.PingResponse;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
@@ -683,7 +682,7 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
                 Boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
                 if (outbound) {
                     throw new RuntimeException(clientHandlerMessage);
-                }   
+                }                                    
                 return true;
             }
         };
@@ -1011,7 +1010,6 @@ public class HandlerInvocationTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    @Ignore("This is not working ,see CXF-731")
     public void testDescription() throws PingException {
         TestHandler<LogicalMessageContext> handler = new TestHandler<LogicalMessageContext>(false) {
             public boolean handleMessage(LogicalMessageContext ctx) {

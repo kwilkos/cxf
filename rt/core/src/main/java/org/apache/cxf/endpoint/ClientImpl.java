@@ -19,6 +19,8 @@
 
 package org.apache.cxf.endpoint;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -450,6 +452,32 @@ public class ClientImpl
         exchange.put(MessageObserver.class, this);
         exchange.put(Retryable.class, this);
         exchange.put(Bus.class, bus);
+
+        if (endpoint != null && boi != null) {
+
+            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+            exchange.put(Message.WSDL_OPERATION, boi.getName());
+
+            QName serviceQName = endpointInfo.getService().getName();
+            exchange.put(Message.WSDL_SERVICE, serviceQName);
+
+            QName interfaceQName = endpointInfo.getService().getInterface().getName();
+            exchange.put(Message.WSDL_INTERFACE, interfaceQName);
+
+            QName portQName = endpointInfo.getName();
+            exchange.put(Message.WSDL_PORT, portQName);
+            URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+            if (wsdlDescription == null) {
+                String address = endpointInfo.getAddress();
+                try {
+                    wsdlDescription = new URI(address + "?wsdl");
+                } catch (URISyntaxException e) {
+                    // do nothing
+                }
+                endpointInfo.setProperty("URI", wsdlDescription);
+            }
+            exchange.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+        }
     }
 
     protected PhaseInterceptorChain setupInterceptorChain(Endpoint endpoint) { 

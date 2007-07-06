@@ -20,6 +20,8 @@
 package org.apache.cxf.jaxws;
 
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.logging.Logger;
 
 import javax.activation.DataSource;
 import javax.xml.bind.JAXBContext;
+import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
@@ -71,6 +74,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.MessageObserver;
 
 public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>, MessageObserver {
@@ -350,6 +354,31 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         
         exchange.put(MessageObserver.class, this);
         exchange.put(Bus.class, bus);
+
+        if (endpoint != null) {
+
+            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+
+            QName serviceQName = endpointInfo.getService().getName();
+            exchange.put(Message.WSDL_SERVICE, serviceQName);
+
+            QName interfaceQName = endpointInfo.getService().getInterface().getName();
+            exchange.put(Message.WSDL_INTERFACE, interfaceQName);
+
+            QName portQName = endpointInfo.getName();
+            exchange.put(Message.WSDL_PORT, portQName);
+            URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+            if (wsdlDescription == null) {
+                String address = endpointInfo.getAddress();
+                try {
+                    wsdlDescription = new URI(address + "?wsdl");
+                } catch (URISyntaxException e) {
+                    // do nothing
+                }
+                endpointInfo.setProperty("URI", wsdlDescription);
+            }
+            exchange.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+        }      
     }
 
 }

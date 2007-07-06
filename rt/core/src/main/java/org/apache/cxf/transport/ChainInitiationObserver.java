@@ -20,6 +20,11 @@
 package org.apache.cxf.transport;
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
@@ -30,6 +35,7 @@ import org.apache.cxf.phase.PhaseChainCache;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.EndpointInfo;
 
 public class ChainInitiationObserver implements MessageObserver {
     protected Endpoint endpoint;
@@ -80,6 +86,30 @@ public class ChainInitiationObserver implements MessageObserver {
         if (exchange.getDestination() == null) {
             exchange.setDestination(m.getDestination());
         }
+        if (endpoint != null) {
+
+            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+
+            QName serviceQName = endpointInfo.getService().getName();
+            exchange.put(Message.WSDL_SERVICE, serviceQName);
+
+            QName interfaceQName = endpointInfo.getService().getInterface().getName();
+            exchange.put(Message.WSDL_INTERFACE, interfaceQName);
+
+            QName portQName = endpointInfo.getName();
+            exchange.put(Message.WSDL_PORT, portQName);
+            URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+            if (wsdlDescription == null) {
+                String address = endpointInfo.getAddress();
+                try {
+                    wsdlDescription = new URI(address + "?wsdl");
+                } catch (URISyntaxException e) {
+                    // do nothing
+                }
+                endpointInfo.setProperty("URI", wsdlDescription);
+            }
+            exchange.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+        }  
     }
 
     public Endpoint getEndpoint() {

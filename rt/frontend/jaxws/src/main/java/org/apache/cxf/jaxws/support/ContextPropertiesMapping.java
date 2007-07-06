@@ -70,7 +70,7 @@ public final class ContextPropertiesMapping {
                          MessageContext.SERVLET_RESPONSE);
         cxf2jaxwsMap.put("HTTP.CONTEXT", 
                          MessageContext.SERVLET_CONTEXT);
-        
+       
         jaxws2cxfMap.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
                          Message.ENDPOINT_ADDRESS);
         jaxws2cxfMap.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, 
@@ -164,6 +164,13 @@ public final class ContextPropertiesMapping {
     }
 
     public static void mapCxf2Jaxws(Exchange exchange, WrappedMessageContext ctx, boolean requestor) {
+
+        ctx.put(Message.WSDL_DESCRIPTION, exchange.get(Message.WSDL_DESCRIPTION));
+        ctx.put(Message.WSDL_INTERFACE, exchange.get(Message.WSDL_INTERFACE));
+        ctx.put(Message.WSDL_OPERATION, exchange.get(Message.WSDL_OPERATION));
+        ctx.put(Message.WSDL_PORT, exchange.get(Message.WSDL_PORT));
+        ctx.put(Message.WSDL_SERVICE, exchange.get(Message.WSDL_SERVICE));
+
         mapCxf2Jaxws(ctx);        
         Message inMessage = exchange.getInMessage();
         Message outMessage = exchange.getOutMessage();
@@ -216,7 +223,6 @@ public final class ContextPropertiesMapping {
             }
         }
 
-       
     }
     
     private static void addMessageAttachments(WrappedMessageContext ctx,

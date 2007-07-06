@@ -74,9 +74,14 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
 
         boolean continueProcessing = true; 
 
+        if (!isValidWsdlDescription(ctx.get(MessageContext.WSDL_DESCRIPTION))) {
+            throw new RuntimeException("can't find WsdlDescription throws RuntimeException");
+        }
+        
         try {
             methodCalled("handleMessage"); 
             printHandlerInfo("handleMessage", isOutbound(ctx));
+
             Object b  = ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             boolean outbound = (Boolean)b;
             SOAPMessage msg = ctx.getMessage();
@@ -258,5 +263,10 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
 
     public String toString() { 
         return getHandlerId();
-    } 
+    }
+    
+    private boolean isValidWsdlDescription(Object wsdlDescription) {
+        return (wsdlDescription != null)
+               && ((wsdlDescription instanceof java.net.URI) || (wsdlDescription instanceof java.net.URL));
+    }
 }
