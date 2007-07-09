@@ -168,6 +168,12 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                 hdr, 
                                 marshaller);
                 encodeAsExposed(maps.getNamespaceURI(),
+                                maps.getFrom(), 
+                                Names.WSA_FROM_NAME,
+                                EndpointReferenceType.class,  
+                                hdr, 
+                                marshaller);
+                encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getReplyTo(), 
                                 Names.WSA_REPLYTO_NAME, 
                                 EndpointReferenceType.class,

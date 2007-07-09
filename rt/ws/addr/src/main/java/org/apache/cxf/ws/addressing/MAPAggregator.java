@@ -386,7 +386,11 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                         replyTo = backChannel.getAddress();
                     }
                 }
-                if (replyTo == null || isOneway) {
+                if (replyTo == null
+                    || (isOneway
+                        && (replyTo.getAddress() == null
+                            || !Names.WSA_NONE_ADDRESS.equals(
+                                    replyTo.getAddress().getValue())))) {
                     AttributedURIType address =
                         ContextUtils.getAttributedURI(isOneway
                                                       ? Names.WSA_NONE_ADDRESS
@@ -397,8 +401,12 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 }
                 maps.setReplyTo(replyTo);
             }
-            if (!isOneway) {
-                // REVISIT FaultTo if cached by transport in message
+
+            // FaultTo
+            if (maps.getFaultTo() == null) {
+                maps.setFaultTo(maps.getReplyTo());
+            } else if (maps.getFaultTo().getAddress() == null) {
+                maps.setFaultTo(null);
             }
         } else {
             // add response-specific MAPs

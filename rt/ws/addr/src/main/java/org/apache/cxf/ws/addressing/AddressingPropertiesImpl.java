@@ -24,6 +24,7 @@ package org.apache.cxf.ws.addressing;
  */
 public class AddressingPropertiesImpl implements AddressingProperties {
     private EndpointReferenceType to;
+    private EndpointReferenceType from;
     private AttributedURIType messageID;
     private EndpointReferenceType replyTo;
     private EndpointReferenceType faultTo;
@@ -65,6 +66,22 @@ public class AddressingPropertiesImpl implements AddressingProperties {
      */
     public void setTo(EndpointReferenceType epr) {
         to = epr;
+    }
+
+    /**
+     * Accessor for the <b>From</b> property.
+     * @return current value of From property
+     */
+    public EndpointReferenceType getFrom() {
+        return from;
+    }
+
+    /**
+     * Mutator for the <b>From</b> property.
+     * @param epr new value for From property
+     */
+    public void setFrom(EndpointReferenceType epr) {
+        from = epr;
     }
 
     /**

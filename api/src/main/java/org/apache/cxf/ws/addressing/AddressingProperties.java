@@ -43,6 +43,18 @@ public interface AddressingProperties extends AddressingType {
     void setTo(EndpointReferenceType epr);
 
     /**
+     * Accessor for the <b>From</b> property.
+     * @return current value of From property
+     */
+    EndpointReferenceType getFrom();
+
+    /**
+     * Mutator for the <b>From</b> property.
+     * @param epr new value for From property
+     */
+    void setFrom(EndpointReferenceType epr);
+
+    /**
      * Accessor for the <b>MessageID</b> property.
      * @return current value of MessageID property
      */
