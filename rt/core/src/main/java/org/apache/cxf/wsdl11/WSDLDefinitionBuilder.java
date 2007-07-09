@@ -119,7 +119,8 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         } catch (Exception we) {
             Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION",
                                       LOG, 
-                                      wsdlURL);
+                                      wsdlURL,
+                                      we.getMessage());
             throw new RuntimeException(msg.toString(), we);
         }
     }
