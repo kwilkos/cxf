@@ -222,6 +222,19 @@
                 </associatedArgument>
                 <switch>wsdlLocation</switch>
             </option>
+            
+            <option id="xjc" maxOccurs="1">
+                <annotation>
+                    Comma separated arguments that are passed directly to XJC when the
+                    default databinding of JAXB is used. Using this option, it is possible
+                    to cause XJC to load additional plugins that can augment code generation.
+                </annotation>
+                <associatedArgument placement="immediate">
+                    <annotation>xjc arguments</annotation>
+                </associatedArgument>
+                <switch>xjc</switch>
+            </option>
+            
         </optionGroup>
         <optionGroup id="common_options">
             <option id="help" maxOccurs="1">

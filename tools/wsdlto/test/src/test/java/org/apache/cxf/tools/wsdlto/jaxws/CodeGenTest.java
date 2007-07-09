@@ -366,6 +366,38 @@ public class CodeGenTest extends ProcessorTestBase {
 
     }
 
+    
+    @Test
+    public void testHelloWorldWithDummyPlugin() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+        
+        // verify passing space seperated xjc args direct to xjc will load, 
+        // configure and invoke an xjc plugin
+        env.put(ToolConstants.CFG_XJC_ARGS, "-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN 
+                + ",-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN  + ":arg");
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
+        assertTrue(helloworldsoaphttp.exists());
+        File types = new File(helloworldsoaphttp, "types");
+        assertTrue(types.exists());
+        File[] files = helloworldsoaphttp.listFiles();
+        assertEquals(7, files.length);
+        files = types.listFiles();
+        assertEquals(17, files.length);
+
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
+        Method method = clz.getMethod("dummy", new Class[] {});
+        assertTrue("method declared on SayHi", method.getDeclaringClass().equals(clz));
+    }
+
     @Test
     public void testDocLitHolder() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/mapping-doc-literal.wsdl"));

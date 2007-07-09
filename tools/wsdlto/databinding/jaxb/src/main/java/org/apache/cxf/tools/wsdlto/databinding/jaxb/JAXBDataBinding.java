@@ -20,10 +20,14 @@ package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.XMLConstants;
@@ -42,6 +46,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.sun.codemodel.JCodeModel;
+import com.sun.tools.xjc.BadCommandLineException;
+import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.api.Mapping;
 import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
@@ -120,9 +126,44 @@ public class JAXBDataBinding implements DataBindingProfile {
         }  
         
 
+        if (context.get(ToolConstants.CFG_XJC_ARGS) != null) {
+            String xjcArgs = (String)context.get(ToolConstants.CFG_XJC_ARGS);
+            Vector<String> args = new Vector<String>();
+            StringTokenizer tokenizer = new StringTokenizer(xjcArgs, ",", false);
+            while (tokenizer.hasMoreTokens()) {
+                String arg = tokenizer.nextToken();
+                args.add(arg);
+                LOG.log(Level.FINE, "xjc arg:" + arg);
+            }
+            try {
+                Options opts = getOptions(schemaCompiler);
+                // keep parseArguments happy, supply dummy required command-line opts
+                opts.addGrammar(new InputSource("null"));
+                opts.parseArguments(args.toArray(new String[]{}));
+            } catch (BadCommandLineException e) {
+                String msg = "XJC reported 'BadParameterException' for -xjc argument:" + xjcArgs;
+                LOG.log(Level.SEVERE, msg, e);
+                throw new ToolException(msg, e);
+            }
+        }
+
         rawJaxbModelGenCode = schemaCompiler.bind();
 
         addedEnumClassToCollector(schemaLists, allocator);
+    }
+
+    // TODO  this can be repaced with schemaCompiler.getOptions() once we
+    // move to a version => 2.0.3 for jaxb-xjc
+    private Options getOptions(SchemaCompilerImpl schemaCompiler) throws ToolException {
+        try {
+            Field delegateField = schemaCompiler.getClass().getDeclaredField("opts");
+            delegateField.setAccessible(true);
+            return (Options)delegateField.get(schemaCompiler);
+        } catch (Exception e) {
+            String msg = "Failed to access 'opts' field of XJC SchemaCompilerImpl, reason:" + e;
+            LOG.log(Level.SEVERE, msg, e);
+            throw new ToolException(msg, e);
+        }
     }
 
     // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
@@ -172,7 +213,6 @@ public class JAXBDataBinding implements DataBindingProfile {
 
             if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-                // TODO : enable jaxb plugin
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
 
                 if (!isSuppressCodeGen()) {
