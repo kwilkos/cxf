@@ -22,7 +22,7 @@ package org.apache.cxf.tools.common;
 import javax.xml.namespace.QName;
 
 public final class ToolConstants {
-
+        
     //public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/common/toolspec/toolspecs/";
     public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/";
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
@@ -54,6 +54,8 @@ public final class ToolConstants {
     public static final String CFG_EXTRA_SOAPHEADER = "exsoapheader";
     public static final String CFG_DEFAULT_NS = "defaultns";
     public static final String CFG_DEFAULT_EX = "defaultex";
+    public static final String CFG_XJC_ARGS = "xjc";
+    
 
     public static final String CFG_VALIDATE_WSDL = "validate";
     public static final String CFG_CREATE_XSD_IMPORTS = "createxsdimports";
