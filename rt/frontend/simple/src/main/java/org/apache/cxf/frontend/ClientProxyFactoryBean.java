@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.feature.AbstractFeature;
@@ -54,6 +55,7 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     private Map<String, Object> properties;
     private Bus bus;
     private List<AbstractFeature> features;
+    private DataBinding dataBinding;
     
     public ClientProxyFactoryBean() {
         super();
@@ -79,6 +81,10 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
             clientFactoryBean.setBus(bus);
         }
 
+        if (dataBinding != null) {
+            clientFactoryBean.setDataBinding(dataBinding);
+        }
+        
         Client c = clientFactoryBean.create();
         if (getInInterceptors() != null) {
             c.getInInterceptors().addAll(getInInterceptors());
@@ -216,6 +222,14 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
 
     public void setFeatures(List<AbstractFeature> features) {
         this.features = features;
+    }
+
+    public DataBinding getDataBinding() {
+        return dataBinding;
+    }
+
+    public void setDataBinding(DataBinding dataBinding) {
+        this.dataBinding = dataBinding;
     }
     
 }

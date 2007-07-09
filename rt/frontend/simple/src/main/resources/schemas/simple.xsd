@@ -37,6 +37,7 @@
       <xsd:extension base="beans:identifiedType">
         <xsd:all>
           <xsd:element name="binding" type="xsd:anyType" minOccurs="0"/>
+          <xsd:element name="dataBinding" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="executor" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="features" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="implementor" type="xsd:anyType" minOccurs="0"/>
@@ -46,6 +47,7 @@
           <xsd:element name="outInterceptors" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="outFaultInterceptors" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="properties" type="beans:mapType" minOccurs="0"/>
+          <xsd:element name="schemaLocations" type="schemasType" minOccurs="0"/>
           <xsd:element name="serviceBean" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="serviceFactory" type="xsd:anyType" minOccurs="0"/>
         </xsd:all>
@@ -69,6 +71,7 @@
         <xsd:all>
           <xsd:element name="binding" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="conduitSelector" type="xsd:anyType" minOccurs="0"/>
+          <xsd:element name="dataBinding" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="features" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="inInterceptors" type="xsd:anyType" minOccurs="0"/>
           <xsd:element name="inFaultInterceptors" type="xsd:anyType" minOccurs="0"/>
@@ -89,4 +92,11 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+  
+  <xsd:complexType name="schemasType">
+    <xsd:sequence>
+      <xsd:element name="schemaLocation" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  
 </xsd:schema>

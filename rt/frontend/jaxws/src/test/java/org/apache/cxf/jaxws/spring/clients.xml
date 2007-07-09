@@ -56,6 +56,9 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <jaxws:conduitSelector>
       <bean class="org.apache.cxf.endpoint.NullConduitSelector"/>
     </jaxws:conduitSelector>
+    <jaxws:dataBinding>
+      <bean class="org.apache.cxf.databinding.source.SourceDataBinding"/>
+    </jaxws:dataBinding>
   </jaxws:client>
     
 <!--

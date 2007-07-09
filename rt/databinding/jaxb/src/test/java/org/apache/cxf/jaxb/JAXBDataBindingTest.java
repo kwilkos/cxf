@@ -21,11 +21,9 @@ package org.apache.cxf.jaxb;
 
 
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -52,8 +50,6 @@ import org.apache.cxf.jaxb.io.DataReaderImpl;
 import org.apache.cxf.jaxb.io.DataWriterImpl;
 import org.apache.cxf.jaxb_misc.ObjectFactory;
 import org.apache.cxf.jaxb_misc.TestJAXBClass;
-import org.apache.cxf.service.model.SchemaInfo;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.hello_world.types.GreetMe;
@@ -69,17 +65,13 @@ public class JAXBDataBindingTest extends Assert {
 
     private static final Logger LOG = Logger.getLogger(JAXBDataBindingTest.class.getName());
     private static final String WSDL_PATH = "/wsdl/hello_world.wsdl";
-    private static final String SCHEMA1 = "/schemas/wsdl/wsdl.xsd";
-    private static final String SCHEMA2 = "/schema/jms.xsd";
     private Definition def;
     private Service service;
-    private ServiceInfo serviceInfo;
 
     private IMocksControl control;
     private Bus bus;
     private BindingFactoryManager bindingFactoryManager;
     private JAXBDataBinding jaxbDataBinding;
-    private Map<String, SchemaInfo> schemaMap;
     private DestinationFactoryManager destinationFactoryManager;
 
     @Before
@@ -112,16 +104,7 @@ public class JAXBDataBindingTest extends Assert {
             }
         }
         
-        serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
-        List<String> schemas = new ArrayList<String>();
-
-        String schema1 = getClass().getResource(SCHEMA1).toString();
-        String schema2 = getClass().getResource(SCHEMA2).toString();
-        schemas.add(schema1);
-        schemas.add(schema2);
-                
-        serviceInfo.setProperty(JAXBDataBinding.SCHEMA_RESOURCE, schemas);
-        schemaMap = jaxbDataBinding.getSchemas(serviceInfo);
+        wsdlServiceBuilder.buildServices(def, service);
     }
 
     @After
@@ -129,19 +112,6 @@ public class JAXBDataBindingTest extends Assert {
 
     }
 
-    @Test
-    public void testGetSchemas() throws Exception {
-        assertEquals(schemaMap.size(), 2);
-        assertTrue(schemaMap.containsKey("http://schemas.xmlsoap.org/wsdl/"));
-        assertTrue(schemaMap.containsKey("http://cxf.apache.org/transports/jms"));
-        SchemaInfo wsdlSchema = schemaMap.get("http://schemas.xmlsoap.org/wsdl/");
-        SchemaInfo jmsSchema = schemaMap.get("http://cxf.apache.org/transports/jms");
-        assertNotNull(wsdlSchema.getElement());
-        assertNotNull(jmsSchema.getElement());
-        assertEquals(wsdlSchema.getNamespaceURI(), "http://schemas.xmlsoap.org/wsdl/");
-        assertEquals(jmsSchema.getNamespaceURI(), "http://cxf.apache.org/transports/jms");
-    }
-    
     @Test
     public void testCreateJAXBContext() throws Exception {
         try {

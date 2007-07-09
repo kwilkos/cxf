@@ -29,6 +29,7 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
+import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.NullConduitSelector;
 import org.apache.cxf.frontend.ClientProxy;
@@ -136,6 +137,8 @@ public class SpringBeansTest extends Assert {
         assertTrue(bc instanceof SoapBindingConfiguration);
         SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
         assertTrue(sbc.getVersion() instanceof Soap12);
+        
+        bean = (JaxWsServerFactoryBean) ctx.getBean("inlineDataBinding");
     }
     
 
@@ -179,5 +182,7 @@ public class SpringBeansTest extends Assert {
         }
         assertTrue(saaj);
         assertTrue(logging);
+        
+        assertTrue(client.getEndpoint().getService().getDataBinding() instanceof SourceDataBinding);
     }
 }

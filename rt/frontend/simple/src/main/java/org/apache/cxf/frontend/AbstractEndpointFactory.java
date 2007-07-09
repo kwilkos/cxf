@@ -35,6 +35,7 @@ import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -61,6 +62,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private String transportId;
     private String bindingId;
     private Class serviceClass;
+    private DataBinding dataBinding;
     private BindingFactory bindingFactory;
     private DestinationFactory destinationFactory;
     private ReflectionServiceFactoryBean serviceFactory;
@@ -75,10 +77,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         Service service = serviceFactory.getService();
         
         if (service == null) {
-            Class cls = getServiceClass();
-
-            serviceFactory.setServiceClass(cls);
-            serviceFactory.setBus(getBus());
+            initializeServiceFactory();
             service = serviceFactory.create();
         }
         
@@ -142,6 +141,16 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             ep.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
         }
         return ep;
+    }
+
+    protected void initializeServiceFactory() {
+        Class cls = getServiceClass();
+
+        serviceFactory.setServiceClass(cls);
+        serviceFactory.setBus(getBus());
+        if (dataBinding != null) {
+            serviceFactory.setDataBinding(dataBinding);
+        }
     }
 
     protected EndpointInfo createEndpointInfo() throws BusException {
@@ -369,4 +378,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     public void setConduitSelector(ConduitSelector selector) {
         conduitSelector = selector;
     }
+
+    public DataBinding getDataBinding() {
+        return dataBinding;
+    }
+
+    public void setDataBinding(DataBinding dataBinding) {
+        this.dataBinding = dataBinding;
+    }
+
+    
 }
