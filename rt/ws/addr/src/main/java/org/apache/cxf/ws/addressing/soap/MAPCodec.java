@@ -141,7 +141,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @param maps the MAPs to encode
      */
     private void encode(SoapMessage message, 
-                        AddressingProperties maps) {
+                        AddressingPropertiesImpl maps) {
         if (maps != null) { 
             cacheExchange(message, maps);
             LOG.log(Level.INFO, "Outbound WS-Addressing headers");
@@ -154,103 +154,116 @@ public class MAPCodec extends AbstractSoapInterceptor {
                     VersionTransformer.getExposedJAXBContext(
                                                      maps.getNamespaceURI());
                 Marshaller marshaller = jaxbContext.createMarshaller();
-                QName duplicate = 
-                    ((AddressingPropertiesImpl)maps).getDuplicate();
+                QName duplicate = maps.getDuplicate();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getMessageID(), 
-                                Names.WSA_MESSAGEID_NAME,
+                                Names.WSA_MESSAGEID_QNAME,
                                 AttributedURIType.class, 
                                 hdr, 
                                 marshaller);
                 if (Names.WSA_MESSAGEID_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getMessageID(), 
-                                    Names.WSA_MESSAGEID_NAME,
+                                    Names.WSA_MESSAGEID_QNAME,
                                     AttributedURIType.class, 
                                     hdr, 
                                     marshaller);
                 }
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getTo(), 
-                                Names.WSA_TO_NAME,
+                                Names.WSA_TO_QNAME,
                                 AttributedURIType.class,  
                                 hdr, 
                                 marshaller);
                 if (Names.WSA_TO_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getTo(), 
-                                    Names.WSA_TO_NAME,
+                                    Names.WSA_TO_QNAME,
                                     AttributedURIType.class,  
                                     hdr, 
                                     marshaller);
                 }
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getFrom(), 
-                                Names.WSA_FROM_NAME,
+                                Names.WSA_FROM_QNAME,
                                 EndpointReferenceType.class,  
                                 hdr, 
                                 marshaller);
                 if (Names.WSA_FROM_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getFrom(), 
-                                    Names.WSA_FROM_NAME,
+                                    Names.WSA_FROM_QNAME,
                                     EndpointReferenceType.class,  
                                     hdr, 
                                     marshaller);
                 }
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getReplyTo(), 
-                                Names.WSA_REPLYTO_NAME, 
+                                Names.WSA_REPLYTO_QNAME, 
                                 EndpointReferenceType.class,
                                 hdr,
                                 marshaller);
                 if (Names.WSA_REPLYTO_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getReplyTo(), 
-                                    Names.WSA_REPLYTO_NAME, 
+                                    Names.WSA_REPLYTO_QNAME, 
                                     EndpointReferenceType.class,
                                     hdr,
                                     marshaller);
                 }
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getFaultTo(), 
-                                Names.WSA_FAULTTO_NAME, 
+                                Names.WSA_FAULTTO_QNAME, 
                                 EndpointReferenceType.class,
                                 hdr,
                                 marshaller);
                 if (Names.WSA_FAULTTO_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getFaultTo(), 
-                                    Names.WSA_FAULTTO_NAME, 
+                                    Names.WSA_FAULTTO_QNAME, 
                                     EndpointReferenceType.class,
                                     hdr,
                                     marshaller);
                 }
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getRelatesTo(),
-                                Names.WSA_RELATESTO_NAME,
+                                Names.WSA_RELATESTO_QNAME,
                                 RelatesToType.class,
                                 hdr,
                                 marshaller);
                 if (Names.WSA_RELATESTO_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getRelatesTo(),
-                                    Names.WSA_RELATESTO_NAME,
+                                    Names.WSA_RELATESTO_QNAME,
                                     RelatesToType.class,
                                     hdr,
                                     marshaller);
                 }
-                encodeAsExposed(maps.getNamespaceURI(),
+                encodeAsExposed(maps,
+                                message,
                                 maps.getAction(), 
-                                Names.WSA_ACTION_NAME,
+                                Names.WSA_ACTION_QNAME,
                                 AttributedURIType.class, 
                                 hdr, 
                                 marshaller);
                 if (Names.WSA_ACTION_QNAME.equals(duplicate)) {
-                    encodeAsExposed(maps.getNamespaceURI(),
+                    encodeAsExposed(maps,
+                                    message,
                                     maps.getAction(), 
-                                    Names.WSA_ACTION_NAME,
+                                    Names.WSA_ACTION_QNAME,
                                     AttributedURIType.class, 
                                     hdr, 
                                     marshaller);
@@ -335,34 +348,55 @@ public class MAPCodec extends AbstractSoapInterceptor {
         isRefParamAttr.setTextContent("1");
         lastAdded.setAttributeNodeNS(isRefParamAttr);
     }
+
+    private void addMustUnderstandAttribute(Element header,
+                                            QName name,
+                                            SoapVersion version,
+                                            AddressingPropertiesImpl maps) {
+        if (maps.getMustUnderstand().contains(name)) {
+            Element lastAdded = (Element)header.getLastChild();
+            Attr mustUnderstandAttr = 
+                lastAdded.getOwnerDocument().createAttributeNS(
+                    version.getNamespace(),
+                    version.getPrefix() + ":mustUnderstand");
+            mustUnderstandAttr.setTextContent("1");
+            lastAdded.setAttributeNodeNS(mustUnderstandAttr);
+        }
+    }
     
     /**
      * Encode message in exposed version.
      * 
-     * @param exposeAs specifies the WS-Addressing version to expose
+     * @param maps the MAPs, where getNamespceURI() specifies the WS-Addressing
+     *  version to expose
      * @param value the value to encode
-     * @param localName the localName for the header 
+     * @param name the QName for the header 
      * @param clz the class
      * @param header the SOAP header element
      * @param marshaller the JAXB marshaller to use
      */
-    private <T> void encodeAsExposed(String exposeAs,
+    private <T> void encodeAsExposed(AddressingPropertiesImpl maps,
+                                     SoapMessage message,
                                      T value,
-                                     String localName,
+                                     QName name,
                                      Class<T> clz,
                                      Element header,
                                      Marshaller marshaller) throws JAXBException {
         if (value != null) {
             LOG.log(Level.INFO,
                     "{0} : {1}",
-                    new Object[] {localName, getLogText(value)});
-            transformer.encodeAsExposed(exposeAs,
+                    new Object[] {name.getLocalPart(), getLogText(value)});
+            transformer.encodeAsExposed(maps.getNamespaceURI(),
                                         value,
-                                        localName,
+                                        name.getLocalPart(),
                                         clz,
                                         header,
                                         marshaller);
         }
+        addMustUnderstandAttribute(header,
+                                   name,
+                                   message.getVersion(),
+                                   maps);
     }
     
     /**

@@ -19,6 +19,10 @@
 
 package org.apache.cxf.ws.addressing;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 import javax.xml.namespace.QName;
 
 /**
@@ -34,6 +38,7 @@ public class AddressingPropertiesImpl implements AddressingProperties {
     private AttributedURIType action;
     private String namespaceURI;
     private QName duplicate;
+    private List<QName> mustUnderstand;
 
     /**
      * Constructor, defaults to 2005/08 namespace.
@@ -192,6 +197,13 @@ public class AddressingPropertiesImpl implements AddressingProperties {
 
     public QName getDuplicate() {
         return duplicate;
+    }
+
+    public List<QName> getMustUnderstand() {
+        if (mustUnderstand == null) {
+            mustUnderstand = new ArrayList<QName>();
+        }
+        return mustUnderstand;
     }
 
     public String toString() {
