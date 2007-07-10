@@ -30,6 +30,7 @@ import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
@@ -159,6 +160,11 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
             addAcknowledgements(destination, rmpsOut, inSeqId, to);
+            if (isPartialResponse && rmpsOut.getAcks() != null && rmpsOut.getAcks().size() > 0) {
+                AttributedURIType actionURI = new AttributedURIType();
+                actionURI.setValue(RMConstants.getSequenceAcknowledgmentAction());
+                maps.setAction(actionURI);
+            }
         } 
         
         if (RMConstants.getSequenceAckAction().equals(action)

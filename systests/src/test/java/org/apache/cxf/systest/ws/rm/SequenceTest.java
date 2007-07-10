@@ -201,7 +201,10 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         // createSequenceResponse plus 3 partial responses
         
         mf.verifyMessages(4, false);
-        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), null, null, null};
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction()};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
@@ -240,7 +243,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
 
         mf.verifyMessages(4, false);
         expectedActions = 
-            new String[] {RMConstants.getCreateSequenceResponseAction(), null, null, null};
+            new String[] {RMConstants.getCreateSequenceResponseAction(), null, null, 
+                          RMConstants.getSequenceAcknowledgmentAction()};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
@@ -334,9 +338,9 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         mf.verifyMessages(6, false);
 
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
-                                        null, null,
+                                        RMConstants.getSequenceAcknowledgmentAction(), null,
                                         RMConstants.getCreateSequenceResponseAction(), 
-                                        null, null};
+                                        RMConstants.getSequenceAcknowledgmentAction(), null};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
         mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
@@ -854,7 +858,10 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         
         mf.verifyMessages(5, false);
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
-                                        null, null, null, null};
+                                        RMConstants.getSequenceAcknowledgmentAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction()};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true, true}, false);
@@ -1057,8 +1064,10 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
                 // createSequenceResponse plus 3 partial responses
 
                 mf.verifyMessages(4, false);
-                expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), null, null,
-                                                null};
+                expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                                RMConstants.getSequenceAcknowledgmentAction(),
+                                                RMConstants.getSequenceAcknowledgmentAction(),
+                                                RMConstants.getSequenceAcknowledgmentAction()};
                 mf.verifyActions(expectedActions, false);
                 mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
                 mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);

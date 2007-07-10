@@ -175,11 +175,11 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
 
         mf.verifyMessages(3, false);
-        mf.verifyPartialResponses(2);
-        mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);        
-        mf.purgePartialResponses();
-        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction(),
+                                        RMConstants.getSequenceAcknowledgmentAction()};
         mf.verifyActions(expectedActions, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true}, false);        
     }
     
     void verifyStorePopulation() {
