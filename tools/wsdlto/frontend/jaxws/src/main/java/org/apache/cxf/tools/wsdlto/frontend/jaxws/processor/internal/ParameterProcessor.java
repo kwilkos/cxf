@@ -23,10 +23,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.wsdl.OperationType;
 import javax.xml.namespace.QName;
 
+
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessageInfo;
@@ -140,7 +143,7 @@ public class ParameterProcessor extends AbstractProcessor {
             try {
                 Class.forName("org.apache.cxf.binding.soap.SoapBindingFactory");
             } catch (Exception e) {
-                LOG.log(Level.WARNING, new Message("SOAP_MISSING", LOG));
+                LOG.log(Level.WARNING, new Message("SOAP_MISSING", LOG).toString());
             }
         }
 
