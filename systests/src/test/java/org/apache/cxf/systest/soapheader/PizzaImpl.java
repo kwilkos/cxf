@@ -19,16 +19,22 @@
 
 package org.apache.cxf.systest.soapheader;
 
-import com.mypizzaco.pizza.PizzaPortType;
-import com.mypizzaco.pizza.types.CallerIDHeaderType;
-import com.mypizzaco.pizza.types.OrderPizzaResponseType;
-import com.mypizzaco.pizza.types.OrderPizzaType;
+import org.apache.cxf.pizza.Pizza;
+import org.apache.cxf.pizza.types.CallerIDHeaderType;
+import org.apache.cxf.pizza.types.OrderPizzaResponseType;
+import org.apache.cxf.pizza.types.OrderPizzaType;
 
-public class PizzaImpl implements PizzaPortType {
+public class PizzaImpl implements Pizza {
 
     public OrderPizzaResponseType orderPizza(OrderPizzaType body, CallerIDHeaderType callerID) {
         OrderPizzaResponseType resp = new OrderPizzaResponseType();
         resp.setMinutesUntilReady(100 + Integer.parseInt(callerID.getPhoneNumber()));
+        return resp;
+    }
+
+    public OrderPizzaResponseType orderPizza(OrderPizzaType body) {
+        OrderPizzaResponseType resp = new OrderPizzaResponseType();
+        resp.setMinutesUntilReady(108);
         return resp;
     }
 }

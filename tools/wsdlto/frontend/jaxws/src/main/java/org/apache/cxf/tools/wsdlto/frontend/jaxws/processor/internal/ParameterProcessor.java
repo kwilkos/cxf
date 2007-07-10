@@ -99,6 +99,9 @@ public class ParameterProcessor extends AbstractProcessor {
     }
 
     private JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
+        if (parameter == null) {
+            return null;
+        }
         parameter.setMethod(method);
         parameter.annotate(new WebParamAnnotator());
         method.addParameter(parameter);
@@ -133,10 +136,20 @@ public class ParameterProcessor extends AbstractProcessor {
 
     @SuppressWarnings("unchecked")
     private void processInput(JavaMethod method, MessageInfo inputMessage) throws ToolException {
+        if (requireOutOfBandHeader()) {
+            try {
+                Class.forName("org.apache.cxf.binding.soap.SoapBindingFactory");
+            } catch (Exception e) {
+                System.err.println("## WARNING: Can not find the soap binding in your classpath\n"
+                                   + "  Will not generate the extra parameter.");
+            }
+        }
+
         for (MessagePartInfo part : inputMessage.getMessageParts()) {
             if (isOutOfBandHeader(part) && !requireOutOfBandHeader()) {
                 continue;
             }
+
             addParameter(method, getParameterFromPart(part, JavaType.Style.IN));
         }
     }

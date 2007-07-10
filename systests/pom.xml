@@ -41,6 +41,15 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
+                <!-- this dependency seems only work in the systest module, not work in the top level-->
+                <dependencies>
+                  <dependency>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-rt-bindings-soap</artifactId>
+                    <version>${project.version}</version>
+                  </dependency>
+                </dependencies>
+
                 <executions>
                     <execution>
                         <id>generate-test-sources</id>
@@ -51,13 +60,11 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/test/resources/wsdl/pizza_service.wsdl</wsdl>
                                     <!--
-                                        By default CXF will generate the extra header (a.k.a out of band header) parameter
-                                    -->
-                                    <!--
-                                        <extraargs>
-                                        <extraarg>-exsh</extraarg>
-                                        <extraarg>true</extraarg>
-                                        </extraargs>
+                                    <extraargs>
+                                      <extraarg>-exsh</extraarg>
+                                      <extraarg>true</extraarg>
+                                      <extraarg>-V</extraarg>
+                                    </extraargs>
                                     -->
                                 </wsdlOption>
                             </wsdlOptions>
@@ -67,13 +74,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-                  <dependency>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-rt-bindings-soap</artifactId>
-                    <version>${project.version}</version>
-                  </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>

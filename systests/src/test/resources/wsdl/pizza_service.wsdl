@@ -19,15 +19,15 @@ under the License.
 -->
   <wsdl:definitions
       name="PizzaService"
-      targetNamespace="http://mypizzaco.com/pizza"
-      xmlns:tns="http://mypizzaco.com/pizza"
-      xmlns:types="http://mypizzaco.com/pizza/types"
+      targetNamespace="http://cxf.apache.org/pizza"
+      xmlns:tns="http://cxf.apache.org/pizza"
+      xmlns:types="http://cxf.apache.org/pizza/types"
       xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
       xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
 
     <wsdl:types>
-      <xsd:schema targetNamespace="http://mypizzaco.com/pizza/types"
-                  xmlns:tns="http://mypizzaco.com/pizza/types"
+      <xsd:schema targetNamespace="http://cxf.apache.org/pizza/types"
+                  xmlns:tns="http://cxf.apache.org/pizza/types"
                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                   elementFormDefault="qualified"
                   version="1.0">
@@ -65,7 +65,7 @@ under the License.
       </xsd:schema>
     </wsdl:types>
 
-    <wsdl:portType name="PizzaPortType">
+    <wsdl:portType name="Pizza">
       <wsdl:operation name="OrderPizza">
         <wsdl:input message="tns:OrderPizzaRequest" />
         <wsdl:output message="tns:OrderPizzaResponse" />
@@ -83,7 +83,7 @@ under the License.
       <wsdl:part name="body" element="types:OrderResponse"/>
     </wsdl:message>
 
-  <wsdl:binding name="PizzaPortBinding" type="tns:PizzaPortType">
+  <wsdl:binding name="PizzaPortBinding" type="tns:Pizza">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
     <wsdl:operation name="OrderPizza">
       <soap:operation soapAction=""/>
@@ -102,5 +102,4 @@ under the License.
       <soap:address location="http://localhost:9013/pizza_service/services/PizzaService"/>
     </wsdl:port>
   </wsdl:service>
-
 </wsdl:definitions>
