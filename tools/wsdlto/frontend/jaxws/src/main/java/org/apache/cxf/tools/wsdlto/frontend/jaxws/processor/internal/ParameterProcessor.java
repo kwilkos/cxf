@@ -140,8 +140,7 @@ public class ParameterProcessor extends AbstractProcessor {
             try {
                 Class.forName("org.apache.cxf.binding.soap.SoapBindingFactory");
             } catch (Exception e) {
-                System.err.println("## WARNING: Can not find the soap binding in your classpath\n"
-                                   + "  Will not generate the extra parameter.");
+                LOG.log(Level.WARNING, new Message("SOAP_MISSING", LOG));
             }
         }
 
