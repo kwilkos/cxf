@@ -154,6 +154,8 @@ public class MAPCodec extends AbstractSoapInterceptor {
                     VersionTransformer.getExposedJAXBContext(
                                                      maps.getNamespaceURI());
                 Marshaller marshaller = jaxbContext.createMarshaller();
+                QName duplicate = 
+                    ((AddressingPropertiesImpl)maps).getDuplicate();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getMessageID(), 
@@ -161,42 +163,98 @@ public class MAPCodec extends AbstractSoapInterceptor {
                                 AttributedURIType.class, 
                                 hdr, 
                                 marshaller);
+                if (Names.WSA_MESSAGEID_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getMessageID(), 
+                                    Names.WSA_MESSAGEID_NAME,
+                                    AttributedURIType.class, 
+                                    hdr, 
+                                    marshaller);
+                }
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getTo(), 
                                 Names.WSA_TO_NAME,
                                 AttributedURIType.class,  
                                 hdr, 
                                 marshaller);
+                if (Names.WSA_TO_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getTo(), 
+                                    Names.WSA_TO_NAME,
+                                    AttributedURIType.class,  
+                                    hdr, 
+                                    marshaller);
+                }
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getFrom(), 
                                 Names.WSA_FROM_NAME,
                                 EndpointReferenceType.class,  
                                 hdr, 
                                 marshaller);
+                if (Names.WSA_FROM_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getFrom(), 
+                                    Names.WSA_FROM_NAME,
+                                    EndpointReferenceType.class,  
+                                    hdr, 
+                                    marshaller);
+                }
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getReplyTo(), 
                                 Names.WSA_REPLYTO_NAME, 
                                 EndpointReferenceType.class,
                                 hdr,
                                 marshaller);
+                if (Names.WSA_REPLYTO_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getReplyTo(), 
+                                    Names.WSA_REPLYTO_NAME, 
+                                    EndpointReferenceType.class,
+                                    hdr,
+                                    marshaller);
+                }
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getFaultTo(), 
                                 Names.WSA_FAULTTO_NAME, 
                                 EndpointReferenceType.class,
                                 hdr,
                                 marshaller);
+                if (Names.WSA_FAULTTO_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getFaultTo(), 
+                                    Names.WSA_FAULTTO_NAME, 
+                                    EndpointReferenceType.class,
+                                    hdr,
+                                    marshaller);
+                }
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getRelatesTo(),
                                 Names.WSA_RELATESTO_NAME,
                                 RelatesToType.class,
                                 hdr,
                                 marshaller);
+                if (Names.WSA_RELATESTO_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getRelatesTo(),
+                                    Names.WSA_RELATESTO_NAME,
+                                    RelatesToType.class,
+                                    hdr,
+                                    marshaller);
+                }
                 encodeAsExposed(maps.getNamespaceURI(),
                                 maps.getAction(), 
                                 Names.WSA_ACTION_NAME,
                                 AttributedURIType.class, 
                                 hdr, 
                                 marshaller);
+                if (Names.WSA_ACTION_QNAME.equals(duplicate)) {
+                    encodeAsExposed(maps.getNamespaceURI(),
+                                    maps.getAction(), 
+                                    Names.WSA_ACTION_NAME,
+                                    AttributedURIType.class, 
+                                    hdr, 
+                                    marshaller);
+                }
                 encodeReferenceParameters(maps, hdr, marshaller);
                 
                 NodeList children = hdr.getChildNodes();
@@ -209,7 +267,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                             node);
                     header.add(holder);
                 }
-                
+                ((AddressingPropertiesImpl)maps).setDuplicate(null);
                 
                 propogateAction(maps.getAction(), message);
                 applyMAPValidation(message);

@@ -19,6 +19,8 @@
 
 package org.apache.cxf.ws.addressing;
 
+import javax.xml.namespace.QName;
+
 /**
  * Abstraction of Message Addressing Properties. 
  */
@@ -31,6 +33,7 @@ public class AddressingPropertiesImpl implements AddressingProperties {
     private RelatesToType relatesTo;
     private AttributedURIType action;
     private String namespaceURI;
+    private QName duplicate;
 
     /**
      * Constructor, defaults to 2005/08 namespace.
@@ -181,6 +184,14 @@ public class AddressingPropertiesImpl implements AddressingProperties {
      */
     public void exposeAs(String uri) {
         namespaceURI = uri;
+    }
+
+    public void setDuplicate(QName dup) {
+        duplicate = dup;
+    }
+
+    public QName getDuplicate() {
+        return duplicate;
     }
 
     public String toString() {
