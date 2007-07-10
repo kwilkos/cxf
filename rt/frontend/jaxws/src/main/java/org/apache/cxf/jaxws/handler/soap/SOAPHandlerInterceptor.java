@@ -60,7 +60,7 @@ public class SOAPHandlerInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
         SoapInterceptor {
     private static final SAAJOutInterceptor SAAJ_OUT = new SAAJOutInterceptor();
-    
+
     AbstractSoapInterceptor ending = new AbstractSoapInterceptor(
             SOAPHandlerInterceptor.class.getName() + ".ENDING",
             Phase.USER_PROTOCOL) {
@@ -69,7 +69,7 @@ public class SOAPHandlerInterceptor extends
             handleMessageInternal(message);
         }
     };
-    
+
     public SOAPHandlerInterceptor(Binding binding) {
         super(binding, Phase.PRE_PROTOCOL);
         addAfter(MustUnderstandInterceptor.class.getName());
@@ -110,35 +110,35 @@ public class SOAPHandlerInterceptor extends
             SOAPMessage msg = message.getContent(SOAPMessage.class);
             if (msg != null) {
                 XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(msg);
-                message.setContent(XMLStreamReader.class, xmlReader);   
+                message.setContent(XMLStreamReader.class, xmlReader);
                 // replace headers
                 try {
                     SAAJInInterceptor.replaceHeaders(msg, message);
                 } catch (SOAPException e) {
                     e.printStackTrace();
-                }                
+                }
             }
         }
     }
-    
+
     private void handleMessageInternal(SoapMessage message) {
         MessageContext context = createProtocolMessageContext(message);
         HandlerChainInvoker invoker = getInvoker(message);
         invoker.setProtocolMessageContext(context);
-        
+
         if (!invoker.invokeProtocolHandlers(isRequestor(message), context)) {
             handleAbort(message, context);
-        } 
-        
+        }
+
         // If this is the outbound and end of MEP, call MEP completion
-        if (isRequestor(message) && invoker.getLogicalHandlers().isEmpty() 
+        if (isRequestor(message) && invoker.getLogicalHandlers().isEmpty()
             && !isOutbound(message) && isMEPComlete(message)) {
             onCompletion(message);
         } else if (isOutbound(message) && isMEPComlete(message)) {
             onCompletion(message);
         }
     }
-    
+
     private void handleAbort(SoapMessage message, MessageContext context) {
         if (isRequestor(message)) {
             // client side outbound
@@ -162,15 +162,14 @@ public class SOAPHandlerInterceptor extends
                                     SOAPHandlerInterceptor.class.getName());
                     observer.onMessage(responseMsg);
                 }
-                
-                //We dont call onCompletion here, as onCompletion will be called by inbound 
+
+                //We dont call onCompletion here, as onCompletion will be called by inbound
                 //LogicalHandlerInterceptor
             } else {
                 // client side inbound - Normal handler message processing
                 // stops, but the inbound interceptor chain still continues, dispatch the message
-                //By onCompletion here, we can skip following Logical handlers 
+                //By onCompletion here, we can skip following Logical handlers
                 onCompletion(message);
-                //System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         } else {
             if (!getInvoker(message).isOutbound()) {
@@ -198,11 +197,10 @@ public class SOAPHandlerInterceptor extends
             } else {
                 // server side outbound - Normal handler message processing
                 // stops, but still continue the outbound interceptor chain, dispatch the message
-                //System.out.println("SOAP Handler handleMessage returns false on server outbound, aborting");
             }
         }
     }
-    
+
     @Override
     protected MessageContext createProtocolMessageContext(SoapMessage message) {
         SOAPMessageContextImpl sm = new SOAPMessageContextImpl(message);
@@ -210,7 +208,7 @@ public class SOAPHandlerInterceptor extends
         ContextPropertiesMapping.mapCxf2Jaxws(message.getExchange(), sm, requestor);
         return sm;
     }
-    
+
     private XMLStreamReader createXMLStreamReaderFromSOAPMessage(SOAPMessage soapMessage) {
         // responseMsg.setContent(SOAPMessage.class, soapMessage);
         XMLStreamReader xmlReader = null;

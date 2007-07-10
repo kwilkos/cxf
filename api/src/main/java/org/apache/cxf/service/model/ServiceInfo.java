@@ -38,24 +38,24 @@ public class ServiceInfo extends AbstractDescriptionElement {
     Map<QName, MessageInfo> messages;
     List<SchemaInfo> schemas = new ArrayList<SchemaInfo>(4);
     private XmlSchemaCollection xmlSchemaCollection;
-    
+
     public ServiceInfo() {
     }
-    
+
     public String getTargetNamespace() {
         return targetNamespace;
     }
     public void setTargetNamespace(String ns) {
         targetNamespace = ns;
     }
-    
+
     public void setName(QName n) {
         name = n;
     }
     public QName getName() {
         return name;
     }
-    
+
     public InterfaceInfo createInterface(QName qn) {
         intf = new InterfaceInfo(this, qn);
         return intf;
@@ -66,7 +66,7 @@ public class ServiceInfo extends AbstractDescriptionElement {
     public InterfaceInfo getInterface() {
         return intf;
     }
-    
+
     public BindingInfo getBinding(QName qn) {
         return bindings.get(qn);
     }
@@ -79,26 +79,26 @@ public class ServiceInfo extends AbstractDescriptionElement {
     public void addEndpoint(EndpointInfo ep) {
         endpoints.put(ep.getName(), ep);
     }
-    
+
     public Collection<EndpointInfo> getEndpoints() {
         return Collections.unmodifiableCollection(endpoints.values());
     }
-    
+
     public Collection<BindingInfo> getBindings() {
         return Collections.unmodifiableCollection(bindings.values());
     }
-    
+
     public Map<QName, MessageInfo> getMessages() {
         if (messages == null) {
-            initMessagesMap();           
+            initMessagesMap();
         }
         return messages;
     }
-    
+
     public MessageInfo getMessage(QName qname) {
         return getMessages().get(qname);
     }
-    
+
     private void initMessagesMap() {
         messages = new ConcurrentHashMap<QName, MessageInfo>();
         for (OperationInfo operation : getInterface().getOperations()) {
@@ -108,20 +108,17 @@ public class ServiceInfo extends AbstractDescriptionElement {
             if (operation.getOutput() != null) {
                 messages.put(operation.getOutput().getName(), operation.getOutput());
             }
-        }       
+        }
     }
-    
+
     public void setMessages(Map<QName, MessageInfo> msgs) {
         messages = msgs;
     }
-    
-    public void addMessage(MessageInfo msg) {
-        if (messages == null) {
-            initMessagesMap();           
-        }
-        messages.put(msg.getName(), msg);
+
+    public void refresh() {
+        initMessagesMap();
     }
-    
+
     public void addSchema(SchemaInfo schemaInfo) {
         schemas.add(schemaInfo);
     }
@@ -138,7 +135,7 @@ public class ServiceInfo extends AbstractDescriptionElement {
         }
         return null;
     }
-    
+
     public Collection<SchemaInfo> getSchemas() {
         return Collections.unmodifiableCollection(schemas);
     }

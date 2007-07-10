@@ -38,7 +38,6 @@ import org.w3c.dom.Element;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -84,7 +83,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private Object bindingObj;
     private ServiceInfo service;
-    
+
     private JAXWSBinding jaxwsBinding = new JAXWSBinding();
 
     public ServiceProcessor(ToolContext penv) {
@@ -97,7 +96,7 @@ public class ServiceProcessor extends AbstractProcessor {
         }
         this.service = si;
         processService(context.get(JavaModel.class));
-        
+
     }
 
     private boolean isNameCollision(String packageName, String className) {
@@ -116,25 +115,25 @@ public class ServiceProcessor extends AbstractProcessor {
         String namespace = service.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
 
-        
+
         //customizing
         JAXWSBinding serviceBinding = service.getDescription().getExtensor(JAXWSBinding.class);
         JAXWSBinding serviceBinding2 = service.getExtensor(JAXWSBinding.class);
-        
+
         //TODO : Handle service customized class
         if (serviceBinding != null) {
             if (serviceBinding.getPackage() != null) {
                 jaxwsBinding.setPackage(serviceBinding.getPackage());
             }
-            
+
             if (serviceBinding.isEnableAsyncMapping()) {
                 jaxwsBinding.setEnableAsyncMapping(true);
             }
-            
+
             if (serviceBinding.isEnableMime()) {
                 jaxwsBinding.setEnableMime(true);
             }
-            
+
             if (serviceBinding.isEnableWrapperStyle()) {
                 jaxwsBinding.setEnableWrapperStyle(true);
             }
@@ -147,15 +146,15 @@ public class ServiceProcessor extends AbstractProcessor {
             if (serviceBinding2.getPackage() != null) {
                 jaxwsBinding.setPackage(serviceBinding2.getPackage());
             }
-            
+
             if (serviceBinding2.isEnableAsyncMapping()) {
                 jaxwsBinding.setEnableAsyncMapping(true);
             }
-            
+
             if (serviceBinding2.isEnableMime()) {
                 jaxwsBinding.setEnableMime(true);
             }
-            
+
             if (serviceBinding2.isEnableWrapperStyle()) {
                 jaxwsBinding.setEnableWrapperStyle(true);
             }
@@ -164,29 +163,29 @@ public class ServiceProcessor extends AbstractProcessor {
                 name = serviceBinding2.getJaxwsClass().getClassName();
             }
         }
-        
+
         sclz.setServiceName(service.getName().getLocalPart());
         sclz.setNamespace(namespace);
-        
+
         if (jaxwsBinding.getPackage() != null) {
             packageName = jaxwsBinding.getPackage();
         }
         sclz.setPackageName(packageName);
-        
+
         while (isNameCollision(packageName, name)) {
             name = name + "_Service";
         }
         sclz.setName(name);
-        
+
 
         if (model.getServiceClasses().containsKey(name)) {
             sclz = model.getServiceClasses().get(name);
         }
-        
+
         Element handler = (Element)context.get(ToolConstants.HANDLER_CHAIN);
         sclz.setHandlerChains(handler);
-        
-        
+
+
         Collection<EndpointInfo> ports = service.getEndpoints();
 
         for (EndpointInfo port : ports) {
@@ -202,29 +201,29 @@ public class ServiceProcessor extends AbstractProcessor {
         BindingInfo binding = port.getBinding();
         jport.setBindingAdress(port.getAddress());
         jport.setBindingName(binding.getName().getLocalPart());
-        
+
         String namespace = binding.getInterface().getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
         jport.setPackageName(packageName);
 
         InterfaceInfo infInfo = binding.getInterface();
-              
+
         String portType = binding.getInterface().getName().getLocalPart();
         jport.setPortType(portType);
-        
+
         JAXWSBinding infBinding = infInfo.getExtensor(JAXWSBinding.class);
 
-        
+
         if (infBinding != null) {
             if (infBinding.getJaxwsClass() != null
                 && !StringUtils.isEmpty(infBinding.getJaxwsClass().getClassName())) {
                 jport.setPortType(infBinding.getJaxwsClass().getClassName());
             }
-            
+
             if (!infBinding.isEnableAsyncMapping()) {
                 jaxwsBinding.setEnableAsyncMapping(false);
             }
-        
+
             if (!infBinding.isEnableWrapperStyle()) {
                 jaxwsBinding.setEnableWrapperStyle(false);
             }
@@ -237,8 +236,8 @@ public class ServiceProcessor extends AbstractProcessor {
         if (jaxwsBinding.getPackage() != null) {
             jport.setPackageName(jaxwsBinding.getPackage());
         }
-        
-        if (infBinding != null && infBinding.getJaxwsClass() != null 
+
+        if (infBinding != null && infBinding.getJaxwsClass() != null
             && infBinding.getJaxwsClass().getClassName() != null) {
             String className = NameUtil.mangleNameToClassName(infBinding.getJaxwsClass().getClassName());
             jport.setInterfaceClass(className);
@@ -247,11 +246,11 @@ public class ServiceProcessor extends AbstractProcessor {
         }
 
         bindingType = getBindingType(binding);
-        
+
         if (bindingType == null) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("BINDING_SPECIFY_ONE_PROTOCOL",
-                                                       LOG, 
+                                                       LOG,
                                                        binding.getName());
             throw new ToolException(msg);
         }
@@ -273,13 +272,13 @@ public class ServiceProcessor extends AbstractProcessor {
         throws ToolException {
         boolean enableOpMime = false;
         JAXWSBinding bind = binding.getExtensor(JAXWSBinding.class);
- 
+
         if (bind != null && bind.isEnableMime()) {
             enableOpMime = true;
         }
-        
+
         JAXWSBinding bopBinding = bop.getExtensor(JAXWSBinding.class);
-        
+
         if (bopBinding != null && bopBinding.isEnableMime()) {
             enableOpMime = true;
             if (bopBinding.getJaxwsPara() != null) {
@@ -317,7 +316,7 @@ public class ServiceProcessor extends AbstractProcessor {
                     String soapStyle = prop.get(soapOPStyle) == null ? "" : (String)prop.get(soapOPStyle);
                     jm.setSoapAction(soapAction);
                     if (SOAPBindingUtil.getSoapStyle(soapStyle) == null && this.bindingObj == null) {
-                        org.apache.cxf.common.i18n.Message msg = 
+                        org.apache.cxf.common.i18n.Message msg =
                             new  org.apache.cxf.common.i18n.Message("BINDING_STYLE_NOT_DEFINED",
                                                                          LOG);
                         throw new ToolException(msg);
@@ -341,10 +340,10 @@ public class ServiceProcessor extends AbstractProcessor {
                 int headerType = isNonWrappable(bop);
 
                 OperationInfo opinfo = bop.getOperationInfo();
-                
+
                 JAXWSBinding opBinding = (JAXWSBinding)opinfo.getExtensor(JAXWSBinding.class);
-                
-                
+
+
                 if (opBinding != null) {
                     if (opBinding.isEnableWrapperStyle()) {
                         jaxwsBinding.setEnableWrapperStyle(true);
@@ -354,7 +353,7 @@ public class ServiceProcessor extends AbstractProcessor {
                             jaxwsBinding.setEnableAsyncMapping(false);
                         }
                     }
-                    
+
                     if (opBinding.isEnableMime()) {
                         enableOpMime = true;
                     }
@@ -362,9 +361,9 @@ public class ServiceProcessor extends AbstractProcessor {
                 if (jaxwsBinding.isEnableMime() || enableOpMime) {
                     jm.setMimeEnable(true);
                 }
-                
-                if (jm.isWrapperStyle() && headerType > this.noHEADER 
-                    || !jaxwsBinding.isEnableWrapperStyle() 
+
+                if (jm.isWrapperStyle() && headerType > this.noHEADER
+                    || !jaxwsBinding.isEnableWrapperStyle()
                     || jm.enableMime() && jm.isWrapperStyle()) {
                     // changed wrapper style
 
@@ -399,7 +398,7 @@ public class ServiceProcessor extends AbstractProcessor {
     private void processParameter(JavaMethod jm, BindingOperationInfo operation) throws ToolException {
 
         // process input
-        
+
         List<ExtensibilityElement> inbindings = null;
         if (operation.getInput() != null) {
             inbindings = operation.getInput().getExtensors(ExtensibilityElement.class);
@@ -417,9 +416,9 @@ public class ServiceProcessor extends AbstractProcessor {
             }
             if (ext instanceof MIMEMultipartRelated && jm.enableMime()) {
                 processMultipart(jm, operation, (MIMEMultipartRelated)ext, JavaType.Style.IN);
-            }            
+            }
         }
-        
+
         // process output
         if (operation.getOutput() != null) {
             List<ExtensibilityElement> outbindings =
@@ -456,7 +455,7 @@ public class ServiceProcessor extends AbstractProcessor {
                 if (ext instanceof MIMEMultipartRelated && jm.enableMime()) {
                     processMultipart(jm, operation, (MIMEMultipartRelated)ext, JavaType.Style.OUT);
                 }
-            }           
+            }
         }
 
         jm.setSoapUse(SOAPBindingUtil.getSoapUse(use));
@@ -476,34 +475,11 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void processSoapHeader(JavaMethod jm, BindingOperationInfo operation, ExtensibilityElement ext) {
         SoapHeader soapHeader = SOAPBindingUtil.getSoapHeader(ext);
-        boolean found = false;
         for (JavaParameter parameter : jm.getParameters()) {
             if (soapHeader.getPart().equals(parameter.getPartName())) {
                 setParameterAsHeader(parameter);
-                found = true;
                 break;
             }
-        }
-        if (Boolean.valueOf((String)context.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue()
-            && !found) {
-            // Header can't be found in java method parameters, in
-            // different message
-            // other than messages used in porttype operation
-            ParameterProcessor processor = new ParameterProcessor(context);
-           
-            MessagePartInfo exPart = service.getMessage(soapHeader.getMessage())
-                .getMessagePart(new QName(soapHeader.getMessage().getNamespaceURI(),
-                                          soapHeader.getPart()));
-                
-            JavaType.Style jpStyle = JavaType.Style.IN;
-            if (isInOutParam(soapHeader.getPart(), operation.getOutput())) {
-                jpStyle = JavaType.Style.INOUT;
-            }
-            JavaParameter jp = processor.addParameterFromBinding(jm, exPart, jpStyle);
-            if (soapHeader.getPart() != null && soapHeader.getPart().length() > 0) {
-                jp.getAnnotation().addArgument("partName", soapHeader.getPart());
-            }
-            setParameterAsHeader(jp);
         }
     }
 
@@ -557,9 +533,9 @@ public class ServiceProcessor extends AbstractProcessor {
                             jp = jm.getReturn();
                             jp.setClassName(mimeJavaType);
                         }
-                            
-                         
-                        
+
+
+
                         if (jp == null) {
                             for (JavaParameter para : jm.getParameters()) {
                                 if (mimeContent.getPart().equals(para.getPartName())) {
@@ -585,7 +561,7 @@ public class ServiceProcessor extends AbstractProcessor {
             }
         }
     }
-    
+
     private Map getSoapOperationProp(BindingOperationInfo bop) {
         Map<String, Object> soapOPProp = new HashMap<String, Object>();
         if (bop.getExtensor(ExtensibilityElement.class) != null) {
@@ -604,8 +580,8 @@ public class ServiceProcessor extends AbstractProcessor {
                     soapOPProp.put(this.soapOPStyle, soapOP.getStyle());
                 }
             }
-            
-            
+
+
         }
         return soapOPProp;
     }
@@ -622,11 +598,11 @@ public class ServiceProcessor extends AbstractProcessor {
             }
             // TBD XMLBinding
             return BindingType.XMLBinding;
-            
+
         }
         return null;
     }
-    
+
     private int isNonWrappable(BindingOperationInfo bop) {
         QName operationName = bop.getName();
         MessageInfo bodyMessage = null;
@@ -639,7 +615,7 @@ public class ServiceProcessor extends AbstractProcessor {
         int result = this.noHEADER;
 
         // begin process input
-        if (bop.getInput() != null 
+        if (bop.getInput() != null
             && bop.getInput().getExtensors(ExtensibilityElement.class) != null) {
             List<ExtensibilityElement> extensors = bop.getInput().getExtensors(ExtensibilityElement.class);
             if (extensors != null) {
@@ -720,7 +696,7 @@ public class ServiceProcessor extends AbstractProcessor {
         }
         return null;
     }
-    
+
     public enum BindingType {
         HTTPBinding, SOAPBinding, XMLBinding
     }
@@ -728,17 +704,5 @@ public class ServiceProcessor extends AbstractProcessor {
     private boolean isSoapBinding() {
         return bindingType != null && "SOAPBinding".equals(bindingType.name());
 
-    }
-
-    private boolean isInOutParam(String inPartName, BindingMessageInfo messageInfo) {
-        for (ExtensibilityElement ext : messageInfo.getExtensors(ExtensibilityElement.class)) {
-            if (SOAPBindingUtil.isSOAPHeader(ext)) {
-                String outPartName = (SOAPBindingUtil.getSoapHeader(ext)).getPart();
-                if (inPartName.equals(outPartName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

@@ -66,7 +66,7 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
  */
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
-    
+
     private AbstractServiceConfiguration jaxWsConfiguration;
 
     private JaxWsImplementorInfo implInfo;
@@ -88,7 +88,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     protected Invoker createInvoker() {
         return null;
     }
-    
+
     protected SimpleMethodDispatcher getMethodDispatcher() {
         return methodDispatcher;
     }
@@ -157,7 +157,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
         // rpc out-message-part-info class mapping
         Operation op = (Operation)o.getProperty(WSDLServiceBuilder.WSDL_OPERATION);
-        
+
         initializeClassInfo(o, method, op == null ? null
             : CastUtils.cast(op.getParameterOrdering(), String.class));
     }
@@ -171,7 +171,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         }
     }
 
- 
+
     protected void initializeWSDLOperationsForProvider() {
         Type[] genericInterfaces = getServiceClass().getGenericInterfaces();
         ParameterizedType pt = (ParameterizedType)genericInterfaces[0];
@@ -285,7 +285,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 || java.rmi.RemoteException.class.isAssignableFrom(exClass)) {
                 return null;
             }
-            
+
             Method getFaultInfo = exClass.getMethod("getFaultInfo", new Class[0]);
 
             return getFaultInfo.getReturnType();
@@ -298,7 +298,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     /**
      * set the holder generic type info into message part info
-     * 
+     *
      * @param o
      * @param method
      */
@@ -310,17 +310,17 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 //make it.
                 WSDLServiceBuilder.checkForWrapped(o, true);
             }
-            
+
             if (o.hasInput()) {
                 MessageInfo input = o.getInput();
-                MessagePartInfo part = input.getMessageParts().get(0);                
+                MessagePartInfo part = input.getMessageParts().get(0);
                 part.setTypeClass(getRequestWrapper(method));
                 part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
             }
 
             if (o.hasOutput()) {
                 MessageInfo input = o.getOutput();
-                MessagePartInfo part = input.getMessageParts().get(0);                
+                MessagePartInfo part = input.getMessageParts().get(0);
                 part.setTypeClass(getResponseWrapper(method));
                 part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
                 part.setIndex(-1);
@@ -341,7 +341,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         Type[] genericTypes = method.getGenericParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
             Class paramType = paramTypes[i];
-            Type genericType = genericTypes[i];            
+            Type genericType = genericTypes[i];
             initializeParameter(o, method, i, paramType, genericType);
         }
 
@@ -354,7 +354,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         setFaultClassInfo(o, method);
     }
 
-    private void initializeParameter(OperationInfo o, Method method, int i, 
+    private void initializeParameter(OperationInfo o, Method method, int i,
                                      Class paramType, Type genericType) {
         boolean isIn = isInParam(method, i);
         boolean isOut = isOutParam(method, i);
@@ -395,8 +395,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
-            
-            name = getOutPartName(o, method, i); 
+
+            name = getOutPartName(o, method, i);
             part = o.getOutput().getMessagePart(name);
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);

@@ -45,7 +45,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class SOAPHandlerFaultInInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
         SoapInterceptor {
-    
+
     public SOAPHandlerFaultInInterceptor(Binding binding) {
         super(binding, Phase.PRE_PROTOCOL);
     }
@@ -77,11 +77,11 @@ public class SOAPHandlerFaultInInterceptor extends
         MessageContext context = createProtocolMessageContext(message);
         HandlerChainInvoker invoker = getInvoker(message);
         invoker.setProtocolMessageContext(context);
-        
+
         if (!invoker.invokeProtocolHandlersHandleFault(isRequestor(message), context)) {
             handleAbort(message, context);
-        }          
-        
+        }
+
         SOAPMessage msg = message.getContent(SOAPMessage.class);
         if (msg != null) {
             XMLStreamReader xmlReader = createXMLStreamReaderFromSOAPMessage(msg);
@@ -89,7 +89,7 @@ public class SOAPHandlerFaultInInterceptor extends
         }
 
     }
-    
+
     private void handleAbort(SoapMessage message, MessageContext context) {
         if (isRequestor(message)) {
 
@@ -99,9 +99,8 @@ public class SOAPHandlerFaultInInterceptor extends
             } else {
                 // client side inbound - Normal handler message processing
                 // stops, but the inbound interceptor chain still continues, dispatch the message
-                //By onCompletion here, we can skip rest Logical handlers 
+                //By onCompletion here, we can skip rest Logical handlers
                 onCompletion(message);
-                //System.out.println("SOAP Handler handleMessage returns false on client inbound, aborting");
             }
         } else {
             if (!getInvoker(message).isOutbound()) {
@@ -113,12 +112,12 @@ public class SOAPHandlerFaultInInterceptor extends
             }
         }
     }
-    
+
     @Override
     protected MessageContext createProtocolMessageContext(SoapMessage message) {
         return new SOAPMessageContextImpl(message);
     }
-    
+
     private XMLStreamReader createXMLStreamReaderFromSOAPMessage(SOAPMessage soapMessage) {
         // responseMsg.setContent(SOAPMessage.class, soapMessage);
         XMLStreamReader xmlReader = null;

@@ -320,10 +320,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             }
         }
 
-        if (!env.optionSet(ToolConstants.CFG_EXTRA_SOAPHEADER)) {
-            env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "false");
-        }
-
         if (env.optionSet(ToolConstants.CFG_COMPILE)) {
             String clsdir = (String)env.get(ToolConstants.CFG_CLASSDIR);
             if (clsdir != null) {
@@ -471,7 +467,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         return false;
     }
 
-    public void generateTypes() throws ToolException {        
+    public void generateTypes() throws ToolException {
         DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
         if (dataBindingProfile == null) {
             Message msg = new Message("FOUND_NO_DATABINDING", LOG);

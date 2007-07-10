@@ -29,7 +29,7 @@ public class ClassArrayFactoryBean implements FactoryBean {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.springframework.beans.factory.FactoryBean#getObject()
      */
     public Object getObject() throws Exception {
@@ -37,14 +37,13 @@ public class ClassArrayFactoryBean implements FactoryBean {
         final Class<?>[] classes = new Class<?>[classNames.size()];
         for (int i = 0; i < classNames.size(); i++) {
             classes[i] = Class.forName(classNames.get(i));
-            System.out.println("Class: " + classes[i].toString());
         }
         return classes;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.springframework.beans.factory.FactoryBean#getObjectType()
      */
     public Class<?> getObjectType() {
@@ -53,7 +52,7 @@ public class ClassArrayFactoryBean implements FactoryBean {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.springframework.beans.factory.FactoryBean#isSingleton()
      */
     public boolean isSingleton() {

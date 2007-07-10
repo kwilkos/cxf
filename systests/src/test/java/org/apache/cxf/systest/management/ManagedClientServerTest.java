@@ -43,13 +43,13 @@ import org.junit.Test;
 
 
 public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
-    
-    private final QName portName = 
+
+    private final QName portName =
         new QName("http://apache.org/hello_world_soap_http",
-                  "SoapPort");    
-    
-    public static class Server extends AbstractBusTestServerBase {        
-        
+                  "SoapPort");
+
+    public static class Server extends AbstractBusTestServerBase {
+
         protected void run() {
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("org/apache/cxf/systest/management/managed-spring.xml", true);
@@ -70,7 +70,7 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
             }
         }
     }
-    
+
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class, true));
@@ -80,7 +80,7 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
     public static void shutdownBus() throws Exception {
         BusFactory.getDefaultBus().shutdown(false);
     }
-    
+
     @Test
     public void testManagedEndpoint() throws Exception {
         Bus bus = SpringBusFactory.getDefaultBus();
@@ -89,50 +89,49 @@ public class ManagedClientServerTest extends AbstractBusClientServerTestBase {
         InstrumentationManagerImpl impl = (InstrumentationManagerImpl)im;
         assertTrue(impl.isEnabled());
         assertNotNull(impl.getMBeanServer());
-        
-        MBeanServer mbs = im.getMBeanServer();        
-        ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+
+        MBeanServer mbs = im.getMBeanServer();
+        ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME
                                          + ":type=Bus.Service.Endpoint,*");
-        Set s = mbs.queryNames(name, null); 
-        System.out.println("the size is " + s.size());
+        Set s = mbs.queryNames(name, null);
         assertTrue(s.size() == 1);
         name = (ObjectName)s.iterator().next();
-        
-        Object val = mbs.invoke(name, "getState", new Object[0], new String[0]);    
+
+        Object val = mbs.invoke(name, "getState", new Object[0], new String[0]);
         assertEquals("Service should have been started.", "STARTED", val);
-        
+
         SOAPService service = new SOAPService();
         assertNotNull(service);
-        
+
         Greeter greeter = service.getPort(portName, Greeter.class);
-        
+
         String response = new String("Bonjour");
         String reply = greeter.sayHi();
         assertNotNull("no response received from service", reply);
-        assertEquals(response, reply);        
-        
-        mbs.invoke(name, "stop", new Object[0], new String[0]);    
+        assertEquals(response, reply);
+
+        mbs.invoke(name, "stop", new Object[0], new String[0]);
 
         val = mbs.getAttribute(name, "State");
-        
+
         assertEquals("Service should have been stopped.", "STOPPED", val);
-        
+
         try {
             reply = greeter.sayHi();
             fail("Endpoint should not be active at this point.");
         } catch (Exception ex) {
             //Expected
         }
-        
-        mbs.invoke(name, "start", new Object[0], new String[0]);    
 
-        val = mbs.invoke(name, "getState", new Object[0], new String[0]);    
+        mbs.invoke(name, "start", new Object[0], new String[0]);
+
+        val = mbs.invoke(name, "getState", new Object[0], new String[0]);
         assertEquals("Service should have been started.", "STARTED", val);
-        
+
         reply = greeter.sayHi();
         assertNotNull("no response received from service", reply);
-        assertEquals(response, reply); 
-        
+        assertEquals(response, reply);
+
     }
-    
+
 }

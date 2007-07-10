@@ -41,7 +41,6 @@ public class TestServiceTest extends AbstractDependencyInjectionSpringContextTes
         Widget expected = new ExtendedWidget(42, "blah", "blah", true, true);
 
         Widget widgetFromService = testClient.getWidgetById((long)42);
-        System.out.println(widgetFromService.toString());
 
         assertEquals(expected, widgetFromService);
 
@@ -49,7 +48,7 @@ public class TestServiceTest extends AbstractDependencyInjectionSpringContextTes
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.springframework.test.AbstractSingleSpringContextTests#getConfigLocations()
      */
     @Override

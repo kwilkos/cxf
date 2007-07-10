@@ -46,9 +46,9 @@ import static org.apache.cxf.helpers.CastUtils.cast;
 public abstract class AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
     public static final String DATABINDING_DISABLED = "databinding.disabled";
-    
+
     Collection<String> activationNamespaces;
-    
+
     Bus bus;
 
     @PostConstruct
@@ -58,10 +58,10 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
             manager.registerBindingFactory(ns, this);
         }
     }
-    
+
     /**
-     * Creates a "default" BindingInfo object for the service.  Called by 
-     * createBindingInfo(Service service, String binding, Object config) to actually 
+     * Creates a "default" BindingInfo object for the service.  Called by
+     * createBindingInfo(Service service, String binding, Object config) to actually
      * create the BindingInfo.  Can return a subclass which can then process
      * the extensors within the subclass.
      * @param service
@@ -70,22 +70,22 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
     public BindingInfo createBindingInfo(ServiceInfo service, String namespace, Object config) {
         return new BindingInfo(service, namespace);
     }
-    
+
     /**
-     * Creates a "default" BindingInfo object for the service.  Can return a subclass 
-     * which can then process the extensors within the subclass.   By default, just 
+     * Creates a "default" BindingInfo object for the service.  Can return a subclass
+     * which can then process the extensors within the subclass.   By default, just
      * creates it for the first ServiceInfo in the service
-     */    
+     */
     public BindingInfo createBindingInfo(Service service, String namespace, Object config) {
         BindingInfo bi = createBindingInfo(service.getServiceInfos().get(0), namespace, config);
         if (bi.getName() == null) {
-            bi.setName(new QName(service.getName().getNamespaceURI(), 
+            bi.setName(new QName(service.getName().getNamespaceURI(),
                                  service.getName().getLocalPart() + "Binding"));
         }
         return bi;
     }
-    
-    
+
+
     /**
      * Copies extensors from the Binding to BindingInfo.
      * @param service
@@ -100,7 +100,7 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
 
     protected BindingInfo initializeBindingInfo(ServiceInfo service, Binding binding, BindingInfo bi) {
         bi.setName(binding.getQName());
-        copyExtensors(bi, binding.getExtensibilityElements(), service);
+        copyExtensors(bi, binding.getExtensibilityElements(), null);
 
         for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
             String inName = null;
@@ -122,39 +122,40 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
                 }
             }
             if (bop2 != null) {
-                copyExtensors(bop2, bop.getExtensibilityElements(), service);
+                copyExtensors(bop2, bop.getExtensibilityElements(), bop2);
                 if (bop.getBindingInput() != null) {
-                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements(), service);
+                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements(), bop2);
                 }
                 if (bop.getBindingOutput() != null) {
                     copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements(),
-                                  service);
+                                  bop2);
                 }
                 for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
                     copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(), f.getName())),
-                                  bop.getBindingFault(f.getName()).getExtensibilityElements(), service);
+                                  bop.getBindingFault(f.getName()).getExtensibilityElements(), bop2);
                 }
             }
         }
         return bi;
     }
 
-    private void copyExtensors(AbstractPropertiesHolder info, List<?> extList, ServiceInfo service) {
+    private void copyExtensors(AbstractPropertiesHolder info, List<?> extList, BindingOperationInfo bop) {
         if (info != null) {
             for (ExtensibilityElement ext : cast(extList, ExtensibilityElement.class)) {
                 info.addExtensor(ext);
-                addMessageFromBinding(ext, service);
+                if (bop != null) {
+                    addMessageFromBinding(ext, bop);
+                }
             }
         }
     }
-    
-    protected void addMessageFromBinding(ExtensibilityElement ext, ServiceInfo serviceInfo) {
-        
+
+    protected void addMessageFromBinding(ExtensibilityElement ext, BindingOperationInfo bop) {
     }
-    
+
     public void addListener(Destination d, Endpoint e) {
         ChainInitiationObserver observer = new ChainInitiationObserver(e, bus);
-        
+
         d.setMessageObserver(observer);
     }
 
@@ -175,5 +176,5 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
     public void setActivationNamespaces(Collection<String> activationNamespaces) {
         this.activationNamespaces = activationNamespaces;
     }
-    
+
 }

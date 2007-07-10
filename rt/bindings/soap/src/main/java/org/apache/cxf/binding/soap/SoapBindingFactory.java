@@ -95,7 +95,10 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
     public static final String SOAP_11_BINDING = "http://schemas.xmlsoap.org/wsdl/soap/";
     public static final String SOAP_12_BINDING = "http://schemas.xmlsoap.org/wsdl/soap12/";
-    
+
+    public static final String HEADER = "messagepart.isheader";
+    public static final String OUT_OF_BAND_HEADER = "messagepart.is_out_of_band_header";
+
     private boolean mtomEnabled = true;
 
     public BindingInfo createBindingInfo(ServiceInfo si, String bindingid, Object conf) {
@@ -113,29 +116,29 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         SoapBindingInfo info = new SoapBindingInfo(si,
                                                    bindingid,
                                                    config.getVersion());
-        
-        info.setName(new QName(si.getName().getNamespaceURI(), 
+
+        info.setName(new QName(si.getName().getNamespaceURI(),
                                si.getName().getLocalPart() + "SoapBinding"));
         info.setStyle(config.getStyle());
         info.setTransportURI(config.getTransportURI());
-        
+
         if (config.isMtomEnabled()) {
             info.setProperty(Message.MTOM_ENABLED, Boolean.TRUE);
         }
-        
+
         for (OperationInfo op : si.getInterface().getOperations()) {
             SoapOperationInfo sop = new SoapOperationInfo();
             sop.setAction(config.getSoapAction(op));
             sop.setStyle(config.getStyle(op));
-            
-            BindingOperationInfo bop = 
+
+            BindingOperationInfo bop =
                 info.buildOperation(op.getName(), op.getInputName(), op.getOutputName());
-            
+
             bop.addExtensor(sop);
-            
+
             info.addOperation(bop);
-            
-            
+
+
             BindingMessageInfo bInput = bop.getInput();
             if (bInput != null) {
                 MessageInfo input = null;
@@ -148,7 +151,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 }
                 setupHeaders(bop, bInput, unwrappedMsg, input, config);
             }
-            
+
             BindingMessageInfo bOutput = bop.getOutput();
             if (bOutput != null) {
                 MessageInfo output = null;
@@ -168,7 +171,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } catch (WSDLException e) {
             e.printStackTrace();
         }
-        
+
         return info;
     }
 
@@ -177,7 +180,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         boolean isSoap12 = bi.getSoapVersion() instanceof Soap12;
         ExtensionRegistry extensionRegistry = getBus().getExtension(WSDLManager.class)
             .getExtenstionRegistry();
-        
+
         SoapBinding soapBinding = SOAPBindingUtil.createSoapBinding(extensionRegistry, isSoap12);
         soapBinding.setStyle(bi.getStyle());
         soapBinding.setTransportURI(bi.getTransportURI());
@@ -191,7 +194,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 faultInfo.addExtensor(soapFault);
             }
             SoapOperationInfo soi = b.getExtensor(SoapOperationInfo.class);
-                
+
             SoapOperation soapOperation = SOAPBindingUtil.createSoapOperation(extensionRegistry,
                                                                               isSoap12);
             soapOperation.setSoapActionURI(soi.getAction());
@@ -208,7 +211,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     for (MessagePartInfo part : b.getInput().getMessageParts()) {
                         bodyParts.add(part.getName().getLocalPart());
                     }
-                        
+
                     SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
                                                                              BindingInput.class,
                                                                              isSoap12);
@@ -218,7 +221,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
                     b.getInput().addExtensor(soapHeader);
 
-                } 
+                }
                 SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
                                                                BindingInput.class,
                                                                isSoap12);
@@ -263,16 +266,16 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 if (bodyParts != null) {
                     body.setParts(bodyParts);
                 }
-                    
+
                 b.getOutput().addExtensor(body);
             }
         }
     }
-    
-    
-    private void setupHeaders(BindingOperationInfo op, 
-                              BindingMessageInfo bMsg, 
-                              BindingMessageInfo unwrappedBMsg, 
+
+
+    private void setupHeaders(BindingOperationInfo op,
+                              BindingMessageInfo bMsg,
+                              BindingMessageInfo unwrappedBMsg,
                               MessageInfo msg,
                               SoapBindingConfiguration config) {
         List<MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
@@ -289,7 +292,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
         unwrappedBMsg.setMessageParts(parts);
     }
-    
+
     public Binding createBinding(BindingInfo binding) {
         // TODO what about the mix style/use?
 
@@ -316,7 +319,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 if (boi.getUnwrappedOperation() == null) {
                     parameterStyle = SoapConstants.PARAMETER_STYLE_BARE;
                 }
-            }            
+            }
         } else {
             throw new RuntimeException("Can not initialize SoapBinding, BindingInfo is not SoapBindingInfo");
         }
@@ -326,12 +329,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         //Do not add any interceptors if it is Provider/Dispatch
         if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
             sb.getInInterceptors().add(new AttachmentInInterceptor());
-            sb.getInInterceptors().add(new StaxInInterceptor());             
-            
+            sb.getInInterceptors().add(new StaxInInterceptor());
+
             sb.getOutInterceptors().add(new SoapActionInterceptor());
             sb.getOutInterceptors().add(new AttachmentOutInterceptor());
-            sb.getOutInterceptors().add(new StaxOutInterceptor());                     
-            
+            sb.getOutInterceptors().add(new StaxOutInterceptor());
+
             if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
                 sb.getInInterceptors().add(new RPCInInterceptor());
                 sb.getOutInterceptors().add(new RPCOutInterceptor());
@@ -347,7 +350,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 sb.getOutInterceptors().add(new BareOutInterceptor());
             }
             sb.getInInterceptors().add(new SoapHeaderInterceptor());
-            
+
             sb.getInInterceptors().add(new ReadHeadersInterceptor(getBus()));
             sb.getInInterceptors().add(new MustUnderstandInterceptor());
             sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
@@ -357,7 +360,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             // REVISIT: The phase interceptor chain seems to freak out if this added
             // first. Not sure what the deal is at the moment, I suspect the
             // ordering algorithm needs to be improved
-            sb.getInInterceptors().add(new URIMappingInterceptor());          
+            sb.getInInterceptors().add(new URIMappingInterceptor());
         }
 
         if (version.getVersion() == 1.1) {
@@ -366,38 +369,42 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else if (version.getVersion() == 1.2) {
             sb.getInFaultInterceptors().add(new Soap12FaultInInterceptor());
             sb.getOutFaultInterceptors().add(new Soap12FaultOutInterceptor());
-        }        
+        }
 
         return sb;
     }
-    
-    protected void addMessageFromBinding(ExtensibilityElement ext, ServiceInfo serviceInfo) {
+
+    protected void addMessageFromBinding(ExtensibilityElement ext, BindingOperationInfo bop) {
         SoapHeader header = SOAPBindingUtil.getSoapHeader(ext);
+
+        ServiceInfo serviceInfo = bop.getBinding().getService();
 
         if (header != null && serviceInfo.getMessage(header.getMessage()) == null) {
             Definition def = (Definition)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_DEFINITION);
             XmlSchemaCollection schemas = (XmlSchemaCollection)serviceInfo
-            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
-            
+                .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+
             if (def != null && schemas != null) {
                 javax.wsdl.Message msg = def.getMessage(header.getMessage());
                 if (msg != null) {
-                    MessageInfo minfo = new MessageInfo(null, msg.getQName());
+                    MessageInfo minfo = bop.getOperationInfo().getInput();
+                    if (minfo == null) {
+                        minfo = new MessageInfo(null, msg.getQName());
+                    }
                     buildMessage(minfo, msg, schemas);
-
-                    serviceInfo.addMessage(minfo);
+                    serviceInfo.refresh();
                 } else {
                     //TODO: The header message is not defined in this wsdl, what to do
                 }
             }
         }
     }
-    
+
     private void buildMessage(MessageInfo minfo, javax.wsdl.Message msg,
                               XmlSchemaCollection schemas) {
         for (Part part : cast(msg.getParts().values(), Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
-                .getName()));
+                                                                .getName()));
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
                 pi.setElement(false);
@@ -407,34 +414,35 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 pi.setElement(true);
                 pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
             }
+            pi.setProperty(OUT_OF_BAND_HEADER, Boolean.TRUE);
         }
     }
-   
+
     public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding, String ns) {
         SoapBindingInfo bi = new SoapBindingInfo(service, ns);
         // Copy all the extensors
         initializeBindingInfo(service, binding, bi);
-    
+
         SoapBinding wSoapBinding
             = SOAPBindingUtil.getSoapBinding(bi.getExtensors(ExtensibilityElement.class));
-       
-        
+
+
         bi.setTransportURI(wSoapBinding.getTransportURI());
         bi.setStyle(wSoapBinding.getStyle());
-    
+
         for (BindingOperationInfo boi : bi.getOperations()) {
             initializeBindingOperation(bi, boi);
         }
-    
+
         return bi;
     }
-    
+
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
 
-        SoapOperation soapOp = 
+        SoapOperation soapOp =
             SOAPBindingUtil.getSoapOperation(boi.getExtensors(ExtensibilityElement.class));
-        
+
         if (soapOp != null) {
             String action = soapOp.getSoapActionURI();
             if (action == null) {
@@ -462,7 +470,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         List<MessagePartInfo> messageParts = new ArrayList<MessagePartInfo>();
         messageParts.addAll(msg.getMessageParts());
 
-        List<SoapHeader> headers = 
+        List<SoapHeader> headers =
             SOAPBindingUtil.getSoapHeaders(bmsg.getExtensors(ExtensibilityElement.class));
         if (headers != null) {
             for (SoapHeader header : headers) {
@@ -476,7 +484,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     bmsg.addExtensor(headerInfo);
                 }
             }
-            
+
             // Exclude the header parts from the message part list.
             bmsg.setMessageParts(messageParts);
         }
@@ -493,7 +501,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             bodyInfo.setUse(soapBody.getUse());
             parts = soapBody.getParts();
         }
-        
+
         // Initialize the body parts.
         List<MessagePartInfo> attParts = null;
         if (parts != null) {
@@ -510,12 +518,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                         if (content instanceof MIMEContent) {
                             MIMEContent mc = (MIMEContent)content;
                             partName = mc.getPart();
-                            
+
                             if (attParts == null) {
                                 attParts = new LinkedList<MessagePartInfo>();
                             }
-    
-                            MessagePartInfo mpi = 
+
+                            MessagePartInfo mpi =
                                 msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
                                                              partName));
                             mpi.setProperty(Message.CONTENT_TYPE, mc.getType());
@@ -527,7 +535,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                             if (sb.getParts().size() == 1) {
                                 partName = (String) sb.getParts().get(0);
                             }
-                            
+
                             // We can have a list of empty part names here.
                             if (partName != null) {
                                 addSoapBodyPart(msg, bodyParts, partName);
@@ -537,7 +545,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
                             SoapHeaderInfo headerInfo = new SoapHeaderInfo();
                             headerInfo.setUse(header.getUse());
-                            MessagePartInfo mpi = 
+                            MessagePartInfo mpi =
                                 msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
                                             .getPart()));
                             if (mpi != null) {
@@ -546,7 +554,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                                 bmsg.getMessageParts().remove(mpi);
                                 bmsg.addExtensor(headerInfo);
                             }
-                        }                  
+                        }
                     }
                 } else {
                     addSoapBodyPart(msg, bodyParts, (String)part);
@@ -565,15 +573,15 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                                                            partName));
         bodyParts.add(mpi);
     }
-    
+
     @Override
     public synchronized void addListener(Destination d, Endpoint e) {
         MessageObserver mo = d.getMessageObserver();
         if (mo == null) {
             super.addListener(d, e);
             return;
-        } 
-        
+        }
+
         if (mo instanceof ChainInitiationObserver) {
             ChainInitiationObserver cio = (ChainInitiationObserver) mo;
             MultipleEndpointObserver newMO = new MultipleEndpointObserver(getBus()) {
@@ -582,28 +590,28 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     return new SoapMessage(message);
                 }
             };
-            
+
             newMO.getBindingInterceptors().add(new AttachmentInInterceptor());
-            newMO.getBindingInterceptors().add(new StaxInInterceptor()); 
-            
+            newMO.getBindingInterceptors().add(new StaxInInterceptor());
+
             // This will not work if we one of the endpoints disables message
-            // processing. But, if you've disabled message processing, you 
+            // processing. But, if you've disabled message processing, you
             // probably aren't going to use this feature.
             newMO.getBindingInterceptors().add(new ReadHeadersInterceptor(getBus()));
 
             // Add in a default selection interceptor
             newMO.getRoutingInterceptors().add(new EndpointSelectionInterceptor());
-            
+
             newMO.getEndpoints().add(cio.getEndpoint());
-            
+
             mo = newMO;
         }
-        
+
         if (mo instanceof MultipleEndpointObserver) {
             MultipleEndpointObserver meo = (MultipleEndpointObserver) mo;
             meo.getEndpoints().add(e);
         }
-        
+
         d.setMessageObserver(mo);
     }
 
@@ -613,5 +621,5 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
     public boolean isMtomEnabled() {
         return mtomEnabled;
-    }    
+    }
 }

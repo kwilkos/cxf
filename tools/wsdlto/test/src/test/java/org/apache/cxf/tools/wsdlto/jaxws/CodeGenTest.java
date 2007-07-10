@@ -77,9 +77,9 @@ public class CodeGenTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
-    
+
     @Test
-    public void testHeaderFromAnotherNamespace() throws Exception {
+    public void testHeaderFromAnotherMessage1() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/pizza.wsdl"));
         env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "TRUE");
@@ -88,8 +88,8 @@ public class CodeGenTest extends ProcessorTestBase {
 
         assertNotNull(output);
 
-        Class clz = classLoader.loadClass("com.mypizzaco.pizza.PizzaPortType");      
-        
+        Class clz = classLoader.loadClass("com.mypizzaco.pizza.PizzaPortType");
+
         Method meths[] = clz.getMethods();
         for (Method m : meths) {
             if ("orderPizzaBroken".equals(m.getName())) {
@@ -101,17 +101,17 @@ public class CodeGenTest extends ProcessorTestBase {
                     if ("OrderPizza".equals(parm.name())) {
                         assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
                         assertEquals("OrderPizza", parm.name());
-                        assertTrue(!parm.header());                       
+                        assertTrue(!parm.header());
                     } else if ("CallerIDHeader".equals(parm.name())) {
                         assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
                         assertEquals("callerID", parm.partName());
                         assertEquals("CallerIDHeader", parm.name());
-                        assertTrue(parm.header());                       
+                        assertTrue(parm.header());
                     } else {
                         fail("No WebParam found!");
                     }
                 }
-           
+
             }
             if ("orderPizza".equals(m.getName())) {
                 Annotation annotations[][] = m.getParameterAnnotations();
@@ -122,23 +122,91 @@ public class CodeGenTest extends ProcessorTestBase {
                     if ("OrderPizza".equals(parm.name())) {
                         assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
                         assertEquals("OrderPizza", parm.name());
-                        assertTrue(!parm.header());                       
+                        assertTrue(!parm.header());
                     } else if ("CallerIDHeader".equals(parm.name())) {
                         assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
                         assertEquals("callerID", parm.partName());
                         assertEquals("CallerIDHeader", parm.name());
-                        assertTrue(parm.header());                       
+                        assertTrue(parm.header());
                     } else {
                         fail("No WebParam found!");
                     }
                 }
-           
-            } 
+
+            }
         }
 
 
     }
-    
+
+    @Test
+    public void testHeaderFromAnotherMessage2() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/pizza.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        Class clz = classLoader.loadClass("com.mypizzaco.pizza.PizzaPortType");
+
+        Method meths[] = clz.getMethods();
+        for (Method m : meths) {
+            if ("orderPizzaBroken".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(2, annotations.length);
+                for (int i = 0; i < 2; i++) {
+                    assertTrue(annotations[i][0] instanceof WebParam);
+                    WebParam parm = (WebParam)annotations[i][0];
+                    if ("OrderPizza".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("OrderPizza", parm.name());
+                        assertTrue(!parm.header());
+                    } else if ("CallerIDHeader".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("callerID", parm.partName());
+                        assertEquals("CallerIDHeader", parm.name());
+                        assertTrue(parm.header());
+                    } else {
+                        fail("No WebParam found!");
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testHeaderFromAnotherMessage3() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/pizza.wsdl"));
+        env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "FALSE");
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        Class clz = classLoader.loadClass("com.mypizzaco.pizza.PizzaPortType");
+
+        Method meths[] = clz.getMethods();
+        for (Method m : meths) {
+            if ("orderPizzaBroken".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(1, annotations.length);
+                for (int i = 0; i < 1; i++) {
+                    assertTrue(annotations[i][0] instanceof WebParam);
+                    WebParam parm = (WebParam)annotations[i][0];
+                    if ("OrderPizza".equals(parm.name())) {
+                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
+                        assertEquals("OrderPizza", parm.name());
+                        assertTrue(!parm.header());
+                    } else if ("CallerIDHeader".equals(parm.name())) {
+                        fail("If the exsh turned off, should not generate this parameter");
+                    } else {
+                        fail("No WebParam found!");
+                    }
+                }
+            }
+        }
+    }
+
     @Test
     public void testRPCLit() throws Exception {
 
@@ -158,7 +226,7 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
         assertEquals(4, files.length);
-        
+
         files = types.listFiles();
         assertEquals(files.length, 3);
 
@@ -366,14 +434,14 @@ public class CodeGenTest extends ProcessorTestBase {
 
     }
 
-    
+
     @Test
     public void testHelloWorldWithDummyPlugin() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
-        
-        // verify passing space seperated xjc args direct to xjc will load, 
+
+        // verify passing space seperated xjc args direct to xjc will load,
         // configure and invoke an xjc plugin
-        env.put(ToolConstants.CFG_XJC_ARGS, "-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN 
+        env.put(ToolConstants.CFG_XJC_ARGS, "-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN
                 + ",-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN  + ":arg");
         processor.setContext(env);
         processor.execute();
@@ -581,7 +649,7 @@ public class CodeGenTest extends ProcessorTestBase {
         soapBindingAnno = AnnotationUtil.getPrivMethodAnnotation(method, SOAPBinding.class);
         assertNotNull(soapBindingAnno);
         assertEquals(SOAPBinding.ParameterStyle.BARE, soapBindingAnno.parameterStyle());
-        
+
         WebParam webParamAnno = AnnotationUtil.getWebParam(method, "SOAPHeaderInfo");
         assertEquals("INOUT", webParamAnno.mode().name());
         assertEquals(true, webParamAnno.header());
@@ -930,7 +998,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
         method = clz.getMethod("deregisterPeerManager", new Class[] {String.class});
         webParamAnn = AnnotationUtil.getWebParam(method, "node_id");
-        
+
         assertEquals("", webParamAnn.targetNamespace());
 
 
@@ -948,21 +1016,21 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("http://www.w3.org/2001/XMLSchema", webFault.targetNamespace());
 
     }
-    
+
     @Test
     public void testWsdlWithInvalidSchema() {
         try {
-            env.put(ToolConstants.CFG_WSDLURL, 
+            env.put(ToolConstants.CFG_WSDLURL,
                     getLocation("/wsdl2java_wsdl/hello_world_with_invalid_schema.wsdl"));
             env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
             processor.setContext(env);
             processor.execute();
         } catch (Exception e) {
-            assertTrue("Jaxb databinding can not find the schema error ", 
-                       e.getLocalizedMessage().indexOf(" cos-st-restricts.1.1: " 
+            assertTrue("Jaxb databinding can not find the schema error ",
+                       e.getLocalizedMessage().indexOf(" cos-st-restricts.1.1: "
                                                        + "The type 'TpAny' is atomic") > -1);
         }
     }
-    
-    
+
+
 }

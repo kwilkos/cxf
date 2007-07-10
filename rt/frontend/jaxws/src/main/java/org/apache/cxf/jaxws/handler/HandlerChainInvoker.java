@@ -201,11 +201,11 @@ public class HandlerChainInvoker {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(Level.FINE, "closing protocol handlers - handler count:" + invokedHandlers.size());
         }
-        
+
         if (isClosed()) {
             return;
         }
-        
+
         invokeReversedClose();
     }
 
@@ -223,7 +223,7 @@ public class HandlerChainInvoker {
     /**
      * Allows an the logical handler chain for one invoker to be used as an
      * alternate chain for another.
-     * 
+     *
      * @param invoker the invoker encalsulting the alternate logical handler
      *            chain
      */
@@ -276,7 +276,7 @@ public class HandlerChainInvoker {
         if (isClosed()) {
             return false;
         }
-        
+
         //The fault is raised from previous handlers, in this case, we only invoke handleFault
         //if the fault is a ProtocolException
         if (fault != null && !(fault instanceof ProtocolException)) {
@@ -298,7 +298,7 @@ public class HandlerChainInvoker {
 
         return continueProcessing;
     }
-    
+
     @SuppressWarnings("unchecked")
     private boolean invokeHandleFault(List<? extends Handler> handlerChain, MessageContext ctx) {
         boolean continueProcessing = true;
@@ -308,7 +308,6 @@ public class HandlerChainInvoker {
                 if (invokeThisHandler(h)) {
                     closeHandlers.add(h);
                     markHandlerInvoked(h);
-                    //System.out.println("===========handleFault " + h.toString());
                     continueProcessing = h.handleFault(ctx);
                 }
                 if (!continueProcessing) {
@@ -332,7 +331,6 @@ public class HandlerChainInvoker {
                 if (invokeThisHandler(h)) {
                     closeHandlers.add(h);
                     markHandlerInvoked(h);
-                    //System.out.println("===========handlerMessage " + h.toString());
                     continueProcessing = h.handleMessage(ctx);
                 }
                 if (!continueProcessing) {
@@ -346,7 +344,7 @@ public class HandlerChainInvoker {
             }
         } catch (ProtocolException e) {
             LOG.log(Level.FINE, "handleMessage raised exception", e);
-             
+
             if (responseExpected) {
                 changeMessageDirection(ctx);
                 messageDirectionReversed = true;
@@ -368,18 +366,18 @@ public class HandlerChainInvoker {
             throw e;
         } catch (RuntimeException e) {
             LOG.log(Level.WARNING, "HANDLER_RAISED_RUNTIME_EXCEPTION", e);
- 
+
             if (responseExpected) {
                 changeMessageDirection(ctx);
                 messageDirectionReversed = true;
             }
-            
+
             //special case for client side, this is because we do nothing in client fault
             //observer, we have to call close here.
             if (isRequestor()) {
                 invokeReversedClose();
             }
-            
+
             continueProcessing = false;
             setFault(e);
             throw e;
@@ -390,7 +388,7 @@ public class HandlerChainInvoker {
     /*
      * When the message direction is reversed, if the message is not already a
      * fault message then it is replaced with a fault message
-     */    
+     */
     private void setFaultMessage(MessageContext mc, Exception exception) {
         Message msg = ((WrappedMessageContext)mc).getWrappedMessage();
         msg.setContent(Exception.class, exception);
@@ -433,7 +431,7 @@ public class HandlerChainInvoker {
             // do nothing
         }
     }
- 
+
     @SuppressWarnings("unchecked")
     private boolean invokeReversedHandleFault(MessageContext ctx) {
         boolean continueProcessing = true;
@@ -442,7 +440,6 @@ public class HandlerChainInvoker {
             int index = invokedHandlers.size() - 2;
             while (index >= 0 && continueProcessing) {
                 Handler h = invokedHandlers.get(index);
-                //System.out.println("===========invokeReversedHandleFault " + h.toString());
                 if (h instanceof LogicalHandler) {
                     continueProcessing = h.handleFault(logicalMessageContext);
                 } else {
@@ -476,7 +473,6 @@ public class HandlerChainInvoker {
         int index = invokedHandlers.size() - 1;
         while (index >= 0) {
             Handler handler = invokedHandlers.get(index);
-            //System.out.println("===========invokeReversedClose " + handler.toString());
             if (handler instanceof LogicalHandler) {
                 handler.close(logicalMessageContext);
             } else {
@@ -506,7 +502,7 @@ public class HandlerChainInvoker {
     private boolean isTheLastInvokedHandler(Handler h) {
         return invokedHandlers.contains(h) && invokedHandlers.indexOf(h) == (invokedHandlers.size() - 1);
     }
-    
+
     private void markHandlerInvoked(Handler h) {
         if (!invokedHandlers.contains(h)) {
             invokedHandlers.add(h);
