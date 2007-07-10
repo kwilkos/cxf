@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jbi.messaging.DeliveryChannel;
+import javax.jbi.messaging.ExchangeStatus;
 import javax.jbi.messaging.MessageExchange;
 import javax.jbi.messaging.NormalizedMessage;
 import javax.xml.namespace.QName;
@@ -97,7 +98,9 @@ public final class JBIDispatcherUtil {
                         }
                     }
 
-                    if (exchange != null) {
+                    if (exchange != null 
+                        && exchange.getStatus() == ExchangeStatus.ACTIVE) {
+                        
                         try {
                             getLogger().info(new org.apache.cxf.common.i18n.Message(
                                     "DISPATCH.TO.SU", getLogger()).toString());
@@ -121,6 +124,7 @@ public final class JBIDispatcherUtil {
     }
     
     public void dispatch(MessageExchange exchange) throws IOException {
+        
         QName opName = exchange.getOperation(); 
         getLogger().info("dispatch method: " + opName);
                 
