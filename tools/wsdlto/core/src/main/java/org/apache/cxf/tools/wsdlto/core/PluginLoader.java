@@ -55,32 +55,55 @@ public final class PluginLoader {
     public static final String DEFAULT_PROVIDER_NAME = "cxf.apache.org";
     private static PluginLoader pluginLoader;
     private static final String PLUGIN_FILE_NAME = "META-INF/tools-plugin.xml";
-    
+
     private Map<String, Plugin> plugins = new LinkedHashMap<String, Plugin>();
 
     private Map<String, FrontEnd> frontends = new LinkedHashMap<String, FrontEnd>();
     private Map<String, FrontEndProfile> frontendProfiles = new LinkedHashMap<String, FrontEndProfile>();
-    
+
     private Map<String, DataBinding> databindings = new LinkedHashMap<String, DataBinding>();
     private Map<String, DataBindingProfile> databindingProfiles
         = new LinkedHashMap<String, DataBindingProfile>();
 
     private Unmarshaller unmarshaller;
-    
+
+    private ClassLoader classLoader = getClass().getClassLoader();
+
     private PluginLoader() {
+        init();
+    }
+
+    private PluginLoader(final ClassLoader l) {
+        this.classLoader = l;
+        init();
+    }
+
+    private void init() {
         try {
             JAXBContext jc = JAXBContext.newInstance("org.apache.cxf.tools.plugin");
             unmarshaller = jc.createUnmarshaller();
-            loadPlugins(getClass().getClassLoader().getResources(PLUGIN_FILE_NAME));
+            loadPlugins(this.classLoader.getResources(PLUGIN_FILE_NAME));
         } catch (JAXBException e) {
             Message msg = new Message("JAXB_CONTEXT_INIT_FAIL", LOG);
             LOG.log(Level.SEVERE, msg.toString());
-            throw new ToolException(msg);            
+            throw new ToolException(msg);
         } catch (IOException ioe) {
             Message msg = new Message("LOAD_PLUGIN_EXCEPTION", LOG);
             LOG.log(Level.SEVERE, msg.toString());
-            throw new ToolException(msg);            
+            throw new ToolException(msg);
         }
+    }
+
+    public void refresh() {
+        init();
+    }
+
+    public void setClassLoader(final ClassLoader l) {
+        this.classLoader = l;
+    }
+
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
     }
 
     private void loadPlugins(Enumeration<URL> pluginFiles) throws IOException {
@@ -97,6 +120,13 @@ public final class PluginLoader {
     public static PluginLoader getInstance() {
         if (pluginLoader == null) {
             pluginLoader = new PluginLoader();
+        }
+        return pluginLoader;
+    }
+
+    public static PluginLoader getInstance(final ClassLoader cl) {
+        if (pluginLoader == null) {
+            pluginLoader = new PluginLoader(cl);
         }
         return pluginLoader;
     }
@@ -127,13 +157,13 @@ public final class PluginLoader {
         }
 
     }
-    
+
     protected void loadPlugin(Plugin plugin) {
         if (plugin.getFrontend().size() > 0) {
             LOG.log(Level.INFO, "FOUND_FRONTENDS", new Object[]{plugin.getName(),
                                                                 plugin.getFrontend().size()});
         }
-        
+
         for (FrontEnd frontend : plugin.getFrontend()) {
             LOG.log(Level.INFO, "LOADING_FRONTEND", new Object[]{frontend.getName(), plugin.getName()});
             if (StringUtils.isEmpty(frontend.getName())) {
@@ -183,13 +213,13 @@ public final class PluginLoader {
                 throw new ToolException(msg);
             }
             plugins.put(url.toString(), plugin);
-        }        
+        }
         if (is == null) {
             return getPlugin(url.toString());
         }
         return plugin;
     }
-    
+
     protected Plugin getPlugin(String resource) throws JAXBException, FileNotFoundException {
         Plugin plugin = plugins.get(resource);
         if (plugin == null) {
@@ -197,7 +227,7 @@ public final class PluginLoader {
             if (new File(resource).exists()) {
                 is = new BufferedInputStream(new FileInputStream(new File(resource)));
             } else {
-                is = getClass().getResourceAsStream(resource);                
+                is = getClass().getResourceAsStream(resource);
             }
 
             if (is == null) {
@@ -222,7 +252,7 @@ public final class PluginLoader {
 
     public FrontEnd getFrontEnd(String name) {
         FrontEnd frontend = frontends.get(name);
-        
+
         if (frontend == null) {
             Message msg = new Message("FRONTEND_MISSING", LOG, name);
             throw new ToolException(msg);
@@ -240,7 +270,7 @@ public final class PluginLoader {
         }
         return fullPackage + "." + generator.getName();
     }
-    
+
     private List<FrontEndGenerator> getFrontEndGenerators(FrontEnd frontend) {
         List<FrontEndGenerator> generators = new ArrayList<FrontEndGenerator>();
 
@@ -248,7 +278,7 @@ public final class PluginLoader {
         try {
             for (Generator generator : frontend.getGenerators().getGenerator()) {
                 fullClzName = getGeneratorClass(frontend, generator);
-                Class clz = this.getClass().getClassLoader().loadClass(fullClzName);
+                Class clz = this.classLoader.loadClass(fullClzName);
                 generators.add((FrontEndGenerator)clz.newInstance());
             }
         } catch (Exception e) {
@@ -256,14 +286,14 @@ public final class PluginLoader {
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
-        
+
         return generators;
     }
 
-    private FrontEndProfile loadFrontEndProfile(String fullClzName) {       
+    private FrontEndProfile loadFrontEndProfile(String fullClzName) {
         FrontEndProfile profile = null;
         try {
-            Class clz = getClass().getClassLoader().loadClass(fullClzName);
+            Class clz = this.classLoader.loadClass(fullClzName);
             profile = (FrontEndProfile)clz.newInstance();
         } catch (Exception e) {
             Message msg = new Message("FRONTEND_PROFILE_LOAD_FAIL", LOG, fullClzName);
@@ -294,7 +324,7 @@ public final class PluginLoader {
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
-        
+
         if (!ToolContainer.class.isAssignableFrom(clz)) {
             Message message = new Message("CLZ_SHOULD_IMPLEMENT_INTERFACE", LOG, clz.getName());
             LOG.log(Level.SEVERE, message.toString());
@@ -322,7 +352,7 @@ public final class PluginLoader {
     private String getContainerClass(FrontEnd frontend) {
         return getContainerPackage(frontend) + "." + frontend.getContainer().getName();
     }
-    
+
     private String getContainerPackage(FrontEnd frontend) {
         String pkgName = frontend.getContainer().getPackage();
         if (StringUtils.isEmpty(pkgName)) {
@@ -340,7 +370,7 @@ public final class PluginLoader {
         AbstractWSDLBuilder<? extends Object> builder = null;
         try {
             builder = (AbstractWSDLBuilder<? extends Object>) Class.forName(fullClzName).newInstance();
-            
+
         } catch (Exception e) {
             Message msg = new Message("LOAD_PROCESSOR_FAILED", LOG, fullClzName);
             LOG.log(Level.SEVERE, msg.toString());
@@ -360,15 +390,15 @@ public final class PluginLoader {
     public FrontEndProfile getFrontEndProfile(String name) {
         FrontEndProfile profile = frontendProfiles.get(name);
         if (profile == null) {
-           
+
             FrontEnd frontend = getFrontEnd(name);
-           
+
             profile = loadFrontEndProfile(getFrontEndProfileClass(frontend));
 
             for (FrontEndGenerator generator : getFrontEndGenerators(frontend)) {
                 profile.registerGenerator(generator);
             }
-            
+
             if (frontend.getProcessor() != null) {
                 profile.setProcessor(loadProcessor(getProcessorClass(frontend)));
             }
@@ -379,8 +409,8 @@ public final class PluginLoader {
             if (frontend.getBuilder() != null) {
                 profile.setWSDLBuilder(loadBuilder(getBuilderClass(frontend)));
             }
-            
-            
+
+
             frontendProfiles.put(name, profile);
         }
         return profile;
@@ -390,7 +420,7 @@ public final class PluginLoader {
         DataBinding databinding = databindings.get(name);
         if (databinding == null) {
             Message msg = new Message("DATABINDING_MISSING", LOG, name);
-            throw new ToolException(msg);            
+            throw new ToolException(msg);
         }
         return databinding;
     }
@@ -402,11 +432,11 @@ public final class PluginLoader {
         } catch (Exception e) {
             Message msg = new Message("DATABINDING_PROFILE_LOAD_FAIL", LOG, fullClzName);
             LOG.log(Level.SEVERE, msg.toString());
-            throw new ToolException(msg);                
+            throw new ToolException(msg);
         }
         return profile;
     }
-    
+
     public DataBindingProfile getDataBindingProfile(String name) {
         DataBindingProfile profile = databindingProfiles.get(name);
         if (profile == null) {
