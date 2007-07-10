@@ -393,4 +393,23 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/echo_calendar.xjb").getFile();
         assertFileEquals(new File(expectedFile), bindingFile);
     }
+    
+    @Test
+    //Test for cxf774
+    public void testList() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/list_test.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.cxf774.ListTestImpl");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        try {
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File wsdlFile = new File(output, "list_test.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        
+        String expectedFile = getClass().getResource("expected/list_expected.wsdl").getFile();
+        assertFileEquals(new File(expectedFile), new File(output, "/list_test.wsdl"));
+    }
 }

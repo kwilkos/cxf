@@ -58,7 +58,9 @@ public class ServerFactoryBeanDefinitionParser extends AbstractBeanDefinitionPar
         } else {
             setFirstChildAsProperty(el, ctx, bean, name);
         }
+        
     }
+    
 
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {

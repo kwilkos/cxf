@@ -28,6 +28,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -78,6 +79,7 @@ import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
+import org.apache.ws.commons.schema.constants.Constants;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 
 /**
@@ -658,6 +660,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
                     el.setMinOccurs(0);
                     el.setMaxOccurs(Long.MAX_VALUE);
+                } else if (Collection.class.isAssignableFrom(mpi.getTypeClass())
+                           && mpi.getTypeClass().isInterface()) {
+                    Type type = (Type)mpi.getProperty(GENERIC_TYPE);
+                    if (!(type instanceof java.lang.reflect.ParameterizedType)
+                        && mpi.getTypeQName() == null) {
+                        el.setMinOccurs(0);
+                        el.setMaxOccurs(Long.MAX_VALUE);
+                        el.setSchemaTypeName(Constants.XSD_ANYTYPE);
+                    }
+
                 } else {
                     el.setMaxOccurs(1);
                     if (mpi.getTypeClass() != null && !mpi.getTypeClass().isPrimitive()) {
