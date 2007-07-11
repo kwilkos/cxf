@@ -412,8 +412,11 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             // add response-specific MAPs
             AddressingPropertiesImpl inMAPs = getMAPs(message, false, false);
             maps.exposeAs(inMAPs.getNamespaceURI());
-            // To taken from ReplyTo in incoming MAPs
-            if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
+            // To taken from ReplyTo or FaultTo in incoming MAPs (depending
+            // on the fault status of the response)
+            if (isFault && inMAPs.getFaultTo() != null) {
+                maps.setTo(inMAPs.getFaultTo());
+            } else if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
                 maps.setTo(inMAPs.getReplyTo());
             }
             // RelatesTo taken from MessageID in incoming MAPs

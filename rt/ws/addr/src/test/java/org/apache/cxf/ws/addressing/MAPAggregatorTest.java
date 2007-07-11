@@ -563,7 +563,9 @@ public class MAPAggregatorTest extends Assert {
                 setUpRebase(message, exchange);
             }
             expectedTo = decoupled
-                         ? "http://localhost:9999/decoupled"
+                         ? fault
+                           ? "http://localhost:9999/fault"
+                           : "http://localhost:9999/decoupled"
                          : Names.WSA_ANONYMOUS_ADDRESS;
             expectedRelatesTo = maps.getMessageID().getValue();
             // Now verified via verifyMessage()
