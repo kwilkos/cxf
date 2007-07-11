@@ -101,6 +101,16 @@
                 </associatedArgument>
             </option>
 
+            <option id="catalog" maxOccurs="1">
+                <annotation>
+                    Specify catalog file to map the imported wsdl/schema
+                </annotation>
+                <switch>catalog</switch>
+                <associatedArgument placement="afterSpace">
+                    <annotation>catalog-file-name</annotation>
+                </associatedArgument>
+            </option>
+
             <option id="outputdir" maxOccurs="1">
                 <annotation>
                     The directory in which the code is placed</annotation>
@@ -222,7 +232,7 @@
                 </associatedArgument>
                 <switch>wsdlLocation</switch>
             </option>
-            
+
             <option id="xjc" maxOccurs="1">
                 <annotation>
                     Comma separated arguments that are passed directly to XJC when the
@@ -234,7 +244,7 @@
                 </associatedArgument>
                 <switch>xjc</switch>
             </option>
-            
+
         </optionGroup>
         <optionGroup id="common_options">
             <option id="help" maxOccurs="1">

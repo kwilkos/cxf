@@ -22,6 +22,7 @@ package org.apache.cxf.tools.wsdlto;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
@@ -66,7 +68,6 @@ import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
-
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
@@ -92,7 +93,26 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
 
     public Bus getBus() {
-        return BusFactory.getDefaultBus();
+        Bus bus = BusFactory.getDefaultBus();
+
+        OASISCatalogManager catalogManager = bus.getExtension(OASISCatalogManager.class);
+
+        String catalogLocation = getCatalogURL();
+        if (!StringUtils.isEmpty(catalogLocation)) {
+            try {
+                catalogManager.loadCatalog(new URI(catalogLocation).toURL());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ToolException(new Message("FOUND_NO_FRONTEND", LOG, catalogLocation));
+            }
+        }
+
+        return bus;
+    }
+
+    protected String getCatalogURL() {
+        String catalogLocation = (String) context.get(ToolConstants.CFG_CATALOG);
+        return URIParserUtil.getAbsoluteURI(catalogLocation);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,6 +138,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 AbstractWSDLBuilder<Definition> builder = (AbstractWSDLBuilder<Definition>)frontend
                     .getWSDLBuilder();
                 builder.setContext(context);
+                builder.setBus(getBus());
 
                 // TODO: Modify builder api, let customized definition make
                 // sense.

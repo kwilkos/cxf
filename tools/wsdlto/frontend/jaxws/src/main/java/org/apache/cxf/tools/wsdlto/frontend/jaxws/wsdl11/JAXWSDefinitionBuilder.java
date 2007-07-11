@@ -64,14 +64,14 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
     protected static final Logger LOG = LogUtils.getL7dLogger(JAXWSDefinitionBuilder.class);
     protected CustomizationParser cusParser;
-    
+
     private WSDLDefinitionBuilder builder;
     private WSDLReader wsdlReader;
     private Definition wsdlDefinition;
-    
+
     private List<InputSource> jaxbBindings;
     private Element handlerChain;
-       
+
     public JAXWSDefinitionBuilder() {
         builder = new WSDLDefinitionBuilder();
         ExtensionRegistry registry = builder.getExtenstionRegistry();
@@ -79,16 +79,17 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         wsdlReader = builder.getWSDLReader();
         wsdlReader.setExtensionRegistry(registry);
     }
-    
+
     public Definition build() {
         String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
         return build(wsdlURL);
     }
 
     public Definition build(String wsdlURL) {
+        this.builder.setBus(this.bus);
         wsdlDefinition = builder.build(wsdlURL);
         context.put(ToolConstants.IMPORTED_DEFINITION, builder.getImportedDefinitions());
-        checkSupported(wsdlDefinition);        
+        checkSupported(wsdlDefinition);
         return wsdlDefinition;
     }
 
@@ -114,10 +115,10 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         }
         cusParser = new CustomizationParser();
         cusParser.parse(context);
-      
+
         jaxbBindings = cusParser.getJaxbBindings();
         handlerChain = cusParser.getHandlerChains();
-       
+
         context.setJaxbBindingFiles(jaxbBindings);
         context.put(ToolConstants.HANDLER_CHAIN, handlerChain);
         try {
@@ -132,7 +133,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
     private void checkSupported(Definition def) throws ToolException {
         if (isRPCEncoded(def)) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("UNSUPPORTED_RPC_ENCODED"
                                                        , LOG);
             throw new ToolException(msg);
@@ -169,7 +170,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         }
         return false;
     }
-    
+
     private CustomizationParser getCustomizationParer() {
         return cusParser;
     }
@@ -180,7 +181,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         DOMUtils.writeXml(getCustomizationParer().getCustomizedWSDLElement(), outs);
         InputStream ins = new FileInputStream(new File(tmpFile.toURI()));
         Document wsdlDoc = DOMUtils.readXml(ins);
-        Definition def =  wsdlReader.readWSDL(this.wsdlDefinition.getDocumentBaseURI(), 
+        Definition def =  wsdlReader.readWSDL(this.wsdlDefinition.getDocumentBaseURI(),
                                               wsdlDoc);
         FileUtils.delete(tmpFile);
         return def;
@@ -191,13 +192,13 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
             this.build();
             this.customize();
         }
-        
+
         return this.wsdlDefinition;
     }
     public WSDLReader getWSDLReader() {
         return wsdlReader;
     }
-    
+
 
     public boolean validate(Definition def) throws ToolException {
         return new WSDL11Validator(def, context).isValid();

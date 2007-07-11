@@ -34,7 +34,7 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
 
     private ExtendedURIResolver resolver;
     private Catalog catalogResolver;
-    
+
     public CatalogXmlSchemaURIResolver(OASISCatalogManager catalogManager) {
         this.resolver = new ExtendedURIResolver();
         this.catalogResolver = catalogManager.getCatalog();

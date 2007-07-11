@@ -234,10 +234,14 @@ public final class URIParserUtil {
             } catch (MalformedURLException e2) {
                 return uri.replace("\\", "/");
             }
-        }        
+        }
     }
 
     public static String getAbsoluteURI(final String arg) {
+        if (arg == null) {
+            return null;
+        }
+
         try {
             URL url = new URL(normalize(arg));
             if (url.toURI().isOpaque()
@@ -251,5 +255,5 @@ public final class URIParserUtil {
         } catch (URISyntaxException e2) {
             return normalize(arg);
         }
-    }    
+    }
 }

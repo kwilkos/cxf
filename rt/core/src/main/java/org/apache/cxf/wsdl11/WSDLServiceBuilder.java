@@ -320,7 +320,7 @@ public class WSDLServiceBuilder {
                     String systemId = def.getDocumentBaseURI() + "#types" + schemaCount;
 
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
-                    CatalogXmlSchemaURIResolver schemaResolver = 
+                    CatalogXmlSchemaURIResolver schemaResolver =
                         new CatalogXmlSchemaURIResolver(OASISCatalogManager.getCatalogManager(bus));
                     schemaCol.setSchemaResolver(schemaResolver);
                     XmlSchema xmlSchema = schemaCol.read(schemaElem, systemId);
@@ -671,7 +671,7 @@ public class WSDLServiceBuilder {
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType) {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
             if (hasAttributes(xsct)
-                || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(), 
+                || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(),
                                         unwrappedInput, allowRefs)) {
                 passedRule = false;
             }

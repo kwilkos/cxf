@@ -24,23 +24,46 @@ import javax.wsdl.xml.WSDLLocator;
 import org.xml.sax.InputSource;
 
 import org.apache.cxf.resource.ExtendedURIResolver;
+import org.apache.xml.resolver.Catalog;
 
 public class WSDLLocatorImpl implements WSDLLocator {
 
     private String wsdlUrl;
     private ExtendedURIResolver resolver;
-    
+
     private String baseUri;
     private String importedUri;
-    
+
+    private Catalog catalogResolver;
+
     public WSDLLocatorImpl(String wsdlUrl) {
         this.wsdlUrl = wsdlUrl;
         this.baseUri = this.wsdlUrl;
         resolver = new ExtendedURIResolver();
     }
-    
+
+    public void setCatalogResolver(final Catalog cr) {
+        this.catalogResolver = cr;
+    }
+
+    private InputSource resolve(final String target, final String base) {
+        try {
+            String resolvedLocation = null;
+            if (catalogResolver != null) {
+                resolvedLocation  = catalogResolver.resolveSystem(target);
+            }
+            if (resolvedLocation == null) {
+                return this.resolver.resolve(target, base);
+            } else {
+                return this.resolver.resolve(resolvedLocation, base);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Catalog resolve failed: ", e);
+        }
+    }
+
     public InputSource getBaseInputSource() {
-        InputSource result =  resolver.resolve(baseUri, null);
+        InputSource result =  resolve(baseUri, null);
         baseUri = resolver.getURI();
         return result;
     }
@@ -52,8 +75,8 @@ public class WSDLLocatorImpl implements WSDLLocator {
     }
     public InputSource getImportInputSource(String parent, String importLocation) {
         this.baseUri = parent;
-        this.importedUri = importLocation;        
-        return resolver.resolve(this.importedUri, this.baseUri);
+        this.importedUri = importLocation;
+        return resolve(this.importedUri, this.baseUri);
     }
     public void close() {
         resolver.close();

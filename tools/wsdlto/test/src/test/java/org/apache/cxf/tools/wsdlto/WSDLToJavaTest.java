@@ -60,7 +60,4 @@ public class WSDLToJavaTest extends Assert {
         w2j.setArguments(new String[]{"none"});
         assertFalse(w2j.isVerbose());
     }
-    
-  
-    
 }

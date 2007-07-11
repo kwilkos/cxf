@@ -43,8 +43,8 @@ public class OASISCatalogManager {
 
     private Catalog resolver;
     private Set<URL> loadedCatalogs = Collections.synchronizedSet(new HashSet<URL>());
-    private Bus bus;  
-    
+    private Bus bus;
+
     public OASISCatalogManager() {
         CatalogManager catalogManager = new CatalogManager();
         catalogManager.setUseStaticCatalog(false);
@@ -52,16 +52,16 @@ public class OASISCatalogManager {
         CatalogResolver catalogResolver = new CatalogResolver(catalogManager);
         this.resolver = catalogResolver.getCatalog();
     }
-    
+
     public Bus getBus() {
         return bus;
     }
-    
+
     @Resource
-    public void setBus(Bus bus) {        
+    public void setBus(Bus bus) {
         this.bus = bus;
     }
-    
+
     @PostConstruct
     public void register() {
         if (null != bus) {
@@ -69,7 +69,7 @@ public class OASISCatalogManager {
         }
         loadContextCatalogs();
     }
-    
+
     public Catalog getCatalog() {
         return this.resolver;
     }
@@ -84,12 +84,12 @@ public class OASISCatalogManager {
             LOG.log(Level.WARNING, "Error loading " + name + " catalog files", e);
         }
     }
-    
+
     public void loadCatalogs(ClassLoader classLoader, String name) throws IOException {
         if (classLoader == null) {
             return;
         }
-        
+
         Enumeration<URL> catalogs = classLoader.getResources(name);
         while (catalogs.hasMoreElements()) {
             URL catalogURL = catalogs.nextElement();
@@ -99,7 +99,7 @@ public class OASISCatalogManager {
             }
         }
     }
-    
+
     public void loadCatalog(URL catalogURL) throws IOException {
         if (!loadedCatalogs.contains(catalogURL)) {
             this.resolver.parseCatalog(catalogURL);
@@ -124,5 +124,5 @@ public class OASISCatalogManager {
             return catalog;
         }
     }
-    
+
 }

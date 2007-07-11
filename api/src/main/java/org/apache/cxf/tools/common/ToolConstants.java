@@ -22,7 +22,7 @@ package org.apache.cxf.tools.common;
 import javax.xml.namespace.QName;
 
 public final class ToolConstants {
-        
+
     //public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/common/toolspec/toolspecs/";
     public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/";
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
@@ -55,13 +55,14 @@ public final class ToolConstants {
     public static final String CFG_DEFAULT_NS = "defaultns";
     public static final String CFG_DEFAULT_EX = "defaultex";
     public static final String CFG_XJC_ARGS = "xjc";
-    
+    public static final String CFG_CATALOG = "catalog";
+
 
     public static final String CFG_VALIDATE_WSDL = "validate";
     public static final String CFG_CREATE_XSD_IMPORTS = "createxsdimports";
-    
+
     public static final String CFG_FRONTEND = "frontend";
-    
+
     public static final String CFG_DATABINDING = "db";
 
 
@@ -73,9 +74,9 @@ public final class ToolConstants {
     public static final String CFG_ANT = "ant";
     public static final String CFG_LIB_REF = "library.references";
     public static final String CFG_ANT_PROP = "ant.prop";
-    
-   
-    
+
+
+
     //Internal Flag to generate
     public static final String CFG_IMPL_CLASS = "implClass";
     public static final String CFG_GEN_CLIENT = "genClient";
@@ -83,7 +84,7 @@ public final class ToolConstants {
     public static final String CFG_GEN_IMPL = "genImpl";
     public static final String CFG_GEN_TYPES = "genTypes";
     public static final String CFG_GEN_SEI = "genSEI";
-    public static final String CFG_GEN_ANT = "genAnt"; 
+    public static final String CFG_GEN_ANT = "genAnt";
     public static final String CFG_GEN_SERVICE = "genService";
     public static final String CFG_GEN_OVERWRITE = "overwrite";
     public static final String CFG_GEN_FAULT = "genFault";
@@ -156,7 +157,7 @@ public final class ToolConstants {
     // JMS address
     public static final String NS_JMS_ADDRESS = "http://cxf.apache.org/transports/jms";
     public static final QName  JMS_ADDRESS = new QName(NS_JMS_ADDRESS, "address");
-    
+
     // JBI address
     public static final String NS_JBI_ADDRESS = "http://cxf.apache.org/transports/jbi";
     public static final QName  JBI_ADDRESS = new QName(NS_JBI_ADDRESS, "address");
@@ -182,9 +183,9 @@ public final class ToolConstants {
     public static final QName  XML_FORMAT = new QName(NS_XML_FORMAT, "body");
     public static final QName  XML_BINDING_FORMAT = new QName(NS_XML_FORMAT, "binding");
 
-    
-    
-    
+
+
+
     public static final String SCHEMA_MAP = "schemaMap";
     public static final String PORTTYPE_MAP = "portTypeMap";
     public static final String SCHEMA_TARGET_NAMESPACES = "schemaTargetNameSpaces";
@@ -197,7 +198,7 @@ public final class ToolConstants {
     // Tools framework
     public static final String FRONTEND_PLUGIN = "frontend";
     public static final String DATABINDING_PLUGIN = "databinding";
-    
+
     public static final String CFG_WSDL_VERSION = "wsdlversion";
 
     // Suppress the code generation, in this case you can just get the generated code model

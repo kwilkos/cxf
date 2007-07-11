@@ -50,7 +50,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_IMPL, "impl");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
 
-        processor = new JAXWSContainer(null); 
+        processor = new JAXWSContainer(null);
 
     }
 
@@ -60,8 +60,8 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
-    
-    
+
+
     @Test
     public void testFlagForGenStandAlone() throws Exception {
         env.put(ToolConstants.CFG_GEN_TYPES, ToolConstants.CFG_GEN_TYPES);
@@ -71,31 +71,31 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
         env.put(ToolConstants.CFG_GEN_FAULT, ToolConstants.CFG_GEN_FAULT);
         env.put(ToolConstants.CFG_GEN_ANT, ToolConstants.CFG_GEN_ANT);
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
-        
+
         Class greeterServer = classLoader
             .loadClass("org.apache.hello_world_soap_http.Greeter_SoapPort_Server");
         assertNotNull("Server should be generated", greeterServer);
-      
+
     }
-    
+
     @Test
     public void testFlagForGenAdditional() throws Exception {
         env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
         env.put(ToolConstants.CFG_SERVER, ToolConstants.CFG_SERVER);
-               
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
+
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
-            
+
         Class greeterServer = classLoader
             .loadClass("org.apache.hello_world_soap_http.Greeter_SoapPort_Server");
         assertNotNull("Server should be generated", greeterServer);
     }
-     
-    
+
+
     @Test
     public void testHelloWorldExternalBindingFile() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_jaxws_base.wsdl"));
@@ -114,18 +114,34 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         assertEquals(3, clz.getMethods().length);
 
     }
-    
+
     @Test
-    public void testGenFault() throws Exception {         
+    public void testGenFault() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         env.remove(ToolConstants.CFG_COMPILE);
         env.remove(ToolConstants.CFG_IMPL);
         env.put(ToolConstants.CFG_GEN_FAULT, ToolConstants.CFG_GEN_FAULT);
         processor.setContext(env);
         processor.execute();
-        
+
         File file = new File(output, "org/apache/hello_world_soap_http");
         assertEquals(2, file.list().length);
 
+    }
+
+    @Test
+    public void testGetCatalog() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/test_catalog_replaceme.wsdl"));
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/test_catalog.xml"));
+        env.put(ToolConstants.CFG_COMPILE, null);
+        env.put(ToolConstants.CFG_CLASSDIR, null);
+
+        processor.setContext(env);
+        try {
+            processor.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Catalog not working");
+        }
     }
 }

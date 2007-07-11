@@ -19,17 +19,23 @@
 
 package org.apache.cxf.tools.wsdlto.core;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.wsdl.WSDLBuilder;
 
 public abstract class AbstractWSDLBuilder<T> implements WSDLBuilder<T> {
     protected ToolContext context;
-    
+    protected Bus bus;
+
+    public void setBus(Bus b) {
+        this.bus = b;
+    }
+
     public void setContext(ToolContext c) {
         this.context = c;
     }
-    
+
     public abstract void customize();
 
     public abstract boolean validate(T t) throws ToolException;

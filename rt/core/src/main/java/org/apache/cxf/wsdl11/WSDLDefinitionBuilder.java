@@ -41,7 +41,9 @@ import javax.xml.namespace.QName;
 
 import com.ibm.wsdl.extensions.soap.SOAPHeaderImpl;
 import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
@@ -50,34 +52,41 @@ import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLBuilder;
 import org.apache.cxf.wsdl.WSDLExtensibilityPlugin;
 
-public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {    
-    
+public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
+
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLDefinitionBuilder.class);
     private static final String EXTENSIONS_RESOURCE = "META-INF/extensions.xml";
     private static final String WSDL_PLUGIN_RESOURCE = "META-INF/wsdl.plugin.xml";
-    
+
     protected WSDLReader wsdlReader;
     protected Definition wsdlDefinition;
     final WSDLFactory wsdlFactory;
-    final ExtensionRegistry registry;    
+    final ExtensionRegistry registry;
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
-    
+
     private final Map<String, WSDLExtensibilityPlugin> wsdlPlugins
         = new HashMap<String, WSDLExtensibilityPlugin>();
-    
-    public WSDLDefinitionBuilder() {    
+
+    private Bus bus;
+
+    public WSDLDefinitionBuilder(Bus b) {
+        this();
+        this.bus = b;
+    }
+
+    public WSDLDefinitionBuilder() {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             registry = wsdlFactory.newPopulatedExtensionRegistry();
             QName header = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "header");
-            registry.registerDeserializer(MIMEPart.class, 
-                                          header, 
+            registry.registerDeserializer(MIMEPart.class,
+                                          header,
                                           new SOAPHeaderSerializer());
-            registry.registerSerializer(MIMEPart.class, 
-                                        header, 
+            registry.registerSerializer(MIMEPart.class,
+                                        header,
                                         new SOAPHeaderSerializer());
             registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
-            
+
             registerInitialExtensions();
             wsdlReader = wsdlFactory.newWSDLReader();
             // TODO enable the verbose if in verbose mode.
@@ -93,32 +102,29 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             registerWSDLExtensibilityPlugins();
         }
     }
-    
+
+    public void setBus(Bus b) {
+        this.bus = b;
+    }
+
     public Definition build(String wsdlURL) {
         parseWSDL(wsdlURL);
         return wsdlDefinition;
     }
 
     protected void parseWSDL(String wsdlURL) {
-        try {            
+        try {
 
             wsdlReader.setExtensionRegistry(registry);
-            
-            // REVIST: URIResolve is to solve the wsdl import and schema import, 
-            //         but seems it works fine now without URIResolver
-            //         URIResolve has a bug, it can not resolve the wsdl in testutils
-            
-            //URIResolver resolver = new URIResolver(wsdlURL);
-            //InputSource insource = new InputSource(resolver.getInputStream());
-            //wsdlURL = resolver.getURI().toString();
-            //wsdlDefinition = wsdlReader.readWSDL(new WSDLResolver(wsdlURL, insource));
+
             WSDLLocatorImpl wsdlLocator = new WSDLLocatorImpl(wsdlURL);
-            wsdlDefinition = wsdlReader.readWSDL(wsdlLocator);            
+            wsdlLocator.setCatalogResolver(OASISCatalogManager.getCatalogManager(bus).getCatalog());
+            wsdlDefinition = wsdlReader.readWSDL(wsdlLocator);
 
             parseImports(wsdlDefinition);
         } catch (Exception we) {
             Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION",
-                                      LOG, 
+                                      LOG,
                                       wsdlURL,
                                       we.getMessage());
             throw new RuntimeException(msg.toString(), we);
@@ -142,7 +148,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             importedDefinitions.add(impt.getDefinition());
         }
     }
-    
+
     public List<Definition> getImportedDefinitions() {
         return importedDefinitions;
     }
@@ -173,7 +179,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             }
         }
     }
-    
+
     public ExtensionRegistry getExtenstionRegistry() {
         return registry;
     }
@@ -181,7 +187,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
     public WSDLFactory getWSDLFactory() {
         return wsdlFactory;
     }
-    
+
     public WSDLReader getWSDLReader() {
         return wsdlReader;
     }
