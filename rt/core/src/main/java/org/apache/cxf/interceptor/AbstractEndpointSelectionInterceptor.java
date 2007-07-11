@@ -64,6 +64,8 @@ public abstract class AbstractEndpointSelectionInterceptor extends AbstractPhase
         chain.add(ep.getInInterceptors());
         chain.add(ep.getBinding().getInInterceptors());
         chain.add(ep.getService().getInInterceptors());
+
+        chain.setFaultObserver(ep.getOutFaultObserver());
     }
 
     /**
