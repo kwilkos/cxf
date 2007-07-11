@@ -197,6 +197,10 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
                 if (!isExist(wsdlDocs, vNode)) {
                     FailureLocation loc = getFailureLocation(wsdlDocs, vNode.getFailurePoint());
+                    if (loc == null) {
+                        System.out.println("---vNode--- " + vNode);
+                    }
+                    
                     vResults.addError(new Message("FAILED_AT_POINT",
                                                   LOG,
                                                   loc.getLocation().getLineNumber(),

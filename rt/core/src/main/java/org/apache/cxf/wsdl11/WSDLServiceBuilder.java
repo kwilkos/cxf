@@ -231,7 +231,13 @@ public class WSDLServiceBuilder {
 
         for (Port port : cast(serv.getPorts().values(), Port.class)) {
             Binding binding = port.getBinding();
-            PortType pt = binding.getPortType();
+            PortType bindingPt = binding.getPortType();
+            //TODO: wsdl4j's bug. if there is recursive import, 
+            //wsdl4j can not get operation input message
+            PortType pt = def.getPortType(bindingPt.getQName());
+            if (pt == null) {
+                pt = bindingPt;
+            }
             ServiceInfo service = services.get(pt.getQName());
             if (service == null) {
                 service = new ServiceInfo();
@@ -289,8 +295,10 @@ public class WSDLServiceBuilder {
             importList.addAll(list);
         }
         for (Import impt : importList) {
-            parseImports(impt.getDefinition(), defList);
-            defList.add(impt.getDefinition());
+            if (!defList.contains(impt.getDefinition())) {
+                defList.add(impt.getDefinition());
+                parseImports(impt.getDefinition(), defList);
+            }
         }
     }
 
@@ -375,6 +383,9 @@ public class WSDLServiceBuilder {
 
                 for (SchemaImport schemaImport : schemaImports) {
                     Schema tempImport = schemaImport.getReferencedSchema();
+                    if (importNamespace == null) {
+                        importNamespace = tempImport.getDocumentBaseURI();
+                    }
                     if (tempImport != null
                         && !isSchemaParsed(tempImport.getDocumentBaseURI(), importNamespace)
                         && !schemaList.containsValue(tempImport.getElement())) {

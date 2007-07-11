@@ -556,4 +556,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
         file = new File(output, "org/apache/hello_world_soap_http/Greeter_GreeterPort_Server.java");
         assertTrue("Greeter_GreeterPort_Server is not found", file.exists());
     }
+    
+    @Test
+    public void testRecursiveImport() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf778/hello_world_recursive.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        assertNotNull("Process message with no part wsdl error", output);
+    }
 }

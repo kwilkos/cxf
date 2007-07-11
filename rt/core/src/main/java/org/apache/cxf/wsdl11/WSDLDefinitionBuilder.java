@@ -91,6 +91,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             wsdlReader = wsdlFactory.newWSDLReader();
             // TODO enable the verbose if in verbose mode.
             wsdlReader.setFeature("javax.wsdl.verbose", false);
+            wsdlReader.setFeature("javax.wsdl.importDocuments", true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -144,8 +145,10 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
 
     private void parseImports(Definition def) {
         for (Import impt : getImports(def)) {
-            parseImports(impt.getDefinition());
-            importedDefinitions.add(impt.getDefinition());
+            if (!importedDefinitions.contains(impt.getDefinition())) {
+                importedDefinitions.add(impt.getDefinition());
+                parseImports(impt.getDefinition());
+            }
         }
     }
 
