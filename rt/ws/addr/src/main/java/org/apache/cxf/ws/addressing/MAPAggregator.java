@@ -419,6 +419,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             } else if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
                 maps.setTo(inMAPs.getReplyTo());
             }
+
             // RelatesTo taken from MessageID in incoming MAPs
             if (inMAPs.getMessageID() != null
                 && !Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE))) {
@@ -426,6 +427,12 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 maps.setRelatesTo(ContextUtils.getRelatesTo(inMessageID));
             }
 
+            // fallback fault action
+            if (isFault && maps.getAction() == null) {
+                maps.setAction(ContextUtils.getAttributedURI(
+                    Names.WSA_DEFAULT_FAULT_ACTION));
+            }
+ 
             if (isFault
                 && !ContextUtils.isGenericAddress(inMAPs.getFaultTo())) {
                 ContextUtils.rebaseResponse(inMAPs.getFaultTo(),

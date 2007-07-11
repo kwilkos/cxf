@@ -83,6 +83,9 @@ public abstract class AbstractInvoker implements Invoker {
             }
             exchange.getInMessage().put(FaultMode.class, FaultMode.CHECKED_APPLICATION_FAULT);
             throw new Fault(t);
+        } catch (Fault f) {
+            exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
+            throw f;
         } catch (Exception e) {
             exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
             throw new Fault(e);
