@@ -54,15 +54,15 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.wsdl.WSDLConstants;
 
-public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
-    private static final Logger LOG = LogUtils.getL7dLogger(DispatchOutInterceptor.class);
-    private DispatchOutEndingInterceptor ending;
+public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInterceptor {
+    private static final Logger LOG = LogUtils.getL7dLogger(DispatchOutDatabindingInterceptor.class);
+    private DispatchOutDatabindingEndingInterceptor ending;
     
     private Service.Mode mode;
     
-    public DispatchOutInterceptor(Mode mode) {
+    public DispatchOutDatabindingInterceptor(Mode mode) {
         super(Phase.WRITE);
-        ending = new DispatchOutEndingInterceptor();
+        ending = new DispatchOutDatabindingEndingInterceptor();
         
         this.mode = mode;
     }
@@ -153,8 +153,8 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
         message.getInterceptorChain().add(ending);
     }
     
-    private class DispatchOutEndingInterceptor extends AbstractOutDatabindingInterceptor {
-        public DispatchOutEndingInterceptor() {
+    private class DispatchOutDatabindingEndingInterceptor extends AbstractOutDatabindingInterceptor {
+        public DispatchOutDatabindingEndingInterceptor() {
             super(Phase.WRITE_ENDING);
         }
         

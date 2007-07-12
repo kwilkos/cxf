@@ -60,13 +60,13 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
-public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
+public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
-    private static final Logger LOG = Logger.getLogger(DispatchInInterceptor.class.getName());
+    private static final Logger LOG = Logger.getLogger(DispatchInDatabindingInterceptor.class.getName());
     private Class type;
     private Service.Mode mode;
     
-    public DispatchInInterceptor(Class type, Mode mode) {
+    public DispatchInDatabindingInterceptor(Class type, Mode mode) {
         super(Phase.READ);
         
         this.type = type;

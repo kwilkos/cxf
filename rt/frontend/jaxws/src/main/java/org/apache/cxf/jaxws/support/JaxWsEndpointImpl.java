@@ -34,10 +34,12 @@ import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 //import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultInInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultOutInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerOutInterceptor;
+import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultInInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
@@ -47,6 +49,7 @@ import org.apache.cxf.jaxws.interceptors.SwAInInterceptor;
 import org.apache.cxf.jaxws.interceptors.SwAOutInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 
@@ -78,12 +81,14 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         List<Interceptor> out = super.getOutInterceptors();
         
         if (implInfo != null && implInfo.isWebServiceProvider()) {
-            in.add(new LogicalHandlerInInterceptor(jaxwsBinding));
-            out.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
+            DispatchLogicalHandlerInterceptor slhi = new DispatchLogicalHandlerInterceptor(jaxwsBinding,
+                Phase.USER_LOGICAL);
+            in.add(slhi);
+            out.add(new DispatchLogicalHandlerInterceptor(jaxwsBinding));
 
             if (getBinding() instanceof SoapBinding) {
-                in.add(new SOAPHandlerInterceptor(jaxwsBinding));
-                out.add(new SOAPHandlerInterceptor(jaxwsBinding));
+                in.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
+                out.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
             } 
         } else {
             // Inbound chain

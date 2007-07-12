@@ -42,8 +42,8 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
-import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
-import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -116,8 +116,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             Class<?> type = implInfo.getProviderParameterType();
             Mode mode = implInfo.getServiceMode();
 
-            getService().getInInterceptors().add(new DispatchInInterceptor(type, mode));
-            getService().getOutInterceptors().add(new DispatchOutInterceptor(mode));
+            getService().getInInterceptors().add(new DispatchInDatabindingInterceptor(type, mode));
+            getService().getOutInterceptors().add(new DispatchOutDatabindingInterceptor(mode));
         }
     }
 

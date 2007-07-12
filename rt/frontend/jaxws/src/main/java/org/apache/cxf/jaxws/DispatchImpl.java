@@ -64,8 +64,8 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
-import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
-import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Exchange;
@@ -250,7 +250,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         
         chain.add(new MessageSenderInterceptor());
 
-        chain.add(new DispatchOutInterceptor(mode));
+        chain.add(new DispatchOutDatabindingInterceptor(mode));
         return chain;
     }
 
@@ -281,7 +281,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         }           
 
         List<Interceptor> inInterceptors = new ArrayList<Interceptor>();
-        inInterceptors.add(new DispatchInInterceptor(cl, mode));
+        inInterceptors.add(new DispatchInDatabindingInterceptor(cl, mode));
         chain.add(inInterceptors);
 
         // execute chain
