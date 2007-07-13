@@ -779,6 +779,13 @@ public class HTTPConduit
             List<String> headerList = headers.get(header);
             for (String value : headerList) {
                 connection.addRequestProperty(header, value);
+                String v = connection.getRequestProperty(header);
+                if (null == v) {
+                    connection.addRequestProperty(header, value);
+                } else {
+                    LOG.fine("Not adding request property: " + header + ", value: " + value
+                             + ", already set to: " + v);
+                }
             }
         }
     }
@@ -926,8 +933,10 @@ public class HTTPConduit
         HttpURLConnection connection,
         int responseCode
     ) {
-        return responseCode == HttpURLConnection.HTTP_ACCEPTED
-               && connection.getContentLength() != 0;
+        return (responseCode == HttpURLConnection.HTTP_ACCEPTED
+               && connection.getContentLength() != 0)
+               || (responseCode == HttpURLConnection.HTTP_OK
+                   && connection.getContentLength() > 0);
     }
 
     /**
@@ -1818,7 +1827,23 @@ public class HTTPConduit
                 LOG.fine("Response Code: " 
                         + responseCode
                         + " Conduit: " + getConduitName());
+                LOG.fine("Content length: " + connection.getContentLength());
+                Map<String, List<String>> headerFields = connection.getHeaderFields();
+                if (null != headerFields) {
+                    StringBuffer buf = new StringBuffer();
+                    buf.append("Header fields: ");
+                    buf.append(System.getProperty("line.separator"));
+                    for (String h : headerFields.keySet()) {
+                        buf.append("    ");
+                        buf.append(h);
+                        buf.append(": ");
+                        buf.append(headerFields.get(h));
+                        buf.append(System.getProperty("line.separator"));
+                    }
+                    LOG.fine(buf.toString());
+                }
             }
+        
             
             if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
                 throw new IOException(connection.getResponseMessage());
@@ -1826,7 +1851,7 @@ public class HTTPConduit
 
             
             Exchange exchange = outMessage.getExchange();
-            
+
             if (isOneway(exchange)
                 && !isPartialResponse(connection, responseCode)) {
                 // oneway operation without partial response
