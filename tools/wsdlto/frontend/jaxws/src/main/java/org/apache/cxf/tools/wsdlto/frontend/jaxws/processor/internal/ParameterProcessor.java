@@ -101,7 +101,7 @@ public class ParameterProcessor extends AbstractProcessor {
         return ParameterMapper.map(part, style, context);
     }
 
-    private JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
+    protected JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
         if (parameter == null) {
             return null;
         }
@@ -137,6 +137,21 @@ public class ParameterProcessor extends AbstractProcessor {
         return StringUtils.isEmpty(value) || Boolean.valueOf(value).booleanValue();
     }
 
+    private int countOutOfBandHeader(MessageInfo message) {
+        int count = 0;
+        for (MessagePartInfo part : message.getMessageParts()) {
+            if (isOutOfBandHeader(part)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean messagePartsNotUnique(final MessageInfo message) {
+        int count = countOutOfBandHeader(message);
+        return message.getMessageParts().size() - count > 1;
+    }
+
     @SuppressWarnings("unchecked")
     private void processInput(JavaMethod method, MessageInfo inputMessage) throws ToolException {
         if (requireOutOfBandHeader()) {
@@ -151,7 +166,6 @@ public class ParameterProcessor extends AbstractProcessor {
             if (isOutOfBandHeader(part) && !requireOutOfBandHeader()) {
                 continue;
             }
-
             addParameter(method, getParameterFromPart(part, JavaType.Style.IN));
         }
     }
@@ -160,7 +174,7 @@ public class ParameterProcessor extends AbstractProcessor {
     private void processWrappedInput(JavaMethod method, MessageInfo inputMessage) throws ToolException {
         List<MessagePartInfo> inputParts = inputMessage.getMessageParts();
 
-        if (inputParts.size() > 1) {
+        if (messagePartsNotUnique(inputMessage)) {
             processInput(method, inputMessage);
             return;
         } else if (inputParts.isEmpty()) {
@@ -181,6 +195,16 @@ public class ParameterProcessor extends AbstractProcessor {
             }
 
             addParameter(method, jp);
+        }
+
+        // Adding out of band headers
+        if (countOutOfBandHeader(inputMessage) > 0) {
+            for (MessagePartInfo hpart : inputMessage.getMessageParts()) {
+                if (!isOutOfBandHeader(hpart) || !requireOutOfBandHeader()) {
+                    continue;
+                }
+                addParameter(method, getParameterFromPart(hpart, JavaType.Style.IN));
+            }
         }
     }
 
@@ -222,15 +246,32 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void processWrappedOutput(JavaMethod method,
                                       MessageInfo inputMessage,
                                       MessageInfo outputMessage) throws ToolException {
 
+        processWrappedAbstractOutput(method, inputMessage, outputMessage);
+
+        // process out of band headers
+        if (countOutOfBandHeader(outputMessage) > 0) {
+            for (MessagePartInfo hpart : outputMessage.getMessageParts()) {
+                if (!isOutOfBandHeader(hpart) || !requireOutOfBandHeader()) {
+                    continue;
+                }
+                addParameter(method, getParameterFromPart(hpart, JavaType.Style.OUT));
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void processWrappedAbstractOutput(JavaMethod method,
+                                              MessageInfo inputMessage,
+                                              MessageInfo outputMessage) throws ToolException {
+
         List<MessagePartInfo> outputParts = outputMessage.getMessageParts();
         List<MessagePartInfo> inputParts = inputMessage.getMessageParts();
 
-        if (inputParts.size() > 1 || outputParts.size() > 1) {
+        if (messagePartsNotUnique(inputMessage) || messagePartsNotUnique(outputMessage)) {
             processOutput(method, inputMessage, outputMessage);
             return;
         }
@@ -288,6 +329,7 @@ public class ParameterProcessor extends AbstractProcessor {
             }
 
         }
+
         for (QName outElement : outputWrapElement) {
             if ("return".equals(outElement.getLocalPart())) {
                 if (method.getReturn() != null) {

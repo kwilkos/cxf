@@ -374,7 +374,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         return sb;
     }
 
-    protected void addMessageFromBinding(ExtensibilityElement ext, BindingOperationInfo bop) {
+    protected void addMessageFromBinding(ExtensibilityElement ext, BindingOperationInfo bop,
+                                         boolean isInput) {
         SoapHeader header = SOAPBindingUtil.getSoapHeader(ext);
 
         ServiceInfo serviceInfo = bop.getBinding().getService();
@@ -387,17 +388,44 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             if (def != null && schemas != null) {
                 javax.wsdl.Message msg = def.getMessage(header.getMessage());
                 if (msg != null) {
-                    MessageInfo minfo = bop.getOperationInfo().getInput();
-                    if (minfo == null) {
-                        minfo = new MessageInfo(null, msg.getQName());
-                    }
-                    buildMessage(minfo, msg, schemas);
+                    addOutOfBandParts(bop, msg, schemas, isInput);
                     serviceInfo.refresh();
                 } else {
                     //TODO: The header message is not defined in this wsdl, what to do
                 }
             }
         }
+    }
+
+    private void addOutOfBandParts(final BindingOperationInfo bop, final javax.wsdl.Message msg,
+                                   final XmlSchemaCollection schemas, boolean isInput) {
+        MessageInfo minfo = null;
+        if (isInput) {
+            minfo = bop.getOperationInfo().getInput();
+        } else {
+            minfo = bop.getOperationInfo().getOutput();
+        }
+
+        if (minfo == null) {
+            minfo = new MessageInfo(null, msg.getQName());
+        }
+        buildMessage(minfo, msg, schemas);
+
+        // for wrapped style
+        OperationInfo unwrapped = bop.getOperationInfo().getUnwrappedOperation();
+        if (unwrapped == null) {
+            return;
+        }
+        if (isInput) {
+            minfo = unwrapped.getInput();
+        } else {
+            minfo = unwrapped.getOutput();
+        }
+
+        if (minfo == null) {
+            minfo = new MessageInfo(unwrapped, msg.getQName());
+        }
+        buildMessage(minfo, msg, schemas);
     }
 
     private void buildMessage(MessageInfo minfo, javax.wsdl.Message msg,

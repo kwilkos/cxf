@@ -37,6 +37,14 @@ public class WebParamAnnotator implements Annotator {
             throw new RuntimeException("WebParamAnnotator only annotate the JavaParameter");
         }
         JavaMethod method = parameter.getMethod();
+
+        if (method.hasParameter(parameter.getName())) {
+            JavaParameter paramInList = method.getParameter(parameter.getName());
+            if (paramInList.isIN() && parameter.isOUT()) {
+                parameter.setStyle(JavaType.Style.INOUT);
+            }
+        }
+
         JavaAnnotation webParamAnnotation = new JavaAnnotation("WebParam");
         String name = parameter.getName();
         String targetNamespace = method.getInterface().getNamespace();
@@ -45,7 +53,7 @@ public class WebParamAnnotator implements Annotator {
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             || parameter.isHeader()) {
             targetNamespace = parameter.getTargetNamespace();
-            
+
             if (parameter.getQName() != null) {
                 name = parameter.getQName().getLocalPart();
             }

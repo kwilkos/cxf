@@ -48,6 +48,7 @@ public class CatalogTest extends Assert {
 
         ExtendedURIResolver resolver = new ExtendedURIResolver();
         InputSource in = resolver.resolve(resolvedSchemaLocation, null);
-        assertTrue(in.getSystemId().indexOf("cxf-common-schemas") != -1);
+        assertTrue(in.getSystemId().indexOf("common") != -1);
+        assertTrue(in.getSystemId().indexOf("/schemas/wsdl/ws-addr.xsd") != -1);
     }
 }

@@ -20,13 +20,15 @@
 package org.apache.cxf.binding;
 
 import java.util.Collection;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
+import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
+import javax.wsdl.BindingOutput;
+import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
@@ -100,7 +102,7 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
 
     protected BindingInfo initializeBindingInfo(ServiceInfo service, Binding binding, BindingInfo bi) {
         bi.setName(binding.getQName());
-        copyExtensors(bi, binding.getExtensibilityElements(), null);
+        copyExtensors(bi, binding, null);
 
         for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
             String inName = null;
@@ -122,35 +124,40 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
                 }
             }
             if (bop2 != null) {
-                copyExtensors(bop2, bop.getExtensibilityElements(), bop2);
+                copyExtensors(bop2, bop, bop2);
                 if (bop.getBindingInput() != null) {
-                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements(), bop2);
+                    copyExtensors(bop2.getInput(), bop.getBindingInput(), bop2);
                 }
                 if (bop.getBindingOutput() != null) {
-                    copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements(),
-                                  bop2);
+                    copyExtensors(bop2.getOutput(), bop.getBindingOutput(), bop2);
                 }
                 for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
                     copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(), f.getName())),
-                                  bop.getBindingFault(f.getName()).getExtensibilityElements(), bop2);
+                                  bop.getBindingFault(f.getName()), bop2);
                 }
             }
         }
         return bi;
     }
 
-    private void copyExtensors(AbstractPropertiesHolder info, List<?> extList, BindingOperationInfo bop) {
+    private void copyExtensors(AbstractPropertiesHolder info, ElementExtensible extElement,
+                               BindingOperationInfo bop) {
         if (info != null) {
-            for (ExtensibilityElement ext : cast(extList, ExtensibilityElement.class)) {
+            for (ExtensibilityElement ext : cast(extElement.getExtensibilityElements(),
+                                                 ExtensibilityElement.class)) {
                 info.addExtensor(ext);
-                if (bop != null) {
-                    addMessageFromBinding(ext, bop);
+                if (bop != null && extElement instanceof BindingInput) {
+                    addMessageFromBinding(ext, bop, true);
+                }
+                if (bop != null && extElement instanceof BindingOutput) {
+                    addMessageFromBinding(ext, bop, false);
                 }
             }
         }
     }
 
-    protected void addMessageFromBinding(ExtensibilityElement ext, BindingOperationInfo bop) {
+    protected void addMessageFromBinding(ExtensibilityElement ext, BindingOperationInfo bop,
+                                         boolean isInput) {
     }
 
     public void addListener(Destination d, Endpoint e) {
