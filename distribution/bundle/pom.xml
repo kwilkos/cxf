@@ -95,6 +95,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
+			<artifactId>cxf-xjc-ts</artifactId>
+			<version>${pom.version}</version>
+		    <optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
 			<artifactId>cxf-xjc-dv</artifactId>
 			<version>${pom.version}</version>
 		    <optional>true</optional>
@@ -263,6 +269,9 @@
 							  </transformer>
 							  <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
 							    <resource>META-INF/spring.handlers</resource>
+							  </transformer>
+							  <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+							    <resource>META-INF/services/com.sun.tools.xjc.Plugin</resource>
 							  </transformer>
 							  <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
 							    <resource>META-INF/spring.schemas</resource>
