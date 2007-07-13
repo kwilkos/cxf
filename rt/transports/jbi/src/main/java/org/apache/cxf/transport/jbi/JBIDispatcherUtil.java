@@ -61,7 +61,7 @@ public final class JBIDispatcherUtil {
     
     public void activateDispatch() {
         activeEndpoints++;
-        if (!running) {
+        if (!running && channel != null) {
             new Thread(new JBIDispatcher()).start();
         }
     }

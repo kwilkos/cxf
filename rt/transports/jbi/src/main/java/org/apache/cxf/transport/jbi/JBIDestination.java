@@ -76,6 +76,9 @@ public class JBIDestination extends AbstractDestination {
         dispatcherUtil.activateDispatch();
     }
 
+    public JBIDispatcherUtil getJBIDispatcherUtil() {
+        return dispatcherUtil;
+    }
     
     // this should deal with the cxf message 
     protected class BackChannelConduit extends AbstractConduit {

@@ -31,6 +31,7 @@ import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.transport.MessageObserver;
 
 public abstract class AbstractFaultChainInitiatorObserver implements MessageObserver {
@@ -70,6 +71,9 @@ public abstract class AbstractFaultChainInitiatorObserver implements MessageObse
             }
             exchange.setOutMessage(null);
             exchange.setOutFaultMessage(faultMessage);
+            if (message.get(BindingFaultInfo.class) != null) {
+                faultMessage.put(BindingFaultInfo.class, message.get(BindingFaultInfo.class));
+            }
         } else {
             faultMessage = message;
             exchange.setInMessage(null);
