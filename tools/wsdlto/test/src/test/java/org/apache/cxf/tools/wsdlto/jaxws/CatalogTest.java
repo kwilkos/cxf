@@ -26,7 +26,6 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CatalogTest extends ProcessorTestBase {
