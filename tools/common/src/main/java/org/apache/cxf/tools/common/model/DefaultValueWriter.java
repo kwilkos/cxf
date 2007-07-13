@@ -17,23 +17,12 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.core;
+package org.apache.cxf.tools.common.model;
 
+import java.io.IOException;
+import java.io.Writer;
 
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.DefaultValueWriter;
-
-public interface DataBindingProfile {
-    
-    void generate(ToolContext context) throws ToolException;
-    void initialize(ToolContext c) throws ToolException;
-    String getType(QName qn, boolean element);
-    String getWrappedElementType(QName wrapperElement, QName item);
-    
-    DefaultValueWriter createDefaultValueWriter(QName qn, boolean element);
-    DefaultValueWriter createDefaultValueWriterForWrappedElement(QName wrapperElement, QName qn);
-    
+public interface DefaultValueWriter {
+    void writeDefaultValue(Writer writer, String indent,
+                           String opName, String varName) throws IOException;
 }

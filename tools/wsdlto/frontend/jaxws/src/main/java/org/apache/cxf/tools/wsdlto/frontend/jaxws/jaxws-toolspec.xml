@@ -161,6 +161,20 @@
                 <switch>all</switch>
             </option>
 
+	        <option id="defaultValues" maxOccurs="1">
+                <annotation>
+                    Generate default values in the impl and client.  Ignored if impl or client
+                    is not being generated.
+                    
+                    Optionally specify the name of the class to provide the default vaules.
+                    (default is a RandomValueProvider)
+                </annotation>
+                <switch>defaultValues</switch>
+                <associatedArgument placement="immediate">
+                    <annotation>=class name for DefaultValueProvider</annotation>
+                </associatedArgument>
+            </option>
+
             <option id="ant" maxOccurs="1">
                 <annotation>
                     ant script generation.

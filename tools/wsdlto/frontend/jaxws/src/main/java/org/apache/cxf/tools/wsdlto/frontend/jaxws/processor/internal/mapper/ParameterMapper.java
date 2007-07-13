@@ -40,6 +40,7 @@ public final class ParameterMapper {
         JavaParameter parameter = new JavaParameter(name, type, namespace);
         parameter.setPartName(part.getName().getLocalPart());
         parameter.setQName(ProcessorUtil.getElementName(part));
+        parameter.setDefaultValueWriter(ProcessorUtil.getDefaultValueWriter(part, context));
         String fullJavaName = ProcessorUtil.getFullClzName(part, context, false);
         
         parameter.setClassName(fullJavaName);
@@ -51,7 +52,7 @@ public final class ParameterMapper {
             if (JAXBUtils.holderClass(fullJavaName) != null) {
                 holderClass = JAXBUtils.holderClass(fullJavaName).getName();
             }  
-            parameter.setHolderClass(holderClass);
+            parameter.setClassName(holderClass);
         }
         parameter.setStyle(style);
         return parameter;

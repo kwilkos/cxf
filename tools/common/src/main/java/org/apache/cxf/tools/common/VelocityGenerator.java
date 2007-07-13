@@ -95,6 +95,7 @@ public final class VelocityGenerator {
         }
 
         VelocityWriter writer = new VelocityWriter(outputs);
+        ctx.put("out", writer);
         try {
             tmpl.merge(ctx, writer);
             writer.close();

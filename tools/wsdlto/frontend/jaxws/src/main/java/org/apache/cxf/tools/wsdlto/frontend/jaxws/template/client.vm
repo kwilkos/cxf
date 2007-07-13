@@ -68,24 +68,43 @@ public final class ${clientClassName} {
 #foreach ($method in $intf.Methods)
 
         System.out.println("Invoking ${method.Name}...");
+#foreach ($parameter in $method.Parameters)
+#set($paramValueName = "_${method.Name}_${parameter.Name}")
+#if ($parameter.Style.toString() == "IN")
+        ${parameter.writeDefaultValue(${out}, "        ", ${method.Name}, ${paramValueName})}
+#elseif ($parameter.Style.toString() == "INOUT")          
+#set($paramValueName2 = "${paramValueName}Val")
+        ${parameter.writeDefaultValue(${out}, "        ", ${method.Name}, ${paramValueName2})}
+        javax.xml.ws.Holder<${parameter.ClassName}> $paramValueName = new javax.xml.ws.Holder<${parameter.ClassName}>(${paramValueName2});
+#elseif ($parameter.Style.toString() == "OUT")   
+        javax.xml.ws.Holder<${parameter.ClassName}> $paramValueName = new javax.xml.ws.Holder<${parameter.ClassName}>();
+#end    
+#end    
+#set($indent = "        ")
 #if($method.Exceptions.size() > 0)
-        try{
-            #if($method.return.Type != "void")
-            $method.return.ClassName _${method.Name}_$method.return.Name=#end  port.${method.Name}(#foreach ($parameter in $method.Parameters) ${parameter.DefaultTypeValue}  #if ($velocityCount != $method.parameterCount) , #end #end);
-            #if($method.return.Type != "void")
-            System.out.println("${method.Name}.result=" + _${method.Name}_$method.return.Name);
-            #end
-        }#foreach($exception in $method.Exceptions)
-        catch($exception.ClassName e){ 
-        System.out.println("Expected exception: $exception.Name has occurred.");
-        System.out.println(e.toString());
-        }#end
-        #else
-        #if($method.return.ClassName != "void")$method.return.ClassName _${method.Name}_$method.return.Name =#end port.${method.Name}(#foreach($parameter in $method.Parameters)${parameter.DefaultTypeValue}#if($velocityCount != $method.parameterCount),#end#end);
-#end#if($method.return.Type != "void")
-        #end
+#set($indent = "            ")
+        try {
 #end
-        
+#if($method.return.ClassName != "void")${indent}${method.return.ClassName} _${method.Name}__return = #else${indent}#end
+port.${method.Name}(#foreach($parameter in $method.Parameters)_${method.Name}_${parameter.Name}#if($velocityCount != $method.parameterCount), #end#end);
+#if($method.return.Type != "void")
+${indent}System.out.println("${method.Name}.result=" + _${method.Name}__return);
+#end
+#foreach ($parameter in $method.Parameters)
+#if ($parameter.Style.toString() != "IN")
+#set($paramValueName = "_${method.Name}_${parameter.Name}")
+${indent}System.out.println("${method.Name}.${paramValueName}=" + ${paramValueName}.value);
+#end
+#end
+#if($method.Exceptions.size() > 0)
+        }#foreach($exception in $method.Exceptions)
+ catch ($exception.ClassName e) { 
+            System.out.println("Expected exception: $exception.Name has occurred.");
+            System.out.println(e.toString());
+        }#end
+#end        
+
+#end
         
         System.exit(0);
     }

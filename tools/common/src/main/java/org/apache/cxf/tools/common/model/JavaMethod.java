@@ -263,7 +263,7 @@ public class JavaMethod implements JavaAnnotatable {
             if (parameter.isHolder()) {
                 sb.append(parameter.getHolderName());
                 sb.append("<");
-                sb.append(parameter.getHolderClass());
+                sb.append(parameter.getClassName());
                 sb.append(">");
             } else {
                 sb.append(parameter.getClassName());

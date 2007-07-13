@@ -19,21 +19,38 @@
 
 package org.apache.cxf.tools.wsdlto.core;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.DefaultValueWriter;
-
-public interface DataBindingProfile {
+public interface DefaultValueProvider {
     
-    void generate(ToolContext context) throws ToolException;
-    void initialize(ToolContext c) throws ToolException;
-    String getType(QName qn, boolean element);
-    String getWrappedElementType(QName wrapperElement, QName item);
+    byte getByteValue(String path);
+    short getShortValue(String path);
+    int getIntValue(String path);
+    long getLongValue(String path);
     
-    DefaultValueWriter createDefaultValueWriter(QName qn, boolean element);
-    DefaultValueWriter createDefaultValueWriterForWrappedElement(QName wrapperElement, QName qn);
+    float getFloatValue(String path);
+    double getDoubleValue(String path);
     
+    char getCharValue(String path);
+    
+    String getStringValue(String path);
+    boolean getBooleanValue(String path);
+    
+    QName getQNameValue(String path);
+    URI getURIValue(String path);
+    
+    BigInteger getBigIntegerValue(String path);
+    BigDecimal getBigDecimalValue(String path);
+    
+    String getXMLGregorianCalendarValueString(String path);
+    String getDurationValueString(String path);
+    
+    String chooseEnumValue(String path, Set<String> values);
+    
+    int getListLength(String path);
 }

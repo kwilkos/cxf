@@ -543,7 +543,7 @@ public class ServiceProcessor extends AbstractProcessor {
                                 }
                             }
                             if (jp != null) {
-                                ((JavaParameter)jp).setHolderClass(mimeJavaType);
+                                ((JavaParameter)jp).setClassName(mimeJavaType);
                             }
 
                         }

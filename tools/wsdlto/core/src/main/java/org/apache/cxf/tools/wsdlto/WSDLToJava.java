@@ -92,7 +92,6 @@ public class WSDLToJava {
                
         DataBindingProfile databinding = loadDataBinding(getDataBindingName(args));
         
-      
         
         context.put(DataBindingProfile.class, databinding);
         

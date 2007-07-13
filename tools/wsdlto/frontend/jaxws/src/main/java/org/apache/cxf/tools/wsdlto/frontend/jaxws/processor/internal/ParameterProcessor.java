@@ -118,7 +118,9 @@ public class ParameterProcessor extends AbstractProcessor {
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
 
         JavaReturn returnType = new JavaReturn(name, type, namespace);
-
+        if (part != null) {
+            returnType.setDefaultValueWriter(ProcessorUtil.getDefaultValueWriter(part, context));
+        }
 
         returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
@@ -402,6 +404,10 @@ public class ParameterProcessor extends AbstractProcessor {
         JavaParameter parameter = new JavaParameter(jpname, fullJavaName, targetNamespace);
         parameter.setStyle(style);
         parameter.setQName(item);
+        
+        parameter.setDefaultValueWriter(ProcessorUtil.getDefaultValueWriterForWrappedElement(part,
+                                                                                             context,
+                                                                                             item));
 
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
             parameter.setHolder(true);
@@ -410,7 +416,7 @@ public class ParameterProcessor extends AbstractProcessor {
             if (JAXBUtils.holderClass(fullJavaName) != null) {
                 holderClass = JAXBUtils.holderClass(fullJavaName).getName();
             }
-            parameter.setHolderClass(holderClass);
+            parameter.setClassName(holderClass);
         }
         return parameter;
 
@@ -439,6 +445,10 @@ public class ParameterProcessor extends AbstractProcessor {
 
         String jpname = ProcessorUtil.mangleNameToVariableName(simpleJavaName);
         JavaReturn returnType = new JavaReturn(jpname, fullJavaName , targetNamespace);
+        
+        returnType.setDefaultValueWriter(
+            ProcessorUtil.getDefaultValueWriterForWrappedElement(part, context, element));
+
         returnType.setQName(element);
         returnType.setStyle(JavaType.Style.OUT);
         return returnType;

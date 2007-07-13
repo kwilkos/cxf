@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.model.DefaultValueWriter;
 
 public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBindingProfile {
     public void generate(ToolContext context) throws ToolException {
@@ -37,6 +38,14 @@ public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBi
     }
     
     public String getWrappedElementType(QName parent, QName qn) {
+        return null;
+    }
+
+    public DefaultValueWriter createDefaultValueWriter(QName qn, boolean element) {
+        return null;
+    }
+
+    public DefaultValueWriter createDefaultValueWriterForWrappedElement(QName wrapperElement, QName qn) {
         return null;
     }
 }

@@ -41,6 +41,7 @@ import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.common.model.DefaultValueWriter;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
@@ -85,7 +86,21 @@ public final class ProcessorUtil {
         }
         return type;
     }
-    
+    public static DefaultValueWriter getDefaultValueWriter(MessagePartInfo part,
+                                                             ToolContext context) {
+        DataBindingProfile dataBinding = context.get(DataBindingProfile.class);
+        if (part.isElement()) {
+            return dataBinding.createDefaultValueWriter(getElementName(part), true);
+        } 
+        return dataBinding.createDefaultValueWriter(part.getTypeQName(), false);
+    }
+    public static DefaultValueWriter getDefaultValueWriterForWrappedElement(MessagePartInfo part,
+                                                           ToolContext context,
+                                                           QName subElement) {
+        DataBindingProfile dataBinding = context.get(DataBindingProfile.class);
+        return dataBinding.createDefaultValueWriterForWrappedElement(part.getElementQName(), subElement);
+    }
+
     public static QName getElementName(MessagePartInfo part) {
         return part == null ? null : part.getConcreteName();
     }

@@ -56,17 +56,36 @@ public class ${intf.Name}Impl implements $intf.Name {
         $param
 #end
     )#end
-
-###foreach ($parameter in $method.Parameters)$parameter.ClassName  _$parameter.Name #if ($velocityCounter != $method.getParameters().size()),#end#end)
 #if($method.Exceptions.size() > 0) throws #foreach($exception in $method.Exceptions)$exception.ClassName #if($velocityCount != $method.Exceptions.size()),#end #end #end
+
     { 
-       LOG.info("Executing operation $method.Name");
-#if ($method.return.ClassName != "void")    ##
-    return ${method.return.DefaultTypeValue};
+        LOG.info("Executing operation $method.Name");
+#foreach ($parameter in $method.Parameters)
+#if ($parameter.Style.toString() == "IN")
+        System.out.println($parameter.Name);
+#elseif ($parameter.Style.toString() == "INOUT")        
+        System.out.println(${parameter.Name}.value);
 #end
+#end
+        try {
+#foreach ($parameter in $method.Parameters)
+#if ($parameter.Style.toString() == "OUT")
+#set($paramValueName = "${parameter.Name}Value")
+            ${parameter.writeDefaultValue(${out}, "            ", ${method.Name}, ${paramValueName})}
+            ${parameter.Name}.value = ${paramValueName};
+#end        
+#end
+#if ($method.return.ClassName != "void")
+            ${method.return.writeDefaultValue(${out}, "            ", ${method.Name}, "_return")}
+            return _return;
+#end
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex);
+        }
 #if ($method.Exceptions.size() > 0) 
 #foreach($exception in $method.Exceptions)
-    //throw new ${exception.ClassName}("${exception.Name}...");
+        //throw new ${exception.ClassName}("${exception.Name}...");
 #end
 #end
     }

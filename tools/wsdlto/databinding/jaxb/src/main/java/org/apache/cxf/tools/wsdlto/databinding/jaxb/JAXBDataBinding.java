@@ -20,8 +20,12 @@ package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +49,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.sun.codemodel.ClassType;
+import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JType;
 import com.sun.tools.xjc.BadCommandLineException;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.api.Mapping;
@@ -58,19 +67,56 @@ import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.model.DefaultValueWriter;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.DefaultValueProvider;
+import org.apache.cxf.tools.wsdlto.core.RandomValueProvider;
 
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
-
+    
+    private static final Set<String> DEFAULT_TYPE_MAP = new HashSet<String>();
+    private static final Map<String, String> JLDEFAULT_TYPE_MAP = new HashMap<String, String>();
+    
     private S2JJAXBModel rawJaxbModelGenCode;
     private ToolContext context;
+    private DefaultValueProvider defaultValues;
+    
+    static {
+        DEFAULT_TYPE_MAP.add("boolean");
+        DEFAULT_TYPE_MAP.add("int");
+        DEFAULT_TYPE_MAP.add("long");
+        DEFAULT_TYPE_MAP.add("short");
+        DEFAULT_TYPE_MAP.add("byte");
+        DEFAULT_TYPE_MAP.add("float");
+        DEFAULT_TYPE_MAP.add("double");
+        DEFAULT_TYPE_MAP.add("char");
+        DEFAULT_TYPE_MAP.add("java.lang.String");
+        DEFAULT_TYPE_MAP.add("javax.xml.namespace.QName");
+        DEFAULT_TYPE_MAP.add("java.net.URI");
+        DEFAULT_TYPE_MAP.add("java.math.BigInteger");
+        DEFAULT_TYPE_MAP.add("java.math.BigDecimal");
+        DEFAULT_TYPE_MAP.add("javax.xml.datatype.XMLGregorianCalendar");
+        DEFAULT_TYPE_MAP.add("javax.xml.datatype.Duration");
+        
+        JLDEFAULT_TYPE_MAP.put("java.lang.Character", "char");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Boolean", "boolean");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Integer", "int");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Long", "long");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Short", "short");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Byte", "byte");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Float", "float");
+        JLDEFAULT_TYPE_MAP.put("java.lang.Double", "double");
+        DEFAULT_TYPE_MAP.addAll(JLDEFAULT_TYPE_MAP.keySet());
+    }    
+
 
     @SuppressWarnings("unchecked")
     public void initialize(ToolContext c) throws ToolException {
@@ -150,6 +196,23 @@ public class JAXBDataBinding implements DataBindingProfile {
         rawJaxbModelGenCode = schemaCompiler.bind();
 
         addedEnumClassToCollector(schemaLists, allocator);
+
+        if (context.get(ToolConstants.CFG_DEFAULT_VALUES) != null) {
+            String cname = (String)context.get(ToolConstants.CFG_DEFAULT_VALUES);
+            if (StringUtils.isEmpty(cname)) {
+                defaultValues = new RandomValueProvider();
+            } else {
+                if (cname.charAt(0) == '=') {
+                    cname = cname.substring(1);
+                }
+                try {
+                    defaultValues = (DefaultValueProvider)Class.forName(cname).newInstance();
+                } catch (Exception e) {
+                    LOG.log(Level.SEVERE, e.getMessage());
+                    throw new ToolException(e);
+                }
+            }
+        }
     }
 
     // TODO  this can be repaced with schemaCompiler.getOptions() once we
@@ -335,5 +398,250 @@ public class JAXBDataBinding implements DataBindingProfile {
             }
         }
     }
+    
+    public DefaultValueWriter createDefaultValueWriter(QName qname, boolean element) {
+        if (defaultValues == null) {
+            return null;
+        }
+        TypeAndAnnotation typeAnno = rawJaxbModelGenCode.getJavaType(qname);
+        if (element) {
+            Mapping mapping = rawJaxbModelGenCode.get(qname);
+            if (mapping != null) {
+                typeAnno = mapping.getType();
+            }
+        }
+        if (typeAnno != null) { 
+            final JType type = typeAnno.getTypeClass();
+            return new JAXBDefaultValueWriter(type);
+        } 
+        return null;
+    }
+    
+    public DefaultValueWriter createDefaultValueWriterForWrappedElement(QName wrapperElement, QName item) {
+        if (defaultValues != null) {
+            Mapping mapping = rawJaxbModelGenCode.get(wrapperElement);
+            if (mapping != null) {
+                List<? extends Property> propList = mapping.getWrapperStyleDrilldown();
+                for (Property pro : propList) {
+                    if (pro.elementName().getNamespaceURI().equals(item.getNamespaceURI())
+                        && pro.elementName().getLocalPart().equals(item.getLocalPart())) {
+                        return new JAXBDefaultValueWriter(pro.type());
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+    private class JAXBDefaultValueWriter implements DefaultValueWriter {
+        final JType type;
+        JAXBDefaultValueWriter(JType tp) {
+            type = tp;
+        }
+        public void writeDefaultValue(Writer writer, String indent,
+                                      String path, String varName) throws IOException {
+            path = path + "/" + varName;
+            writeDefaultValue(writer, indent, path, varName, type);
+        }
+        
+        public void writeDefaultValue(Writer writer, String indent,
+                                      String path, String varName,
+                                      JType tp) throws IOException {
+            writer.write(tp.fullName());
+            writer.write(" ");
+            writer.write(varName);
+            writer.write(" = ");
+            if (tp.isArray()) {
+                writer.write("new ");
+                writer.write(tp.fullName());
+                writer.write(" {};");
+            } else if (DEFAULT_TYPE_MAP.contains(tp.fullName())) {
+                writeDefaultType(writer, tp, path);
+                writer.write(";");
+            } else if (tp instanceof JDefinedClass) {
+                JDefinedClass jdc = (JDefinedClass)tp;
+                if (jdc.getClassType() == ClassType.ENUM) {
+                    //no way to get the field list as it's private with 
+                    //no accessors :-(
+                    try {
+                        Field f = jdc.getClass().getDeclaredField("enumConstantsByName");
+                        f.setAccessible(true);
+                        Map map = (Map)f.get(jdc);
+                        Set<String> values = CastUtils.cast(map.keySet()); 
+                        String first = defaultValues.chooseEnumValue(path, values);
+                        writer.write(tp.fullName());
+                        writer.write(".");                        
+                        writer.write(first);                        
+                        writer.write(";");
+                    } catch (Exception e) {
+                        IOException ex = new IOException(e.getMessage());
+                        ex.initCause(e);
+                        throw ex;
+                    }
+                } else {
+                    writer.write("new ");
+                    writer.write(tp.fullName());
+                    writer.write("();");
+                    fillInFields(writer, indent, path, varName, jdc);
+                }
+            } else {
+                boolean found = false;
+                JType tp2 = tp.erasure();
+                try {
+                    Field f = tp2.getClass().getDeclaredField("_class");
+                    f.setAccessible(true);
+                    Class<?> cls = (Class)f.get(tp2);
+                    if (List.class.isAssignableFrom(cls)) {
+                        found = true;
+
+                        writer.write("new ");
+                        writer.write(tp.fullName().replace("java.util.List", "java.util.ArrayList"));
+                        writer.write("();");
+                        
+                        f = tp.getClass().getDeclaredField("args");
+                        f.setAccessible(true);
+                        List<JClass> lcl = CastUtils.cast((List)f.get(tp));
+                        JClass cl = lcl.get(0);
+                        
+                        int cnt = defaultValues.getListLength(path + "/" + varName);
+                        for (int x = 0; x < cnt; x++) {
+
+                            writer.write("\n");
+                            writer.write(indent);
+                            writeDefaultValue(writer, indent, path + "/" + varName + "Val",
+                                              varName + "Val" + cnt , cl);
+                            writer.write("\n");
+                            writer.write(indent);
+                            writer.write(varName);
+                            writer.write(".add(");
+                            writer.write(varName + "Val" + cnt);
+                            writer.write(");");
+                        }
+                    }
+                } catch (Exception e) {
+                    //ignore
+                }
+                
+                if (!found) {
+                    //System.err.println("No idea what to do with " + tp.fullName());
+                    //System.err.println("        class " + tp.getClass().getName());
+                    writer.write("null;");
+                }
+            }
+        }
+        public void fillInFields(Writer writer, String indent,
+                                      String path, String varName,
+                                      JDefinedClass tp) throws IOException {
+            JClass sp = tp._extends();
+            if (sp instanceof JDefinedClass) {
+                fillInFields(writer, indent, path, varName, (JDefinedClass)sp);
+            }
+            
+            Collection<JMethod> methods = tp.methods();
+            for (JMethod m : methods) {
+                if (m.name().startsWith("set")) {
+                    writer.write("\n");
+                    writer.write(indent);
+                    if (DEFAULT_TYPE_MAP.contains(m.listParamTypes()[0].fullName())) {
+                        writer.write(varName);
+                        writer.write(".");
+                        writer.write(m.name());
+                        writer.write("(");
+                        writeDefaultType(writer, m.listParamTypes()[0], path + "/" + m.name().substring(3));
+                        writer.write(");");
+                    } else {
+                        writeDefaultValue(writer, indent,
+                                          path + "/" + m.name().substring(3),
+                                          varName + m.name().substring(3),
+                                          m.listParamTypes()[0]);
+                        writer.write("\n");
+                        writer.write(indent);
+                        writer.write(varName);
+                        writer.write(".");
+                        writer.write(m.name());
+                        writer.write("(");
+                        writer.write(varName + m.name().substring(3));
+                        writer.write(");");
+                    }
+                } else if (m.type().fullName().startsWith("java.util.List")) {
+                    writer.write("\n");
+                    writer.write(indent);
+                    writeDefaultValue(writer, indent,
+                                      path + "/" + m.name().substring(3),
+                                      varName + m.name().substring(3),
+                                      m.type());
+                    writer.write("\n");
+                    writer.write(indent);
+                    writer.write(varName);
+                    writer.write(".");
+                    writer.write(m.name());
+                    writer.write("().addAll(");
+                    writer.write(varName + m.name().substring(3));
+                    writer.write(");");                    
+                }
+            }
+        }
+        private void writeDefaultType(Writer writer, JType t, String path) throws IOException {
+            String name = t.fullName();
+            writeDefaultType(writer, name, path);
+            
+        }    
+        private void writeDefaultType(Writer writer, String name, String path) throws IOException {
+            if (JLDEFAULT_TYPE_MAP.containsKey(name)) {
+                writer.append(name.substring("java.lang.".length())).append(".valueOf(");
+                writeDefaultType(writer, JLDEFAULT_TYPE_MAP.get(name), path);
+                writer.append(")");
+            } else if ("boolean".equals(name)) {
+                writer.append(defaultValues.getBooleanValue(path) ? "true" : "false");
+            } else if ("int".equals(name)) {
+                writer.append(Integer.toString(defaultValues.getIntValue(path)));
+            } else if ("long".equals(name)) {
+                writer.append(Long.toString(defaultValues.getLongValue(path))).append("l");
+            } else if ("short".equals(name)) {
+                writer.append("(short)").append(Short.toString(defaultValues.getShortValue(path)));
+            } else if ("byte".equals(name)) {
+                writer.append("(byte)").append(Byte.toString(defaultValues.getByteValue(path)));
+            } else if ("float".equals(name)) {
+                writer.append(Float.toString(defaultValues.getFloatValue(path))).append("f");
+            } else if ("double".equals(name)) {
+                writer.append(Double.toString(defaultValues.getDoubleValue(path)));
+            } else if ("char".equals(name)) {
+                writer.append("(char)").append(Character.toString(defaultValues.getCharValue(path)));
+            } else if ("java.lang.String".equals(name)) {
+                writer.append("\"")
+                    .append(defaultValues.getStringValue(path))
+                    .append("\"");
+            } else if ("javax.xml.namespace.QName".equals(name)) {
+                QName qn = defaultValues.getQNameValue(path);
+                writer.append("new javax.xml.namespace.QName(\"")
+                      .append(qn.getNamespaceURI())
+                      .append("\", \"")
+                      .append(qn.getLocalPart())
+                      .append("\")");
+            } else if ("java.net.URI".equals(name)) {
+                writer.append("new java.net.URI(\"")
+                      .append(defaultValues.getURIValue(path).toASCIIString())
+                      .append("\")");
+            } else if ("java.math.BigInteger".equals(name)) {
+                writer.append("new java.math.BigInteger(\"")
+                      .append(defaultValues.getBigIntegerValue(path).toString())
+                      .append("\")");
+            } else if ("java.math.BigDecimal".equals(name)) {
+                writer.append("new java.math.BigDecimal(\"")
+                      .append(defaultValues.getBigDecimalValue(path).toString())
+                      .append("\")");
+            } else if ("javax.xml.datatype.XMLGregorianCalendar".equals(name)) {
+                writer.append("javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar(\"")
+                      .append(defaultValues.getXMLGregorianCalendarValueString(path))
+                      .append("\")");
+            } else if ("javax.xml.datatype.Duration".equals(name)) {
+                writer.append("javax.xml.datatype.DatatypeFactory.newInstance().newDuration(\"")
+                      .append(defaultValues.getDurationValueString(path))
+                      .append("\")");
+            }
+        }
+    }
+
 
 }

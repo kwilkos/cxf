@@ -24,7 +24,6 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     private boolean holder;
     private String holderName;
-    private String holderClass;
     private JavaAnnotation annotation;
     private String partName;
 
@@ -51,14 +50,6 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     public void setHolderName(String hn) {
         this.holderName = hn;
-    }
-
-    public void setHolderClass(String clz) {
-        this.holderClass = clz;
-    }
-
-    public String getHolderClass() {
-        return this.holderClass;
     }
 
     public void setAnnotation(JavaAnnotation anno) {
@@ -95,19 +86,6 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
         return sb.toString();
     }
     
-    public String getDefaultTypeValue() {
-        if (isHolder()) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("new ");
-            sb.append(getHolderName());
-            sb.append("<");
-            sb.append(getHolderClass());
-            sb.append(">()");
-            return sb.toString(); 
-        }
-        return super.getDefaultTypeValue();
-    }
-
     public void setMethod(JavaMethod jm) {
         this.javaMethod = jm;
     }
