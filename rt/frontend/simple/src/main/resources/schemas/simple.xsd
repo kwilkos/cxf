@@ -53,6 +53,7 @@
         </xsd:all>
         <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>
         <xsd:attribute name="address" type="xsd:string" />
+        <xsd:attribute name="bindingId" type="xsd:string" />
         <xsd:attribute name="bus" type="xsd:string" />
         <xsd:attribute name="serviceClass" type="xsd:string"/>
         <xsd:attribute name="serviceBean" type="xsd:string"/>
@@ -81,7 +82,7 @@
         </xsd:all>
         <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>
         <xsd:attribute name="address" type="xsd:string" />
-        <xsd:attribute name="bindingUri" type="xsd:string" />
+        <xsd:attribute name="bindingId" type="xsd:string" />
         <xsd:attribute name="bus" type="xsd:string" />
         <xsd:attribute name="endpointName" type="xsd:QName" />
         <xsd:attribute name="password" type="xsd:string" />
