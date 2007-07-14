@@ -65,8 +65,7 @@ public class SourceDataBinding implements DataBinding {
     }
 
     public Class<?>[] getSupportedReaderFormats() {
-        // TODO Auto-generated method stub
-        return null;
+        return new Class[] {XMLStreamReader.class, Node.class};
     }
 
     @SuppressWarnings("unchecked")

@@ -22,6 +22,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -38,6 +40,7 @@ import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  * An ArrayType.
@@ -258,6 +261,10 @@ public class ArrayType extends Type {
     @Override
     public void writeSchema(Element root) {
         try {
+            if (hasDefinedArray(root)) {
+                return;
+            }
+            
             Element complex = new Element("complexType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
             complex.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
             root.addContent(complex);
@@ -292,6 +299,25 @@ public class ArrayType extends Type {
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument.", e);
         }
+    }
+
+    /**
+     * Since both an Array and a List can have the same type definition, double check
+     * that there isn't already a defined type already.
+     * @param root
+     * @return
+     */
+    private boolean hasDefinedArray(Element root) {
+        List children = root.getChildren("complexType", Namespace.getNamespace(XmlConstants.XSD));
+        for (Iterator itr = children.iterator(); itr.hasNext();) {
+            Element e = (Element) itr.next();
+            
+            
+            if (e.getAttributeValue("name").equals(getSchemaType().getLocalPart())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

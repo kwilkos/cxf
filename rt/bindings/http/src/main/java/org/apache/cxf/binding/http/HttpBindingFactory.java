@@ -68,6 +68,7 @@ public class HttpBindingFactory extends AbstractBindingFactory {
         
         binding.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         
+        binding.getOutFaultInterceptors().add(new ContentTypeOutInterceptor());
         binding.getOutFaultInterceptors().add(new StaxOutInterceptor());
         binding.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
         

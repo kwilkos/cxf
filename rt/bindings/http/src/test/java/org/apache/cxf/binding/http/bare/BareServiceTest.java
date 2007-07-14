@@ -149,6 +149,15 @@ public class BareServiceTest extends AbstractRestTest {
         
         assertEquals("text/plain", c.getContentType());
 
+        c.disconnect();
+        
+        url = new URL("http://localhost:9001/foo/customers/bleh");
+        c = (HttpURLConnection)url.openConnection();
+        c.setRequestMethod("GET");
+        
+        String ct = c.getContentType();
+        assertTrue(ct.startsWith("text/plain"));
+
         svr.stop();
     }
 
