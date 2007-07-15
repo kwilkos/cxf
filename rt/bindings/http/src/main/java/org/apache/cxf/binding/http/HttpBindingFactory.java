@@ -40,6 +40,8 @@ import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -94,6 +96,17 @@ public class HttpBindingFactory extends AbstractBindingFactory {
             info.addOperation(bop);
             
             Method m = md.getMethod(bop);
+            
+            try {
+                Class c = (Class) service.get(ReflectionServiceFactoryBean.ENDPOINT_CLASS);
+                if (c != null) {
+                    m = c.getMethod(m.getName(), m.getParameterTypes());
+                }
+            } catch (SecurityException e) {
+                throw new ServiceConstructionException(e);
+            } catch (NoSuchMethodException e) {
+                throw new ServiceConstructionException(e);
+            }
             
             // attempt to map the method to a resource using different strategies
             for (ResourceStrategy s : strategies) {

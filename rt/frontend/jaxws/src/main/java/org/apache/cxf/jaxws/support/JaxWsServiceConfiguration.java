@@ -54,8 +54,6 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     private JaxWsImplementorInfo implInfo;
     
-    
-    
     public JaxWsServiceConfiguration() {
         
     }

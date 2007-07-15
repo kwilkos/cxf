@@ -90,6 +90,7 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
  */
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
+    public static final String ENDPOINT_CLASS = "endpoint.class";
     public static final String GENERIC_TYPE = "generic.type";
     public static final String MODE_OUT = "messagepart.mode.out";
     public static final String MODE_INOUT = "messagepart.mode.inout";

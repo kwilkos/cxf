@@ -85,6 +85,15 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
 
     @Override
+    public org.apache.cxf.service.Service create() {
+        org.apache.cxf.service.Service s = super.create();
+        
+        s.put(ENDPOINT_CLASS, implInfo.getEndpointClass());
+        
+        return s;
+    }
+
+    @Override
     protected Invoker createInvoker() {
         return null;
     }
