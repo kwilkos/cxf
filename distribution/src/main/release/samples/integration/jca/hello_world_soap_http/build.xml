@@ -57,7 +57,7 @@
         <pathelement location="${cxf.home}/lib/geronimo-servlet_2.5_spec-1.1-M1.jar"/>
         <pathelement location="${basedir}/../common/common.jar"/>
         <pathelement location="${jboss.home}/client/jboss-j2ee.jar"/>
-        <fileset dir="${cxf.home}/modules/integration" >  
+        <fileset dir="${integration.jar.dir}" >  
              <include name="cxf-integration-jca-*.jar"/>
         </fileset>
     </path>
