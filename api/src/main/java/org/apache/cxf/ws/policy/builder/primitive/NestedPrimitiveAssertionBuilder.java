@@ -28,21 +28,21 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 
 public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
-
-    private PolicyBuilder builder;
+    
+    private PolicyBuilder builder;    
     private AssertionBuilderRegistry assertionBuilderRegistry;
     
     public void setPolicyBuilder(PolicyBuilder b) {
         builder = b;
     }
-    
+        
     public void setAssertionBuilderRegistry(AssertionBuilderRegistry abr) {
         assertionBuilderRegistry = abr;
     }
     
     @Override
     public Assertion build(Element elem) {
-        return new NestedPrimitiveAssertion(elem, builder); 
+        return new NestedPrimitiveAssertion(elem, builder, getPolicyConstants()); 
     }
 
     @Override

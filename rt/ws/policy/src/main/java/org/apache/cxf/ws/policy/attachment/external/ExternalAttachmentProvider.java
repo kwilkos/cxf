@@ -156,8 +156,16 @@ public class ExternalAttachmentProvider extends AbstractPolicyProvider
         } catch (Exception ex) {
             throw new PolicyException(ex);
         }
-        NodeList nl = doc.getElementsByTagNameNS(PolicyConstants.getNamespace(), 
-                                                 PolicyConstants.getPolicyAttachmentElemName());
+        
+        PolicyConstants constants = null;
+        if (null != bus) {
+            constants = bus.getExtension(PolicyConstants.class);
+        }
+        if (null == constants) {
+            constants = new PolicyConstants();
+        }
+        NodeList nl = doc.getElementsByTagNameNS(constants.getNamespace(), 
+                                                 constants.getPolicyAttachmentElemName());
         for (int i = 0; i < nl.getLength(); i++) {
             
             PolicyAttachment attachment = new PolicyAttachment();
@@ -169,20 +177,20 @@ public class ExternalAttachmentProvider extends AbstractPolicyProvider
                     continue;
                 }
                 QName qn = new QName(nd.getNamespaceURI(), nd.getLocalName());
-                if (PolicyConstants.getAppliesToElemQName().equals(qn)) {
+                if (constants.getAppliesToElemQName().equals(qn)) {
                     Collection<DomainExpression> des = readDomainExpressions((Element)nd);
                     if (des.isEmpty()) {
                         // forget about this attachment
                         continue;
                     }
                     attachment.setDomainExpressions(des);                    
-                } else if (PolicyConstants.getPolicyElemQName().equals(qn)) {
+                } else if (constants.getPolicyElemQName().equals(qn)) {
                     Policy p = builder.getPolicy((Element)nd);
                     if (null != attachment.getPolicy()) {
                         p = p.merge(attachment.getPolicy());
                     }
                     attachment.setPolicy(p);
-                } else if (PolicyConstants.getPolicyReferenceElemQName().equals(qn)) {
+                } else if (constants.getPolicyReferenceElemQName().equals(qn)) {
                     PolicyReference ref = builder.getPolicyReference((Element)nd);
                     if (null != ref) {   
                         Policy p = resolveReference(ref, doc);
@@ -220,7 +228,8 @@ public class ExternalAttachmentProvider extends AbstractPolicyProvider
         if (null != resolved) {
             return resolved;
         }
-        ReferenceResolver resolver = new LocalDocumentReferenceResolver(doc, builder);
+        ReferenceResolver resolver = new LocalDocumentReferenceResolver(doc, builder, 
+            bus.getExtension(PolicyConstants.class));
         resolved = resolver.resolveReference(relativeURI);
         if (null != resolved) {
             ref.setURI(absoluteURI);

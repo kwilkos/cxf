@@ -55,10 +55,10 @@ public class PrimitiveAssertion implements Assertion {
         optional = o;
     }
     
-    public PrimitiveAssertion(Element element) {
+    public PrimitiveAssertion(Element element, PolicyConstants constants) {
         name = new QName(element.getNamespaceURI(), element.getLocalName());
-        Attr attribute = element.getAttributeNodeNS(PolicyConstants.getNamespace(), 
-                                              PolicyConstants.getOptionalAttrName());
+        Attr attribute = element.getAttributeNodeNS(constants.getNamespace(), 
+                                                    constants.getOptionalAttrName());
         if (attribute != null) {
             optional = Boolean.valueOf(attribute.getValue());
         }

@@ -54,8 +54,8 @@ public class NestedPrimitiveAssertion extends PrimitiveAssertion {
         super(name, optional);
     }
     
-    public NestedPrimitiveAssertion(Element elem, PolicyBuilder builder) {
-        super(elem);
+    public NestedPrimitiveAssertion(Element elem, PolicyBuilder builder, PolicyConstants constants) {
+        super(elem, constants);
         
         // expect exactly one child element of type Policy
        
@@ -63,18 +63,18 @@ public class NestedPrimitiveAssertion extends PrimitiveAssertion {
         for (Node nd = elem.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
             if (Node.ELEMENT_NODE == nd.getNodeType()) {
                 QName qn = new QName(nd.getNamespaceURI(), nd.getLocalName());
-                if (PolicyConstants.getPolicyElemQName().equals(qn)
+                if (constants.getPolicyElemQName().equals(qn)
                     && null == policyElem) {
                     policyElem = (Element)nd;
                 } else {
                     throw new PolicyException(new Message("UNEXPECTED_CHILD_ELEMENT_EXC", BUNDLE, 
-                                                          PolicyConstants.getPolicyElemQName()));
+                                                          constants.getPolicyElemQName()));
                 }                
             }
         }
         if (null == policyElem) {
             throw new PolicyException(new Message("UNEXPECTED_CHILD_ELEMENT_EXC", BUNDLE, 
-                                                  PolicyConstants.getPolicyElemQName()));
+                                                  constants.getPolicyElemQName()));
         }
         
         nested = builder.getPolicy(policyElem);  

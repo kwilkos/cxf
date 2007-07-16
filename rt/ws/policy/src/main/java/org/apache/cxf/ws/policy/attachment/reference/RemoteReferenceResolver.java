@@ -39,10 +39,12 @@ public class RemoteReferenceResolver implements ReferenceResolver {
     
     private String baseURI;
     private PolicyBuilder builder;
+    private PolicyConstants constants;
     
-    public RemoteReferenceResolver(String uri, PolicyBuilder b) {
+    public RemoteReferenceResolver(String uri, PolicyBuilder b, PolicyConstants c) {
         baseURI = uri;
         builder = b;
+        constants = c;
     }
 
     public Policy resolveReference(String uri) {
@@ -60,13 +62,13 @@ public class RemoteReferenceResolver implements ReferenceResolver {
             throw new PolicyException(ex);
         }
 
-        NodeList nl = doc.getElementsByTagNameNS(PolicyConstants.getNamespace(), 
-                                                 PolicyConstants.getPolicyElemName());
+        NodeList nl = doc.getElementsByTagNameNS(constants.getNamespace(), 
+                                                 constants.getPolicyElemName());
         String id = uri.substring(pos + 1);
         for (int i = 0; i < nl.getLength(); i++) {
             Element elem = (Element)nl.item(i);
-            if (id.equals(elem.getAttributeNS(PolicyConstants.getWSUNamespace(), 
-                                              PolicyConstants.getIdAttrName()))) {
+            if (id.equals(elem.getAttributeNS(constants.getWSUNamespace(), 
+                                              constants.getIdAttrName()))) {
                 return builder.getPolicy(elem);
             }
         }

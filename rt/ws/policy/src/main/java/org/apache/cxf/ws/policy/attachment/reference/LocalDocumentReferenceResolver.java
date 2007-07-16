@@ -34,20 +34,22 @@ public class LocalDocumentReferenceResolver implements ReferenceResolver {
 
     private Document document;
     private PolicyBuilder builder;
+    private PolicyConstants constants;
     
-    public LocalDocumentReferenceResolver(Document di, PolicyBuilder b) {
+    public LocalDocumentReferenceResolver(Document di, PolicyBuilder b, PolicyConstants c) {
         document = di;
         builder = b;
+        constants = c;
     }
     
     public Policy resolveReference(String uri) {
-        NodeList nl = document.getElementsByTagNameNS(PolicyConstants.getNamespace(),
-                                                      PolicyConstants.getPolicyElemName());
+        NodeList nl = document.getElementsByTagNameNS(constants.getNamespace(),
+                                                      constants.getPolicyElemName());
         
         for (int i = 0; i < nl.getLength(); i++) {
             Element e = (Element)nl.item(i);
-            if (uri.equals(e.getAttributeNS(PolicyConstants.getWSUNamespace(),
-                                                            PolicyConstants.getIdAttrName()))) {
+            if (uri.equals(e.getAttributeNS(constants.getWSUNamespace(),
+                                            constants.getIdAttrName()))) {
                 return builder.getPolicy(e);
             }
         }

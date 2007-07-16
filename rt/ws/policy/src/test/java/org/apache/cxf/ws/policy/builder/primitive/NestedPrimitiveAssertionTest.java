@@ -26,6 +26,7 @@ import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
@@ -34,6 +35,8 @@ import org.apache.cxf.ws.policy.util.PolicyComparator;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,22 +53,33 @@ public class NestedPrimitiveAssertionTest extends Assert {
     private static final QName TEST_NAME2 = new QName(TEST_NAMESPACE, "AnonymousResponses");
     private static final QName TEST_NAME3 = new QName(TEST_NAMESPACE, "NonAnonymousResponses");
     
-    private String originalNamespace;
-
     private PolicyBuilderImpl builder;
+    private IMocksControl control;
+    private Bus bus;
+    private PolicyConstants constants;
     
     @Before
     public void setUp() {
+        
+        control = EasyMock.createNiceControl();
+        
+        bus = control.createMock(Bus.class);
+        constants = new PolicyConstants();
+        constants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
+        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
+        
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder = new PolicyBuilderImpl();
         builder.setAssertionBuilderRegistry(abr);
         
         NestedPrimitiveAssertionBuilder npab = new NestedPrimitiveAssertionBuilder();
+        npab.setBus(bus);
         npab.setPolicyBuilder(builder);
         npab.setKnownElements(Collections.singletonList(TEST_NAME1));
         abr.register(TEST_NAME1, npab);
         
         PrimitiveAssertionBuilder pab = new PrimitiveAssertionBuilder();
+        pab.setBus(bus);
         Collection<QName> known = new ArrayList<QName>();
         known.add(TEST_NAME2);
         known.add(TEST_NAME3);
@@ -73,13 +87,12 @@ public class NestedPrimitiveAssertionTest extends Assert {
         abr.register(TEST_NAME2, pab);
         abr.register(TEST_NAME3, pab); 
         
-        originalNamespace = PolicyConstants.getNamespace();
-        PolicyConstants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
+        control.replay();
     }
     
     @After
     public void tearDown() {
-        PolicyConstants.setNamespace(originalNamespace);
+        control.verify();
     }
     
     @Test

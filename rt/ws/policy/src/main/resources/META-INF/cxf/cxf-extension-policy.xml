@@ -31,6 +31,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </constructor-arg>
     </bean>
     
+    <bean class="org.apache.cxf.ws.policy.PolicyConstants"/>
+    
     <bean id="org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry" class="org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistryImpl">
         <constructor-arg>
             <bean class="org.apache.cxf.configuration.spring.SpringBeanQNameMap">
@@ -69,6 +71,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean>
     
     <!-- MTOM Policy Support -->
-    <bean class="org.apache.cxf.ws.policy.mtom.MTOMAssertionBuilder" />
+    <bean class="org.apache.cxf.ws.policy.mtom.MTOMAssertionBuilder">
+        <property name="bus" ref="cxf"/>
+    </bean>
     <bean class="org.apache.cxf.ws.policy.mtom.MTOMPolicyInterceptorProvider"/>
 </beans>

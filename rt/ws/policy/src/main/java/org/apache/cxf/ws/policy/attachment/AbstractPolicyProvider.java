@@ -27,6 +27,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.ws.policy.PolicyBuilder;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.PolicyProvider;
@@ -73,7 +74,8 @@ public abstract class AbstractPolicyProvider implements PolicyProvider {
     }
     
     protected Policy resolveExternal(PolicyReference ref,  String baseURI) {
-        ReferenceResolver resolver = new RemoteReferenceResolver(baseURI, builder);
+        ReferenceResolver resolver = new RemoteReferenceResolver(baseURI, builder,
+            bus.getExtension(PolicyConstants.class));
         Policy resolved = registry.lookup(ref.getURI());
         if (null != resolved) {
             return resolved;

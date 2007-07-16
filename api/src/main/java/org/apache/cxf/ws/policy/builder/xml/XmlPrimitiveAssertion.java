@@ -34,15 +34,17 @@ import org.apache.neethi.PolicyComponent;
 public class XmlPrimitiveAssertion extends PrimitiveAssertion {
 
     private Element element;
+    private PolicyConstants constants;
 
     /**
      * Constructs a XmlPrimitiveAssertion from an xml element.
      * 
      * @param e the xml element
      */
-    public XmlPrimitiveAssertion(Element e) {
-        super(e);
+    public XmlPrimitiveAssertion(Element e, PolicyConstants c) {
+        super(e, c);
         element = e;
+        constants = c;
     }
 
     /**
@@ -66,9 +68,9 @@ public class XmlPrimitiveAssertion extends PrimitiveAssertion {
     protected Assertion cloneMandatory() {
         Element e = (Element)element.cloneNode(true);
         if (isOptional()) {
-            e.removeAttributeNode(e.getAttributeNodeNS(PolicyConstants.getNamespace(), 
-                                                   PolicyConstants.getOptionalAttrName()));
+            e.removeAttributeNode(e.getAttributeNodeNS(constants.getNamespace(), 
+                                                       constants.getOptionalAttrName()));
         }
-        return new XmlPrimitiveAssertion(e);        
+        return new XmlPrimitiveAssertion(e, constants);        
     }
 }

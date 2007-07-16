@@ -35,20 +35,22 @@ public class LocalServiceModelReferenceResolver implements ReferenceResolver {
 
     private DescriptionInfo descriptionInfo;
     private PolicyBuilder builder;
+    private PolicyConstants constants;
     
-    public LocalServiceModelReferenceResolver(DescriptionInfo d, PolicyBuilder b) {
+    public LocalServiceModelReferenceResolver(DescriptionInfo d, PolicyBuilder b, PolicyConstants c) {
         descriptionInfo = d;
         builder = b;
+        constants = c;
     }
     
     public Policy resolveReference(String uri) {
         List<UnknownExtensibilityElement> extensions = 
             descriptionInfo.getExtensors(UnknownExtensibilityElement.class);
         for (UnknownExtensibilityElement e : extensions) {
-            if (PolicyConstants.getNamespace().equals(e.getElementType().getNamespaceURI())
-                && PolicyConstants.getPolicyElemName().equals(e.getElementType().getLocalPart())
-                && uri.equals(e.getElement().getAttributeNS(PolicyConstants.getWSUNamespace(),
-                                                            PolicyConstants.getIdAttrName()))) {
+            if (constants.getNamespace().equals(e.getElementType().getNamespaceURI())
+                && constants.getPolicyElemName().equals(e.getElementType().getLocalPart())
+                && uri.equals(e.getElement().getAttributeNS(constants.getWSUNamespace(),
+                                                            constants.getIdAttrName()))) {
                 return builder.getPolicy(e.getElement());
             }
         }

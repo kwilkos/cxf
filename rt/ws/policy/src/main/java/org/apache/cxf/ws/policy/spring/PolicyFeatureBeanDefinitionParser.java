@@ -43,7 +43,8 @@ public class PolicyFeatureBeanDefinitionParser extends AbstractSingleBeanDefinit
     @Override
     protected String resolveId(Element element, AbstractBeanDefinition bean, 
                                ParserContext ctx) throws BeanDefinitionStoreException {
-        return element.getAttributeNS(PolicyConstants.getWSUNamespace(), PolicyConstants.getIdAttrName());
+        PolicyConstants constants = new PolicyConstants();
+        return element.getAttributeNS(constants.getWSUNamespace(), constants.getIdAttrName());
     }
 
     @Override

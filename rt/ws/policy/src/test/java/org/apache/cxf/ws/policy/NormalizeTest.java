@@ -23,9 +23,12 @@ import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.builder.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.neethi.Policy;
 import org.apache.neethi.util.PolicyComparator;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,27 +36,32 @@ import org.junit.Test;
 
 public class NormalizeTest extends Assert {
     
-    private String originalNamespace;
+    private IMocksControl control;
     
     
     @Before
     public void setUp() {
-        originalNamespace = PolicyConstants.getNamespace();
-        PolicyConstants.setNamespace("http://schemas.xmlsoap.org/ws/2004/09/policy");
+        control = EasyMock.createNiceControl();
     }
     
     @After
     public void tearDown() {
-        PolicyConstants.setNamespace(originalNamespace);
+        control.verify();
     }
     
     @Test
     public void testNormalise() throws Exception {
-        
+        Bus bus = control.createMock(Bus.class);
+        PolicyConstants constants = new PolicyConstants();
+        constants.setNamespace("http://schemas.xmlsoap.org/ws/2004/09/policy");
+        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
+        control.replay();
         PolicyBuilderImpl builder = new PolicyBuilderImpl();
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder.setAssertionBuilderRegistry(abr);
-        AssertionBuilder ab = new XMLPrimitiveAssertionBuilder(); 
+        XMLPrimitiveAssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
+        ab.setBus(bus);
+       
         abr.register(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "SecurityToken"), ab);
         abr.register(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "SecurityHeader"), ab);
         abr.register(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "Integrity"), ab);

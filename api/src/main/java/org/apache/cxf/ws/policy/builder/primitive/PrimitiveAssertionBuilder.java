@@ -24,17 +24,25 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
+
 import org.w3c.dom.Element;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.neethi.Assertion;
 
 public class PrimitiveAssertionBuilder implements AssertionBuilder {
 
+    protected Bus bus;
     private Collection<QName> knownElements = new ArrayList<QName>();
     
-    public Assertion build(Element element) {
-        return new PrimitiveAssertion(element);
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    public Assertion build(Element element) {  
+        return new PrimitiveAssertion(element, getPolicyConstants());
     }
 
     public Collection<QName> getKnownElements() {
@@ -55,4 +63,16 @@ public class PrimitiveAssertionBuilder implements AssertionBuilder {
         }
         return  null;
     }   
+    
+    protected PolicyConstants getPolicyConstants() {
+        PolicyConstants constants = null;
+        if (null != bus) {
+            constants = bus.getExtension(PolicyConstants.class);
+        }
+        if (null == constants) {
+            constants = new PolicyConstants();
+        }
+        return constants;
+        
+    }
 }

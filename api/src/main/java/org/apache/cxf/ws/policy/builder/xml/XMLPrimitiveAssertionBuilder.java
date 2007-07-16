@@ -27,6 +27,6 @@ import org.apache.neethi.Assertion;
 public class XMLPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
  
     public Assertion build(Element element) {
-        return new XmlPrimitiveAssertion(element);
+        return new XmlPrimitiveAssertion(element, getPolicyConstants());
     }
 }

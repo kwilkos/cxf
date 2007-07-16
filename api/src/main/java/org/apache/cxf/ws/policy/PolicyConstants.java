@@ -21,10 +21,12 @@ package org.apache.cxf.ws.policy;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.extension.BusExtension;
+
 /**
  * Encapsulation of version-specific WS-Policy constants.
  */
-public final class PolicyConstants {
+public final class PolicyConstants implements BusExtension {
     
     public static final String NAMESPACE_XMLSOAP_200409
         = "http://schemas.xmlsoap.org/ws/2004/09/policy";
@@ -102,101 +104,16 @@ public final class PolicyConstants {
     private static final QName WSU_ID_ATTR_QNAME =
         new QName(WSU_NAMESPACE_URI, WSU_ID_ATTR_NAME);
     
-    static {
+    
+    public PolicyConstants() {
         setNamespace(NAMESPACE_W3_200607);
     }
     
-    /**
-     * Prevents instantiation.
-     */
-    
-    private PolicyConstants() {
+    public Class<?> getRegistrationType() {
+        return PolicyConstants.class;
     }
-    
-    
-    
-    public static String getNamespace() {
-        return namespaceURI;
-    } 
-    
-    public static String getWSUNamespace() {
-        return WSU_NAMESPACE_URI;
-    }
-    
-    public static String getPolicyElemName() {
-        return POLICY_ELEM_NAME;
-    }
-    
-    public static String getAllElemName() {
-        return ALL_ELEM_NAME;
-    }
-    
-    public static String getExactlyOneElemName() {
-        return EXACTLYONE_ELEM_NAME;
-    }
-    
-    public static String getPolicyReferenceElemName() {
-        return POLICYREFERENCE_ELEM_NAME;
-    }
-    
-    public static String getPolicyAttachmentElemName() {
-        return POLICYATTACHMENT_ELEM_NAME;
-    }
-    
-    public static String getAppliesToElemName() {
-        return APPLIESTO_ELEM_NAME;
-    }
-    
-    public static String getOptionalAttrName() {
-        return OPTIONAL_ATTR_NAME;
-    }
-    
-    public static String getPolicyURIsAttrName() {
-        return POLICYURIS_ATTR_NAME;
-    }
-    
-    public static String getIdAttrName() {
-        return WSU_ID_ATTR_NAME;
-    }
-    
-    public static QName getPolicyElemQName() {
-        return policyElemQName;
-    }
-    
-    public static QName getAllElemQName() {
-        return allElemQName;
-    }
-    
-    public static QName getExactlyOneElemQName() {
-        return exactlyOneElemQName;
-    }
-    
-    public static QName getPolicyReferenceElemQName() {
-        return policyReferenceElemQName;
-    }
-    
-    public static QName getPolicyAttachmentElemQName() {
-        return policyAttachmentElemQName;
-    }
-    
-    public static QName getAppliesToElemQName() {
-        return appliesToElemQName;
-    }
-    
-    public static QName getOptionalAttrQName() {
-        return optionalAttrQName;
-    }
-    
-    public static QName getPolicyURIsAttrQName() {
-        return policyURIsAttrQName;
-    }
-    
-    public static QName getIdAttrQName() {
-        return WSU_ID_ATTR_QNAME;
-    } 
-    
-    
-    public static void setNamespace(String uri) {
+
+    public void setNamespace(String uri) {
         namespaceURI = uri;
         
         // update qnames
@@ -211,4 +128,87 @@ public final class PolicyConstants {
         policyURIsAttrQName = new QName(namespaceURI, POLICYURIS_ATTR_NAME);
         
     }
+  
+    public String getNamespace() {
+        return namespaceURI;
+    } 
+    
+    public String getWSUNamespace() {
+        return WSU_NAMESPACE_URI;
+    }
+    
+    public String getPolicyElemName() {
+        return POLICY_ELEM_NAME;
+    }
+    
+    public String getAllElemName() {
+        return ALL_ELEM_NAME;
+    }
+    
+    public String getExactlyOneElemName() {
+        return EXACTLYONE_ELEM_NAME;
+    }
+    
+    public String getPolicyReferenceElemName() {
+        return POLICYREFERENCE_ELEM_NAME;
+    }
+    
+    public String getPolicyAttachmentElemName() {
+        return POLICYATTACHMENT_ELEM_NAME;
+    }
+    
+    public String getAppliesToElemName() {
+        return APPLIESTO_ELEM_NAME;
+    }
+    
+    public String getOptionalAttrName() {
+        return OPTIONAL_ATTR_NAME;
+    }
+    
+    public String getPolicyURIsAttrName() {
+        return POLICYURIS_ATTR_NAME;
+    }
+    
+    public String getIdAttrName() {
+        return WSU_ID_ATTR_NAME;
+    }
+    
+    public QName getPolicyElemQName() {
+        return policyElemQName;
+    }
+    
+    public QName getAllElemQName() {
+        return allElemQName;
+    }
+    
+    public QName getExactlyOneElemQName() {
+        return exactlyOneElemQName;
+    }
+    
+    public QName getPolicyReferenceElemQName() {
+        return policyReferenceElemQName;
+    }
+    
+    public QName getPolicyAttachmentElemQName() {
+        return policyAttachmentElemQName;
+    }
+    
+    public QName getAppliesToElemQName() {
+        return appliesToElemQName;
+    }
+    
+    public QName getOptionalAttrQName() {
+        return optionalAttrQName;
+    }
+    
+    public QName getPolicyURIsAttrQName() {
+        return policyURIsAttrQName;
+    }
+    
+    public QName getIdAttrQName() {
+        return WSU_ID_ATTR_QNAME;
+    } 
+    
+    
+   
 }

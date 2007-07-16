@@ -33,7 +33,6 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
@@ -67,7 +66,9 @@ public class Wsdl11AttachmentPolicyProviderTest extends Assert {
     private static ServiceInfo[] services;
     private static EndpointInfo[] endpoints;
     private Wsdl11AttachmentPolicyProvider app;
-    private String originalNamespace;
+    private PolicyConstants constants;
+    private Bus bus;
+    private IMocksControl control = EasyMock.createNiceControl();
     
    
     
@@ -84,6 +85,10 @@ public class Wsdl11AttachmentPolicyProviderTest extends Assert {
         BindingFactoryManager bfm = control.createMock(BindingFactoryManager.class);
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm).anyTimes();
         EasyMock.expect(bfm.getBindingFactory(EasyMock.isA(String.class))).andReturn(null).anyTimes();
+        PolicyConstants constants = new PolicyConstants();
+        // test data uses 2004/09 namespace
+        constants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
+        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
         control.replay();
         
         int n = 19;
@@ -115,28 +120,33 @@ public class Wsdl11AttachmentPolicyProviderTest extends Assert {
     }
     
     @Before
-    public void setUp() {
-        AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
-        AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
+    public void setUp() {   
+        control = EasyMock.createNiceControl();
+        constants = new PolicyConstants();
+        // test data uses 2004/09 namespace
+        constants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
+        bus = control.createMock(Bus.class);
+        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
+        AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();        
+        XMLPrimitiveAssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
+        ab.setBus(bus);
         abr.register(new QName("http://cxf.apache.org/test/assertions", "A"), ab);
         abr.register(new QName("http://cxf.apache.org/test/assertions", "B"), ab);
         abr.register(new QName("http://cxf.apache.org/test/assertions", "C"), ab);
         
         PolicyBuilderImpl pb = new PolicyBuilderImpl(); 
         pb.setAssertionBuilderRegistry(abr);
-        app = new Wsdl11AttachmentPolicyProvider();
+        app = new Wsdl11AttachmentPolicyProvider(bus);
         app.setBuilder(pb);
         app.setRegistry(new PolicyRegistryImpl());
+        control.replay();
         
-        // test data uses 2004/09 namespace
-        originalNamespace = PolicyConstants.getNamespace();
-        PolicyConstants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
     }
     
     
     @After
     public void tearDown() {
-        PolicyConstants.setNamespace(originalNamespace);
+        control.verify();
     }
     
     @Test
