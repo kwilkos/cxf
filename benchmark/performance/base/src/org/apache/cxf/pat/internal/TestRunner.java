@@ -19,11 +19,11 @@
 package org.apache.cxf.pat.internal;
 
 
-public class TestRunner implements Runnable {
+public class TestRunner<T> implements Runnable {
 
-    protected TestCaseBase testCase;
+    protected TestCaseBase<T> testCase;
     private String name;
-    
+    private T port;    
 
     public TestRunner() {
         this("Default runner");
@@ -33,15 +33,16 @@ public class TestRunner implements Runnable {
         this(cname, null);
     }
 
-    public TestRunner(String cname, TestCaseBase test) {
+    public TestRunner(String cname, TestCaseBase<T> test) {
         this.name = cname;
         this.testCase = test;
+        this.port = test.getPort();
     }
 
     public void run() {     
         System.out.println("TestRunner " + name + " is running");
         try {
-            testCase.internalTestRun(name);
+            testCase.internalTestRun(name, port);
         } catch (Exception e) {
             e.printStackTrace();
         }    

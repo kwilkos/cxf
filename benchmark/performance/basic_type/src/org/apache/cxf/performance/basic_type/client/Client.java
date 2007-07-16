@@ -32,7 +32,7 @@ import org.apache.cxf.performance.basic_type.BasicPortType;
 import org.apache.cxf.performance.basic_type.BasicService;
 import org.apache.cxf.performance.basic_type.server.Server;
  
-public final class Client extends TestCaseBase {
+public final class Client extends TestCaseBase<BasicPortType> {
     
     private static final QName SERVICE_NAME 
         = new QName("http://cxf.apache.org/performance/basic_type", "BasicService");
@@ -45,7 +45,6 @@ public final class Client extends TestCaseBase {
     private final int asciiCount = 1 * 1024;
     
     private BasicService ss;
-    private BasicPortType port;
 
     public Client(String[] args) {
         super("Basic Type TestCase", args);
@@ -96,7 +95,7 @@ public final class Client extends TestCaseBase {
         System.exit(0);
     }
 
-    public void doJob() {
+    public void doJob(BasicPortType port) {
         try {
             switch(opid) {
             case 0:
@@ -113,7 +112,7 @@ public final class Client extends TestCaseBase {
         }
     }
 
-    public void getPort() {
+    public BasicPortType getPort() {
        
         try {
             URL wsdl = null;
@@ -126,9 +125,7 @@ public final class Client extends TestCaseBase {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        port = ss.getSoapHttpPort();
-      
-
+        return ss.getSoapHttpPort();
     }
 } 
  

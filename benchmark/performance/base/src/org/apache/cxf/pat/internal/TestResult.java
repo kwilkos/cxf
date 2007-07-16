@@ -20,8 +20,8 @@ package org.apache.cxf.pat.internal;
 
 
 public class TestResult {
-    public static final String AVG_UNIT = "(ms)";
-    private static final String THROUGHPUT_UNIT = "(invocations/sec)";
+    public static final String AVG_UNIT = " (ms)";
+    private static final String THROUGHPUT_UNIT = " (invocations/sec)";
     
     private String name;
     private TestCaseBase testCase;

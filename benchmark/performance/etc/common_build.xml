@@ -89,6 +89,8 @@
     </target>
 
     <target name="compile" depends="maybe.generate.code">
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.src.dir}"/>
         <javac destdir="${build.classes.dir}" debug="true">
             <src path="${build.src.dir}"/>
             <src path="${basedir}/src"/>
@@ -122,6 +124,7 @@
         <delete file="${wsdl.dir}/async_binding.xml"/>
         <delete dir="${build.var.dir}"/>
         <delete dir="${activemq.home}/var"/>
+        <delete dir="${build.dir}"/>
     </target>
 
             

@@ -22,8 +22,8 @@ import java.util.*;
 
 
 
-public abstract class TestCaseBase {
-    private static boolean initialized;
+public abstract class TestCaseBase<T> {
+    private boolean initialized;
     
     protected String wsdlPath;
 
@@ -47,8 +47,6 @@ public abstract class TestCaseBase {
 
     protected List<TestResult> results = new ArrayList<TestResult>();
 
-    protected boolean usePipe;
-
     private int numberOfThreads;
     
     private String name;
@@ -57,8 +55,10 @@ public abstract class TestCaseBase {
 
     private String faultReason = "no error";
 
+    private boolean timedTestDone = false;
 
-    
+    private boolean doWarmup = true;
+ 
     public TestCaseBase() {
         this("DEFAULT TESTCASE", null);
     }
@@ -71,6 +71,11 @@ public abstract class TestCaseBase {
         this.name = cname;
         this.args = arg;
     }
+    public TestCaseBase(String cname, String[] arg, boolean w) {
+        this.name = cname;
+        this.args = arg;
+        this.doWarmup = w;
+    }
 
     public abstract void initTestData();
 
@@ -79,7 +84,7 @@ public abstract class TestCaseBase {
         initTestData();
     }
 
-    private void processArgs() {
+    public void processArgs() {
         int count = 0;
         int argc = args.length; 
         while (count < argc) {
@@ -89,9 +94,6 @@ public abstract class TestCaseBase {
             } else if ("-Service".equals(args[count])) {
                 serviceName = args[count + 1];
                 count += 2;
-            } else if ("-Pipe".equals(args[count])) {
-                usePipe = true;
-                count++;
             } else if ("-Port".equals(args[count])) {
                 portName = args[count + 1];
                 count += 2;
@@ -169,6 +171,7 @@ public abstract class TestCaseBase {
         printSetting("Runtime Setting: ");
     }
 
+    int initDone = 0;
     public void initialize() {
         try {
             if (!initialized) {
@@ -176,41 +179,73 @@ public abstract class TestCaseBase {
             }
             initialized = true;
 
+            if (!doWarmup) {
+                 return;
+            }
 
-            System.out.println("TestCase " + name + " is warming up the jit. (5 sec/200 iterations)");
-            long endTime = System.currentTimeMillis() + 5000;
-            getPort();
+            System.out.println("TestCase " + name + " is warming up the jit. (20 sec/1200 iterations)");
+            final long endTime = System.currentTimeMillis() + 20000;
+            final T t = getPort();
+
+            for (int x = 0; x < 12; x++) {
+                new Thread() {
+                    public void run() {
+                        try {
+                            int count = 0;
+                            while (count < 1200 || System.currentTimeMillis() < endTime) {
+                                count++;
+                                doJob(t);
+                            }
+                        } catch ( Exception ex ) {
+                            ex.printStackTrace();
+                        }
+                        ++initDone;
+                    }
+                }.start();
+            }
+
             int count = 0;
-            while (System.currentTimeMillis() < endTime || count < 200) {
+            while (count < 1200 || System.currentTimeMillis() < endTime) {
                 count++;
-                doJob();
+                doJob(t);
+            }
+            while (initDone != 12) {
+		Thread.sleep(100);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(0);
         }
     }
 
-    public abstract void doJob();
+    public abstract void doJob(T t);
 
-    public abstract void getPort();
+    public abstract T getPort();
 
-    protected void internalTestRun(String caseName) throws Exception {
+    protected void internalTestRun(String caseName, T t) throws Exception {
         int numberOfInvocations = 0;
+        for (int x = 0; x < 25; x++) {
+            //warmup
+            doJob(t);
+        }
         long startTime = System.currentTimeMillis();
-        long endTime = startTime + amount * 1000;
         if (usingTime) {
-            while (System.currentTimeMillis() < endTime) {
-                doJob();
+            while (!timedTestDone) {
+                doJob(t);
                 numberOfInvocations++;
             }
         } else {
             for (int i = 0; i < amount; i++) {
-                doJob();
+                doJob(t);
                 numberOfInvocations++;
             }
         }
-        endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
+        for (int x = 0; x < 25; x++) {
+            //keep running so other threads get accurate results
+            doJob(t);
+        }
+
+
         TestResult testResult = new TestResult(caseName, this);
         testResult.compute(startTime, endTime, numberOfInvocations);
         addTestResult(testResult);
@@ -218,14 +253,19 @@ public abstract class TestCaseBase {
 
     public void testRun() throws Exception {
         if (numberOfThreads == 0) {
-            internalTestRun(name);
-        }
+            numberOfThreads = 1; 
+	}
         List<Thread> threadList = new ArrayList<Thread>();
         for (int i = 0; i < numberOfThreads; i++) {
-            TestRunner runner = new TestRunner("No." + i + " TestRunner", this);
+            TestRunner<T> runner = new TestRunner<T>("No." + i + " TestRunner", this);
             Thread thread = new Thread(runner, "RunnerThread No." + i);
             thread.start();
             threadList.add(thread);
+        }
+
+        if (usingTime) {
+            Thread.sleep(amount * 1000);
+            timedTestDone = true;
         }
 
         for (Iterator iter = threadList.iterator(); iter.hasNext();) {
@@ -263,13 +303,13 @@ public abstract class TestCaseBase {
 
     public abstract void printUsage();
 
-    public void printSetting(String settingType) {        
-        System.out.println(settingType + "  wsdl location is " + wsdlPath );
+    public void printSetting(String settingType) {
         System.out.println(settingType + "  [Service] -- > " + serviceName);
         System.out.println(settingType + "  [Port] -- > " + portName);
         System.out.println(settingType + "  [Operation] -- > " + operationName);
         System.out.println(settingType + "  [Threads] -- > " + numberOfThreads);
-        System.out.println(settingType + "  [Packet Size] -- > " + packetSize + " packet(s) ");
+        System.out.println(settingType + "  [Packet Size] -- > " + packetSize
+                           + " packet(s) ");
         if (usingTime) {
             System.out.println(settingType + "  [Running] -->  " + amount + " (secs)");
         } else {
@@ -280,7 +320,7 @@ public abstract class TestCaseBase {
 
     public void printTitle() {
         System.out.println(" ---------------------------------");
-        System.out.println(name + "  Client (JAVA Version)");       
+        System.out.println(name + "  Client (JAVA Version)");
         System.out.println(" ---------------------------------");
     }
 

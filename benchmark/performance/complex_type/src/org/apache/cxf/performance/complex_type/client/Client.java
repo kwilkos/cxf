@@ -39,7 +39,7 @@ import org.apache.cxf.performance.complex_type.types.NestedComplexType;
 import org.apache.cxf.performance.complex_type.types.NestedComplexTypeSeq;
 import org.apache.cxf.performance.complex_type.types.SimpleStruct;
 
-public final class Client extends TestCaseBase {
+public final class Client extends TestCaseBase<ComplexPortType> {
     private static final QName SERVICE_NAME = new QName(
                                              "http://cxf.apache.org/performance/complex_type",
                                              "ComplexService");          
@@ -47,7 +47,6 @@ public final class Client extends TestCaseBase {
                                           "http://cxf.apache.org/performance/complex_type",
                                           "ComplexPortType");
     private ComplexService cs;
-    private ComplexPortType port;
     private final NestedComplexTypeSeq complexTypeSeq = new NestedComplexTypeSeq();
        
     public Client(String[] args) {
@@ -121,11 +120,11 @@ public final class Client extends TestCaseBase {
         }            
     }
     
-    public void doJob() {
+    public void doJob(ComplexPortType port) {
         port.sendReceiveData(complexTypeSeq);
     }
 
-    public void getPort() {        
+    public ComplexPortType getPort() {        
         try{ 
             URL wsdl = null;
             if ((wsdlPath.startsWith("file://")) || (wsdlPath.startsWith("http://"))) {
@@ -137,7 +136,7 @@ public final class Client extends TestCaseBase {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        port = cs.getSoapPort();        
+        return cs.getSoapPort();        
     }
 
     public void printUsage() {

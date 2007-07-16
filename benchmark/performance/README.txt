@@ -3,7 +3,7 @@ Basic Setup for Building and Running the performance test case
 
 As described in the installation notes, extract the cxf
 binary distribution archive into an installation directory
-under the root drive.  This creates the sub-directory cxffire,
+under the root drive.  This creates the sub-directory build,
 which includes all of the product directories.
 
 1. setup the build Enviroment
@@ -20,21 +20,18 @@ directory.
 
  2. Build the performance test case
 There are two types of test case in the performance test case
-directory. The one is basic_type testcase ,the othere is complex_type
-testcase. The base directory provide a simple testcase base class for
+directory.  The base directory provide a simple testcase base class for
 the client to calculate the server reponse time and throughput. There
 for you should build the base directory first, and then build the 
  othere directory files. 		
   
    cd base
    ant
-   cd ../basic_type
-   ant
-   cd ../complex_type
+   cd ../soap_http_doc_lit
    ant
 
  3. to run the performance test 
-You can cd to basic_type/bin or complex_type/bin to run the test
+You can cd to soap_http_doc_lit/bin to run the test
 run_server and run_server.bat just startup the server
 run_client and run_client.bat can take these argument:
     -Operation  to invoke the wsdl defined operation
@@ -42,8 +39,9 @@ run_client and run_client.bat can take these argument:
     -Amount   define the invoke times , if based on time it means second
     -PacketSize  define the packet size which client send to server
     -Threads   define the thread number to run the perform test
-    -HostName  define the service provider's host name
-    -Port      define the service provider's listen port number	
- 
-
+               Can be a range or comma separated list to run multiple time
+	       with different thread counts.   For example:
+	       -Threads 1-4,6,8,10 
+    -WSDL      wsdl location (defaults to the perf.wsdl)
+    -BuildFile location of alternative build.xml file (mostly for running clients/servers)
 	
