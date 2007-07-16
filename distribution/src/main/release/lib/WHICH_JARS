@@ -15,6 +15,7 @@ The following jars are required for all CXF usage:
 - stax-api.jar
 - XmlSchema.jar
 - wstx-asl.jar
+- xml-resolver.jar 
 
 For Java2WSDL and WSDL2Java:
 - The above jars
