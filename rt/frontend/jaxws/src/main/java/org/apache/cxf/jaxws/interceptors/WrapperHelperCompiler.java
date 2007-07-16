@@ -154,6 +154,7 @@ final class WrapperHelperCompiler {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
+    
     private static boolean addCreateWrapperObject(String newClassName,
                                                Class<?> wrapperClass,
                                                Method[] setMethods,
@@ -183,26 +184,58 @@ final class WrapperHelperCompiler {
                 return false;
             }
             Class<?> tp = getMethods[x].getReturnType();
-            mv.visitVarInsn(Opcodes.ALOAD, 2);
-            
+            mv.visitVarInsn(Opcodes.ALOAD, 2);            
             
             if (Collection.class.isAssignableFrom(tp)) {
-                // call getFoo().addAll(lst)
-    
+                //List aVal = obj.getA();
+                //List newA = (List)lst.get(99);
+                //if (aVal == null) {
+                //    obj.setA(newA);
+                //} else {
+                //    aVal.addAll(newA);
+                //}
+                
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                                    periodToSlashes(wrapperClass.getName()),
                                    getMethods[x].getName(),
                                    getMethodSignature(getMethods[x]));
-    
+                mv.visitVarInsn(Opcodes.ASTORE, 3);
                 mv.visitVarInsn(Opcodes.ALOAD, 1);
                 mv.visitIntInsn(Opcodes.BIPUSH, x);
-                mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;");
+                mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List",
+                                   "get", "(I)Ljava/lang/Object;");
                 mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
                 mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
-                mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", 
-                                   "addAll", "(Ljava/util/Collection;)Z");
+                mv.visitVarInsn(Opcodes.ASTORE, 4);
+                mv.visitVarInsn(Opcodes.ALOAD, 3);
+                Label nonNullLabel = new Label();
+                mv.visitJumpInsn(Opcodes.IFNONNULL, nonNullLabel);
+
+                if (setMethods[x] == null) {
+                    mv.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
+                    mv.visitInsn(Opcodes.DUP);
+                    mv.visitLdcInsn(getMethods[x].getName() + " returned null and there isn't a set method.");
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                                       "java/lang/RuntimeException",
+                                       "<init>", "(Ljava/lang/String;)V");
+                    mv.visitInsn(Opcodes.ATHROW);
+                } else {
+                    mv.visitVarInsn(Opcodes.ALOAD, 2);
+                    mv.visitVarInsn(Opcodes.ALOAD, 4);
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                                       periodToSlashes(wrapperClass.getName()),
+                                       setMethods[x].getName(),
+                                       getMethodSignature(setMethods[x]));
+                }
+                Label jumpOverLabel = new Label();
+                mv.visitJumpInsn(Opcodes.GOTO, jumpOverLabel);
+                mv.visitLabel(nonNullLabel);
+                mv.visitVarInsn(Opcodes.ALOAD, 3);
+                mv.visitVarInsn(Opcodes.ALOAD, 4);
+                mv.visitMethodInsn(Opcodes.INVOKEINTERFACE,
+                                   "java/util/List", "addAll", "(Ljava/util/Collection;)Z");
                 mv.visitInsn(Opcodes.POP);
-    
+                mv.visitLabel(jumpOverLabel);
             } else { 
                 if (JAXBElement.class.isAssignableFrom(tp)) {
                     mv.visitVarInsn(Opcodes.ALOAD, 0);

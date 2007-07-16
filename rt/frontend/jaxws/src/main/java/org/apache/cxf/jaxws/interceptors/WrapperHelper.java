@@ -111,11 +111,11 @@ public abstract class WrapperHelper {
                 && "return".equals(partName)) {
                 //RI generated code uses this
                 try {
-                    getMethod = wrapperType.getClass().getMethod("get_return", NO_PARAMS);
+                    getMethod = wrapperType.getMethod("get_return", NO_PARAMS);
                 } catch (NoSuchMethodException ex) {
                     try {
-                        getMethod = wrapperType.getClass().getMethod("is_return",
-                                                                  new Class[0]);
+                        getMethod = wrapperType.getMethod("is_return",
+                                                          new Class[0]);
                     } catch (NoSuchMethodException ex2) {
                         //ignore for now
                     } 
@@ -261,7 +261,7 @@ public abstract class WrapperHelper {
             
             try {
                 Object ret = wrapperType.newInstance();
-                
+
                 for (int x = 0; x < setMethods.length; x++) {
                     Object o = lst.get(x);
                     if (jaxbObjectMethods[x] != null) {
@@ -269,8 +269,17 @@ public abstract class WrapperHelper {
                     }
                     if (o instanceof List) {
                         List<Object> col = CastUtils.cast((List)getMethods[x].invoke(ret));
-                        List<Object> olst = CastUtils.cast((List)o);
-                        col.addAll(olst);
+                        if (col == null) {
+                            //broken generated java wrappers
+                            if (setMethods[x] != null) {
+                                setMethods[x].invoke(ret, o);
+                            } else {
+                                fields[x].set(ret, lst.get(x));
+                            }
+                        } else {
+                            List<Object> olst = CastUtils.cast((List)o);
+                            col.addAll(olst);
+                        }
                     } else if (setMethods[x] != null) {
                         setMethods[x].invoke(ret, o);
                     } else {
