@@ -19,6 +19,8 @@
 
 package org.apache.cxf.jaxb;
 
+import java.util.Collection;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -31,6 +33,12 @@ public final class JAXBToStringBuilder {
     }
     
     public static String valueOf(Object object, ToStringStyle style) {
+        if (object instanceof String) {
+            return (String)object;
+        }
+        if (object instanceof Collection) {
+            object = ((Collection) object).toArray();
+        }
         return ToStringBuilder.reflectionToString(object, style);        
     }
 }
