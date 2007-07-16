@@ -19,12 +19,20 @@
 
 package org.apache.cxf.systest.rest;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.customer.book.BookService;
 import org.apache.cxf.customer.book.BookServiceImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.codehaus.jettison.mapped.MappedXMLInputFactory;
+import org.codehaus.jettison.mapped.MappedXMLOutputFactory;
     
 public class BookServer extends AbstractBusTestServerBase {
 
@@ -44,6 +52,39 @@ public class BookServer extends AbstractBusTestServerBase {
         sf.getServiceFactory().setWrapped(false);
 
         sf.create();
+        
+        JaxWsServerFactoryBean sfJson = new JaxWsServerFactoryBean();
+        sfJson.setServiceClass(BookService.class);
+        // Use the HTTP Binding which understands the Java Rest Annotations
+        sfJson.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
+        sfJson.setAddress("http://localhost:9080/json");
+        sfJson.getServiceFactory().setInvoker(new BeanInvoker(serviceObj));
+
+        // Turn the "wrapped" style off. This means that CXF won't generate
+        // wrapper JSON elements and we'll have prettier JSON text. This
+        // means that we need to stick to one request and one response
+        // parameter though.
+        sfJson.getServiceFactory().setWrapped(false);
+
+        // Tell CXF to use a different Content-Type for the JSON endpoint
+        // This should probably be application/json, but text/plain allows
+        // us to view easily in a web browser.
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("Content-Type", "text/plain");
+
+        // Set up the JSON StAX implementation
+        Map<String, String> nstojns = new HashMap<String, String>();
+        nstojns.put("http://book.acme.com", "acme");
+
+        MappedXMLInputFactory xif = new MappedXMLInputFactory(nstojns);
+        properties.put(XMLInputFactory.class.getName(), xif);
+
+        MappedXMLOutputFactory xof = new MappedXMLOutputFactory(nstojns);
+        properties.put(XMLOutputFactory.class.getName(), xof);
+
+        sfJson.setProperties(properties);
+
+        sfJson.create();
     }
 
     public static void main(String[] args) {

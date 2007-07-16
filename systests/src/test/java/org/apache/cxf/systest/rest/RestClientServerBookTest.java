@@ -19,16 +19,26 @@
 
 package org.apache.cxf.systest.rest;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.logging.Logger;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.FileRequestEntity;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.customer.book.Book;
 import org.apache.cxf.customer.book.BookService;
 import org.apache.cxf.customer.book.GetAnotherBook;
 import org.apache.cxf.customer.book.GetBook;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -77,4 +87,71 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         assertEquals(book.getId(), (long)123);
         assertEquals(book.getName(), "CXF in Action");
     }
+    
+    
+    @Test
+    public void testGetBooksJSON() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/json/books"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass().getResourceAsStream("resources/expected_json_books.txt");
+
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));   
+    }
+    
+    @Test
+    public void testGetBookJSON() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/json/books/123"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass().getResourceAsStream("resources/expected_json_book123.txt");
+
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in));   
+    }  
+    
+    @Test
+    @Ignore("Have not figured out yet why this does not work")
+    public void testAddBookJSON() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/json/books"; 
+
+        String inputFile = getClass().getResource("resources/add_book_json.txt").getFile();         
+        File input =  new File(inputFile);
+        // Prepare HTTP post
+        PostMethod post = new PostMethod(endpointAddress);
+        // Request content will be retrieved directly
+        // from the input stream
+        RequestEntity entity = new FileRequestEntity(input, "text/plain; charset=ISO-8859-1");
+        post.setRequestEntity(entity);
+        // Get HTTP client
+        HttpClient httpclient = new HttpClient();
+        // Execute request
+        try {
+            int result = httpclient.executeMethod(post);
+            // Display status code
+            System.out.println("Response status code: " + result);
+            // Display response
+            System.out.println("Response body: ");
+            System.out.println(post.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            post.releaseConnection();
+        }               
+    }      
+    
+    private String getStringFromInputStream(InputStream in) throws Exception {        
+        CachedOutputStream bos = new CachedOutputStream();
+        IOUtils.copy(in, bos);
+        in.close();
+        bos.close();
+        System.out.println(bos.getOut().toString());        
+        return bos.getOut().toString();        
+    }
+
 }
