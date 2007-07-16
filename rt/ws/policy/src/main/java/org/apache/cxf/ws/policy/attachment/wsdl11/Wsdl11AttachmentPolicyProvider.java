@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -32,11 +30,9 @@ import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractDescriptionElement;
 import org.apache.cxf.service.model.BindingFaultInfo;
-import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.DescriptionInfo;
@@ -47,7 +43,6 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyProvider;
-import org.apache.cxf.ws.policy.PolicyUtils;
 import org.apache.cxf.ws.policy.attachment.AbstractPolicyProvider;
 import org.apache.cxf.ws.policy.attachment.reference.LocalServiceModelReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
@@ -63,8 +58,6 @@ import org.apache.neethi.PolicyReference;
 public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider 
     implements PolicyProvider {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(Wsdl11AttachmentPolicyProvider.class);
-    
     public Wsdl11AttachmentPolicyProvider() {
         this(null);
     }
@@ -168,15 +161,9 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
         
         List<UnknownExtensibilityElement> extensions = 
             ex.getExtensors(UnknownExtensibilityElement.class);
-        if (ex instanceof BindingInfo && null != extensions) {
-            LOG.fine("Number of extensions: " + extensions.size());
-        }
         PolicyConstants constants = bus.getExtension(PolicyConstants.class);
         if (null != extensions) {
             for (UnknownExtensibilityElement e : extensions) {
-                if (ex instanceof BindingInfo) {
-                    LOG.fine("Extension of type: " + e.getElementType());
-                }
                 Policy p = null;
                 if (constants.getPolicyElemQName().equals(e.getElementType())) {
                     p = builder.getPolicy(e.getElement());                    
@@ -186,9 +173,6 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
                     if (null != ref) {
                         p = resolveReference(ref, di);
                     }
-                } else {
-                    LOG.fine("No match for " + constants.getPolicyElemQName()
-                             + " or " + constants.getPolicyReferenceElemQName());
                 }
                 if (null != p) {
                     elementPolicy = elementPolicy.merge(p);
@@ -219,7 +203,6 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
             }
         }
 
-        PolicyUtils.logPolicy(LOG, Level.FINE, "Element policy for " + ex, elementPolicy);
         return elementPolicy;
     }
     
