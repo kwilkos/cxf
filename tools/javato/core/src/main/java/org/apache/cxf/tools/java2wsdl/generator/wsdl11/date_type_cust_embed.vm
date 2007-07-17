@@ -35,7 +35,7 @@
           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
 #foreach ($targetNamespace in $targetNamespaces)
   <jaxws:bindings  node="wsdl:definitions/wsdl:types/xs:schema[@targetNamespace='$targetNamespace']">
-      <jxb:globalBindings>
+      <jxb:globalBindings xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
         <jxb:javaType name="$datetype" xmlType="xs:dateTime"
                       parseMethod="$parseMethod"
                       printMethod="$printMethod"/>

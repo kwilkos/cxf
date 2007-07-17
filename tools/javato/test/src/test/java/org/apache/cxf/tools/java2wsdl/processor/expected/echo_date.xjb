@@ -22,7 +22,7 @@
           xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <jaxws:bindings  node="wsdl:definitions/wsdl:types/xs:schema[@targetNamespace='http://date.fortest.tools.cxf.apache.org/']">
-      <jxb:globalBindings>
+      <jxb:globalBindings xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
         <jxb:javaType name="java.util.Date" xmlType="xs:dateTime"
                       parseMethod="org.apache.cxf.tools.common.DataTypeAdapter.parseDateTime"
                       printMethod="org.apache.cxf.tools.common.DataTypeAdapter.printDateTime"/>

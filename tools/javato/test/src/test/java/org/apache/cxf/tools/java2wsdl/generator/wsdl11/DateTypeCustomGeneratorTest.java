@@ -46,7 +46,7 @@ public class DateTypeCustomGeneratorTest extends ProcessorTestBase {
 
     @After
     public void tearDown() {
-        super.tearDown();
+        //super.tearDown();
     }
 
     @Test

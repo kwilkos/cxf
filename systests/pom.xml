@@ -59,13 +59,11 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/test/resources/wsdl/pizza_service.wsdl</wsdl>
-                                    <!--
                                     <extraargs>
                                       <extraarg>-exsh</extraarg>
                                       <extraarg>true</extraarg>
                                       <extraarg>-V</extraarg>
                                     </extraargs>
-                                    -->
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>
@@ -374,9 +372,9 @@
             <version>4.3.1</version>
         </dependency>
         <dependency>
-	    <groupId>org.codehaus.jettison</groupId>
-	    <artifactId>jettison</artifactId>
-	    <version>1.0-RC1</version>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <version>1.0-RC1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -384,7 +382,7 @@
             <artifactId>commons-httpclient</artifactId>
             <version>3.1-rc1</version>
             <scope>test</scope>
-        </dependency>       
+        </dependency>
 
     </dependencies>
     <properties>

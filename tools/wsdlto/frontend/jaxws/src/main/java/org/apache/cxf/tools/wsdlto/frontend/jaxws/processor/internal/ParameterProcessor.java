@@ -136,7 +136,10 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private boolean requireOutOfBandHeader() {
         String value = (String)context.get(ToolConstants.CFG_EXTRA_SOAPHEADER);
-        return StringUtils.isEmpty(value) || Boolean.valueOf(value).booleanValue();
+        if (StringUtils.isEmpty(value)) {
+            return false;
+        }
+        return Boolean.valueOf(value).booleanValue();
     }
 
     private int countOutOfBandHeader(MessageInfo message) {
@@ -404,7 +407,7 @@ public class ParameterProcessor extends AbstractProcessor {
         JavaParameter parameter = new JavaParameter(jpname, fullJavaName, targetNamespace);
         parameter.setStyle(style);
         parameter.setQName(item);
-        
+
         parameter.setDefaultValueWriter(ProcessorUtil.getDefaultValueWriterForWrappedElement(part,
                                                                                              context,
                                                                                              item));
@@ -445,7 +448,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
         String jpname = ProcessorUtil.mangleNameToVariableName(simpleJavaName);
         JavaReturn returnType = new JavaReturn(jpname, fullJavaName , targetNamespace);
-        
+
         returnType.setDefaultValueWriter(
             ProcessorUtil.getDefaultValueWriterForWrappedElement(part, context, element));
 

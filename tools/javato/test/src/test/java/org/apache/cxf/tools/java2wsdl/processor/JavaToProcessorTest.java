@@ -393,7 +393,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         String expectedFile = getClass().getResource("expected/echo_calendar.xjb").getFile();
         assertFileEquals(new File(expectedFile), bindingFile);
     }
-    
+
     @Test
     //Test for cxf774
     public void testList() throws Exception {
@@ -408,7 +408,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         }
         File wsdlFile = new File(output, "list_test.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
-        
+
         String expectedFile = getClass().getResource("expected/list_expected.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "/list_test.wsdl"));
     }

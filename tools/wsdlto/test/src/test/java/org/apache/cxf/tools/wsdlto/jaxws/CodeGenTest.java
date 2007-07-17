@@ -153,8 +153,8 @@ public class CodeGenTest extends ProcessorTestBase {
         for (Method m : meths) {
             if ("orderPizzaBroken".equals(m.getName())) {
                 Annotation annotations[][] = m.getParameterAnnotations();
-                assertEquals(2, annotations.length);
-                for (int i = 0; i < 2; i++) {
+                assertEquals(1, annotations.length);
+                for (int i = 0; i < 1; i++) {
                     assertTrue(annotations[i][0] instanceof WebParam);
                     WebParam parm = (WebParam)annotations[i][0];
                     if ("OrderPizza".equals(parm.name())) {
@@ -162,10 +162,7 @@ public class CodeGenTest extends ProcessorTestBase {
                         assertEquals("OrderPizza", parm.name());
                         assertTrue(!parm.header());
                     } else if ("CallerIDHeader".equals(parm.name())) {
-                        assertEquals("http://mypizzaco.com/pizza/types", parm.targetNamespace());
-                        assertEquals("callerID", parm.partName());
-                        assertEquals("CallerIDHeader", parm.name());
-                        assertTrue(parm.header());
+                        fail("If the exsh turned off, should not generate this parameter");
                     } else {
                         fail("No WebParam found!");
                     }
@@ -199,6 +196,40 @@ public class CodeGenTest extends ProcessorTestBase {
                         assertTrue(!parm.header());
                     } else if ("CallerIDHeader".equals(parm.name())) {
                         fail("If the exsh turned off, should not generate this parameter");
+                    } else {
+                        fail("No WebParam found!");
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Test
+    public void testHeaderFromAnotherMessage4() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/pizza_wrapped.wsdl"));
+        env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "TRUE");
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        Class clz = classLoader.loadClass("org.apache.cxf.pizza_wrapped.Pizza");
+
+        Method meths[] = clz.getMethods();
+        for (Method m : meths) {
+            if ("orderPizza".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(2, annotations.length);
+                for (int i = 0; i < 2; i++) {
+                    assertTrue(annotations[i][0] instanceof WebParam);
+                    WebParam parm = (WebParam)annotations[i][0];
+                    if ("Toppings".equals(parm.name())) {
+                        assertEquals("http://cxf.apache.org/pizza_wrapped/types", parm.targetNamespace());
+                        assertTrue(!parm.header());
+                    } else if ("CallerIDHeader".equals(parm.name())) {
+                        assertEquals("http://cxf.apache.org/pizza_wrapped/types", parm.targetNamespace());
+                        assertTrue(parm.header());
                     } else {
                         fail("No WebParam found!");
                     }
