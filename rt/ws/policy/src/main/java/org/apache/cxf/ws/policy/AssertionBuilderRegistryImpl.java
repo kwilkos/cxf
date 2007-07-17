@@ -19,8 +19,11 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -28,6 +31,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.extension.RegistryImpl;
 import org.apache.neethi.Assertion;
@@ -38,8 +42,13 @@ import org.apache.neethi.Assertion;
 public class AssertionBuilderRegistryImpl extends RegistryImpl<QName, AssertionBuilder> implements
     AssertionBuilderRegistry, BusExtension {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AssertionBuilderRegistry.class);
-
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AssertionBuilderRegistryImpl.class);
+    private static final Logger LOG 
+        = LogUtils.getL7dLogger(AssertionBuilderRegistryImpl.class);
+    private static final int IGNORED_CACHE_SIZE = 10;
+    private boolean ignoreUnknownAssertions; 
+    private List<QName> ignored = new ArrayList<QName>(IGNORED_CACHE_SIZE);
+    
     public AssertionBuilderRegistryImpl() {
         this(null);
     }
@@ -52,6 +61,13 @@ public class AssertionBuilderRegistryImpl extends RegistryImpl<QName, AssertionB
         return AssertionBuilderRegistry.class;
     }
     
+    public boolean isIgnoreUnknownAssertions() {
+        return ignoreUnknownAssertions;
+    }
+
+    public void setIgnoreUnknownAssertions(boolean ignore) {
+        ignoreUnknownAssertions = ignore;
+    }
 
     public Assertion build(Element element) {
 
@@ -61,7 +77,22 @@ public class AssertionBuilderRegistryImpl extends RegistryImpl<QName, AssertionB
         builder = get(qname);
 
         if (null == builder) {
-            throw new PolicyException(new Message("NO_ASSERTIONBUILDER_EXC", BUNDLE, qname.toString()));
+            Message m = new Message("NO_ASSERTIONBUILDER_EXC", BUNDLE, qname.toString());
+            if (ignoreUnknownAssertions) {
+                boolean alreadyWarned = ignored.contains(qname);
+                if (alreadyWarned) {
+                    ignored.remove(qname);
+                } else if (ignored.size() == IGNORED_CACHE_SIZE) {
+                    ignored.remove(IGNORED_CACHE_SIZE - 1);
+                }
+                ignored.add(0, qname);
+                if (!alreadyWarned) {
+                    LOG.warning(m.toString());
+                }
+                return null;
+            } else {
+                throw new PolicyException(m);
+            }
         }
 
         return builder.build(element);

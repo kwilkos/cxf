@@ -40,4 +40,22 @@ public interface AssertionBuilderRegistry extends Registry<QName, AssertionBuild
      * @return an Assertion that is built using the specified element.
      */
     Assertion build(Element element);
+    
+    /**
+     * Indicates if unknown assertions should simply be ignored.
+     * If set to false, the policy engine will throw an exception upon
+     * encountering an assertion type for which no AssertionBuilder
+     * has been registered.
+     * @return
+     */
+    boolean isIgnoreUnknownAssertions();
+    
+    /**
+     * Indicates if unknown assertions should simply be ignored.
+     * If set to false, the policy engine will throw an exception upon
+     * encountering an assertion type for which no AssertionBuilder
+     * has been registered. 
+     * @param ignoreUnknownAssertions iff unknown assertions should be ignored
+     */
+    void setIgnoreUnknownAssertions(boolean ignoreUnknownAssertions);
 }

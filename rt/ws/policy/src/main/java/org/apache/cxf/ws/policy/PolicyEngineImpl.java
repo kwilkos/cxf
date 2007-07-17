@@ -58,6 +58,7 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
     private PolicyRegistry registry;
     private Collection<PolicyProvider> policyProviders;
     private boolean enabled;
+    private boolean ignoreUnknownAssertions;
     private boolean addedBusInterceptors;
     private AlternativeSelector alternativeSelector;
     
@@ -125,8 +126,17 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         alternativeSelector = as;
     }
     
+    public boolean isIgnoreUnknownAssertions() {
+        return ignoreUnknownAssertions;
+    }
+    
+    public void setIgnoreUnknownAssertions(boolean ignore) {
+        ignoreUnknownAssertions = ignore;
+    }
+    
     // BusExtension interface
     
+
     public Class<?> getRegistrationType() {
         return PolicyEngine.class;
     }
@@ -315,6 +325,11 @@ public class PolicyEngineImpl implements PolicyEngine, BusExtension {
         
         if (null == bus || !enabled) {
             return;
+        }
+        
+        AssertionBuilderRegistry abr = bus.getExtension(AssertionBuilderRegistry.class);
+        if (null != abr) {
+            abr.setIgnoreUnknownAssertions(ignoreUnknownAssertions);
         }
 
         ClientPolicyOutInterceptor clientOut = new ClientPolicyOutInterceptor();

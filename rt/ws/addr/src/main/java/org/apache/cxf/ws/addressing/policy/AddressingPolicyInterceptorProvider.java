@@ -46,6 +46,9 @@ public class AddressingPolicyInterceptorProvider  extends AbstractAttributedInte
         types.add(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
         types.add(MetadataConstants.ANON_RESPONSES_ASSERTION_QNAME);
         types.add(MetadataConstants.NON_ANON_RESPONSES_ASSERTION_QNAME);
+        types.add(MetadataConstants.USING_ADDRESSING_2004_QNAME);
+        types.add(MetadataConstants.USING_ADDRESSING_2005_QNAME);
+        types.add(MetadataConstants.USING_ADDRESSING_2006_QNAME);
         ASSERTION_TYPES = types;
     }
     

@@ -33,6 +33,8 @@ import org.apache.neethi.PolicyRegistry;
  * 
  */
 public interface PolicyEngine {
+    
+    // configuration
 
     boolean isEnabled();
     
@@ -41,6 +43,12 @@ public interface PolicyEngine {
     AlternativeSelector getAlternativeSelector();
     
     void setAlternativeSelector(AlternativeSelector selector);
+   
+    boolean isIgnoreUnknownAssertions();
+    
+    void setIgnoreUnknownAssertions(boolean ignoreUnknownAssertions);
+    
+    //
     
     boolean supportsAlternative(Collection<Assertion> alterative, Assertor assertor);
     

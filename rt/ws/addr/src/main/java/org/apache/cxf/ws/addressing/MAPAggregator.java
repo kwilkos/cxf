@@ -32,6 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
@@ -151,7 +152,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             ret = usingAddressingAdvisory
                 || WSAContextUtils.retrieveUsingAddressing(message)
                 || hasUsingAddressing(message) 
-                || hasAddressingAssertion(message);
+                || hasAddressingAssertion(message)
+                || hasUsingAddressingAssertion(message);
         } else {
             ret = getMAPs(message, false, false) != null;
         }
@@ -193,7 +195,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     }
     
     /**
-     * Determine if the use of addressing is indicated by an assertion in the
+     * Determine if the use of addressing is indicated by an Addressing assertion in the
      * alternative chosen for the current message.
      * 
      * @param message the current message
@@ -216,6 +218,35 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     }
     
     /**
+     * Determine if the use of addressing is indicated by a UsingAddressing in the
+     * alternative chosen for the current message.
+     * 
+     * @param message the current message
+     * @pre message is outbound
+     * @pre requestor role
+     */
+    private boolean hasUsingAddressingAssertion(Message message) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return false;
+            
+        }
+        Collection<AssertionInfo> ais = aim.get(MetadataConstants.USING_ADDRESSING_2004_QNAME);
+        if (null != ais || ais.size() > 0) {
+            return true;
+        }
+        ais = aim.get(MetadataConstants.USING_ADDRESSING_2005_QNAME);
+        if (null != ais || ais.size() > 0) {
+            return true;
+        }
+        ais = aim.get(MetadataConstants.USING_ADDRESSING_2006_QNAME);
+        if (null != ais || ais.size() > 0) {
+            return true;
+        } 
+        return false;
+    }
+    
+    /**
      * Asserts all Addressing assertions for the current message, regardless their nested 
      * Policies.
      * @param message the current message
@@ -226,13 +257,20 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             return;
             
         }
-        Collection<AssertionInfo> ais = aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
-        if (null == ais || ais.size() == 0) {
-            return;
-        }
+        QName[] types = new QName[] {
+            MetadataConstants.ADDRESSING_ASSERTION_QNAME,
+            MetadataConstants.USING_ADDRESSING_2004_QNAME,
+            MetadataConstants.USING_ADDRESSING_2005_QNAME,
+            MetadataConstants.USING_ADDRESSING_2006_QNAME
+        };
         
-        for (AssertionInfo ai : ais) {
-            ai.setAsserted(true);
+        for (QName type : types) {
+            Collection<AssertionInfo> ais = aim.get(type);
+            if (null != ais) {
+                for (AssertionInfo ai : ais) {
+                    ai.setAsserted(true);
+                }
+            }
         }
     }
 

@@ -184,7 +184,9 @@ public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
 
             } else if (null != assertionBuilderRegistry) {
                 Assertion a = assertionBuilderRegistry.build(childElement);
-                operator.addPolicyComponent(a);
+                if (null != a) {
+                    operator.addPolicyComponent(a);
+                }
             }
         }
         return operator;
