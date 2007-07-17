@@ -78,6 +78,8 @@ public class JettyHTTPServerEngine
      */
     private String protocol;
     
+    
+    private Boolean isSessionSupport = true;
     private int servantCount;
     private Server server;
     private AbstractConnector connector;
@@ -146,6 +148,22 @@ public class JettyHTTPServerEngine
     }
     
     /**
+     * get the jetty server instance
+     * @return
+     */
+    public Server getServer() {
+        return server;
+    }
+    
+    /**
+     * Set the jetty server instance 
+     * @param s 
+     */
+    public void setServer(Server s) {
+        server = s;
+    }
+    
+    /**
      * Register a servant.
      * 
      * @param url the URL associated with the servant
@@ -153,20 +171,11 @@ public class JettyHTTPServerEngine
      */
     public synchronized void addServant(URL url, JettyHTTPHandler handler) {
         if (server == null) {
+            // create a new jetty server instance if there is no server there            
             server = new Server();
             
             connector = connectorFactory.createConnector(port);
-            //REVISITION for setup the connector's threadPool
-            /*
-            if (getListener().isSetMaxIdleTimeMs()) {
-                listener.setMaxIdleTimeMs(getListener().getMaxIdleTimeMs().intValue());
-            }
-            if (getListener().isSetLowResourcePersistTimeMs()) {
-                int lowResourcePersistTime = 
-                    getListener().getLowResourcePersistTimeMs().intValue();
-                listener.setLowResourcePersistTimeMs(lowResourcePersistTime);
-            }*/
-
+            
             server.addConnector(connector);
             contexts = new ContextHandlerCollection();
             server.addHandler(contexts);
@@ -183,40 +192,46 @@ public class JettyHTTPServerEngine
                     }
                 }
             } catch (Exception e) {
-                LOG.log(Level.SEVERE, e.getMessage(), e);
+                LOG.log(Level.SEVERE, "START_UP_SERVER_FAILED_MSG", new Object[] {e.getMessage()});
                 //problem starting server
                 try {                    
                     server.stop();
                     server.destroy();
                 } catch (Exception ex) {
-                    LOG.log(Level.SEVERE, ex.getMessage(), ex);
+                    LOG.log(Level.SEVERE, "START_UP_SERVER_FAILED_MSG", new Object[] {e.getMessage()});
                 }    
             }
-        }
+        }        
         
-        String contextName = HttpUriMapper.getContextName(url.getPath());
-        final String smap = HttpUriMapper.getResourceBase(url.getPath());
+        String contextName = HttpUriMapper.getContextName(url.getPath());            
         ContextHandler context = new ContextHandler();
         context.setContextPath(contextName);
-        context.setHandler(handler);
-        // just add the session manager here by code
-        // TODO adding the configuration support for session manager
-        HashSessionManager sessionManager = new HashSessionManager();
-        SessionHandler sessionHandler = new SessionHandler(sessionManager);
-        HashSessionIdManager idManager = new HashSessionIdManager();
-        sessionManager.setIdManager(idManager);
-        context.addHandler(sessionHandler);
         
+        // bind the jetty http hanler with the context handler        
+        context.setHandler(handler);
+        if (isSessionSupport) {
+            // just add the session manager here by code
+            // TODO adding the configuration support for session manager
+            HashSessionManager sessionManager = new HashSessionManager();
+            SessionHandler sessionHandler = new SessionHandler(sessionManager);
+            HashSessionIdManager idManager = new HashSessionIdManager();
+            sessionManager.setIdManager(idManager);            
+            context.addHandler(sessionHandler);           
+        }
         contexts.addHandler(context);
+       
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
+        handler.setName(smap);
+        
         if (contexts.isStarted()) {           
             try {                
                 context.start();
             } catch (Exception ex) {
-                LOG.log(Level.WARNING, ex.getMessage(), ex);
+                LOG.log(Level.WARNING, "ADD_SERVANT_FAILED_MSG", new Object[] {ex.getMessage()});
             }
         }
         
-        handler.setName(smap);        
+            
         ++servantCount;
     }
     
@@ -228,12 +243,10 @@ public class JettyHTTPServerEngine
     public synchronized void removeServant(URL url) {        
         
         String contextName = HttpUriMapper.getContextName(url.getPath());
-        //final String smap = HttpUriMapper.getResourceBase(url.getPath());
 
         boolean found = false;
         // REVISIT:After a stop(), the server is null, and therefore this 
-        // operation shouldn't find a handler, but then below, why do we
-        // print a message to Std Error?
+        // operation shouldn't find a handler
         if (server != null) {
             for (Handler handler : contexts.getChildHandlersByClass(ContextHandler.class)) {
                 ContextHandler contextHandler = null;
@@ -241,34 +254,21 @@ public class JettyHTTPServerEngine
                     contextHandler = (ContextHandler) handler;
                     if (contextName.equals(contextHandler.getContextPath())) {
                         try {
-                            contexts.removeHandler(handler);
+                            contexts.removeHandler(handler);                            
                             handler.stop();
                             handler.destroy();
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                        } catch (Exception ex) {
+                            LOG.log(Level.WARNING, "REMOVE_SERVANT_FAILED_MSG", 
+                                    new Object[] {ex.getMessage()}); 
                         }
-                        /*for (Handler httpHandler
-                            : contextHandler.getChildHandlersByClass(JettyHTTPHandler.class)) {
-                            if (smap.equals(((JettyHTTPHandler)httpHandler).getName())) {
-                                contexts.removeHandler(httpHandler);
-                                try {
-                                    handler.stop();                               
-                                    handler.destroy();
-                                } catch (Exception e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }    
-                            }
                         
-                        }*/
                     }
                     found = true;
                 }
             }
         }
         if (!found) {
-            LOG.warning("Not able to remove the handler");
+            LOG.log(Level.WARNING, "CAN_NOT_FIND_HANDLER_MSG", new Object[]{url});
         }
         
         --servantCount;
@@ -287,7 +287,7 @@ public class JettyHTTPServerEngine
      * @return the HttpHandler if registered
      */
     public synchronized Handler getServant(URL url)  {
-        String contextName = HttpUriMapper.getContextName(url.getPath());
+        String contextName = HttpUriMapper.getContextName(url.getPath());       
         //final String smap = HttpUriMapper.getResourceBase(url.getPath());
         
         Handler ret = null;
@@ -300,6 +300,32 @@ public class JettyHTTPServerEngine
                     contextHandler = (ContextHandler) handler;
                     if (contextName.equals(contextHandler.getContextPath())) {           
                         ret = contextHandler.getHandler();
+                        break;
+                    }
+                }
+            }    
+        }
+        return ret;
+    }
+    
+    /**
+     * Get a registered context handler.
+     * 
+     * @param url the associated URL
+     * @return the HttpHandler if registered
+     */
+    public synchronized ContextHandler getContextHandler(URL url) {
+        String contextName = HttpUriMapper.getContextName(url.getPath());
+        ContextHandler ret = null;
+        // After a stop(), the server is null, and therefore this 
+        // operation should return null.
+        if (server != null) {           
+            for (Handler handler : server.getChildHandlersByClass(ContextHandler.class)) {
+                ContextHandler contextHandler = null;
+                if (handler instanceof ContextHandler) {
+                    contextHandler = (ContextHandler) handler;
+                    if (contextName.equals(contextHandler.getContextPath())) {           
+                        ret = contextHandler;
                         break;
                     }
                 }
@@ -327,14 +353,14 @@ public class JettyHTTPServerEngine
     protected JettyConnectorFactory getHTTPConnectorFactory() {
         return new JettyConnectorFactory() {                     
             public AbstractConnector createConnector(int porto) {
+                // now we just use the SelectChannelConnector as the default connector
                 SelectChannelConnector result = 
                     new SelectChannelConnector();
                 
                 // Regardless the port has to equal the one
                 // we are configured for.
-                assert porto == port;
+                assert porto == port;                
                 
-                //SocketConnector result = new SocketConnector();
                 result.setPort(porto);
                 return result;
             }

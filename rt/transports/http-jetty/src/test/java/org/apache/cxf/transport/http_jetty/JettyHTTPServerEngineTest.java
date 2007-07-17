@@ -20,15 +20,24 @@
 package org.apache.cxf.transport.http_jetty;
 
 
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
+import org.apache.cxf.helpers.IOUtils;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mortbay.jetty.handler.ContextHandler;
 
 public class JettyHTTPServerEngineTest extends Assert {
 
@@ -80,6 +89,74 @@ public class JettyHTTPServerEngineTest extends Assert {
         factory.removeTLSServerParametersForPort(1235);
         factory.destroyForPort(1234);
         factory.destroyForPort(1235);
+    }
+    
+    @Test 
+    public void testaddServants() throws Exception {
+        String urlStr = "http://localhost:1234/hello/test";
+        JettyHTTPServerEngine engine = 
+            factory.createJettyHTTPServerEngine(1234);
+        JettyHTTPTestHandler handler1 = new JettyHTTPTestHandler("string1");
+        JettyHTTPTestHandler handler2 = new JettyHTTPTestHandler("string2");        
+        engine.addServant(new URL(urlStr), handler1);
+        String response = null;
+        try {
+            response = getResponse(urlStr);
+        } catch (Exception ex) {
+            fail("Can't get the reponse from the server " + ex);
+        }
+        assertEquals("the jetty http handler did not take effect", response, "string1");
+        
+        engine.addServant(new URL(urlStr), handler2);
+        try {
+            response = getResponse(urlStr);
+        } catch (Exception ex) {
+            fail("Can't get the reponse from the server " + ex);
+        }
+        assertEquals("the jetty http handler did not take effect", response, "string1string2");
+        
+        
+        // set the get request
+        factory.destroyForPort(1234);       
+        
+    }
+    
+    @Test 
+    public void testGetContextHandler() throws Exception {
+        String urlStr = "http://localhost:1234/hello/test";
+        JettyHTTPServerEngine engine = 
+            factory.createJettyHTTPServerEngine(1234);
+        ContextHandler contextHandler = engine.getContextHandler(new URL(urlStr));
+        assertNull(contextHandler);
+        JettyHTTPTestHandler handler1 = new JettyHTTPTestHandler("string1");
+        JettyHTTPTestHandler handler2 = new JettyHTTPTestHandler("string2");
+        engine.addServant(new URL(urlStr), handler1);
+        
+        contextHandler = engine.getContextHandler(new URL(urlStr));
+        contextHandler.setHandler(handler2);
+        contextHandler.start();
+        
+        String response = null;
+        try {
+            response = getResponse(urlStr);
+        } catch (Exception ex) {
+            fail("Can't get the reponse from the server " + ex);
+        }
+        assertEquals("the jetty http handler did not take effect", response, "string2");
+        factory.destroyForPort(1234);
+    }
+    
+    private String getResponse(String target) throws Exception {
+        URL url = new URL(target);        
+        
+        URLConnection connection = url.openConnection();            
+        
+        assertTrue(connection instanceof HttpURLConnection);
+        connection.connect(); 
+        InputStream in = connection.getInputStream();
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        IOUtils.copy(in, buffer);
+        return buffer.toString();
     }
     
 }
