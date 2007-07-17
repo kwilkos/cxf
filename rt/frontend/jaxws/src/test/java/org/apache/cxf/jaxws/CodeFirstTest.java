@@ -153,7 +153,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertNotNull(res);
        
         addNamespace("h", "http://service.jaxws.cxf.apache.org/");
-        assertValid("//s:Body/h:sayHiResponse/h:return", res);
+        assertValid("//s:Body/h:sayHiResponse/return", res);
         
         res = invoke("local://localhost:9090/hello", 
                      LocalTransportFactory.TRANSPORT_ID,
@@ -162,7 +162,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertNotNull(res);
         
         addNamespace("h", "http://service.jaxws.cxf.apache.org/");
-        assertValid("//s:Body/h:getGreetingsResponse/h:return/item", res);
+        assertValid("//s:Body/h:getGreetingsResponse/return/item", res);
     }
     
     @Test

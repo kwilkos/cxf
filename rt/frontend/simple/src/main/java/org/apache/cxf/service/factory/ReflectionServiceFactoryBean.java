@@ -655,6 +655,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 el.setRefName(mpi.getElementQName());
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
+                if (schema.getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED)) {
+                    mpi.setConcreteName(new QName(null, mpi.getName().getLocalPart()));
+                }
             }
             if (!Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()

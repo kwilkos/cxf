@@ -44,12 +44,6 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
 
     public static final String DISABLE_OUTPUTSTREAM_OPTIMIZATION = "disable.outputstream.optimization";
     
-    /**
-     * @deprecated
-     */
-    public AbstractOutDatabindingInterceptor() {
-        super(null);
-    }
     
     public AbstractOutDatabindingInterceptor(String phase) {
         super(phase);
