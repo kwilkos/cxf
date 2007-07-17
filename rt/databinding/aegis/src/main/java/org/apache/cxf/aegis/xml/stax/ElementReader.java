@@ -77,7 +77,8 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
     }
 
     public ElementReader(XMLStreamReader reader) {
-        this(new DepthXMLStreamReader(reader));
+        this(reader instanceof DepthXMLStreamReader ? (DepthXMLStreamReader)reader
+            : new DepthXMLStreamReader(reader));
     }
 
     /**
@@ -124,7 +125,7 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
         if (value == null) {
             try {
                 value = root.getElementText();
-
+                
                 while (checkHasMoreChildReaders()) {
                     //TODO - busy wait
                 }
