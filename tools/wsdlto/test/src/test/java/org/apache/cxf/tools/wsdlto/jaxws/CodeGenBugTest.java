@@ -562,6 +562,36 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf778/hello_world_recursive.wsdl"));
         processor.setContext(env);
         processor.execute();
-        assertNotNull("Process message with no part wsdl error", output);
+        assertNotNull("Process recursive import wsdl error ", output);
     }
+    
+    @Test
+    public void testCXF804() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf804/hello_world_contains_import.wsdl"));
+        //env.put(ToolConstants.CFG_SERVICENAME, "SOAPService");
+        processor.setContext(env);
+        processor.execute();
+        
+        File file = new File(output, "org/apache/hello_world_soap_http/MyService.java");
+        assertTrue("MyService is not found", file.exists());
+        
+    }
+    
+    @Test
+    public void testDefinieServiceName() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf804/hello_world_contains_import.wsdl"));
+        env.put(ToolConstants.CFG_SERVICENAME, "SOAPService");
+        processor.setContext(env);
+        processor.execute();
+        
+        File file = new File(output, "org/apache/hello_world_soap_http/SOAPService.java");
+        assertTrue("SOAPService is not found", file.exists());
+        
+        file = new File(output, "org/apache/hello_world_soap_http/MyService.java");
+        assertFalse("MyService should not be generated", file.exists());
+        
+    }
+    
 }

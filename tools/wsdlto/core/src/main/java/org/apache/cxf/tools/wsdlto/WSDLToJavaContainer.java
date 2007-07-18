@@ -246,25 +246,36 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
 
     @SuppressWarnings("unchecked")
-    public QName getServiceQName(Definition definition) {
-        String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
-        QName qname = null;
-        if (serviceName != null) {
-            for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
-                QName qn = ite.next();
-                if (qn.getLocalPart().equalsIgnoreCase(serviceName.toLowerCase())) {
-                    return qn;
-                }
-            }
-        } else {
-            for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
-                return ite.next();
+    public QName getServiceQName(Definition def) {
+        List<Definition> defs = new ArrayList<Definition>();
+        defs.add(def);
+        Iterator ite1 = def.getImports().values().iterator();
+        while (ite1.hasNext()) {
+            List defList = (List)ite1.next();
+            Iterator ite2 = defList.iterator();
+            while (ite2.hasNext()) {
+                javax.wsdl.Import importDef = (javax.wsdl.Import)ite2.next();
+                defs.add(importDef.getDefinition());
             }
         }
+        String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
+        QName qname = null;
+        for (Definition definition : defs) {
+            if (serviceName != null) {
+                for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
+                    QName qn = ite.next();
+                    if (qn.getLocalPart().equalsIgnoreCase(serviceName.toLowerCase())) {
+                        return qn;
+                    }
+                }
+            }            
+        }
+        
         if (qname == null) {
             Message msg = new Message("SERVICE_NOT_FOUND", LOG, new Object[] {serviceName});
             throw new ToolException(msg);
         }
+        
         return qname;
     }
 
