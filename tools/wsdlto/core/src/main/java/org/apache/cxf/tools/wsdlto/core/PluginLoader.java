@@ -366,6 +366,7 @@ public final class PluginLoader {
         return "/" + getContainerPackage(frontend).replace(".", "/") + "/" + toolspec;
     }
 
+    @SuppressWarnings("unchecked")
     private AbstractWSDLBuilder<? extends Object> loadBuilder(String fullClzName) {
         AbstractWSDLBuilder<? extends Object> builder = null;
         try {
