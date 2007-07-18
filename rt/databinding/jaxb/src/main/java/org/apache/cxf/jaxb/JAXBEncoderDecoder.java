@@ -25,6 +25,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -45,12 +46,14 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
@@ -77,6 +80,7 @@ public final class JAXBEncoderDecoder {
         return jm;
     }
 
+    @SuppressWarnings("unchecked")
     public static void marshall(JAXBContext context, 
                                 Schema schema, 
                                 Object elValue, 
@@ -108,44 +112,56 @@ public final class JAXBEncoderDecoder {
                 // intentionally empty.
             }
             Object mObj = elValue;
-
             QName elName = null;
             if (part != null) {
                 elName = part.getConcreteName();
             }
-            
-            if (null != elName
-                && !cls.isAnnotationPresent(XmlRootElement.class)) {
-                
-                if (mObj.getClass().isArray()
-                    && part != null
-                    && part.getXmlSchema() instanceof XmlSchemaElement) {
-                    XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
-                    if (el.getSchemaType() instanceof XmlSchemaSimpleType
-                        && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
-                            instanceof XmlSchemaSimpleTypeList) {
-                        mObj = Arrays.asList((Object[])mObj);
-                    }
-                }
-                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
-                    .newInstance(elName, cls, mObj);
-            }
-            
             u.setSchema(schema);
             if (am != null) {
                 u.setAttachmentMarshaller(am);
             }
-            if (source instanceof XMLStreamWriter) {
-                u.marshal(mObj, (XMLStreamWriter)source);
-            } else if (source instanceof OutputStream) {
-                u.marshal(mObj, (OutputStream)source);
-            } else if (source instanceof Node) {
-                u.marshal(mObj, (Node)source);
-            } else if (source instanceof XMLEventWriter) {
-                u.marshal(mObj, (XMLEventWriter)source);
+
+            if (null != elName
+                && !cls.isAnnotationPresent(XmlRootElement.class)) {
+                
+                if (part != null
+                    && part.getXmlSchema() instanceof XmlSchemaElement) {
+                
+                    XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
+                    
+                    if (mObj.getClass().isArray()
+                        && el.getSchemaType() instanceof XmlSchemaSimpleType
+                        && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
+                                instanceof XmlSchemaSimpleTypeList) {
+                        mObj = Arrays.asList((Object[])mObj);
+                    } else if (part.getMessageInfo().getOperation().isUnwrapped()
+                        && (mObj.getClass().isArray() || mObj instanceof List)
+                        && el.getMaxOccurs() != 1) {
+                        //Have to handle this ourselves....  which really sucks.... but what can we do?
+                        Object objArray[];
+                        if (mObj instanceof List) {
+                            List l = (List)mObj;
+                            objArray = l.toArray(new Object[l.size()]);
+                            cls = null;
+                        } else {
+                            objArray = (Object[])mObj;
+                            cls = cls.getComponentType();
+                        }
+                        for (Object o : objArray) {
+                            writeObject(u, source, 
+                                        new JAXBElement(elName, cls == null ? o.getClass() : cls , o));
+                        }
+                    } else {
+                        writeObject(u, source, new JAXBElement(elName, cls, mObj));
+                    }
+                } else {
+                    writeObject(u, source, new JAXBElement(elName, cls, mObj));
+                }
             } else {
-                throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
+                writeObject(u, source, mObj);
             }
+        } catch (Fault ex) {
+            throw (Fault)ex.fillInStackTrace();
         } catch (Exception ex) {
             if (ex instanceof javax.xml.bind.MarshalException) {
                 javax.xml.bind.MarshalException marshalEx = (javax.xml.bind.MarshalException)ex;
@@ -155,6 +171,20 @@ public final class JAXBEncoderDecoder {
             } else {
                 throw new Fault(new Message("MARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
             }                       
+        }
+    }
+    
+    private static void writeObject(Marshaller u, Object source, Object mObj) throws Fault, JAXBException { 
+        if (source instanceof XMLStreamWriter) {
+            u.marshal(mObj, (XMLStreamWriter)source);
+        } else if (source instanceof OutputStream) {
+            u.marshal(mObj, (OutputStream)source);
+        } else if (source instanceof Node) {
+            u.marshal(mObj, (Node)source);
+        } else if (source instanceof XMLEventWriter) {
+            u.marshal(mObj, (XMLEventWriter)source);
+        } else {
+            throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
         }
     }
 
@@ -201,9 +231,10 @@ public final class JAXBEncoderDecoder {
             && part != null 
             && part.getXmlSchema() instanceof XmlSchemaElement) {
             XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
+            
             if (el.getSchemaType() instanceof XmlSchemaSimpleType
                 && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
-                    instanceof XmlSchemaSimpleTypeList) {
+                instanceof XmlSchemaSimpleTypeList) {
                 
                 Object obj = unmarshall(context, schema, source, elName, null, au, unwrap);
                 if (clazz.isArray()
@@ -212,8 +243,14 @@ public final class JAXBEncoderDecoder {
                                                                  ((List)obj).size()));
                 }
                     
-                
                 return obj;
+            } else if (part.getMessageInfo().getOperation().isUnwrapped()
+                        && el.getMaxOccurs() != 1) {
+                //must read ourselves....
+                List<Object> ret = unmarshallArray(context, schema, source,
+                                                   elName, clazz.getComponentType(), au);
+                return ret.toArray((Object[])java.lang.reflect.Array.newInstance(clazz.getComponentType(),
+                                                                       ret.size()));
             }
         }
 
@@ -260,6 +297,9 @@ public final class JAXBEncoderDecoder {
             } else {
                 throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }
+        } catch (Fault ex) {
+            ex.fillInStackTrace();
+            throw ex;
         } catch (Exception ex) {                        
             if (ex instanceof javax.xml.bind.UnmarshalException) {                
                 javax.xml.bind.UnmarshalException unmarshalEx = (javax.xml.bind.UnmarshalException)ex;
@@ -298,5 +338,48 @@ public final class JAXBEncoderDecoder {
         // JAXB Code Generated.
         assert false;
         throw new IllegalArgumentException("Cannot get Class object from unknown Type");
+    }
+    
+    public static List<Object> unmarshallArray(JAXBContext context, 
+                                    Schema schema, 
+                                    Object source,
+                                    QName elName,
+                                    Class<?> clazz,
+                                    AttachmentUnmarshaller au) {
+        try {
+            Unmarshaller u = createUnmarshaller(context, clazz);
+            u.setSchema(schema);
+            if (au != null) {
+                u.setAttachmentUnmarshaller(au);
+            }
+            XMLStreamReader reader;
+            if (source instanceof XMLStreamReader) {
+                reader = (XMLStreamReader)source;
+            } else if (source instanceof Element) {
+                reader = StaxUtils.createXMLStreamReader((Element)source);
+            } else {
+                throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
+            }
+            List<Object> ret = new ArrayList<Object>();
+            while (reader.getName().equals(elName)) {
+                Object obj = u.unmarshal(reader, clazz);
+                if (obj instanceof JAXBElement) {
+                    obj = ((JAXBElement)obj).getValue();
+                }
+                ret.add(obj);
+            }
+            return ret;
+        } catch (Fault ex) {
+            ex.fillInStackTrace();
+            throw ex;
+        } catch (Exception ex) {                        
+            if (ex instanceof javax.xml.bind.UnmarshalException) {                
+                javax.xml.bind.UnmarshalException unmarshalEx = (javax.xml.bind.UnmarshalException)ex;
+                throw new Fault(new Message("UNMARSHAL_ERROR", 
+                                            BUNDLE, unmarshalEx.getLinkedException().getMessage()), ex); 
+            } else {
+                throw new Fault(new Message("UNMARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
+            }
+        } 
     }
 }

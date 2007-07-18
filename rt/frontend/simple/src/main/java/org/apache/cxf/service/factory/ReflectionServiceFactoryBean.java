@@ -660,6 +660,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
             }
             if (!Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
+                if (!mpi.isElement()) {
+                    mpi.setXmlSchema(el);                    
+                }
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
                     el.setMinOccurs(0);

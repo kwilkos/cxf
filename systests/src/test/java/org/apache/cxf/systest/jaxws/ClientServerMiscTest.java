@@ -20,9 +20,15 @@
 package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import javax.xml.ws.Service;
 
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexType;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeService;
@@ -41,12 +47,10 @@ import org.junit.Test;
 
 public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
-    private final QName portName = new QName("http://cxf.apache.org/anonymous_complex_type/",
-            "anonymous_complex_typeSOAP");
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
     }
 
     @Test
@@ -54,6 +58,8 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
         AnonymousComplexTypeService actService = new AnonymousComplexTypeService();
         assertNotNull(actService);
+        QName portName = new QName("http://cxf.apache.org/anonymous_complex_type/",
+            "anonymous_complex_typeSOAP");
         AnonymousComplexType act = actService.getPort(portName, AnonymousComplexType.class);
 
         try {
@@ -71,6 +77,8 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
         AnonymousComplexTypeService actService = new AnonymousComplexTypeService();
         assertNotNull(actService);
+        QName portName = new QName("http://cxf.apache.org/anonymous_complex_type/",
+            "anonymous_complex_typeSOAP");
         AnonymousComplexType act = actService.getPort(portName, AnonymousComplexType.class);
 
         try {
@@ -139,5 +147,45 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
+    }
+    
+    @Test
+    public void testStringListOut() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                                   "DocLitWrappedCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                                   "DocLitWrappedCodeFirstService");
+        
+        Service service = Service.create(new URL(ServerMisc.DOCLIT_CODEFIRST_URL + "?wsdl"),
+                                      servName);
+        DocLitWrappedCodeFirstService port = service.getPort(portName,
+                                                             DocLitWrappedCodeFirstService.class);
+        
+        String arrayOut[] = port.arrayOutput();
+        assertNotNull(arrayOut);
+        assertEquals(3, arrayOut.length);
+        for (int x = 0; x < 3; x++) {
+            assertEquals(DocLitWrappedCodeFirstServiceImpl.DATA[x], arrayOut[x]);
+        }
+        
+        List<String> listOut = port.listOutput();
+        assertNotNull(listOut);
+        assertEquals(3, listOut.size());
+        for (int x = 0; x < 3; x++) {
+            assertEquals(DocLitWrappedCodeFirstServiceImpl.DATA[x], listOut.get(x));
+        }
+        
+        String s = port.arrayInput(DocLitWrappedCodeFirstServiceImpl.DATA);
+        assertEquals("string1string2string3", s);
+        
+        s = port.listInput(java.util.Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
+        assertEquals("string1string2string3", s);
+        
+        List<String> rev = new ArrayList<String>(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
+        Collections.reverse(rev);
+        String s2 = port.multiListInput(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA),
+                                rev,
+                                "Hello", 24);
+        assertEquals("string1string2string3string3string2string1Hello24", s2);
     }
 }

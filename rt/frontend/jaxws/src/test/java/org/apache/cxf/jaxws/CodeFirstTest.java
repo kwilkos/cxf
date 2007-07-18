@@ -162,7 +162,8 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertNotNull(res);
         
         addNamespace("h", "http://service.jaxws.cxf.apache.org/");
-        assertValid("//s:Body/h:getGreetingsResponse/return/item", res);
+        assertValid("//s:Body/h:getGreetingsResponse/return[1]", res);
+        assertValid("//s:Body/h:getGreetingsResponse/return[2]", res);
     }
     
     @Test

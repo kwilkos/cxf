@@ -207,10 +207,10 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                          List<Object> parameters,
                          Iterator<MessagePartInfo> itr) {
 
-        boolean isListPara = false;
         //List<Object> list = new ArrayList<Object>();
         MessagePartInfo part = null;
         while (StaxUtils.toNextElement(xmlReader)) { 
+            boolean isListPara = false;
             if (itr.hasNext()) {
                 part = itr.next();
                 if (part.getTypeClass().getName().startsWith("[L")) {
@@ -221,12 +221,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                     
                     if (genericType instanceof ParameterizedType) {
                         isListPara = true;
-                        //ParameterizedType pt = (ParameterizedType) genericType;
-                        //part.setTypeClass((Class<?>)pt.getActualTypeArguments()[0]);
-                    } /*else if (genericType instanceof GenericArrayType) {
-                        GenericArrayType gt = (GenericArrayType)genericType;
-                        part.setTypeClass((Class<?>)gt.getGenericComponentType());
-                    }*/
+                    }
                 } 
             } 
             if (part == null) {
@@ -244,14 +239,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             }
 
         }
-        
-        /*if (isListPara) {
-            parameters.add(list);
-        } else {
-            for (Object obj : list) {
-                parameters.add(obj);
-            }
-        }*/
+
     }
 
 

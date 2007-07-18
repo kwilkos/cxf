@@ -29,7 +29,6 @@ import org.apache.cxf.databinding.stax.StaxDataBinding;
 import org.apache.cxf.databinding.stax.StaxDataBindingFeature;
 import org.apache.cxf.databinding.stax.XMLStreamWriterCallback;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.staxutils.FragmentStreamReader;
 import org.apache.cxf.test.AbstractCXFTest;
@@ -68,7 +67,7 @@ public class StaxDatabindingTest extends AbstractCXFTest {
         
         Node res = invoke(address, LocalTransportFactory.TRANSPORT_ID, "req.xml");
         
-        DOMUtils.writeXml(res, System.out);
+        //DOMUtils.writeXml(res, System.out);
         addNamespace("a", "http://stax.service.cxf.apache.org/");
         assertValid("//a:bleh", res);
     }
