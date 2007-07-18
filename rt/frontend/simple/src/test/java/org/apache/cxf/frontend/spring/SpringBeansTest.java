@@ -35,6 +35,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.service.factory.HelloService;
+import org.apache.cxf.service.factory.HelloServiceImpl;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -47,14 +48,26 @@ public class SpringBeansTest extends Assert {
 
         ServerFactoryBean bean = (ServerFactoryBean) ctx.getBean("simple");
         assertNotNull(bean);
+        
+        if (!(bean.getServiceBean() instanceof HelloServiceImpl)) {
+            fail("can't get the right serviceBean");
+        }
+        bean = (ServerFactoryBean) ctx.getBean("inlineImplementor");
+        if (!(bean.getServiceBean() instanceof HelloServiceImpl)) {
+            fail("can't get the right serviceBean");
+        }        
 
         bean = (ServerFactoryBean) ctx.getBean("inlineSoapBinding");
-        assertNotNull(bean);
+        assertNotNull(bean);        
+        
+       
         
         BindingConfiguration bc = bean.getBindingConfig();
         assertTrue(bc instanceof SoapBindingConfiguration);
         SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
         assertTrue(sbc.getVersion() instanceof Soap12);
+        
+        
     }
     
     @Test
