@@ -87,7 +87,7 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                     }
                     
                     elTypeNames.add(elementType);
-                    partClasses.add(p.getClass());
+                    partClasses.add(p.getTypeClass());
                 }
                 helper = WrapperHelper.createWrapperHelper(wrapped,
                                                            partNames,

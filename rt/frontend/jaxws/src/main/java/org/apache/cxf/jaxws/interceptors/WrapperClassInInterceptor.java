@@ -167,7 +167,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 }
                 
                 elTypeNames.add(elementType);
-                partClasses.add(p.getClass());
+                partClasses.add(p.getTypeClass());
                 partNames.add(p.getName().getLocalPart());
             }
         }

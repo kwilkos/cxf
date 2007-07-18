@@ -180,6 +180,11 @@ public abstract class WrapperHelper {
     private static Field getElField(String partName, Class<?> wrapperType) {
         String fieldName = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.VARIABLE);
         for (Field field : wrapperType.getDeclaredFields()) {
+            XmlElement el = field.getAnnotation(XmlElement.class);
+            if (el != null
+                && partName.equals(el.name())) {
+                return field;
+            }
             if (field.getName().equals(fieldName)) {
                 return field;
             }
