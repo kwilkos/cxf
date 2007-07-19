@@ -18,5 +18,5 @@
     under the License.
 -->
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
-    <rewriteSystem systemIdStartString="replaceme" rewritePrefix="../wsdl2java_wsdl"/>
+    <rewriteSystem systemIdStartString="replaceme" rewritePrefix="./"/>
 </catalog>

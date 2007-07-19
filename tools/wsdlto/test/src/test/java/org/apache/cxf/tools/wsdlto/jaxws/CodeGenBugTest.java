@@ -594,4 +594,21 @@ public class CodeGenBugTest extends ProcessorTestBase {
         
     }
     
+    @Test
+    public void testCXF805() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/cxf805/hello_world_with_typo.wsdl"));
+            env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+            processor.setContext(env);
+            processor.execute();
+            fail("exception should be thrown");
+        } catch (Exception e) {
+            assertTrue("Fail to create java parameter exception should be thrown",
+                       e.getMessage().indexOf("Fail to create java parameter") > -1);
+        }
+
+    }
+    
+    
 }

@@ -108,6 +108,10 @@ public class JavaMethod implements JavaAnnotatable {
     }
 
     public void setReturn(JavaReturn rt) {
+        if (rt != null && rt.getType() == null && rt.getClassName() == null) {
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_OUTPUT_PARAMETER", LOG, rt.name, this.getName());
+            throw new ToolException(msg);
+        }
         this.javaReturn = rt;
     }
 
@@ -138,6 +142,12 @@ public class JavaMethod implements JavaAnnotatable {
                 throw new ToolException(message);
             }
         }
+        
+        if (param.getType() == null && param.getClassName() == null) {
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_PARAMETER", LOG, param.name, this.getName());
+            throw new ToolException(msg);
+        }
+        
         parameters.add(param);
     }
 

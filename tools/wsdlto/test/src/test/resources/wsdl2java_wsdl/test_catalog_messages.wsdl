@@ -23,7 +23,7 @@
     xmlns:x1="http://apache.org/hello_world_soap_http/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://apache.org/hello_world_soap_http" name="HelloWorld">
+    targetNamespace="http://apache.org/hello_world_soap_http" name="HelloWorldMessage">
 
     <wsdl:message name="sayHiRequest">
         <wsdl:part name="in" element="x1:sayHi"/>
@@ -37,33 +37,11 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part name="out" element="x1:greetMeResponse"/>
     </wsdl:message>
-    <wsdl:message name="greetMeSometimeRequest">
-        <wsdl:part name="in" element="x1:greetMeSometime"/>
-    </wsdl:message>
-    <wsdl:message name="greetMeSometimeResponse">
-        <wsdl:part name="out" element="x1:greetMeSometimeResponse"/>
-    </wsdl:message>
+
     <wsdl:message name="greetMeOneWayRequest">
         <wsdl:part name="in" element="x1:greetMeOneWay"/>
     </wsdl:message>
-    <wsdl:message name="testDocLitFaultRequest">
-        <wsdl:part name="in" element="x1:testDocLitFault"/>
-    </wsdl:message>
-    <wsdl:message name="testDocLitFaultResponse">
-        <wsdl:part name="out" element="x1:testDocLitFaultResponse"/>
-    </wsdl:message>
-    <wsdl:message name="NoSuchCodeLitFault">
-        <wsdl:part name="NoSuchCodeLit" element="x1:NoSuchCodeLit"/>
-    </wsdl:message>
-    <wsdl:message name="BadRecordLitFault">
-        <wsdl:part name="BadRecordLit" element="x1:BadRecordLit"/>
-    </wsdl:message>
-    <wsdl:message name="testDocLitBareRequest">
-        <wsdl:part name="in" element="x1:BareDocument"/>
-    </wsdl:message>
-    <wsdl:message name="testDocLitBareResponse">
-        <wsdl:part name="out" element="x1:BareDocumentResponse"/>
-    </wsdl:message>
+   
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
             <wsdl:input name="sayHiRequest" message="tns:sayHiRequest"/>
@@ -73,23 +51,11 @@
             <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
             <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
         </wsdl:operation>
-       <wsdl:operation name="greetMeSometime">
-            <wsdl:input name="greetMeSometimeRequest" message="tns:greetMeSometimeRequest"/>
-            <wsdl:output name="greetMeSometimeResponse" message="tns:greetMeSometimeResponse"/>
-        </wsdl:operation>
+
         <wsdl:operation name="greetMeOneWay">
             <wsdl:input name="greetMeOneWayRequest" message="tns:greetMeOneWayRequest"/>
         </wsdl:operation>
-        <wsdl:operation name="testDocLitFault">
-            <wsdl:input name="testDocLitFaultRequest" message="tns:testDocLitFaultRequest"/>
-            <wsdl:output name="testDocLitFaultResponse" message="tns:testDocLitFaultResponse"/>
-            <wsdl:fault name="NoSuchCodeLitFault" message="tns:NoSuchCodeLitFault"/>
-            <wsdl:fault name="BadRecordLitFault" message="tns:BadRecordLitFault"/>
-        </wsdl:operation>
-        <wsdl:operation name="testDocLitBare">
-            <wsdl:input name="testDocLitBareRequest" message="tns:testDocLitBareRequest"/>
-            <wsdl:output name="testDocLitBareResponse" message="tns:testDocLitBareResponse"/>
-        </wsdl:operation>
+        
     </wsdl:portType>
     <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -111,44 +77,13 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="greetMeSometime">
-            <soap:operation style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
+       
         <wsdl:operation name="greetMeOneWay">
             <soap:operation style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
         </wsdl:operation>
-        <wsdl:operation name="testDocLitFault">
-            <soap:operation style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-            <wsdl:fault name="NoSuchCodeLitFault">
-                <soap:fault name="NoSuchCodeLitFault" use="literal"/>
-            </wsdl:fault>
-            <wsdl:fault name="BadRecordLitFault">
-                <soap:fault name="BadRecordLitFault" use="literal"/>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="testDocLitBare">
-            <soap:operation style="document" soapAction="http://apache.org/hello_world_soap_http/testDocLitBare"/>
-            <wsdl:input name="testDocLitBareRequest">
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output name="testDocLitBareResponse">
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
+        
     </wsdl:binding>
   </wsdl:definitions>
