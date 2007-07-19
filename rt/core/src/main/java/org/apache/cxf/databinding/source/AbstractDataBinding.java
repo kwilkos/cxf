@@ -51,7 +51,7 @@ public class AbstractDataBinding {
                                    Document d,
                                    String systemId) {
         String ns = d.getDocumentElement().getAttribute("targetNamespace");
-        if (StringUtils.isEmpty(ns) || !isSameTNS(serviceInfo)) {
+        if (StringUtils.isEmpty(ns)) {
             ns = serviceInfo.getInterface().getName().getNamespaceURI();
             d.getDocumentElement().setAttribute("targetNamespace", ns);
         }
