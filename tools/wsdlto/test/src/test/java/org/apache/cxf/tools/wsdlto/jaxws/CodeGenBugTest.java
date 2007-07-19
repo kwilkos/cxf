@@ -611,4 +611,21 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
     
     
+    @Test
+    public void testAntFile() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_ANT, ToolConstants.CFG_ANT);
+        env.put(ToolConstants.CFG_SERVICENAME, "SOAPService_Test1");
+        processor.setContext(env);
+        
+        processor.execute();
+        File file = new File(output.getCanonicalPath() + "/build.xml");
+        String str = getStringFromFile(file);
+        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Client") > -1);
+        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest2_Client") > -1);
+        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Server") > -1);
+        assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest2_Server") > -1);        
+    }
+    
+    
 }

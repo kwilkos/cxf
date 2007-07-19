@@ -19,12 +19,20 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.common.model.JavaPort;
+import org.apache.cxf.tools.common.model.JavaServiceClass;
+import org.apache.cxf.tools.util.NameUtil;
 
 public class AntGenerator extends AbstractJAXWSGenerator {
 
@@ -60,9 +68,50 @@ public class AntGenerator extends AbstractJAXWSGenerator {
             }
             return;
         }
+        
+        Map<String, String> clientClassNamesMap = new HashMap<String, String>();
+        Map<String, String> serverClassNamesMap = new HashMap<String, String>();
+        
+        Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
+        int index = 1;
+        Iterator it = javaModel.getServiceClasses().values().iterator();
+        while (it.hasNext()) {
+            JavaServiceClass js = (JavaServiceClass)it.next();
+            Iterator i = js.getPorts().iterator();
+            while (i.hasNext()) {
+                JavaPort jp = (JavaPort)i.next();
+                String interfaceName = jp.getPortType();
+                JavaInterface intf = interfaces.get(interfaceName);
+                
+                String clientClassName = intf.getPackageName() + "." + interfaceName + "_"
+                                         + NameUtil.mangleNameToClassName(jp.getPortName()) + "_Client";
+
+                String serverClassName = intf.getPackageName() + "." + interfaceName + "_"
+                                         + NameUtil.mangleNameToClassName(jp.getPortName()) + "_Server";
+                String clientTargetName = interfaceName + "Client";
+                boolean collison = false;
+                if (clientClassNamesMap.keySet().contains(clientTargetName)) {
+                    clientTargetName = clientTargetName + index;
+                    collison = true;
+                }
+                String serverTargetName = interfaceName + "Server";
+                if (serverClassNamesMap.keySet().contains(serverTargetName)) {
+                    serverTargetName = serverTargetName + index;
+                    collison = true;
+                }
+                
+                if (collison) {
+                    index++;
+                }
+                clientClassNamesMap.put(clientTargetName, clientClassName);
+                serverClassNamesMap.put(serverTargetName, serverClassName);
+                
+            }
+        }
 
         clearAttributes();
-        setAttributes("intfs", javaModel.getInterfaces().values());
+        setAttributes("clientClassNamesMap", clientClassNamesMap);
+        setAttributes("serverClassNamesMap", serverClassNamesMap);
         setAttributes("wsdlLocation", javaModel.getLocation());
         setCommonAttributes();
 

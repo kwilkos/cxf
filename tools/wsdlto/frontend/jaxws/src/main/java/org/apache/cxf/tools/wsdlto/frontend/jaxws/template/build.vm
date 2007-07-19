@@ -91,20 +91,23 @@
 	<pathelement location="${cxf-manifest-incubator.jar.file}"/>
     </path>
 
-#foreach ($interface in $intfs)
-    <target name="${interface.Name}.Client" description="Run ${interface.Name} client" depends="compile">
+#foreach ($targetName in $clientClassNamesMap.keySet())
+    <target name="$targetName" description="Run $clientClassNamesMap.get($targetName)" depends="compile">
 	<property name="param" value=""/>
-	<cxfrun classname="${interface.PackageName}.${interface.Name}Client"
+	<cxfrun classname="$clientClassNamesMap.get($targetName)"
 		   param1="$wsdlLocation"
 		   param2="${op}" 
 		   param3="${param}"/>
     </target> 
+#end
 
-    <target name="${interface.Name}.Server" description="Run ${interface.Name} server" depends="compile">
-	<cxfrun classname="${interface.PackageName}.${interface.Name}Server" 
+#foreach ($target in $serverClassNamesMap.keySet())
+    <target name="${target}" description="Run $serverClassNamesMap.get($target)" depends="compile">
+	<cxfrun classname="$serverClassNamesMap.get($target)" 
 		   param1="$wsdlLocation"/>
     </target>
 #end
+
 
 
     <target name="compile">
