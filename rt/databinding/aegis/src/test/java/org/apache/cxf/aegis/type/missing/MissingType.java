@@ -16,24 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.aegis.type.missing;
 
-package org.apache.cxf.databinding;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 
-import java.util.Collection;
+@WebService(name = "MissingType", targetNamespace = "urn:org:apache:cxf:aegis:type:missing")
+public interface MissingType {
+    @WebMethod
+    void addName(Outer outer);
 
-import javax.xml.namespace.QName;
-import javax.xml.validation.Schema;
-
-import org.apache.cxf.message.Attachment;
-import org.apache.cxf.service.model.MessagePartInfo;
-
-public interface DataReader<T> {
-    String FAULT = DataReader.class.getName() + "Fault";
-
-    Object read(T input);
-    Object read(MessagePartInfo part, T input);
-    Object read(QName name, T input, Class type);
-    void setSchema(Schema s);
-    void setAttachments(Collection<Attachment> attachments);
-    void setProperty(String prop, Object value);
 }

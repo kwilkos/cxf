@@ -74,7 +74,7 @@ public class ClientImpl
     protected Bus bus;
     protected ConduitSelector conduitSelector;
     protected ClientOutFaultObserver outFaultObserver; 
-    protected int synchronousTimeout = 10000; // default 10 second timeout
+    protected int synchronousTimeout = 1000000; // default 10 second timeout
     
     protected PhaseChainCache outboundChainCache = new PhaseChainCache();
     protected PhaseChainCache inboundChainCache = new PhaseChainCache();

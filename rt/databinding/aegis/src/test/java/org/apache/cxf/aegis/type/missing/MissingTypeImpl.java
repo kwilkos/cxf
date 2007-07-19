@@ -17,23 +17,18 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
+package org.apache.cxf.aegis.type.missing;
 
-import java.util.Collection;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 
-import javax.xml.namespace.QName;
-import javax.xml.validation.Schema;
+@WebService(serviceName = "MissingType", 
+            endpointInterface = "org.apache.cxf.aegis.type.missing.MissingType", 
+            targetNamespace = "urn:org:apache:cxf:aegis:type:missing")
+public class MissingTypeImpl implements MissingType {
 
-import org.apache.cxf.message.Attachment;
-import org.apache.cxf.service.model.MessagePartInfo;
+    @WebMethod
+    public void addName(Outer outer) {
+    }
 
-public interface DataReader<T> {
-    String FAULT = DataReader.class.getName() + "Fault";
-
-    Object read(T input);
-    Object read(MessagePartInfo part, T input);
-    Object read(QName name, T input, Class type);
-    void setSchema(Schema s);
-    void setAttachments(Collection<Attachment> attachments);
-    void setProperty(String prop, Object value);
 }

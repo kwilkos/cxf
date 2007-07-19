@@ -17,23 +17,24 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
+package org.apache.cxf.frontend;
 
-import java.util.Collection;
+public class FaultInfoException extends Exception {
 
-import javax.xml.namespace.QName;
-import javax.xml.validation.Schema;
+    public FaultInfoException(String arg0, Throwable arg1) {
+        super(arg0, arg1);
+    }
 
-import org.apache.cxf.message.Attachment;
-import org.apache.cxf.service.model.MessagePartInfo;
+    public FaultInfoException(String arg0) {
+        super(arg0);
+    }
 
-public interface DataReader<T> {
-    String FAULT = DataReader.class.getName() + "Fault";
+    public FaultInfoException(Throwable arg0) {
+        super(arg0);
+    }
 
-    Object read(T input);
-    Object read(MessagePartInfo part, T input);
-    Object read(QName name, T input, Class type);
-    void setSchema(Schema s);
-    void setAttachments(Collection<Attachment> attachments);
-    void setProperty(String prop, Object value);
+    public FaultInfoException() {
+        super();
+    }
+
 }

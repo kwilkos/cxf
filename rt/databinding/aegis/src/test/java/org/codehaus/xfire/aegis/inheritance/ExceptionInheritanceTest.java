@@ -18,49 +18,72 @@
  */
 package org.codehaus.xfire.aegis.inheritance;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.aegis.services.SimpleBean;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.feature.LoggingFeature;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.service.invoker.BeanInvoker;
+import org.codehaus.xfire.aegis.inheritance.ws1.WS1;
+import org.codehaus.xfire.aegis.inheritance.ws1.WS1ExtendedException;
+import org.codehaus.xfire.aegis.inheritance.ws1.impl.WS1Impl;
 import org.junit.Test;
 
 public class ExceptionInheritanceTest extends AbstractAegisTest {
-    // private Service service;
-    //
-    // public void setUp() throws Exception
-    // {
-    // super.setUp();
-    //
-    // HashMap props = new HashMap();
-    // props.put(AegisBindingProvider.WRITE_XSI_TYPE_KEY, Boolean.TRUE);
-    // ArrayList l = new ArrayList();
-    // l.add(SimpleBean.class.getName());
-    // l.add(WS1ExtendedException.class.getName());
-    //
-    // props.put(AegisBindingProvider.OVERRIDE_TYPES_KEY, l);
-    //        
-    // createService(WS1.class, null);
-    //        
-    // service = getServiceFactory().create(WS1.class, props);
-    // service.setInvoker(new BeanInvoker(new WS1Impl()));
-    // getServiceRegistry().register(service);
-    // }
-    //    
-    // public void testClient() throws Exception
-    // {
-    // WS1 client = (WS1) new XFireProxyFactory(getXFire()).create(service,
-    // "xfire.local://WS1");
-    //        
-    // try
-    // {
-    // client.throwException(true);
-    // }
-    // catch (WS1ExtendedException ex)
-    // {
-    // Object sb = ex.getSimpleBean();
-    // assertTrue(sb instanceof SimpleBean);
-    // }
-    // }
+    private WS1 client;
+    private Map<String, Object> props;
+    
+    public void setUp() throws Exception {
+        super.setUp();
+
+        props = new HashMap<String, Object>();
+        props.put(AegisDatabinding.WRITE_XSI_TYPE_KEY, "true");
+
+        List<String> l = new ArrayList<String>();
+        l.add(SimpleBean.class.getName());
+        l.add(WS1ExtendedException.class.getName());
+
+        props.put(AegisDatabinding.OVERRIDE_TYPES_KEY, l);
+
+        ClientProxyFactoryBean pf = new ClientProxyFactoryBean();
+        setupAegis(pf.getClientFactoryBean());
+        pf.setServiceClass(WS1.class);
+        pf.getServiceFactory().setProperties(props);
+        pf.setAddress("local://WS1");
+        pf.setProperties(props);
+        
+        client = (WS1) pf.create();
+
+        Server server = createService(WS1.class, "WS1", null);
+        new LoggingFeature().initialize(server, null);
+        server.getEndpoint().getService().setInvoker(new BeanInvoker(new WS1Impl()));
+    }
+
+    @Override
+    protected ServerFactoryBean createServiceFactory(Class serviceClass, String address, QName name) {
+        ServerFactoryBean sf = super.createServiceFactory(serviceClass, address, name);
+        sf.getServiceFactory().setProperties(props);
+        return sf;
+    }
 
     @Test
-    public void testNothing() {
-
+    public void testClient() throws Exception {
+        try {
+            client.throwException(true);
+            fail("No exception was thrown!");
+        } catch (WS1ExtendedException ex) {
+            Object sb = ex.getSimpleBean();
+            assertTrue(sb instanceof SimpleBean);
+        }
     }
+
 }

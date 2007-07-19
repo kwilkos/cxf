@@ -17,23 +17,20 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
+package org.apache.cxf.binding.http.bare;
 
-import java.util.Collection;
+import javax.jws.WebParam;
+import javax.jws.WebService;
 
-import javax.xml.namespace.QName;
-import javax.xml.validation.Schema;
+import org.codehaus.jra.Get;
+import org.codehaus.jra.HttpResource;
 
-import org.apache.cxf.message.Attachment;
-import org.apache.cxf.service.model.MessagePartInfo;
+@WebService
+public interface UserService {
 
-public interface DataReader<T> {
-    String FAULT = DataReader.class.getName() + "Fault";
-
-    Object read(T input);
-    Object read(MessagePartInfo part, T input);
-    Object read(QName name, T input, Class type);
-    void setSchema(Schema s);
-    void setAttachments(Collection<Attachment> attachments);
-    void setProperty(String prop, Object value);
+    @Get
+    @HttpResource(location = "/login/{username}/{password}")
+    String login(@WebParam(name = "username")
+        String username, 
+        @WebParam(name = "password") String password);
 }

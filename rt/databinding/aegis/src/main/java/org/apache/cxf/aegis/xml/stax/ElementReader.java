@@ -126,8 +126,10 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
             try {
                 value = root.getElementText();
                 
-                while (checkHasMoreChildReaders()) {
-                    //TODO - busy wait
+                hasCheckedChildren = true;
+                hasChildren = false;
+                if (root.hasNext()) {
+                    root.next();
                 }
             } catch (XMLStreamException e) {
                 throw new DatabindingException("Could not read XML stream.", e);
@@ -170,7 +172,7 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
                     }
                     break;
                 case XMLStreamReader.END_ELEMENT:
-                    if (root.getDepth() <= depth + 1) {
+                    if (root.getDepth() < depth) {
                         hasCheckedChildren = true;
                         hasChildren = false;
 

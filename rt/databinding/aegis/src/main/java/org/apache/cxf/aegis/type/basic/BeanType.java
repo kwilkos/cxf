@@ -19,6 +19,8 @@
 package org.apache.cxf.aegis.type.basic;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -38,6 +40,7 @@ import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -52,8 +55,7 @@ public class BeanType extends Type {
 
     private boolean isInterface;
 
-    //
-    // private boolean isException = false;
+    private boolean isException;
 
     public BeanType() {
     }
@@ -61,7 +63,12 @@ public class BeanType extends Type {
     public BeanType(BeanTypeInfo info) {
         this.info = info;
         this.typeClass = info.getTypeClass();
+        initTypeClass();
+    }
+
+    private void initTypeClass() {
         this.isInterface = typeClass.isInterface();
+        isException = Exception.class.isAssignableFrom(typeClass);
     }
 
     /*
@@ -97,9 +104,8 @@ public class BeanType extends Type {
                                                        + " for class " + clazz.getName());
                     }
                 }
-                // } else if (isException) {
-                // object = createFromFault(context);
-                // }
+            } else if (isException) {
+                object = createFromFault(context);
             } else {
                 object = clazz.newInstance();
             }
@@ -131,8 +137,6 @@ public class BeanType extends Type {
                 if (parent != null) {
                     info = parent.getTypeInfo();
                     defaultType = info.getType(name);
-                } else {
-                    defaultType = null;
                 }
 
                 Type type = TypeUtil.getReadType(childReader.getXMLStreamReader(), context, defaultType);
@@ -180,9 +184,43 @@ public class BeanType extends Type {
             throw new DatabindingException("Illegal access. " + e.getMessage(), e);
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument. " + e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new DatabindingException("Could not create class: " + e.getMessage(), e);
         }
     }
+    /**
+     * If the class is an exception, this will try and instantiate it with
+     * information from the XFireFault (if it exists).
+     */
+    protected Object createFromFault(Context context)
+        throws SecurityException, InstantiationException,
+        IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Class clazz = getTypeClass();
+        Constructor ctr;
+        Object o;
+        
+        Fault fault = context.getFault();
 
+        try {
+            ctr = clazz.getConstructor(new Class[] {String.class, Throwable.class});
+            o = ctr.newInstance(new Object[] {fault.getMessage(), fault});
+        } catch (NoSuchMethodException e) {
+            try {
+                ctr = clazz.getConstructor(new Class[] {String.class, Exception.class});
+                o = ctr.newInstance(new Object[] {fault.getMessage(), fault});
+            } catch (NoSuchMethodException e1) {
+                try {
+                    ctr = clazz.getConstructor(new Class[] {String.class});
+                    o = ctr.newInstance(new Object[] {fault.getMessage()});
+                } catch (NoSuchMethodException e2) {
+                    return clazz.newInstance();
+                }
+            }
+        }
+
+        return o;
+    }
+    
     /**
      * Write the specified property to a field.
      */
@@ -243,7 +281,8 @@ public class BeanType extends Type {
 
         BeanTypeInfo inf = getTypeInfo();
 
-        if (getSuperType() != null) {
+        if (object.getClass() == getTypeClass() 
+            && context.isWriteXsiTypes()) {
             writer.writeXsiType(getSchemaType());
         }
 
@@ -282,8 +321,8 @@ public class BeanType extends Type {
             }
             Object value = readProperty(object, name);
 
-            Type type = getType(inf, name);
-            type = TypeUtil.getWriteType(context, value, type);
+            Type defaultType = getType(inf, name);
+            Type type = TypeUtil.getWriteType(context, value, defaultType);
             MessageWriter cwriter;
 
             // Write the value if it is not null.
@@ -515,8 +554,7 @@ public class BeanType extends Type {
     public void setTypeClass(Class typeClass) {
         super.setTypeClass(typeClass);
 
-        isInterface = typeClass.isInterface();
-        // isException = Exception.class.isAssignableFrom(typeClass);
+        initTypeClass();
     }
 
     /**

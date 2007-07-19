@@ -35,14 +35,15 @@ import javax.xml.stream.XMLStreamReader;
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
 public abstract class AbstractDOMStreamReader implements XMLStreamReader {
+    protected int currentEvent = XMLStreamConstants.START_DOCUMENT;
+
     private Map properties = new HashMap();
 
     private FastStack<ElementFrame> frames = new FastStack<ElementFrame>();
 
     private ElementFrame frame;
 
-    private int currentEvent = XMLStreamConstants.START_DOCUMENT;
-
+    
     /**
      *     
      */

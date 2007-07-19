@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.staxutils.AbstractDOMStreamReader.ElementFrame;
 
 public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     private Node content;
@@ -157,6 +158,12 @@ public class W3CDOMStreamReader extends AbstractDOMStreamReader {
     @Override
     public String getElementText() throws XMLStreamException {
         String result = DOMUtils.getContent(content);
+
+        ElementFrame frame = getCurrentFrame();
+        frame.ended = true;
+        currentEvent = END_ELEMENT;
+        endElement();
+
         // we should not return null according to the StAx API javadoc
         return result != null ? result : "";
     }

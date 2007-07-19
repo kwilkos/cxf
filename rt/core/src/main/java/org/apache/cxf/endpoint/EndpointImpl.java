@@ -38,6 +38,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.interceptor.ClientFaultConverter;
 import org.apache.cxf.interceptor.InFaultChainInitiatorObserver;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.interceptor.OutFaultChainInitiatorObserver;
@@ -82,6 +83,7 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
         inFaultObserver = new InFaultChainInitiatorObserver(bus);
         outFaultObserver = new OutFaultChainInitiatorObserver(bus);
 
+        getInFaultInterceptors().add(new ClientFaultConverter());
         getOutInterceptors().add(new MessageSenderInterceptor());
         getOutFaultInterceptors().add(new MessageSenderInterceptor());
     }

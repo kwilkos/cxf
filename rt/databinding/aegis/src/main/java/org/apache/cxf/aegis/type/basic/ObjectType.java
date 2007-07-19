@@ -118,6 +118,10 @@ public class ObjectType extends Type {
             type = tm.getType(getSchemaType());
         }
 
+        if (type == this) {
+            throw new DatabindingException("Could not determine how to read type: " + typeQName);
+        }
+        
         if (type == null && readToDocument) {
             type = getTypeMapping().getType(Document.class);
         }

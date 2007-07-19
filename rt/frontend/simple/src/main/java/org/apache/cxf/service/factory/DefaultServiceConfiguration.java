@@ -72,7 +72,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public QName getInParameterName(OperationInfo op, Method method, int paramNumber) {
         return new QName(op.getName().getNamespaceURI(), 
-                         getDefaultLocalName(op, method, paramNumber, "arg" + paramNumber));
+                         getDefaultLocalName(op, method, paramNumber, "arg"));
     }
 
     @Override

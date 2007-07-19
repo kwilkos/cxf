@@ -49,6 +49,7 @@ import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.FaultOutInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
@@ -818,15 +819,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         initializeFaults(intf, op, method);
     }
-
-    protected void createFaultWrappedMessageParts(FaultInfo fault) {
-        MessagePartInfo part = fault.addMessagePart("fault");
-        part.setElement(true);
-        if (part.getElementQName() == null) {
-            part.setElementQName(fault.getFaultName());
-        }
-    }
-
+    
     protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
         MessagePartInfo part = inMsg.addMessagePart("parameters");
         part.setElement(true);
@@ -1092,6 +1085,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    protected void initializeDefaultInterceptors() {
+        super.initializeDefaultInterceptors();
+        
+        initializeFaultInterceptors();
+    }
+    
+    protected void initializeFaultInterceptors() {
+        getService().getOutFaultInterceptors().add(new FaultOutInterceptor());
+    }
+
     protected FaultInfo addFault(final InterfaceInfo service, final OperationInfo op, Class exClass) {
         Class beanClass = getBeanClass(exClass);
         if (beanClass == null) {
@@ -1104,6 +1107,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         fi.setProperty(Class.class.getName(), exClass);
         fi.setProperty("elementName", faultName);
         MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(), "fault"));
+        mpi.setElementQName(faultName);
         mpi.setTypeClass(beanClass);
         return fi;
     }

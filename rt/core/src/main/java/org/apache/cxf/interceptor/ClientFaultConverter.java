@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Element;
@@ -43,6 +45,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.W3CDOMStreamReader;
 
 /**
  * Takes a Fault and converts it to a local exception type if possible.
@@ -94,8 +97,23 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         Service s = msg.getExchange().get(Service.class);
         DataBinding dataBinding = s.getDataBinding();
 
-        DataReader<Node> reader = dataBinding.createReader(Node.class);
-        Object e = reader.read(part, exDetail);
+        Object e = null;
+        if (isDOMSupported(dataBinding)) {
+            DataReader<Node> reader = dataBinding.createReader(Node.class);
+            reader.setProperty(DataReader.FAULT, fault);
+            e = reader.read(part, exDetail);
+        } else {
+            DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
+            XMLStreamReader xsr = new W3CDOMStreamReader(exDetail);
+            try {
+                xsr.nextTag();
+            } catch (XMLStreamException e1) {
+                throw new Fault(e1);
+            }
+            reader.setProperty(DataReader.FAULT, fault);
+            e = reader.read(part, xsr);
+        }
+        
         if (!(e instanceof Exception)) {
             Class<?> exClass = faultWanted.getProperty(Class.class.getName(), Class.class);
             Class<?> beanClass = e.getClass();
@@ -109,6 +127,16 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         msg.setContent(Exception.class, e);
     }
 
+    private boolean isDOMSupported(DataBinding db) {
+        boolean supportsDOM = false;
+        for (Class c : db.getSupportedWriterFormats()) {
+            if (c.equals(Node.class)) {
+                supportsDOM = true;
+            }
+        }
+        return supportsDOM;
+    }
+    
     private void setStackTrace(Fault fault, Message msg) {
         Map<String, String> ns = new HashMap<String, String>();
         XPathUtils xu = new XPathUtils(ns);

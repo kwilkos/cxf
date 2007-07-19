@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.cxf.aegis.type.TypeMapping;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 
 /**
@@ -37,6 +38,7 @@ public class Context extends HashMap<String, Object> {
     private boolean writeXsiTypes;
     private boolean readXsiTypes = true;
     private List<String> overrideTypes;
+    private Fault fault;
     
     public Context() {
     }
@@ -80,5 +82,14 @@ public class Context extends HashMap<String, Object> {
     public void setOverrideTypes(List<String> overrideTypes) {
         this.overrideTypes = overrideTypes;
     }
+
+    public void setFault(Fault fault) {
+        this.fault = fault;
+    }
+
+    public Fault getFault() {
+        return fault;
+    }
+
     
 }

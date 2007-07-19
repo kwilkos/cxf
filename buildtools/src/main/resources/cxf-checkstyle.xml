@@ -222,7 +222,7 @@ lengths, if/try depths, etc...
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <module name="MutableException"/>
+        <!--<module name="MutableException"/>-->
         <module name="ThrowsCount">
         	<property name="max" value="5"/>
         </module>

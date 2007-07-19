@@ -31,8 +31,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.w3c.dom.Node;
-
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
@@ -113,11 +111,11 @@ public class AegisDatabinding implements DataBinding {
     }
 
     public Class<?>[] getSupportedReaderFormats() {
-        return new Class[] {XMLStreamReader.class, Node.class};
+        return new Class[] {XMLStreamReader.class};
     }
 
     public Class<?>[] getSupportedWriterFormats() {
-        return new Class[] {XMLStreamWriter.class, Node.class};
+        return new Class[] {XMLStreamWriter.class};
     }
 
     public TypeMappingRegistry getTypeMappingRegistry() {
@@ -214,7 +212,8 @@ public class AegisDatabinding implements DataBinding {
     }
 
     protected void initializeMessage(Service s, TypeMapping serviceTM,
-                                     AbstractMessageContainer container, int partType, Set<Type> deps) {
+                                     AbstractMessageContainer container, 
+                                     int partType, Set<Type> deps) {
         for (Iterator itr = container.getMessageParts().iterator(); itr.hasNext();) {
             MessagePartInfo part = (MessagePartInfo)itr.next();
 
@@ -231,12 +230,17 @@ public class AegisDatabinding implements DataBinding {
             // QName elName = getSuggestedName(service, op, param)
             deps.add(type);
 
-            Set<Type> typeDeps = type.getDependencies();
-            if (typeDeps != null) {
-                for (Type t : typeDeps) {
-                    if (!deps.contains(t)) {
-                        deps.add(t);
-                    }
+            addDependencies(deps, type);
+        }
+    }
+
+    private void addDependencies(Set<Type> deps, Type type) {
+        Set<Type> typeDeps = type.getDependencies();
+        if (typeDeps != null) {
+            for (Type t : typeDeps) {
+                if (!deps.contains(t)) {
+                    deps.add(t);
+                    addDependencies(deps, t);
                 }
             }
         }

@@ -17,23 +17,14 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
+package org.apache.cxf.binding.http.bare;
 
-import java.util.Collection;
+import javax.jws.WebService;
 
-import javax.xml.namespace.QName;
-import javax.xml.validation.Schema;
+@WebService(endpointInterface = "org.apache.cxf.binding.http.bare.UserService")
+public class UserServiceImpl implements UserService {
 
-import org.apache.cxf.message.Attachment;
-import org.apache.cxf.service.model.MessagePartInfo;
-
-public interface DataReader<T> {
-    String FAULT = DataReader.class.getName() + "Fault";
-
-    Object read(T input);
-    Object read(MessagePartInfo part, T input);
-    Object read(QName name, T input, Class type);
-    void setSchema(Schema s);
-    void setAttachments(Collection<Attachment> attachments);
-    void setProperty(String prop, Object value);
+    public String login(String username, String password) {
+        return "sessionId";
+    }
 }

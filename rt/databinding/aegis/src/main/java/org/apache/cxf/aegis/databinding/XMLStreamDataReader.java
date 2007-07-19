@@ -19,6 +19,8 @@
 package org.apache.cxf.aegis.databinding;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -44,6 +46,8 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     private AegisDatabinding databinding;
 
     private Context context = new Context();
+
+    private Map<String, Object> properties;
     
     public XMLStreamDataReader(AegisDatabinding databinding) {
         this.databinding = databinding;
@@ -61,6 +65,7 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
          // I don't think this is the right type mapping
         context.setTypeMapping(type.getTypeMapping());
         context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));
+        context.setFault((Fault) getProperty(DataReader.FAULT));
         Object val = databinding.getService().get(AegisDatabinding.READ_XSI_TYPE_KEY);
         if ("false".equals(val) || Boolean.FALSE.equals(val)) {
             context.setReadXsiTypes(false);
@@ -79,6 +84,13 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         }
     }
 
+    public Object getProperty(String key) {
+        if (properties == null) {
+            return null;
+        }
+        return properties.get(key);
+    }
+
     public Object read(QName name, XMLStreamReader input, Class type) {
         // TODO Auto-generated method stub
         return null;
@@ -94,8 +106,11 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     }
 
     public void setProperty(String prop, Object value) {
-        // TODO Auto-generated method stub
-
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
+        }
+        
+        properties.put(prop, value);
     }
 
     public void setSchema(Schema s) {

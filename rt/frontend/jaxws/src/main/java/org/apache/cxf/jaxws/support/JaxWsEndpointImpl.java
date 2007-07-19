@@ -28,12 +28,10 @@ import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.binding.xml.XMLBinding;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
-import org.apache.cxf.interceptor.ClientFaultConverter;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
-//import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultInInterceptor;
 import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultOutInterceptor;
@@ -122,7 +120,6 @@ public class JaxWsEndpointImpl extends EndpointImpl {
 
         //Inbound fault chain
         List<Interceptor> inFault = super.getInFaultInterceptors(); 
-        inFault.add(new ClientFaultConverter());
         inFault.add(new LogicalHandlerFaultInInterceptor(jaxwsBinding));
         if (getBinding() instanceof SoapBinding) {
             inFault.add(new SOAPHandlerFaultInInterceptor(jaxwsBinding));

@@ -119,8 +119,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     protected void initializeDefaultInterceptors() {
         super.initializeDefaultInterceptors();
 
-        getService().getOutFaultInterceptors().add(new WebFaultOutInterceptor());
-
         if (implInfo.isWebServiceProvider()) {
             Class<?> type = implInfo.getProviderParameterType();
             Mode mode = implInfo.getServiceMode();
@@ -128,6 +126,11 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             getService().getInInterceptors().add(new DispatchInDatabindingInterceptor(type, mode));
             getService().getOutInterceptors().add(new DispatchOutDatabindingInterceptor(mode));
         }
+    }
+
+    @Override
+    protected void initializeFaultInterceptors() {
+        getService().getOutFaultInterceptors().add(new WebFaultOutInterceptor());
     }
 
     @Override

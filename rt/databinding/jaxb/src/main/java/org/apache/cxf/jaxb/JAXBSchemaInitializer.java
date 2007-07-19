@@ -131,6 +131,11 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 }
                 JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
                 if (beanInfo == null) {
+                    if (Exception.class.isAssignableFrom(clazz)) {
+                        QName name = (QName)part.getMessageInfo().getProperty("elementName");
+                        part.setElementQName(name);
+                        buildExceptionType(part, clazz);
+                    }
                     return;
                 }
                 
@@ -212,7 +217,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                     return;
                 }
             }
-        }
+        } 
     }
 
     
