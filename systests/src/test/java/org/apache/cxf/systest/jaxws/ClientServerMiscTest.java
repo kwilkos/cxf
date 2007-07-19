@@ -20,7 +20,6 @@
 package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +28,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexType;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeService;
@@ -156,10 +156,13 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
                                    "DocLitWrappedCodeFirstService");
         
-        Service service = Service.create(new URL(ServerMisc.DOCLIT_CODEFIRST_URL + "?wsdl"),
-                                      servName);
+        Service service = Service.create(servName);
+        service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, ServerMisc.DOCLIT_CODEFIRST_URL);
         DocLitWrappedCodeFirstService port = service.getPort(portName,
                                                              DocLitWrappedCodeFirstService.class);
+        
+        
+        
         List<String> rev = new ArrayList<String>(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
         Collections.reverse(rev);
         

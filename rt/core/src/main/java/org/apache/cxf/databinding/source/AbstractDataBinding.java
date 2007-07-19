@@ -74,8 +74,4 @@ public class AbstractDataBinding {
         schema.setSchema(xmlSchema);
         serviceInfo.addSchema(schema);
     }
-
-    private boolean isSameTNS(final ServiceInfo service) {
-        return service.getName().getNamespaceURI().equals(service.getInterface().getName().getNamespaceURI());
-    }
 }
