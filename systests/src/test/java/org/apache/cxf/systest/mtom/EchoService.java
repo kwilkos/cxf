@@ -18,11 +18,14 @@
  */
 package org.apache.cxf.systest.mtom;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 
-@WebService
+@WebService(targetNamespace = "http://mtom.systest.cxf.apache.org")
 public class EchoService {
-    public Data echo(Data input) {
+    public Data echo(
+         @WebParam(name = "Data")
+         Data input) {
 //        ByteArrayOutputStream out = new ByteArrayOutputStream();
 //        try {
 //            IOUtils.copy(input.getSomeData().getInputStream(), out);

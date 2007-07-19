@@ -160,6 +160,11 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
                                       servName);
         DocLitWrappedCodeFirstService port = service.getPort(portName,
                                                              DocLitWrappedCodeFirstService.class);
+        List<String> rev = new ArrayList<String>(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
+        Collections.reverse(rev);
+        
+        
+        String s;
         
         String arrayOut[] = port.arrayOutput();
         assertNotNull(arrayOut);
@@ -175,17 +180,27 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
             assertEquals(DocLitWrappedCodeFirstServiceImpl.DATA[x], listOut.get(x));
         }
         
-        String s = port.arrayInput(DocLitWrappedCodeFirstServiceImpl.DATA);
+        s = port.arrayInput(DocLitWrappedCodeFirstServiceImpl.DATA);
         assertEquals("string1string2string3", s);
         
         s = port.listInput(java.util.Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
         assertEquals("string1string2string3", s);
         
-        List<String> rev = new ArrayList<String>(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
-        Collections.reverse(rev);
-        String s2 = port.multiListInput(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA),
+        s = port.multiListInput(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA),
                                 rev,
                                 "Hello", 24);
-        assertEquals("string1string2string3string3string2string1Hello24", s2);
+        assertEquals("string1string2string3string3string2string1Hello24", s);
+        
+        s = port.listInput(new ArrayList<String>());
+        assertEquals("", s);
+
+        s = port.listInput(null);
+        assertEquals("", s);
+
+        s = port.multiListInput(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA),
+                                        rev,
+                                        null, 24);
+        assertEquals("string1string2string3string3string2string1<null>24", s);
+        
     }
 }

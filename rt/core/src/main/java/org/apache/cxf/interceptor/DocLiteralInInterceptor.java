@@ -50,6 +50,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
     private static final Logger LOG = Logger.getLogger(DocLiteralInInterceptor.class.getName());
@@ -206,40 +207,61 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                          DataReader<XMLStreamReader> dr,
                          List<Object> parameters,
                          Iterator<MessagePartInfo> itr) {
-
-        //List<Object> list = new ArrayList<Object>();
-        MessagePartInfo part = null;
-        while (StaxUtils.toNextElement(xmlReader)) { 
-            boolean isListPara = false;
-            if (itr.hasNext()) {
-                part = itr.next();
-                if (part.getTypeClass().getName().startsWith("[L")) {
-                    //&& Collection.class.isAssignableFrom(part.getTypeClass())) {
-                    //it's List Para
-                    //
-                    Type genericType = (Type) part.getProperty("generic.type");
-                    
-                    if (genericType instanceof ParameterizedType) {
-                        isListPara = true;
-                    }
-                } 
-            } 
-            if (part == null) {
-                break;
+        
+        boolean hasNext = true;
+        while (itr.hasNext()) {
+            MessagePartInfo part = itr.next();
+            if (hasNext) {
+                hasNext = StaxUtils.toNextElement(xmlReader);
             }
-            Object obj = dr.read(part, xmlReader);
-            if (isListPara) {
+            Object obj = null;
+            if (hasNext) {
+                QName rname = xmlReader.getName();
+                while (part != null 
+                    && !rname.equals(part.getConcreteName())) {
+                    if (part.getXmlSchema() instanceof XmlSchemaElement) {
+                        //should check minOccurs=0
+                        parameters.add(null);
+                    }
+                    if (itr.hasNext()) {
+                        part = itr.next();
+                    } else {
+                        part = null;
+                    }                
+                }
+                if (part == null) {
+                    return;
+                }
+                if (rname.equals(part.getConcreteName())) {
+                    obj = dr.read(part, xmlReader);
+                }
+            }
+            if (isList(part)) {
                 List<Object> listArg = new ArrayList<Object>();
-                for (Object o : (Object[])obj) {
-                    listArg.add(o);
+                if (obj != null) {
+                    for (Object o : (Object[])obj) {
+                        listArg.add(o);
+                    }
                 }
                 parameters.add(listArg);
             } else {
                 parameters.add(obj);
             }
-
         }
-
+    }
+    private boolean isList(MessagePartInfo part) {
+        if (part.getTypeClass().isArray()
+            && !part.getTypeClass().getComponentType().isPrimitive()) {
+            //&& Collection.class.isAssignableFrom(part.getTypeClass())) {
+            //it's List Para
+            //
+            Type genericType = (Type) part.getProperty("generic.type");
+            
+            if (genericType instanceof ParameterizedType) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

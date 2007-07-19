@@ -36,7 +36,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.namespace.QName;
@@ -121,8 +120,7 @@ public final class JAXBEncoderDecoder {
                 u.setAttachmentMarshaller(am);
             }
 
-            if (null != elName
-                && !cls.isAnnotationPresent(XmlRootElement.class)) {
+            if (null != elName) {
                 
                 if (part != null
                     && part.getXmlSchema() instanceof XmlSchemaElement) {

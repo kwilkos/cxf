@@ -3,10 +3,10 @@
  	xmlns:j="http://inheritance.aegis.xfire.codehaus.org"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<i:receiveUser>
-      <j:user xsi:type="j:Employee">
+      <i:user xsi:type="j:Employee">
         <j:division>foo</j:division>
         <j:name>bar</j:name>
-      </j:user>
+      </i:user>
     </i:receiveUser>
  </env:Body>
 </env:Envelope>

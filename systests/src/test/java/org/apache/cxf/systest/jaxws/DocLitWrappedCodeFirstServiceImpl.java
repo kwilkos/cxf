@@ -62,7 +62,11 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         for (String s : inputs2) {
             buf.append(s);
         }
-        buf.append(x);
+        if (x == null) {
+            buf.append("<null>");
+        } else {
+            buf.append(x);
+        }
         buf.append(Integer.toString(y));
         return buf.toString();
     }

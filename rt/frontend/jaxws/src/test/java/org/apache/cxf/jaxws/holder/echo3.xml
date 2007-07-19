@@ -16,14 +16,13 @@
 	specific language governing permissions and limitations
 	under the License.
 -->
-<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
-     xmlns="http://holder.jaxws.cxf.apache.org/">
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
     <s:Header>
-        <header>header</header>
+        <ns2:header xmlns:ns2="http://holder.jaxws.cxf.apache.org/">header</ns2:header>
     </s:Header>
     <s:Body>
-        <echo3>
-            <s1>one</s1>
-        </echo3>
+        <ns2:echo3 xmlns:ns2="http://holder.jaxws.cxf.apache.org/">
+            <arg1>one</arg1>
+        </ns2:echo3>
     </s:Body>
 </s:Envelope>

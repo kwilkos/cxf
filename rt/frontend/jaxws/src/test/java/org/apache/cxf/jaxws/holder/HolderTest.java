@@ -70,8 +70,9 @@ public class HolderTest extends AbstractJaxWsTest {
         svr.create();
 
         addNamespace("h", "http://holder.jaxws.cxf.apache.org/");
+        Node response;
 
-        Node response = invoke(address, LocalTransportFactory.TRANSPORT_ID, "echo.xml");
+        response = invoke(address, LocalTransportFactory.TRANSPORT_ID, "echo.xml");
         
         assertNotNull(response);
         assertValid("//h:echoResponse/return[text()='one']", response);

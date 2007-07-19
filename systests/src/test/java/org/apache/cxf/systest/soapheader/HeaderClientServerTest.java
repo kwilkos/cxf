@@ -59,7 +59,7 @@ public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
         header.setName("mao");
         header.setPhoneNumber("108");
 
-        OrderPizzaResponseType res =  port.orderPizza(req);
+        OrderPizzaResponseType res = port.orderPizza(req);
         System.out.println(res);
 
         //OrderPizzaResponseType res =  port.orderPizza(req, header);
