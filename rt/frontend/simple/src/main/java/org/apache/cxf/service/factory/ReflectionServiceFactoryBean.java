@@ -346,7 +346,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         // client/servers.
         Arrays.sort(methods, new MethodComparator());
 
-        for (Method m : serviceClass.getMethods()) {
+        for (Method m : methods) {
             if (isValidMethod(m)) {
                 createOperation(serviceInfo, intf, m);
             }

@@ -30,6 +30,10 @@ import javax.jws.WebService;
 public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirstService {
     public static final String DATA[] = new String[] {"string1", "string2", "string3"};
     
+    public int thisShouldNotBeInTheWSDL(int i) {
+        return i;
+    }
+    
     public String[] arrayOutput() {
         return DATA;
     }

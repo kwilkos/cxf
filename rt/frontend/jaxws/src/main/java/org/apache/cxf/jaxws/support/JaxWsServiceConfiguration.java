@@ -124,7 +124,8 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     public Boolean isOperation(Method method) {
         Method origMethod = method;
         method = getDeclaredMethod(method);
-        if (method.getReturnType().equals(Future.class)
+        if (method == null
+            || method.getReturnType().equals(Future.class)
             || method.getReturnType().equals(Response.class)) {
             return false;
         }
@@ -161,7 +162,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             } catch (SecurityException e) {
                 throw new ServiceConstructionException(e);
             } catch (NoSuchMethodException e) {
-                // Do nothing
+                return null;
             }
         }
         return method;
