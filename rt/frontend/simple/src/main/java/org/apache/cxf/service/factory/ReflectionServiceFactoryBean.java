@@ -40,6 +40,8 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.BusException;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Endpoint;
@@ -164,8 +166,17 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void createEndpoints() {
         Service service = getService();
 
+        BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
+        
         for (ServiceInfo inf : service.getServiceInfos()) {
             for (EndpointInfo ei : inf.getEndpoints()) {
+                
+                try {
+                    bfm.getBindingFactory(ei.getBinding().getBindingId());
+                } catch (BusException e1) {
+                    continue;
+                }
+                
                 try {
                     Endpoint ep = createEndpoint(ei);
 
