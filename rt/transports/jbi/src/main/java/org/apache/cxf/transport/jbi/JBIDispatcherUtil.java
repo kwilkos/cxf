@@ -58,6 +58,9 @@ public final class JBIDispatcherUtil {
     }
     
    
+    public static void clean() {
+        dispatchUtil = null;
+    }
     
     public void activateDispatch() {
         activeEndpoints++;
