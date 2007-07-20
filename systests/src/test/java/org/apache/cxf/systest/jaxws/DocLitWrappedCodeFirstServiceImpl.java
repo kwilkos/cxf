@@ -20,6 +20,7 @@ package org.apache.cxf.systest.jaxws;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 import javax.jws.WebService;
 
@@ -38,8 +39,8 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return DATA;
     }
 
-    public List<String> listOutput() {
-        return Arrays.asList(DATA);
+    public Vector<String> listOutput() {
+        return new Vector<String>(Arrays.asList(DATA));
     }
 
     public String arrayInput(String[] inputs) {
@@ -52,8 +53,10 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
 
     public String listInput(List<String> inputs) {
         StringBuffer buf = new StringBuffer();
-        for (String s : inputs) {
-            buf.append(s);
+        if (inputs != null) {
+            for (String s : inputs) {
+                buf.append(s);
+            }
         }
         return buf.toString();
     }

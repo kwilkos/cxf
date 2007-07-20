@@ -185,7 +185,6 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         
         s = port.arrayInput(DocLitWrappedCodeFirstServiceImpl.DATA);
         assertEquals("string1string2string3", s);
-        
         s = port.listInput(java.util.Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
         assertEquals("string1string2string3", s);
         
@@ -193,6 +192,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
                                 rev,
                                 "Hello", 24);
         assertEquals("string1string2string3string3string2string1Hello24", s);
+        
         
         s = port.listInput(new ArrayList<String>());
         assertEquals("", s);

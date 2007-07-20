@@ -50,6 +50,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -245,16 +246,65 @@ public final class JAXBEncoderDecoder {
             } else if (part.getMessageInfo().getOperation().isUnwrapped()
                         && el.getMaxOccurs() != 1) {
                 //must read ourselves....
-                List<Object> ret = unmarshallArray(context, schema, source,
-                                                   elName, clazz.getComponentType(), au);
+                Collection<Object> ret = unmarshallArray(context, schema, source,
+                                                   elName, clazz.getComponentType(),
+                                                   au, createList(part));
+                if (isList(part)) {
+                    return ret;
+                }
                 return ret.toArray((Object[])java.lang.reflect.Array.newInstance(clazz.getComponentType(),
                                                                        ret.size()));
             }
         }
 
-        return unmarshall(context, schema, source, elName, clazz, au, unwrap);
+        Object o = unmarshall(context, schema, source, elName, clazz, au, unwrap);
+        if (o != null
+            && o.getClass().isArray()
+            && isList(part)) {
+            Collection<Object> ret = createList(part);
+            ret.addAll(Arrays.asList((Object[])o));
+            o = ret;
+        }
+        return o;
     }
     
+    private static Collection<Object> createList(MessagePartInfo part) {
+        Type genericType = (Type)part.getProperty("generic.type");
+        if (genericType instanceof ParameterizedType) {
+            Type tp2 = ((ParameterizedType)genericType).getRawType();
+            if (tp2 instanceof Class) {
+                Class<?> cls = (Class)tp2;
+                if (!cls.isInterface()
+                    && Collection.class.isAssignableFrom((Class<?>)cls)) {
+                    try {
+                        return CastUtils.cast((Collection)cls.newInstance());
+                    } catch (Exception e) {
+                        //ignore, just return an ArrayList
+                    }
+                }
+            }
+        }
+        
+        return new ArrayList<Object>();
+    }
+    
+    private static boolean isList(MessagePartInfo part) {
+        if (part.getTypeClass().isArray()
+            && !part.getTypeClass().getComponentType().isPrimitive()) {
+            //&& Collection.class.isAssignableFrom(part.getTypeClass())) {
+            //it's List Para
+            //
+            Type genericType = (Type) part.getProperty("generic.type");
+            
+            if (genericType instanceof ParameterizedType) {
+                Type tp2 = ((ParameterizedType)genericType).getRawType();
+                if (tp2 instanceof Class) {
+                    return Collection.class.isAssignableFrom((Class<?>)tp2);
+                }
+            }
+        }
+        return false;
+    }
     public static Object unmarshall(JAXBContext context, 
                                     Schema schema, 
                                     Object source,
@@ -338,12 +388,13 @@ public final class JAXBEncoderDecoder {
         throw new IllegalArgumentException("Cannot get Class object from unknown Type");
     }
     
-    public static List<Object> unmarshallArray(JAXBContext context, 
+    public static Collection<Object> unmarshallArray(JAXBContext context, 
                                     Schema schema, 
                                     Object source,
                                     QName elName,
                                     Class<?> clazz,
-                                    AttachmentUnmarshaller au) {
+                                    AttachmentUnmarshaller au,
+                                    Collection<Object> ret) {
         try {
             Unmarshaller u = createUnmarshaller(context, clazz);
             u.setSchema(schema);
@@ -358,7 +409,6 @@ public final class JAXBEncoderDecoder {
             } else {
                 throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }
-            List<Object> ret = new ArrayList<Object>();
             while (reader.getName().equals(elName)) {
                 Object obj = u.unmarshal(reader, clazz);
                 if (obj instanceof JAXBElement) {

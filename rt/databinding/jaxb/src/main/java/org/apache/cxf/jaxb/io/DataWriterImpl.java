@@ -25,6 +25,7 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.JAXBDataBase;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
     public DataWriterImpl(JAXBContext ctx) {
@@ -36,7 +37,8 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
     }
     
     public void write(Object obj, MessagePartInfo part, T output) {
-        if (obj != null) {
+        if (obj != null
+            || !(part.getXmlSchema() instanceof XmlSchemaElement)) {
             JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
                                         getAttachmentMarrshaller());
         }

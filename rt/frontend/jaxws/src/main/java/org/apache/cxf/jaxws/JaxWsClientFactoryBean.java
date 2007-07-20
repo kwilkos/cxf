@@ -20,15 +20,33 @@ package org.apache.cxf.jaxws;
 
 
 
+import javax.xml.ws.soap.SOAPBinding;
+
 import org.apache.cxf.frontend.ClientFactoryBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 
 /**
  * Bean to help easily create Client endpoints for JAX-WS.
  */
 public class JaxWsClientFactoryBean extends ClientFactoryBean {
+
+
     public JaxWsClientFactoryBean() {
         setServiceFactory(new JaxWsServiceFactoryBean());
+    }
+    
+    @Override
+    public void setBindingId(String bind) {
+        super.setBindingId(bind);
+        if (SOAPBinding.SOAP11HTTP_BINDING.equals(bind)
+            || SOAPBinding.SOAP12HTTP_BINDING.equals(bind)) {
+            setBindingConfig(new JaxWsSoapBindingConfiguration((JaxWsServiceFactoryBean)getServiceFactory()));
+        } else if (SOAPBinding.SOAP11HTTP_MTOM_BINDING.equals(bind)
+            || SOAPBinding.SOAP12HTTP_MTOM_BINDING.equals(bind)) {
+            setBindingConfig(new JaxWsSoapBindingConfiguration((JaxWsServiceFactoryBean)getServiceFactory()));
+            ((JaxWsSoapBindingConfiguration)getBindingConfig()).setMtomEnabled(true);
+        }
     }
     
 }

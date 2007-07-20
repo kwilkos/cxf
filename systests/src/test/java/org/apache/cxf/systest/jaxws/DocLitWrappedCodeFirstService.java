@@ -19,6 +19,7 @@
 package org.apache.cxf.systest.jaxws;
 
 import java.util.List;
+import java.util.Vector;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -29,8 +30,7 @@ import javax.jws.soap.SOAPBinding;
 @WebService(name = "DocLitWrappedCodeFirstService",
             targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
 @SOAPBinding(style = SOAPBinding.Style.DOCUMENT,
-             use = SOAPBinding.Use.LITERAL,
-             parameterStyle = SOAPBinding.ParameterStyle.WRAPPED)
+             use = SOAPBinding.Use.LITERAL)
 public interface DocLitWrappedCodeFirstService {
     @WebMethod
     String[] arrayOutput();
@@ -40,7 +40,7 @@ public interface DocLitWrappedCodeFirstService {
             @WebParam(name = "input") String[] inputs);
 
     @WebMethod
-    List<String> listOutput();
+    Vector<String> listOutput();
     
     @WebMethod
     String listInput(List<String> inputs);

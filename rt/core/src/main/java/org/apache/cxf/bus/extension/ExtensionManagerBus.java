@@ -57,22 +57,16 @@ public class ExtensionManagerBus extends CXFBusImpl {
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
 
     public ExtensionManagerBus(Map<Class, Object> e, Map<String, Object> properties) {
-        super();
-        
-        if (null == e) {
-            e = new HashMap<Class, Object>();
-        }
+        super(e);
 
         if (null == properties) {
             properties = new HashMap<String, Object>();
         }
         
-        setExtensions(e);
-        
-        Configurer configurer = (Configurer)e.get(Configurer.class);
+        Configurer configurer = (Configurer)extensions.get(Configurer.class);
         if (null == configurer) {
             configurer = new NullConfigurer();
-            e.put(Configurer.class, configurer);
+            extensions.put(Configurer.class, configurer);
         }
  
         setId(getBusId(properties));
@@ -89,11 +83,11 @@ public class ExtensionManagerBus extends CXFBusImpl {
         resourceManager.addResourceResolver(busResolver);
         resourceManager.addResourceResolver(new ObjectTypeResolver(this));
         
-        e.put(ResourceManager.class, resourceManager);
+        extensions.put(ResourceManager.class, resourceManager);
 
         ExtensionManagerImpl em = new ExtensionManagerImpl(BUS_EXTENSION_RESOURCE, 
                                  Thread.currentThread().getContextClassLoader(),
-                                 e,
+                                 extensions,
                                  resourceManager);
         
         setState(BusState.INITIAL);
@@ -108,20 +102,20 @@ public class ExtensionManagerBus extends CXFBusImpl {
         if (null == dfm) {
             dfm = new DestinationFactoryManagerImpl(new DeferredMap<DestinationFactory>(em, 
                 DestinationFactory.class));
-            e.put(DestinationFactoryManager.class, dfm);
+            extensions.put(DestinationFactoryManager.class, dfm);
         }
 
         ConduitInitiatorManager cfm = this.getExtension(ConduitInitiatorManager.class);
         if (null == cfm) {
             cfm = new ConduitInitiatorManagerImpl(new DeferredMap<ConduitInitiator>(em, 
                 ConduitInitiator.class));
-            e.put(ConduitInitiatorManager.class, cfm);
+            extensions.put(ConduitInitiatorManager.class, cfm);
         }
         
         BindingFactoryManager bfm = this.getExtension(BindingFactoryManager.class);
         if (null == bfm) {
             bfm = new BindingFactoryManagerImpl(new DeferredMap<BindingFactory>(em, BindingFactory.class));
-            e.put(BindingFactoryManager.class, bfm);
+            extensions.put(BindingFactoryManager.class, bfm);
         }
     }
 

@@ -19,9 +19,6 @@
 
 package org.apache.cxf.interceptor;
 
-//import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -236,32 +233,8 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                     obj = dr.read(part, xmlReader);
                 }
             }
-            if (isList(part)) {
-                List<Object> listArg = new ArrayList<Object>();
-                if (obj != null) {
-                    for (Object o : (Object[])obj) {
-                        listArg.add(o);
-                    }
-                }
-                parameters.add(listArg);
-            } else {
-                parameters.add(obj);
-            }
+            parameters.add(obj);
         }
-    }
-    private boolean isList(MessagePartInfo part) {
-        if (part.getTypeClass().isArray()
-            && !part.getTypeClass().getComponentType().isPrimitive()) {
-            //&& Collection.class.isAssignableFrom(part.getTypeClass())) {
-            //it's List Para
-            //
-            Type genericType = (Type) part.getProperty("generic.type");
-            
-            if (genericType instanceof ParameterizedType) {
-                return true;
-            }
-        }
-        return false;
     }
 
 

@@ -20,14 +20,13 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.binding.soap.SoapFault;
-import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
@@ -96,22 +95,19 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         List<Object> parameters = new ArrayList<Object>();
 
         StaxUtils.nextEvent(xmlReader);
-        while (StaxUtils.toNextElement(xmlReader)) {
-            QName name = xmlReader.getName();            
-            MessagePartInfo part = null;
-            for (MessagePartInfo mpi : msg.getMessageParts()) {
-                if (mpi.getName().getLocalPart().equals(name.getLocalPart())) { 
-                    part = mpi;
-                    break;
-                }
+        
+        boolean hasNext = true;
+        Iterator<MessagePartInfo> itr = msg.getMessageParts().iterator();
+        while (itr.hasNext()) {
+            MessagePartInfo part = itr.next();
+            if (hasNext) {
+                hasNext = StaxUtils.toNextElement(xmlReader);
             }
-            if (part == null) {
-                throw new SoapFault("Parameter " + xmlReader.getName() + " does not exist!",
-                              ((SoapMessage)message).getVersion().getSender());
-            }            
-            Object param = dr.read(part, xmlReader);
-            parameters.add(param);
+            if (hasNext) {
+                parameters.add(dr.read(part, xmlReader));
+            }
         }
+
         message.setContent(List.class, parameters);
     }
 }

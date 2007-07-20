@@ -25,9 +25,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.configuration.Configurer;
@@ -47,7 +47,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
     private Map<String, Collection<Extension>> deferred;
     private final Map<Class, Object> activated;
     private final Map<String, Collection<Object>> namespaced = 
-        new HashMap<String, Collection<Object>>();
+        new ConcurrentHashMap<String, Collection<Object>>();
 
     public ExtensionManagerImpl(ClassLoader cl, Map<Class, Object> initialExtensions, 
                                 ResourceManager rm) {
@@ -66,7 +66,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
         resourceManager.addResourceResolver(extensionManagerResolver);
         resourceManager.addResourceResolver(new ObjectTypeResolver(this));
 
-        deferred = new HashMap<String, Collection<Extension>>();
+        deferred = new ConcurrentHashMap<String, Collection<Extension>>();
 
         try {
             load(resource);
@@ -158,19 +158,21 @@ public class ExtensionManagerImpl implements ExtensionManager {
             }
         }
         
-        if (null != activated && null != e.getInterfaceName()) {
+        if (null != activated) {
+            if (cls == null) {
+                cls = obj.getClass();
+            }   
             activated.put(cls, obj);
-            
-            for (String ns : e.getNamespaces()) {
-                Collection<Object> intf2Obj = namespaced.get(ns);
-                if (intf2Obj == null) {
-                    intf2Obj = new ArrayList<Object>();
-                    if (!namespaced.containsKey(ns)) {
-                        namespaced.put(ns, intf2Obj);
-                    }
+        }
+        for (String ns : e.getNamespaces()) {
+            Collection<Object> intf2Obj = namespaced.get(ns);
+            if (intf2Obj == null) {
+                intf2Obj = new ArrayList<Object>();
+                if (!namespaced.containsKey(ns)) {
+                    namespaced.put(ns, intf2Obj);
                 }
-                intf2Obj.add(obj);
             }
+            intf2Obj.add(obj);
         }
     }
 
