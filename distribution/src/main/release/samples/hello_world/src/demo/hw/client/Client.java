@@ -22,6 +22,7 @@ package demo.hw.client;
 import java.io.File;
 import java.net.URL;
 import javax.xml.namespace.QName;
+import javax.xml.ws.WebServiceException;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.PingMeFault;
 import org.apache.hello_world_soap_http.SOAPService;
@@ -69,8 +70,9 @@ public final class Client {
         System.out.println("Invoking greetMe with invalid length string, expecting exception...");
         try {
             resp = port.greetMe("Invoking greetMe with invalid length string, expecting exception...");
-        } catch (Exception e) {
-            System.out.println("Expected exception has occurred: " + e.getMessage());
+        } catch (WebServiceException ex) {
+            System.out.println("Caught expected WebServiceException:");
+            System.out.println("    " + ex.getMessage());
         }
 
         System.out.println();
