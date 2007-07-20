@@ -145,7 +145,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
 
             return conduitInit.getConduit(ei);
         } catch (BusException e) {
-            throw new RuntimeException("Could not find destination factory for transport "
+            throw new RuntimeException("Could not find conduit initiator for transport "
                                        + binding.getTransportURI());
         }
     }

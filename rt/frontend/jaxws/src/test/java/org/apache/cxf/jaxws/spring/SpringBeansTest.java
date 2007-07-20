@@ -59,8 +59,10 @@ public class SpringBeansTest extends Assert {
         bean = ctx.getBean("simpleWithAddress");
         assertNotNull(bean);
         
-        ep = (EndpointImpl) bean;
-        assertNotNull(ep.getImplementor());
+        ep = (EndpointImpl) bean;        
+        if (!(ep.getImplementor() instanceof org.apache.hello_world_soap_http.GreeterImpl)) {
+            fail("can't get the right implementor object");
+        }
         assertEquals("http://localhost:8080/simpleWithAddress", 
                      ep.getServer().getEndpoint().getEndpointInfo().getAddress());
         
