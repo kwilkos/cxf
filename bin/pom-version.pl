@@ -62,12 +62,16 @@ my $parent_version;
 
 sub fixpomfiles {
     return unless (/^pom.xml$/);
-    print "processing $File::Find::name\n";
     my $pom = $_;
+    my $curdir = abs_path(getcwd());
+    return if ($curdir =~ m:/src/main/:);
+    return if ($curdir =~ m:/target/classes/:);
+
+    print "processing $File::Find::name\n";
+
     init_parse_state();
     $parser->parsefile($pom);
     return unless ($top_ver_start_line != 0 || $parent_ver_start_line != 0);
-    my $curdir = abs_path(getcwd());
     my $rel_mode = undef;
     my ($rel_add, $rel_remove) = ('add', 'remove');
     local *POM;
