@@ -97,7 +97,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                     bean.addPropertyValue(name, list);
                 } else if (IMPLEMENTOR.equals(name)) {
                     ctx.getDelegate()
-                        .parseConstructorArgElement(getFirstChild(element), bean.getBeanDefinition());
+                        .parseConstructorArgElement((Element)n, bean.getBeanDefinition());
                 } else {
                     setFirstChildAsProperty((Element) n, ctx, bean, name);
                 }
