@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
@@ -38,6 +39,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.transport.DestinationFactory;
@@ -56,7 +58,7 @@ import org.springframework.core.io.InputStreamResource;
  */
 public class CXFServlet extends HttpServlet {
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
-    static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
+    static final Logger LOG = LogUtils.getL7dLogger(CXFServlet.class);
     
     private Bus bus;
     private ServletTransportFactory servletTransportFactory;
@@ -94,7 +96,7 @@ public class CXFServlet extends HttpServlet {
             try {
                 ClassLoaderUtils.loadClass(springCls, getClass());
                 loadSpringBus(servletConfig);
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {                
                 loadBusNoConfig(servletConfig);
             }
                 
@@ -108,7 +110,9 @@ public class CXFServlet extends HttpServlet {
     }
     
     private void loadBusNoConfig(ServletConfig servletConfig) throws ServletException {
+        
         if (bus == null) {
+            LOG.info("LOAD_BUS_WITHOUT_APPLICATION_CONTEXT");
             bus = BusFactory.newInstance().createBus();
         }
         ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
@@ -123,6 +127,7 @@ public class CXFServlet extends HttpServlet {
     }
 
     private void loadSpringBus(ServletConfig servletConfig) throws ServletException {
+        
         // try to pull an existing ApplicationContext out of the
         // ServletContext
         ServletContext svCtx = getServletContext();
@@ -138,10 +143,12 @@ public class CXFServlet extends HttpServlet {
         }
         
         // This constructor works whether there is a context or not
-        // If the ctx is null, we need to load the cxf-servlet as default
-        if (ctx == null) {
-            bus = new SpringBusFactory().createBus("/META-INF/cxf/cxf-servlet.xml");
+        // If the ctx is null, we just start up the default bus
+        if (ctx == null) {            
+            LOG.info("LOAD_BUS_WITHOUT_APPLICATION_CONTEXT");
+            bus = new SpringBusFactory().createBus();
         } else {
+            LOG.info("LOAD_BUS_WITH_APPLICATION_CONTEXT");
             bus = new SpringBusFactory(ctx).createBus();
         }
         ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
@@ -179,7 +186,9 @@ public class CXFServlet extends HttpServlet {
         }
         
         if (is != null) {
+            LOG.log(Level.INFO, "BUILD_ENDPOINTS_FROM_CONFIG_LOCATION", new Object[]{location});
             childCtx = new GenericApplicationContext(ctx);
+            
             XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(childCtx);
             reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
             reader.loadBeanDefinitions(new InputStreamResource(is, location));
@@ -203,12 +212,14 @@ public class CXFServlet extends HttpServlet {
     }
 
     private void replaceDestionFactory() throws ServletException {
+       
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class); 
         try {
             DestinationFactory df = dfm
                 .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
             if (df instanceof ServletTransportFactory) {
                 servletTransportFactory = (ServletTransportFactory)df;
+                LOG.info("DESTIONFACTORY_ALREADY_REGISTERED");
                 return;
             }
         } catch (BusException e) {
@@ -222,7 +233,8 @@ public class CXFServlet extends HttpServlet {
         registerTransport(factory, "http://www.w3.org/2003/05/soap/bindings/HTTP/");
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/http/");
         registerTransport(factory, "http://cxf.apache.org/transports/http/configuration");
-        registerTransport(factory, "http://cxf.apache.org/bindings/xformat");        
+        registerTransport(factory, "http://cxf.apache.org/bindings/xformat"); 
+        LOG.info("REPLACED_HTTP_DESTIONFACTORY");
     }
 
     public void destroy() {

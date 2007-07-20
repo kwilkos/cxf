@@ -52,10 +52,8 @@ public class CXFServletTest extends AbstractServletTest {
     }
     
     @Test
-    public void testPostInvokeServices() throws Exception {        
+    public void testPostInvokeServices() throws Exception {
         
-        //Thread.sleep(6000000);
-        //newClient();        
         invoke("UTF-8");
         invoke("iso-8859-1");        
     }
