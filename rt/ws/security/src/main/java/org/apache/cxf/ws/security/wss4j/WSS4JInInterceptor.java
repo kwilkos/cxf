@@ -71,7 +71,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
         getAfter().add(SAAJInInterceptor.class.getName());
     }
 
-    public WSS4JInInterceptor(Map<String, String> properties) {
+    public WSS4JInInterceptor(Map<String, Object> properties) {
         this();
         setProperties(properties);
     }

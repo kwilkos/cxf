@@ -44,7 +44,7 @@ public abstract class AbstractWSS4JInterceptor extends WSHandler implements Soap
         HEADERS.add(new QName(WSConstants.ENC_NS, "EncryptedData"));
     }
 
-    private Map<String, String> properties = new HashMap<String, String>();
+    private Map<String, Object> properties = new HashMap<String, Object>();
     private Set<String> before = new HashSet<String>();
     private Set<String> after = new HashSet<String>();
     private String phase;
@@ -117,7 +117,7 @@ public abstract class AbstractWSS4JInterceptor extends WSHandler implements Soap
         return properties;
     }
 
-    public void setProperties(Map<String, String> properties) {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 

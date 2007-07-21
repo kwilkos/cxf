@@ -52,7 +52,7 @@ public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
         setPhase(Phase.POST_PROTOCOL);
     }
 
-    public WSS4JOutInterceptor(Map<String, String> props) {
+    public WSS4JOutInterceptor(Map<String, Object> props) {
         this();
         setProperties(props);
     }
