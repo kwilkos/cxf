@@ -23,9 +23,12 @@ import java.util.Map;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.frontend.ServerFactoryBean;
 
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
@@ -63,13 +66,25 @@ public class ServerFactoryBeanDefinitionParser extends AbstractBeanDefinitionPar
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         super.doParse(element, ctx, bean);
-        
+
         bean.setInitMethodName("create");
         
         // We don't really want to delay the registration of our Server
         bean.setLazyInit(false);
     }
-   
+
+    @Override
+    protected String resolveId(Element elem, 
+                               AbstractBeanDefinition definition, 
+                               ParserContext ctx) 
+        throws BeanDefinitionStoreException {
+        String id = super.resolveId(elem, definition, ctx);
+        if (StringUtils.isEmpty(id)) {
+            id = getBeanClass().getName() + "--" + hashCode();
+        }
+        
+        return id;
+    }
 
     @Override
     protected boolean hasBusProperty() {

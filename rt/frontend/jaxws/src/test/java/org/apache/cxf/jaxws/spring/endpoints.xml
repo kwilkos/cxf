@@ -50,6 +50,16 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     </jaxws:implementor>
   </jaxws:endpoint>
   
+  
+  <jaxws:endpoint id="inlineInvoker" address="http://localhost:8080/simpleWithAddress">
+    <jaxws:implementor>
+      <bean class="org.apache.hello_world_soap_http.GreeterImpl"/>
+    </jaxws:implementor>
+    <jaxws:invoker>
+      <bean class="org.apache.cxf.jaxws.spring.NullInvoker"/>
+    </jaxws:invoker>
+  </jaxws:endpoint>
+  
   <jaxws:endpoint id="epWithProps" 
     implementor="#greeter"
     address="http://localhost:8080/test">
@@ -86,4 +96,6 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 	</jaxws:outInterceptors>
   </jaxws:endpoint>
 
+  <jaxws:endpoint implementor="org.apache.cxf.jaxws.service.Hello"
+    address="http://localhost:8080/test"/>
 </beans>

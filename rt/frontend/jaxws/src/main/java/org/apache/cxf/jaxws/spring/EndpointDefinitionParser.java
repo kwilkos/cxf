@@ -34,6 +34,8 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
@@ -41,6 +43,11 @@ import org.springframework.beans.factory.xml.ParserContext;
 public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
 
     private static final String IMPLEMENTOR = "implementor";
+
+    public EndpointDefinitionParser() {
+        super();
+        setBeanClass(EndpointImpl.class);
+    }
 
     @Override
     protected String getSuffix() {
@@ -125,10 +132,17 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
             }
         }
     }
-
     @Override
-    protected Class getBeanClass(Element arg0) {
-        return EndpointImpl.class;
+    protected String resolveId(Element elem, 
+                               AbstractBeanDefinition definition, 
+                               ParserContext ctx) 
+        throws BeanDefinitionStoreException {
+        String id = super.resolveId(elem, definition, ctx);
+        if (StringUtils.isEmpty(id)) {
+            id = getBeanClass().getName() + "--" + hashCode();
+        }
+        
+        return id;
     }
 
 }

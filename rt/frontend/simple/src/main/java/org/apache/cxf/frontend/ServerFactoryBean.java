@@ -85,6 +85,7 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
     private boolean start = true;
     private Object serviceBean;
     private List<String> schemaLocations;
+    private Invoker invoker;
     
     public ServerFactoryBean() {
         super();
@@ -109,8 +110,12 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
                                     getDestinationFactory(), 
                                     getBindingFactory());
             
-            if (serviceBean != null) {
-                ep.getService().setInvoker(createInvoker());
+            if (invoker == null) {
+                if (serviceBean != null) {
+                    ep.getService().setInvoker(createInvoker());
+                }
+            } else {
+                ep.getService().setInvoker(invoker);
             }
             
             if (start) {
@@ -234,6 +239,14 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
 
     public void setSchemaLocations(List<String> schemaLocations) {
         this.schemaLocations = schemaLocations;
+    }
+
+    public Invoker getInvoker() {
+        return invoker;
+    }
+
+    public void setInvoker(Invoker invoker) {
+        this.invoker = invoker;
     }
 
 }
