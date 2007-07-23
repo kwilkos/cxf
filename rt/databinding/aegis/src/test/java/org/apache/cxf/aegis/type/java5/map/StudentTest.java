@@ -38,6 +38,6 @@ public class StudentTest extends AbstractAegisTest {
         
         Document wsdl = getWSDLDocument(server);
         
-        DOMUtils.writeXml(wsdl, System.out);
+        assertValid("//*[@name='string2stringMap']", wsdl);
     }
 }
