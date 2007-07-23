@@ -31,11 +31,11 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 
-public class ServletTransportFactory extends AbstractTransportFactory
+public class ServletTransportFactory extends AbstractHTTPTransportFactory
     implements DestinationFactory {
 
     private Bus bus;
@@ -103,4 +103,6 @@ public class ServletTransportFactory extends AbstractTransportFactory
     public Set<String> getDestinationsPaths() {
         return Collections.unmodifiableSet(destinations.keySet());        
     }
+
+    
 }

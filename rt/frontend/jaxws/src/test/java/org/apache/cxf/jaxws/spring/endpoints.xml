@@ -46,7 +46,9 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
   
   <jaxws:endpoint id="inlineImplementor" address="http://localhost:8080/simpleWithAddress">
     <jaxws:implementor>
-      <bean class="org.apache.hello_world_soap_http.GreeterImpl"/>
+      <bean class="org.apache.hello_world_soap_http.GreeterImpl">
+         <property name="perfix" value="hello"/>
+      </bean>   
     </jaxws:implementor>
   </jaxws:endpoint>
   
