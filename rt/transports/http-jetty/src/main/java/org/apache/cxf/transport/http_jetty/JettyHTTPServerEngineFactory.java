@@ -175,7 +175,7 @@ public class JettyHTTPServerEngineFactory {
      * This call retrieves a previously configured JettyHTTPServerEngine for the
      * given port. If none exists, this call returns null.
      */
-    synchronized JettyHTTPServerEngine retrieveJettyHTTPServerEngine(int port) {
+    protected synchronized JettyHTTPServerEngine retrieveJettyHTTPServerEngine(int port) {
         return portMap.get(port);
     }
 
@@ -189,7 +189,7 @@ public class JettyHTTPServerEngineFactory {
      * engine is being Spring configured for TLS a GeneralSecurityException
      * may be thrown.
      */
-    synchronized JettyHTTPServerEngine createJettyHTTPServerEngine(int port)
+    protected synchronized JettyHTTPServerEngine createJettyHTTPServerEngine(int port)
         throws GeneralSecurityException, IOException {
         
         TLSServerParameters tlsParams = tlsParametersMap.get(port);
@@ -222,7 +222,7 @@ public class JettyHTTPServerEngineFactory {
      * engine is being Spring configured for TLS a GeneralSecurityException
      * may be thrown.
      */
-    synchronized JettyHTTPServerEngine createJettyHTTPSServerEngine(int port)
+    protected synchronized JettyHTTPServerEngine createJettyHTTPSServerEngine(int port)
         throws GeneralSecurityException, IOException {
 
         LOG.fine("Creating Jetty HTTP Server Engine for port " + port + ".");
