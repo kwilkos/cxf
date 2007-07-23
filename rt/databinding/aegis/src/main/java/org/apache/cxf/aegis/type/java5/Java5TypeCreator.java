@@ -151,6 +151,10 @@ public class Java5TypeCreator extends AbstractTypeCreator {
     protected Type getOrCreateParameterizedType(Object generic, int index) {
         Class clazz = getComponentType(generic, index);
 
+        if (clazz == null) {
+            return createObjectType();
+        }
+        
         if (!Collection.class.isAssignableFrom(clazz)) {
             return getTopCreator().createType(clazz);
         }

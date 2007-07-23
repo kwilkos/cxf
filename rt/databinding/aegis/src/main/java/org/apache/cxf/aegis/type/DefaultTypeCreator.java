@@ -22,6 +22,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 
 import org.apache.cxf.aegis.DatabindingException;
+import org.apache.cxf.aegis.type.AbstractTypeCreator.TypeClassInfo;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
 
@@ -74,5 +75,12 @@ public class DefaultTypeCreator extends AbstractTypeCreator {
         typeInfo.setExtensibleElements(getConfiguration().isDefaultExtensibleElements());
 
         return type;
+    }
+    protected Type getOrCreateMapKeyType(TypeClassInfo info) {
+        return createObjectType();
+    }
+
+    protected Type getOrCreateMapValueType(TypeClassInfo info) {
+        return createObjectType();
     }
 }

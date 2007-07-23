@@ -237,10 +237,10 @@ public abstract class AbstractTypeCreator implements TypeCreator {
     }
 
     protected Type getOrCreateMapKeyType(TypeClassInfo info) {
-        return createObjectType();
+        return nextCreator.getOrCreateMapKeyType(info);
     }
 
-    private Type createObjectType() {
+    protected Type createObjectType() {
         ObjectType type = new ObjectType();
         type.setSchemaType(DefaultTypeMappingRegistry.XSD_ANY);
         type.setTypeClass(Object.class);
@@ -249,7 +249,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
     }
 
     protected Type getOrCreateMapValueType(TypeClassInfo info) {
-        return createObjectType();
+        return nextCreator.getOrCreateMapKeyType(info);
     }
 
     protected Type createMapType(TypeClassInfo info, Type keyType, Type valueType) {

@@ -59,6 +59,7 @@ import org.apache.cxf.aegis.type.basic.StringType;
 import org.apache.cxf.aegis.type.basic.TimeType;
 import org.apache.cxf.aegis.type.basic.TimestampType;
 import org.apache.cxf.aegis.type.basic.URIType;
+import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 import org.apache.cxf.aegis.type.mtom.DataHandlerType;
 import org.apache.cxf.aegis.type.mtom.DataSourceType;
 import org.apache.cxf.aegis.type.xml.DocumentType;
@@ -227,28 +228,12 @@ public final class DefaultTypeMappingRegistry implements TypeMappingRegistry {
 
     protected TypeCreator createTypeCreator() {
         AbstractTypeCreator xmlCreator = createRootTypeCreator();
-        xmlCreator.setNextCreator(createDefaultTypeCreator());
-
-        if (isJDK5andAbove()) {
-            try {
-                String j5TC = "org.apache.cxf.aegis.type.java5.Java5TypeCreator";
-
-                Class clazz = ClassLoaderUtils.loadClass(j5TC, getClass());
-
-                AbstractTypeCreator j5Creator = (AbstractTypeCreator)clazz.newInstance();
-                j5Creator.setNextCreator(createDefaultTypeCreator());
-                j5Creator.setConfiguration(getConfiguration());
-                xmlCreator.setNextCreator(j5Creator);
-            } catch (Throwable t) {
-                LOG.info("Couldn't find Java 5 module on classpath. Annotation"
-                         + " mappings will not be supported.");
-
-                if (!(t instanceof ClassNotFoundException)) {
-                    LOG.debug("Error loading Java 5 module", t);
-                }
-            }
-        }
-
+    
+        Java5TypeCreator j5Creator = new Java5TypeCreator();
+        j5Creator.setNextCreator(createDefaultTypeCreator());
+        j5Creator.setConfiguration(getConfiguration());
+        xmlCreator.setNextCreator(j5Creator);
+        
         return xmlCreator;
     }
 
