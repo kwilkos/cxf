@@ -35,12 +35,12 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
 public class WSDLToJava {
 
-    
+
     public static final String DEFAULT_FRONTEND_NAME = "jaxws";
     public static final String DEFAULT_DATABINDING_NAME = "jaxb";
-    
+
     private String[] args;
-    
+
     private PluginLoader pluginLoader = PluginLoader.getInstance();
 
     public WSDLToJava() {
@@ -49,7 +49,7 @@ public class WSDLToJava {
     public WSDLToJava(String pargs[]) {
         args = pargs;
     }
-    
+
     private FrontEndProfile loadFrontEnd(String name) {
         if (StringUtils.isEmpty(name)) {
             name = DEFAULT_FRONTEND_NAME;
@@ -69,7 +69,7 @@ public class WSDLToJava {
         }
         return pluginLoader.getDataBindingProfile(name);
     }
-    
+
     private boolean isExitOnFinish() {
         String exit = System.getProperty("exitOnFinish");
         if (StringUtils.isEmpty(exit)) {
@@ -86,19 +86,19 @@ public class WSDLToJava {
         } else {
             frontend = loadFrontEnd("");
         }
-        
-        
+
+
         context.put(FrontEndProfile.class, frontend);
-               
+
         DataBindingProfile databinding = loadDataBinding(getDataBindingName(args));
-        
-        
+
+
         context.put(DataBindingProfile.class, databinding);
-        
+
         Class<? extends ToolContainer> containerClass = frontend.getContainerClass();
 
         InputStream toolspecStream = getResourceAsStream(containerClass, frontend.getToolspec());
-         
+
         ToolRunner.runTool(containerClass,
                            toolspecStream,
                            false,
@@ -106,17 +106,17 @@ public class WSDLToJava {
                            isExitOnFinish(),
                            context);
     }
-        
+
     protected boolean isVerbose() {
         return isSet(new String[]{"-V", "-verbose"});
     }
-    
+
     private boolean isSet(String[] keys) {
         if (args == null) {
             return false;
         }
         List<String> pargs = Arrays.asList(args);
-        
+
         for (String key : keys) {
             if (pargs.contains(key)) {
                 return true;
@@ -150,7 +150,7 @@ public class WSDLToJava {
         }
         return null;
     }
-    
+
     protected String getFrontEndName(String[] pargs) {
         return getOptionValue(pargs, new String[]{"-frontend", "-fe"});
     }
@@ -167,9 +167,9 @@ public class WSDLToJava {
 
         WSDLToJava w2j = new WSDLToJava(pargs);
         try {
-            
+
             w2j.run(new ToolContext());
-            
+
         } catch (ToolException ex) {
             System.err.println();
             System.err.println("WSDLToJava Error : " + ex.getMessage());
@@ -192,7 +192,7 @@ public class WSDLToJava {
         }
         if (w2j.isExitOnFinish()) {
             System.exit(0);
-        }        
+        }
     }
 
     private static InputStream getResourceAsStream(Class clz, String file) {

@@ -34,7 +34,7 @@ import org.apache.cxf.tools.java2wsdl.processor.JavaToProcessor;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToWSDLContainer extends AbstractCXFToolContainer {
-   
+
     private static final String TOOL_NAME = "java2wsdl";
 
     public JavaToWSDLContainer(ToolSpec toolspec) throws Exception {
@@ -43,7 +43,6 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
 
     public void execute(boolean exitOnFinish) throws ToolException {
         Processor processor = null;
-
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
@@ -58,7 +57,7 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
                 processor.setEnvironment(env);
                 processor.process();
             }
-        } catch (ToolException ex) {            
+        } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
                 printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
                 if (isVerboseOn()) {
@@ -72,7 +71,7 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
-            
+
             throw new ToolException(ex.getMessage(), ex.getCause());
         }
     }
@@ -82,7 +81,7 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
                                         getClass().getClassLoader());
     }
 
-    
+
 
     public void checkParams(ErrorVisitor errors) throws ToolException {
         if (errors.getErrors().size() > 0) {

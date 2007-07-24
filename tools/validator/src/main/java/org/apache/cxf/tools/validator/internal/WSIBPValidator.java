@@ -48,7 +48,7 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 public class WSIBPValidator extends AbstractDefinitionValidator {
     private List<String> operationMap = new ArrayList<String>();
     private WSDLHelper wsdlHelper = new WSDLHelper();
-    
+
     public WSIBPValidator(Definition def) {
         super(def);
     }
@@ -145,12 +145,12 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
             List parts = soapBody.getParts();
             int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
             SoapHeader soapHeader = SOAPBindingUtil.getBindingInputSOAPHeader(bop);
-            boundPartSize = soapHeader != null 
+            boundPartSize = soapHeader != null
                 && soapHeader.getMessage().equals(
                     operation.getInput().getMessage()
                     .getQName())
                 ? boundPartSize - 1 : boundPartSize;
-            
+
             if (parts != null) {
                 Iterator partsIte = parts.iterator();
                 while (partsIte.hasNext()) {
@@ -176,8 +176,8 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                     return false;
                 }
             }
-            
-            
+
+
             if (boundPartSize > 1) {
                 addErrorMessage("Violate WSI-BP-1.0  R2201 operation '" + operation.getName()
                                 + "' more than one part bound to body");
@@ -195,7 +195,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
             List parts = soapBody.getParts();
             int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
             SoapHeader soapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
-            boundPartSize = soapHeader != null 
+            boundPartSize = soapHeader != null
                 && soapHeader.getMessage().equals(
                     operation.getOutput().getMessage()
                     .getQName())
@@ -235,7 +235,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         }
         return true;
     }
-    
+
     public boolean checkBinding() {
         for (PortType portType : wsdlHelper.getPortTypes(def)) {
             Iterator ite = portType.getOperations().iterator();
@@ -282,7 +282,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         }
         return false;
     }
-    
+
     public boolean checkR2203And2204() {
 
         for (Iterator ite = def.getBindings().values().iterator(); ite.hasNext();) {
@@ -371,10 +371,8 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
                 for (Fault fault : faults) {
                     Message message = fault.getMessage();
-                    System.err.println("message:" + message.getQName());                    
                     Collection<Part> parts = message.getParts().values();
                     for (Part part : parts) {
-                        System.err.println("Part: " + part.getElementName());
                         if (part.getElementName() == null) {
                             addErrorMessage("Violate WSI-BP-1.0 R2205: In Message " + message.getQName()
                                             + ", part " + part.getName()

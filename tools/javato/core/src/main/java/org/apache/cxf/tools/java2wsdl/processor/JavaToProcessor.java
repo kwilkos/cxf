@@ -96,20 +96,11 @@ public class JavaToProcessor implements Processor {
         generators.add(getWSDLGenerator(wsdlFile));
         generators.add(getWrapperBeanGenerator());
         generators.add(getFaultBeanGenerator());
-        //generators.add(getDateTypeCustGenerator(wsdlFile));
 
         generate(service, outputDir);
         System.setProperty(JAVA_CLASS_PATH, oldClassPath);
         LOG.log(Level.INFO, "RESUME_CP", oldClassPath);
     }
-
-//     private AbstractGenerator getDateTypeCustGenerator(final File wsdlFile) {
-//         DateTypeCustomGenerator generator = new DateTypeCustomGenerator();
-//         generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
-//         generator.setWSDLFile(wsdlFile);
-//         generator.setServiceClass(getServiceClass());
-//         return generator;
-//     }
 
     private AbstractGenerator getWrapperBeanGenerator() {
         WrapperBeanGenerator generator = new WrapperBeanGenerator();

@@ -22,6 +22,9 @@ package org.apache.cxf.tools.validator.internal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Iterator;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
@@ -40,6 +43,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.wsdl.WSDLConstants;
 
 public class Stax2DOM {
@@ -48,7 +52,7 @@ public class Stax2DOM {
     private  Document doc;
     private XMLInputFactory factory;
     private  XMLEventReader reader;
-    
+
     public Stax2DOM() {
     }
 
@@ -62,6 +66,34 @@ public class Stax2DOM {
         }
     }
 
+    public Document getDocument(String wsdl) throws ToolException {
+        try {
+            URI wsdlURI = new URI(URIParserUtil.getAbsoluteURI(wsdl));
+            if (wsdlURI.toString().startsWith("http")) {
+                return getDocument(wsdlURI.toURL());
+            }
+            return getDocument(new File(wsdlURI));
+        } catch (Exception e) {
+            throw new ToolException(e);
+        }
+    }
+
+    public Document getDocument(URL url) throws ToolException {
+        if (reader == null) {
+            init();
+            try {
+                reader = factory.createXMLEventReader(url.openStream());
+            } catch (FileNotFoundException fe) {
+                throw new ToolException("Cannot get the wsdl " + url, fe);
+            } catch (XMLStreamException e) {
+                throw new ToolException(e);
+            } catch (IOException ioe) {
+                throw new ToolException(ioe);
+            }
+        }
+        return getDocument(reader, url.toString());
+    }
+
     public Document getDocument(File wsdl) throws ToolException {
         if (reader == null) {
             init();
@@ -70,24 +102,24 @@ public class Stax2DOM {
             } catch (FileNotFoundException fe) {
                 throw new ToolException("Cannot get the wsdl " + wsdl, fe);
             } catch (XMLStreamException e) {
-                throw new ToolException(e);                
+                throw new ToolException(e);
             }
 
         }
-        return getDocument(reader, wsdl);
+        return getDocument(reader, wsdl.toString());
     }
-    
+
     public Document getDocument(XMLEventReader xmlEventReader) throws ToolException {
         return getDocument(xmlEventReader, null);
     }
-    
-    public Document getDocument(XMLEventReader xmlEventReader, File wsdlurl) throws ToolException {
+
+    public Document getDocument(XMLEventReader xmlEventReader, String wsdlurl) throws ToolException {
         try {
             doc = XMLUtils.newDocument();
         } catch (ParserConfigurationException e) {
             throw new ToolException(e);
         }
-        doc.setDocumentURI(wsdlurl.toString());
+        doc.setDocumentURI(wsdlurl);
 
         currentElement = doc.getDocumentElement();
 

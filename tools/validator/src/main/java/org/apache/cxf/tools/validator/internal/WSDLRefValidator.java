@@ -19,9 +19,7 @@
 
 package org.apache.cxf.tools.validator.internal;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +51,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.validator.internal.model.FailureLocation;
 import org.apache.cxf.tools.validator.internal.model.XBinding;
 import org.apache.cxf.tools.validator.internal.model.XDef;
@@ -75,7 +72,7 @@ import org.apache.ws.commons.schema.XmlSchemaType;
 public class WSDLRefValidator extends AbstractDefinitionValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLRefValidator.class);
     protected List<XNode> vNodes = new ArrayList<XNode>();
-    
+
     private Set<QName> portTypeRefNames = new HashSet<QName>();
     private Set<QName> messageRefNames = new HashSet<QName>();
 
@@ -95,7 +92,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
     public WSDLRefValidator(final String wsdl) {
         this(wsdl, null);
     }
-    
+
     public WSDLRefValidator(final String wsdl, final Document doc) {
         WSDLDefinitionBuilder wsdlBuilder = new WSDLDefinitionBuilder();
         try {
@@ -130,18 +127,14 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         return this.vResults;
     }
 
-    private File getWSDLFile(String location) throws URISyntaxException {
-        return new File(new URI(URIParserUtil.getAbsoluteURI(location)));
+    private Document getWSDLDocument(final String wsdl) throws URISyntaxException {
+        return new Stax2DOM().getDocument(wsdl);
     }
 
-    private Document getWSDLDocument(final String wsdl) throws URISyntaxException {
-        return new Stax2DOM().getDocument(getWSDLFile(wsdl));
-    }
-    
     private Document getWSDLDocument() throws Exception {
         return getWSDLDocument(this.definition.getDocumentBaseURI());
     }
-    
+
     private List<Document> getWSDLDocuments() {
         List<Document> docs = new ArrayList<Document>();
         try {
@@ -156,7 +149,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
             e.printStackTrace();
             // ignore
         }
-        
+
         return docs;
     }
 
@@ -186,21 +179,18 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         }
         return null;
     }
-    
+
     public boolean isValid() {
         try {
 
             collectValidationPoints();
-            
+
             List<Document> wsdlDocs = getWSDLDocuments();
             for (XNode vNode : vNodes) {
 
                 if (!isExist(wsdlDocs, vNode)) {
                     FailureLocation loc = getFailureLocation(wsdlDocs, vNode.getFailurePoint());
-                    if (loc == null) {
-                        System.out.println("---vNode--- " + vNode);
-                    }
-                    
+
                     vResults.addError(new Message("FAILED_AT_POINT",
                                                   LOG,
                                                   loc.getLocation().getLineNumber(),
@@ -268,7 +258,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         pNode.setParentNode(vService);
         return pNode;
     }
-    
+
     private XNode getXNode(Service service) {
         XDef xdef = new XDef();
         xdef.setTargetNamespace(service.getQName().getNamespaceURI());
@@ -278,7 +268,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         sNode.setParentNode(xdef);
         return sNode;
     }
-    
+
     private XNode getXNode(Binding binding) {
         XDef xdef = new XDef();
         xdef.setTargetNamespace(binding.getQName().getNamespaceURI());
@@ -343,7 +333,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         }
         vResults.addWarning(warningMsg);
     }
-    
+
     @SuppressWarnings("unchecked")
     private void collectValidationPoints() {
         if (getServices().size() == 0) {
@@ -362,7 +352,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         for (Service service : getServices().values()) {
             vBindingNodes.putAll(getBindings(service));
         }
-        
+
         for (QName bName : vBindingNodes.keySet()) {
             Binding binding = this.definition.getBinding(bName);
             XNode vBindingNode = getXNode(binding);
@@ -496,15 +486,15 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
         if (namespace.equals(WSDLConstants.NU_SCHEMA_XSD)) {
             if (isElement) {
-                XmlSchemaElement  schemaEle = 
-                    schemaCollection.getElementByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));    
+                XmlSchemaElement  schemaEle =
+                    schemaCollection.getElementByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));
                 partvalid = schemaEle != null ? true : false;
             } else {
-                XmlSchemaType schemaType = 
-                    schemaCollection.getTypeByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));  
+                XmlSchemaType schemaType =
+                    schemaCollection.getTypeByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));
                 partvalid = schemaType != null ? true : false;
             }
-            
+
         } else {
             if (isElement) {
                 for (XmlSchemaCollection schema : schemas) {
