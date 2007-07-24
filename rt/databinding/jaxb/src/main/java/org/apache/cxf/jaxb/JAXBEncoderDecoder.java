@@ -133,6 +133,7 @@ public final class JAXBEncoderDecoder {
                         && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
                                 instanceof XmlSchemaSimpleTypeList) {
                         mObj = Arrays.asList((Object[])mObj);
+                        writeObject(u, source, new JAXBElement(elName, cls, mObj));
                     } else if (part.getMessageInfo().getOperation().isUnwrapped()
                         && (mObj.getClass().isArray() || mObj instanceof List)
                         && el.getMaxOccurs() != 1) {
