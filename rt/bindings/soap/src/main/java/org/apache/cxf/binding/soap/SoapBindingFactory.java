@@ -205,22 +205,23 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
             if (b.getInput() != null) {
                 List<String> bodyParts = null;
-                SoapHeaderInfo headerInfo = b.getInput().getExtensor(SoapHeaderInfo.class);
-                if (headerInfo != null) {
+                List<SoapHeaderInfo> headerInfos = b.getInput().getExtensors(SoapHeaderInfo.class);
+                if (headerInfos != null && headerInfos.size() > 0) {
                     bodyParts = new ArrayList<String>();
                     for (MessagePartInfo part : b.getInput().getMessageParts()) {
                         bodyParts.add(part.getName().getLocalPart());
                     }
 
-                    SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
-                                                                             BindingInput.class,
-                                                                             isSoap12);
-                    soapHeader.setMessage(b.getInput().getMessageInfo().getName());
-                    soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
-                    soapHeader.setUse("literal");
-                    bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
-                    b.getInput().addExtensor(soapHeader);
-
+                    for (SoapHeaderInfo headerInfo : headerInfos) { 
+                        SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
+                                                                                 BindingInput.class,
+                                                                                 isSoap12);
+                        soapHeader.setMessage(b.getInput().getMessageInfo().getName());
+                        soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
+                        soapHeader.setUse("literal");
+                        bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
+                        b.getInput().addExtensor(soapHeader);
+                    }
                 }
                 SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
                                                                BindingInput.class,
@@ -239,21 +240,22 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
             if (b.getOutput() != null) {
                 List<String> bodyParts = null;
-                SoapHeaderInfo headerInfo = b.getOutput().getExtensor(SoapHeaderInfo.class);
-                if (headerInfo != null) {
+                List<SoapHeaderInfo> headerInfos = b.getOutput().getExtensors(SoapHeaderInfo.class);
+                if (headerInfos != null && headerInfos.size() > 0) {
                     bodyParts = new ArrayList<String>();
                     for (MessagePartInfo part : b.getOutput().getMessageParts()) {
                         bodyParts.add(part.getName().getLocalPart());
                     }
-                    SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
+                    for (SoapHeaderInfo headerInfo : headerInfos) { 
+                        SoapHeader soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
                                                                              BindingOutput.class,
                                                                              isSoap12);
-                    soapHeader.setMessage(b.getOutput().getMessageInfo().getName());
-                    soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
-                    soapHeader.setUse("literal");
-                    bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
-                    b.getOutput().addExtensor(soapHeader);
-
+                        soapHeader.setMessage(b.getOutput().getMessageInfo().getName());
+                        soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
+                        soapHeader.setUse("literal");
+                        bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
+                        b.getOutput().addExtensor(soapHeader);
+                    }
                 }
                 SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry,
                                                                BindingOutput.class,

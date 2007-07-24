@@ -25,11 +25,11 @@ import java.util.Vector;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
-@WebService(endpointInterface = "org.apache.cxf.systest.jaxws.DocLitWrappedCodeFirstService",
-            serviceName = "DocLitWrappedCodeFirstService",
-            portName = "DocLitWrappedCodeFirstServicePort",
-            targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
-public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirstService {
+@WebService(endpointInterface = "org.apache.cxf.systest.jaxws.RpcLitCodeFirstService",
+            serviceName = "RpcLitCodeFirstService",
+            portName = "RpcLitCodeFirstServicePort",
+            targetNamespace = "http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService")
+public class RpcLitCodeFirstServiceImpl implements RpcLitCodeFirstService {
     public static final String DATA[] = new String[] {"string1", "string2", "string3"};
     
     public int thisShouldNotBeInTheWSDL(int i) {
@@ -78,7 +78,7 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         buf.append(Integer.toString(y));
         return buf.toString();
     }
-    
+
     public String multiInOut(Holder<String> a, Holder<String> b, Holder<String> c, Holder<String> d,
                              Holder<String> e, Holder<String> f, Holder<String> g) {
         String ret = b.value + d.value + e.value; 
@@ -91,6 +91,17 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         g.value = "g";
         return ret;
     }
-   
-
+    public String multiHeaderInOut(Holder<String> a, Holder<String> b,
+                                   Holder<String> c,  Holder<String> d,
+                                   Holder<String> e, Holder<String> f, Holder<String> g) {
+        String ret = b.value + d.value + e.value; 
+        a.value = "a";
+        b.value = "b";
+        c.value = "c";
+        d.value = "d";
+        e.value = "e";
+        f.value = "f";
+        g.value = "g";
+        return ret;
+    }
 }

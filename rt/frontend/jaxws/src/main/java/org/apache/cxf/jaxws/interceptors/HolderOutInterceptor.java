@@ -25,13 +25,12 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Holder;
 
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
@@ -46,7 +45,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     public void handleMessage(Message message) throws Fault {
-        List<Object> outObjects = CastUtils.cast(message.getContent(List.class));
+        MessageContentsList outObjects = MessageContentsList.getContentsList(message);
         Exchange exchange = message.getExchange();
         OperationInfo op = exchange.get(OperationInfo.class);
         
@@ -63,133 +62,40 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             return;
         }
 
-        List<MessagePartInfo> parts = op.getOutput().getMessageParts();
-        LOG.fine("output message parts: " + parts);
+        if (!Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE))) {
+            List<MessagePartInfo> parts = op.getOutput().getMessageParts();
+            MessageContentsList inObjects = MessageContentsList.getContentsList(exchange.getInMessage());
+            if (inObjects != null) {
+                for (int x = 0; x < inObjects.size(); x++) {
+                    Object o = inObjects.get(x);
+                    if (o instanceof Holder) {
+                        outObjects.set(x + 1, o);
+                    }
+                }
+            }
+            for (MessagePartInfo part : parts) {
+                if (part.getIndex() > 0) {
+                    Holder holder = (Holder)outObjects.get(part);
+                    outObjects.put(part, holder.value);
+                }
+            }
+        } else {
+            List<MessagePartInfo> parts = op.getOutput().getMessageParts();
+            List<Object> holders = new ArrayList<Object>(outObjects);
+            for (int x = 0; x < outObjects.size(); x++) {
+                Object o = outObjects.get(x);
+                if (!(o instanceof Holder)) {
+                    holders.set(x, null);
+                }
+            }
+            message.put(HolderInInterceptor.CLIENT_HOLDERS, holders);
+            for (MessagePartInfo part : parts) {
+                if (part.getIndex() > 0) {
+                    Holder holder = (Holder)outObjects.get(part.getIndex() - 1);
+                    outObjects.set(part.getIndex() - 1, holder.value);
+                }
+            }
+        }
         
-        // is this a client invocation?
-        if (Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE))) {
-            LOG.fine("client invocation");
-            // Extract the Holders and store them for later
-            List<Holder> holders = new ArrayList<Holder>();
-            //int size = op.getInput().size() + op.getOutput().size();
-            int size = outObjects.size();
-            List<Object> newObjects = new ArrayList<Object>(size);
-            for (int i = 0; i < size; i++) {
-                newObjects.add(null);
-            }
-
-            Object deleteMarker = markOutHolderInParaList(outObjects, parts, holders, newObjects);
-            
-            if (holders.size() == 0) {
-                return;
-            }
-            
-            int i = 0;
-            for (MessagePartInfo part : op.getInput().getMessageParts()) {
-                List<String> ordering = part.getMessageInfo().getOperation().getParameterOrdering();
-                if (ordering != null && ordering.size() > 0) {
-                    int orderIdx = -1;
-                    for (int j = 0; j < ordering.size(); j++) {
-                        if (ordering.get(j).equals(part.getName().getLocalPart())) {
-                            orderIdx = j;
-                            break;
-                        }
-                    }
-                    if (orderIdx != -1) {                        
-                        newObjects.set(part.getIndex(), getValue(part, outObjects, orderIdx));
-                        
-                    } else {
-                        newObjects.set(part.getIndex(), getValue(part, outObjects, i));
-                    }                    
-                } else {
-                    newObjects.set(part.getIndex(), getValue(part, outObjects, i));
-                }
-                i++;
-            }
-
-            if (deleteMarker != null) {
-                // regenerate the param list by removing all params marked with the deleteMarker.
-                Object[] newObjectsArray = newObjects.toArray();
-                newObjects.clear();
-                for (Object param : newObjectsArray) {
-                    if (param != deleteMarker) {
-                        newObjects.add(param);
-                    }
-                }
-            }
-
-            message.setContent(List.class, newObjects);
-            exchange.put(HolderInInterceptor.CLIENT_HOLDERS, holders);
-        } else {
-            // Add necessary holders so we match the method signature of the service class
-            List<Object> reqObjects =
-                CastUtils.cast(exchange.getInMessage().getContent(List.class));
-    
-            int outIdx = 0;
-            boolean holderOutIsFirst = false;
-            for (MessagePartInfo part : parts) {
-                if (part.getIndex() == -1) {
-                    outIdx++;
-                    break;
-                } else {
-                    holderOutIsFirst = true;
-                }
-            }
-            
-            for (MessagePartInfo part : parts) {
-                int methodIdx = part.getIndex();
-                if (methodIdx >= 0) {
-                    Holder holder = (Holder) reqObjects.get(methodIdx);
-                    Object o = holder.value;
-                    if (methodIdx < outIdx && holderOutIsFirst) {
-                        //Holder is first part of mesage
-                        outObjects.add(methodIdx, o);
-                    } else if (outIdx >= outObjects.size()) {
-                        outObjects.add(o);
-                    } else {
-                        outObjects.add(outIdx, o);
-                    }
-                    outIdx++;
-                }
-            }
-            message.setContent(List.class, outObjects);
-        }
-    }
-
-    private Object getValue(MessagePartInfo part, List<Object> outObjects, int idx) {
-        if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
-            Holder holder = (Holder) outObjects.get(idx);
-            if (holder == null) {
-                return null;
-            } else {
-                return holder.value;
-            }
-        } else {
-            return outObjects.get(idx);
-        }
-    }
-
-    private Object markOutHolderInParaList(List<Object> outObjects, 
-                                           List<MessagePartInfo> parts, 
-                                           List<Holder> holders, 
-                                           List<Object> newObjects) {
-        Object deleteObject = null;
-        for (MessagePartInfo part : parts) {
-            int idx = part.getIndex();
-            if (idx >= 0) {
-                Holder holder = (Holder) outObjects.get(idx);
-
-                if (part.getProperty(ReflectionServiceFactoryBean.MODE_OUT) != null) {
-                    if (deleteObject == null) {
-                        deleteObject = new Object();
-                    }
-                    newObjects.set(idx, deleteObject);
-                }
-                
-                holders.add(holder);
-            }
-        }
-        return deleteObject;
-    }
-    
+    }    
 }

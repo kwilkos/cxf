@@ -22,10 +22,10 @@ package org.apache.cxf.jaxws.interceptors;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -63,7 +63,7 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
         }
 
         if (wrapped != null) {
-            List<Object> objs = CastUtils.cast(message.getContent(List.class));
+            MessageContentsList objs = MessageContentsList.getContentsList(message);
 
             WrapperHelper helper = parts.get(0).getProperty("WRAPPER_CLASS", WrapperHelper.class);
             if (helper == null) {
@@ -72,7 +72,11 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                 List<Class<?>> partClasses = new ArrayList<Class<?>>();
                 
                 for (MessagePartInfo p : messageInfo.getMessageParts()) {
-                    partNames.add(p.getName().getLocalPart());
+                    ensureSize(partNames, p.getIndex());
+                    ensureSize(elTypeNames, p.getIndex());
+                    ensureSize(partClasses, p.getIndex());
+                    
+                    partNames.set(p.getIndex(), p.getName().getLocalPart());
                     
                     String elementType = null;
                     if (p.isElement()) {
@@ -86,8 +90,8 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                         }
                     }
                     
-                    elTypeNames.add(elementType);
-                    partClasses.add(p.getTypeClass());
+                    elTypeNames.set(p.getIndex(), elementType);
+                    partClasses.set(p.getIndex(), p.getTypeClass());
                 }
                 helper = WrapperHelper.createWrapperHelper(wrapped,
                                                            partNames,
@@ -98,9 +102,8 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
             }
             try {
                 Object o2 = helper.createWrapperObject(objs);
-                objs = new ArrayList<Object>(1);
-                objs.add(o2);
-                message.setContent(List.class, objs);
+                objs.clear();
+                objs.put(parts.get(0), o2);
             } catch (Exception e) {
                 throw new Fault(e);
             }
@@ -116,6 +119,13 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                 message.put(MessageInfo.class, newbop.getOperationInfo().getOutput());
                 message.put(BindingMessageInfo.class, newbop.getOutput());
             }
+        }
+    }
+
+
+    private void ensureSize(List<?> lst, int idx) {
+        while (idx >= lst.size()) {
+            lst.add(null);
         }
     }
 }

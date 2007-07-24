@@ -328,6 +328,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 MessagePartInfo part = input.getMessageParts().get(0);
                 part.setTypeClass(getRequestWrapper(method));
                 part.setProperty("REQUEST.WRAPPER.CLASSNAME", getRequestWrapperClassName(method));
+                part.setIndex(0);
             }
 
             if (o.hasOutput()) {
@@ -335,7 +336,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 MessagePartInfo part = input.getMessageParts().get(0);
                 part.setTypeClass(getResponseWrapper(method));
                 part.setProperty("RESPONSE.WRAPPER.CLASSNAME", getResponseWrapperClassName(method));
-                part.setIndex(-1);
+                part.setIndex(0);
             }
 
             setFaultClassInfo(o, method);
@@ -394,7 +395,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             }
             part.setProperty(ReflectionServiceFactoryBean.MODE_OUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
-            part.setIndex(i);
+            part.setIndex(i + 1);
         } else if (isIn && isOut) {
             QName name = getInPartName(o, method, i);
             part = o.getInput().getMessagePart(name);
@@ -408,11 +409,10 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
 
-            name = getOutPartName(o, method, i);
             part = o.getOutput().getMessagePart(name);
             part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
-            part.setIndex(i);
+            part.setIndex(i + 1);
         }
     }
 

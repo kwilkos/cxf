@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexType;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeService;
@@ -50,7 +52,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
     }
 
     @Test
@@ -150,7 +152,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testStringListOut() throws Exception {
+    public void testStringListOutDocLitNoWsdl() throws Exception {
         QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
                                    "DocLitWrappedCodeFirstServicePort");
         QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
@@ -160,12 +162,26 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, ServerMisc.DOCLIT_CODEFIRST_URL);
         DocLitWrappedCodeFirstService port = service.getPort(portName,
                                                              DocLitWrappedCodeFirstService.class);
+        runDocLitTest(port);
+    }
+
+    @Test
+    public void testStringListOutDocLitWsdl() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                                   "DocLitWrappedCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                                   "DocLitWrappedCodeFirstService");
         
-        
-        
+        Service service = Service.create(new URL(ServerMisc.DOCLIT_CODEFIRST_URL + "?wsdl"),
+                                         servName);
+        DocLitWrappedCodeFirstService port = service.getPort(portName,
+                                                             DocLitWrappedCodeFirstService.class);
+        runDocLitTest(port);
+    }
+    
+    private void runDocLitTest(DocLitWrappedCodeFirstService port) throws Exception {
         List<String> rev = new ArrayList<String>(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
         Collections.reverse(rev);
-        
         
         String s;
         
@@ -205,5 +221,135 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
                                         null, 24);
         assertEquals("string1string2string3string3string2string1<null>24", s);
         
+        Holder<String> a = new Holder<String>();
+        Holder<String> b = new Holder<String>("Hello");
+        Holder<String> c = new Holder<String>();
+        Holder<String> d = new Holder<String>(" ");
+        Holder<String> e = new Holder<String>("world!");
+        Holder<String> f = new Holder<String>();
+        Holder<String> g = new Holder<String>();
+        s = port.multiInOut(a, b, c, d, e, f, g);
+        assertEquals("Hello world!", s);
+        assertEquals("a", a.value);
+        assertEquals("b", b.value);
+        assertEquals("c", c.value);
+        assertEquals("d", d.value);
+        assertEquals("e", e.value);
+        assertEquals("f", f.value);
+        assertEquals("g", g.value);
     }
+    @Test
+    public void testRpcLitNoWsdl() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 
+                                   "RpcLitCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 
+                                   "RpcLitCodeFirstService");
+        
+        Service service = Service.create(servName);
+        service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, ServerMisc.RPCLIT_CODEFIRST_URL);
+        RpcLitCodeFirstService port = service.getPort(portName,
+                                                      RpcLitCodeFirstService.class);
+        runRpcLitTest(port);
+    }
+    
+    
+    @Test
+    public void testRpcLitWsdl() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 
+            "RpcLitCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 
+            "RpcLitCodeFirstService");
+        
+        Service service = Service.create(new URL(ServerMisc.RPCLIT_CODEFIRST_URL + "?wsdl"),
+                                         servName);
+        RpcLitCodeFirstService port = service.getPort(portName,
+                                                      RpcLitCodeFirstService.class);
+        runRpcLitTest(port);
+    }
+
+    private void runRpcLitTest(RpcLitCodeFirstService port) throws Exception {
+        List<String> rev = new ArrayList<String>(Arrays.asList(RpcLitCodeFirstServiceImpl.DATA));
+        Collections.reverse(rev);
+        
+        String s;
+        
+        String arrayOut[] = port.arrayOutput();
+        assertNotNull(arrayOut);
+        assertEquals(3, arrayOut.length);
+        for (int x = 0; x < 3; x++) {
+            assertEquals(RpcLitCodeFirstServiceImpl.DATA[x], arrayOut[x]);
+        }
+        
+        List<String> listOut = port.listOutput();
+        assertNotNull(listOut);
+        assertEquals(3, listOut.size());
+        for (int x = 0; x < 3; x++) {
+            assertEquals(RpcLitCodeFirstServiceImpl.DATA[x], listOut.get(x));
+        }
+        
+        s = port.arrayInput(RpcLitCodeFirstServiceImpl.DATA);
+        assertEquals("string1string2string3", s);
+        s = port.listInput(java.util.Arrays.asList(RpcLitCodeFirstServiceImpl.DATA));
+        assertEquals("string1string2string3", s);
+        
+        s = port.multiListInput(Arrays.asList(RpcLitCodeFirstServiceImpl.DATA),
+                                rev,
+                                "Hello", 24);
+        assertEquals("string1string2string3string3string2string1Hello24", s);
+        
+        
+        s = port.listInput(new ArrayList<String>());
+        assertEquals("", s);
+
+        try {
+            s = port.listInput(null);
+            fail("RPC/Lit parts cannot be null");
+        } catch (SOAPFaultException ex) {
+            //ignore, expected
+        }
+
+        try {
+            s = port.multiListInput(Arrays.asList(RpcLitCodeFirstServiceImpl.DATA),
+                                            rev,
+                                            null, 24);
+            fail("RPC/Lit parts cannot be null");
+        } catch (SOAPFaultException ex) {
+            //ignore, expected
+        }
+        
+        Holder<String> a = new Holder<String>();
+        Holder<String> b = new Holder<String>("Hello");
+        Holder<String> c = new Holder<String>();
+        Holder<String> d = new Holder<String>(" ");
+        Holder<String> e = new Holder<String>("world!");
+        Holder<String> f = new Holder<String>();
+        Holder<String> g = new Holder<String>();
+        s = port.multiInOut(a, b, c, d, e, f, g);
+        assertEquals("Hello world!", s);
+        assertEquals("a", a.value);
+        assertEquals("b", b.value);
+        assertEquals("c", c.value);
+        assertEquals("d", d.value);
+        assertEquals("e", e.value);
+        assertEquals("f", f.value);
+        assertEquals("g", g.value);
+        
+        a = new Holder<String>();
+        b = new Holder<String>("Hello");
+        c = new Holder<String>();
+        d = new Holder<String>(" ");
+        e = new Holder<String>("world!");
+        f = new Holder<String>();
+        g = new Holder<String>();
+        s = port.multiHeaderInOut(a, b, c, d, e, f, g);
+        assertEquals("Hello world!", s);
+        assertEquals("a", a.value);
+        assertEquals("b", b.value);
+        assertEquals("c", c.value);
+        assertEquals("d", d.value);
+        assertEquals("e", e.value);
+        assertEquals("f", f.value);
+        assertEquals("g", g.value);        
+    }
+       
 }

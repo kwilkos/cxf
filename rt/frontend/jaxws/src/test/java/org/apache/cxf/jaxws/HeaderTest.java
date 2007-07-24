@@ -62,11 +62,11 @@ public class HeaderTest extends AbstractJaxWsTest {
         parts = op.getOutput().getMessageParts();
         assertEquals(2, parts.size());
         
-        part = parts.get(0);
+        part = parts.get(1);
         assertNotNull(part.getTypeClass());
         assertEquals(TestHeader5ResponseBody.class, part.getTypeClass());
         
-        part = parts.get(1);
+        part = parts.get(0);
         assertNotNull(part.getTypeClass());
         assertEquals(TestHeader5.class, part.getTypeClass());
           

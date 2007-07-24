@@ -21,7 +21,6 @@ package org.apache.cxf.binding.soap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +32,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.cxf.binding.soap.interceptor.RPCOutInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -63,7 +63,7 @@ public class RPCOutInterceptorTest extends TestBase {
                 .toString());
         BindingInfo bi = si.getBinding(new QName(TNS, "Greeter_SOAPBinding_RPCLit"));
         BindingOperationInfo boi = bi.getOperation(new QName(TNS, OPNAME));
-        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setIndex(-1);
+        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setIndex(0);
         soapMessage.getExchange().put(BindingOperationInfo.class, boi);
 
         control.reset();
@@ -83,7 +83,7 @@ public class RPCOutInterceptorTest extends TestBase {
         mcs.setElem1("elem1");
         mcs.setElem2("elem2");
         mcs.setElem3(45);
-        List<MyComplexStruct> param = new ArrayList<MyComplexStruct>();
+        MessageContentsList param = new MessageContentsList();
         param.add(mcs);
         soapMessage.setContent(List.class, param);
     }

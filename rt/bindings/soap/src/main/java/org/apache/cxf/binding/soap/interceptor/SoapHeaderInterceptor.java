@@ -19,7 +19,6 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Node;
@@ -27,13 +26,13 @@ import org.w3c.dom.Node;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.headers.Header;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -55,10 +54,10 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
         SoapMessage message = (SoapMessage) m;
         Exchange exchange = message.getExchange();
 
-        List<Object> parameters = CastUtils.cast(message.getContent(List.class));
+        MessageContentsList parameters = MessageContentsList.getContentsList(message);
 
         if (null == parameters) {
-            parameters = new ArrayList<Object>();
+            parameters = new MessageContentsList();
         }
 
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
@@ -86,7 +85,6 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
             MessagePartInfo mpi = header.getPart();
             Header param = findHeader(message, mpi);
             
-            int idx = mpi.getIndex();
             Object object = null;
             if (param != null) {
                 message.getHeaders().remove(param);
@@ -100,19 +98,7 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
                 
             }
             
-            if (client) {
-                // Return parameter needs to be first, so bump everything
-                // back one notch.
-                idx++;
-            }
-            
-            if (idx > parameters.size()) {
-                parameters.add(object);
-            } else if (idx == -1) {
-                parameters.add(0, object);
-            } else {
-                parameters.add(idx, object);
-            }
+            parameters.put(mpi, object);
         }
         if (parameters.size() > 0) {
             message.setContent(List.class, parameters);

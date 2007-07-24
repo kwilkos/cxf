@@ -788,7 +788,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                 }
 
-                part.setIndex(-1);
+                part.setIndex(0);
             }
 
             for (int j = 0; j < paramClasses.length; j++) {
@@ -809,7 +809,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
                     MessagePartInfo part = outMsg.addMessagePart(q);
                     initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
-                    part.setIndex(j);
+                    part.setIndex(j + 1);
 
                     if (!isRPC(method) && !isWrapped(method)) {
                         part.setProperty(ELEMENT_NAME, q2);
@@ -819,9 +819,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         part.setProperty(MODE_INOUT, Boolean.TRUE);
                     }
                     if (isHeader(method, j)) {
-                        //part.setElementQName(q2);
-                        part.setProperty(ELEMENT_NAME, q2);
                         part.setProperty(HEADER, Boolean.TRUE);
+                        if (isRPC(method) || !isWrapped(method)) {
+                            part.setElementQName(q2);
+                        } else {
+                            part.setProperty(ELEMENT_NAME, q2);
+                        }
                     }
                 }
             }
@@ -833,6 +836,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     
     protected void createInputWrappedMessageParts(OperationInfo op, Method method, MessageInfo inMsg) {
         MessagePartInfo part = inMsg.addMessagePart("parameters");
+        part.setIndex(0);
         part.setElement(true);
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
@@ -864,7 +868,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo outMsg) {
         MessagePartInfo part = outMsg.addMessagePart("result");
         part.setElement(true);
-        part.setIndex(-1);
+        part.setIndex(0);
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName q = c.getResponseWrapperName(op, method);

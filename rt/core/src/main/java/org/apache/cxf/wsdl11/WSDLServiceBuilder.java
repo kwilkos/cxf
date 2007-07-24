@@ -584,11 +584,10 @@ public class WSDLServiceBuilder {
         this.copyExtensors(opInfo, op.getExtensibilityElements());
         this.copyExtensionAttributes(opInfo, op);
         Input input = op.getInput();
-        List paramOrder = op.getParameterOrdering();
         if (input != null) {
             MessageInfo minfo = opInfo.createMessage(input.getMessage().getQName());
             opInfo.setInput(input.getName(), minfo);
-            buildMessage(minfo, input.getMessage(), paramOrder);
+            buildMessage(minfo, input.getMessage());
             copyExtensors(minfo, input.getExtensibilityElements());
             copyExtensionAttributes(minfo, input);
         }
@@ -596,7 +595,7 @@ public class WSDLServiceBuilder {
         if (output != null) {
             MessageInfo minfo = opInfo.createMessage(output.getMessage().getQName());
             opInfo.setOutput(output.getName(), minfo);
-            buildMessage(minfo, output.getMessage(), paramOrder);
+            buildMessage(minfo, output.getMessage());
             copyExtensors(minfo, output.getExtensibilityElements());
             copyExtensionAttributes(minfo, output);
         }
@@ -605,7 +604,7 @@ public class WSDLServiceBuilder {
             Map.Entry<String, Fault> entry = cast(rawentry, String.class, Fault.class);
             FaultInfo finfo = opInfo.addFault(new QName(inf.getName().getNamespaceURI(), entry.getKey()),
                                               entry.getValue().getMessage().getQName());
-            buildMessage(finfo, entry.getValue().getMessage(), paramOrder);
+            buildMessage(finfo, entry.getValue().getMessage());
             copyExtensors(finfo, entry.getValue().getExtensibilityElements());
             copyExtensionAttributes(finfo, entry.getValue());
         }
@@ -771,10 +770,10 @@ public class WSDLServiceBuilder {
         return false;
     }
 
-    private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
+    private void buildMessage(AbstractMessageContainer minfo, Message msg) {
         XmlSchemaCollection schemas = (XmlSchemaCollection)minfo.getOperation().getInterface().getService()
             .getProperty(WSDL_SCHEMA_LIST);
-        List orderedParam = msg.getOrderedParts(paramOrder);
+        List orderedParam = msg.getOrderedParts(null);
         for (Part part : cast(orderedParam, Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
                 .getName()));
@@ -786,21 +785,6 @@ public class WSDLServiceBuilder {
                 pi.setElementQName(part.getElementName());
                 pi.setElement(true);
                 pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
-            }
-        }
-        for (Part part : cast(msg.getParts().values(), Part.class)) {
-            if (!orderedParam.contains(part)) {
-                MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
-                    .getName()));
-                if (part.getTypeName() != null) {
-                    pi.setTypeQName(part.getTypeName());
-                    pi.setElement(false);
-                    pi.setXmlSchema(schemas.getTypeByQName(part.getTypeName()));
-                } else {
-                    pi.setElementQName(part.getElementName());
-                    pi.setElement(true);
-                    pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
-                }
             }
         }
     }

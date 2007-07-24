@@ -52,12 +52,6 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     private static final ResourceBundle BUNDLE = BundleUtils
         .getBundle(AbstractInDatabindingInterceptor.class);
 
-    /**
-     * @deprecated
-     */
-    public AbstractInDatabindingInterceptor() {
-        super(null, null);
-    }
     
     public AbstractInDatabindingInterceptor(String phase) {
         super(phase);

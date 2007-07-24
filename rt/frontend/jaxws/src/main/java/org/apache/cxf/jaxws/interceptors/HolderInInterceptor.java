@@ -27,9 +27,9 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
@@ -43,7 +43,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        List<Object> inObjects = CastUtils.cast(message.getContent(List.class));
+        MessageContentsList inObjects = MessageContentsList.getContentsList(message);
 
         Exchange exchange = message.getExchange();
         
@@ -56,35 +56,25 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
         
         boolean client = Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE));
         if (client) {
-            int holderIdx = 0;
-            int partIdx = 0;
+            List<Holder> outHolders = CastUtils.cast((List)message.getExchange()
+                .getOutMessage().get(CLIENT_HOLDERS));
             for (MessagePartInfo part : parts) {
-                if (part.getIndex() == -1) {
-                    partIdx++;
-                    break;
-                }
-            }
-            
-            List<Holder> holders = CastUtils.cast((List)exchange.get(CLIENT_HOLDERS));
-            for (MessagePartInfo part : parts) {
-                int idx = part.getIndex();
-                if (idx >= 0) {
-                    Holder holder = holders.get(holderIdx);
-                    holder.value = inObjects.get(partIdx);
-                    holderIdx++;
-                    partIdx++;
+                if (part.getIndex() != 0) {
+                    Holder holder = (Holder)outHolders.get(part.getIndex() - 1);
+                    holder.value = inObjects.get(part);
+                    inObjects.put(part, holder);
                 }
             }
         } else {
             for (MessagePartInfo part : parts) {
-                int idx = part.getIndex();
+                int idx = part.getIndex() - 1;
                 if (idx >= 0) {
-                    if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
-                        Object object = inObjects.get(idx);
-                        inObjects.set(idx, new Holder<Object>(object));
+                    if (idx >= inObjects.size()) {
+                        inObjects.set(idx, new Holder<Object>());
                     } else {
-                        inObjects.add(idx, new Holder());
-                    } 
+                        Object o = inObjects.get(idx);
+                        inObjects.set(idx, new Holder<Object>(o));
+                    }
                 }
             }
         }

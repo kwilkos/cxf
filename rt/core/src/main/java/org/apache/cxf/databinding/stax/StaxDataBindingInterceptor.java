@@ -19,7 +19,6 @@
 
 package org.apache.cxf.databinding.stax;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -32,6 +31,7 @@ import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -53,7 +53,7 @@ public class StaxDataBindingInterceptor extends AbstractInDatabindingInterceptor
         
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         DataReader<XMLStreamReader> dr = getDataReader(message);
-        List<Object> parameters = new ArrayList<Object>();
+        MessageContentsList parameters = new MessageContentsList();
 
         Exchange exchange = message.getExchange();
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
@@ -65,14 +65,19 @@ public class StaxDataBindingInterceptor extends AbstractInDatabindingInterceptor
             return;
         }
         
-        parameters.add(dr.read(xmlReader));
-
         if (bop == null) {
             Endpoint ep = exchange.get(Endpoint.class);
             bop = ep.getBinding().getBindingInfo().getOperations().iterator().next();
         }
         
         message.getExchange().put(BindingOperationInfo.class, bop);
+        
+        if (isRequestor(message)) {
+            parameters.put(bop.getOutput().getMessageParts().get(0), dr.read(xmlReader));            
+        } else {
+            parameters.put(bop.getInput().getMessageParts().get(0), dr.read(xmlReader));            
+        }
+
         
         if (parameters.size() > 0) {
             message.setContent(List.class, parameters);

@@ -137,7 +137,7 @@ public class SwAOutInterceptor extends AbstractSoapInterceptor {
                 .append("@apache.org").toString();
             
             // this assumes things are in order...
-            int idx = mpi.getMessageInfo().getMessagePartIndex(mpi);
+            int idx = mpi.getIndex();
             Object o = outObjects.get(idx);
             
             if (o == null) {

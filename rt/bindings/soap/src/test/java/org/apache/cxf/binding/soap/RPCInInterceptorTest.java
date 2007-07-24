@@ -55,9 +55,9 @@ public class RPCInInterceptorTest extends TestBase {
         BindingInfo bi = si.getBinding(new QName(TNS, "Greeter_SOAPBinding_RPCLit"));
         BindingOperationInfo boi = bi.getOperation(new QName(TNS, OPNAME));
         boi.getOperationInfo().getInput().getMessagePartByIndex(0).setTypeClass(MyComplexStruct.class);
-        boi.getOperationInfo().getInput().getMessagePartByIndex(0).setIndex(0);
+        boi.getOperationInfo().getInput().getMessagePartByIndex(0).setIndex(1);
         boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setTypeClass(MyComplexStruct.class);
-        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setIndex(-1);
+        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setIndex(0);
         soapMessage.getExchange().put(BindingOperationInfo.class, boi);
 
         control.reset(); 
@@ -104,9 +104,9 @@ public class RPCInInterceptorTest extends TestBase {
         interceptor.handleMessage(soapMessage);
 
         List<?> parameters = (List<?>) soapMessage.getContent(List.class);
-        assertEquals(1, parameters.size());
+        assertEquals(2, parameters.size());
 
-        Object obj = parameters.get(0);
+        Object obj = parameters.get(1);
         assertTrue(obj instanceof MyComplexStruct);
         MyComplexStruct s = (MyComplexStruct) obj;
         assertEquals("elem1", s.getElem1());

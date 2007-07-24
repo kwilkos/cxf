@@ -30,6 +30,8 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 public class ServerMisc extends AbstractBusTestServerBase {
     public static final String DOCLIT_CODEFIRST_URL = 
         "http://localhost:9003/DocLitWrappedCodeFirstService/";
+    public static final String RPCLIT_CODEFIRST_URL = 
+        "http://localhost:9003/RpcLitCodeFirstService/";
     
     
     protected void run() {
@@ -47,6 +49,9 @@ public class ServerMisc extends AbstractBusTestServerBase {
         
         Object implementor4 = new DocLitWrappedCodeFirstServiceImpl();
         Endpoint.publish(DOCLIT_CODEFIRST_URL, implementor4);
+        
+        Object implementor5 = new RpcLitCodeFirstServiceImpl();
+        Endpoint.publish(RPCLIT_CODEFIRST_URL, implementor5);
     }
 
     public static void main(String[] args) {

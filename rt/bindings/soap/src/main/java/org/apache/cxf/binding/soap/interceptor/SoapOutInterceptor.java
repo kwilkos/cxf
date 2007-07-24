@@ -40,11 +40,11 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.headers.Header;
 import org.apache.cxf.headers.HeaderManager;
 import org.apache.cxf.headers.HeaderProcessor;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.WriteOnCloseOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
@@ -163,7 +163,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         
         List<MessagePartInfo> parts = wrappedBmi.getMessageInfo().getMessageParts();
         if (parts.size() > 0) {
-            List<Object> objs = CastUtils.cast((List<?>)message.getContent(List.class));
+            MessageContentsList objs = MessageContentsList.getContentsList(message);
             if (objs == null) {
                 return endedHeader;
             }
@@ -176,9 +176,8 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             for (SoapHeaderInfo header : headers) {
                 MessagePartInfo part = header.getPart();
 
-                int idx = parts.indexOf(part);
-                
-                Object arg = objs.get(idx);
+                Object arg = objs.get(part);
+                objs.remove(part);
                 if (!(startedHeader || preexistingHeaders)) {
                     try {
                         xtw.writeStartElement(soapVersion.getPrefix(), 

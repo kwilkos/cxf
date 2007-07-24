@@ -338,7 +338,7 @@ public class RMEndpoint {
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceResponseType.class);
-        partInfo.setIndex(-1);
+        partInfo.setIndex(0);
 
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceOnewayOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());

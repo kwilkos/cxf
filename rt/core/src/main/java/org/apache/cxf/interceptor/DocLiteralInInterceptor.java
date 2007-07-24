@@ -37,6 +37,7 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -67,7 +68,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
 
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         DataReader<XMLStreamReader> dr = getDataReader(message);
-        List<Object> parameters = new ArrayList<Object>();
+        MessageContentsList parameters = new MessageContentsList();
 
         Exchange exchange = message.getExchange();
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
@@ -99,8 +100,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             // Determine if there is a wrapper class
             if (msgInfo.getMessageParts().get(0).getTypeClass() != null) {
                 Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), xmlReader);
-                parameters.add(wrappedObject);
-
+                parameters.put(msgInfo.getMessageParts().get(0), wrappedObject);
             } else {
                 // Unwrap each part individually if we don't have a wrapper
 
@@ -181,15 +181,8 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 }
 
                 o = dr.read(p, xmlReader);
-
-                if (o != null) {
-                    if (p.getIndex() == -1) {
-                        parameters.add(0, o);
-                    } else {
-                        parameters.add(o);
-                    }
-                    
-                }
+                parameters.put(p, o);
+                
                 paramNum++;
             } while (StaxUtils.toNextElement(xmlReader));
 
@@ -202,7 +195,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
     
     private void getPara(DepthXMLStreamReader xmlReader,
                          DataReader<XMLStreamReader> dr,
-                         List<Object> parameters,
+                         MessageContentsList parameters,
                          Iterator<MessagePartInfo> itr) {
         
         boolean hasNext = true;
@@ -218,7 +211,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                     && !rname.equals(part.getConcreteName())) {
                     if (part.getXmlSchema() instanceof XmlSchemaElement) {
                         //should check minOccurs=0
-                        parameters.add(null);
+                        parameters.put(part, null);
                     }
                     if (itr.hasNext()) {
                         part = itr.next();
@@ -233,7 +226,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                     obj = dr.read(part, xmlReader);
                 }
             }
-            parameters.add(obj);
+            parameters.put(part, obj);
         }
     }
 

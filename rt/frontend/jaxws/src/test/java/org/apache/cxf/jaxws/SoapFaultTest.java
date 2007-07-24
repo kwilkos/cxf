@@ -66,6 +66,7 @@ public class SoapFaultTest extends AbstractJaxWsTest {
         svrFactory.create();
     }
 
+    
     @Test
     public void testInterceptorThrowingSoapFault() throws Exception {
         service.getInInterceptors().add(new FaultThrowingInterceptor());
@@ -78,7 +79,6 @@ public class SoapFaultTest extends AbstractJaxWsTest {
 
         assertValid("/s:Envelope/s:Body/s:Fault/faultstring[text()='I blame Hadrian.']", response);
     }
-
 
     /**
      * We need to get the jaxws fault -> soap fault conversion working for this

@@ -35,6 +35,7 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -71,7 +72,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         Exchange exchange = message.getExchange();
 
         DataReader<XMLStreamReader> dr = getDataReader(message);
-        List<Object> parameters = new ArrayList<Object>();
+        MessageContentsList parameters = new MessageContentsList();
 
         Endpoint ep = exchange.get(Endpoint.class);
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
@@ -138,7 +139,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             o = dr.read(p, xmlReader);
 
             if (o != null) {
-                parameters.add(o);
+                parameters.put(p, o);
             }
             paramNum++;
         }

@@ -21,7 +21,6 @@ package org.apache.cxf.interceptor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -35,6 +34,7 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -90,20 +90,18 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         ServiceInfo si = operation.getBinding().getService();
 
         DataReader<XMLStreamReader> dr = getDataReader(message);
-        List<Object> objects;
+        MessageContentsList objects = new MessageContentsList();
 
         MessageInfo msgInfo = setMessage(message, operation, requestor, si);
         
         // Determine if there is a wrapper class
         if (operation.isUnwrappedCapable()
             && msgInfo.getMessageParts().get(0).getTypeClass() != null) {
-            objects = new ArrayList<Object>();
             Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), xmlReader);
-            objects.add(wrappedObject);
+            objects.put(msgInfo.getMessageParts().get(0), wrappedObject);
 
         } else {
             // Unwrap each part individually if we don't have a wrapper
-            objects = new ArrayList<Object>();
 
             if (operation.isUnwrappedCapable()) {
                 operation = operation.getUnwrappedOperation();
@@ -121,7 +119,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             // loop through each child element
             while (StaxUtils.toNextElement(xmlReader)) {
                 MessagePartInfo part = itr.next();
-                objects.add(dr.read(part, xmlReader));
+                objects.put(part, dr.read(part, xmlReader));
             }
         }
 

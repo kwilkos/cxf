@@ -92,10 +92,10 @@ public final class ResponseWrapper extends Wrapper {
         final Class[] paramClasses = method.getParameterTypes();
         for (MessagePartInfo mpi : message.getMessageParts()) {
             int idx = mpi.getIndex();
-            if (idx >= 0) {
+            if (idx > 0) {
                 String name = mpi.getName().getLocalPart();
                 String type;
-                Class clz = paramClasses[idx];
+                Class clz = paramClasses[idx - 1];
                 if (clz.isArray()) {
                     if (isBuiltInTypes(clz.getComponentType())) {
                         type = clz.getComponentType().getSimpleName() + "[]";

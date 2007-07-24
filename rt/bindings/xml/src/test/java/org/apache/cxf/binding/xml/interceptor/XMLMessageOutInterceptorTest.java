@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -31,6 +30,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -56,7 +56,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
 
     XMLMessageOutInterceptor out = new XMLMessageOutInterceptor("phase1");
 
-    List<Object> params = new ArrayList<Object>();
+    MessageContentsList params = new MessageContentsList();
 
     QName bareMyComplexStructTypeQName = new QName(bareNs, "in");
 
@@ -111,9 +111,9 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         myComplexStruct.setElem1("elem1");
         myComplexStruct.setElem2("elem2");
         myComplexStruct.setElem3(45);
-        params.add(myComplexStruct);
         params.add("tli");
-
+        params.add(myComplexStruct);
+        
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(bareNs, "XMLPort"),
                         MyComplexStructType.class);
 
@@ -133,23 +133,23 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         StaxUtils.nextEvent(dxr);
         StaxUtils.toNextElement(dxr);
         
-        assertEquals(bareMyComplexStructQName.getNamespaceURI(), dxr.getNamespaceURI());
-        assertEquals("myComplexStruct", dxr.getLocalName());
+        assertEquals(bareRequestTypeQName, dxr.getName());
+        StaxUtils.nextEvent(dxr);
+        if (StaxUtils.toNextText(dxr)) {
+            assertEquals("tli", dxr.getText());
+        }
+        
         boolean foundRequest = false;
         while (true) {
             StaxUtils.nextEvent(dxr);
             StaxUtils.toNextElement(dxr);
             QName requestType = new QName(dxr.getNamespaceURI(), dxr.getLocalName());
-            if (requestType.equals(bareRequestTypeQName)) {
+            if (requestType.equals(bareMyComplexStructQName)) {
                 foundRequest = true;
                 break;
             }
         }
         assertEquals("found request type", true, foundRequest);
-        StaxUtils.nextEvent(dxr);
-        if (StaxUtils.toNextText(dxr)) {
-            assertEquals("tli", dxr.getText());
-        }
     }
 
     @Test

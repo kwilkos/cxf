@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -42,7 +43,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             return;
         }
 
-        List<?> objs = message.getContent(List.class);
+        MessageContentsList objs = MessageContentsList.getContentsList(message);
         if (objs == null || objs.size() == 0) {
             return;
         }

@@ -21,7 +21,6 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -60,9 +59,12 @@ import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
@@ -81,16 +83,22 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
     public void handleMessage(Message message) throws Fault {
         Exchange ex = message.getExchange();     
         Endpoint ep = ex.get(Endpoint.class);
-        
+        MessageInfo info = message.get(MessageInfo.class);
         if (ep.getEndpointInfo().getBinding().getOperations().iterator().hasNext()) {
             BindingOperationInfo bop = ep.getEndpointInfo().getBinding().getOperations().iterator().next();
             ex.put(BindingOperationInfo.class, bop);
-            getMessageInfo(message, bop);
+            info = getMessageInfo(message, bop);
         }      
         
         if (isGET(message)) {
-            List<Object> params = new ArrayList<Object>();    
-            params.add(null);
+            MessageContentsList params = new MessageContentsList();          
+            if (info != null) {
+                for (MessagePartInfo i : info.getMessageParts()) {
+                    params.put(i, null);
+                }
+            } else {
+                params.add(null);
+            }
             message.setContent(List.class, params);
             LOG.info("DispatchInInterceptor skipped in HTTP GET method");
             return;

@@ -481,8 +481,8 @@ public class WSDLServiceBuilderTest extends Assert {
         List<MessagePartInfo> parts = operation.getInput().getMessageParts();
         assertNotNull(parts);
         assertEquals(3, parts.size());
-        assertEquals("in1", parts.get(0).getName().getLocalPart());
-        assertEquals("in3", parts.get(1).getName().getLocalPart());
+        assertEquals("in3", parts.get(0).getName().getLocalPart());
+        assertEquals("in1", parts.get(1).getName().getLocalPart());
         assertEquals("in2", parts.get(2).getName().getLocalPart());
         
         List<String> order = operation.getParameterOrdering();

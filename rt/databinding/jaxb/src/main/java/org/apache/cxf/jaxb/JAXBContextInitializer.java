@@ -60,19 +60,24 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         
         Type genericType = (Type) part.getProperty("generic.type");
         if (genericType != null) {
-            if (isFromWrapper
-                && genericType instanceof Class
-                && ((Class)genericType).isArray()) {
-                
-                Class cl2 = (Class)genericType;
-                if (cl2.isArray()
-                    && !Byte.TYPE.equals(cl2.getComponentType())) {
-                    genericType = cl2.getComponentType();
+            boolean isList = Collection.class.isAssignableFrom(clazz);
+            if (isFromWrapper) {
+                if (genericType instanceof Class
+                    && ((Class)genericType).isArray()) {
+                    Class cl2 = (Class)genericType;
+                    if (cl2.isArray()
+                        && !Byte.TYPE.equals(cl2.getComponentType())) {
+                        genericType = cl2.getComponentType();
+                    }
+                    addType(genericType);                
+                } else if (!isList) {
+                    addType(genericType);                
                 }
+            } else {
+                addType(genericType);                
             }
-            addType(genericType);
             
-            if (Collection.class.isAssignableFrom(clazz) 
+            if (isList 
                 && genericType instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) genericType;
                 if (pt.getActualTypeArguments().length > 0 
@@ -84,8 +89,13 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                     part.setTypeClass(clazz);
                 }
             }
+            if (isFromWrapper && isList) {
+                clazz = null;
+            }
         }
-        addClass(clazz);
+        if (clazz != null) {
+            addClass(clazz);
+        }
     }
     
     private void addType(Type cls) {

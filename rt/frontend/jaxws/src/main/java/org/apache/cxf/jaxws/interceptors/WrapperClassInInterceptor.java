@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -79,7 +80,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             // Sometimes, an operation can be unwrapped according to WSDLServiceFactory,
             // but not according to JAX-WS. We should unify these at some point, but
             // for now check for the wrapper class.
-            List<?> lst = message.getContent(List.class);
+            MessageContentsList lst = MessageContentsList.getContentsList(message);
             if (lst == null) {
                 return;
             }
@@ -122,22 +123,22 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 helper = createWrapperHelper(messageInfo, wrappedMessageInfo, wrapperClass);
                 wrapperPart.setProperty("WRAPPER_CLASS", helper);
             }            
-            List<Object> newParams;
+            
+            MessageContentsList newParams;
             try {
-                newParams = helper.getWrapperParts(wrappedObject);
+                newParams = new MessageContentsList(helper.getWrapperParts(wrappedObject));
                 
-                int idx = 0;
                 for (MessagePartInfo part : messageInfo.getMessageParts()) {
                     if (wrappedMessageInfo.getMessagePart(part.getName()) != null) {
-                        newParams.set(idx, lst.get(part.getIndex()));
+                        newParams.put(part, lst.get(part));
                     }
-                    ++idx;
                 }
             } catch (Exception e) {
                 throw new Fault(e);
             }
             
             message.setContent(List.class, newParams);
+            message.setContent(MessageContentsList.class, newParams);
         }
     }
     
@@ -150,9 +151,13 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         
         for (MessagePartInfo p : messageInfo.getMessageParts()) {
             if (wrappedMessageInfo.getMessagePart(p.getName()) != null) {
-                elTypeNames.add(null);
-                partClasses.add(null);
-                partNames.add(null);
+                int idx = p.getIndex();
+                ensureSize(elTypeNames, idx);
+                ensureSize(partClasses, idx);
+                ensureSize(partNames, idx);
+                elTypeNames.set(idx, null);
+                partClasses.set(idx, null);
+                partNames.set(idx, null);
             } else {
                 String elementType = null;
                 if (p.isElement()) {
@@ -165,15 +170,24 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                         elementType = p.getTypeQName().getLocalPart();
                     }
                 }
+                int idx = p.getIndex();
+                ensureSize(elTypeNames, idx);
+                ensureSize(partClasses, idx);
+                ensureSize(partNames, idx);
                 
-                elTypeNames.add(elementType);
-                partClasses.add(p.getTypeClass());
-                partNames.add(p.getName().getLocalPart());
+                elTypeNames.set(idx, elementType);
+                partClasses.set(idx, p.getTypeClass());
+                partNames.set(idx, p.getName().getLocalPart());
             }
         }
         return WrapperHelper.createWrapperHelper(wrapperClass,
                                                   partNames,
                                                   elTypeNames,
                                                   partClasses);
+    }
+    private void ensureSize(List<?> lst, int idx) {
+        while (idx >= lst.size()) {
+            lst.add(null);
+        }
     }
 }

@@ -22,8 +22,6 @@ package org.apache.cxf.endpoint;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -46,6 +44,7 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseChainCache;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -337,13 +336,8 @@ public class ClientImpl
     }
 
     private void setParameters(Object[] params, Message message) {
-        if (params == null) {
-            message.setContent(List.class, Collections.emptyList());
-        } else {
-            List<Object> paramList = new ArrayList<Object>();
-            Collections.addAll(paramList, params);
-            message.setContent(List.class, paramList);
-        }
+        MessageContentsList contents = new MessageContentsList(params);
+        message.setContent(List.class, contents);
     }
     
     public void onMessage(Message message) {

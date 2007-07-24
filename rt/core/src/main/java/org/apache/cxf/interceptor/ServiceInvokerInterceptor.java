@@ -19,13 +19,13 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
@@ -64,14 +64,19 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
                     }
                     copyJaxwsProperties(message, outMessage);
                     if (result != null) {
-                        if (result instanceof List) {
-                            outMessage.setContent(List.class, result);
+                        MessageContentsList resList = null;
+                        if (result instanceof MessageContentsList) {
+                            resList = (MessageContentsList)result;
+                        } else if (result instanceof List) {
+                            resList = new MessageContentsList((List)result);
                         } else if (result.getClass().isArray()) {
-                            result = Arrays.asList((Object[])result);
-                            outMessage.setContent(List.class, result);
+                            resList = new MessageContentsList((Object[])result);
                         } else {
-                            outMessage.setContent(Object.class, result);
-                        }                    
+                            outMessage.setContent(Object.class, result);                            
+                        }
+                        if (resList != null) {
+                            outMessage.setContent(List.class, resList);
+                        }
                     }                    
                 }
             }

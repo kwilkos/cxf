@@ -19,7 +19,6 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -30,8 +29,10 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -92,7 +93,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             msg = operation.getOperationInfo().getOutput();
         }
 
-        List<Object> parameters = new ArrayList<Object>();
+        MessageContentsList parameters = new MessageContentsList();
 
         StaxUtils.nextEvent(xmlReader);
         
@@ -104,10 +105,23 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 hasNext = StaxUtils.toNextElement(xmlReader);
             }
             if (hasNext) {
-                parameters.add(dr.read(part, xmlReader));
+                QName qn = xmlReader.getName();
+                while (!qn.equals(part.getConcreteName())
+                    && itr.hasNext()) {
+                    part = itr.next();
+                }
+                if (!qn.equals(part.getConcreteName())) {
+                    throw new Fault(
+                                    new org.apache.cxf.common.i18n.Message(
+                                                                           "UNKNOWN_RPC_LIT_PART",
+                                                                           LOG,
+                                                                           qn));
+                }
+                parameters.put(part, dr.read(part, xmlReader));
             }
         }
 
         message.setContent(List.class, parameters);
     }
+
 }

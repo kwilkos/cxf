@@ -54,20 +54,47 @@ final class WrapperHelperCompiler {
         NONPRIMITIVE_MAP.put(Float.TYPE, Float.class.getName().replaceAll("\\.", "/"));
         NONPRIMITIVE_MAP.put(Double.TYPE, Double.class.getName().replaceAll("\\.", "/"));
     }    
-
-    private WrapperHelperCompiler() {
-        //utility class
-    }
     
-    static WrapperHelper compileWrapperHelper(Class<?> wrapperType,
-                                                      Method setMethods[],
-                                                      Method getMethods[],
-                                                      Method jaxbMethods[],
-                                                      Field fields[],
-                                                      Object objectFactory) {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS 
-                                         | ClassWriter.COMPUTE_FRAMES);
+    final Class<?> wrapperType;
+    final Method setMethods[];
+    final Method getMethods[];
+    final Method jaxbMethods[];
+    final Field fields[];
+    final Object objectFactory;
+    final ClassWriter cw;
+    
+    private WrapperHelperCompiler(Class<?> wrapperType,
+                                  Method setMethods[],
+                                  Method getMethods[],
+                                  Method jaxbMethods[],
+                                  Field fields[],
+                                  Object objectFactory) {
+        this.wrapperType = wrapperType;
+        this.setMethods = setMethods;
+        this.getMethods = getMethods;
+        this.jaxbMethods = jaxbMethods;
+        this.fields = fields;
+        this.objectFactory = objectFactory;
         
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS 
+                            | ClassWriter.COMPUTE_FRAMES);
+    }
+
+    static WrapperHelper compileWrapperHelper(Class<?> wrapperType,
+                                              Method setMethods[],
+                                              Method getMethods[],
+                                              Method jaxbMethods[],
+                                              Field fields[],
+                                              Object objectFactory) {
+        return new WrapperHelperCompiler(wrapperType,
+                                        setMethods,
+                                        getMethods,
+                                        jaxbMethods,
+                                        fields,
+                                        objectFactory).compile();
+    }
+
+    public WrapperHelper compile() {
         String newClassName = wrapperType.getName() + "_WrapperTypeHelper";
         newClassName = newClassName.replaceAll("\\$", ".");
         newClassName = periodToSlashes(newClassName);
@@ -79,12 +106,8 @@ final class WrapperHelperCompiler {
                  null);
         
         addConstructor(newClassName, cw, objectFactory == null ? null : objectFactory.getClass());
-        boolean b = addCreateWrapperObject(newClassName, wrapperType,
-                                           setMethods,
-                                           getMethods,
-                                           jaxbMethods,
-                                           objectFactory == null ? null : objectFactory.getClass(),
-                                           cw);
+        boolean b = addCreateWrapperObject(newClassName,
+                                           objectFactory == null ? null : objectFactory.getClass());
         if (b) {
             b = addGetWrapperParts(newClassName, wrapperType,
                            getMethods, fields, cw);
@@ -106,6 +129,7 @@ final class WrapperHelperCompiler {
         }
         return null;
     }
+    
     
     private static class TypeHelperClassLoader extends ClassLoader {
         TypeHelperClassLoader(ClassLoader parent) {
@@ -155,13 +179,9 @@ final class WrapperHelperCompiler {
         mv.visitEnd();
     }
     
-    private static boolean addCreateWrapperObject(String newClassName,
-                                               Class<?> wrapperClass,
-                                               Method[] setMethods,
-                                               Method[] getMethods,
-                                               Method[] jaxbObjectMethods,
-                                               Class<?> objectFactory,
-                                               ClassWriter cw) {
+    private boolean addCreateWrapperObject(String newClassName,
+                                           Class<?> objectFactoryClass) {
+        
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC,
                                           "createWrapperObject",
                                           "(Ljava/util/List;)Ljava/lang/Object;",
@@ -173,75 +193,33 @@ final class WrapperHelperCompiler {
         Label lBegin = new Label();
         mv.visitLabel(lBegin);
         
-        mv.visitTypeInsn(Opcodes.NEW, periodToSlashes(wrapperClass.getName()));
+        mv.visitTypeInsn(Opcodes.NEW, periodToSlashes(wrapperType.getName()));
         mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, periodToSlashes(wrapperClass.getName()),
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, periodToSlashes(wrapperType.getName()),
                            "<init>", "()V");
         mv.visitVarInsn(Opcodes.ASTORE, 2);
     
         for (int x = 0; x < setMethods.length; x++) {
-            if (getMethods[x] == null) {
-                return false;
+            if (getMethods[x] == null) { 
+                if (setMethods[x] == null
+                    && fields[x] == null) {
+                    //null placeholder, just skip it
+                    continue;
+                } else {
+                    return false;
+                }
             }
             Class<?> tp = getMethods[x].getReturnType();
             mv.visitVarInsn(Opcodes.ALOAD, 2);            
             
             if (Collection.class.isAssignableFrom(tp)) {
-                //List aVal = obj.getA();
-                //List newA = (List)lst.get(99);
-                //if (aVal == null) {
-                //    obj.setA(newA);
-                //} else {
-                //    aVal.addAll(newA);
-                //}
-                
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                                   periodToSlashes(wrapperClass.getName()),
-                                   getMethods[x].getName(),
-                                   getMethodSignature(getMethods[x]));
-                mv.visitVarInsn(Opcodes.ASTORE, 3);
-                mv.visitVarInsn(Opcodes.ALOAD, 1);
-                mv.visitIntInsn(Opcodes.BIPUSH, x);
-                mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List",
-                                   "get", "(I)Ljava/lang/Object;");
-                mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
-                mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
-                mv.visitVarInsn(Opcodes.ASTORE, 4);
-                mv.visitVarInsn(Opcodes.ALOAD, 3);
-                Label nonNullLabel = new Label();
-                mv.visitJumpInsn(Opcodes.IFNONNULL, nonNullLabel);
-
-                if (setMethods[x] == null) {
-                    mv.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
-                    mv.visitInsn(Opcodes.DUP);
-                    mv.visitLdcInsn(getMethods[x].getName() + " returned null and there isn't a set method.");
-                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                                       "java/lang/RuntimeException",
-                                       "<init>", "(Ljava/lang/String;)V");
-                    mv.visitInsn(Opcodes.ATHROW);
-                } else {
-                    mv.visitVarInsn(Opcodes.ALOAD, 2);
-                    mv.visitVarInsn(Opcodes.ALOAD, 4);
-                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                                       periodToSlashes(wrapperClass.getName()),
-                                       setMethods[x].getName(),
-                                       getMethodSignature(setMethods[x]));
-                }
-                Label jumpOverLabel = new Label();
-                mv.visitJumpInsn(Opcodes.GOTO, jumpOverLabel);
-                mv.visitLabel(nonNullLabel);
-                mv.visitVarInsn(Opcodes.ALOAD, 3);
-                mv.visitVarInsn(Opcodes.ALOAD, 4);
-                mv.visitMethodInsn(Opcodes.INVOKEINTERFACE,
-                                   "java/util/List", "addAll", "(Ljava/util/Collection;)Z");
-                mv.visitInsn(Opcodes.POP);
-                mv.visitLabel(jumpOverLabel);
+                doCollection(mv, x);
             } else { 
                 if (JAXBElement.class.isAssignableFrom(tp)) {
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
                     mv.visitFieldInsn(Opcodes.GETFIELD, periodToSlashes(newClassName),
                                       "factory",
-                                      "L" + periodToSlashes(objectFactory.getName()) + ";");
+                                      "L" + periodToSlashes(objectFactoryClass.getName()) + ";");
                 }
                 mv.visitVarInsn(Opcodes.ALOAD, 1);
                 mv.visitIntInsn(Opcodes.BIPUSH, x);
@@ -253,17 +231,17 @@ final class WrapperHelperCompiler {
                                        tp.getName() + "Value", "()" + PRIMITIVE_MAP.get(tp));
                 } else if (JAXBElement.class.isAssignableFrom(tp)) {
                     mv.visitTypeInsn(Opcodes.CHECKCAST,
-                                     periodToSlashes(jaxbObjectMethods[x].getParameterTypes()[0].getName()));
-                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, periodToSlashes(objectFactory.getName()),
-                                       jaxbObjectMethods[x].getName(),
-                                       getMethodSignature(jaxbObjectMethods[x]));
+                                     periodToSlashes(jaxbMethods[x].getParameterTypes()[0].getName()));
+                    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, periodToSlashes(objectFactoryClass.getName()),
+                                       jaxbMethods[x].getName(),
+                                       getMethodSignature(jaxbMethods[x]));
                 } else if (tp.isArray()) { 
                     mv.visitTypeInsn(Opcodes.CHECKCAST, getClassCode(tp));
                 } else {
                     mv.visitTypeInsn(Opcodes.CHECKCAST, periodToSlashes(tp.getName()));
                 }
                 mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-                                   periodToSlashes(wrapperClass.getName()),
+                                   periodToSlashes(wrapperType.getName()),
                                    setMethods[x].getName(), "(" + getClassCode(tp) + ")V");
             }
         }
@@ -275,12 +253,66 @@ final class WrapperHelperCompiler {
         mv.visitLabel(lEnd);
         mv.visitLocalVariable("this", "L" + newClassName + ";", null, lBegin, lEnd, 0);
         mv.visitLocalVariable("lst", "Ljava/util/List;", "Ljava/util/List<*>;", lBegin, lEnd, 1);
-        mv.visitLocalVariable("ok", "L" + periodToSlashes(wrapperClass.getName()) + ";",
+        mv.visitLocalVariable("ok", "L" + periodToSlashes(wrapperType.getName()) + ";",
                               null, lBegin, lEnd, 2);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         return true;
     }
+    
+    private void doCollection(MethodVisitor mv, int x) {
+        //List aVal = obj.getA();
+        //List newA = (List)lst.get(99);
+        //if (aVal == null) {
+        //    obj.setA(newA);
+        //} else {
+        //    aVal.addAll(newA);
+        //}
+        
+        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                           periodToSlashes(wrapperType.getName()),
+                           getMethods[x].getName(),
+                           getMethodSignature(getMethods[x]));
+        mv.visitVarInsn(Opcodes.ASTORE, 3);
+        mv.visitVarInsn(Opcodes.ALOAD, 1);
+        mv.visitIntInsn(Opcodes.BIPUSH, x);
+        mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List",
+                           "get", "(I)Ljava/lang/Object;");
+        mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
+        mv.visitTypeInsn(Opcodes.CHECKCAST, "java/util/List");
+        mv.visitVarInsn(Opcodes.ASTORE, 4);
+        mv.visitVarInsn(Opcodes.ALOAD, 3);
+        Label nonNullLabel = new Label();
+        mv.visitJumpInsn(Opcodes.IFNONNULL, nonNullLabel);
+
+        if (setMethods[x] == null) {
+            mv.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
+            mv.visitInsn(Opcodes.DUP);
+            mv.visitLdcInsn(getMethods[x].getName() + " returned null and there isn't a set method.");
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL,
+                               "java/lang/RuntimeException",
+                               "<init>", "(Ljava/lang/String;)V");
+            mv.visitInsn(Opcodes.ATHROW);
+        } else {
+            mv.visitVarInsn(Opcodes.ALOAD, 2);
+            mv.visitVarInsn(Opcodes.ALOAD, 4);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+                               periodToSlashes(wrapperType.getName()),
+                               setMethods[x].getName(),
+                               getMethodSignature(setMethods[x]));
+        }
+        Label jumpOverLabel = new Label();
+        mv.visitJumpInsn(Opcodes.GOTO, jumpOverLabel);
+        mv.visitLabel(nonNullLabel);
+        mv.visitVarInsn(Opcodes.ALOAD, 3);
+        mv.visitVarInsn(Opcodes.ALOAD, 4);
+        mv.visitMethodInsn(Opcodes.INVOKEINTERFACE,
+                           "java/util/List", "addAll", "(Ljava/util/Collection;)Z");
+        mv.visitInsn(Opcodes.POP);
+        mv.visitLabel(jumpOverLabel);
+
+    }
+    
     private static boolean addGetWrapperParts(String newClassName,
                                            Class<?> wrapperClass,
                                            Method getMethods[],

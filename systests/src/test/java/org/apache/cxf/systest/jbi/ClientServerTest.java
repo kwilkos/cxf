@@ -94,7 +94,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
                 getConduitInitiator(CXFServiceEngine.JBI_TRANSPORT_ID);
         jbiTransportFactory.setBus(bus);
         
-        JBITransportFactory.setDeliveryChannel(channel);
+        jbiTransportFactory.setDeliveryChannel(channel);
         HelloWorldService ss = new HelloWorldService(wsdl, serviceName);
         
         Greeter port = ss.getSoapPort();

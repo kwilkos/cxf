@@ -32,6 +32,7 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
@@ -57,7 +58,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     }
     
     protected void writeParts(Message message, Exchange exchange, 
-                              BindingOperationInfo operation, List<?> objs, 
+                              BindingOperationInfo operation, MessageContentsList objs, 
                               List<MessagePartInfo> parts) {
         OutputStream out = message.getContent(OutputStream.class);
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
@@ -77,19 +78,19 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
             DataWriter<OutputStream> osWriter = getDataWriter(message, service, OutputStream.class);
 
             for (MessagePartInfo part : parts) {
-                int idx = part.getMessageInfo().getMessagePartIndex(part);
-                
-                Object o = objs.get(idx);
-                osWriter.write(o, part, out);
+                if (objs.hasValue(part)) {
+                    Object o = objs.get(part);
+                    osWriter.write(o, part, out);
+                }
             }
         } else {
             DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service, XMLStreamWriter.class);
             
             for (MessagePartInfo part : parts) {
-                int idx = part.getMessageInfo().getMessagePartIndex(part);
-                
-                Object o = objs.get(idx);
-                dataWriter.write(o, part, xmlWriter);
+                if (objs.hasValue(part)) {
+                    Object o = objs.get(part);
+                    dataWriter.write(o, part, xmlWriter);
+                }
             }
         }
     }

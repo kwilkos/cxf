@@ -335,6 +335,10 @@ public class AegisDatabinding implements DataBinding {
          * tm.getType(param.getTypeClass()); part2type.put(param, type); }
          */
 
+        int offset = 0;
+        if (paramtype == OUT_PARAM) {
+            offset = 1;
+        }
         if (type == null) {
             OperationInfo op = param.getMessageInfo().getOperation();
 
@@ -347,7 +351,7 @@ public class AegisDatabinding implements DataBinding {
                  * with this name. For example, there could be many ns:in0
                  * paramters.
                  */
-                type = tm.getTypeCreator().createType(m, param.getIndex());
+                type = tm.getTypeCreator().createType(m, param.getIndex() - offset);
             } else {
                 type = tm.getTypeCreator().createType(param.getTypeClass());
             }

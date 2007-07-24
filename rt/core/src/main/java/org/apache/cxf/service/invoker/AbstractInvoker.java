@@ -22,7 +22,6 @@ package org.apache.cxf.service.invoker;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cxf.frontend.MethodDispatcher;
@@ -30,6 +29,7 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.FaultMode;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
@@ -55,11 +55,8 @@ public abstract class AbstractInvoker implements Invoker {
         List<Object> params = null;
         if (o instanceof List) {
             params = CastUtils.cast((List<?>)o);
-        } else {
-            if (o != null) {
-                params = new ArrayList<Object>();
-                params.add(o);
-            }
+        } else if (o != null) {
+            params = new MessageContentsList(o);
         }
         
         return invoke(exchange, serviceObject, m, params);
@@ -80,11 +77,7 @@ public abstract class AbstractInvoker implements Invoker {
                 return null;
             }
             
-            List<Object> retList = new ArrayList<Object>();
-            if (!((Class)m.getReturnType()).getName().equals("void")) {
-                retList.add(res);
-            }
-            return retList;
+            return new MessageContentsList(res);
         } catch (InvocationTargetException e) {
             Throwable t = e.getCause();
             if (t == null) {

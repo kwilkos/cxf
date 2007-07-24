@@ -22,7 +22,6 @@ package org.apache.cxf.interceptor;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,9 +38,11 @@ import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 
@@ -78,7 +79,8 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
         }
         message.getExchange().put(BindingOperationInfo.class, op);
-        message.setContent(List.class, getParameters(message, op));
+        MessageContentsList params = getParameters(message, op);
+        message.setContent(List.class, params);
     }
 
     private Method getMethod(Message message, BindingOperationInfo operation) {        
@@ -126,10 +128,8 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         return orderedParameters;
     }
     
-    protected List<Object> getParameters(Message message, BindingOperationInfo operation) {
-        List<Object> parameters = new ArrayList<Object>();
-        int idx = parameters.size();
-
+    protected MessageContentsList getParameters(Message message, BindingOperationInfo operation) {
+        MessageContentsList parameters = new MessageContentsList();
         Map<String, String> queries = getQueries(message);
         
         if (!isFixedParameterOrder(message)) {
@@ -151,7 +151,28 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         Class[] types = method.getParameterTypes();        
         
         for (String key : queries.keySet()) {
+            MessagePartInfo inf = null;
+            for (MessagePartInfo p : operation.getOperationInfo().getInput().getMessageParts()) {
+                if (p.getConcreteName().getLocalPart().equals(key)) {
+                    inf = p;
+                    break;
+                }
+            }
+            if (inf == null && operation.isUnwrappedCapable()) {
+                for (MessagePartInfo p 
+                    : operation.getUnwrappedOperation().getOperationInfo().getInput().getMessageParts()) {
+                    if (p.getConcreteName().getLocalPart().equals(key)) {
+                        inf = p;
+                        break;
+                    }
+                }  
+            }
+            int idx = 0;
+            if (inf != null) {
+                idx = inf.getIndex();
+            }
             Class<?> type = types[idx];
+            
                        
             if (type == null) {
                 LOG.warning("URIMappingInterceptor MessagePartInfo NULL ");
@@ -167,8 +188,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             } else {
                 param = queries.get(key);
             }
-            
-            parameters.add(param);
+            parameters.set(idx, param);
             
             idx = parameters.size();
         }
