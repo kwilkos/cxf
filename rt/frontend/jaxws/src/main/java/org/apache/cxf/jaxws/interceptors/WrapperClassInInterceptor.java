@@ -138,7 +138,6 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             }
             
             message.setContent(List.class, newParams);
-            message.setContent(MessageContentsList.class, newParams);
         }
     }
     

@@ -21,8 +21,10 @@
 package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,6 +46,15 @@ public class ServletTransportFactory extends AbstractHTTPTransportFactory
     
     public ServletTransportFactory(Bus b) {
         bus = b;
+        List<String> ids = Arrays.asList(new String[] {
+            "http://schemas.xmlsoap.org/wsdl/soap/http",
+            "http://schemas.xmlsoap.org/soap/http",
+            "http://www.w3.org/2003/05/soap/bindings/HTTP/",
+            "http://schemas.xmlsoap.org/wsdl/http/",
+            "http://cxf.apache.org/transports/http/configuration",
+            "http://cxf.apache.org/bindings/xformat",         
+        });
+        this.setTransportIds(ids);
     }
 
     public ServletTransportFactory() {

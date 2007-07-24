@@ -226,14 +226,12 @@ public class CXFServlet extends HttpServlet {
             // why are we throwing a busexception if the DF isn't found?
         }
 
-        DestinationFactory factory = createServletTransportFactory();
         
-        registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/http");
-        registerTransport(factory, "http://schemas.xmlsoap.org/soap/http");
-        registerTransport(factory, "http://www.w3.org/2003/05/soap/bindings/HTTP/");
-        registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/http/");
-        registerTransport(factory, "http://cxf.apache.org/transports/http/configuration");
-        registerTransport(factory, "http://cxf.apache.org/bindings/xformat"); 
+        DestinationFactory factory = createServletTransportFactory();
+
+        for (String s : factory.getTransportIds()) {
+            registerTransport(factory, s);
+        }
         LOG.info("REPLACED_HTTP_DESTIONFACTORY");
     }
 
