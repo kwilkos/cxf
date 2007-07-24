@@ -51,8 +51,17 @@ public abstract class AbstractInvoker implements Invoker {
         Method m = md.getMethod(bop);
         //Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
         m = matchMethod(m, serviceObject);
-        List<Object> params = CastUtils.cast((List<?>)o);
-
+        
+        List<Object> params = null;
+        if (o instanceof List) {
+            params = CastUtils.cast((List<?>)o);
+        } else {
+            if (o != null) {
+                params = new ArrayList<Object>();
+                params.add(o);
+            }
+        }
+        
         return invoke(exchange, serviceObject, m, params);
     }
 

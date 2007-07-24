@@ -29,13 +29,13 @@ import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
-import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 
@@ -46,19 +46,24 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.databinding.source.NodeDataReader;
+import org.apache.cxf.databinding.source.XMLStreamDataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxInInterceptor;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.staxutils.W3CDOMStreamWriter;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
@@ -81,11 +86,10 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             BindingOperationInfo bop = ep.getEndpointInfo().getBinding().getOperations().iterator().next();
             ex.put(BindingOperationInfo.class, bop);
             getMessageInfo(message, bop);
-        }
-        
-        List<Object> params = new ArrayList<Object>();          
+        }      
         
         if (isGET(message)) {
+            List<Object> params = new ArrayList<Object>();    
             params.add(null);
             message.setContent(List.class, params);
             LOG.info("DispatchInInterceptor skipped in HTTP GET method");
@@ -95,67 +99,40 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
         try {
             InputStream is = message.getContent(InputStream.class);
             Object obj = null;
-            org.apache.cxf.service.Service service = 
-                message.getExchange().get(org.apache.cxf.service.Service.class);
-            
+            ex.put(Service.Mode.class, mode);            
             
             if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = newSOAPMessage(is, ((SoapMessage)message).getVersion());
-
-                if (type.equals(SOAPMessage.class)) {
-                    obj = soapMessage;
-                } else if (type.equals(SOAPBody.class)) {
-                    obj = soapMessage.getSOAPBody();
-                } else {
-                    DataReader<Node> dataReader = getDataReader(message, Node.class);
-                    Node n = null;
-                    if (mode == Service.Mode.MESSAGE) {
-                        n = soapMessage.getSOAPPart();
-                    } else if (mode == Service.Mode.PAYLOAD) {
-                        n = DOMUtils.getChild(soapMessage.getSOAPBody(), Node.ELEMENT_NODE);
-                    }
-                    if (Source.class.isAssignableFrom(type)) {
-                        obj = dataReader.read(null, n, type);
-                    } else {
-                        dataReader.setProperty(JAXBDataBinding.UNWRAP_JAXB_ELEMENT, Boolean.FALSE);
-                        obj = dataReader.read(n);
-                    }
-                }
-
+                PostDispatchSOAPHandlerInterceptor postSoap = new PostDispatchSOAPHandlerInterceptor();
+                message.getInterceptorChain().add(postSoap);
+                
+                //soapMessage.writeTo(System.out);
                 message.setContent(SOAPMessage.class, soapMessage);               
             } else if (message instanceof XMLMessage) {
                 if (type.equals(DataSource.class)) {
                     try {
                         obj = new ByteArrayDataSource(is, (String) message.get(Message.CONTENT_TYPE));
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                    } catch (IOException e) {
+                        throw new Fault(e);
                     }
-
-                } else {
+                    //Treat DataSource specially here as it is not valid to call getPayload from 
+                    //LogicalHandler for DataSource payload
+                    message.setContent(DataSource.class, obj);  
+                } else {                 
                     new StaxInInterceptor().handleMessage(message);
-
-                    DataReader<XMLStreamReader> dataReader = getDataReader(message);
-                    Class<?> readType = type;
-                    if (readType == Object.class) {
-                        readType = null;
+                    
+                    DataReader<XMLStreamReader> dataReader = new XMLStreamDataReader();
+                    Class readType = type;
+                    if (!Source.class.isAssignableFrom(type)) {
+                        readType = Source.class;
                     }
                     obj = dataReader.read(null, message.getContent(XMLStreamReader.class), readType);
-                    
-                    if (!Source.class.isAssignableFrom(type)) {
-                        //JAXB, need to make a Source format available for Logical handler                   
-                        DataWriter<XMLStreamWriter> dataWriter =
-                            service.getDataBinding().createWriter(XMLStreamWriter.class);
-                        W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
-                        dataWriter.write(obj, xmlWriter);                       
-
-                        Source source = new DOMSource(xmlWriter.getDocument().getDocumentElement()); 
-                        message.setContent(Source.class, source);
-                    }
+                    message.setContent(Source.class, obj); 
                 }
             }
-            params.add(obj);           
-            message.setContent(Object.class, obj);    
-            message.setContent(List.class, params);
+    
+            PostDispatchLogicalHandlerInterceptor postLogical = new PostDispatchLogicalHandlerInterceptor();
+            message.getInterceptorChain().add(postLogical);      
             
             is.close();
         } catch (Exception e) {
@@ -176,4 +153,134 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
         }
         return msgFactory.createMessage(headers, is);
     }
+    
+    //This interceptor is invoked after DispatchSOAPHandlerInterceptor, converts SOAPMessage to Source
+    private class PostDispatchSOAPHandlerInterceptor extends AbstractInDatabindingInterceptor {
+
+        public PostDispatchSOAPHandlerInterceptor() {
+            super(Phase.USER_PROTOCOL);
+            addAfter(DispatchSOAPHandlerInterceptor.class.getName());
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            Object obj = null;
+            
+            //Convert SOAPMessage to Source
+            if (message instanceof SoapMessage) {
+                SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
+                message.removeContent(SOAPMessage.class);
+
+                DataReader<Node> dataReader = new NodeDataReader();
+                Node n = null;
+                if (mode == Service.Mode.MESSAGE) {
+                    n = soapMessage.getSOAPPart();
+                } else if (mode == Service.Mode.PAYLOAD) {
+                    try {
+                        n = DOMUtils.getChild(soapMessage.getSOAPBody(), Node.ELEMENT_NODE);
+                    } catch (SOAPException e) {
+                        throw new Fault(e);
+                    }
+                }
+                
+                Class tempType = type;
+                if (!Source.class.isAssignableFrom(type)) {
+                    tempType = Source.class;
+                }
+                obj = dataReader.read(null, n, tempType);
+
+                message.setContent(Source.class, obj);
+            }
+        }
+    }
+    
+    //This interceptor is invoked after DispatchLogicalHandlerInterceptor, converts Source to object
+    private class PostDispatchLogicalHandlerInterceptor extends AbstractInDatabindingInterceptor {
+
+        public PostDispatchLogicalHandlerInterceptor() {
+            super(Phase.USER_LOGICAL);
+            addAfter(DispatchLogicalHandlerInterceptor.class.getName());            
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            Object obj = null;
+
+            //Convert Source to object
+            if (message instanceof SoapMessage) {
+                Source source = message.getContent(Source.class);
+                message.removeContent(Source.class);
+
+                if (SOAPMessage.class.isAssignableFrom(type)) {
+                    try {
+                        CachedOutputStream cos = new CachedOutputStream();
+                        Transformer transformer = XMLUtils.newTransformer();
+                        transformer.transform(source, new StreamResult(cos));
+                        obj = newSOAPMessage(cos.getInputStream(), ((SoapMessage)message).getVersion());
+                    } catch (Exception e) {
+                        throw new Fault(e);
+                    } 
+                } else if (Source.class.isAssignableFrom(type)) {
+                    obj = source;                
+                } else {
+                    //JAXB  
+                    try {                        
+                        obj = convertSourceToJaxb(source, message);                        
+                    } catch (Exception e) {
+                        throw new Fault(e);
+                    }
+                }             
+            } else if (message instanceof XMLMessage) {
+                Source source = message.getContent(Source.class);
+                message.removeContent(Source.class);
+                DataSource dataSource = message.getContent(DataSource.class);
+                message.removeContent(DataSource.class);
+                
+                if (source != null) {
+                    if (Source.class.isAssignableFrom(type)) {
+                        obj = (Source)source;
+                    } else {
+                        //jaxb
+                        try {                        
+                            obj = convertSourceToJaxb(source, message);                        
+                        } catch (Exception e) {
+                            throw new Fault(e);
+                        }
+                    }
+                } else if (dataSource != null && DataSource.class.isAssignableFrom(type)) {
+                    obj = (DataSource)dataSource;
+                }
+                    
+            }
+            message.setContent(Object.class, obj);
+        }
+        
+    }
+    
+    private Object convertSourceToJaxb(Source source, Message message) throws Exception {
+        CachedOutputStream cos = new CachedOutputStream();
+        Transformer transformer = XMLUtils.newTransformer();
+        transformer.transform(source, new StreamResult(cos));
+        String encoding = (String)message.get(Message.ENCODING);
+
+        XMLStreamReader reader = null;
+
+        reader = StaxUtils.getXMLInputFactory().createXMLStreamReader(cos.getInputStream(),
+                                                                      encoding);
+
+        DataReader<XMLStreamReader> dataReader = getDataReader(message);
+        dataReader.setProperty(JAXBDataBinding.UNWRAP_JAXB_ELEMENT, Boolean.FALSE);
+
+        Object obj = dataReader.read(null, reader, null);
+        
+        return obj;
+        
+        //not sure why code below does not work                        
+/*                        
+        DataReader<XMLStreamReader> dataReader1 = 
+            getDataReader(message, XMLStreamReader.class);
+        XMLStreamReader reader1 = 
+            StaxUtils.getXMLInputFactory().createXMLStreamReader(source);
+        dataReader.setProperty(JAXBDataBinding.UNWRAP_JAXB_ELEMENT, Boolean.FALSE);
+        obj = dataReader1.read(null, reader1, null);*/       
+    }
+
 }

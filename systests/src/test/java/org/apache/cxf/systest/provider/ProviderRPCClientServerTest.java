@@ -98,7 +98,31 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
 
         doGreeterRPCLit(service, portName, 1);
     }
+    
+    @Test
+    public void testPayloadModeWithSourceData() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
+        assertNotNull(wsdl);
 
+        QName serviceName = new QName("http://apache.org/hello_world_rpclit", "SOAPServiceProviderRPCLit");
+        QName portName = new QName("http://apache.org/hello_world_rpclit", "SoapPortProviderRPCLit8");
+
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
+        assertNotNull(service);
+
+        
+        String response1 = new String("TestGreetMeResponseServerLogicalHandlerServerSOAPHandler");
+        try {
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
+            String greeting = greeter.greetMe("Milestone-0");
+            assertNotNull("no response received from service", greeting);
+            assertEquals(response1, greeting);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+
+    }
+    
     @Test
     public void testMessageModeWithSAXSourceData() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");

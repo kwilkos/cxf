@@ -20,8 +20,6 @@
 package org.apache.cxf.jaxws.handler.soap;
 
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,18 +27,12 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -48,12 +40,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.helpers.XMLUtils;
-import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.XMLMessage;
-import org.apache.cxf.wsdl.WSDLConstants;
 
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
     private static final SAAJInInterceptor SAAJ_IN = new SAAJInInterceptor();
@@ -66,54 +54,30 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
     }
 
     public void setMessage(SOAPMessage message) {
-        getWrappedMessage().setContent(SOAPMessage.class, message);
+        if (getWrappedMessage().getContent(Object.class) instanceof SOAPMessage) {
+            getWrappedMessage().setContent(Object.class, message);
+        } else {
+            getWrappedMessage().setContent(SOAPMessage.class, message);
+        }
     }
 
     public SOAPMessage getMessage() {
-        SOAPMessage message = getWrappedMessage().getContent(SOAPMessage.class);
+        SOAPMessage message = null;
+        if (getWrappedMessage().getContent(Object.class) instanceof SOAPMessage) {
+            message = (SOAPMessage)getWrappedMessage().getContent(Object.class);
+        } else {
+            message = getWrappedMessage().getContent(SOAPMessage.class);
+        }
+        
+        //Only happens to non-Dispatch/Provider case.
         if (null == message) {
             Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-
-            // No SOAPMessage exists yet, so lets create one
             if (!outboundProperty) {
-                if (getWrappedMessage().getContent(Object.class) != null) {
-                    //The Dispatch/Provider case:
-                    Object obj = getWrappedMessage().getContent(Object.class);
-                    if (obj instanceof SOAPMessage) {
-                        message = (SOAPMessage)obj;
-                    } else if (obj instanceof SOAPBody) {
-                        // what to do
-                    } else if (obj instanceof XMLMessage) {
-                        // what to do
-                    }
-                } else {
-                    SAAJ_IN.handleMessage(getWrappedSoapMessage());
-                    message = getWrappedSoapMessage().getContent(SOAPMessage.class);
-                }
-            } else {
-                if (getWrappedMessage().getContent(Object.class) != null) {
-                    //The Dispatch/Provider case:
-                    Object obj = getWrappedMessage().getContent(Object.class);
-                    if (obj instanceof SOAPMessage) {
-                        message = (SOAPMessage)obj;
-                    } else if (obj instanceof Source) {
-                        try {
-                            CachedOutputStream cos = new CachedOutputStream();
-
-                            Transformer transformer = XMLUtils.newTransformer();
-                            transformer.transform((Source)obj, new StreamResult(cos));
-                            message = initSOAPMessage(cos.getInputStream());
-                        } catch (Exception e) {
-                            // ignore
-                        } 
-                    } else if (obj instanceof JAXBElement) {
-                        // what to do
-                    }
-                }
+                //No SOAPMessage exists yet, so lets create one
+                SAAJ_IN.handleMessage(getWrappedSoapMessage());
+                message = getWrappedSoapMessage().getContent(SOAPMessage.class);           
             }
-           
         }
-
         return message;
     }
 
@@ -153,15 +117,5 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
     private SoapMessage getWrappedSoapMessage() {
         return (SoapMessage)getWrappedMessage();
     }
-    
-    private SOAPMessage initSOAPMessage(InputStream is) throws SOAPException, IOException {
-        SOAPMessage msg = MessageFactory.newInstance().createMessage(null, is);
-        msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
-        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(WSDLConstants.NP_SCHEMA_XSD,
-                                                                WSDLConstants.NU_SCHEMA_XSD);
-        msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(WSDLConstants.NP_SCHEMA_XSI,
-                                                                WSDLConstants.NU_SCHEMA_XSI);
-
-        return msg;
-    }     
+   
 }

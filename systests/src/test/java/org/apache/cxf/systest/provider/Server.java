@@ -26,8 +26,12 @@ import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
-        Object implementor = new HWSoapMessageProvider();
-        String address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1";
+        Object implementor = new HWSourcePayloadProvider();
+        String address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit8";
+        Endpoint.publish(address, implementor);        
+               
+        implementor = new HWSoapMessageProvider();
+        address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1";
         Endpoint.publish(address, implementor);
 
         implementor = new HWDOMSourceMessageProvider();

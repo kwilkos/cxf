@@ -206,7 +206,12 @@
 			<soap:address
 				location="http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit7" />
 		</wsdl:port>
-	</wsdl:service>
+		<wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit"
+			name="SoapPortProviderRPCLit8">
+			<soap:address
+				location="http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit8" />
+		</wsdl:port>
+        </wsdl:service>
 
 	<wsdl:service name="SOAPServiceRPCLit1">
 		<wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit"
@@ -255,5 +260,13 @@
 				location="http://localhost:9002/SOAPServiceRPCLit/SoapPort6" />
 		</wsdl:port>
 	</wsdl:service>
-
+	
+	<wsdl:service name="SOAPServiceRPCLit8">
+		<wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit"
+			name="SoapPortRPCLit8">
+			<soap:address
+				location="http://localhost:9002/SOAPServiceRPCLit/SoapPort8" />
+		</wsdl:port>
+	</wsdl:service>
+	
 </wsdl:definitions>

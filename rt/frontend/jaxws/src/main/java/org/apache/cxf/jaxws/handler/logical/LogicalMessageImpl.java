@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.handler.logical;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 import javax.activation.DataSource;
 import javax.xml.bind.JAXBContext;
@@ -47,6 +48,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
@@ -56,7 +58,7 @@ import org.apache.cxf.wsdl.WSDLConstants;
 
 
 public class LogicalMessageImpl implements LogicalMessage {
-
+    private static final Logger LOG = Logger.getLogger(LogicalMessageImpl.class.getName());
     private final LogicalMessageContextImpl msgContext;
     
     public LogicalMessageImpl(LogicalMessageContextImpl lmctx) {
@@ -66,50 +68,49 @@ public class LogicalMessageImpl implements LogicalMessage {
     public Source getPayload() {
         Source source = null;
 
-        Service.Mode m = msgContext.getWrappedMessage().getExchange().get(Service.Mode.class);
+        Service.Mode mode = msgContext.getWrappedMessage().getExchange().get(Service.Mode.class);
         Message message = msgContext.getWrappedMessage();
         
-        //Have to handle Dispatch differently
-        if (m != null) {
-            //Dispatch case
-            Object obj = message.getContent(Object.class);
+        if (mode != null) {
+            //Dispatch/Provider case
+            Source obj = message.getContent(Source.class);
             if (message instanceof SoapMessage) {
-                SOAPMessage soapMessage = (SOAPMessage)message.getContent(SOAPMessage.class);
-               
-                if (obj instanceof SOAPMessage || soapMessage != null) {
-                    try {
-                        if (!(obj instanceof SOAPMessage)) {
-                            obj = soapMessage;
-                        }
-                        source = new DOMSource(((SOAPMessage)obj).getSOAPBody().getFirstChild());
-                    } catch (SOAPException e) {
-                        // ignore
-                    }                  
-                } else if (obj instanceof Source) {
+                // StreamSource may only be used once, need to make a copy
+                if (obj instanceof StreamSource) {
                     try {
                         CachedOutputStream cos = new CachedOutputStream();
-
                         Transformer transformer = XMLUtils.newTransformer();
-                        transformer.transform((Source)obj, new StreamResult(cos));
+                        transformer.transform(obj, new StreamResult(cos));
+
+                        obj = new StreamSource(cos.getInputStream());
+                        message.setContent(Source.class, new StreamSource(cos.getInputStream()));
+                    } catch (Exception e) {
+                        throw new Fault(e);
+                    }
+                }
+
+                if (mode == Service.Mode.PAYLOAD) {
+                    source = (Source)obj;
+                } else {
+                    try {
+                        CachedOutputStream cos = new CachedOutputStream();
+                        Transformer transformer = XMLUtils.newTransformer();
+
+                        transformer.transform(obj, new StreamResult(cos));
                         SOAPMessage msg = initSOAPMessage(cos.getInputStream());
                         source = new DOMSource(((SOAPMessage)msg).getSOAPBody().getFirstChild());
                     } catch (Exception e) {
-                        // ignore
-                    }                      
+                        throw new Fault(e);
+                    }
                 }
             } else if (message instanceof XMLMessage) {
-                if (obj instanceof Source) {
+                if (obj != null) {
                     source = (Source)obj;
-                } else if (obj instanceof DataSource) {
-                    try {
-                        source = new StreamSource(((DataSource)obj).getInputStream());
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                } else {
-                    //JAXBElement
-                    source = message.getContent(Source.class);              
-                }              
+                } else if (message.getContent(DataSource.class) != null) {
+                    throw new Fault(new org.apache.cxf.common.i18n.Message(
+                                        "GETPAYLOAD_OF_DATASOURCE_NOT_VALID_XMLHTTPBINDING",
+                                        LOG));
+                }          
             }
         } else {
             source = message.getContent(Source.class);
@@ -122,7 +123,7 @@ public class LogicalMessageImpl implements LogicalMessage {
                         source = new DOMSource(msg.getSOAPBody().getFirstChild());
                         reader = StaxUtils.createXMLStreamReader(source);
                     } catch (SOAPException e) {
-                        // ignore
+                        throw new Fault(e);
                     }
                 }
 
@@ -134,9 +135,9 @@ public class LogicalMessageImpl implements LogicalMessage {
                         source = new DOMSource(writer.getDocument().getDocumentElement());
                         reader = StaxUtils.createXMLStreamReader(writer.getDocument());
                     } catch (ParserConfigurationException e) {
-                        throw new WebServiceException(e);
+                        throw new Fault(e);
                     } catch (XMLStreamException e) {
-                        throw new WebServiceException(e);
+                        throw new Fault(e);
                     }
                 }
                 message.setContent(XMLStreamReader.class, reader);
@@ -146,7 +147,7 @@ public class LogicalMessageImpl implements LogicalMessage {
                 try {
                     writer = new W3CDOMStreamWriter();
                 } catch (ParserConfigurationException e) {
-                    throw new WebServiceException(e);
+                    throw new Fault(e);
                 }
                 XMLStreamReader reader = message.getContent(XMLStreamReader.class);
                 if (reader == null) {
@@ -155,7 +156,7 @@ public class LogicalMessageImpl implements LogicalMessage {
                 try {
                     StaxUtils.copy(reader, writer);
                 } catch (XMLStreamException e) {
-                    throw new WebServiceException(e);
+                    throw new Fault(e);
                 }
 
                 source = new DOMSource(writer.getDocument().getDocumentElement());
@@ -169,10 +170,33 @@ public class LogicalMessageImpl implements LogicalMessage {
         return source;
     }
 
-    public void setPayload(Source s) {
-        msgContext.getWrappedMessage().setContent(Source.class, s);
-        XMLStreamReader reader = StaxUtils.createXMLStreamReader(s);
-        msgContext.getWrappedMessage().setContent(XMLStreamReader.class, reader);                
+    public void setPayload(Source s) {       
+        Message message = msgContext.getWrappedMessage();
+        Service.Mode mode = msgContext.getWrappedMessage().getExchange().get(Service.Mode.class);
+        if (mode != null) {
+            if (message instanceof SoapMessage) {
+                if (mode == Service.Mode.MESSAGE) {
+                    try {
+                        // REVISIT: should try to use the original SOAPMessage
+                        // instead of creating a new empty one.
+                        SOAPMessage msg = initSOAPMessage(null);
+                        write(s, msg.getSOAPBody());
+                        s = new DOMSource(((SOAPMessage)msg).getSOAPPart());
+                    } catch (Exception e) {
+                        throw new Fault(e);
+                    }
+                }
+            } else if (message instanceof XMLMessage && message.getContent(DataSource.class) != null) {
+                throw new Fault(
+                                new org.apache.cxf.common.i18n.Message(
+                                    "GETPAYLOAD_OF_DATASOURCE_NOT_VALID_XMLHTTPBINDING",
+                                    LOG));
+            }
+        } else {
+            XMLStreamReader reader = StaxUtils.createXMLStreamReader(s);
+            msgContext.getWrappedMessage().setContent(XMLStreamReader.class, reader);
+        }
+        msgContext.getWrappedMessage().setContent(Source.class, s);          
     }
 
     public Object getPayload(JAXBContext arg0) {
@@ -196,9 +220,8 @@ public class LogicalMessageImpl implements LogicalMessage {
             throw new WebServiceException(e);
         }
     }
-
    
-    public void write(Source source, Node n) {
+    private void write(Source source, Node n) {
         try {
             if (source instanceof DOMSource && ((DOMSource)source).getNode() == null) {
                 return;
@@ -209,13 +232,17 @@ public class LogicalMessageImpl implements LogicalMessage {
             StaxUtils.copy(reader, writer);
             reader.close();
         } catch (XMLStreamException e) {
-            // throw new Fault(new Message("COULD_NOT_READ_XML_STREAM",
-            // LOG), e);
+            throw new Fault(e);
         }
-    }      
-    
+    }   
+
     private SOAPMessage initSOAPMessage(InputStream is) throws SOAPException, IOException {
-        SOAPMessage msg = MessageFactory.newInstance().createMessage(null, is);
+        SOAPMessage msg = null;
+        if (is != null) {
+            msg = MessageFactory.newInstance().createMessage(null, is);
+        } else {
+            msg = MessageFactory.newInstance().createMessage();
+        }
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(WSDLConstants.NP_SCHEMA_XSD,
                                                                 WSDLConstants.NU_SCHEMA_XSD);
