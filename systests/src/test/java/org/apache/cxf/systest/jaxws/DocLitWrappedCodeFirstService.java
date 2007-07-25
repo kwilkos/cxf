@@ -65,4 +65,21 @@ public interface DocLitWrappedCodeFirstService {
                       @WebParam(mode = WebParam.Mode.OUT)
                       Holder<String> g);
     
+    
+    @WebMethod
+    List<Foo> listObjectOutput();
+    
+    static class Foo  {
+        String name;
+        
+        public Foo() {
+        }
+        
+        public void setName(String n) {
+            name = n;
+        }
+        public String getName() {
+            return name;
+        }
+    }
 }

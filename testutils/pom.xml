@@ -363,6 +363,9 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/test_chars.wsdl</wsdl>
                                 </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/inherit.wsdl</wsdl>
+                                </wsdlOption>
 
                             </wsdlOptions>
                         </configuration>

@@ -52,6 +52,9 @@ public class ServerMisc extends AbstractBusTestServerBase {
         
         Object implementor5 = new RpcLitCodeFirstServiceImpl();
         Endpoint.publish(RPCLIT_CODEFIRST_URL, implementor5);
+        
+        Endpoint.publish("http://localhost:9000/InheritContext/InheritPort",
+                         new InheritImpl());
     }
 
     public static void main(String[] args) {

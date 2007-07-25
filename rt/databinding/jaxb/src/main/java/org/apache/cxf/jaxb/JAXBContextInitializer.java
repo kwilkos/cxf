@@ -22,9 +22,11 @@ package org.apache.cxf.jaxb;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.cxf.common.util.PackageUtils;
@@ -38,10 +40,12 @@ import org.apache.cxf.service.model.ServiceInfo;
 class JAXBContextInitializer extends ServiceModelVisitor {
 
     private Set<Class<?>> classes;
+    private Set<String> packages;
 
     public JAXBContextInitializer(ServiceInfo serviceInfo, Set<Class<?>> classes) {
         super(serviceInfo);
         this.classes = classes;
+        this.packages = new HashSet<String>();
     }
 
     @Override
@@ -87,6 +91,9 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                         Array.newInstance((Class) pt.getActualTypeArguments()[0], 0).getClass();
                     clazz = arrayCls;
                     part.setTypeClass(clazz);
+                    if (isFromWrapper) {
+                        addType(clazz.getComponentType());
+                    }
                 }
             }
             if (isFromWrapper && isList) {
@@ -134,19 +141,48 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                     // The object factory stuff doesn't work for enums
                     classes.add(cls);
                 }
-                String name = PackageUtils.getPackageName(cls) + ".ObjectFactory";
-                try {
-                    cls = Class.forName(name, false, cls.getClassLoader());
-                    if (cls != null) {
-                        classes.add(cls);
+                classes.add(cls);
+                walkReferences(cls);
+
+                String pname = PackageUtils.getPackageName(cls);
+                if (!packages.contains(pname)) {
+                    packages.add(pname);
+                    String name = pname + ".ObjectFactory";
+                    try {
+                        Class ocls = Class.forName(name, false, cls.getClassLoader());
+                        if (!classes.contains(ocls)) {
+                            classes.add(ocls);
+                        }
+                    } catch (ClassNotFoundException ex) {
+                        // cannot add factory, just add the class
                     }
-                } catch (ClassNotFoundException ex) {
-                    // cannot add factory, just add the class
-                    classes.add(cls);
                 }
             }
         }
     }
 
     
+    private void walkReferences(Class<?> cls) {
+        if (cls.getName().startsWith("java.")
+            || cls.getName().startsWith("javax.")) {
+            return;
+        }
+        //walk the public fields/methods to try and find all the classes.  JAXB will only load the 
+        //EXACT classes in the fields/methods if they are in a different package.   Thus,
+        //subclasses won't be found and the xsi:type stuff won't work at all.
+        //We'll grab the public field/method types and then add the ObjectFactory stuff 
+        //as well as look for jaxb.index files in those packages.
+        
+        Field fields[] = cls.getFields();
+        for (Field f : fields) {
+            addType(f.getGenericType());
+        }
+        Method methods[] = cls.getMethods();
+        for (Method m : methods) {
+            addType(m.getGenericReturnType());
+            for (Type t : m.getGenericParameterTypes()) {
+                addType(t);
+            }
+        }
+    }
 }

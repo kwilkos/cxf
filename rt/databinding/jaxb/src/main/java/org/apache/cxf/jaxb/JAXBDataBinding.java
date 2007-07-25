@@ -325,6 +325,12 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                     }
                 } catch (Exception e) {
                     //ignore
+                } finally {
+                    try {
+                        entry.getValue().close();
+                    } catch (Exception e) {
+                        //ignore
+                    }
                 }
             }
         }

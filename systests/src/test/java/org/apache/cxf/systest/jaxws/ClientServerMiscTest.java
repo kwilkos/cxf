@@ -43,6 +43,12 @@ import org.apache.cxf.jaxb_element_test.JaxbElementTest_Service;
 import org.apache.cxf.ordered_param_holder.ComplexStruct;
 import org.apache.cxf.ordered_param_holder.OrderedParamHolder;
 import org.apache.cxf.ordered_param_holder.OrderedParamHolder_Service;
+import org.apache.cxf.systest.jaxws.DocLitWrappedCodeFirstService.Foo;
+import org.apache.cxf.tests.inherit.Inherit;
+import org.apache.cxf.tests.inherit.InheritService;
+import org.apache.cxf.tests.inherit.objects.SubTypeA;
+import org.apache.cxf.tests.inherit.objects.SubTypeB;
+import org.apache.cxf.tests.inherit.types.ObjectInfo;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -237,6 +243,11 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals("e", e.value);
         assertEquals("f", f.value);
         assertEquals("g", g.value);
+        
+        List<Foo> foos = port.listObjectOutput();
+        assertEquals(2, foos.size());
+        assertEquals("a", foos.get(0).getName());
+        assertEquals("b", foos.get(1).getName());
     }
     @Test
     public void testRpcLitNoWsdl() throws Exception {
@@ -351,5 +362,22 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals("f", f.value);
         assertEquals("g", g.value);        
     }
-       
+      
+    @Test
+    public void testInheritedTypesInOtherPackage() throws Exception {
+        InheritService serv = new InheritService();
+        Inherit port = serv.getInheritPort();
+        ObjectInfo obj = port.getObject(0);
+        assertNotNull(obj);
+        assertNotNull(obj.getBaseObject());
+        assertEquals("A", obj.getBaseObject().getName());
+        assertTrue(obj.getBaseObject() instanceof SubTypeA);
+        
+        obj = port.getObject(1);
+        assertNotNull(obj);
+        assertNotNull(obj.getBaseObject());
+        assertEquals("B", obj.getBaseObject().getName());
+        assertTrue(obj.getBaseObject() instanceof SubTypeB);
+        
+    }
 }

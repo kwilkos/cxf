@@ -374,8 +374,10 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             processor.process();
             fail("Do not catch expected tool exception for Part Reference illegal!");
         } catch (Exception e) {
+            
             if (!(e instanceof ToolException && e.toString()
-                .indexOf("does not use type reference not confirm to RPC style") >= 0)) {
+                .indexOf("does not use type reference (does not conform to RPC style)") >= 0)) {
+                
                 fail("Do not catch tool exception for Part Reference illegal, "
                      + "catch other unexpected exception: " + e.getMessage());
             }
