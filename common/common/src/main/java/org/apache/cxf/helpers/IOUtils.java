@@ -19,6 +19,7 @@
 
 package org.apache.cxf.helpers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -100,5 +101,31 @@ public final class IOUtils {
             n = input.read(buffer);
         }
         return buf.toString();
+    }
+    
+    public static String readStringFromStream(InputStream in) throws IOException {
+
+        StringBuilder sb = new StringBuilder(1024);
+
+        for (int i = in.read(); i != -1; i = in.read()) {
+            sb.append((char)i);
+        }
+
+        in.close();
+
+        return sb.toString();
+    }
+
+    public static byte[] readBytesFromStream(InputStream in) throws IOException {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+
+        for (int i = in.read(); i != -1; i = in.read()) {
+            bos.write(i);
+        }
+
+        in.close();
+
+        return bos.toByteArray();
     }
 }

@@ -39,6 +39,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -117,7 +118,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 }
 
                 // loop through each child element
-                getPara(xmlReader, dr, parameters, itr);
+                getPara(xmlReader, dr, parameters, itr, message);
             }
 
         } else {
@@ -196,7 +197,8 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
     private void getPara(DepthXMLStreamReader xmlReader,
                          DataReader<XMLStreamReader> dr,
                          MessageContentsList parameters,
-                         Iterator<MessagePartInfo> itr) {
+                         Iterator<MessagePartInfo> itr,
+                         Message message) {
         
         boolean hasNext = true;
         while (itr.hasNext()) {
@@ -209,10 +211,17 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 QName rname = xmlReader.getName();
                 while (part != null 
                     && !rname.equals(part.getConcreteName())) {
+                    String bindingType =
+                        message.getExchange().get(Service.class).getDataBinding().getClass().getName();
                     if (part.getXmlSchema() instanceof XmlSchemaElement) {
-                        //should check minOccurs=0
-                        parameters.put(part, null);
-                    }
+                        if (bindingType.endsWith("AegisDatabinding")) {
+                            parameters.add(dr.read(part, xmlReader));
+                        } else {
+                            //should check minOccurs=0
+                            parameters.put(part, null);
+                        }
+                    } 
+
                     if (itr.hasNext()) {
                         part = itr.next();
                     } else {
