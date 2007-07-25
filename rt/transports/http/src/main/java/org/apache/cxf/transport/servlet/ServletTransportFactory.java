@@ -39,13 +39,12 @@ import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 
 public class ServletTransportFactory extends AbstractHTTPTransportFactory
     implements DestinationFactory {
-
-    private Bus bus;
+    
     private Map<String, ServletDestination> destinations = 
         new ConcurrentHashMap<String, ServletDestination>();
     
     public ServletTransportFactory(Bus b) {
-        bus = b;
+        super.setBus(b);
         List<String> ids = Arrays.asList(new String[] {
             "http://schemas.xmlsoap.org/wsdl/soap/http",
             "http://schemas.xmlsoap.org/soap/http",
@@ -59,14 +58,11 @@ public class ServletTransportFactory extends AbstractHTTPTransportFactory
 
     public ServletTransportFactory() {
     }
+   
 
-    public Bus getBus() {
-        return bus;
-    }
-
-    @Resource
-    public void setBus(Bus bus) {
-        this.bus = bus;
+    @Resource(name = "bus")
+    public void setBus(Bus b) {
+        super.setBus(b);
     }
     
     public void removeDestination(String path) {
@@ -78,7 +74,7 @@ public class ServletTransportFactory extends AbstractHTTPTransportFactory
         ServletDestination d = getDestinationForPath(endpointInfo.getAddress());
         if (d == null) { 
             String path = getTrimmedPath(endpointInfo.getAddress());
-            d = new ServletDestination(bus, null, endpointInfo, this, path);
+            d = new ServletDestination(getBus(), null, endpointInfo, this, path);
             destinations.put(path, d);
         }
         return d;
