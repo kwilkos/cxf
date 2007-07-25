@@ -75,7 +75,7 @@ public class SpringBeansTest extends Assert {
         }
         org.apache.hello_world_soap_http.GreeterImpl impl =
             (org.apache.hello_world_soap_http.GreeterImpl)ep.getImplementor();
-        assertEquals("The property is not injected rightly", impl.getPerfix(), "hello");
+        assertEquals("The property was not injected rightly", impl.getPrefix(), "hello");
         assertNotNull(ep.getServer());
         
 

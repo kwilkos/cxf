@@ -55,7 +55,7 @@ public class GreeterImpl implements Greeter {
     @Resource
     private WebServiceContext context;
     
-    private String perfix = "";
+    private String prefix = "";
 
     private int invocationCount;
 
@@ -63,12 +63,12 @@ public class GreeterImpl implements Greeter {
         return context;
     }
     
-    public void setPerfix(String per) {
-        perfix = per;
+    public void setPrefix(String p) {
+        prefix = p;
     }    
     
-    public String getPerfix() {
-        return perfix;
+    public String getPrefix() {
+        return prefix;
     }
     public String greetMe(String me) {
         if ("secure".equals(me)) {
@@ -80,7 +80,7 @@ public class GreeterImpl implements Greeter {
         }
         
         
-        LOG.info("Invoking greetMe " + perfix + me);
+        LOG.info("Invoking greetMe " + prefix + me);
         invocationCount++;
         return "Hello " + me;
     }
