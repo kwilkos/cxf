@@ -92,7 +92,7 @@ public final class CustomizationParser {
             try {
                 addBinding(bindingFiles[i]);
             } catch (XMLStreamException xse) {
-                Message msg = new Message("STAX_PASER_ERROR", LOG);
+                Message msg = new Message("STAX_PARSER_ERROR", LOG);
                 throw new ToolException(msg, xse);
             }
         }

@@ -70,7 +70,7 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
     }
 
     private boolean isSOAP12() {
-        return env.optionSet(ToolConstants.CFG_SOAP12);        
+        return env.optionSet(ToolConstants.CFG_SOAP12);
     }
 
     private void validate() throws ToolException {
@@ -83,7 +83,7 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
             throw new ToolException(msg);
         }
         if (!nameSpaceCheck()) {
-            Message msg = new Message("SOAPBINDING_STYLE_NOT_PROVIEDED", LOG);
+            Message msg = new Message("SOAPBINDING_STYLE_NOT_PROVIDED", LOG);
             throw new ToolException(msg);
         }
         if (WSDLConstants.RPC.equalsIgnoreCase((String)env.get(ToolConstants.CFG_STYLE))) {
@@ -197,7 +197,7 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         }
 
         SOAPBindingUtil.addSOAPNamespace(wsdlDefinition, isSOAP12());
-        
+
         SoapBinding soapBinding = null;
         try {
             soapBinding = SOAPBindingUtil.createSoapBinding(extReg, isSOAP12());
@@ -245,7 +245,7 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
         SoapOperation soapOperation = null;
-        
+
         try {
             soapOperation = SOAPBindingUtil.createSoapOperation(extReg, isSOAP12());
         } catch (WSDLException wse) {
