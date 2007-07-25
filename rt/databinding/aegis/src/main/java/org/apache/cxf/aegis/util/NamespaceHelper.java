@@ -369,7 +369,12 @@ public final class NamespaceHelper {
 
         String prefix = value.substring(0, index);
         String localName = value.substring(index + 1);
-        String ns = e.getNamespace(prefix).getURI();
+        Namespace jNS = e.getNamespace(prefix);
+        if (jNS == null) {
+            throw new DatabindingException("No namespace was found for prefix: " + prefix);
+        }
+        
+        String ns = jNS.getURI();
 
         if (ns == null || localName == null) {
             throw new DatabindingException("Invalid QName in mapping: " + value);

@@ -34,7 +34,7 @@
         <dependency>
             <groupId>org.codehaus.jra</groupId>
             <artifactId>jra</artifactId>
-            <version>1.0-alpha-3</version>
+            <version>1.0-alpha-4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -130,6 +130,16 @@
         </plugins>
     </build>
 
+    <repositories>
+      <repository>
+        <id>codehaus.org</id>
+        <name>Codehaus Snapshot Repository</name>
+        <url>http://snapshots.repository.codehaus.org/</url>
+        <snapshots>
+          <enabled>true</enabled>
+        </snapshots>
+      </repository>
+    </repositories>
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/bindings/http</connection>

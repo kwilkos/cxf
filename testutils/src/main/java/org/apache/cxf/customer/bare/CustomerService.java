@@ -80,6 +80,14 @@ public class CustomerService {
         return c;
     }
 
+    @Get
+    @HttpResource(location = "/customers/details/{id}")
+    @WebMethod
+    public String getSomeDetails(@WebParam(name = "GetCustomer") GetCustomer getCustomer) 
+        throws CustomerNotFoundFault {
+        return "some details";
+    }
+    
     @Put
     @HttpResource(location = "/customers/{id}")
     @WebMethod

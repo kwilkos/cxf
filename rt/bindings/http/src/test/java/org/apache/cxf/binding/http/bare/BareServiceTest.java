@@ -78,6 +78,10 @@ public class BareServiceTest extends AbstractRestTest {
         assertNotNull(bop);
         assertEquals("updateCustomer", bop.getName().getLocalPart());
         
+        bop = mapper.getOperation("/customers/details/123", "GET", null);
+        assertNotNull(bop);
+        assertEquals("getSomeDetails", bop.getName().getLocalPart());
+        
         // TEST POST/GETs
         
         Document res = get("http://localhost:9001/foo/customers");
