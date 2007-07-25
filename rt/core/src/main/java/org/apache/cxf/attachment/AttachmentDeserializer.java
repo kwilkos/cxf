@@ -198,10 +198,16 @@ public class AttachmentDeserializer {
             return;
         }
         loaded.add(input);
-        CachedOutputStream out = new CachedOutputStream();
-        IOUtils.copy(input, out);
-        input.setInputStream(out.getInputStream());
-        out.close();
+        CachedOutputStream out = null;
+        try {
+            out = new CachedOutputStream();
+            IOUtils.copy(input, out);
+            input.setInputStream(out.getInputStream());
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
     }
 
     /**
