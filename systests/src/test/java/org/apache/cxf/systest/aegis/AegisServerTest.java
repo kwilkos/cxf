@@ -35,15 +35,6 @@ public class AegisServerTest extends AbstractBusTestServerBase {
     private org.mortbay.jetty.Server server;
     
     protected void run() {
-        /*ServerFactoryBean sf = new ServerFactoryBean();
-        sf.setServiceClass(AuthServiceImpl.class);
-        sf.setAddress("http://localhost:9001/service");
-        sf.getServiceFactory().setDataBinding(new AegisDatabinding());
-        sf.getInInterceptors().add(new LoggingInInterceptor());
-        sf.getOutInterceptors().add(new LoggingOutInterceptor());
-        sf.getInFaultInterceptors().add(new LoggingInInterceptor());
-        sf.getOutFaultInterceptors().add(new LoggingOutInterceptor());
-        sf.create();*/
         System.out.println("Starting Server");
 
         server = new org.mortbay.jetty.Server();
@@ -57,7 +48,6 @@ public class AegisServerTest extends AbstractBusTestServerBase {
         try {
             contextPath = getClass().getResource("/").toURI().getPath();
         } catch (URISyntaxException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
         webappcontext.setContextPath("/");
@@ -72,7 +62,6 @@ public class AegisServerTest extends AbstractBusTestServerBase {
             server.start();
                        
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         

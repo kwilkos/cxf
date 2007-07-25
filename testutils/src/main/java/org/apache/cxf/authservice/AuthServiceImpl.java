@@ -17,13 +17,11 @@
  * under the License.
  */
 
-package de.footprint.www.services.auth;
+package org.apache.cxf.authservice;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.silberlicht.authservice.AuthService;
-import de.silberlicht.authservice.Authenticate;
 
 public class AuthServiceImpl implements AuthService {
 

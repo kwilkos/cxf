@@ -42,12 +42,12 @@ http://cxf.apache.org/schemas/simple.xsd">
 	      class="org.apache.cxf.service.factory.ReflectionServiceFactoryBean">
 	        <property name="dataBinding" ref="aegisDatabinding"/>
         </bean>
-	<simple:server address="/service" serviceClass="de.silberlicht.authservice.AuthService">
+	<simple:server address="/service" serviceClass="org.apache.cxf.authservice.AuthService">
           <simple:serviceFactory>
              <ref bean="serviceFactory"/>                      
           </simple:serviceFactory>
           <simple:serviceBean>
-	     <bean class="de.footprint.www.services.auth.AuthServiceImpl"/>
+	     <bean class="org.apache.cxf.authservice.AuthServiceImpl"/>
 	  </simple:serviceBean>
         </simple:server>
 	  

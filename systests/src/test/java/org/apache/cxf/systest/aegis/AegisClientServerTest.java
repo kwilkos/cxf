@@ -23,10 +23,11 @@ package org.apache.cxf.systest.aegis;
 import java.util.List;
 import java.util.logging.Logger;
 
-import de.silberlicht.authservice.AuthService;
-import de.silberlicht.authservice.Authenticate;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
+import org.apache.cxf.authservice.AuthService;
+import org.apache.cxf.authservice.Authenticate;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.interceptor.LoggingInInterceptor;

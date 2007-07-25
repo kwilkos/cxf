@@ -18,7 +18,7 @@
  */
 
 
-package de.silberlicht.authservice;
+package org.apache.cxf.authservice;
 
 
 public class Authenticate {

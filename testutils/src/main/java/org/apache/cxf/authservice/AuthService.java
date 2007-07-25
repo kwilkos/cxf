@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package de.silberlicht.authservice;
+package org.apache.cxf.authservice;
 
 
 import javax.jws.WebService;
@@ -29,7 +29,7 @@ import javax.jws.WebService;
  * 
  */
 
-@WebService(targetNamespace = "http://silberlicht.de/AuthService", name = "AuthService")
+@WebService(targetNamespace = "http://cxf.apache.org/AuthService", name = "AuthService")
 
 public interface AuthService {
 
