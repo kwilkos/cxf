@@ -50,6 +50,13 @@ public class JBIDestination extends AbstractDestination {
         this.channel = dc;
     }
 
+    public void setDeliveryChannel(DeliveryChannel dc) {
+        this.channel = dc;
+    }
+    
+    public DeliveryChannel getDeliveryChannel() {
+        return this.channel;
+    }
     
     protected Logger getLogger() {
         return LOG;
