@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.transform.dom.DOMSource;
-
 import org.w3c.dom.Document;
 
 import org.apache.cxf.BusException;
@@ -40,6 +39,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.interceptor.AnnotationInterceptors;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
@@ -47,6 +47,7 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.invoker.Invoker;
+
 
 /**
  * This class helps take a {@link org.apache.cxf.service.Service} and 
@@ -116,6 +117,10 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
                 }
             } else {
                 ep.getService().setInvoker(invoker);
+            }
+            
+            if (getServiceBean() != null) {
+                initializeAnnotationInterceptors(ep);
             }
             
             if (start) {
@@ -190,6 +195,35 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
                 ((JAXBDataBinding)dataBinding).setExtraClass(extraClass);
             }
         }
+    }
+    
+    protected void initializeAnnotationInterceptors(Endpoint ep) throws EndpointException {
+        Object implementor = getServiceBean();
+        if (initializeAnnotationInterceptors(ep, implementor.getClass())) {
+            LOG.fine("added annotation based interceptors");
+        }
+    }
+    
+    protected boolean initializeAnnotationInterceptors(Endpoint ep, Class<?> clazz) throws EndpointException {
+        boolean hasAnnotation = false;
+        AnnotationInterceptors provider = new AnnotationInterceptors(clazz);
+        if (provider.getInFaultInterceptors().size() > 0) {
+            ep.getInFaultInterceptors().addAll(provider.getInFaultInterceptors());
+            hasAnnotation = true;
+        }
+        if (provider.getInInterceptors().size() > 0) {
+            ep.getInInterceptors().addAll(provider.getInInterceptors());
+            hasAnnotation = true;
+        }
+        if (provider.getOutFaultInterceptors().size() > 0) {
+            ep.getOutFaultInterceptors().addAll(provider.getOutFaultInterceptors());
+            hasAnnotation = true;
+        }
+        if (provider.getOutInterceptors().size() > 0) {
+            ep.getOutInterceptors().addAll(provider.getOutInterceptors());
+            hasAnnotation = true;
+        }
+        return hasAnnotation;
     }
     
     protected Invoker createInvoker() {
