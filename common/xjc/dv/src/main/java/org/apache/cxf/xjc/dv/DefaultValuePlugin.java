@@ -70,7 +70,7 @@ public class DefaultValuePlugin extends Plugin {
     }
 
     public String getUsage() {
-        return "-Xdv: Initialize fields mapped from elements with their default values";
+        return "  -Xdv                 : Initialize fields mapped from elements with their default values";
     }
 
     public boolean run(Outline outline, Options opt, ErrorHandler errorHandler) {

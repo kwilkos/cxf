@@ -40,6 +40,7 @@ import javax.xml.ws.WebFault;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
@@ -495,6 +496,47 @@ public class CodeGenTest extends ProcessorTestBase {
         Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
         Method method = clz.getMethod("dummy", new Class[] {});
         assertTrue("method declared on SayHi", method.getDeclaringClass().equals(clz));
+    }
+
+    @Test
+    public void testInvalidXjcArgDummyPluginUsage() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+
+        env.put(ToolConstants.CFG_XJC_ARGS, "-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN
+                + ",-" + DummyXjcPlugin.XDUMMY_XJC_PLUGIN  + ":some_rubbish_argument");
+        processor.setContext(env);
+        String msg = null;
+        try {
+            processor.execute();
+            fail("Expect a ToolException on invalid xjc argument");
+        } catch (ToolException expected) {
+            msg = expected.getMessage();
+        }
+        assertNotNull(msg);
+        assertTrue(":some_rubbish_argument is present in :" + msg, 
+                   msg.indexOf(":some_rubbish_argument") != -1);
+        assertTrue("Dummy plugin usage string present in :" + msg, 
+                   msg.indexOf(DummyXjcPlugin.DUMMY_ARG) != -1);
+    }
+
+    @Test
+    public void testXjcMinusXArgGivesPluginUsage() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+
+        env.put(ToolConstants.CFG_XJC_ARGS, "-X");
+        processor.setContext(env);
+        String msg = null;
+        try {
+            processor.execute();
+            fail("Expect a ToolException on invalid xjc argument");
+        } catch (ToolException expected) {
+            msg = expected.getMessage();
+        }
+        assertNotNull(msg);
+        assertTrue("Dummy plugin usage string present in :" + msg, 
+                   msg.indexOf(DummyXjcPlugin.DUMMY_ARG) != -1);
+        assertTrue("No BadParameter in msg:" + msg,
+                   msg.indexOf("Bad") == -1);
     }
 
     @Test

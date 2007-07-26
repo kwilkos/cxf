@@ -36,7 +36,8 @@ public class DummyXjcPlugin extends Plugin {
 
 
     static final String XDUMMY_XJC_PLUGIN = "Xdummy-xjc-plugin";
-
+    static final String DUMMY_ARG = "-" + XDUMMY_XJC_PLUGIN + ":" + "arg";
+    
     @Override
     public String getOptionName() {
         return XDUMMY_XJC_PLUGIN;
@@ -44,7 +45,7 @@ public class DummyXjcPlugin extends Plugin {
 
     @Override
     public String getUsage() {
-        return null;
+        return DUMMY_ARG;
     }
 
     @Override
@@ -64,7 +65,7 @@ public class DummyXjcPlugin extends Plugin {
     public int parseArgument(Options opt, String[] args, int i)
         throws BadCommandLineException {
         int ret = 0;
-        if (args[i].equals("-" + XDUMMY_XJC_PLUGIN + ":" + "arg")) {
+        if (args[i].equals(DUMMY_ARG)) {
             ret = 1;
         }
         

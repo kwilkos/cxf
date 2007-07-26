@@ -57,6 +57,7 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.BadCommandLineException;
 import com.sun.tools.xjc.Options;
+import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.api.Mapping;
 import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
@@ -181,14 +182,24 @@ public class JAXBDataBinding implements DataBindingProfile {
                 args.add(arg);
                 LOG.log(Level.FINE, "xjc arg:" + arg);
             }
+            Options opts = null;
             try {
-                Options opts = getOptions(schemaCompiler);
+                opts = getOptions(schemaCompiler);
                 // keep parseArguments happy, supply dummy required command-line opts
                 opts.addGrammar(new InputSource("null"));
                 opts.parseArguments(args.toArray(new String[]{}));
             } catch (BadCommandLineException e) {
-                String msg = "XJC reported 'BadParameterException' for -xjc argument:" + xjcArgs;
-                LOG.log(Level.SEVERE, msg, e);
+                String msg = "XJC reported 'BadCommandLineException' for -xjc argument:" + xjcArgs;
+                LOG.log(Level.FINE, msg, e);
+                if (opts != null) {
+                    String pluginUsage = getPluginUsageString(opts);
+                    if ("-X".equals(xjcArgs)) {
+                        msg = pluginUsage;
+                    } else {
+                        msg += pluginUsage;
+                    }
+                }
+                
                 throw new ToolException(msg, e);
             }
         }
@@ -213,6 +224,16 @@ public class JAXBDataBinding implements DataBindingProfile {
                 }
             }
         }
+    }
+
+    private String getPluginUsageString(Options opts) {
+        StringBuffer buf = new StringBuffer();
+        buf.append("\navaliable plugin options:\n");
+        for (Plugin pl : opts.getAllPlugins()) {
+            buf.append(pl.getUsage());
+            buf.append('\n');
+        }
+        return buf.toString();
     }
 
     // TODO  this can be repaced with schemaCompiler.getOptions() once we

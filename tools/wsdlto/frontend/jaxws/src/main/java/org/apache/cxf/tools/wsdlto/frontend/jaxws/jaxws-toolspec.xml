@@ -252,6 +252,12 @@
                     Comma separated arguments that are passed directly to XJC when the
                     default databinding of JAXB is used. Using this option, it is possible
                     to cause XJC to load additional plugins that can augment code generation.
+                    For example to load the toString(ts) plugin that will add a toString() 
+                    method to all generated types the following &lt;xjc arguments&gt; would 
+                    be used:
+                          -xjc-Xts
+                    A list of available XJC plugins can be obtained by pasing -X as the 
+                    &lt;xjc arguments&gt;.                     
                 </annotation>
                 <associatedArgument placement="immediate">
                     <annotation>xjc arguments</annotation>

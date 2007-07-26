@@ -57,9 +57,9 @@ public class ToStringPlugin extends Plugin {
     }
 
     public String getUsage() {
-        return "-Xts                 : Activate plugin to add a toString() method to generated classes\n"
-            +  "-Xts:style:multiline : Have toString produce multi line output\n"
-            +  "-Xts:style:simple    : Have toString produce single line terse output\n";
+        return "  -Xts                 : Activate plugin to add a toString() method to generated classes\n"
+            +  "  -Xts:style:multiline : Have toString produce multi line output\n"
+            +  "  -Xts:style:simple    : Have toString produce single line terse output\n";
     }
 
     public int parseArgument(Options opt, String[] args, int index) 
