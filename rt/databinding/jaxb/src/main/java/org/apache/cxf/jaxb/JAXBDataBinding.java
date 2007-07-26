@@ -54,6 +54,7 @@ import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataBinding;
@@ -65,7 +66,7 @@ import org.apache.cxf.jaxb.io.DataWriterImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.ws.addressing.ObjectFactory;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
@@ -85,19 +86,24 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                                                                                XMLEventWriter.class,
                                                                                XMLStreamWriter.class};
 
+    private static final Map<Set<Class<?>>, JAXBContext> JAXBCONTEXT_CACHE = 
+        new CacheMap<Set<Class<?>>, JAXBContext>();
+
     Class[] extraClass;
-    JAXBContext context;
-
-    Class cls;
     
+    JAXBContext context;
+    Set<Class<?>> contextClasses;
 
+    Class<?> cls;
+
+    
     public JAXBDataBinding() {
     }
     
     public JAXBDataBinding(Class<?>...classes) throws JAXBException {
-        Set<Class<?>> classSet = new HashSet<Class<?>>();
-        classSet.addAll(Arrays.asList(classes));
-        setContext(createJAXBContext(classSet));
+        contextClasses = new HashSet<Class<?>>();
+        contextClasses.addAll(Arrays.asList(classes));
+        setContext(createJAXBContext(contextClasses));
     }
 
     public JAXBDataBinding(JAXBContext context) {
@@ -143,7 +149,6 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             dr = (DataReader<T>)new DataReaderImpl<Node>(context);
         }
         
-        // TODO Auto-generated method stub
         return dr;
     }
 
@@ -157,10 +162,10 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             return;
         }
         
-        Set<Class<?>> classes = new HashSet<Class<?>>();
+        contextClasses = new HashSet<Class<?>>();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             JAXBContextInitializer initializer = 
-                new JAXBContextInitializer(serviceInfo, classes);
+                new JAXBContextInitializer(serviceInfo, contextClasses);
             initializer.walk();
     
         }
@@ -169,7 +174,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             if (service.getServiceInfos().size() > 0) {
                 tns = service.getServiceInfos().get(0).getInterface().getName().getNamespaceURI();
             }
-            setContext(createJAXBContext(classes, tns));
+            setContext(createJAXBContext(contextClasses, tns));
         } catch (JAXBException e1) {
             throw new ServiceConstructionException(e1);
         }
@@ -210,7 +215,8 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                 // fall back if we're using another jaxb implementation
                 try {
                     riContext = (JAXBContextImpl)
-                        ContextFactory.createContext(classes.toArray(new Class[classes.size()]), null);
+                        ContextFactory.createContext(
+                            contextClasses.toArray(new Class[contextClasses.size()]), null);
                 } catch (JAXBException e) {
                     throw new ServiceConstructionException(e);
                 }
@@ -335,25 +341,30 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             }
         }
         
-        JAXBContext ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
-        if (ctx instanceof JAXBContextImpl) {
-            JAXBContextImpl rictx = (JAXBContextImpl)ctx;
-            if (rictx.getBeanInfo(EndpointReferenceType.class) != null) {
-                //ws-addressing is used, lets add the specific types
-                try {
-                    classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
-                    classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType")); 
-                    classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
-                    ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
-                } catch (ClassNotFoundException e) {
-                    // REVISIT - ignorable if WS-ADDRESSING not available?
-                    // maybe add a way to allow interceptors to add stuff to the
-                    // context?
-                } 
+        addWsAddressingTypes(classes);
+
+        synchronized (JAXBCONTEXT_CACHE) {
+            if (!JAXBCONTEXT_CACHE.containsKey(classes)) {
+                JAXBContext ctx = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]), map);
+                JAXBCONTEXT_CACHE.put(classes, ctx);
             }
         }
-        
-        return ctx;
+
+        return JAXBCONTEXT_CACHE.get(classes);
     }
 
+    private void addWsAddressingTypes(Set<Class<?>> classes) {
+        if (classes.contains(ObjectFactory.class)) {
+            // ws-addressing is used, lets add the specific types
+            try {
+                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
+                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
+                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
+            } catch (ClassNotFoundException unused) {
+                // REVISIT - ignorable if WS-ADDRESSING not available?
+                // maybe add a way to allow interceptors to add stuff to the
+                // context?
+            } 
+        }
+    }
 }

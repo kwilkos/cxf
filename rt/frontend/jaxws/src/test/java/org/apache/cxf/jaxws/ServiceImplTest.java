@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxws;
 
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import org.apache.cxf.calculator.CalculatorPortType;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.NullConduitSelector;
 import org.apache.cxf.frontend.ClientProxy;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.junit.Test;
@@ -160,6 +162,36 @@ public class ServiceImplTest extends AbstractJaxWsTest {
 
         CalculatorPortType cal = (CalculatorPortType)service.getPort(PORT_1, CalculatorPortType.class);
         assertNotNull(cal);
+    }
+
+    
+    @Test
+    public void testJAXBCachedOnRepeatGetPort() {
+        URL wsdl1 = getClass().getResource("/wsdl/calculator.wsdl");
+        assertNotNull(wsdl1);
+        
+        ServiceImpl service = new ServiceImpl(getBus(), wsdl1, SERVICE_1, ServiceImpl.class);
+
+        CalculatorPortType cal1 = (CalculatorPortType)service.getPort(PORT_1, CalculatorPortType.class);
+        assertNotNull(cal1);
+        
+        ClientProxy cp = (ClientProxy)Proxy.getInvocationHandler(cal1);
+        JAXBDataBinding db1 = (JAXBDataBinding) cp.getClient().getEndpoint().getService().getDataBinding();
+        assertNotNull(db1);
+        
+        System.gc();
+        System.gc();
+        System.gc();
+        System.gc();
+        
+        CalculatorPortType cal2 = (CalculatorPortType)service.getPort(PORT_1, CalculatorPortType.class);
+        assertNotNull(cal2);
+
+        cp = (ClientProxy)Proxy.getInvocationHandler(cal2);
+        JAXBDataBinding db2 = (JAXBDataBinding) cp.getClient().getEndpoint().getService().getDataBinding();
+        assertNotNull(db2);
+
+        assertEquals("got cached JAXBContext", db1.getContext(), db2.getContext());
     }
 
     @Test
