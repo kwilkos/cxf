@@ -72,7 +72,10 @@ console, just edit servicemix starup script, add
 java launch commandline
 
 Start cxf server
+For UNIX:
  > ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.1-incubator-20070103.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.2.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0.0-incubator.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.1.jar 
+For Windows:
+ > ant server -Dthirdparty.classpath="%SERVICEMIX_HOME%"/lib/activemq-core-4.1-incubator-20070103.jar:"%SERVICEMIX_HOME%"/lib/backport-util-concurrent-2.2.jar:"%SERVICEMIX_HOME%"/lib/activeio-core-3.0.0-incubator.jar:"%SERVICEMIX_HOME%"/lib/geronimo-j2ee-management_1.0_spec-1.1.jar
 
 Install and start the ServiceMix soap/jms binding component
 copy servicemix-jms-3.1-incubating-installer.zip, servicemix-http-3.1-incubating-installer.zip and
@@ -84,8 +87,12 @@ $SERVICEMIX_HOME/bin
 
 Deploy and start the CXF demo service assembly
 
+For UNIX:
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml  deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/cxf-service-assembly.zip -Dsm.username=smx -Dsm.password=smx
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml start-service-assembly -Dsm.service.assembly.name=cxf-demo-service-assembly -Dsm.username=smx -Dsm.password=smx
+For Windows:
+ > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/cxf-service-assembly.zip -Dsm.username=smx -Dsm.password=smx
+ > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml start-service-assembly -Dsm.service.assembly.name=cxf-demo-service-assembly -Dsm.username=smx -Dsm.password=smx
 
 Start cxf client
  > ant client

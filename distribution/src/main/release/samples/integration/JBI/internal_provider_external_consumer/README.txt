@@ -72,8 +72,12 @@ java launch commandline
 
 Install and start the CXF Service Engine:
 
+For UNIX:
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml install-component -Dsm.install.file=../service-engine/build/lib/cxf-service-engine.jar  -Dsm.username=smx -Dsm.password=smx
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine  -Dsm.username=smx -Dsm.password=smx
+For Windows:
+ > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml install-component -Dsm.install.file=../service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
+ > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine  -Dsm.username=smx -Dsm.password=smx
 
 Install and start the ServiceMix soap binding component
 
@@ -85,8 +89,13 @@ $SERVICEMIX_HOME/bin
 
 Deploy the and start CXF demo service assembly
 
+For UNIX:
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml  deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/cxf-service-assembly.zip  -Dsm.username=smx -Dsm.password=smx
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml start-service-assembly -Dsm.service.assembly.name=cxf-demo-service-assembly  -Dsm.username=smx -Dsm.password=smx
+
+For Windows:
+ > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/cxf-service-assembly.zip -Dsm.username=smx -Dsm.password=smx
+ > ant -f "%SERVICEMIX_HOME%"/ant/servicemix-ant-task.xml start-service-assembly -Dsm.service.assembly.name=cxf-demo-service-assembly  -Dsm.username=smx -Dsm.password=smx
 
 Start cxf client
  > ant client
