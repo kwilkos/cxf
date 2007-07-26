@@ -74,7 +74,7 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         assertFileEquals(expectedFile, output.getAbsolutePath());
     }
 
-    // Revisit:
+
     // * Missing wsdl:types
     // * input message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
     // * output message of binding operation "getPrice" MUST specify a value for the "namespace" attribute
