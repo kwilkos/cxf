@@ -476,7 +476,7 @@ public class HTTPConduit
                       getProxy(clientSidePolicy), currentURL);
         connection.setDoOutput(true);  
         
-        //TODO using Message context to deceided HTTP send properties 
+        //TODO using Message context to decided HTTP send properties 
              
         connection.setConnectTimeout((int)clientSidePolicy.getConnectionTimeout());
         connection.setReadTimeout((int)clientSidePolicy.getReceiveTimeout());
@@ -780,13 +780,6 @@ public class HTTPConduit
             List<String> headerList = headers.get(header);
             for (String value : headerList) {
                 connection.addRequestProperty(header, value);
-                String v = connection.getRequestProperty(header);
-                if (null == v) {
-                    connection.addRequestProperty(header, value);
-                } else {
-                    LOG.fine("Not adding request property: " + header + ", value: " + value
-                             + ", already set to: " + v);
-                }
             }
         }
     }
@@ -1131,6 +1124,8 @@ public class HTTPConduit
         if (policy.isSetAccept()) {
             headers.put("Accept",
                 Arrays.asList(new String[] {policy.getAccept()}));
+        } else {
+            headers.put("Accept", Arrays.asList(new String[] {"*"}));
         }
         if (policy.isSetAcceptEncoding()) {
             headers.put("Accept-Encoding",
