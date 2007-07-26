@@ -32,7 +32,6 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.feature.Features;
-import org.apache.cxf.helpers.CastUtils;
 
 public class AnnotationInterceptors {
     
@@ -45,17 +44,16 @@ public class AnnotationInterceptors {
     }
     
     public List<Interceptor> getInFaultInterceptors() {
-        return CastUtils.cast(getAnnotationObject(InFaultInterceptors.class), Interceptor.class);
+        return getAnnotationObject(InFaultInterceptors.class, Interceptor.class);
     }
     
-    @SuppressWarnings ("unchecked")
-    private List getAnnotationObject(Class annotationClazz) {
+    private <T> List<T> getAnnotationObject(Class<? extends Annotation> annotationClazz, Class<T> type) {
         Annotation  annotation = clazz.getAnnotation(annotationClazz);
         if (annotation == null) {
             WebService ws = clazz.getAnnotation(WebService.class);
             if (ws != null && !StringUtils.isEmpty(ws.endpointInterface())) {
                 String seiClassName = ws.endpointInterface().trim();
-                Class seiClass = null;
+                Class<?> seiClass = null;
                 try {
                     seiClass = ClassLoaderUtils.loadClass(seiClassName, this.getClass());
                 } catch (ClassNotFoundException e) {
@@ -63,11 +61,11 @@ public class AnnotationInterceptors {
                 }
                 annotation = seiClass.getAnnotation(annotationClazz);
                 if (annotation != null) {
-                    return initializeAnnotationObjects(getAnnotationObjectNames(annotation));
+                    return initializeAnnotationObjects(getAnnotationObjectNames(annotation), type);
                 }
             }
         } else {
-            return initializeAnnotationObjects(getAnnotationObjectNames(annotation));
+            return initializeAnnotationObjects(getAnnotationObjectNames(annotation), type);
         }
         return null;
     }
@@ -88,14 +86,14 @@ public class AnnotationInterceptors {
         throw new UnsupportedOperationException("Doesn't support the annotation: " + ann);
     }
     
-    @SuppressWarnings("unchecked")
-    private List initializeAnnotationObjects(String[] annotationObjects) {
-        List theAnnotationObjects = new ArrayList();
+    private <T> List<T> initializeAnnotationObjects(String[] annotationObjects, Class<T> type) {
+        List<T> theAnnotationObjects = new ArrayList<T>();
         if (annotationObjects != null && annotationObjects.length > 0) {
             for (String annObjectName : annotationObjects) {
                 Object object = null;
                 try {
                     object = ClassLoaderUtils.loadClass(annObjectName, this.getClass()).newInstance();
+                    theAnnotationObjects.add(type.cast(object));
                 } catch (ClassNotFoundException e) {
                     throw new Fault(new Message("COULD_NOT_CREATE_ANNOTATION_OBJECT", 
                                                     BUNDLE, annObjectName), e);
@@ -105,9 +103,9 @@ public class AnnotationInterceptors {
                 } catch (IllegalAccessException iae) {
                     throw new Fault(new Message("COULD_NOT_CREATE_ANNOTATION_OBJECT", 
                                                     BUNDLE, annObjectName), iae);
-                }
-                if (object != null) {
-                    theAnnotationObjects.add(object);
+                } catch (ClassCastException ex) {
+                    throw new Fault(new Message("COULD_NOT_CREATE_ANNOTATION_OBJECT", 
+                                                BUNDLE, annObjectName), ex);
                 }
             }
         }
@@ -116,19 +114,19 @@ public class AnnotationInterceptors {
 
 
     public List<Interceptor> getInInterceptors() {
-        return CastUtils.cast(getAnnotationObject(InInterceptors.class), Interceptor.class);
+        return getAnnotationObject(InInterceptors.class, Interceptor.class);
     }
 
     public List<Interceptor> getOutFaultInterceptors() {
-        return CastUtils.cast(getAnnotationObject(OutFaultInterceptors.class), Interceptor.class);
+        return getAnnotationObject(OutFaultInterceptors.class, Interceptor.class);
     }
 
     public List<Interceptor> getOutInterceptors() {
-        return CastUtils.cast(getAnnotationObject(OutInterceptors.class), Interceptor.class);
+        return getAnnotationObject(OutInterceptors.class, Interceptor.class);
     }
         
     public List<AbstractFeature> getFeatures() {
-        return CastUtils.cast(getAnnotationObject(Features.class), AbstractFeature.class);
+        return getAnnotationObject(Features.class, AbstractFeature.class);
     }
 
 }
