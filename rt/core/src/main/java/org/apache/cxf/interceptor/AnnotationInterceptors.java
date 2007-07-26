@@ -30,7 +30,9 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.feature.Features;
+import org.apache.cxf.helpers.CastUtils;
 
 public class AnnotationInterceptors {
     
@@ -42,16 +44,14 @@ public class AnnotationInterceptors {
         clazz = clz;
     }
     
-    public List<Interceptor> getInFaultInterceptors() throws EndpointException {
-        return getInterceptors(InFaultInterceptors.class);
+    public List<Interceptor> getInFaultInterceptors() {
+        return CastUtils.cast(getAnnotationObject(InFaultInterceptors.class), Interceptor.class);
     }
     
-    @SuppressWarnings (value = "unchecked")
-    private List<Interceptor> getInterceptors(Class clz) throws EndpointException {
-        Annotation  annotation = clazz.getAnnotation(clz);
-        if (annotation != null) {
-            return initializeInterceptors(getInterceptorNames(annotation));
-        } else {
+    @SuppressWarnings ("unchecked")
+    private List getAnnotationObject(Class annotationClazz) {
+        Annotation  annotation = clazz.getAnnotation(annotationClazz);
+        if (annotation == null) {
             WebService ws = clazz.getAnnotation(WebService.class);
             if (ws != null && !StringUtils.isEmpty(ws.endpointInterface())) {
                 String seiClassName = ws.endpointInterface().trim();
@@ -59,18 +59,20 @@ public class AnnotationInterceptors {
                 try {
                     seiClass = ClassLoaderUtils.loadClass(seiClassName, this.getClass());
                 } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("couldnt find class :" + seiClass, e);
+                    throw new Fault(new Message("COULD_NOT_FIND_SEICLASS", BUNDLE, seiClass), e);
                 }
-                annotation = seiClass.getAnnotation(clz);
+                annotation = seiClass.getAnnotation(annotationClazz);
                 if (annotation != null) {
-                    return initializeInterceptors(getInterceptorNames(annotation));
+                    return initializeAnnotationObjects(getAnnotationObjectNames(annotation));
                 }
-            }           
+            }
+        } else {
+            return initializeAnnotationObjects(getAnnotationObjectNames(annotation));
         }
-        return new ArrayList<Interceptor>();
+        return null;
     }
     
-    private String[] getInterceptorNames(Annotation ann) {
+    private String[] getAnnotationObjectNames(Annotation ann) {
         if (ann instanceof InFaultInterceptors) {
             return ((InFaultInterceptors)ann).interceptors();
         } else if (ann instanceof InInterceptors) {
@@ -79,49 +81,54 @@ public class AnnotationInterceptors {
             return ((OutFaultInterceptors)ann).interceptors();
         } else if (ann instanceof OutInterceptors) {
             return ((OutInterceptors)ann).interceptors();
+        } else if (ann instanceof Features) {
+            return ((Features)ann).features();
         }
-        throw new UnsupportedOperationException("Doesn't support other annotation for interceptor: " + ann);
+        
+        throw new UnsupportedOperationException("Doesn't support the annotation: " + ann);
     }
     
-    
-    private List<Interceptor> initializeInterceptors(String[] interceptors) throws EndpointException {
-        List<Interceptor> theInterceptors = new ArrayList<Interceptor>();
-        if (interceptors != null && interceptors.length > 0) {
-            for (String interceptorName : interceptors) {
-                Interceptor interceptor = null;
+    @SuppressWarnings("unchecked")
+    private List initializeAnnotationObjects(String[] annotationObjects) {
+        List theAnnotationObjects = new ArrayList();
+        if (annotationObjects != null && annotationObjects.length > 0) {
+            for (String annObjectName : annotationObjects) {
+                Object object = null;
                 try {
-                    interceptor = (Interceptor)ClassLoaderUtils.loadClass(interceptorName, 
-                                                                          this.getClass()).newInstance();
+                    object = ClassLoaderUtils.loadClass(annObjectName, this.getClass()).newInstance();
                 } catch (ClassNotFoundException e) {
-                    throw new EndpointException(new Message("COULD_NOT_CREATE_ANNOTATION_INTERCEPOTR", 
-                                                    BUNDLE, interceptorName), e);
+                    throw new Fault(new Message("COULD_NOT_CREATE_ANNOTATION_OBJECT", 
+                                                    BUNDLE, annObjectName), e);
                 } catch (InstantiationException ie) {
-                    throw new EndpointException(new Message("COULD_NOT_CREATE_ANNOTATION_INTERCEPOTR", 
-                                                    BUNDLE, interceptorName), ie);
+                    throw new Fault(new Message("COULD_NOT_CREATE_ANNOTATION_OBJECT", 
+                                                    BUNDLE, annObjectName), ie);
                 } catch (IllegalAccessException iae) {
-                    throw new EndpointException(new Message("COULD_NOT_CREATE_ANNOTATION_INTERCEPOTR", 
-                                                    BUNDLE, interceptorName), iae);
+                    throw new Fault(new Message("COULD_NOT_CREATE_ANNOTATION_OBJECT", 
+                                                    BUNDLE, annObjectName), iae);
                 }
-                if (interceptor != null) {
-                    theInterceptors.add(interceptor);
+                if (object != null) {
+                    theAnnotationObjects.add(object);
                 }
             }
         }
-        return theInterceptors;
+        return theAnnotationObjects;
     }
 
 
-    public List<Interceptor> getInInterceptors() throws EndpointException {
-        return getInterceptors(InInterceptors.class);
+    public List<Interceptor> getInInterceptors() {
+        return CastUtils.cast(getAnnotationObject(InInterceptors.class), Interceptor.class);
     }
 
-    public List<Interceptor> getOutFaultInterceptors() throws EndpointException {
-        return getInterceptors(OutFaultInterceptors.class);
+    public List<Interceptor> getOutFaultInterceptors() {
+        return CastUtils.cast(getAnnotationObject(OutFaultInterceptors.class), Interceptor.class);
     }
 
-
-    public List<Interceptor> getOutInterceptors() throws EndpointException {
-        return getInterceptors(OutInterceptors.class);
+    public List<Interceptor> getOutInterceptors() {
+        return CastUtils.cast(getAnnotationObject(OutInterceptors.class), Interceptor.class);
+    }
+        
+    public List<AbstractFeature> getFeatures() {
+        return CastUtils.cast(getAnnotationObject(Features.class), AbstractFeature.class);
     }
 
 }

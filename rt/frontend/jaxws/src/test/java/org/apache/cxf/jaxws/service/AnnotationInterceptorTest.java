@@ -23,11 +23,16 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.feature.Features;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.interceptor.InFaultInterceptors;
 import org.apache.cxf.interceptor.InInterceptors;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.OutFaultInterceptors;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.jaxws.service.AnnotationFeature.AnnotationFeatureInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,10 +62,26 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
         
         List<Interceptor> interceptors = fb.getServer().getEndpoint().getInInterceptors();
         assertTrue(hasTestInterceptor(interceptors));
+        assertFalse(hasTest2Interceptor(interceptors));
+        
+        List<Interceptor> outFaultInterceptors = fb.getServer().getEndpoint().getOutFaultInterceptors();
+        assertTrue(hasTestInterceptor(outFaultInterceptors));
+        assertTrue(hasTest2Interceptor(outFaultInterceptors));
     }
     
     @Test
-    public void testSimpleFrontendWithNoInterceptor() throws Exception {
+    public void testSimpleFrontendWithFeature() throws Exception {
+        fb.setServiceClass(HelloService.class);
+        HelloService hello = new HelloServiceImpl();
+        fb.setServiceBean(hello);
+        fb.create();
+        
+        List<AbstractFeature> features = fb.getFeatures();
+        assertTrue(hasAnnotationFeature(features));
+    }
+    
+    @Test
+    public void testSimpleFrontendWithNoAnnotation() throws Exception {
         fb.setServiceClass(HelloService.class);        
         HelloService hello = new HelloServiceImplNoAnnotation();
         fb.setServiceBean(hello);
@@ -68,21 +89,27 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
         
         List<Interceptor> interceptors = fb.getServer().getEndpoint().getInInterceptors();
         assertFalse(hasTestInterceptor(interceptors));
+        
+        List<AbstractFeature> features = fb.getFeatures();
+        assertFalse(hasAnnotationFeature(features));
     }
     
     
     @Test
-    public void testJaxwsFrontendWithNoInterceptor() throws Exception {
+    public void testJaxwsFrontendWithNoAnnotation() throws Exception {
         jfb.setServiceClass(SayHi.class);
         jfb.setServiceBean(new SayHiNoInterceptor());
         
         jfb.create();
         List<Interceptor> interceptors = jfb.getServer().getEndpoint().getInInterceptors();
         assertFalse(hasTestInterceptor(interceptors));
+        
+        List<AbstractFeature> features = fb.getFeatures();
+        assertFalse(hasAnnotationFeature(features));
     }
     
     @Test
-    public void testJaxwsFrontendWithImpl() throws Exception {
+    public void testJaxwsFrontendWithAnnotationInImpl() throws Exception {
         jfb.setServiceClass(SayHi.class);
         SayHi implementor = new SayHiImplementation();
         jfb.setServiceBean(implementor);
@@ -90,20 +117,44 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
         jfb.create();
         List<Interceptor> interceptors = jfb.getServer().getEndpoint().getInInterceptors();
         assertTrue(hasTestInterceptor(interceptors));
+        
+        List<Interceptor> inFaultInterceptors = jfb.getServer().getEndpoint().getInFaultInterceptors();
+        assertFalse(hasTestInterceptor(inFaultInterceptors));
+        assertTrue(hasTest2Interceptor(inFaultInterceptors));
+        
+        List<AbstractFeature> features = jfb.getFeatures();
+        assertTrue(hasAnnotationFeature(features));
     }
     
     @Test
-    public void testJaxWsFrontendWithInterceptorInSEI() throws Exception {
+    public void testJaxwsFrontendWithFeatureAnnotation() throws Exception {
+        jfb.setServiceClass(SayHi.class);
+        SayHi implementor = new SayHiImplementation();
+        jfb.setServiceBean(implementor);
+        
+        jfb.create();
+        List<Interceptor> interceptors = jfb.getServer().getEndpoint().getInInterceptors();
+        assertTrue(hasAnnotationFeatureInterceptor(interceptors));
+        
+        List<Interceptor> outInterceptors = jfb.getServer().getEndpoint().getOutInterceptors();
+        assertTrue(hasAnnotationFeatureInterceptor(outInterceptors));
+    }
+    
+    @Test
+    public void testJaxWsFrontendWithAnnotationInSEI() throws Exception {
         jfb.setServiceClass(SayHiInterface.class);
         jfb.setServiceBean(new SayHiInterfaceImpl());
         jfb.create();
         
         List<Interceptor> interceptors = jfb.getServer().getEndpoint().getInInterceptors();
         assertTrue(hasTestInterceptor(interceptors));
+        
+        List<AbstractFeature> features = jfb.getFeatures();
+        assertTrue(hasAnnotationFeature(features));
     }
     
     @Test
-    public void testJaxWsFrontend() throws Exception {
+    public void testJaxWsFrontendWithAnnotationInSEIAndImpl() throws Exception {
         jfb.setServiceClass(SayHiInterface.class);
         jfb.setServiceBean(new SayHiInterfaceImpl2());
         jfb.create();
@@ -123,7 +174,7 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
         }
         return flag;
     }
-    
+        
     private boolean hasTest2Interceptor(List<Interceptor> interceptors) {
         boolean flag = false;
         for (Interceptor it : interceptors) {
@@ -134,7 +185,30 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
         return flag;
     }
     
+    private boolean hasAnnotationFeature(List<AbstractFeature> features) {
+        boolean flag = false;
+        for (AbstractFeature af : features) {
+            if (af instanceof AnnotationFeature) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+    
+    private boolean hasAnnotationFeatureInterceptor(List<Interceptor> interceptors) {
+        boolean flag = false;
+        for (Interceptor it : interceptors) {
+            if (it instanceof AnnotationFeatureInterceptor) {
+                flag = true;
+            }
+        }
+        return flag;
+    }
+    
     @InInterceptors(interceptors = "org.apache.cxf.jaxws.service.TestInterceptor")
+    @OutFaultInterceptors (interceptors = {"org.apache.cxf.jaxws.service.TestInterceptor" , 
+                                           "org.apache.cxf.jaxws.service.Test2Interceptor" })
+    @Features (features = "org.apache.cxf.jaxws.service.AnnotationFeature")
     public class HelloServiceImpl implements HelloService {
         public String sayHi() {
             return "HI";
@@ -152,6 +226,8 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
                 targetNamespace = "http://mynamespace.com/",
                 endpointInterface = "org.apache.cxf.jaxws.service.SayHi")
     @InInterceptors (interceptors = {"org.apache.cxf.jaxws.service.TestInterceptor" })
+    @InFaultInterceptors (interceptors = {"org.apache.cxf.jaxws.service.Test2Interceptor" })
+    @Features (features = "org.apache.cxf.jaxws.service.AnnotationFeature")
     public class SayHiImplementation implements SayHi {
         public long sayHi(long arg) {
             return arg;
@@ -197,6 +273,7 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
             return ret;
         }        
     }
+    
     
     @WebService(endpointInterface = "org.apache.cxf.jaxws.service.SayHiInterface")
     public class SayHiInterfaceImpl implements SayHiInterface {

@@ -16,21 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.service;
+package org.apache.cxf.feature;
 
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.apache.cxf.feature.Features;
-import org.apache.cxf.interceptor.InInterceptors;
-
-@SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
-@WebService(name = "Hello", targetNamespace = "http://mynamespace.com/")
-@InInterceptors (interceptors = "org.apache.cxf.jaxws.service.TestInterceptor")
-@Features (features = "org.apache.cxf.jaxws.service.AnnotationFeature")
-public interface SayHiInterface {
-
-    @WebMethod(operationName = "sayHi", exclude = false)
-    String sayHi(String s);
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Features {
+    String[] features();
 }

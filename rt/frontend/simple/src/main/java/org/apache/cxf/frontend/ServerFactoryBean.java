@@ -119,10 +119,6 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
                 ep.getService().setInvoker(invoker);
             }
             
-            if (getServiceBean() != null) {
-                initializeAnnotationInterceptors(ep);
-            }
-            
             if (start) {
                 server.start();
             }
@@ -132,6 +128,10 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
             throw new ServiceConstructionException(e);
         } catch (IOException e) {
             throw new ServiceConstructionException(e);
+        }
+        
+        if (getServiceBean() != null) {
+            initializeAnnotationInterceptors(server.getEndpoint());
         }
         
         applyFeatures();
@@ -197,29 +197,36 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
         }
     }
     
-    protected void initializeAnnotationInterceptors(Endpoint ep) throws EndpointException {
-        Object implementor = getServiceBean();
-        if (initializeAnnotationInterceptors(ep, implementor.getClass())) {
-            LOG.fine("added annotation based interceptors");
+    /**
+     * Add annotationed Interceptors and Features to the Endpoint
+     * @param ep
+     */
+    protected void initializeAnnotationInterceptors(Endpoint ep) {
+        AnnotationInterceptors provider = new AnnotationInterceptors(getServiceBean().getClass());
+        if (initializeAnnotationInterceptors(provider, ep)) {
+            LOG.fine("Added annotation based interceptors");
+        }
+        if (provider.getFeatures() != null) {
+            getFeatures().addAll(provider.getFeatures());
+            LOG.fine("Added annotation based features");
         }
     }
     
-    protected boolean initializeAnnotationInterceptors(Endpoint ep, Class<?> clazz) throws EndpointException {
+    protected boolean initializeAnnotationInterceptors(AnnotationInterceptors provider, Endpoint ep) {
         boolean hasAnnotation = false;
-        AnnotationInterceptors provider = new AnnotationInterceptors(clazz);
-        if (provider.getInFaultInterceptors().size() > 0) {
+        if (provider.getInFaultInterceptors() != null) {
             ep.getInFaultInterceptors().addAll(provider.getInFaultInterceptors());
             hasAnnotation = true;
         }
-        if (provider.getInInterceptors().size() > 0) {
+        if (provider.getInInterceptors() != null) {
             ep.getInInterceptors().addAll(provider.getInInterceptors());
             hasAnnotation = true;
         }
-        if (provider.getOutFaultInterceptors().size() > 0) {
+        if (provider.getOutFaultInterceptors() != null) {
             ep.getOutFaultInterceptors().addAll(provider.getOutFaultInterceptors());
             hasAnnotation = true;
         }
-        if (provider.getOutInterceptors().size() > 0) {
+        if (provider.getOutInterceptors() != null) {
             ep.getOutInterceptors().addAll(provider.getOutInterceptors());
             hasAnnotation = true;
         }
