@@ -30,7 +30,7 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 
-public class AegisServerTest extends AbstractBusTestServerBase {
+public class AegisServer extends AbstractBusTestServerBase {
 
     private org.mortbay.jetty.Server server;
     
@@ -78,7 +78,7 @@ public class AegisServerTest extends AbstractBusTestServerBase {
     
     public static void main(String args[]) {
         try {
-            AegisServerTest s = new AegisServerTest();
+            AegisServer s = new AegisServer();
             s.start();
         } catch (Exception ex) {
             ex.printStackTrace();
