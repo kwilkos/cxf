@@ -38,6 +38,7 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -50,6 +51,7 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    @Ignore
     public void testGetBookWithXmlRootElement() throws Exception {
         JaxWsProxyFactoryBean sf = new JaxWsProxyFactoryBean();
         sf.setServiceClass(BookService.class);
@@ -102,6 +104,7 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @Ignore
     public void testGetBookJSON() throws Exception {
         String endpointAddress =
             "http://localhost:9080/json/books/123"; 
