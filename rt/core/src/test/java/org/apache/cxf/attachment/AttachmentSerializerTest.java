@@ -70,7 +70,7 @@ public class AttachmentSerializerTest extends Assert {
         String ct = (String) msg.get(Message.CONTENT_TYPE);
         assertTrue(ct.indexOf("multipart/related;") == 0);
         assertTrue(ct.indexOf("start=\"<root.message@cxf.apache.org>\"") > -1);
-        assertTrue(ct.indexOf("start-info=\"application/soap+xml; charset=UTF-8\"") > -1);
+        assertTrue(ct.indexOf("start-info=\"application/soap+xml\"") > -1);
         out.write("<soap:Body/>".getBytes());
         
         serializer.writeAttachments();
@@ -132,7 +132,7 @@ public class AttachmentSerializerTest extends Assert {
         String ct = (String) msg.get(Message.CONTENT_TYPE);
         assertTrue(ct.indexOf("multipart/related;") == 0);
         assertTrue(ct.indexOf("start=\"<root.message@cxf.apache.org>\"") > -1);
-        assertTrue(ct.indexOf("start-info=\"application/soap+xml; charset=UTF-8\"") > -1);
+        assertTrue(ct.indexOf("start-info=\"application/soap+xml\"") > -1);
         
         out.write("<soap:Body/>".getBytes());
         

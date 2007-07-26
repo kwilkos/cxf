@@ -33,11 +33,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transport.http.HTTPSession;
 import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
@@ -221,6 +223,11 @@ public class ServletController {
             
             inMessage.put(Message.ENCODING, enc);
             SSLUtils.propogateSecureSession(request, inMessage);
+            
+            ExchangeImpl exchange = new ExchangeImpl();
+            exchange.setInMessage(inMessage);
+            exchange.setSession(new HTTPSession(request));
+            
             d.doMessage(inMessage);
         } catch (IOException e) {
             throw new ServletException(e);

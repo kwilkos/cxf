@@ -71,8 +71,6 @@ public class AttachmentSerializer {
             .append(">\"; ")
             .append("start-info=\"")
             .append(bodyCt)
-            .append("; charset=")
-            .append(enc)
             .append("\"");
         
         message.put(Message.CONTENT_TYPE, ct.toString());

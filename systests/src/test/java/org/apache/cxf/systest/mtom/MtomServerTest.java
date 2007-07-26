@@ -63,7 +63,7 @@ public class MtomServerTest extends AbstractCXFTest {
         props.put(Message.MTOM_ENABLED, "true");
         sf.setProperties(props);
         sf.create();
-
+        
         EndpointInfo ei = new EndpointInfo(null, HTTP_ID);
         ei.setAddress(address);
 
@@ -77,7 +77,7 @@ public class MtomServerTest extends AbstractCXFTest {
         Message m = new MessageImpl();
         String ct = "multipart/related; type=\"application/xop+xml\"; "
                     + "start=\"<soap.xml@xfire.codehaus.org>\"; "
-                    + "start-info=\"text/xml; charset=utf-8\"; "
+                    + "start-info=\"text/xml\"; "
                     + "boundary=\"----=_Part_4_701508.1145579811786\"";
 
         m.put(Message.CONTENT_TYPE, ct);

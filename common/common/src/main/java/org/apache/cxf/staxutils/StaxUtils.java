@@ -767,10 +767,14 @@ public final class StaxUtils {
         String localName = value.substring(index + 1);
         String ns = reader.getNamespaceURI(prefix);
 
-        if (ns == null || localName == null) {
+        if ((prefix != null && ns == null) || localName == null) {
             throw new RuntimeException("Invalid QName in mapping: " + value);
         }
 
+        if (ns == null) {
+            return new QName(localName);
+        }
+        
         return new QName(ns, localName, prefix);
     }
     

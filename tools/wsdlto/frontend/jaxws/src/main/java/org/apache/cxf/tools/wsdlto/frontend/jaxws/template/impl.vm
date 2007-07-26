@@ -42,7 +42,7 @@ import ${import};
                       
 public class ${intf.Name}Impl implements $intf.Name {
 
-    private static final Logger LOG = Logger.getLogger(${intf.Name}Impl.class.getPackage().getName());
+    private static final Logger LOG = Logger.getLogger(${intf.Name}Impl.class.getName());
 
 #foreach ($method in $intf.Methods)
     /* (non-Javadoc)

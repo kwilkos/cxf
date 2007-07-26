@@ -84,7 +84,7 @@ public class SoapFault extends Fault {
             codePrefix = prefix;
         }
         
-        return prefix + ":" + fCode.getLocalPart();        
+        return codePrefix + ":" + fCode.getLocalPart();        
     }
 
     public String getReason() {
