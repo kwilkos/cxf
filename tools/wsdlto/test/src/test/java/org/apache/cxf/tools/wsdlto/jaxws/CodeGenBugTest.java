@@ -605,7 +605,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
             fail("exception should be thrown");
         } catch (Exception e) {
             assertTrue("Fail to create java parameter exception should be thrown",
-                       e.getMessage().indexOf("Fail to create java parameter") > -1);
+                       e.getMessage().indexOf("Failed to create java parameter") > -1);
         }
 
     }
