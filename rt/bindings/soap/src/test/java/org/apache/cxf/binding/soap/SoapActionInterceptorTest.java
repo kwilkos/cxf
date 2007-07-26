@@ -24,7 +24,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapActionOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.ExchangeImpl;
@@ -42,7 +42,7 @@ public class SoapActionInterceptorTest extends Assert {
     
     @Test
     public void testSoapAction() throws Exception {
-        SoapActionInterceptor i = new SoapActionInterceptor();
+        SoapActionOutInterceptor i = new SoapActionOutInterceptor();
         
         Message message = new MessageImpl();
         message.setExchange(new ExchangeImpl());
@@ -53,7 +53,7 @@ public class SoapActionInterceptorTest extends Assert {
         assertTrue(message instanceof SoapMessage);
         SoapMessage soapMessage = (SoapMessage) message;
         assertEquals(Soap11.getInstance(), soapMessage.getVersion());
-        (new SoapActionInterceptor()).handleMessage(soapMessage);
+        (new SoapActionOutInterceptor()).handleMessage(soapMessage);
         Map<String, List<String>> reqHeaders = CastUtils.cast((Map)soapMessage.get(Message.PROTOCOL_HEADERS));
         assertNotNull(reqHeaders);
         assertEquals("\"\"", reqHeaders.get("SOAPAction").get(0));

@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.helpers.CastUtils;
@@ -34,9 +35,9 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
-public class SoapActionInterceptor extends AbstractSoapInterceptor {
+public class SoapActionOutInterceptor extends AbstractSoapInterceptor {
     
-    public SoapActionInterceptor() {
+    public SoapActionOutInterceptor() {
         super(Phase.POST_LOGICAL);
     }
     
@@ -54,17 +55,7 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
             boi = boi.getWrappedOperation();
         }
         
-        String action = null;
-        if (boi == null) {
-            action = "\"\"";
-        } else {
-            SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
-            action = soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction();
-            if (!action.startsWith("\"")) {
-                action = new StringBuffer().append("\"").append(action).append("\"").toString();
-            }
-            
-        }
+        String action = getSoapAction(message, boi);
         
         if (message.getVersion() instanceof Soap11) {
             Map<String, List<String>> reqHeaders = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
@@ -88,6 +79,26 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
                 message.put(Message.CONTENT_TYPE, ct);
             }
         }
+    }
+
+    private String getSoapAction(SoapMessage message, BindingOperationInfo boi) {
+        // allow an interceptor to override the SOAPAction if need be
+        String action = (String) message.get(SoapConstants.SOAP_ACTION);
+        
+        // Fall back on the SOAPAction in the operation info
+        if (action == null) {
+            if (boi == null) {
+                action = "\"\"";
+            } else {
+                SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
+                action = soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction();
+                if (!action.startsWith("\"")) {
+                    action = new StringBuffer().append("\"").append(action).append("\"").toString();
+                }
+            }
+        }
+        
+        return action;
     }
 
 }

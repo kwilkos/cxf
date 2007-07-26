@@ -227,6 +227,9 @@
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_doc_lit.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_soap_action.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/doc_lit_bare.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>

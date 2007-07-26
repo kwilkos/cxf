@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Client;
@@ -231,5 +232,12 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     public void setDataBinding(DataBinding dataBinding) {
         this.dataBinding = dataBinding;
     }
+
+    public void setBindingConfig(BindingConfiguration config) {
+        getClientFactoryBean().setBindingConfig(config);
+    }
     
+    public BindingConfiguration getBindingConfig() {
+        return getClientFactoryBean().getBindingConfig();
+    }
 }

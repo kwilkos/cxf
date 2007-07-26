@@ -38,7 +38,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
-import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapActionOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
@@ -191,7 +191,7 @@ public class SOAPHandlerInterceptor extends
                     // well for outbound case, as many outbound interceptors
                     // have their ending interceptors.
                     // For example, we can not skip MessageSenderInterceptor.
-                    chain.doInterceptStartingAfter(responseMsg, SoapActionInterceptor.class.getName());
+                    chain.doInterceptStartingAfter(responseMsg, SoapActionOutInterceptor.class.getName());
                 }
 
             } else {

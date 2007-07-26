@@ -19,11 +19,11 @@
 
 package org.apache.cxf.binding.soap;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOutput;
 import javax.wsdl.Definition;
@@ -47,7 +47,8 @@ import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor;
-import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapActionInInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapActionOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapHeaderInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
@@ -332,8 +333,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
             sb.getInInterceptors().add(new AttachmentInInterceptor());
             sb.getInInterceptors().add(new StaxInInterceptor());
-
-            sb.getOutInterceptors().add(new SoapActionInterceptor());
+            sb.getInInterceptors().add(new SoapActionInInterceptor());
+            
+            sb.getOutInterceptors().add(new SoapActionOutInterceptor());
             sb.getOutInterceptors().add(new AttachmentOutInterceptor());
             sb.getOutInterceptors().add(new StaxOutInterceptor());
 
