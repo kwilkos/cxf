@@ -22,6 +22,7 @@ package org.apache.cxf.transport.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PushbackInputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -925,18 +926,77 @@ public class HTTPConduit
     }
     
     /**
+     * @return true if expecting a decoupled response
+     */
+    private boolean isDecoupled() {
+        return decoupledDestination != null;
+    }
+    
+    /**
+     * Get an input stream containing the partial response if one is present.
+     * 
      * @param connection the connection in question
      * @param responseCode the response code
-     * @return true if a partial response is pending on the connection 
+     * @return an input stream if a partial response is pending on the connection 
      */
-    private boolean isPartialResponse(
+    protected static InputStream getPartialResponse(
         HttpURLConnection connection,
         int responseCode
+    ) throws IOException {
+        InputStream in = null;
+        if (responseCode == HttpURLConnection.HTTP_ACCEPTED
+            || responseCode == HttpURLConnection.HTTP_OK) {
+            if (connection.getContentLength() > 0) {
+                in = connection.getInputStream();
+            } else if (hasChunkedResponse(connection) 
+                       || hasEofTerminatedResponse(connection)) {
+                // ensure chunked or EOF-terminated response is non-empty
+                in = getNonEmptyContent(connection);        
+            }
+        }
+        return in;
+    }
+    
+    /**
+     * @param connection the given HttpURLConnection
+     * @return true iff the connection has a chunked response pending
+     */
+    private static boolean hasChunkedResponse(HttpURLConnection connection) {
+        return HttpHeaderHelper.CHUNKED.equalsIgnoreCase(
+                   connection.getHeaderField(HttpHeaderHelper.TRANSFER_ENCODING));
+    }
+    
+    /**
+     * @param connection the given HttpURLConnection
+     * @return true iff the connection has a chunked response pending
+     */
+    private static boolean hasEofTerminatedResponse(
+        HttpURLConnection connection
     ) {
-        return (responseCode == HttpURLConnection.HTTP_ACCEPTED
-               && connection.getContentLength() != 0)
-               || (responseCode == HttpURLConnection.HTTP_OK
-                   && connection.getContentLength() > 0);
+        return HttpHeaderHelper.CLOSE.equalsIgnoreCase(
+                   connection.getHeaderField(HttpHeaderHelper.CONNECTION));
+    }
+
+    /**
+     * @param connection the given HttpURLConnection
+     * @return an input stream containing the response content if non-empty
+     */
+    private static InputStream getNonEmptyContent(
+        HttpURLConnection connection
+    ) {
+        InputStream in = null;
+        try {
+            PushbackInputStream pin = 
+                new PushbackInputStream(connection.getInputStream());
+            int c = pin.read();
+            if (c != -1) {
+                pin.unread((byte)c);
+                in = pin;
+            }
+        } catch (IOException ioe) {
+            // ignore
+        }    
+        return in;
     }
 
     /**
@@ -1852,16 +1912,20 @@ public class HTTPConduit
             
             Exchange exchange = outMessage.getExchange();
 
-            if (isOneway(exchange)
-                && !isPartialResponse(connection, responseCode)) {
-                // oneway operation without partial response
-                connection.getInputStream().close();
-                return;
+            InputStream in = null;
+            if (isOneway(exchange) || isDecoupled()) {
+                in = getPartialResponse(connection, responseCode);
+                if (in == null) {
+                    // oneway operation or decoupled MEP without 
+                    // partial response
+                    connection.getInputStream().close();
+                    return;
+                }
             }
             
             Message inMessage = new MessageImpl();
             inMessage.setExchange(exchange);
-            InputStream in = null;
+            
             Map<String, List<String>> headers = 
                 new HashMap<String, List<String>>();
             for (String key : connection.getHeaderFields().keySet()) {
@@ -1886,10 +1950,12 @@ public class HTTPConduit
                 }
             }
 
-            in = connection.getErrorStream();
-            if (null == in) {
-                in = connection.getInputStream();
-            }
+            in = in == null
+                 ? connection.getErrorStream() == null
+                   ? connection.getInputStream()
+                   : connection.getErrorStream()
+                 : in;
+                   
             if (in == null) {
                 LOG.log(Level.WARNING, "Input Stream is null!");
             }

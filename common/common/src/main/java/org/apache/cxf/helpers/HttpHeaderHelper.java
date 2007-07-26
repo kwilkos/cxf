@@ -29,6 +29,11 @@ public final class HttpHeaderHelper {
     public static final String CONTENT_ID = "Content-ID";
     public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
     public static final String COOKIE = "Cookie";
+    public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+    public static final String CHUNKED = "chunked";
+    public static final String CONNECTION = "Connection";
+    public static final String CLOSE = "close";
+
     
     private static Map<String, String> internalHeaders = new HashMap<String, String>();
     
@@ -36,6 +41,8 @@ public final class HttpHeaderHelper {
         internalHeaders.put("Content-Type", "content-type");
         internalHeaders.put("Content-ID", "content-id");
         internalHeaders.put("Content-Transfer-Encoding", "content-transfer-encoding"); 
+        internalHeaders.put("Transfer-Encoding", "transfer-encoding");
+        internalHeaders.put("Connection", "connection");
     }
     
     private HttpHeaderHelper() {
