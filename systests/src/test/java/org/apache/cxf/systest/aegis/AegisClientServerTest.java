@@ -34,6 +34,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AegisClientServerTest extends AbstractBusClientServerTestBase {
@@ -45,6 +46,7 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @Ignore
     public void testAegisClient() throws Exception {
         Bus bus = new SpringBusFactory().createBus();
         bus.getInInterceptors().add(new LoggingInInterceptor());
