@@ -29,15 +29,12 @@ import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
-import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Execute;
 import org.apache.tools.ant.taskdefs.LogStreamHandler;
-import org.apache.tools.ant.types.Commandline;
-import org.apache.tools.ant.types.CommandlineJava;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
-public class WSDL2JavaTask extends CxfAntTask{
+public class WSDL2JavaTask extends CxfAntTask {
 
     private String wsdlLocation;
     private String wsdl;
