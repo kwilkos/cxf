@@ -98,7 +98,7 @@ public class CountersClientServerTest extends AbstractBusClientServerTestBase {
         MBeanServer mbs = im.getMBeanServer();
         ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
                                          + ":" + ManagementConstants.BUS_ID_PROP
-                                         + "=CXF" + bus.hashCode() + ",*");        
+                                         + "=cxf" + bus.hashCode() + ",*");        
         
         SOAPService service = new SOAPService();
         assertNotNull(service);        

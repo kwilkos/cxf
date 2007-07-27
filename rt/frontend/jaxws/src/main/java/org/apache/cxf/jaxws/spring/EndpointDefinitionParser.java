@@ -29,6 +29,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
@@ -59,8 +60,8 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
         NamedNodeMap atts = element.getAttributes();
         String bus = element.getAttribute("bus");
         if (StringUtils.isEmpty(bus)) {
-            if (ctx.getRegistry().containsBeanDefinition("cxf")) {
-                bean.addConstructorArgReference("cxf");
+            if (ctx.getRegistry().containsBeanDefinition(Bus.DEFAULT_BUS_ID)) {
+                bean.addConstructorArgReference(Bus.DEFAULT_BUS_ID);
             }
         } else {
             if (ctx.getRegistry().containsBeanDefinition(bus)) {

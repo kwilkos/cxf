@@ -30,9 +30,8 @@ import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 
 public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus {    
-    protected static final String DEFAULT_BUS_ID = "CXF";
+    
     protected final Map<Class, Object> extensions;
-    private BusLifeCycleManager lifeCycleManager;
     private String id;
     private BusState state;      
     private Collection<AbstractFeature> features;
@@ -50,7 +49,7 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
         this.extensions = extensions;
         
         state = BusState.INITIAL;
-        lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
+        BusLifeCycleManager lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
         if (null != lifeCycleManager) {
             lifeCycleManager.initComplete();
         }
@@ -116,7 +115,7 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
     }
 
     public void shutdown(boolean wait) {
-        lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
+        BusLifeCycleManager lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
         if (null != lifeCycleManager) {
             lifeCycleManager.preShutdown();
         }

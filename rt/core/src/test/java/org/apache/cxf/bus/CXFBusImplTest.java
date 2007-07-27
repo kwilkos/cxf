@@ -22,6 +22,7 @@ package org.apache.cxf.bus;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
@@ -98,7 +99,7 @@ public class CXFBusImplTest extends Assert {
     public void testBusID() {
         CXFBusImpl bus = new CXFBusImpl();
         String id = bus.getId();
-        assertEquals("The bus id should be cxf", id, CXFBusImpl.DEFAULT_BUS_ID + bus.hashCode());
+        assertEquals("The bus id should be cxf", id, Bus.DEFAULT_BUS_ID + bus.hashCode());
         bus.setId("test");
         assertEquals("The bus id should be changed", bus.getId(), "test");
     }

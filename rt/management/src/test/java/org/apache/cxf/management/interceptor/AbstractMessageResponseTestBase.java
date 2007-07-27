@@ -93,7 +93,7 @@ public class AbstractMessageResponseTestBase extends Assert {
         bus.getExtension(CounterRepository.class);
         EasyMock.expectLastCall().andReturn(cRepository);
         if (increase) {
-            EasyMock.expect(bus.getId()).andReturn("cxf");
+            EasyMock.expect(bus.getId()).andReturn(Bus.DEFAULT_BUS_ID);
             cRepository.increaseCounter(EasyMock.eq(serviceCounterOName),
                                                EasyMock.isA(MessageHandlingTimeRecorder.class));
             EasyMock.expectLastCall();

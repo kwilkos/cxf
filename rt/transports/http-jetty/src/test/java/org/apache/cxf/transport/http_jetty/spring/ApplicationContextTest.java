@@ -95,7 +95,7 @@ public class ApplicationContextTest extends Assert {
         
         EndpointInfo info = getEndpointInfo("bla", "Foo", "http://localhost:9000");
         
-        Bus bus = (Bus) ctx.getBean("cxf");
+        Bus bus = (Bus) ctx.getBean(Bus.DEFAULT_BUS_ID);
         bus.setExtension(cfg, Configurer.class);
         
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);

@@ -35,8 +35,6 @@ import org.springframework.context.ApplicationContext;
 
 public class SpringBusFactory extends BusFactory {
     
-    private static final String DEFAULT_BUS_ID = "cxf";
-    
     private static final Logger LOG = LogUtils.getL7dLogger(SpringBusFactory.class);
     
     private final ApplicationContext context;
@@ -55,7 +53,7 @@ public class SpringBusFactory extends BusFactory {
     
     private boolean defaultBusNotExists() {
         if (null != context) {
-            context.containsBean("cxf");
+            context.containsBean(Bus.DEFAULT_BUS_ID);
             return false;
         } else {
             return true;
@@ -67,7 +65,7 @@ public class SpringBusFactory extends BusFactory {
     }
         
     private Bus finishCreatingBus(BusApplicationContext bac) {
-        final Bus bus = (Bus)bac.getBean(DEFAULT_BUS_ID);
+        final Bus bus = (Bus)bac.getBean(Bus.DEFAULT_BUS_ID);
 
         bus.setExtension(new ConfigurerImpl(bac), Configurer.class);
 

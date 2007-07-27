@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
@@ -59,7 +60,7 @@ public class BusDefinitionParser extends AbstractBeanDefinitionParser {
     protected String getIdOrName(Element elem) {
         String id = super.getIdOrName(elem); 
         if (StringUtils.isEmpty(id)) {
-            id = "cxf";
+            id = Bus.DEFAULT_BUS_ID;
         }
         return id;
     }

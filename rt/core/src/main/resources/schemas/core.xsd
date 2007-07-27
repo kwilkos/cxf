@@ -28,7 +28,21 @@
   <xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans.xsd"/>
   <xsd:import namespace="http://cxf.apache.org/configuration/beans" schemaLocation="http://cxf.apache.org/schemas/configuration/cxf-beans.xsd"/>
 
+  <xsd:annotation>
+    <xsd:documentation>
+      This schema defines beans representing the CXF bus and its core features.
+    </xsd:documentation>
+  </xsd:annotation>
+
   <xsd:element name="logging">
+    <xsd:annotation>
+      <xsd:documentation>
+        The logging feature enables you to log the content of inbound and outbound messages and faults.
+        The content is logged by all log handlers configured in your java.util.logging configuration file, 
+        provided the log level for classes org.apache.cxf.interceptor.LoggingInInterceptor and 
+        org.apache.cxf.interceptor.LoggingOutInterceptor is at least INFO.
+      </xsd:documentation>
+    </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence />
     </xsd:complexType>
@@ -36,12 +50,52 @@
   
   <xsd:element name="bus">
     <xsd:complexType>
-      <xsd:all>
-        <xsd:element name="features" type="xsd:anyType" minOccurs="0"/>
-        <xsd:element name="inInterceptors" type="xsd:anyType" minOccurs="0"/>
-        <xsd:element name="inFaultInterceptors" type="xsd:anyType" minOccurs="0"/>
-        <xsd:element name="outInterceptors" type="xsd:anyType" minOccurs="0"/>
-        <xsd:element name="outFaultInterceptors" type="xsd:anyType" minOccurs="0"/>
+      <xsd:all>        
+        <xsd:element name="features" type="xsd:anyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+                The list of features that are applied to the bus.
+                Child elements of this element must be beans whose bean class extends 
+                org.apache.cxf.AbstractFeature, or references to such beans.
+            </xsd:documentation>
+        </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="inInterceptors" type="xsd:anyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+                The list of interceptors that the bus contributes to all inbound message interceptor chains.
+                Child elements of this element must be beans whose bean class implements 
+                org.apache.cxf.Interceptor, or references to such beans.
+            </xsd:documentation>          
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="inFaultInterceptors" type="xsd:anyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+                The list of interceptors that the bus contributes to all inbound fault interceptor chains.
+                Child elements of this element must be beans whose bean class implements 
+                org.apache.cxf.Interceptor, or references to such beans.
+            </xsd:documentation>          
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="outInterceptors" type="xsd:anyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+                The list of interceptors that the bus contributes to all outbound message interceptor chains.
+                Child elements of this element must be beans whose bean class implements 
+                org.apache.cxf.Interceptor, or references to such beans.
+            </xsd:documentation>          
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="outFaultInterceptors" type="xsd:anyType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+                The list of interceptors that the bus contributes to all outbound fault interceptor chains.
+                Child elements of this element must be beans whose bean class implements 
+                org.apache.cxf.Interceptor, or references to such beans.
+            </xsd:documentation>          
+          </xsd:annotation>
+        </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>          
     </xsd:complexType>

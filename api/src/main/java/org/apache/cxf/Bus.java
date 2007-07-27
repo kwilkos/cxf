@@ -29,6 +29,8 @@ import org.apache.cxf.interceptor.InterceptorProvider;
  */
 public interface Bus extends InterceptorProvider {
     
+    String DEFAULT_BUS_ID = "cxf";
+    
     <T> T getExtension(Class<T> extensionType);
     
     <T> void setExtension(T extension, Class<T> extensionType);
