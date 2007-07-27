@@ -32,7 +32,7 @@ public class SoapActionTest extends AbstractCXFTest {
 
     @Test
     public void testEndpoint() throws Exception {
-        String add = "http://localhost:8080/test";
+        String add = "http://localhost:9036/test";
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new SoapActionGreeterImpl());
         sf.setAddress(add);
@@ -52,7 +52,7 @@ public class SoapActionTest extends AbstractCXFTest {
     
     @Test
     public void testSoap12Endpoint() throws Exception {
-        String add = "http://localhost:8080/test";
+        String add = "http://localhost:9036/test";
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceBean(new SoapActionGreeterImpl());
         sf.setAddress(add);
