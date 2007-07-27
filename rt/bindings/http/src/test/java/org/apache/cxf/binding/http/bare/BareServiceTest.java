@@ -34,13 +34,11 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class BareServiceTest extends AbstractRestTest {
     
     @Test
-    @Ignore
     public void testCreation() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         HttpBindingFactory factory = new HttpBindingFactory();
