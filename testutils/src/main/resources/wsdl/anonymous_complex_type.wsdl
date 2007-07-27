@@ -89,7 +89,7 @@
     <wsdl:binding name="anonymous_complex_typeSOAP" type="tns:anonymous_complex_type">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
         <wsdl:operation name="SplitName">
-            <soap:operation soapAction="http://cxf.apache.org/anonymous_complex_type/SplitName" />
+            <soap:operation />
             <wsdl:input>
                 <soap:body use="literal" />
             </wsdl:input>
@@ -98,7 +98,7 @@
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="RefSplitName">
-            <soap:operation soapAction="http://cxf.apache.org/anonymous_complex_type/SplitName" />
+            <soap:operation />
             <wsdl:input>
                 <soap:body use="literal" />
             </wsdl:input>

@@ -34,6 +34,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 public class SoapActionInInterceptor extends AbstractSoapInterceptor {
     
@@ -95,6 +96,8 @@ public class SoapActionInInterceptor extends AbstractSoapInterceptor {
             SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
             if (soi != null && soi.getAction().equals(action)) {
                 ex.put(BindingOperationInfo.class, boi);
+                ex.put(OperationInfo.class, boi.getOperationInfo());
+                return;
             }
         }
     }
