@@ -305,45 +305,56 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeGroupIds>org.apache.cxf</includeGroupIds>
-                            <classifier>sources</classifier>
-                            <outputDirectory>${project.build.directory}/sources</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>package</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <header>Apache CXF API</header>
-                    <footer>Apache CXF API</footer>
-                    <sourcepath>${project.build.directory}/sources</sourcepath>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+         <profile>
+             <id>deploy</id>
+             <build>
+                 <plugins>
+                     <plugin>
+                         <groupId>org.apache.maven.plugins</groupId>
+                         <artifactId>maven-dependency-plugin</artifactId>
+                         <executions>
+                             <execution>
+                                 <id>unpack-sources</id>
+                                 <phase>generate-sources</phase>
+                                 <goals>
+                                     <goal>unpack-dependencies</goal>
+                                 </goals>
+                                 <configuration>
+                                     <includeGroupIds>org.apache.cxf</includeGroupIds>
+                                     <classifier>sources</classifier>
+                                     <outputDirectory>${project.build.directory}/sources</outputDirectory>
+                                 </configuration>
+                             </execution>
+                         </executions>
+                     </plugin>
+
+                     <plugin>
+                         <groupId>org.apache.maven.plugins</groupId>
+                         <artifactId>maven-javadoc-plugin</artifactId>
+                         <executions>
+                             <execution>
+                                 <id>package</id>
+                                 <phase>package</phase>
+                                 <goals>
+                                     <goal>jar</goal>
+                                 </goals>
+                             </execution>
+                         </executions>
+                         <configuration>
+                             <header>Apache CXF API</header>
+                             <footer>Apache CXF API</footer>
+                             <sourcepath>${project.build.directory}/sources</sourcepath>
+                         </configuration>
+                     </plugin>
+                 </plugins>
+             </build>
+         </profile>
+    </profiles>
+
 
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</connection>
