@@ -217,13 +217,8 @@
                          </execution>
                      </executions>
                      <configuration>
-                         <attach>true</attach>
-                         <quiet>true</quiet>
-                         <bottom>Apache CXF is an effort undergoing incubation at the Apache Software Foundation(ASF) and sponsored by the Apache Incubator PMC.</bottom>
                          <header>Apache CXF API</header>
                          <footer>Apache CXF API</footer>
-                         <sourcepath>${basedir}/src/main/java${path.separator}${basedir}/target/generated/src/main/java</sourcepath>
-                         <subpackages>org.apache.cxf</subpackages>
                      </configuration>
                  </plugin>
              </plugins>
