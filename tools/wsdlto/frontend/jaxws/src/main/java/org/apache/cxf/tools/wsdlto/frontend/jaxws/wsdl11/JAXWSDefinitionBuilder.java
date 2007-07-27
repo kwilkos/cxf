@@ -54,10 +54,10 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.CustomizationParser;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBindingDeserializer;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBindingSerializer;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.CustomizationParser;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBindingDeserializer;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBindingSerializer;
 import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 
 public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {

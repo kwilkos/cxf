@@ -35,7 +35,7 @@ import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
 
 public class FaultProcessor extends AbstractProcessor {
     private ClassCollector  collector;
@@ -74,8 +74,8 @@ public class FaultProcessor extends AbstractProcessor {
         if (namespace.equals(method.getInterface().getNamespace())) {
             packageName = method.getInterface().getPackageName();
         }
-        
-        
+
+
         JAXWSBinding jaxwsBinding = faultMessage.getExtensor(JAXWSBinding.class);
         if (jaxwsBinding != null) {
             if (jaxwsBinding.getPackage() != null) {
@@ -122,7 +122,7 @@ public class FaultProcessor extends AbstractProcessor {
             }
 
             String fType = ProcessorUtil.getType(part, context, false);
-            
+
             //REVISIT - custom JAXB package names
             String fPackageName = method.getInterface().getPackageName();
 

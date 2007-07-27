@@ -140,8 +140,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 builder.setContext(context);
                 builder.setBus(getBus());
 
-                // TODO: Modify builder api, let customized definition make
-                // sense.
                 builder.build(URIParserUtil.getAbsoluteURI(wsdlURL));
                 builder.customize();
                 Definition definition = builder.getWSDLModel();
@@ -268,14 +266,14 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                         return qn;
                     }
                 }
-            }            
+            }
         }
-        
+
         if (qname == null) {
             Message msg = new Message("SERVICE_NOT_FOUND", LOG, new Object[] {serviceName});
             throw new ToolException(msg);
         }
-        
+
         return qname;
     }
 

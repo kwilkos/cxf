@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customization;
 
 public class JAXWSParameter {
     private String name;
     private String eleName;
     private String messageName;
-    
+
     public JAXWSParameter(String msgName , String elementName, String name) {
         this.messageName = msgName;
         this.eleName = elementName;
@@ -44,15 +44,15 @@ public class JAXWSParameter {
     public String getElementName() {
         return eleName;
     }
-    
+
     public String getMessageName() {
         return this.messageName;
     }
-    
+
     public void setMessageName(String msgName) {
         this.messageName = msgName;
     }
-    
-    
+
+
 
 }

@@ -81,7 +81,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             while (it.hasNext()) {
                 Object obj = it.next();
                 SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
-                if (soapBinding != null 
+                if (soapBinding != null
                     && soapBinding.getStyle().equalsIgnoreCase("document")) {
                     found = true;
                     break;
@@ -208,19 +208,19 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testNewSoap12Binding() throws Exception {
-        String[] args = new String[] {"-i", "Greeter", 
-                                      "-soap12",                                      
+        String[] args = new String[] {"-i", "Greeter",
+                                      "-soap12",
                                       "-b", "Greeter_SOAP12Binding",
-                                      "-d", output.getCanonicalPath(), 
+                                      "-d", output.getCanonicalPath(),
                                       "-o", "hello_world_soap12_newbinding.wsdl",
                                       getLocation("/misctools_wsdl/hello_world_soap12_nobinding.wsdl")};
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_soap12_newbinding.wsdl");
-        
+
         assertTrue("New wsdl file is not generated", outputFile.exists());
         assertTrue("Generated file is empty!", outputFile.length() > 0);
-        
+
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         processor.setEnvironment(env);
         try {
@@ -235,7 +235,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             Iterator it = binding.getExtensibilityElements().iterator();
 
             while (it.hasNext()) {
-                Object obj = it.next();                
+                Object obj = it.next();
                 assertTrue(SOAPBindingUtil.isSOAPBinding(obj));
                 assertTrue(obj instanceof SOAP12Binding);
                 SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
@@ -244,7 +244,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
                 assertTrue(WSDLConstants.SOAP12_HTTP_TRANSPORT.
                            equalsIgnoreCase(soapBinding.getTransportURI()));
             }
-            
+
             BindingOperation bo = binding.getBindingOperation("sayHi", null, null);
             if (bo == null) {
                 fail("Element <wsdl:operation name=\"sayHi\"> Missed!");
@@ -272,21 +272,21 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-    }    
-    
+    }
+
     @Test
     public void testAddSoap12Binding() throws Exception {
-        String[] args = new String[] {"-i", "Greeter", 
+        String[] args = new String[] {"-i", "Greeter",
                                       "-soap12",
                                       "-b", "Greeter_SOAP12Binding",
-                                      "-d", output.getCanonicalPath(), 
+                                      "-d", output.getCanonicalPath(),
                                       "-o", "hello_world_soap12_newbinding.wsdl",
                                       getLocation("/misctools_wsdl/hello_world_soap12.wsdl")};
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_soap12_newbinding.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        
+
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         processor.setEnvironment(env);
         try {
@@ -301,15 +301,15 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             Iterator it = binding.getExtensibilityElements().iterator();
 
             while (it.hasNext()) {
-                Object obj = it.next();                
+                Object obj = it.next();
                 assertTrue(SOAPBindingUtil.isSOAPBinding(obj));
                 assertTrue(obj instanceof SOAP12Binding);
                 SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
                 assertNotNull(soapBinding);
                 assertTrue("document".equalsIgnoreCase(soapBinding.getStyle()));
-    
+
             }
-            
+
             BindingOperation bo = binding.getBindingOperation("sayHi", null, null);
             if (bo == null) {
                 fail("Element <wsdl:operation name=\"sayHi\"> Missed!");
@@ -357,7 +357,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-    }    
+    }
 
     @Test
     public void testPartValidation() throws Exception {
@@ -374,10 +374,10 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             processor.process();
             fail("Do not catch expected tool exception for Part Reference illegal!");
         } catch (Exception e) {
-            
+
             if (!(e instanceof ToolException && e.toString()
                 .indexOf("does not use type reference (does not conform to RPC style)") >= 0)) {
-                
+
                 fail("Do not catch tool exception for Part Reference illegal, "
                      + "catch other unexpected exception: " + e.getMessage());
             }
@@ -386,24 +386,24 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     @Test
     public void testWithoutBinding() throws Exception {
-        String[] args = new String[] {"-i", "Greeter",                                    
+        String[] args = new String[] {"-i", "Greeter",
                                       "-b", "Greeter_SOAPBinding",
-                                      "-d", output.getCanonicalPath(), 
+                                      "-d", output.getCanonicalPath(),
                                       "-o", "hello_world_soap_newbinding.wsdl",
                                       getLocation("/misctools_wsdl/hello_world_nobinding.wsdl")};
         WSDLToSoap.main(args);
-        
+
         File outputFile = new File(output, "hello_world_soap_newbinding.wsdl");
-        
+
         assertTrue("New wsdl file is not generated", outputFile.exists());
         assertTrue("Generated file is empty!", outputFile.length() > 0);
-        
+
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
         processor.setEnvironment(env);
         try {
             processor.parseWSDL(outputFile.getAbsolutePath());
             Binding binding = processor.getWSDLDefinition()
-                .getBinding(new QName(processor.getWSDLDefinition().getTargetNamespace(), 
+                .getBinding(new QName(processor.getWSDLDefinition().getTargetNamespace(),
                                       "Greeter_SOAPBinding"));
             if (binding == null) {
                 fail("Element wsdl:binding Greeter_SOAPBinding_NewBinding Missed!");
@@ -411,7 +411,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             Iterator it = binding.getExtensibilityElements().iterator();
 
             while (it.hasNext()) {
-                Object obj = it.next();                
+                Object obj = it.next();
                 assertTrue(SOAPBindingUtil.isSOAPBinding(obj));
                 assertTrue(obj instanceof SOAPBinding);
                 SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
@@ -420,7 +420,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
                 assertTrue(WSDLConstants.NS_SOAP11_HTTP_BINDING.
                            equalsIgnoreCase(soapBinding.getTransportURI()));
             }
-            
+
             BindingOperation bo = binding.getBindingOperation("sayHi", null, null);
             if (bo == null) {
                 fail("Element <wsdl:operation name=\"sayHi\"> Missed!");
@@ -447,7 +447,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             }
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
-        }        
+        }
     }
 
     @Test

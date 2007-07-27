@@ -23,11 +23,11 @@ import javax.wsdl.OperationType;
 
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaMethod;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public final class MethodMapper {
-    
+
     public JavaMethod map(OperationInfo operation) {
         JavaMethod method = new JavaMethod();
         // set default Document Bare style
@@ -37,7 +37,7 @@ public final class MethodMapper {
 
         method.setName(ProcessorUtil.mangleNameToVariableName(operationName));
         method.setOperationName(operationName);
-        
+
         JAXWSBinding opBinding = operation.getExtensor(JAXWSBinding.class);
         if (opBinding != null
             && opBinding.getMethodName() != null) {
@@ -50,7 +50,7 @@ public final class MethodMapper {
         } else {
             method.setStyle(OperationType.REQUEST_RESPONSE);
         }
-        
+
         method.setWrapperStyle(operation.isUnwrappedCapable());
 
         return method;

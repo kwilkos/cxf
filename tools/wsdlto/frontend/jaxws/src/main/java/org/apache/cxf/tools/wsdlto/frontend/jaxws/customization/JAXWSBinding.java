@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customization;
 
 import java.io.Serializable;
 
@@ -45,7 +45,7 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
     private String methodName;
 
     private JAXWSParameter jaxwsPara;
-    
+
     private JAXWSClass jaxwsClass;
 
     public void setDocumentBaseURI(String baseURI) {
@@ -119,7 +119,7 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
     public JAXWSParameter getJaxwsPara() {
         return jaxwsPara;
     }
-    
+
     public void setJaxwsClass(JAXWSClass clz) {
         this.jaxwsClass = clz;
     }
@@ -127,7 +127,7 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
     public JAXWSClass getJaxwsClass() {
         return this.jaxwsClass;
     }
-    
+
 
     public void setMethodName(String name) {
         methodName = name;

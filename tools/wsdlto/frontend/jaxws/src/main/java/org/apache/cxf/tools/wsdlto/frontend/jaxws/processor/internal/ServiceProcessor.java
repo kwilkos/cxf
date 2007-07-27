@@ -63,7 +63,7 @@ import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
 
 public class ServiceProcessor extends AbstractProcessor {
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customization;
 
 import java.io.*;
 
@@ -30,9 +30,9 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.*;
 
 public class JAXWSBindingDeserializer implements ExtensionDeserializer, Serializable {
-    
+
     public JAXWSBindingDeserializer() {
-        
+
     }
 
     public ExtensibilityElement unmarshall(Class parentType,
@@ -48,7 +48,7 @@ public class JAXWSBindingDeserializer implements ExtensionDeserializer, Serializ
 
         JAXWSBindingParser parser = new JAXWSBindingParser(extReg);
         parser.parseElement(jaxwsBinding, el);
-        
+
         return jaxwsBinding;
     }
 }

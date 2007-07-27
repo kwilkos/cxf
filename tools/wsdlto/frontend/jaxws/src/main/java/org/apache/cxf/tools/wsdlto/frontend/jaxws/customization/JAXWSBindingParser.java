@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customization;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -57,7 +57,7 @@ public class JAXWSBindingParser {
         jaxwsBinding.setDocumentBaseURI(namespace);
 
         parseElement(jaxwsBinding, element);
-        
+
         return jaxwsBinding;
     }
 
@@ -74,7 +74,7 @@ public class JAXWSBindingParser {
             if (isPackageElement(element)) {
                 jaxwsBinding.setPackage(getPackageName(element));
             }
-            
+
             if (isWrapperStyle(element)) {
                 jaxwsBinding.setEnableWrapperStyle(getNodeValue(element));
             }
@@ -91,11 +91,11 @@ public class JAXWSBindingParser {
                 if (isMIMEElement(child)) {
                     jaxwsBinding.setEnableMime(getNodeValue(child));
                 }
-                
+
                 if (isWrapperStyle(child)) {
                     jaxwsBinding.setEnableWrapperStyle(getNodeValue(child));
                 }
-                
+
                 if (isPackageElement(child)) {
                     jaxwsBinding.setPackage(getPackageName(child));
                 }
@@ -103,7 +103,7 @@ public class JAXWSBindingParser {
                 if (isJAXWSMethodElement(child)) {
                     jaxwsBinding.setMethodName(getMethodName(child));
                 }
-                
+
                 if (isJAXWSParameterElement(child)) {
                     Element childElement = (Element)child;
                     String partPath = "//" +  childElement.getAttribute("part");
@@ -116,25 +116,25 @@ public class JAXWSBindingParser {
                             messageName =  messageEle.getAttribute("name");
                         }
                     }
-                    
+
                     String name = childElement.getAttribute("name");
                     String elementName = childElement.getAttribute("childElementName");
                     JAXWSParameter jpara = new JAXWSParameter(messageName, elementName, name);
                     jaxwsBinding.setJaxwsPara(jpara);
                 }
-                
+
                 if (isJAXWSClass(child)) {
                     Element childElement = (Element)child;
                     String clzName = childElement.getAttribute("name");
                     String javadoc = "";
                     Node docChild = DOMUtils.getChild(child, Element.ELEMENT_NODE);
-                    
+
                     if (docChild != null && this.isJAXWSClassDoc(docChild)) {
                         javadoc  = DOMUtils.getContent(docChild);
                     }
 
                     JAXWSClass jaxwsClass = new JAXWSClass(clzName, javadoc);
-                    jaxwsBinding.setJaxwsClass(jaxwsClass);                    
+                    jaxwsBinding.setJaxwsClass(jaxwsClass);
                 }
             }
         }
@@ -165,17 +165,17 @@ public class JAXWSBindingParser {
                && "parameter".equals(node.getLocalName());
 
     }
-    
+
     private boolean isJAXWSClass(Node node) {
         return (ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI()))
                && "class".equals(node.getLocalName());
     }
-    
+
     private boolean isJAXWSClassDoc(Node node) {
         return (ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI()))
                && "javadoc".equals(node.getLocalName());
     }
-    
+
 
     private String getPackageName(Node node) {
         Element ele = (Element)node;
@@ -186,7 +186,7 @@ public class JAXWSBindingParser {
         return "enableAsyncMapping".equals(node.getLocalName())
                && ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI());
     }
-    
+
     private Boolean isWrapperStyle(Node node) {
         return "enableWrapperStyle".equals(node.getLocalName())
                && ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI());

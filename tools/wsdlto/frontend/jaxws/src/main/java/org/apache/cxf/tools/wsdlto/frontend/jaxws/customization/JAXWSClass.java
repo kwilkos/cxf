@@ -16,33 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customization;
 
 public class JAXWSClass {
     private String className;
     private String comments;
-    
+
     public JAXWSClass(String clzName , String comment) {
         className = clzName;
         comments  = comment;
     }
-    
+
     public void setClassName(String clzName) {
         this.className = clzName;
     }
-    
+
     public String getClassName() {
         return className;
     }
-    
+
     public void setComments(String comment) {
         comments = comment;
     }
-    
+
     public String getComments() {
         return comments;
     }
-    
-    
+
+
 
 }

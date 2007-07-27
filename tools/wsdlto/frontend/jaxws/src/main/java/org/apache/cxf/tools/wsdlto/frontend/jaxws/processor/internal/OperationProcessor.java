@@ -36,7 +36,7 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.SoapBindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebMethodAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebResultAnnotator;
@@ -97,20 +97,20 @@ public class OperationProcessor  extends AbstractProcessor {
         method.annotate(new SoapBindingAnnotator());
 
         JAXWSBinding opBinding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
-        
+
         boolean enableAsync = false;
-        if (globalBinding != null && globalBinding.isEnableAsyncMapping() 
+        if (globalBinding != null && globalBinding.isEnableAsyncMapping()
             || opBinding != null && opBinding.isEnableAsyncMapping()) {
             enableAsync = true;
         }
-        
-               
-        if (!method.isOneWay() 
+
+
+        if (!method.isOneWay()
             && enableAsync && !isAddedAsyMethod(method)) {
             addAsyncMethod(method);
         }
-        
-        if (globalBinding != null && globalBinding.isEnableMime() 
+
+        if (globalBinding != null && globalBinding.isEnableMime()
             || opBinding != null && opBinding.isEnableMime()) {
             method.setMimeEnable(true);
         }
@@ -250,5 +250,5 @@ public class OperationProcessor  extends AbstractProcessor {
         }
         return counter > 1 ? true : false;
     }
-    
+
 }
