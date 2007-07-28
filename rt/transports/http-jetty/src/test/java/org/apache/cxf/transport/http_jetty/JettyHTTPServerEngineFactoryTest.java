@@ -125,19 +125,19 @@ public class JettyHTTPServerEngineFactoryTest
         
         try {
             engine = factory.createJettyHTTPServerEngine(1234, "http");
-            fail("the engine's protcal should be https");
+            fail("The engine's protocol should be https");
         } catch (Exception e) {
             // expect the exception
         }
     }
     
     @Test
-    public void testAnInvalideConfiguresfile() {
+    public void testAnInvalidConfiguresfile() {
         
         // This file configures the factory to configure
         // port 1234 with default TLS.
         
-        URL config = getClass().getResource("invalide-engines.xml");
+        URL config = getClass().getResource("invalid-engines.xml");
 
         bus = new SpringBusFactory().createBus(config);
             
@@ -155,7 +155,7 @@ public class JettyHTTPServerEngineFactoryTest
         
         try {
             factory.createJettyHTTPServerEngine(1234, "https");
-            fail("A configure error will should be thrown here ");            
+            fail("A configure error should be thrown here ");            
         } catch (Exception e) {
             // experct the exception
         }

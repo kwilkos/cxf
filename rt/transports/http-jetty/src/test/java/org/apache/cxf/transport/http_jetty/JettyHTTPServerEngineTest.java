@@ -143,11 +143,7 @@ public class JettyHTTPServerEngineTest extends Assert {
         }
     }
     
-    @Test
-    public void testSetSessionSupport() {
-        
-    }
-    
+       
     
     @Test 
     public void testaddServants() throws Exception {
@@ -197,7 +193,7 @@ public class JettyHTTPServerEngineTest extends Assert {
         String response = null;
         try {
             response = getResponse(url.toString());
-            System.out.println("response is " + response);
+            assertEquals("the jetty http handler1 did not take effect", response, "string1string2");
         } catch (Exception ex) {
             fail("Can't get the reponse from the server " + ex);
         }

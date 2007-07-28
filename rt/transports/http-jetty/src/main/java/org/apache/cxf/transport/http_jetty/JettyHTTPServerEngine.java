@@ -269,7 +269,7 @@ public class JettyHTTPServerEngine
         ContextHandler context = new ContextHandler();
         context.setContextPath(contextName);
         
-        // bind the jetty http hanler with the context handler        
+        // bind the jetty http handler with the context handler        
         context.setHandler(handler);
         if (isSessionSupport) {            
             HashSessionManager sessionManager = new HashSessionManager();
@@ -396,20 +396,20 @@ public class JettyHTTPServerEngine
 
     protected void retrieveListenerFactory() {
         if (tlsServerParameters != null) {
+            if (null != connector && !(connector instanceof SslSocketConnector)) {                         
+                throw new RuntimeException("Connector " + connector + " for JettyServerEngine Port " 
+                        + port + " does not support SSL connections.");                
+            }
             connectorFactory = 
                 getHTTPSConnectorFactory(tlsServerParameters);            
-            if (null != connector && !(connector instanceof SslSocketConnector)) {                         
-                throw new RuntimeException("JettyServerEngine Port " 
-                        + port + " has not configured for ssl connector :" + connector);                
-            }
             protocol = "https";
             
         } else {
-            connectorFactory = getHTTPConnectorFactory();            
             if (connector instanceof SslSocketConnector) {
-                throw new RuntimeException("JettyServerEngine Port " 
-                      + port + " has configured for ssl connector :" + connector);
+                throw new RuntimeException("Connector " + connector + " for JettyServerEngine Port " 
+                      + port + " does not support non-SSL connections.");
             }
+            connectorFactory = getHTTPConnectorFactory();            
             protocol = "http";
         }
         LOG.fine("Configured port " + port + " for \"" + protocol + "\".");
@@ -466,8 +466,8 @@ public class JettyHTTPServerEngine
 
     private void checkConnectorPort() throws IOException {
         if (null != connector && port != connector.getPort()) {
-            throw new IOException("The connector's port is not match"
-                        + " with the server engine port!");
+            throw new IOException("Error: Connector port " + connector.getPort() + " does not match"
+                        + " with the server engine port " + port);
         }
     }
     

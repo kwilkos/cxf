@@ -129,13 +129,14 @@ public class JettyHttpServerEngineBeanDefinitionParser extends AbstractBeanDefin
         PropertyValue tlsParameterMapValue  = 
             engineFactoryProperties.getPropertyValue("tlsServerParametersMap");
         if (null == tlsParameterMapValue) {
-            throw new RuntimeException("can't find the tlsParametersMap form transport factory!");
+            throw new RuntimeException("Could not find the tlsParametersMap " 
+                                       + "from the JettyHTTPServerEngineFactory!");
         } else {
             Map tlsServerParametersMap  = 
                 (Map)tlsParameterMapValue.getValue();
             result = (TLSServerParameters)tlsServerParametersMap.get(reference);
             if (result == null) {
-                throw new RuntimeException("can't find the reference [" 
+                throw new RuntimeException("Could not find the reference [" 
                                            + reference + "]'s mapping tlsParameter");
             }
         }
@@ -149,12 +150,13 @@ public class JettyHttpServerEngineBeanDefinitionParser extends AbstractBeanDefin
         PropertyValue threadingParametersMapValue = 
             engineFactoryProperties.getPropertyValue("threadingParametersMap");
         if (null == threadingParametersMapValue) {
-            throw new RuntimeException("can't find the threadingParametersMap form transport factory!");
+            throw new RuntimeException("Could not find the threadingParametersMap " 
+                                       + "from the JettyHTTPServerEngineFactory!");
         } else {
             Map threadingParametersMap  = (Map)threadingParametersMapValue.getValue();
             result = (ThreadingParameters)threadingParametersMap.get(reference);
             if (result == null) {
-                throw new RuntimeException("can't find the reference [" 
+                throw new RuntimeException("Could not find the reference [" 
                           + reference + "]'s mapping threadingParameters");
             }
         }     

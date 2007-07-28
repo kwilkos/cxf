@@ -172,9 +172,9 @@ public class JettyHTTPServerEngineFactory {
         } 
         // checking the protocol    
         if (!protocol.equals(ref.getProtocol())) {
-            throw new IOException("setting a wrong protocol, "
+            throw new IOException("Protocol mismatch: "
                         + "engine's protocol is " + ref.getProtocol()
-                        + "the url protocol is " + protocol);
+                        + ", the url protocol is " + protocol);
         }
                 
         return ref;
@@ -187,7 +187,7 @@ public class JettyHTTPServerEngineFactory {
     public synchronized void destroyForPort(int port) {
         JettyHTTPServerEngine ref = portMap.remove(port);
         if (ref != null) {
-            LOG.fine("Stopping Jetty HTTP Server Engine for port " + port + ".");
+            LOG.fine("Stopping Jetty HTTP Server Engine on port " + port + ".");
             try {
                 ref.stop();
             } catch (Exception e) {
