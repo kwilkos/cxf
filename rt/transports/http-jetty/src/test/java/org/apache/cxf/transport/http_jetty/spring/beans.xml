@@ -18,7 +18,7 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:beans="http://www.springframework.org/schema/beans"    
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:h="http://cxf.apache.org/transports/http/configuration"
        xmlns:hj="http://cxf.apache.org/transports/http-jetty/configuration"
@@ -47,17 +47,47 @@
     </h:conduit>
 
     <hj:engine-factory bus="cxf">
+       <hj:identifiedTLSServerParameters id="sample1">
+         <hj:tlsServerParameters jsseProvider="SUN" secureSocketProtocol="TLS">
+            <sec:clientAuthentication want="false" required="false"/>
+        </hj:tlsServerParameters>
+       </hj:identifiedTLSServerParameters>
+       
 	   <hj:identifiedThreadingParameters id="sampleThreading1">
 	      <hj:threadingParameters minThreads="111" maxThreads="120"/>
 	   </hj:identifiedThreadingParameters>
-	   
+       
 	   <hj:engine port="9000">
-	      <hj:threadingParametersRef id="sampleThreading1"/>
+	      <hj:threadingParametersRef id="sampleThreading1"/>	      
 	   </hj:engine>
 	   
 	   <hj:engine port="0">
 	      <hj:threadingParameters minThreads="99" maxThreads="777"/>
 	   </hj:engine>
 	   
+	   <hj:engine port="9001">
+	       <hj:threadingParameters minThreads="99" maxThreads="777"/>	      
+	     <hj:connector>
+           <beans:bean class="org.mortbay.jetty.bio.SocketConnector">
+              <beans:property name = "port" value="9001" />
+           </beans:bean>
+         </hj:connector>
+         <hj:handlers>
+           <beans:bean class="org.mortbay.jetty.handler.DefaultHandler"/>         
+         </hj:handlers>
+         <hj:sessionSupport>true</hj:sessionSupport>
+	  </hj:engine> 
+	  
+	  <hj:engine port="9002">
+        <hj:tlsServerParameters>
+           <sec:clientAuthentication want="true" required="true"/>
+        </hj:tlsServerParameters>
+           <hj:threadingParametersRef id="sampleThreading1"/>
+      </hj:engine>
+      
+      <hj:engine port="9003">
+         <hj:tlsServerParametersRef id="sample1"/>
+      </hj:engine>
+      
 	</hj:engine-factory>
 </beans>

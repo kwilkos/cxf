@@ -102,7 +102,7 @@ public class JettyHTTPServerEngineFactoryTest
         // This file configures the factory to configure
         // port 1234 with default TLS.
         
-        URL config = getClass().getResource("server-engine-factory.cxf");
+        URL config = getClass().getResource("server-engine-factory.xml");
         
         bus = new SpringBusFactory().createBus(config, true);
         
@@ -115,13 +115,51 @@ public class JettyHTTPServerEngineFactoryTest
         // This will throw an error if it is not.
         JettyHTTPServerEngine engine = null;
         try {
-            engine = factory.createJettyHTTPSServerEngine(1234);
+            engine = factory.createJettyHTTPServerEngine(1234, "https");
         } catch (Exception e) {
             fail("Error getting factory" + e);
         }
         assertNotNull("Engine is not available.", engine);
         assertEquals(1234, engine.getPort());
         assertEquals("Not https", "https", engine.getProtocol());
+        
+        try {
+            engine = factory.createJettyHTTPServerEngine(1234, "http");
+            fail("the engine's protcal should be https");
+        } catch (Exception e) {
+            // expect the exception
+        }
     }
+    
+    @Test
+    public void testAnInvalideConfiguresfile() {
+        
+        // This file configures the factory to configure
+        // port 1234 with default TLS.
+        
+        URL config = getClass().getResource("invalide-engines.xml");
+
+        bus = new SpringBusFactory().createBus(config);
+            
+        JettyHTTPServerEngineFactory factory =
+            bus.getExtension(JettyHTTPServerEngineFactory.class);
+            
+        assertNotNull("EngineFactory is not configured.", factory);
+
+
+        // The Engine for port 1234 was configured for TLS.
+        // and the connector which is injected into the engine
+        // should be an instance of SslSocketConnector
+        // here will throw an error if it is not.
+
+        
+        try {
+            factory.createJettyHTTPServerEngine(1234, "https");
+            fail("A configure error will should be thrown here ");            
+        } catch (Exception e) {
+            // experct the exception
+        }
+        
+    }   
 
 }

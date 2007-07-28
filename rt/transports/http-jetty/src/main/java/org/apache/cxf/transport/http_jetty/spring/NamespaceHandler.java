@@ -24,5 +24,7 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
         registerBeanDefinitionParser("engine-factory", 
                 new JettyHTTPServerEngineFactoryBeanDefinitionParser());
+        registerBeanDefinitionParser("engine",
+                                     new JettyHttpServerEngineBeanDefinitionParser());
     }
 }

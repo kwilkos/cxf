@@ -22,8 +22,12 @@ package org.apache.cxf.transport.http_jetty;
 import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -31,11 +35,14 @@ import org.apache.cxf.configuration.jsse.TLSServerParameters;
 import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.https_jetty.JettySslConnectorFactory;
 import org.mortbay.jetty.AbstractConnector;
+import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.HashSessionIdManager;
 import org.mortbay.jetty.servlet.HashSessionManager;
 import org.mortbay.jetty.servlet.SessionHandler;
@@ -58,31 +65,31 @@ public class JettyHTTPServerEngine
     /**
      * The bus.
      */
-    private final Bus bus;
+    private Bus bus;
     
     /**
      * This is the Jetty HTTP Server Engine Factory. This factory caches some 
      * engines based on port numbers.
      */
-    private final JettyHTTPServerEngineFactory factory;
+    private JettyHTTPServerEngineFactory factory;
     
     
     /**
      * This is the network port for which this engine is allocated.
      */
-    private final int port;
+    private int port;
     
     /**
      * This field holds the protocol for which this engine is 
      * enabled, i.e. "http" or "https".
      */
-    private String protocol;
+    private String protocol = "http";    
     
-    
-    private Boolean isSessionSupport = true;
+    private Boolean isSessionSupport = false;
     private int servantCount;
     private Server server;
-    private AbstractConnector connector;
+    private Connector connector;
+    private List<Handler> handlers;
     private JettyConnectorFactory connectorFactory;
     private ContextHandlerCollection contexts;
     
@@ -91,7 +98,7 @@ public class JettyHTTPServerEngine
      * configured. The tlsServerParamers (due to JAXB) holds the struct
      * placed by SpringConfig.
      */
-    private TLSServerParameters tlsProgrammaticServerParameters;
+    private TLSServerParameters tlsServerParameters;
     
     /**
      * This field hold the threading parameters for this particular engine.
@@ -105,7 +112,7 @@ public class JettyHTTPServerEngine
     private boolean configFinalized;
     
     /**
-     * This constructor is solely called by the JettyHTTPServerEngineFactory.
+     * This constructor is called by the JettyHTTPServerEngineFactory.
      */
     JettyHTTPServerEngine(
         JettyHTTPServerEngineFactory fac, 
@@ -116,12 +123,25 @@ public class JettyHTTPServerEngine
         this.port    = port;
     }
     
+    public JettyHTTPServerEngine() {
+        
+    }
+     
+    public void setJettyHTTPServerEngineFactory(JettyHTTPServerEngineFactory fac) {
+        factory = fac;
+    }
+    
+    public void setPort(int p) {
+        port = p;
+    }
     /**
      * The bus.
      */
-    public Bus getBus() {
-        return bus;
+    @Resource(name = "bus")
+    public void setBus(Bus b) {
+        bus = b;
     }
+    
     
     /**
      * Returns the protocol "http" or "https" for which this engine
@@ -138,6 +158,7 @@ public class JettyHTTPServerEngine
     public int getPort() {
         return port;
     }
+    
     
     /**
      * This method will shut down the server engine and
@@ -164,6 +185,39 @@ public class JettyHTTPServerEngine
     }
     
     /**
+     * set the jetty server's connector
+     * @param c
+     */
+    public void setConnector(Connector c) {
+        connector = c;
+    }
+    
+    /**
+     * set the jetty server's handlers
+     * @param h
+     */
+    
+    public void setHandlers(List<Handler> h) {
+        handlers = h;
+    }
+    
+    public void setSessionSupport(boolean support) {
+        isSessionSupport = support;
+    }
+    
+    public boolean isSessionSupport() {
+        return isSessionSupport;
+    }
+    
+    public List<Handler> getHandlers() {
+        return handlers;
+    }
+    
+    public Connector getConnector() {
+        return connector;
+    }
+    
+    /**
      * Register a servant.
      * 
      * @param url the URL associated with the servant
@@ -173,17 +227,25 @@ public class JettyHTTPServerEngine
         if (server == null) {
             // create a new jetty server instance if there is no server there            
             server = new Server();
-            
-            connector = connectorFactory.createConnector(port);
-            
-            server.addConnector(connector);
+            if (connector == null) {
+                connector = connectorFactory.createConnector(port);
+            } 
+            server.addConnector(connector);            
+            if (handlers != null && handlers.size() > 0) {
+                HandlerList handlerList = new HandlerList();
+                for (Handler h : handlers) {
+                    handlerList.addHandler(h);
+                }
+                server.addHandler(handlerList);
+            }
             contexts = new ContextHandlerCollection();
-            server.addHandler(contexts);
+            server.addHandler(contexts);            
             try {
                 server.start();
-                if (connector.getThreadPool() instanceof BoundedThreadPool
+                AbstractConnector aconn = (AbstractConnector) connector;
+                if (aconn.getThreadPool() instanceof BoundedThreadPool
                     && isSetThreadingParameters()) {
-                    BoundedThreadPool pool = (BoundedThreadPool)connector.getThreadPool();
+                    BoundedThreadPool pool = (BoundedThreadPool)aconn.getThreadPool();
                     if (getThreadingParameters().isSetMinThreads()) {
                         pool.setMinThreads(getThreadingParameters().getMinThreads());
                     }
@@ -209,9 +271,7 @@ public class JettyHTTPServerEngine
         
         // bind the jetty http hanler with the context handler        
         context.setHandler(handler);
-        if (isSessionSupport) {
-            // just add the session manager here by code
-            // TODO adding the configuration support for session manager
+        if (isSessionSupport) {            
             HashSessionManager sessionManager = new HashSessionManager();
             SessionHandler sessionHandler = new SessionHandler(sessionManager);
             HashSessionIdManager idManager = new HashSessionIdManager();
@@ -335,12 +395,21 @@ public class JettyHTTPServerEngine
     }
 
     protected void retrieveListenerFactory() {
-        if (tlsProgrammaticServerParameters != null) {
+        if (tlsServerParameters != null) {
             connectorFactory = 
-                getHTTPSConnectorFactory(tlsProgrammaticServerParameters);
+                getHTTPSConnectorFactory(tlsServerParameters);            
+            if (null != connector && !(connector instanceof SslSocketConnector)) {                         
+                throw new RuntimeException("JettyServerEngine Port " 
+                        + port + " has not configured for ssl connector :" + connector);                
+            }
             protocol = "https";
+            
         } else {
-            connectorFactory = getHTTPConnectorFactory();
+            connectorFactory = getHTTPConnectorFactory();            
+            if (connector instanceof SslSocketConnector) {
+                throw new RuntimeException("JettyServerEngine Port " 
+                      + port + " has configured for ssl connector :" + connector);
+            }
             protocol = "http";
         }
         LOG.fine("Configured port " + port + " for \"" + protocol + "\".");
@@ -379,11 +448,27 @@ public class JettyHTTPServerEngine
     /**
      * This method is called after configure on this object.
      */
+    @PostConstruct
     protected void finalizeConfig() 
         throws GeneralSecurityException,
                IOException {
+        retrieveEngineFactory();
         retrieveListenerFactory();
+        checkConnectorPort();
         this.configFinalized = true;
+    }
+    
+    private void retrieveEngineFactory() {
+        if (null != bus && null == factory) {
+            factory = bus.getExtension(JettyHTTPServerEngineFactory.class);
+        }        
+    }
+
+    private void checkConnectorPort() throws IOException {
+        if (null != connector && port != connector.getPort()) {
+            throw new IOException("The connector's port is not match"
+                        + " with the server engine port!");
+        }
     }
     
     /**
@@ -403,9 +488,11 @@ public class JettyHTTPServerEngine
     /**
      * This method is used to programmatically set the TLSServerParameters.
      * This method may only be called by the factory.
+     * @throws IOException 
      */
-    protected void setProgrammaticTlsServerParameters(TLSServerParameters params) {
-        tlsProgrammaticServerParameters = params;
+    public void setTlsServerParameters(TLSServerParameters params) throws IOException {
+        
+        tlsServerParameters = params;
         if (this.configFinalized) {
             this.retrieveListenerFactory();
         }
@@ -417,8 +504,8 @@ public class JettyHTTPServerEngine
      * in SpringConfiguration.
      * @return
      */
-    protected TLSServerParameters getProgrammaticTlsServerParameters() {
-        return tlsProgrammaticServerParameters;
+    public TLSServerParameters getTlsServerParameters() {
+        return tlsServerParameters;
     } 
 
     /**
@@ -426,7 +513,7 @@ public class JettyHTTPServerEngine
      * server engine.
      * This method may only be called by the factory.
      */
-    public void setThreadingParameters(ThreadingParameters params) {
+    public void setThreadingParameters(ThreadingParameters params) {        
         threadingParameters = params;
     }
     

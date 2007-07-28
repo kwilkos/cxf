@@ -89,7 +89,7 @@ public class ApplicationContextTest extends Assert {
         TestApplicationContext ctx = new TestApplicationContext(
             new String[] {S1, S2, S3, s4});
         
-        ctx.refresh();
+        //ctx.refresh();
         
         ConfigurerImpl cfg = new ConfigurerImpl(ctx);
         
@@ -125,14 +125,29 @@ public class ApplicationContextTest extends Assert {
         engine = (JettyHTTPServerEngine)jd2.getEngine();
         assertEquals(99, engine.getThreadingParameters().getMinThreads());
         assertEquals(777, engine.getThreadingParameters().getMaxThreads());
+        assertTrue("The engine should support session manager", engine.isSessionSupport());
+        assertNotNull("The handlers should not be null", engine.getHandlers());
+        assertEquals(1, engine.getHandlers().size());
+        assertTrue("The connector should be instance of org.mortbay.jetty.bio.SocketConnector",
+                   engine.getConnector() instanceof org.mortbay.jetty.bio.SocketConnector);
         
         JettyHTTPDestination jd3 = 
             (JettyHTTPDestination)factory.getDestination(
-                getEndpointInfo("sna", "foo", "http://localhost:9100"));
+                getEndpointInfo("sna", "foo", "https://localhost:9002"));
         
         engine = (JettyHTTPServerEngine)jd3.getEngine();
-        assertEquals(99, engine.getThreadingParameters().getMinThreads());
-        assertEquals(777, engine.getThreadingParameters().getMaxThreads());
+        assertEquals(111, engine.getThreadingParameters().getMinThreads());
+        assertEquals(120, engine.getThreadingParameters().getMaxThreads());
+        assertEquals(engine.getTlsServerParameters().getClientAuthentication().isWant(), true);
+        assertEquals(engine.getTlsServerParameters().getClientAuthentication().isRequired(), true);
+        
+        JettyHTTPDestination jd4 = 
+            (JettyHTTPDestination)factory.getDestination(
+                getEndpointInfo("sna", "foo2", "https://localhost:9003"));
+        
+        engine = (JettyHTTPServerEngine)jd4.getEngine();
+        assertEquals(engine.getTlsServerParameters().getClientAuthentication().isWant(), false);
+        assertEquals(engine.getTlsServerParameters().getClientAuthentication().isRequired(), false);
     }
     
     private EndpointInfo getEndpointInfo(String serviceNS, 

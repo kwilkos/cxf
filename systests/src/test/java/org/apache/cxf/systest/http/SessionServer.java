@@ -19,7 +19,12 @@
 
 package org.apache.cxf.systest.http;
 
+import java.net.URL;
+
 import javax.xml.ws.Endpoint;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 public class SessionServer extends AbstractBusTestServerBase {
@@ -28,7 +33,11 @@ public class SessionServer extends AbstractBusTestServerBase {
     protected void run() {
         Object implementor;
         String address;
-        
+        URL configure =
+            SessionServer.class.getResource("resources/SessionServer.xml");
+        System.out.println("the configure is " + configure);
+        Bus bus = new SpringBusFactory().createBus(configure, true);
+        SpringBusFactory.setDefaultBus(bus);
         implementor = new GreeterSessionImpl();
         address = "http://localhost:9020/SoapContext/GreeterPort";
         Endpoint.publish(address, implementor);
@@ -37,6 +46,7 @@ public class SessionServer extends AbstractBusTestServerBase {
     
     public static void main(String[] args) {
         try {
+            System.out.println("!!!!start");
             SessionServer s = new SessionServer();
             s.start();
         } catch (Exception ex) {

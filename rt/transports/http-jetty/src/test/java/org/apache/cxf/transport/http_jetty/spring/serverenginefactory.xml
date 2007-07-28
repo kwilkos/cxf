@@ -19,6 +19,7 @@
 <hj:engine-factory
        xmlns:hj="http://cxf.apache.org/transports/http-jetty/configuration"
        xmlns:sec="http://cxf.apache.org/configuration/security"
+       xmlns:beans="http://www.springframework.org/schema/beans"
    bus="cxf">
    
    <hj:identifiedTLSServerParameters id="sample1">
@@ -42,6 +43,15 @@
       </hj:tlsServerParameters>
       <hj:threadingParametersRef id="sampleThreading1"/>
    </hj:engine>
-   
+   <hj:engine port="9002">
+      <hj:connector>
+         <bean class="jettysocketconnector"/>
+      </hj:connector>
+      <hj:handlers>
+         <bean class="jettyhandler1"/>
+         <bean class="jettyhandler2"/>  
+      </hj:handlers>
+      <hj:useSession> true </hj:useSession>
+   </hj:engine>    
 </hj:engine-factory>
          

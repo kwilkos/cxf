@@ -18,7 +18,9 @@
  */
 package org.apache.cxf.transport.http_jetty.spring;
 
+
 import org.w3c.dom.Document;
+
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.transport.http.spring.HttpConduitBeanDefinitionParser;
@@ -60,37 +62,5 @@ public class BeanDefinitionParsersTest extends Assert {
         assertEquals(97, ((HTTPClientPolicy) pvs[0].getValue()).getConnectionTimeout(), 0);
     }
     
-    @Test
-    public void testJettyHTTPServerEngineFactory()throws Exception {
-        BeanDefinitionBuilder bd = BeanDefinitionBuilder.childBeanDefinition("child");
-        
-        JettyHTTPServerEngineFactoryBeanDefinitionParser parser = 
-            new JettyHTTPServerEngineFactoryBeanDefinitionParser();
-
-        Document d = DOMUtils.readXml(getClass().getResourceAsStream("serverenginefactory.xml"));
-        parser.doParse(d.getDocumentElement(), null, bd);
-        
-        PropertyValue[] pvs = bd.getRawBeanDefinition()
-            .getPropertyValues().getPropertyValues();
-        
-        // First is config, Second is the bus.
-        assertEquals(2, pvs.length);
-        
-        JettyHTTPServerEngineFactoryConfig con =
-            (JettyHTTPServerEngineFactoryConfig) pvs[0].getValue();
-        
-        assertEquals(1, con.threadingParametersMap.get(9000).getMinThreads());
-        assertEquals(2, con.threadingParametersMap.get(9000).getMaxThreads());
-        assertNotNull(con.tlsParametersMap.get(9000));
-        assertNotNull(con.tlsParametersMap.get(9000).getClientAuthentication());
-        assertFalse(con.tlsParametersMap.get(9000).getClientAuthentication().isWant());
-        assertFalse(con.tlsParametersMap.get(9000).getClientAuthentication().isRequired());
-
-        assertNotNull(con.tlsParametersMap.get(9001));
-        assertNotNull(con.tlsParametersMap.get(9001).getClientAuthentication());
-        assertEquals(11, con.threadingParametersMap.get(9001).getMinThreads());
-        assertEquals(12, con.threadingParametersMap.get(9001).getMaxThreads());
-        assertTrue(con.tlsParametersMap.get(9001).getClientAuthentication().isWant());
-        assertTrue(con.tlsParametersMap.get(9001).getClientAuthentication().isRequired());
-    }
+    
 }
