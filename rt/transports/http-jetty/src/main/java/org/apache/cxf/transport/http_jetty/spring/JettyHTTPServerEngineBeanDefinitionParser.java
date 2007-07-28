@@ -40,7 +40,7 @@ import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
-public class JettyServerEngineBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class JettyHTTPServerEngineBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     
     public void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
