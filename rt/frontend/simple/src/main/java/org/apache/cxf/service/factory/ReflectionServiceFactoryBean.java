@@ -115,6 +115,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Invoker invoker;
     private Executor executor;
     private List<String> ignoredClasses = new ArrayList<String>();
+    private List<Method> ignoredMethods = new ArrayList<Method>();
     private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
     private Boolean wrappedStyle;
     private Map<String, Object> properties;
@@ -1440,6 +1441,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public List<Method> getIgnoredMethods() {
+        return ignoredMethods;
+    }
+
+    public void setIgnoredMethods(List<Method> ignoredMethods) {
+        this.ignoredMethods = ignoredMethods;
     }
 
 }

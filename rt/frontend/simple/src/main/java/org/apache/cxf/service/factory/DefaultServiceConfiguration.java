@@ -21,6 +21,7 @@ package org.apache.cxf.service.factory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
@@ -186,6 +187,15 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
             return Boolean.FALSE;
         }
 
+        // Don't do m.equals(method)
+        for (Method m : getServiceFactory().getIgnoredMethods()) {
+            if (m.getName().equals(method.getName()) 
+                && Arrays.equals(method.getParameterTypes(), m.getParameterTypes())
+                && m.getReturnType() == method.getReturnType()) {
+                return Boolean.FALSE;
+            }
+        }
+        
         final int modifiers = method.getModifiers();
 
         if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)) {
