@@ -23,18 +23,13 @@ package org.apache.cxf.systest.aegis;
 import java.util.List;
 import java.util.logging.Logger;
 
-
-import org.apache.cxf.Bus;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.authservice.AuthService;
 import org.apache.cxf.authservice.Authenticate;
-import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class AegisClientServerTest extends AbstractBusClientServerTestBase {
@@ -46,16 +41,34 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testAegisClient() throws Exception {
-        Bus bus = new SpringBusFactory().createBus();
-        bus.getInInterceptors().add(new LoggingInInterceptor());
-        bus.getOutInterceptors().add(new LoggingOutInterceptor());
         AegisDatabinding aegisBinding = new AegisDatabinding();
         ClientProxyFactoryBean proxyFactory = new ClientProxyFactoryBean();
-        proxyFactory.getServiceFactory().setDataBinding(aegisBinding);
+        proxyFactory.setDataBinding(aegisBinding);
         proxyFactory.setServiceClass(AuthService.class);
         proxyFactory.setAddress("http://localhost:9002/service");
+        AuthService service = (AuthService) proxyFactory.create();
+        assertTrue(service.authenticate("Joe", "Joe", "123"));
+        assertFalse(service.authenticate("Joe1", "Joe", "fang"));      
+        List<String> list = service.getRoles("Joe");
+        assertEquals(1, list.size());
+        assertEquals("Joe", list.get(0));
+        assertEquals("get Joe", service.getAuthentication("Joe"));
+        Authenticate au = new Authenticate();
+        au.setSid("ffang");
+        au.setUid("ffang");
+        assertTrue(service.authenticate(au));
+        au.setUid("ffang1");
+        assertFalse(service.authenticate(au));
+    }
+    
+    @Test
+    public void testJaxWsAegisClient() throws Exception {
+        AegisDatabinding aegisBinding = new AegisDatabinding();
+        JaxWsProxyFactoryBean proxyFactory = new JaxWsProxyFactoryBean();
+        proxyFactory.setDataBinding(aegisBinding);
+        proxyFactory.setServiceClass(AuthService.class);
+        proxyFactory.setAddress("http://localhost:9002/jaxwsAndAegis");
         AuthService service = (AuthService) proxyFactory.create();
         assertTrue(service.authenticate("Joe", "Joe", "123"));
         assertFalse(service.authenticate("Joe1", "Joe", "fang"));      

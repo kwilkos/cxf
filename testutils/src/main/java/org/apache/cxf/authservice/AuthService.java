@@ -20,6 +20,7 @@
 package org.apache.cxf.authservice;
 
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 /**
@@ -44,6 +45,7 @@ public interface AuthService {
     );
 
     //test bean mode
+    @WebMethod(operationName = "authenticate2")
     boolean authenticate(Authenticate auth);
     
     String getAuthentication(String sid);
