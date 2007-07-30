@@ -60,37 +60,13 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
       <bean class="org.apache.cxf.databinding.source.SourceDataBinding"/>
     </jaxws:dataBinding>
   </jaxws:client>
-    
-<!--
-  
-  <jaxws:endpoint id="epWithProps" 
-    implementor="#greeter"
-    address="http://localhost:8080/test">
-    <jaxws:properties>
-      <entry key="foo" value="bar"/>
-    </jaxws:properties>
-  </jaxws:endpoint>
-  
-  <jaxws:endpoint id="classImpl" 
-    implementor="org.apache.cxf.jaxws.service.Hello"
-    address="http://localhost:8080/test"/>
-    
-  <jaxws:endpoint id="wsdlLocation" 
-    implementor="#greeter" address="http://localhost:8080/simpleWithAddress"
+   
+  <jaxws:client id="wsdlLocation" 
+    serviceClass="org.apache.hello_world_soap_http.Greeter"
+    serviceName="s:SOAPService"
+    xmlns:s="http://apache.org/hello_world_soap_http"
+    address="http://localhost:8080/simpleWithAddress"
     wsdlLocation="wsdl/hello_world.wsdl"/>
     
       
-  <jaxws:endpoint id="epWithInterceptors" 
-    implementor="org.apache.cxf.jaxws.service.Hello"
-    address="http://localhost:8080/test">
-	<jaxws:inInterceptors>
-	  <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
-	  <bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor"/>
-	</jaxws:inInterceptors>
-	<jaxws:outInterceptors>
-	  <bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
-	  <bean class="org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor"/>
-	</jaxws:outInterceptors>
-  </jaxws:endpoint>
-    -->
 </beans>

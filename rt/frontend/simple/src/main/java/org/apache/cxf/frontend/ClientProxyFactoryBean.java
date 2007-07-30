@@ -149,6 +149,14 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     public void setUsername(String username) {
         this.username = username;
     }
+    
+    public String getWsdlLocation() {
+        return getWsdlURL();
+    }
+    
+    public void setWsdlLocation(String wsdlURL) {
+        setWsdlURL(wsdlURL);
+    }
 
     public String getWsdlURL() {
         return clientFactoryBean.getServiceFactory().getWsdlURL();

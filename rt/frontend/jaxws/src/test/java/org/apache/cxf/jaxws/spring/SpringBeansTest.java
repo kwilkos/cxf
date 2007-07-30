@@ -37,6 +37,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.hello_world_soap_http.Greeter;
@@ -217,5 +218,12 @@ public class SpringBeansTest extends Assert {
         assertTrue(logging);
         
         assertTrue(client.getEndpoint().getService().getDataBinding() instanceof SourceDataBinding);
+        
+        JaxWsProxyFactoryBean factory = (JaxWsProxyFactoryBean)ctx.getBean("wsdlLocation.proxyFactory");
+        assertNotNull(factory);
+        String wsdlLocation = factory.getWsdlLocation();
+        assertEquals("We should get the right wsdl location" , wsdlLocation, "wsdl/hello_world.wsdl");
+        
+        
     }
 }

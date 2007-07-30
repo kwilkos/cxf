@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
+
 import org.apache.cxf.hello_world_jms.BadRecordLitFault;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayPort;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayQueueService;
@@ -45,6 +46,8 @@ import org.apache.hello_world_doc_lit.PingMeFault;
 import org.apache.hello_world_doc_lit.SOAPService2;
 import org.junit.Before;
 import org.junit.Test;
+
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class JMSClientServerTest extends AbstractBusClientServerTestBase {
     
@@ -185,6 +188,58 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
+    }
+    
+    @Test 
+    public void testConnectionsWithinSpring() throws Exception {
+        ClassPathXmlApplicationContext ctx = 
+            new ClassPathXmlApplicationContext(
+                new String[] {"/org/apache/cxf/systest/jms/JMSClients.xml"});
+               
+        HelloWorldPortType greeter = (HelloWorldPortType)ctx.getBean("jmsRPCClient");
+        assertNotNull(greeter);
+        
+        String response1 = new String("Hello Milestone-");
+        String response2 = new String("Bonjour");
+        try {
+            
+            for (int idx = 0; idx < 5; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                String exResponse = response1 + idx;
+                assertEquals(exResponse, greeting);
+
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+                
+                try {
+                    greeter.testRpcLitFault("BadRecordLitFault");
+                    fail("Should have thrown BadRecoedLitFault");
+                } catch (BadRecordLitFault ex) {
+                    assertNotNull(ex.getFaultInfo());
+                }
+                
+                try {
+                    greeter.testRpcLitFault("NoSuchCodeLitFault");
+                    fail("Should have thrown NoSuchCodeLitFault exception");
+                } catch (NoSuchCodeLitFault nslf) {
+                    assertNotNull(nslf.getFaultInfo());
+                    assertNotNull(nslf.getFaultInfo().getCode());
+                } 
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+        
+        HelloWorldOneWayPort greeter1 = (HelloWorldOneWayPort)ctx.getBean("jmsQueueOneWayServiceClient");
+        assertNotNull(greeter1);
+        try {
+            greeter1.greetMeOneWay("hello");
+        } catch (Exception ex) {
+            fail("There should not throw the exception" + ex);
+        }
+        
     }
     
     @Test
