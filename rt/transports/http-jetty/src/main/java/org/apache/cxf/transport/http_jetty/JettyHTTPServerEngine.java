@@ -287,7 +287,7 @@ public class JettyHTTPServerEngine
             try {                
                 context.start();
             } catch (Exception ex) {
-                LOG.log(Level.WARNING, "ADD_SERVANT_FAILED_MSG", new Object[] {ex.getMessage()});
+                LOG.log(Level.WARNING, "ADD_HANDLER_FAILED_MSG", new Object[] {ex.getMessage()});
             }
         }
         
@@ -318,7 +318,7 @@ public class JettyHTTPServerEngine
                             handler.stop();
                             handler.destroy();
                         } catch (Exception ex) {
-                            LOG.log(Level.WARNING, "REMOVE_SERVANT_FAILED_MSG", 
+                            LOG.log(Level.WARNING, "REMOVE_HANDLER_FAILED_MSG", 
                                     new Object[] {ex.getMessage()}); 
                         }
                         

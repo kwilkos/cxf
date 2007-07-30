@@ -77,7 +77,7 @@ public class JettyHTTPServerEngineBeanDefinitionParser extends AbstractBeanDefin
                                                     TLSServerParametersIdentifiedType.class);
                         
                         TLSServerParameters param = 
-                            getServerParameters(engineFactoryProperties, parameterTypeRef.getId()); 
+                            getTlsServerParameters(engineFactoryProperties, parameterTypeRef.getId()); 
                         bean.addPropertyValue("tlsServerParameters", param);
                         
                     } else if ("threadingParameters".equals(name)) {
@@ -122,21 +122,21 @@ public class JettyHTTPServerEngineBeanDefinitionParser extends AbstractBeanDefin
         
     }
     
-    private TLSServerParameters getServerParameters(
+    private TLSServerParameters getTlsServerParameters(
              MutablePropertyValues engineFactoryProperties,
              String reference) {
         TLSServerParameters result = null;
         PropertyValue tlsParameterMapValue  = 
             engineFactoryProperties.getPropertyValue("tlsServerParametersMap");
         if (null == tlsParameterMapValue) {
-            throw new RuntimeException("Could not find the tlsParametersMap " 
+            throw new RuntimeException("Could not find the tlsServerParametersMap " 
                                        + "from the JettyHTTPServerEngineFactory!");
         } else {
             Map tlsServerParametersMap  = 
                 (Map)tlsParameterMapValue.getValue();
             result = (TLSServerParameters)tlsServerParametersMap.get(reference);
             if (result == null) {
-                throw new RuntimeException("Could not find the reference [" 
+                throw new RuntimeException("Could not find the tlsServerParamentersMap reference [" 
                                            + reference + "]'s mapping tlsParameter");
             }
         }
@@ -156,7 +156,7 @@ public class JettyHTTPServerEngineBeanDefinitionParser extends AbstractBeanDefin
             Map threadingParametersMap  = (Map)threadingParametersMapValue.getValue();
             result = (ThreadingParameters)threadingParametersMap.get(reference);
             if (result == null) {
-                throw new RuntimeException("Could not find the reference [" 
+                throw new RuntimeException("Could not find the threadingParametersMap reference [" 
                           + reference + "]'s mapping threadingParameters");
             }
         }     
