@@ -163,6 +163,9 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                             
                             shead.setActor(act);
                             shead.setMustUnderstand(Boolean.valueOf(mu) || "1".equals(mu));
+                            //mark header as inbound header.(for distinguishing between the  direction to 
+                            //avoid piggybacking of headers from request->server->response.
+                            shead.setDirection(SoapHeader.DIRECTION_IN);
                             message.getHeaders().add(shead);
                         }                        
                     }

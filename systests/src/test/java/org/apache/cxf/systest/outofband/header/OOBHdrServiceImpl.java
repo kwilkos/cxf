@@ -19,7 +19,6 @@
 
 package org.apache.cxf.systest.outofband.header;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.headers.Header;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.outofband.header.ObjectFactory;
 import org.apache.cxf.outofband.header.OutofBandHeader;
@@ -79,10 +79,10 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
                             new QName(OOBHeaderTest.TEST_HDR_NS, OOBHeaderTest.TEST_HDR_RESPONSE_ELEM), 
                             job, 
                             new JAXBDataBinding(ob.getClass()));
-                    List<Header> hdrList = new ArrayList<Header>();
-                    hdrList.add(hdr);
+                    List<Header> hdrList = CastUtils.cast((List<?>) ctx.get(Header.HEADER_LIST));
+                    hdrList.add((Header) hdr);
                     //Add headerHolder to requestContext.
-                    ctx.put(Header.HEADER_LIST, hdrList);
+//                    ctx.put(Header.HEADER_LIST, hdrList);
                     //System.out.println("Completed adding list to context");
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -100,7 +100,7 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
         boolean success = false;
         MessageContext ctx = context == null ? null : context.getMessageContext();
         if (ctx.containsKey(Header.HEADER_LIST)) {
-            List oobHdr = (List) ctx.remove(Header.HEADER_LIST);
+            List oobHdr = (List) ctx.get(Header.HEADER_LIST);
             
             if (oobHdr instanceof List) {
                 Iterator iter = oobHdr.iterator();

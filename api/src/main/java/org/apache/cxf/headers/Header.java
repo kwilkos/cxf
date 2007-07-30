@@ -23,11 +23,19 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.databinding.DataBinding;
 
 public class Header {
+    public static final int DIRECTION_IN = 0;
+    public static final int DIRECTION_OUT = 1;
+    public static final int DIRECTION_INOUT = 2;
     public static final String HEADER_LIST = Header.class.getName() + ".list";
+   
     
     private DataBinding dataBinding;
     private QName name;
     private Object object;
+//    private boolean inbound;
+    private enum Direction  { DIRECTION_IN, DIRECTION_OUT, DIRECTION_INOUT }  
+    
+    private Direction direction = Header.Direction.DIRECTION_OUT;
 
     public Header(QName q, Object o) {
         this(q, o, null);
@@ -56,6 +64,36 @@ public class Header {
     }
     public void setObject(Object object) {
         this.object = object;
+    }
+    
+    public void setDirection(int hdrDirection) {
+       //this.inbound = true;
+        switch (hdrDirection) {
+        case DIRECTION_IN:
+            this.direction = Header.Direction.DIRECTION_IN;
+            break;
+        case DIRECTION_INOUT:
+            this.direction = Header.Direction.DIRECTION_INOUT;
+            break;
+        default:
+            this.direction = Header.Direction.DIRECTION_OUT;
+        }
+    }
+    
+    public int getDirection() {
+        int retval;
+        switch (this.direction) {
+        case DIRECTION_IN:
+            retval = Header.DIRECTION_IN;
+            break;
+        case DIRECTION_INOUT:
+            retval = Header.DIRECTION_INOUT;
+            break;
+        default:
+            retval = Header.DIRECTION_OUT;
+        }
+        
+        return retval;
     }
     
 }

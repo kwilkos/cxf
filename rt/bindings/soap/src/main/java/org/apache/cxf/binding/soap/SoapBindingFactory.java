@@ -50,6 +50,7 @@ import org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapActionInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapActionOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapHeaderInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapHeaderOutFilterInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -338,6 +339,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getOutInterceptors().add(new SoapActionOutInterceptor());
             sb.getOutInterceptors().add(new AttachmentOutInterceptor());
             sb.getOutInterceptors().add(new StaxOutInterceptor());
+            sb.getOutInterceptors().add(new SoapHeaderOutFilterInterceptor());
 
             if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
                 sb.getInInterceptors().add(new RPCInInterceptor());
