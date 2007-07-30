@@ -179,9 +179,8 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
-            Message msg = new Message("FAIL_TO_WRITE_WSDL", LOG);
+            Message msg = new Message("FAIL_TO_WRITE_WSDL", LOG, wse.getMessage());
             throw new ToolException(msg);
-
         }
         try {
             outputWriter.close();

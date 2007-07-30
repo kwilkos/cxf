@@ -54,10 +54,10 @@ public class WSDLToXMLProcessorTest extends ProcessorTestBase {
 
         File outputFile = new File(output, "hello_world-xmlbinding.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
-        
+
         WSDLToXMLProcessor processor = new WSDLToXMLProcessor();
         processor.setEnvironment(env);
-        
+
 
         try {
             processor.parseWSDL(outputFile.getAbsolutePath());

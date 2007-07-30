@@ -41,6 +41,10 @@ public abstract class AbstractWSDLPlugin implements WSDLExtensibilityPlugin {
         return args.get(key).toString();
     }
 
+    public <T> T getOption(final Map<String, Object> args, final String key, final Class<T> clz) {
+        return clz.cast(args.get(key));
+    }
+
     public <T> T getOption(final Map<String, Object> args, final Class<T> clz) {
         return clz.cast(args.get(clz.getName()));
     }
@@ -51,5 +55,5 @@ public abstract class AbstractWSDLPlugin implements WSDLExtensibilityPlugin {
         }
         return getOption(args, key);
     }
-    
+
 }

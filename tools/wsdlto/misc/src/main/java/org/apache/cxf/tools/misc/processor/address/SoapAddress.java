@@ -24,14 +24,24 @@ import java.util.Map;
 
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class SoapAddress extends XmlAddress {
-    
+    public Map<String, String> getNamespaces(final ToolContext context) {
+        Map<String, String> ns = new HashMap<String, String>();
+        if (context.optionSet(ToolConstants.CFG_SOAP12)) {
+            ns.put(ToolConstants.CFG_SOAP12, WSDLConstants.SOAP12_NAMESPACE);
+        } else {
+            ns.put("soap", WSDLConstants.SOAP11_NAMESPACE);
+        }
+        return ns;
+    }
+
     public Map<String, Object> buildAddressArguments(final ToolContext context) {
         Map<String, Object> args = new HashMap<String, Object>();
 
         args.putAll(super.buildAddressArguments(context));
-        
+
         if (context.optionSet(ToolConstants.CFG_SOAP12)) {
             args.put(ToolConstants.CFG_SOAP12,
                      context.get(ToolConstants.CFG_SOAP12));

@@ -26,7 +26,13 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 
 public class XmlAddress implements Address {
-    
+
+    public Map<String, String> getNamespaces(final ToolContext context) {
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("http", ToolConstants.NS_XML_HTTP);
+        return ns;
+    }
+
     public Map<String, Object> buildAddressArguments(final ToolContext context) {
         Map<String, Object> args = new HashMap<String, Object>();
 

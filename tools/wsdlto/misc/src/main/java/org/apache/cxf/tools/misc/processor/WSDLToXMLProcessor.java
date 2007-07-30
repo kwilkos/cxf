@@ -162,7 +162,7 @@ public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
         }
         if (wsdlDefinition.getNamespace(ToolConstants.XML_HTTP_PREFIX) == null) {
             wsdlDefinition.addNamespace(ToolConstants.XML_HTTP_PREFIX, ToolConstants.NS_XML_HTTP);
-        }        
+        }
     }
 
     private void doAppendBinding() throws ToolException {
@@ -268,6 +268,11 @@ public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
         }
 
         Address address = AddressFactory.getInstance().getAddresser("xml");
+
+        for (String key : address.getNamespaces(env).keySet()) {
+            wsdlDefinition.addNamespace(key, address.getNamespaces(env).get(key));
+        }
+
         WSDLExtensibilityPlugin generator = getWSDLPlugin("xml", Port.class);
         try {
             ExtensibilityElement extElement = generator.createExtension(address.buildAddressArguments(env));

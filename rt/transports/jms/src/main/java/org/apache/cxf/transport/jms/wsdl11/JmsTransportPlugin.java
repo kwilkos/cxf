@@ -26,6 +26,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.transport.jms.AddressType;
+import org.apache.cxf.transport.jms.DestinationStyleType;
+import org.apache.cxf.transport.jms.JMSNamingPropertyType;
 import org.apache.cxf.wsdl.AbstractWSDLPlugin;
 
 public class JmsTransportPlugin extends AbstractWSDLPlugin {
@@ -33,29 +35,53 @@ public class JmsTransportPlugin extends AbstractWSDLPlugin {
         AddressType jmsAddress = null;
 
         jmsAddress = (AddressType)registry.createExtension(Port.class, ToolConstants.JMS_ADDRESS);
+
+        String destType = "queue";
         if (optionSet(args, ToolConstants.JMS_ADDR_DEST_STYLE)) {
-            //jmsAddress.setDestinationStyle((String)env.get(ToolConstants.JMS_ADDR_DEST_STYLE));
+            destType = getOption(args, ToolConstants.JMS_ADDR_DEST_STYLE);
         }
+        jmsAddress.setDestinationStyle(DestinationStyleType.fromValue(destType));
+
+        String finitValue = "org.apache.activemq.jndi.ActiveMQInitialContextFactory";
+        JMSNamingPropertyType finit = new JMSNamingPropertyType();
+        finit.setName("java.naming.factory.initial");
         if (optionSet(args, ToolConstants.JMS_ADDR_INIT_CTX)) {
-            //jmsAddress.setInitialContextFactory((String)env.get(ToolConstants.JMS_ADDR_INIT_CTX));
+            finitValue = getOption(args, ToolConstants.JMS_ADDR_INIT_CTX);
         }
-        if (optionSet(args, ToolConstants.JMS_ADDR_JNDI_DEST)) {
-            jmsAddress.setJndiDestinationName(getOption(args, ToolConstants.JMS_ADDR_JNDI_DEST));
-        }
-        if (optionSet(args, ToolConstants.JMS_ADDR_JNDI_FAC)) {
-            jmsAddress.setJndiConnectionFactoryName(getOption(args, ToolConstants.JMS_ADDR_JNDI_FAC));
-        }
+        finit.setValue(finitValue);
+
+        String providerURL = "tcp://localhost:61616";
+        JMSNamingPropertyType provider = new JMSNamingPropertyType();
+        provider.setName("java.naming.provider.url");
         if (optionSet(args, ToolConstants.JMS_ADDR_JNDI_URL)) {
-            //jmsAddress.setJndiProviderURL((String)env.get(ToolConstants.JMS_ADDR_JNDI_URL));
+            providerURL = getOption(args, ToolConstants.JMS_ADDR_JNDI_URL);
         }
-        if (optionSet(args, ToolConstants.JMS_ADDR_MSGID_TO_CORRID)) {
-            //jmsAddress.setUseMessageIDAsCorrelationID(Boolean.getBoolean((String)env
-            //.get(ToolConstants.JMS_ADDR_MSGID_TO_CORRID)));
+        provider.setValue(providerURL);
+
+        String destName = "dynamicQueues/test.cxf.jmstransport.queue";
+        if (optionSet(args, ToolConstants.JMS_ADDR_JNDI_DEST)) {
+            destName = getOption(args, ToolConstants.JMS_ADDR_JNDI_DEST);
         }
-        if (optionSet(args, ToolConstants.JMS_ADDR_SUBSCRIBER_NAME)) {
-            //jmsAddress.setDurableSubscriberName((String)env
-            //  .get(ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
+        jmsAddress.setJndiDestinationName(destName);
+
+        String factory = "ConnectionFactory";
+        if (optionSet(args, ToolConstants.JMS_ADDR_JNDI_FAC)) {
+            factory = getOption(args, ToolConstants.JMS_ADDR_JNDI_FAC);
         }
+        jmsAddress.setJndiConnectionFactoryName(factory);
+
+        //         if (optionSet(args, ToolConstants.JMS_ADDR_MSGID_TO_CORRID)) {
+        //             jmsAddress.setUseMessageIDAsCorrelationID(getOption(args,
+        //                                                             ToolConstants.JMS_ADDR_MSGID_TO_CORRID,
+        //                                                                 Boolean.class));
+        //         }
+
+        jmsAddress.getJMSNamingProperty().add(finit);
+        jmsAddress.getJMSNamingProperty().add(provider);
+
+        //         if (optionSet(args, ToolConstants.JMS_ADDR_SUBSCRIBER_NAME)) {
+        //       jmsAddress.setDurableSubscriberName(getOption(args, ToolConstants.JMS_ADDR_SUBSCRIBER_NAME));
+        //         }
         return jmsAddress;
     }
 }

@@ -161,6 +161,11 @@ public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
         String transport = (String)env.get(ToolConstants.CFG_TRANSPORT);
         Address address = AddressFactory.getInstance().getAddresser(transport);
 
+        Map<String, String> ns = address.getNamespaces(env);
+        for (String key : ns.keySet()) {
+            wsdlDefinition.addNamespace(key, ns.get(key));
+        }
+
         WSDLExtensibilityPlugin plugin = getWSDLPlugin(transport, Port.class);
         try {
             ExtensibilityElement extElement = plugin.createExtension(address.buildAddressArguments(env));

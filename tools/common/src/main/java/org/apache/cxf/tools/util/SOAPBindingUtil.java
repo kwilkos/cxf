@@ -95,7 +95,7 @@ public final class SOAPBindingUtil {
         }
         return false;
     }
-    
+
     public static String getBindingStyle(Binding binding) {
         Iterator ite = binding.getExtensibilityElements().iterator();
         while (ite.hasNext()) {
@@ -117,7 +117,7 @@ public final class SOAPBindingUtil {
         }
         return null;
     }
-    
+
     public static SoapOperation getSoapOperation(Object obj) {
         if (isSOAPOperation(obj)) {
             return getProxy(SoapOperation.class, obj);
@@ -260,7 +260,7 @@ public final class SOAPBindingUtil {
         }
         return null;
     }
-    
+
     public static SoapBinding getSoapBinding(Object obj) {
         if (isSOAPBinding(obj)) {
             return getProxy(SoapBinding.class, obj);
@@ -471,10 +471,10 @@ public final class SOAPBindingUtil {
             && !namespaces.values().contains(WSDLConstants.SOAP12_NAMESPACE)) {
             definition.addNamespace("soap12", WSDLConstants.SOAP12_NAMESPACE);
         } else if (!namespaces.values().contains(WSDLConstants.SOAP11_NAMESPACE)) {
-            definition.addNamespace("soap", WSDLConstants.SOAP12_NAMESPACE);
+            definition.addNamespace("soap", WSDLConstants.SOAP11_NAMESPACE);
         }
     }
-    
+
     public static javax.jws.soap.SOAPBinding.Style getSoapStyle(String soapStyle) {
         if ("".equals(soapStyle)) {
             return null;
@@ -494,5 +494,5 @@ public final class SOAPBindingUtil {
             return javax.jws.soap.SOAPBinding.Use.LITERAL;
         }
     }
-    
+
 }

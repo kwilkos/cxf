@@ -28,17 +28,23 @@ import javax.wsdl.extensions.http.HTTPAddress;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.wsdl.AbstractWSDLPlugin;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public final class HttpAddressPlugin extends AbstractWSDLPlugin {
 
     public ExtensibilityElement createExtension(final Map<String, Object> args) throws WSDLException {
-        HTTPAddress xmlHttpAddress = null;
+        String address = getOption(args, ToolConstants.CFG_ADDRESS);
 
-        xmlHttpAddress = (HTTPAddress)registry.createExtension(Port.class,
-                                                               WSDLConstants.NS_XMLHTTP_BINDING_ADDRESS);
+        ExtensibilityElement  addr = registry.createExtension(Port.class,
+                                                              WSDLConstants.NS_XMLHTTP_BINDING_ADDRESS);
 
-        xmlHttpAddress.setLocationURI(getOption(args, ToolConstants.CFG_ADDRESS));
+        if (addr instanceof AddressType) {
+            ((AddressType)addr).setLocation(address);
+        }
 
-        return xmlHttpAddress;
+        if (addr instanceof HTTPAddress) {
+            ((HTTPAddress)addr).setLocationURI(address);
+        }
+        return addr;
     }
 }
