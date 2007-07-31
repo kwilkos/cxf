@@ -100,4 +100,10 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
   <jaxws:endpoint implementor="org.apache.cxf.jaxws.service.Hello"
     address="http://localhost:8080/test"/>
+    
+    
+  <jaxws:endpoint id="implementorClass"
+    implementor="java.lang.Object"
+    implementorClass="org.apache.cxf.jaxws.service.Hello"
+    address="http://localhost:8080/test"/>
 </beans>

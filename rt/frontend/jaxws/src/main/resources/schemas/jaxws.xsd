@@ -53,6 +53,7 @@
           <xsd:attribute name="bindingUri" type="xsd:string" />
           <xsd:attribute name="bus" type="xsd:string" />
           <xsd:attribute name="implementor" type="xsd:string"/>
+          <xsd:attribute name="implementorClass" type="xsd:string"/>
           <xsd:attribute name="publish" type="xsd:boolean" default="true"/>
           <xsd:attribute name="endpointName" type="xsd:QName" />
           <xsd:attribute name="serviceName" type="xsd:QName" />

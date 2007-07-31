@@ -74,6 +74,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private String address;
     private QName endpointName;
     private QName serviceName;
+    private Class implementorClass;
     
     private List<AbstractFeature> features;
     private List<Interceptor> in = new ModCountCopyOnWriteArrayList<Interceptor>();
@@ -148,7 +149,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
      * @return the class of the implementor object
      */
     public Class getImplementorClass() {
-        return implementor.getClass();
+        return implementorClass != null ? implementorClass : implementor.getClass();
     }
 
     public List<Source> getMetadata() {
@@ -272,6 +273,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             
             if (serviceName != null) {
                 serverFactory.getServiceFactory().setServiceName(serviceName);
+            }
+            
+            if (implementorClass != null) {
+                serverFactory.setServiceClass(implementorClass);
             }
             
             configureObject(serverFactory);
@@ -420,6 +425,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;
+    }
+
+    public void setImplementorClass(Class implementorClass) {
+        this.implementorClass = implementorClass;
     }
     
     /*
