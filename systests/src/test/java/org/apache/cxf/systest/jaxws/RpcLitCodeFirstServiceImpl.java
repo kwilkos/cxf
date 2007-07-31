@@ -25,6 +25,8 @@ import java.util.Vector;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.systest.jaxws.DocLitWrappedCodeFirstService.Foo;
+
 @WebService(endpointInterface = "org.apache.cxf.systest.jaxws.RpcLitCodeFirstService",
             serviceName = "RpcLitCodeFirstService",
             portName = "RpcLitCodeFirstServicePort",
@@ -103,5 +105,26 @@ public class RpcLitCodeFirstServiceImpl implements RpcLitCodeFirstService {
         f.value = "f";
         g.value = "g";
         return ret;
+    }
+    
+    public List<Foo> listObjectOutput() {
+        Foo a = new Foo();
+        a.setName("a");
+        Foo b = new Foo();
+        b.setName("b");
+        return Arrays.asList(a, b);
+    }
+
+    public List<Foo[]> listObjectArrayOutput() {
+        Foo a = new Foo();
+        a.setName("a");
+        Foo b = new Foo();
+        b.setName("b");
+        Foo c = new Foo();
+        a.setName("c");
+        Foo d = new Foo();
+        b.setName("d");
+        
+        return Arrays.asList(new Foo[] {a, b}, new Foo[] {c, d});
     }
 }

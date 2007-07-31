@@ -33,6 +33,7 @@ import javax.xml.ws.Holder;
 @SOAPBinding(style = SOAPBinding.Style.DOCUMENT,
              use = SOAPBinding.Use.LITERAL)
 public interface DocLitWrappedCodeFirstService {
+
     @WebMethod
     String[] arrayOutput();
 
@@ -68,7 +69,10 @@ public interface DocLitWrappedCodeFirstService {
     
     @WebMethod
     List<Foo> listObjectOutput();
-    
+
+    @WebMethod
+    List<Foo[]> listObjectArrayOutput();
+
     static class Foo  {
         String name;
         

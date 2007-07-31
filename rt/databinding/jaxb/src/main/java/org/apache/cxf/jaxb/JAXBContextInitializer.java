@@ -94,6 +94,17 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                     if (isFromWrapper) {
                         addType(clazz.getComponentType());
                     }
+                } else if (pt.getActualTypeArguments().length > 0 
+                    && pt.getActualTypeArguments()[0] instanceof GenericArrayType) {
+                    GenericArrayType gat = (GenericArrayType)pt.getActualTypeArguments()[0];
+                    gat.getGenericComponentType();
+                    Class<? extends Object> arrayCls = 
+                        Array.newInstance((Class) gat.getGenericComponentType(), 0).getClass();
+                    clazz = Array.newInstance(arrayCls, 0).getClass();
+                    part.setTypeClass(clazz);
+                    if (isFromWrapper) {
+                        addType(clazz.getComponentType());
+                    }                    
                 }
             }
             if (isFromWrapper && isList) {

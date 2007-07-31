@@ -248,6 +248,12 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(2, foos.size());
         assertEquals("a", foos.get(0).getName());
         assertEquals("b", foos.get(1).getName());
+        
+        List<Foo[]> foos2 = port.listObjectArrayOutput();
+        assertNotNull(foos2);
+        assertEquals(2, foos2.size());
+        assertEquals(2, foos2.get(0).length);
+        assertEquals(2, foos2.get(1).length);
     }
     @Test
     public void testRpcLitNoWsdl() throws Exception {
@@ -360,7 +366,18 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals("d", d.value);
         assertEquals("e", e.value);
         assertEquals("f", f.value);
-        assertEquals("g", g.value);        
+        assertEquals("g", g.value);
+        
+        List<org.apache.cxf.systest.jaxws.RpcLitCodeFirstService.Foo> foos = port.listObjectOutput();
+        assertEquals(2, foos.size());
+        assertEquals("a", foos.get(0).getName());
+        assertEquals("b", foos.get(1).getName());
+        
+        List<org.apache.cxf.systest.jaxws.RpcLitCodeFirstService.Foo[]> foos2 = port.listObjectArrayOutput();
+        assertNotNull(foos2);
+        assertEquals(2, foos2.size());
+        assertEquals(2, foos2.get(0).length);
+        assertEquals(2, foos2.get(1).length);
     }
       
     @Test

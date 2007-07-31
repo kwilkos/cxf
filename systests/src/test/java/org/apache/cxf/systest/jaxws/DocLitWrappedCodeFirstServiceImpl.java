@@ -99,6 +99,19 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         b.setName("b");
         return Arrays.asList(a, b);
     }
+
+    public List<Foo[]> listObjectArrayOutput() {
+        Foo a = new Foo();
+        a.setName("a");
+        Foo b = new Foo();
+        b.setName("b");
+        Foo c = new Foo();
+        a.setName("c");
+        Foo d = new Foo();
+        b.setName("d");
+        
+        return Arrays.asList(new Foo[] {a, b}, new Foo[] {c, d});
+    }
    
 
 }
