@@ -25,7 +25,6 @@ import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -57,7 +56,6 @@ public class WSSecurityClientTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testTimestampSignEncrypt() {
         BusFactory.setDefaultBus(
             new SpringBusFactory().createBus(

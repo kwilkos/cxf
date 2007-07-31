@@ -151,6 +151,8 @@ public class SAAJInInterceptor extends AbstractSoapInterceptor {
                         nd.getLocalName()),
                                                    obj,
                                                    dataBinding);
+                shead.setDirection(SoapHeader.Direction.DIRECTION_IN);
+                
                 String mu = hel.getAttributeNS(message.getVersion().getNamespace(),
                         message.getVersion().getAttrNameMustUnderstand());
                 String act = hel.getAttributeNS(message.getVersion().getNamespace(),

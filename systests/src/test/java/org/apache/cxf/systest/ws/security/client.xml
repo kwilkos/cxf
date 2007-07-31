@@ -78,7 +78,7 @@
         id="TimestampSignEncrypt_Response">
         <constructor-arg>
             <map>
-                <entry key="action" value="Signature Encrypt Timestamp"/>
+                <entry key="action" value="Timestamp Signature Encrypt"/>
                 <entry key="signaturePropFile" value="org/apache/cxf/systest/ws/security/bob.properties"/>
                 <entry key="decryptionPropFile" value="org/apache/cxf/systest/ws/security/alice.properties"/>
                 <entry key="passwordCallbackClass" value="org.apache.cxf.systest.ws.security.KeystorePasswordCallback"/>
