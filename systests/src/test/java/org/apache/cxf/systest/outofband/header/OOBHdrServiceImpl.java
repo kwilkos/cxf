@@ -80,7 +80,7 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
                             job, 
                             new JAXBDataBinding(ob.getClass()));
                     List<Header> hdrList = CastUtils.cast((List<?>) ctx.get(Header.HEADER_LIST));
-                    hdrList.add((Header) hdr);
+                    hdrList.add(hdr);
                     //Add headerHolder to requestContext.
 //                    ctx.put(Header.HEADER_LIST, hdrList);
                     //System.out.println("Completed adding list to context");
