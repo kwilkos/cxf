@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.0.1-incubator</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-buildtools</artifactId>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.0.1-incubator</version>
     <name>Apache CXF Buildtools</name>
     <url>http://cwiki.apache.org/CXF</url>
     <packaging>jar</packaging>
@@ -117,9 +117,9 @@
     </build-->
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/buildtools</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/buildtools</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-buildtools</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/buildtools</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/buildtools</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubatorcxf-buildtools</url>
   </scm>
 
 </project>
