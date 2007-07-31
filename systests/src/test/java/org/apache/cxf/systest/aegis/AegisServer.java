@@ -46,13 +46,13 @@ public class AegisServer extends AbstractBusTestServerBase {
         WebAppContext webappcontext = new WebAppContext();
         String contextPath = null;
         try {
-            contextPath = getClass().getResource("/").toURI().getPath();
+            contextPath = getClass().getResource("/webapp").toURI().getPath();
         } catch (URISyntaxException e1) {
             e1.printStackTrace();
         }
         webappcontext.setContextPath("/");
 
-        webappcontext.setWar(contextPath + "webapp");
+        webappcontext.setWar(contextPath);
 
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(new Handler[] {webappcontext, new DefaultHandler()});
