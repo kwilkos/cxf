@@ -106,9 +106,9 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         Foo b = new Foo();
         b.setName("b");
         Foo c = new Foo();
-        a.setName("c");
+        c.setName("c");
         Foo d = new Foo();
-        b.setName("d");
+        d.setName("d");
         
         return Arrays.asList(new Foo[] {a, b}, new Foo[] {c, d});
     }
