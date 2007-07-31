@@ -109,17 +109,23 @@ public class BusApplicationContext extends ClassPathXmlApplicationContext {
             }  
         }
         
+        boolean usingDefault = false;
         if (null == cfgFile) {
             cfgFile = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
         }        
         if (null == cfgFile) {
             cfgFile = Configurer.DEFAULT_USER_CFG_FILE;
+            usingDefault = true;
         }
         ClassPathResource cpr = new ClassPathResource(cfgFile);
         if (cpr.exists()) {
             resources.add(cpr);
         } else {
-            LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+            if (!usingDefault) {
+                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+            } else {
+                LogUtils.log(LOG, Level.FINE, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
+            }
         }
         
         if (null != cfgFileURL) {
