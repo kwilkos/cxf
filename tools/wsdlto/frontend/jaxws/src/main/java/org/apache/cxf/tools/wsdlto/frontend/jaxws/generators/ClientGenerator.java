@@ -80,8 +80,12 @@ public class ClientGenerator extends AbstractJAXWSGenerator {
             Iterator i = js.getPorts().iterator();
             while (i.hasNext()) {
                 JavaPort jp = (JavaPort)i.next();
-                String interfaceName = jp.getPortType();
+                String interfaceName = jp.getInterfaceClass();
                 JavaInterface intf = interfaces.get(interfaceName);
+                if (intf == null) {
+                    interfaceName = jp.getPortType();
+                    intf = interfaces.get(interfaceName);
+                }
                 
                 String clientClassName = interfaceName + "_"
                                          + NameUtil.mangleNameToClassName(jp.getPortName()) + "_Client";
