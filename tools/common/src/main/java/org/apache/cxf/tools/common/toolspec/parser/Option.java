@@ -101,8 +101,8 @@ public class Option implements TokenConsumer {
                 args.read();
                 // Add ourselves to the result document
                 Element optionEl = result.getOwnerDocument()
-                    .createElementNS("http://www.xsume.com/Xutil/Command", "option");
-
+                    .createElementNS("http://cxf.apache.org/Xutil/Command", "option");
+ 
                 optionEl.setAttribute("name", getName());
 
                 // Add argument value to result

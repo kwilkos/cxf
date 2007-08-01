@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ts="http://cxf.apache.org/Xutil/ToolSpecification">
 	<xsl:output method="text" omit-xml-declaration="yes"/>
 	<xsl:template match="/ts:toolspec/ts:usage">
 		<xsl:choose>

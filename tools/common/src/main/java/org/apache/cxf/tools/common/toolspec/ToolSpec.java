@@ -261,7 +261,7 @@ public class ToolSpec {
                     return el.getAttribute("default");
                 }
             } else if ("option".equals(el.getLocalName())) {
-                NodeList assArgs = el.getElementsByTagNameNS("http://www.xsume.com/Xpipe/ToolSpecification",
+                NodeList assArgs = el.getElementsByTagNameNS("http://cxf.apache.org/Xpipe/ToolSpecification",
                                                              "associatedArgument");
 
                 if (assArgs.getLength() > 0) {

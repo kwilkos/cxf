@@ -21,9 +21,9 @@
 <!-- The xhtml namespace is for usage documentation -->
 <toolspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xhtml="http://www.w3.org/TR/xhtml1/strict"
-	xsi:schemaLocation="http://www.xsume.com/Xutil/ToolSpecification http://www.xsume.com/schema/xutil/tool-specification.xsd"
-	xmlns="http://www.xsume.com/Xutil/ToolSpecification"
-	xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
+	xsi:schemaLocation="http://cxf.apache.org/Xutil/ToolSpecification http://cxf.apache.org/schema/xutil/tool-specification.xsd"
+	xmlns="http://cxf.apache.org/Xutil/ToolSpecification"
+	xmlns:ts="http://cxf.apache.org/Xutil/ToolSpecification">
 
 	<annotation>
 		Examples :

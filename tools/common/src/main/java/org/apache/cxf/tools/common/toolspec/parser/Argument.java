@@ -75,7 +75,7 @@ public class Argument implements TokenConsumer {
     }
 
     private void addElement(TokenInputStream args, Element result) {
-        Element argEl = result.getOwnerDocument().createElementNS("http://www.xsume.com/Xutil/Command",
+        Element argEl = result.getOwnerDocument().createElementNS("http://cxf.apache.org/Xutil/Command",
                                                                   "argument");
         argEl.setAttribute("name", getName());
         if (!args.isOutOfBound()) {

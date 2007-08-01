@@ -136,7 +136,7 @@ public class JettyHTTPServerEngineBeanDefinitionParser extends AbstractBeanDefin
                 (Map)tlsParameterMapValue.getValue();
             result = (TLSServerParameters)tlsServerParametersMap.get(reference);
             if (result == null) {
-                throw new RuntimeException("Could not find the tlsServerParamentersMap reference [" 
+                throw new RuntimeException("Could not find the tlsServerParametersMap reference [" 
                                            + reference + "]'s mapping tlsParameter");
             }
         }

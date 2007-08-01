@@ -97,13 +97,13 @@ public class CommandLineParser {
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "FAIL_CREATE_DOM_MSG");
         }
-        Element commandEl = resultDoc.createElementNS("http://www.xsume.com/Xutil/Command", "command");
+        Element commandEl = resultDoc.createElementNS("http://cxf.apache.org/Xutil/Command", "command");
 
         // resultDoc.createAttributeNS("http://www.w3.org/2001/XMLSchema-instance","schemaLocation");
         commandEl.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation",
-                                 "http://www.xsume.com/Xutil/Command http://www.xsume.com/schema/xutil/c"
+                                 "http://cxf.apache.org/Xutil/Command http://cxf.apache.org/schema/xutil/c"
                                      + "ommand.xsd");
-        commandEl.setAttribute("xmlns", "http://www.xsume.com/Xutil/Command");
+        commandEl.setAttribute("xmlns", "http://cxf.apache.org/Xutil/Command");
         commandEl.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         resultDoc.appendChild(commandEl);
 

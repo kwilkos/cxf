@@ -21,8 +21,8 @@
 <!-- Xutil toolspec Command Schema -->
 
 <schema
-  targetNamespace="http://www.xsume.com/Xpipe/Command"
-  xmlns:command="http://www.xsume.com/Xpipe/Command"
+  targetNamespace="http://cxf.apache.org/Xpipe/Command"
+  xmlns:command="http://cxf.apache.org/Xpipe/Command"
   xmlns="http://www.w3.org/2001/XMLSchema">
 
   <element name="command">
