@@ -181,7 +181,14 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                 DataReader<Node> dataReader = new NodeDataReader();
                 Node n = null;
                 if (mode == Service.Mode.MESSAGE) {
-                    n = soapMessage.getSOAPPart();
+                    try {
+                        n = soapMessage.getSOAPPart();
+                        //This seems to be a problem in SAAJ. Envelope might not be initialized properly 
+                        //without calling getEnvelope()
+                        soapMessage.getSOAPPart().getEnvelope();
+                    } catch (SOAPException e) {
+                        throw new Fault(e);
+                    } 
                 } else if (mode == Service.Mode.PAYLOAD) {
                     try {
                         n = DOMUtils.getChild(soapMessage.getSOAPBody(), Node.ELEMENT_NODE);
