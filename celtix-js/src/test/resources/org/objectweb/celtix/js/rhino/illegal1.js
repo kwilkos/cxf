@@ -1,3 +1,0 @@
-var WebServiceProvider = {
-    'ServiceMode': 'bogus',
-};

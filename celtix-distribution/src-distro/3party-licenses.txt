@@ -1,7 +1,0 @@
-Third Party Software  Version   Link to License
-------------          -------   ---------------
-Ant                   1.6.5     APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
-Maven                 2.0.4     APACHE http://www.apache.org/licenses/LICENSE-2.0.txt
-JAX-WS Reference Impl 2.0-EA3   CDDL   http://www.opensource.org/licenses/cddl1.php
-                                       JAXWSv2.0.THIRDPARTYLICENSEREADME.txt
-ActiveMQ              3.2       APACHE http://www.apache.org/licenses/LICENSE-2.0
