@@ -30,6 +30,7 @@ import org.apache.cxf.binding.soap.saaj.SAAJOutInterceptor;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.NullConduitSelector;
 import org.apache.cxf.frontend.ClientProxy;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
@@ -67,6 +68,10 @@ public class SpringBeansTest extends Assert {
         SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
         assertTrue(sbc.getVersion() instanceof Soap12);
         
+        bean = (ServerFactoryBean) ctx.getBean("simpleWithBindingId");
+        assertEquals("get the wrong BindingId", 
+                     bean.getBindingId(),
+                     "http://cxf.apache.org/bindings/xformat");
         
     }
     
@@ -77,6 +82,12 @@ public class SpringBeansTest extends Assert {
 
         Object bean = ctx.getBean("client1.proxyFactory");
         assertNotNull(bean);
+        
+        ClientProxyFactoryBean cpfbean = (ClientProxyFactoryBean)bean; 
+        BindingConfiguration bc = cpfbean.getBindingConfig();
+        assertTrue(bc instanceof SoapBindingConfiguration);
+        SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
+        assertTrue(sbc.getVersion() instanceof Soap12);
         
         HelloService greeter = (HelloService) ctx.getBean("client1");
         assertNotNull(greeter);
@@ -110,5 +121,13 @@ public class SpringBeansTest extends Assert {
         }
         assertTrue(saaj);
         assertTrue(logging);
+        
+        ClientProxyFactoryBean clientProxyFactoryBean = 
+            (ClientProxyFactoryBean) ctx.getBean("client2.proxyFactory");
+        assertNotNull(clientProxyFactoryBean);
+        
+        assertEquals("get the wrong bindingId", 
+                     clientProxyFactoryBean.getBindingId(),
+                     "http://cxf.apache.org/bindings/xformat");
     }
 }

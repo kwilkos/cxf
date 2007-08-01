@@ -86,6 +86,23 @@ public class SpringBeansTest extends Assert {
         assertTrue(ep.getInvoker() instanceof NullInvoker);
         assertTrue(ep.getService().getInvoker() instanceof NullInvoker);
 
+        bean = ctx.getBean("simpleWithBindingUri");        
+        assertNotNull(bean);
+        ep = (EndpointImpl) bean;
+        assertEquals("get the wrong bindingId", 
+                     ep.getBindingUri(),
+                     "http://cxf.apache.org/bindings/xformat");
+        
+        bean = ctx.getBean("simpleWithBinding");
+        assertNotNull(bean);
+        ep = (EndpointImpl) bean;
+        BindingConfiguration bc = ep.getBindingConfig();
+        assertTrue(bc instanceof SoapBindingConfiguration);
+        SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
+        assertTrue(sbc.getVersion() instanceof Soap12);
+        assertTrue("the soap configure should set isMtomEnabled to be true",
+                   sbc.isMtomEnabled());
+        
         bean = ctx.getBean("implementorClass");
         assertNotNull(bean);
         ep = (EndpointImpl) bean;

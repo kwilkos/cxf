@@ -32,6 +32,7 @@ import javax.xml.ws.WebServicePermission;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
@@ -429,6 +430,14 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
     public void setImplementorClass(Class implementorClass) {
         this.implementorClass = implementorClass;
+    }
+    
+    public void setBindingConfig(BindingConfiguration config) {
+        serverFactory.setBindingConfig(config);
+    }
+    
+    public BindingConfiguration getBindingConfig() {
+        return serverFactory.getBindingConfig();
     }
     
     /*

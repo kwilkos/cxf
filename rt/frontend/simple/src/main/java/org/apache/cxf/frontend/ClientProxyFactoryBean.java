@@ -197,6 +197,14 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
     public void setConduitSelector(ConduitSelector selector) {
         clientFactoryBean.setConduitSelector(selector);
     }
+            
+    public void setBindingId(String bind) {
+        clientFactoryBean.setBindingId(bind);
+    }
+    
+    public String getBindingId() {
+        return clientFactoryBean.getBindingId();
+    }
 
     public ReflectionServiceFactoryBean getServiceFactory() {
         return clientFactoryBean.getServiceFactory();

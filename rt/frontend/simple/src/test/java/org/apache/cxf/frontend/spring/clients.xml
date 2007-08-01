@@ -27,14 +27,16 @@ http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/
 http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
 
   <import resource="classpath:META-INF/cxf/cxf.xml"/>
+  <import resource="classpath:META-INF/cxf/cxf-extension-xml.xml"/>
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
-    
+  
   <bean class="org.apache.cxf.transport.local.LocalTransportFactory" lazy-init="false">
       <property name="transportIds">
           <list>
               <value>http://cxf.apache.org/transports/local</value>
               <value>http://schemas.xmlsoap.org/soap/http</value>
               <value>http://schemas.xmlsoap.org/wsdl/soap/http</value>
+              <value>http://schemas.xmlsoap.org/wsdl/http/</value>
           </list>
       </property>
   </bean>
@@ -47,6 +49,9 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
     address="http://localhost:9000/foo"
     serviceName="s:SOAPService"
     xmlns:s="http://apache.org/hello_world_soap_http">
+    <simple:binding>
+      <soap:soapBinding mtomEnabled="true" version="1.2"/>
+    </simple:binding>
     <simple:inInterceptors>
 	  <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
 	  <ref bean="saajIn"/>
@@ -59,5 +64,12 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
       <bean class="org.apache.cxf.endpoint.NullConduitSelector"/>
     </simple:conduitSelector>
   </simple:client>
-
+  
+   <simple:client id="client2" 
+    serviceClass="org.apache.cxf.service.factory.HelloService"
+    address="http://localhost:9000/foo2"
+    serviceName="s:XMLService"
+    xmlns:s="http://apache.org/hello_world_soap_http"
+    bindingId="http://cxf.apache.org/bindings/xformat">    
+   </simple:client>
 </beans>

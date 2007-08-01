@@ -68,6 +68,8 @@ public class ClientProxyFactoryBeanDefinitionParser
         if ("properties".equals(name)) {
             Map map = ctx.getDelegate().parseMapElement(e, bean.getBeanDefinition());
             bean.addPropertyValue("properties", map);
+        } else if ("binding".equals(name)) {
+            setFirstChildAsProperty(e, ctx, bean, "bindingConfig");
         } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
             || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
             || "features".equals(name)) {

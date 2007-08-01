@@ -20,11 +20,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:jaxws="http://cxf.apache.org/jaxws"
+      xmlns:soap="http://cxf.apache.org/bindings/soap"
       xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd
 http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
   <import resource="classpath:META-INF/cxf/cxf.xml"/>
+  <import resource="classpath:META-INF/cxf/cxf-extension-xml.xml"/>
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
     
   <bean class="org.apache.cxf.transport.local.LocalTransportFactory" lazy-init="false">
@@ -33,6 +36,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
               <value>http://cxf.apache.org/transports/local</value>
               <value>http://schemas.xmlsoap.org/soap/http</value>
               <value>http://schemas.xmlsoap.org/wsdl/soap/http</value>
+              <value>http://schemas.xmlsoap.org/wsdl/http/</value>
           </list>
       </property>
   </bean>
@@ -44,6 +48,10 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
   <jaxws:endpoint id="simpleWithAddress" 
     implementor="#greeter" address="http://localhost:8080/simpleWithAddress"/>
   
+    <jaxws:endpoint id="simpleWithBindingUri" 
+    implementor="#greeter" address="http://localhost:8080/simpeWithHttpBinding"
+    bindingUri="http://cxf.apache.org/bindings/xformat"/>
+    
   <jaxws:endpoint id="inlineImplementor" address="http://localhost:8080/simpleWithAddress">
     <jaxws:implementor>
       <bean class="org.apache.hello_world_soap_http.GreeterImpl">
@@ -52,6 +60,12 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     </jaxws:implementor>
   </jaxws:endpoint>
   
+  <jaxws:endpoint id="simpleWithBinding" 
+    implementor="#greeter" address="http://localhost:8080/simpleWithAddress">
+  	<jaxws:binding>
+  	   <soap:soapBinding mtomEnabled="true" version="1.2"/>
+  	</jaxws:binding>
+  </jaxws:endpoint>	  
   
   <jaxws:endpoint id="inlineInvoker" address="http://localhost:8080/simpleWithAddress">
     <jaxws:implementor>

@@ -27,6 +27,7 @@ http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/
 http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
 
   <import resource="classpath:META-INF/cxf/cxf.xml"/>
+  <import resource="classpath:META-INF/cxf/cxf-extension-xml.xml"/>
   <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
     
   <bean class="org.apache.cxf.transport.local.LocalTransportFactory" lazy-init="false">
@@ -35,6 +36,7 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
               <value>http://cxf.apache.org/transports/local</value>
               <value>http://schemas.xmlsoap.org/soap/http</value>
               <value>http://schemas.xmlsoap.org/wsdl/soap/http</value>
+              <value>http://schemas.xmlsoap.org/wsdl/http/</value>
           </list>
       </property>
   </bean>
@@ -46,6 +48,10 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
   <simple:server id="simpleWithAddress" 
     serviceBean="#greeter" address="http://localhost:8080/simpleWithAddress"/>
   
+  <simple:server id="simpleWithBindingId" 
+    serviceBean="#greeter" address="http://localhost:8080/simpleWithAddress"
+    bindingId="http://cxf.apache.org/bindings/xformat"/>
+    
   <simple:server id="inlineImplementor" address="http://localhost:8080/simpleWithAddress">
     <simple:serviceBean>
       <bean class="org.apache.cxf.service.factory.HelloServiceImpl"/>
