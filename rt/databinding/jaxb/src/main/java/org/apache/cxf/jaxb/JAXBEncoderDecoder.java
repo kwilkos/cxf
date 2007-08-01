@@ -36,6 +36,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.namespace.QName;
@@ -154,6 +155,11 @@ public final class JAXBEncoderDecoder {
                     } else {
                         writeObject(u, source, new JAXBElement(elName, cls, mObj));
                     }
+                } else if (byte[].class == cls
+                    && part.getTypeQName() != null
+                    && part.getTypeQName().getLocalPart().equals("hexBinary")) {
+                    mObj = new HexBinaryAdapter().marshal((byte[])mObj);
+                    writeObject(u, source, new JAXBElement(elName, String.class, mObj));
                 } else {
                     writeObject(u, source, new JAXBElement(elName, cls, mObj));
                 }
@@ -256,6 +262,13 @@ public final class JAXBEncoderDecoder {
                 return ret.toArray((Object[])java.lang.reflect.Array.newInstance(clazz.getComponentType(),
                                                                        ret.size()));
             }
+        } else if (byte[].class == clazz
+            && part != null 
+            && part.getTypeQName() != null
+            && part.getTypeQName().getLocalPart().equals("hexBinary")) {
+            
+            String obj = (String)unmarshall(context, schema, source, elName, String.class, au, unwrap);
+            return new HexBinaryAdapter().unmarshal(obj);
         }
 
         Object o = unmarshall(context, schema, source, elName, clazz, au, unwrap);

@@ -48,7 +48,8 @@ public class SOAPRpcLitServerImpl extends AbstractBusTestServerBase {
     @WebService(serviceName = "SOAPService",
                 portName = "SOAPPort",
                 endpointInterface = "org.apache.type_test.rpc.TypeTestPortType",
-                targetNamespace = "http://apache.org/type_test/rpc")
+                targetNamespace = "http://apache.org/type_test/rpc",
+                wsdlLocation = "testutils/type_test/type_test_rpclit_soap.wsdl")
     class SOAPTypeTestImpl extends TypeTestImpl implements TypeTestPortType {
     }
 }
