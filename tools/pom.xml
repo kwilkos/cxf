@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-tools</artifactId>
     <packaging>pom</packaging>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.0.1-incubator</version>
     <name>Apache CXF Command Line Tools</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.0.1-incubator</version>
     </parent>
 
     <modules>
@@ -40,9 +40,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-tools</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/tools</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/tools</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubatorcxf-tools</url>
   </scm>
 
 </project>

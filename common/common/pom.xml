@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-common-utilities</artifactId>
     <packaging>jar</packaging>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.0.1-incubator</version>
     <name>Apache CXF Common Utilities</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.0.1-incubator</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -137,9 +137,9 @@
     </dependencies>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common/common</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common/common</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-common-utilities</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/common/common</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/common/common</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubatorcxf-parent/cxf-common-utilities</url>
   </scm>
 
     <!-- will remove this after it is got sync to central repository -->
