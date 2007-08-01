@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-eclipse-plugin</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.1-incubator</version>
+    <version>2.1-incubator-SNAPSHOT</version>
     <name>Apache CXF Eclipse Distribution</name>
     <url>http://cxf.apache.org/</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0.1-incubator</version>
+        <version>2.1-incubator-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -169,9 +169,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/tools/eclipse-plugin</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.1-incubator/tools/eclipse-plugin</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/tags/cxf-2.0.1-incubatortools/eclipse-plugin</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse-plugin</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/tools/eclipse-plugin</url>
   </scm>
 
 </project>
