@@ -70,9 +70,8 @@ public abstract class AbstractInvoker implements Invoker {
                 paramArray = params.toArray();
             }
             
-            paramArray = insertExchange(m, paramArray, exchange);
+            res = performInvocation(exchange, serviceObject, m, paramArray);
             
-            res = m.invoke(serviceObject, paramArray);
             if (exchange.isOneWay()) {
                 return null;
             }
@@ -92,6 +91,12 @@ public abstract class AbstractInvoker implements Invoker {
             exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
             throw new Fault(e);
         }
+    }
+    
+    protected Object performInvocation(Exchange exchange, final Object serviceObject, Method m,
+                                       Object[] paramArray) throws Exception {
+        paramArray = insertExchange(m, paramArray, exchange);
+        return m.invoke(serviceObject, paramArray);
     }
 
     public Object[] insertExchange(Method method, Object[] params, Exchange context) {
