@@ -39,7 +39,8 @@ public class CXFBusFactory extends BusFactory {
     public Bus createBus(Map<Class, Object> e, Map<String, Object> properties) {
         Bus bus = new ExtensionManagerBus(e, properties);
         possiblySetDefaultBus(bus);
+        initializeBus(bus);
         return bus;
     }
-    
+ 
 }

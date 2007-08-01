@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.logging.LogUtils;
@@ -70,6 +71,9 @@ public class SpringBusFactory extends BusFactory {
         bus.setExtension(new ConfigurerImpl(bac), Configurer.class);
 
         possiblySetDefaultBus(bus);
+        
+        initializeBus(bus);
+        
         registerApplicationContextLifeCycleListener(bus, bac);
         return bus;
     }
@@ -95,8 +99,13 @@ public class SpringBusFactory extends BusFactory {
             throw new RuntimeException(ex);
         }
     }
+     
+    @Override
+    protected void initializeBus(Bus bus) {        
+        ((CXFBusImpl)bus).initialize(); 
+        super.initializeBus(bus);
+    }
 
-    
     void registerApplicationContextLifeCycleListener(Bus bus, BusApplicationContext bac) {
         BusLifeCycleManager lm = bus.getExtension(BusLifeCycleManager.class);
         if (null != lm) {

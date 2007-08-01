@@ -38,13 +38,6 @@ public class BusDefinitionParser extends AbstractBeanDefinitionParser {
     }
 
     @Override
-    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
-        bean.setInitMethodName("initialize");
-        
-        super.doParse(element, ctx, bean);
-    }
-
-    @Override
     protected void mapElement(ParserContext ctx, 
                               BeanDefinitionBuilder bean, 
                               Element e, 

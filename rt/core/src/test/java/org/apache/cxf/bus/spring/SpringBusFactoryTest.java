@@ -20,19 +20,23 @@
 package org.apache.cxf.bus.spring;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.ServerRegistry;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
@@ -162,6 +166,12 @@ public class SpringBusFactoryTest extends Assert {
         
     }
 
+    @Test
+    public void testInitialisation() {
+        Bus bus = new SpringBusFactory().createBus("org/apache/cxf/bus/spring/init.xml");
+        assertNotNull(bus.getExtension(TestListener.class));        
+    }
+
     
     static class TestInterceptor implements Interceptor {
 
@@ -210,5 +220,43 @@ public class SpringBusFactoryTest extends Assert {
         }
     }
      
+    static class TestFeature extends AbstractFeature {
+        boolean initialised;
+
+        @Override
+        public void initialize(Bus bus) {
+            initialised = true;
+        }   
+    }
     
+    static class TestListener implements BusLifeCycleListener {
+
+        Bus bus;
+ 
+        @Resource
+        public void setBus(Bus b) {        
+            bus = b;        
+        }
+        
+        @PostConstruct
+        public void register() {
+            bus.getExtension(BusLifeCycleManager.class).registerLifeCycleListener(this);            
+        }
+        
+        public void initComplete() {
+            assertNull(bus.getExtension(TestFeature.class));
+            Collection<AbstractFeature> features = ((CXFBusImpl)bus).getFeatures();
+            assertEquals(1, features.size());
+            TestFeature tf = (TestFeature)features.iterator().next();
+            assertTrue(tf.initialised);
+            bus.setExtension(this, TestListener.class);          
+        }
+
+        public void postShutdown() {
+        }
+
+        public void preShutdown() {
+        }
+        
+    }    
 }

@@ -23,7 +23,7 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl" init-method="initialize"/>
+    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl"/>
     <bean class="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor"/>
     <bean class="org.apache.cxf.bus.spring.BusExtensionPostProcessor">
        <property name="bus" ref="cxf"/>

@@ -49,10 +49,6 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
         this.extensions = extensions;
         
         state = BusState.INITIAL;
-        BusLifeCycleManager lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
-        if (null != lifeCycleManager) {
-            lifeCycleManager.initComplete();
-        }
         
         CXFBusFactory.possiblySetDefaultBus(this);
     }

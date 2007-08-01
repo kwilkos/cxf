@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.logging.LogUtils;
 
 public abstract class BusFactory {
@@ -152,6 +153,13 @@ public abstract class BusFactory {
             throw new RuntimeException(ex);
         }
         return instance;
+    }
+
+    protected void initializeBus(Bus bus) {
+        BusLifeCycleManager lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
+        if (null != lifeCycleManager) {
+            lifeCycleManager.initComplete();
+        }
     }
     
     private static String getBusFactoryClass(ClassLoader classLoader) {
