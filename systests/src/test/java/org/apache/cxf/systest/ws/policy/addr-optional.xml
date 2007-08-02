@@ -19,22 +19,29 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:p="http://cxf.apache.org/policy-config"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+http://cxf.apache.org/policy-config http://cxf.apache.org/schemas/policy-config.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <http:conduit name="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
       <http:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
     </http:conduit>
 
-    <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
-        <property name="bus" ref="cxf"/>
-        <property name="enabled" value="true"/>
-        <property name="alternativeSelector">
-            <bean class="org.apache.cxf.ws.policy.selector.MaximalAlternativeSelector"/>
-        </property>
-    </bean>
+    <cxf:bus>
+        <cxf:features>
+            <cxf:logging/>
+            <p:policies>
+                <p:alternativeSelector>
+                    <bean class="org.apache.cxf.ws.policy.selector.MaximalAlternativeSelector"/>
+                </p:alternativeSelector>
+            </p:policies>
+        </cxf:features>
+    </cxf:bus>
 
     <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
         <constructor-arg ref="cxf"/>

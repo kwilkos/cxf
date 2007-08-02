@@ -18,43 +18,18 @@
  */
 package org.apache.cxf.ws.policy.spring;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.apache.cxf.ws.policy.WSPolicyFeature;
+import org.apache.cxf.ws.policy.PolicyEngine;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 
 
-
-public class PolicyFeatureBeanDefinitionParser extends AbstractBeanDefinitionParser {
-
-    @Override
-    protected void parseChildElements(Element e, ParserContext ctx, BeanDefinitionBuilder bean) {
-        List<Element> ps = new ArrayList<Element>();
-        List<Element> prs = new ArrayList<Element>();
-        NodeList children = e.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node n = children.item(i);
-            if (n.getNodeType() == Node.ELEMENT_NODE) {
-                String name = n.getLocalName();
-                if ("Policy".equals(n.getLocalName())) {
-                    ps.add((Element)n);
-                } else if ("PolicyReference".equals(name)) {
-                    prs.add((Element)n);
-                }
-            }
-        }
-        bean.addPropertyValue("policyElements", ps);
-        bean.addPropertyValue("policyReferenceElements", prs);
-        
-        super.parseChildElements(e, ctx, bean);
-    }
+public class PolicyEngineBeanDefinitionParser extends AbstractBeanDefinitionParser {
     
     @Override
     protected void mapElement(ParserContext ctx, BeanDefinitionBuilder bean, Element e, String name) {
@@ -65,8 +40,16 @@ public class PolicyFeatureBeanDefinitionParser extends AbstractBeanDefinitionPar
 
     @Override
     protected Class getBeanClass(Element el) {
-        return WSPolicyFeature.class;
+        return InitializingPolicyEngine.class;
     }
+
+    @Override
+    protected String resolveId(Element e, AbstractBeanDefinition abd, ParserContext ctx) 
+        throws BeanDefinitionStoreException {
+        return PolicyEngine.class.getName();
+    }
+    
+    
 
 
 }

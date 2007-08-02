@@ -16,14 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.ws.policy.spring;
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+package org.apache.cxf.ws.policy;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("policies", new PolicyFeatureBeanDefinitionParser());
-        registerBeanDefinitionParser("engine", new PolicyEngineBeanDefinitionParser());
-        registerBeanDefinitionParser("constants", new PolicyConstantsBeanDefinitionParser()); 
+import org.w3c.dom.Element;
+
+/**
+ * 
+ */
+public class PolicyBean {
+    private Element element;
+
+    public Element getElement() {
+        return element;
     }
+
+    public void setElement(Element element) {
+        this.element = element;
+    }
+    
+    
 }

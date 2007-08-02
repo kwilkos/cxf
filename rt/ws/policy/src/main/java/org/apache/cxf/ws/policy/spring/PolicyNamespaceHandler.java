@@ -20,10 +20,8 @@ package org.apache.cxf.ws.policy.spring;
 
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
+public class PolicyNamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
-        registerBeanDefinitionParser("policies", new PolicyFeatureBeanDefinitionParser());
-        registerBeanDefinitionParser("engine", new PolicyEngineBeanDefinitionParser());
-        registerBeanDefinitionParser("constants", new PolicyConstantsBeanDefinitionParser()); 
+        registerBeanDefinitionParser("Policy", new PolicyBeanDefinitionParser()); 
     }
 }

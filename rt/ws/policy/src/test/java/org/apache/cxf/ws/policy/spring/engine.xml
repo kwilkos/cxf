@@ -19,7 +19,6 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:jaxws="http://cxf.apache.org/jaxws"
 	xmlns:p="http://cxf.apache.org/policy-config"
 	xmlns:wsp-200607="http://www.w3.org/2006/07/ws-policy"
 	xmlns:wsp-200409="http://schemas.xmlsoap.org/ws/2004/09/policy"
@@ -31,30 +30,14 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
 http://cxf.apache.org/policy-config http://cxf.apache.org/schemas/policy-config.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<jaxws:server id="test" abstract="true">
-		<jaxws:features>
-		    <p:policies> 
-			    <wsp-200607:Policy Name="test"/>
-			</p:policies>
-		</jaxws:features>
-	</jaxws:server>
-
-	<jaxws:server id="test2004" abstract="true">
-		<jaxws:features>
-		    <p:policies namespace="http://schemas.xmlsoap.org/ws/2004/09/policy"> 
-			    <wsp-200409:Policy/>
-			</p:policies> 
-		</jaxws:features>
-	</jaxws:server>
-
-	<jaxws:server id="testExternal" abstract="true">
-		<jaxws:features>
-		    <p:policies>
-			    <wsp-200607:PolicyReference URI="#External"/>
-			</p:policies>
-		</jaxws:features>
-	</jaxws:server>
-	
-	<wsp-200607:Policy wsu:Id="External"/>
+    <p:engine 
+        enabled="true" 
+        ignoreUnknownAssertions="true"        >
+        <p:alternativeSelector>
+            <bean class="org.apache.cxf.ws.policy.selector.MaximalAlternativeSelector"/>
+        </p:alternativeSelector>
+    </p:engine>
+    
+    <p:constants namespace="http://www.w3.org/ns/ws-policy"/>
 
 </beans>

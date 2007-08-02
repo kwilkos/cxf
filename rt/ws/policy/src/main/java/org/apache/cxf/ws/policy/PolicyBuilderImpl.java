@@ -88,9 +88,8 @@ public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
      * @return the PolicyReference object constructed from the element
      */
     public PolicyReference getPolicyReference(Element element) {
-        if (!(Constants.URI_POLICY_NS.equals(element.getNamespaceURI())
-            && Constants.ELEM_POLICY_REF.equals(element.getLocalName()))) {
-            throw new PolicyException(new Message("NOT_A_POLICYREF_ELEMENT", BUNDLE));
+        if (!Constants.ELEM_POLICY_REF.equals(element.getLocalName())) {
+            throw new PolicyException(new Message("NOT_A_POLICYREF_ELEMENT_EXC", BUNDLE));
         }
 
         PolicyReference reference = new PolicyReference();

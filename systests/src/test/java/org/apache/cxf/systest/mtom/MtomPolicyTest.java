@@ -22,8 +22,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
@@ -79,18 +82,20 @@ public class MtomPolicyTest extends AbstractCXFTest {
         sf.setBus(getBus());
         sf.setAddress(address);
         
-        WSPolicyFeature policy = new WSPolicyFeature();
+        WSPolicyFeature policyFeature = new WSPolicyFeature();
+        List<Element> policyElements = new ArrayList<Element>();
         if (mtomRequired) {
-            policy.getPolicyElements().add(DOMUtils.readXml(
+            policyElements.add(DOMUtils.readXml(
                 getClass().getResourceAsStream("mtom-policy.xml"))
                            .getDocumentElement());
         } else {
-            policy.getPolicyElements().add(DOMUtils.readXml(
+            policyElements.add(DOMUtils.readXml(
                 getClass().getResourceAsStream("mtom-policy-optional.xml"))
                            .getDocumentElement());
-        }        
+        } 
+        policyFeature.setPolicyElements(policyElements);       
         
-        sf.getFeatures().add(policy);
+        sf.getFeatures().add(policyFeature);
         
         sf.create();
     }

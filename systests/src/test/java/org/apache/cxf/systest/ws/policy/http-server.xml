@@ -34,11 +34,4 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
         createdFromAPI="true"
         wsdlLocation="org/apache/cxf/systest/ws/policy/http_server_greeter.wsdl"/>
         
-    <!--<jaxws:endpoint 
-        name="{http://cxf.apache.org/greeter_control}GreeterPort" 
-        abstract="true"
-        implementor="org.apache.cxf.systest.ws.policy.GreeterImpl" 
-        address="http://localhost:9020/SoapContext/GreeterPort"
-        wsdlLocation="org/apache/cxf/systest/ws/policy/http_server_greeter.wsdl"/>-->
-
 </beans>

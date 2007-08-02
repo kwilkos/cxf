@@ -49,6 +49,14 @@ public abstract class AbstractBeanDefinitionParser
 
     @Override
     protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+        boolean setBus = parseAttributes(element, ctx, bean);        
+        if (!setBus && ctx.getRegistry().containsBeanDefinition("cxf") && hasBusProperty()) {
+            wireBus(bean, "cxf");
+        }
+        parseChildElements(element, ctx, bean);
+    }
+    
+    protected boolean parseAttributes(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         NamedNodeMap atts = element.getAttributes();
         boolean setBus = false;
         for (int i = 0; i < atts.getLength(); i++) {
@@ -66,12 +74,11 @@ public abstract class AbstractBeanDefinitionParser
                 } 
                 mapAttribute(bean, element, name, val);
             }
-        }
-        
-        if (!setBus && ctx.getRegistry().containsBeanDefinition("cxf") && hasBusProperty()) {
-            wireBus(bean, "cxf");
-        }
-        
+        } 
+        return setBus;
+    }
+    
+    protected void parseChildElements(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node n = children.item(i);

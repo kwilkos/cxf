@@ -122,7 +122,7 @@ public class CXFServlet extends HttpServlet {
         // Set up the ServletController
         controller = createServletController();
 
-        replaceDestionFactory();
+        replaceDestinationFactory();
         
     }
 
@@ -155,7 +155,7 @@ public class CXFServlet extends HttpServlet {
         resourceManager.addResourceResolver(new ServletContextResourceResolver(
                                                servletConfig.getServletContext()));
         
-        replaceDestionFactory();
+        replaceDestinationFactory();
 
         // Set up the ServletController
         controller = createServletController();
@@ -211,7 +211,7 @@ public class CXFServlet extends HttpServlet {
         bus.getExtension(DestinationFactoryManager.class).registerDestinationFactory(namespace, factory);
     }
 
-    private void replaceDestionFactory() throws ServletException {
+    private void replaceDestinationFactory() throws ServletException {
        
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class); 
         try {

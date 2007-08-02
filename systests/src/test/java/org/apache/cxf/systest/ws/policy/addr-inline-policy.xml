@@ -23,11 +23,13 @@
 	xmlns:wsa="http://cxf.apache.org/ws/addressing"
 	xmlns:wsp="http://www.w3.org/2006/07/ws-policy"
 	xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+	xmlns:p="http://cxf.apache.org/policy-config"
 	xmlns:jaxws="http://cxf.apache.org/jaxws"
 	xsi:schemaLocation="
 http://www.w3.org/2006/07/ws-policy	http://www.w3.org/2006/07/ws-policy.xsd
 http://cxf.apache.org/ws/addressing http://cxf.apache.org/schema/ws/addressing.xsd
 http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+http://cxf.apache.org/policy-conf http://cxf.apache.org/schemas/policy-config.xsd
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -40,14 +42,18 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 	<jaxws:endpoint name="{http://cxf.apache.org/greeter_control}GreeterPort" createdFromAPI="true">
 		<jaxws:features>
 			<bean class="org.apache.cxf.feature.LoggingFeature"/>
-			<ref bean="AddressingPolicy" />
+                        <p:policies>
+                            <wsp:PolicyReference URI="#AddressingPolicy"/>
+                        </p:policies>
 		</jaxws:features>
 	</jaxws:endpoint>
 
 	<jaxws:client name="{http://cxf.apache.org/greeter_control}GreeterPort" createdFromAPI="true">
 		<jaxws:features>
 			<bean class="org.apache.cxf.feature.LoggingFeature"/>
-			<ref bean="AddressingPolicy" />
+                        <p:policies>
+                            <wsp:PolicyReference URI="#AddressingPolicy"/>
+                        </p:policies>
 		</jaxws:features>
 	</jaxws:client>
 

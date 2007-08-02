@@ -18,12 +18,29 @@
  */
 package org.apache.cxf.ws.policy.spring;
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+import org.w3c.dom.Element;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("policies", new PolicyFeatureBeanDefinitionParser());
-        registerBeanDefinitionParser("engine", new PolicyEngineBeanDefinitionParser());
-        registerBeanDefinitionParser("constants", new PolicyConstantsBeanDefinitionParser()); 
+import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
+import org.apache.cxf.ws.policy.PolicyConstants;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.xml.ParserContext;
+
+
+public class PolicyConstantsBeanDefinitionParser extends AbstractBeanDefinitionParser {
+
+    @Override
+    protected Class getBeanClass(Element el) {
+        return PolicyConstants.class;
     }
+
+    @Override
+    protected String resolveId(Element e, AbstractBeanDefinition abd, ParserContext ctx) 
+        throws BeanDefinitionStoreException {
+        return PolicyConstants.class.getName();
+    }
+    
+    
+
+
 }
