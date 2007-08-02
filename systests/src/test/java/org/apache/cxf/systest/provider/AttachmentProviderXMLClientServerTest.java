@@ -42,7 +42,7 @@ public class AttachmentProviderXMLClientServerTest extends AbstractBusClientServ
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly",
-                launchServer(AttachementServer.class, true));
+                launchServer(AttachmentServer.class, true));
     }
 
     @Test

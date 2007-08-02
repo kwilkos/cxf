@@ -23,7 +23,7 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class AttachementServer extends AbstractBusTestServerBase {
+public class AttachmentServer extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new AttachmentStreamSourceXMLProvider();
@@ -33,7 +33,7 @@ public class AttachementServer extends AbstractBusTestServerBase {
 
     public static void main(String[] args) {
         try {
-            AttachementServer s = new AttachementServer();
+            AttachmentServer s = new AttachmentServer();
             s.start();
         } catch (Exception ex) {
             ex.printStackTrace();
