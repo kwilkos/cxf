@@ -19,19 +19,19 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:p="http://cxf.apache.org/policy-config"
        xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
- 
-    <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
-        <property name="bus" ref="cxf"/>
-        <property name="enabled" value="true"/>
-    </bean>
-    
-    <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
-        <constructor-arg ref="cxf"/>
-        <property name="location" value="addr-external.xml"/>
-    </bean>
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+http://cxf.apache.org/policy-config http://cxf.apache.org/schemas/policy-config.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-    
+    <cxf:bus>
+        <cxf:features>
+            <p:policies/>
+        </cxf:features>
+    </cxf:bus>
+
+    <p:externalAttachment location="addr-external.xml"/>
  
 </beans>

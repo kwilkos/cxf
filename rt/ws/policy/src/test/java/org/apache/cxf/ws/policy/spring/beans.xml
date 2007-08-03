@@ -32,12 +32,18 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 
     <p:engine 
         enabled="true" 
-        ignoreUnknownAssertions="true"        >
+        ignoreUnknownAssertions="true">
         <p:alternativeSelector>
             <bean class="org.apache.cxf.ws.policy.selector.MaximalAlternativeSelector"/>
         </p:alternativeSelector>
     </p:engine>
     
     <p:constants namespace="http://www.w3.org/ns/ws-policy"/>
+    
+    <p:externalAttachment id="external4"
+        location="classpath:/org/apache/cxf/ws/policy/attachment/external/attachments4.xml"/>
+    
+    <p:externalAttachment
+        location="classpath:/org/apache/cxf/ws/policy/attachment/external/attachments3.xml"/>
 
 </beans>

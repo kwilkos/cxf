@@ -56,6 +56,10 @@ public abstract class AbstractPolicyProvider implements PolicyProvider {
         bus = b;
     }
     
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
     public void setBuilder(PolicyBuilder b) {
         builder = b;
     }

@@ -38,9 +38,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </cxf:features>
     </cxf:bus>
 
-    <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
-        <constructor-arg ref="cxf"/>
-        <property name="location" value="org/apache/cxf/systest/ws/policy/addr-external.xml"/>
-    </bean>
+    <p:externalAttachment location="org/apache/cxf/systest/ws/policy/addr-external.xml"/>
 
 </beans>

@@ -115,4 +115,24 @@
       </xsd:attribute>
     </xsd:complexType>
   </xsd:element>
+  
+    <xsd:element name="externalAttachment">
+    <xsd:complexType>
+      <xsd:complexContent>
+        <xsd:extension base="beans:identifiedType">
+          <xsd:attributeGroup ref="cxf-beans:beanAttributes"/>        
+          <xsd:attribute name="location" type="xsd:string" default="http://www.w3.org/2006/07/ws-policy">
+            <xsd:annotation>
+              <xsd:documentation>
+                  Location of the external attachment document. 
+                  It must be specified in form of a Spring Resource type property, e.g.
+                  classpath:etc/policies.xml or file:/x1/resources/polcies.xml.          
+              </xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
+  
 </xsd:schema>

@@ -18,11 +18,16 @@
  */
 package org.apache.cxf.ws.policy.spring;
 
+import java.util.Collection;
+
 import junit.framework.Assert;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.ws.policy.PolicyEngineImpl;
+import org.apache.cxf.ws.policy.PolicyProvider;
+import org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider;
 import org.apache.cxf.ws.policy.selector.MaximalAlternativeSelector;
 import org.junit.After;
 import org.junit.Test;
@@ -40,7 +45,7 @@ public class PolicyBeansTest extends Assert {
 
     @Test
     public void testParse() {
-        bus = new SpringBusFactory().createBus("org/apache/cxf/ws/policy/spring/engine.xml");
+        bus = new SpringBusFactory().createBus("org/apache/cxf/ws/policy/spring/beans.xml");
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         assertTrue("Policy engine is not enabled", pe.isEnabled());
         assertTrue("Unknown assertions are not ignored", pe.isIgnoreUnknownAssertions());
@@ -50,6 +55,17 @@ public class PolicyBeansTest extends Assert {
         
         assertEquals("http://www.w3.org/ns/ws-policy",
                      bus.getExtension(PolicyConstants.class).getNamespace());
+        
+        PolicyEngineImpl pei = (PolicyEngineImpl)pe;
+        Collection<PolicyProvider> providers = pei.getPolicyProviders();
+        assertEquals(4, providers.size());
+        int n = 0;
+        for (PolicyProvider pp : providers) {
+            if (pp instanceof ExternalAttachmentProvider) {
+                n++;
+            }
+        }
+        assertEquals("Unexpected number of external providers", 2, n);
     }
     
    

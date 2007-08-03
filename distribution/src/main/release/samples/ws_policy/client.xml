@@ -19,44 +19,23 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:p="http://cxf.apache.org/policy-config"
        xmlns:http="http://cxf.apache.org/transports/http/configuration"
-       xsi:schemaLocation="http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="
+http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+http://cxf.apache.org/policy-config http://cxf.apache.org/schemas/policy-config.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
     <http:conduit name="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit">
       <http:client DecoupledEndpoint="http://localhost:9990/decoupled_endpoint"/>
     </http:conduit>
 
-    <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
-        <property name="bus" ref="cxf"/>
-        <property name="enabled" value="true"/>
-    </bean>
-
-    <bean id="loggingIn" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
-    <bean id="loggingOut" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
-
-    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="loggingIn"/>
-            </list>
-        </property>
-        <!--
-        <property name="inFaultInterceptors">
-            <list>
-            </list>
-        </property>
-        -->
-        <property name="outInterceptors">
-            <list>
-                <ref bean="loggingOut"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="loggingOut"/>
-            </list>
-        </property>
-    </bean> 
+    <cxf:bus>
+        <cxf:features>
+            <p:policies/>
+        </cxf:features>
+    </cxf:bus>
 
 </beans>
