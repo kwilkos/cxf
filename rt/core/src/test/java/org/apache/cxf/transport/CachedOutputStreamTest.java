@@ -38,6 +38,19 @@ public class CachedOutputStreamTest extends Assert {
         assertEquals("The test stream content isn't same ", test , result);
     }
     
+    @Test
+    public void testDeleteTmpFile() throws IOException {
+        CachedOutputStream cos = new CachedOutputStream();        
+        //ensure output data size larger then 64k which will generate tmp file
+        String result = initTestData(65);
+        cos.write(result.getBytes());
+        //assert tmp file is generated
+        assertTrue(cos.getTempFile().exists());
+        cos.close();
+        //assert tmp file is deleted after close the CachedOutputStream
+        assertFalse(cos.getTempFile().exists());
+    }
+    
     String initTestData(int packetSize) {
         String temp = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+?><[]/0123456789";
         String result = new String();
