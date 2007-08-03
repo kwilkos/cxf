@@ -52,10 +52,10 @@ import org.apache.ws.commons.schema.XmlSchemaType;
  * @author <a href=""mailto:gnodet [at] gmail.com">Guillaume Nodet</a>
  */
 public final class IriDecoderHelper {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(IriDecoderHelper.class);
+    public static final ResourceBundle BUNDLE = BundleUtils.getBundle(IriDecoderHelper.class);
 
     private IriDecoderHelper() {
-        
+
     }
 
     public static List<Param> decodeIri(String uri, String loc) {
@@ -100,13 +100,13 @@ public final class IriDecoderHelper {
 
     private static String getEndFragment(int i, String locPath) {
         int end = locPath.indexOf('{', i);
-        
+
         if (end == -1) {
             end = locPath.length();
         } else if (locPath.charAt(end + 1) == '{') {
             return getEndFragment(end + 1, locPath);
         }
-        
+
         return locPath.substring(i, end);
     }
 
@@ -123,25 +123,25 @@ public final class IriDecoderHelper {
     }
 
     /**
-     * @param endFragment 
-     * 
+     * @param endFragment
+     *
      */
     public static int findPartEnd(String path, int c, String endFragment) {
         int end = path.length();
         int i = end;
-        
+
         if (!"".equals(endFragment)) {
             i = path.indexOf(endFragment, c);
             if (i >= c && i < end) {
                 end = i;
             }
         }
-        
+
         i =  path.indexOf('?', c);
         if (i >= c && i < end) {
             end = i;
         }
-        
+
         return end;
     }
 
@@ -186,11 +186,11 @@ public final class IriDecoderHelper {
         }
         return null;
     }
-    
+
     /**
      * Create a dom document conformant with the given schema element with the
      * input parameters.
-     * 
+     *
      * @param element
      * @param params
      * @return
@@ -198,7 +198,7 @@ public final class IriDecoderHelper {
     public static Document buildDocument(XmlSchemaAnnotated schemaAnnotation,
                                          Collection<SchemaInfo> schemas,
                                          List<Param> params) {
-        
+
         XmlSchemaElement element = null;
         QName qname = null;
         XmlSchemaComplexType cplxType = null;
@@ -215,19 +215,19 @@ public final class IriDecoderHelper {
         } else if (schemaAnnotation instanceof XmlSchemaSimpleType) {
             throw new Fault(new Message("SIMPLE_TYPE", BUNDLE));
         }
-        
+
         Document doc = DOMUtils.createDocument();
-         
-              
+
+
         XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
         Element e = doc.createElementNS(qname.getNamespaceURI(), qname.getLocalPart());
         e.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, qname.getNamespaceURI());
         doc.appendChild(e);
-        
+
         if (seq == null || seq.getItems() == null) {
             return doc;
         }
-        
+
         for (int i = 0; i < seq.getItems().getCount(); i++) {
             XmlSchemaElement elChild = (XmlSchemaElement)seq.getItems().getItem(i);
             Param param = null;
@@ -250,7 +250,7 @@ public final class IriDecoderHelper {
         }
         return doc;
     }
-    
+
     public static Document interopolateParams(Document doc,
                                               XmlSchemaAnnotated schemaAnnotation,
                                               Collection<SchemaInfo> schemas,
@@ -273,12 +273,12 @@ public final class IriDecoderHelper {
         XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
         Element root = doc.getDocumentElement();
         if (root == null) {
-            root = doc.createElementNS(qname.getNamespaceURI(), 
+            root = doc.createElementNS(qname.getNamespaceURI(),
                                     qname.getLocalPart());
             root.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, qname.getNamespaceURI());
             doc.appendChild(root);
         }
-        
+
         for (int i = 0; i < seq.getItems().getCount(); i++) {
             XmlSchemaElement elChild = (XmlSchemaElement)seq.getItems().getItem(i);
             Param param = null;
@@ -291,7 +291,7 @@ public final class IriDecoderHelper {
             if (param == null) {
                 continue;
             }
-            
+
             Element ec = getElement(root, elChild.getQName());
             if (ec == null) {
                 ec = doc.createElementNS(elChild.getQName().getNamespaceURI(), elChild.getQName()
@@ -299,7 +299,7 @@ public final class IriDecoderHelper {
                 if (!elChild.getQName().getNamespaceURI().equals(qname.getNamespaceURI())) {
                     ec.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, elChild.getQName().getNamespaceURI());
                 }
-                
+
                 // insert the element at the appropriate position
                 Element insertBeforeEl = getIndexedElement(root, i);
                 if (insertBeforeEl != null) {
@@ -314,7 +314,7 @@ public final class IriDecoderHelper {
                     ec.removeChild(n);
                 }
             }
-            
+
             if (param != null) {
                 params.remove(param);
                 ec.appendChild(doc.createTextNode(param.getValue()));
@@ -394,7 +394,7 @@ public final class IriDecoderHelper {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.lang.Object#toString()
          */
         @Override
@@ -404,7 +404,7 @@ public final class IriDecoderHelper {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.lang.Object#hashCode()
          */
         @Override
@@ -418,7 +418,7 @@ public final class IriDecoderHelper {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.lang.Object#equals(java.lang.Object)
          */
         @Override
