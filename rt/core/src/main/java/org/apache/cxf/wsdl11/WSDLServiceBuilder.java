@@ -232,7 +232,7 @@ public class WSDLServiceBuilder {
         for (Port port : cast(serv.getPorts().values(), Port.class)) {
             Binding binding = port.getBinding();
             PortType bindingPt = binding.getPortType();
-            //TODO: wsdl4j's bug. if there is recursive import, 
+            //TODO: wsdl4j's bug. if there is recursive import,
             //wsdl4j can not get operation input message
             PortType pt = def.getPortType(bindingPt.getQName());
             if (pt == null) {
@@ -451,6 +451,10 @@ public class WSDLServiceBuilder {
                         break;
                     }
                 }
+            }
+            if (ns == null) {
+                throw new RuntimeException("Can non find the destination factory, check the port "
+                                           + " //wsdl:port[@name='" + port.getName() + "']");
             }
             try {
                 factory = bus.getExtension(DestinationFactoryManager.class).getDestinationFactory(ns);
