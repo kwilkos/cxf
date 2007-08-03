@@ -142,7 +142,7 @@ public class AnnotationInterceptorTest extends AbstractJaxWsTest {
     
     @Test
     public void testJaxWsFrontendWithAnnotationInSEI() throws Exception {
-        jfb.setServiceClass(SayHiInterface.class);
+        jfb.setServiceClass(SayHiInterfaceImpl.class);
         jfb.setServiceBean(new SayHiInterfaceImpl());
         jfb.create();
         

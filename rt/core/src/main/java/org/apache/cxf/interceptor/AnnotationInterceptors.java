@@ -24,12 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.jws.WebService;
-
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.feature.Features;
 
@@ -37,10 +34,10 @@ public class AnnotationInterceptors {
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AnnotationInterceptors.class);
     
-    private Class<?> clazz;
+    private Class<?> clazzes[];
     
-    public AnnotationInterceptors(Class<?> clz) {
-        clazz = clz;
+    public AnnotationInterceptors(Class<?> ... clz) {
+        clazzes = clz;
     }
     
     public List<Interceptor> getInFaultInterceptors() {
@@ -48,24 +45,12 @@ public class AnnotationInterceptors {
     }
     
     private <T> List<T> getAnnotationObject(Class<? extends Annotation> annotationClazz, Class<T> type) {
-        Annotation  annotation = clazz.getAnnotation(annotationClazz);
-        if (annotation == null) {
-            WebService ws = clazz.getAnnotation(WebService.class);
-            if (ws != null && !StringUtils.isEmpty(ws.endpointInterface())) {
-                String seiClassName = ws.endpointInterface().trim();
-                Class<?> seiClass = null;
-                try {
-                    seiClass = ClassLoaderUtils.loadClass(seiClassName, this.getClass());
-                } catch (ClassNotFoundException e) {
-                    throw new Fault(new Message("COULD_NOT_FIND_SEICLASS", BUNDLE, seiClass), e);
-                }
-                annotation = seiClass.getAnnotation(annotationClazz);
-                if (annotation != null) {
-                    return initializeAnnotationObjects(getAnnotationObjectNames(annotation), type);
-                }
+        
+        for (Class<?> cls : clazzes) {
+            Annotation  annotation = cls.getAnnotation(annotationClazz);
+            if (annotation != null) {
+                return initializeAnnotationObjects(getAnnotationObjectNames(annotation), type);
             }
-        } else {
-            return initializeAnnotationObjects(getAnnotationObjectNames(annotation), type);
         }
         return null;
     }

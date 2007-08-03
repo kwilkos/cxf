@@ -29,8 +29,10 @@ import javax.xml.ws.soap.SOAPBinding;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.interceptor.AnnotationInterceptors;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.context.WebServiceContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
@@ -70,6 +72,22 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
         doInit = true;
     }
 
+    /**
+     * Add annotationed Interceptors and Features to the Endpoint
+     * @param ep
+     */
+    protected void initializeAnnotationInterceptors(Endpoint ep, Class<?> cls) {
+        Class<?> seiClass = ((JaxWsServiceFactoryBean)getServiceFactory())
+            .getJaxWsImplementorInfo().getSEIClass();
+        AnnotationInterceptors provider;
+        if (seiClass != null) {
+            provider = new AnnotationInterceptors(cls, seiClass);
+        } else {
+            provider = new AnnotationInterceptors(cls);
+        }
+        initializeAnnotationInterceptors(provider, ep);
+    }      
+    
     @Override
     protected Invoker createInvoker() {
         return new JAXWSMethodInvoker(getServiceBean());

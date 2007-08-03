@@ -39,7 +39,6 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.interceptor.AnnotationInterceptors;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
@@ -131,7 +130,7 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
         }
         
         if (getServiceBean() != null) {
-            initializeAnnotationInterceptors(server.getEndpoint());
+            initializeAnnotationInterceptors(server.getEndpoint(), this.getServiceBean().getClass());
         }
         
         applyFeatures();
@@ -196,42 +195,7 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
             }
         }
     }
-    
-    /**
-     * Add annotationed Interceptors and Features to the Endpoint
-     * @param ep
-     */
-    protected void initializeAnnotationInterceptors(Endpoint ep) {
-        AnnotationInterceptors provider = new AnnotationInterceptors(getServiceBean().getClass());
-        if (initializeAnnotationInterceptors(provider, ep)) {
-            LOG.fine("Added annotation based interceptors");
-        }
-        if (provider.getFeatures() != null) {
-            getFeatures().addAll(provider.getFeatures());
-            LOG.fine("Added annotation based features");
-        }
-    }
-    
-    protected boolean initializeAnnotationInterceptors(AnnotationInterceptors provider, Endpoint ep) {
-        boolean hasAnnotation = false;
-        if (provider.getInFaultInterceptors() != null) {
-            ep.getInFaultInterceptors().addAll(provider.getInFaultInterceptors());
-            hasAnnotation = true;
-        }
-        if (provider.getInInterceptors() != null) {
-            ep.getInInterceptors().addAll(provider.getInInterceptors());
-            hasAnnotation = true;
-        }
-        if (provider.getOutFaultInterceptors() != null) {
-            ep.getOutFaultInterceptors().addAll(provider.getOutFaultInterceptors());
-            hasAnnotation = true;
-        }
-        if (provider.getOutInterceptors() != null) {
-            ep.getOutInterceptors().addAll(provider.getOutInterceptors());
-            hasAnnotation = true;
-        }
-        return hasAnnotation;
-    }
+      
     
     protected Invoker createInvoker() {
         return new BeanInvoker(serviceBean);

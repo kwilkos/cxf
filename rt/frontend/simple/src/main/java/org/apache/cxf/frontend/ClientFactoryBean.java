@@ -50,12 +50,12 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
             Endpoint ep = createEndpoint();
             
             createClient(ep);
+            initializeAnnotationInterceptors(ep, getServiceClass());
         } catch (EndpointException e) {
             throw new ServiceConstructionException(e);
         } catch (BusException e) {
             throw new ServiceConstructionException(e);
         }
-        
         applyFeatures();
         return client;
     }
