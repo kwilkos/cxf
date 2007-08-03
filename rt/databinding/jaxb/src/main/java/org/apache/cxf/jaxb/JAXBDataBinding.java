@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -169,15 +170,36 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             initializer.walk();
     
         }
-        try {
-            String tns = service.getName().getNamespaceURI();
+                
+        String tns = service.getName().getNamespaceURI(); 
+        JAXBContext ctx = null;
+        try {           
             if (service.getServiceInfos().size() > 0) {
                 tns = service.getServiceInfos().get(0).getInterface().getName().getNamespaceURI();
             }
-            setContext(createJAXBContext(contextClasses, tns));
+            ctx = createJAXBContext(contextClasses, tns);
         } catch (JAXBException e1) {
-            throw new ServiceConstructionException(e1);
+            //load jaxb needed class and try to create jaxb context for more times 
+            boolean added = addJaxbObjectFactory(e1);           
+            while (ctx == null && added) {
+                try {
+                      synchronized (JAXBCONTEXT_CACHE) {
+                        ctx = JAXBContext.newInstance(contextClasses.toArray(new Class[contextClasses.size()])
+                                                      , null);
+                        JAXBCONTEXT_CACHE.put(contextClasses, ctx);
+                    }               
+                } catch (JAXBException e) {
+                    e1 = e;
+                    added = addJaxbObjectFactory(e1);           
+                }
+            }
+            if (ctx == null) {
+                throw new ServiceConstructionException(e1);
+            }
         }
+            
+        setContext(ctx);
+        
             
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
             XmlSchemaCollection col = (XmlSchemaCollection)serviceInfo
@@ -367,4 +389,36 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             } 
         }
     }
+    
+    
+    //Now we can not add all the classes that Jaxb needed into JaxbContext, especially when 
+    //an ObjectFactroy is pointed by an jaxb @XmlElementDecl annotation
+    //added this workaround method to load the jaxb needed OjbectFactory class
+    public boolean addJaxbObjectFactory(JAXBException e1) {
+        boolean added = false;
+        java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
+        java.io.PrintStream pout = new java.io.PrintStream(bout);
+        e1.printStackTrace(pout);
+        String str = new String(bout.toByteArray());
+        Pattern pattern = Pattern.compile("(?<=There's\\sno\\sObjectFactory\\swith\\san\\s" 
+                                          + "@XmlElementDecl\\sfor\\sthe\\selement\\s\\{)\\S*(?=\\})");
+        java.util.regex.Matcher  matcher = pattern.matcher(str);
+        while (matcher.find()) {               
+            String pkgName = JAXBUtils.namespaceURIToPackage(matcher.group());
+            try {
+                Class clz  = getClass().getClassLoader().loadClass(pkgName + "." + "ObjectFactory");
+                
+                if (!contextClasses.contains(clz)) {
+                    contextClasses.add(clz);
+                    added = true;
+                }
+            } catch (ClassNotFoundException e) {
+                //do nothing
+            }
+            
+        }
+        return added;
+    }
+    
+    
 }
