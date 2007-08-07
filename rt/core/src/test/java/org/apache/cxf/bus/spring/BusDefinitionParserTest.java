@@ -19,9 +19,14 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.CXFBusImpl;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.junit.Assert;
@@ -42,6 +47,45 @@ public class BusDefinitionParserTest extends Assert {
             }
         }
         assertTrue("could not find logging interceptor.", found);
+   
+        Collection<AbstractFeature> features = ((CXFBusImpl)bus).getFeatures();
+        TestFeature tf = null;
+        for (AbstractFeature f : features) {
+            if (f instanceof TestFeature) {
+                tf = (TestFeature)f;
+                break;
+            }
+        }
+        
+        assertNotNull(tf);
+        assertTrue("test feature  has not been initialised", tf.initialised);
+        assertNotNull("test feature has not been injected", tf.testBean);
+        assertTrue("bean injected into test feature has not been initialised", tf.testBean.initialised);
+    }
+    
+    static class TestBean {
+
+        boolean initialised;
+        
+        @PostConstruct
+        public void initialise() {
+            initialised = true;
+        }
+    }
+    
+    static class TestFeature extends AbstractFeature {
+        
+        boolean initialised;
+        TestBean testBean;
+        
+        @PostConstruct
+        public void initialise() {
+            initialised = true;
+        }
+
+        public void setTestBean(TestBean tb) {
+            testBean = tb;
+        }
     }
     
 }

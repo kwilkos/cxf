@@ -69,10 +69,11 @@ public class SpringBusFactory extends BusFactory {
         final Bus bus = (Bus)bac.getBean(Bus.DEFAULT_BUS_ID);
 
         bus.setExtension(new ConfigurerImpl(bac), Configurer.class);
+        bus.setExtension(bac, BusApplicationContext.class);
 
         possiblySetDefaultBus(bus);
         
-        initializeBus(bus);
+        initializeBus(bus);        
         
         registerApplicationContextLifeCycleListener(bus, bac);
         return bus;

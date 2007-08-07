@@ -169,7 +169,8 @@ public class SpringBusFactoryTest extends Assert {
     @Test
     public void testInitialisation() {
         Bus bus = new SpringBusFactory().createBus("org/apache/cxf/bus/spring/init.xml");
-        assertNotNull(bus.getExtension(TestListener.class));        
+        assertNotNull(bus.getExtension(TestListener.class));           
+        assertSame(bus, bus.getExtension(BusApplicationContext.class).getBean("cxf"));
     }
 
     

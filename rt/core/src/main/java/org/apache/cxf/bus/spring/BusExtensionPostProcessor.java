@@ -31,21 +31,11 @@ import org.springframework.core.Ordered;
 public class BusExtensionPostProcessor implements BeanPostProcessor, ApplicationContextAware, Ordered {
 
     private Bus bus;
+    private ApplicationContext context;
 
     public void setApplicationContext(ApplicationContext ctx) {
-        //nothing to do
-        if (bus == null) {
-            bus = (Bus)ctx.getBean(Bus.DEFAULT_BUS_ID);
-        }
-    }
-
-    public void setBus(Bus b) {
-        bus = b;
+        context = ctx;
     } 
-    
-    public Bus getBus() {
-        return bus;
-    }
     
     public int getOrder() {
         return 1001;
@@ -58,11 +48,18 @@ public class BusExtensionPostProcessor implements BeanPostProcessor, Application
 
     @SuppressWarnings("unchecked")
     public Object postProcessBeforeInitialization(Object bean, String beanId) throws BeansException {
-        if (null != bus && bean instanceof BusExtension) {
+        if (null != getBus() && bean instanceof BusExtension) {
             Class cls = ((BusExtension)bean).getRegistrationType();
-            bus.setExtension(bean, cls);
+            getBus().setExtension(bean, cls);
         }
         return bean;
+    }
+    
+    private Bus getBus() {
+        if (bus == null) {
+            bus = (Bus)context.getBean(Bus.DEFAULT_BUS_ID);
+        }
+        return bus;
     }
 
 }
