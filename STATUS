@@ -56,19 +56,19 @@ X  -- Are there three or more independent committers?
 
 Collaborative Development:
 
-  -- Are project decisions being made in public by the committers?
+X  -- Are project decisions being made in public by the committers?
 
   -- Are the decision-making guidelines published and agreed to by
      all of the committers?
 
-  -- Does the documentation site has enough information on the architecure, design decisions and
+X  -- Does the documentation site has enough information on the architecure, design decisions and
      modules?
 
   -- Has the community, the graduation/new PMC of the project to which the codebase and community
      will move at the end of incubation (if any), and the Incubator PMC, decided the
      expected time frame of stay in incubator?
 
-  -- Has the community adopted the Apache voting rules and is otherwise following the Apache
+X  -- Has the community adopted the Apache voting rules and is otherwise following the Apache
      guidelines?
 
 Exit Milestone:
