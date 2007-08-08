@@ -144,18 +144,34 @@ public class RMTxStore implements RMStore {
     public void setDriverClassName(String dcn) {
         driverClassName = dcn;
     }
+    
+    String getDriverClassName() {
+        return driverClassName;
+    }
 
     public void setPassword(String p) {
         password = p;
     }
     
+    String getPassword() {
+        return password;
+    }
+    
     public void setUrl(String u) {
         url = u;
+    }
+    
+    String getUrl() {
+        return url;
     }
 
     public void setUserName(String un) {
         userName = un;
     }
+    
+    String getUserName() {
+        return userName;
+    }    
    
     public void setConnection(Connection c) {
         connection = c;
@@ -566,6 +582,7 @@ public class RMTxStore implements RMStore {
                 Class.forName(driverClassName);
             } catch (ClassNotFoundException ex) {
                 LogUtils.log(LOG, Level.SEVERE, "CONNECT_EXC", ex);
+                return;
             }
 
             try {

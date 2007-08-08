@@ -18,12 +18,21 @@
  */
 package org.apache.cxf.ws.rm.spring;
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+import org.w3c.dom.Element;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("rmManager", new RMManagerBeanDefinitionParser());
-        registerBeanDefinitionParser("reliableMessaging", new RMFeatureBeanDefinitionParser());
-        registerBeanDefinitionParser("jdbcStore", new RMTxStoreBeanDefinitionParser()); 
+import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
+import org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore;
+
+public class RMTxStoreBeanDefinitionParser extends AbstractBeanDefinitionParser {
+
+    @Override
+    protected Class getBeanClass(Element element) {
+        return RMTxStore.class;
     }
+
+    @Override
+    protected boolean shouldGenerateIdAsFallback() {
+        return true;
+    }
+       
 }

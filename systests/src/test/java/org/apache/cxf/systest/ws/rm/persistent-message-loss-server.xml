@@ -19,70 +19,34 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:wsa="http://cxf.apache.org/ws/addressing"
        xmlns:wsrm-mgr="http://cxf.apache.org/ws/rm/manager"
        xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
        xsi:schemaLocation="
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
 http://schemas.xmlsoap.org/ws/2005/02/rm/policy http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd
 http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/schemas/configuration/wsrm-manager.xsd
 http://cxf.apache.org/configuration/beans http://cxf.apache.org/schemas/configuration/cxf-beans.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-    
-    <bean class="org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore"/>
-    
-    <wsrm-mgr:rmManager id="org.apache.cxf.ws.rm.RMManager">          
-      <wsrm-policy:RMAssertion>
-			<wsrm-policy:BaseRetransmissionInterval Milliseconds="60000" />
-	  </wsrm-policy:RMAssertion>
-	  <property name="store" ref="org.apache.cxf.ws.rm.persistence.jdbc.RMTxStore"/>
-    </wsrm-mgr:rmManager>
-    
-    <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
-    <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-    <bean id="rmLogicalOut" class="org.apache.cxf.ws.rm.RMOutInterceptor">
-        <property name="bus" ref="cxf"/>
-    </bean>
-    <bean id="rmLogicalIn" class="org.apache.cxf.ws.rm.RMInInterceptor">
-        <property name="bus" ref="cxf"/>
-    </bean>
-    <bean id="rmCodec" class="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
+
     <bean id="messageLoss" class="org.apache.cxf.systest.ws.rm.MessageLossSimulator"/>
-    
-    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalIn"/>
-                <ref bean="rmCodec"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalIn"/>
-                <ref bean="rmCodec"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalOut"/>
-                <ref bean="rmCodec"/>
-                <ref bean="messageLoss"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalOut"/>
-                <ref bean="rmCodec"/>
-            </list>
-        </property>
-    </bean>
-	
-	
-    
+
+    <cxf:bus>
+        <cxf:features>
+            <wsa:addressing/>
+            <wsrm-mgr:reliableMessaging>
+                <wsrm-policy:RMAssertion>
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="60000" />
+                </wsrm-policy:RMAssertion>
+                <wsrm-mgr:store>
+                   <wsrm-mgr:jdbcStore/>
+                </wsrm-mgr:store>
+            </wsrm-mgr:reliableMessaging>
+        </cxf:features>
+        <cxf:outInterceptors>
+            <ref bean="messageLoss"/>
+        </cxf:outInterceptors>
+    </cxf:bus>
+   
 </beans>

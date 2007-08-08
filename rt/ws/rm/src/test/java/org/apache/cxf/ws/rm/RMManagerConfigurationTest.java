@@ -35,9 +35,9 @@ import org.junit.Test;
 public class RMManagerConfigurationTest extends Assert {
 
     @Test
-    public void testConfiguration() {
+    public void testManagerBean() {
         SpringBusFactory factory = new SpringBusFactory();
-        Bus bus = factory.createBus("org/apache/cxf/ws/rm/custom-rmmanager.xml");
+        Bus bus = factory.createBus("org/apache/cxf/ws/rm/manager-bean.xml");
         RMManager manager = bus.getExtension(RMManager.class);
         assertNotNull(manager);
         assertTrue(manager.getSourcePolicy().getSequenceTerminationPolicy().isTerminateOnShutdown());
@@ -46,8 +46,7 @@ public class RMManagerConfigurationTest extends Assert {
         assertEquals(10000L, manager.getRMAssertion().getAcknowledgementInterval()
                      .getMilliseconds().longValue());        
         TestStore store = (TestStore)manager.getStore();
-        assertEquals("here", store.getLocation());
-        
+        assertEquals("here", store.getLocation());        
     }
     
     static class TestStore implements RMStore {
@@ -57,12 +56,6 @@ public class RMManagerConfigurationTest extends Assert {
         public TestStore() {
             // this(null);
         }
-        
-        /*
-        public TestStore(String l) {
-            location = l;
-        }
-        */
         
         public String getLocation() {
             return location;

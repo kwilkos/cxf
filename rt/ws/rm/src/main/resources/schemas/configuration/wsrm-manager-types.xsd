@@ -26,6 +26,12 @@
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            jaxb:version="2.0">
+           
+    <xs:annotation>
+      <xs:documentation>
+          This schema defines types used in the configuration of the Reliable Messaging components.
+      </xs:documentation>
+    </xs:annotation>
 
     <xs:import namespace="http://schemas.xmlsoap.org/ws/2005/02/rm/policy" schemaLocation="http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd"/>
 
