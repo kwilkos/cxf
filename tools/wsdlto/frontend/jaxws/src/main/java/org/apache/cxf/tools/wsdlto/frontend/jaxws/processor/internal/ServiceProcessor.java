@@ -84,7 +84,7 @@ public class ServiceProcessor extends AbstractProcessor {
     private Object bindingObj;
     private ServiceInfo service;
 
-    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
+    private final JAXWSBinding jaxwsBinding = new JAXWSBinding();
 
     public ServiceProcessor(ToolContext penv) {
         super(penv);
@@ -133,10 +133,8 @@ public class ServiceProcessor extends AbstractProcessor {
             if (serviceBinding.isEnableMime()) {
                 jaxwsBinding.setEnableMime(true);
             }
+            jaxwsBinding.setEnableWrapperStyle(serviceBinding.isEnableWrapperStyle());
 
-            if (serviceBinding.isEnableWrapperStyle()) {
-                jaxwsBinding.setEnableWrapperStyle(true);
-            }
             if (serviceBinding.getJaxwsClass() != null
                 && serviceBinding.getJaxwsClass().getClassName() != null) {
                 name = serviceBinding.getJaxwsClass().getClassName();
@@ -213,7 +211,6 @@ public class ServiceProcessor extends AbstractProcessor {
 
         JAXWSBinding infBinding = infInfo.getExtensor(JAXWSBinding.class);
 
-
         if (infBinding != null) {
             if (infBinding.getJaxwsClass() != null
                 && !StringUtils.isEmpty(infBinding.getJaxwsClass().getClassName())) {
@@ -223,7 +220,6 @@ public class ServiceProcessor extends AbstractProcessor {
             if (!infBinding.isEnableAsyncMapping()) {
                 jaxwsBinding.setEnableAsyncMapping(false);
             }
-
             if (!infBinding.isEnableWrapperStyle()) {
                 jaxwsBinding.setEnableWrapperStyle(false);
             }
@@ -361,7 +357,7 @@ public class ServiceProcessor extends AbstractProcessor {
                 if (jaxwsBinding.isEnableMime() || enableOpMime) {
                     jm.setMimeEnable(true);
                 }
-
+                
                 if (jm.isWrapperStyle() && headerType > this.noHEADER
                     || !jaxwsBinding.isEnableWrapperStyle()
                     || jm.enableMime() && jm.isWrapperStyle()) {

@@ -58,6 +58,9 @@ public final class CustomNodeSelector {
             if (prefix != null
                 && !context.getUsedNamespaces().containsKey(prefix)
                 && targetNode.lookupPrefix(ns) != null) {
+                if ("xmlns".equals(prefix)) {
+                    continue;
+                }
                 context.addNamespace(prefix, ns);
             }
         }

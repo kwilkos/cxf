@@ -382,8 +382,9 @@ public final class CustomizationParser {
             if (wsdlURI.normalize().equals(normalizedURL)) {
                 jaxwsBindings.add(root);
             } else {
-                String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
-                Message msg = new Message("NOT_POINTTO_URL", LOG, new Object[] {bindingFile, wsdl});
+                Message msg = new Message("NOT_POINTTO_URL", LOG, new Object[] {bindingFile, 
+                                                                                wsdlURI.normalize(), 
+                                                                                normalizedURL});
                 throw new ToolException(msg);
             }
         } else if (isValidJaxbBindingFile(reader)) {

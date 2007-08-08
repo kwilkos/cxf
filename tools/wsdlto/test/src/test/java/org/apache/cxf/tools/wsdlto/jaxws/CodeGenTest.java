@@ -1105,5 +1105,18 @@ public class CodeGenTest extends ProcessorTestBase {
         }
     }
 
+    @Test
+    public void testGlobalBinding() throws Exception {
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cust.xml"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
 
+        processor.setContext(env);
+        processor.execute();
+
+        File greeter = new File(output, "org/apache/hello_world_soap_http/Greeter.java");
+        assertTrue(output.exists());
+        String contents = getStringFromFile(greeter);
+        assertTrue(contents.indexOf("SOAPBinding.ParameterStyle.BARE") != -1);
+        assertTrue(contents.indexOf("@ResponseWrapper") == -1);
+    }
 }
