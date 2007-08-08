@@ -3,8 +3,9 @@ WS-Addressing Demo
 
 This demo shows how WS-Addressing support in Apache CXF may be enabled.  
 
-The client and server both use interceptor configuration to install the
-WS-Addressing interceptor, comprising a logical interceptor (MAPAggregator)
+The client and server both apply the addressing feature to the bus.
+This ensures installation of the WS-Addressing interceptors,
+comprising a logical interceptor (MAPAggregator)
 responsible for aggregating the WS-A MessageAddressingProperties for
 the current message, and a protocol interceptor (MAPCodec) responsible for
 encoding/decoding these properties as SOAP Headers. 

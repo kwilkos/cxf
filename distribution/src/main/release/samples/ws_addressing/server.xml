@@ -18,39 +18,17 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:wsa="http://cxf.apache.org/ws/addressing"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
-    <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
+    <cxf:bus>
+        <cxf:features>
+            <wsa:addressing/>
+        </cxf:features>
+    </cxf:bus>
 
-    <!-- We are adding the interceptors to the bus as we will have only one endpoint/service/bus. -->
-
-    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-    </bean> 
 </beans>
