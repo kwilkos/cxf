@@ -24,7 +24,6 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.xml.namespace.QName;
 
 
-import org.apache.cxf.systest.jaxws.ServerMixedStyle;
 import org.apache.cxf.testutil.common.AbstractClientServerTestBase;
 import org.apache.hello_world_mixedstyle.Greeter;
 import org.apache.hello_world_mixedstyle.SOAPService;
@@ -39,7 +38,7 @@ public class ClientServerVersioningTest extends AbstractClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMixedStyle.class));
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
     
     @Test
@@ -55,11 +54,11 @@ public class ClientServerVersioningTest extends AbstractClientServerTestBase {
             request.setRequestType("Bonjour");
             GreetMeResponse greeting = greeter.greetMe(request);
             assertNotNull("no response received from service", greeting);
-            assertEquals("Hello Bonjour", greeting.getResponseType());
+            assertEquals("Hello Bonjour version1", greeting.getResponseType());
 
             String reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
-            assertEquals("Bonjour", reply);
+            assertEquals("Bonjour version2", reply);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }

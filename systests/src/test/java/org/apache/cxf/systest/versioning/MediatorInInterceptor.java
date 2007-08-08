@@ -19,15 +19,20 @@
 
 package org.apache.cxf.systest.versioning;
 
+
+import java.io.InputStream;
 import java.util.Set;
 
-import javax.xml.stream.XMLStreamException;
+
+
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.AbstractEndpointSelectionInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxInInterceptor;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
@@ -41,33 +46,54 @@ public class MediatorInInterceptor extends AbstractEndpointSelectionInterceptor 
 
     @Override
     protected Endpoint selectEndpoint(Message message, Set<Endpoint> eps) {
-        XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
-        if (!xsr.isStartElement()) {
-            try {
-                xsr.nextTag();
-            } catch (XMLStreamException e) {
-                throw new Fault(e);
-            }
-        }
         
-        if (!xsr.isStartElement()) {
+        InputStream is = message.getContent(InputStream.class);        
+        if (is == null) {
             return null;
         }
+        //cache the input stream
+        CachedOutputStream bos = new CachedOutputStream();
+        try {
+            IOUtils.copy(is, bos);
+            is.close();
+            bos.close();
+            
+            message.setContent(InputStream.class, bos.getInputStream());
         
-        String schemaNamespace = xsr.getNamespaceURI();
-        
-        //if the incoming message has a namespace contained "2007/03/21", we redirect the message
-        //to the new version of service on endpoint "local://localhost:9027/SoapContext/version2/SoapPort"
-        for (Endpoint ep : eps) {
-            if (schemaNamespace.indexOf("2007/03/21") != -1) {
-                if ("2".equals(ep.get("version"))) {
+            String encoding = (String)message.get(Message.ENCODING);
+
+            XMLStreamReader xsr;
+            xsr = StaxInInterceptor.getXMLInputFactory(message).
+                createXMLStreamReader(bos.getInputStream(), encoding);
+            // move to the soap body            
+            while (true) {                
+                xsr.nextTag();              
+                
+                if ("Body".equals(xsr.getName().getLocalPart())) {
+                    break;
+                }
+            }
+            
+            xsr.nextTag();
+            if (!xsr.isStartElement()) {
+                return null;
+            }
+            
+            String methodName = xsr.getName().getLocalPart();
+            //if the incoming message has a element containes "SayHi", we redirect the message
+            //to the new version of service on endpoint "local://localhost:9027/SoapContext/version2/SoapPort"
+            for (Endpoint ep : eps) {               
+                if (methodName.indexOf("sayHi") != -1) {
+                    if ("2".equals(ep.get("version"))) {
+                        return ep;
+                    }
+                } else if ("1".equals(ep.get("version"))) {
                     return ep;
                 }
-            } else if ("1".equals(ep.get("version"))) {
-                return ep;
             }
-        }
-
+        } catch (Exception e) {
+            throw new Fault(e);
+        }    
         return null;
     }
 

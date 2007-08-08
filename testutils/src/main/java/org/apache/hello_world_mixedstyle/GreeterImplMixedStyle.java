@@ -31,16 +31,25 @@ import org.apache.hello_world_mixedstyle.types.GreetMeResponse;
             targetNamespace = "http://apache.org/hello_world_mixedstyle",
             wsdlLocation = "testutils/hello_world_mixedstyle.wsdl")
 public class GreeterImplMixedStyle implements Greeter {
+    private String version;
+    
+    public GreeterImplMixedStyle() {
+        version = "";
+    }
+    
+    public GreeterImplMixedStyle(String v) {
+        version = v;
+    }
 
     public String sayHi() {
         System.out.println("Call sayHi here ");
-        return "Bonjour";
+        return "Bonjour" + version;
     }
 
     public GreetMeResponse greetMe(GreetMe1 requestType) {
         System.out.println("Call greetMe here: " + requestType.getRequestType());
         GreetMeResponse response = new GreetMeResponse();
-        response.setResponseType("Hello " + requestType.getRequestType());
+        response.setResponseType("Hello " + requestType.getRequestType() + version);
         return response;
     }
 

@@ -32,12 +32,12 @@ public class Server extends AbstractBusTestServerBase {
     protected void run() {
         String address = "http://localhost:9027/SoapContext/SoapPort";
 
-        Object implementor1 = new GreeterImplMixedStyle();
+        Object implementor1 = new GreeterImplMixedStyle(" version1");
         EndpointImpl ep1 = (EndpointImpl) Endpoint.publish(address, implementor1);
 
         ep1.getServer().getEndpoint().put("version", "1");
         
-        Object implementor2 = new GreeterImplMixedStyle();
+        Object implementor2 = new GreeterImplMixedStyle(" version2");
         EndpointImpl ep2 = (EndpointImpl) Endpoint.publish(address, implementor2);
         ep2.getServer().getEndpoint().put("version", "2");
         
