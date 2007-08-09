@@ -22,7 +22,7 @@
     <artifactId>cxf-rt-transports-jbi</artifactId>
     <packaging>jar</packaging>
     <version>2.1-incubator-SNAPSHOT</version>
-    <name>Apache CXF Runtime JBI transport</name>
+    <name>Apache CXF Runtime JBI Transport</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>

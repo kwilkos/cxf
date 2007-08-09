@@ -22,7 +22,7 @@
     <artifactId>cxf-rt-transports-http-jetty</artifactId>
     <packaging>jar</packaging>
     <version>2.1-incubator-SNAPSHOT</version>
-    <name>Apache CXF Runtime HTTP Jetty transport</name>
+    <name>Apache CXF Runtime HTTP Jetty Transport</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
