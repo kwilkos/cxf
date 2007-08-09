@@ -41,7 +41,7 @@ public class JavaToWS {
         try {
             j2w.run();
         } catch (Exception ex) {
-            System.err.println("JavaToWSDL Error : " + ex.getMessage());
+            System.err.println("JavaToWS Error : " + ex.getMessage());
             System.err.println();
             if (j2w.isVerbose()) {
                 ex.printStackTrace();
@@ -72,8 +72,7 @@ public class JavaToWS {
 
     private void run() throws Exception {
         ToolRunner.runTool(JavaToWSContainer.class, JavaToWSContainer.class
-                           .getResourceAsStream("java2ws.xml"), false, args);
-       
+                           .getResourceAsStream("java2ws.xml"), false, args);      
     }
 
     private boolean isExitOnFinish() {
@@ -83,5 +82,7 @@ public class JavaToWS {
         }
         return "YES".equalsIgnoreCase(exit) || "TRUE".equalsIgnoreCase(exit);
     }
+    
+    
 
 }

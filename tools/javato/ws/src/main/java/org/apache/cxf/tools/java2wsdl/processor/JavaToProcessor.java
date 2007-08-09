@@ -92,11 +92,13 @@ public class JavaToProcessor implements Processor {
                                       service.getName().getLocalPart() + ".wsdl");
 
         File outputDir = getOutputDir(wsdlFile);
-
-        generators.add(getWSDLGenerator(wsdlFile));
-        generators.add(getWrapperBeanGenerator());
-        generators.add(getFaultBeanGenerator());
-
+        if (context.containsKey(ToolConstants.CFG_WSDL)) {
+            generators.add(getWSDLGenerator(wsdlFile));
+        }
+        if (context.containsKey(ToolConstants.CFG_WRAPPERBEAN)) {
+            generators.add(getWrapperBeanGenerator());
+            generators.add(getFaultBeanGenerator());
+        }
         generate(service, outputDir);
         System.setProperty(JAVA_CLASS_PATH, oldClassPath);
         LOG.log(Level.INFO, "RESUME_CP", oldClassPath);
