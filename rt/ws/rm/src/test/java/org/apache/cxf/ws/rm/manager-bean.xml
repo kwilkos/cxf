@@ -35,6 +35,9 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
           <wsrm-policy:BaseRetransmissionInterval Milliseconds="10000"/>           
           <wsrm-policy:AcknowledgementInterval Milliseconds="10000"/>                                                        
       </wsrm-policy:RMAssertion>
+      <wsrm-mgr:deliveryAssurance>
+          <wsrm-mgr:InOrder/>
+      </wsrm-mgr:deliveryAssurance>
       <wsrm-mgr:sourcePolicy>
           <wsrm-mgr:sequenceTerminationPolicy terminateOnShutdown="true"/>                    
       </wsrm-mgr:sourcePolicy>

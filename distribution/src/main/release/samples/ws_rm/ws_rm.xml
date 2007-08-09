@@ -19,79 +19,36 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:wsa="http://cxf.apache.org/ws/addressing"
        xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
        xmlns:wsrm-mgr="http://cxf.apache.org/ws/rm/manager"
-       xsi:schemaLocation="http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
+       xsi:schemaLocation="
+       http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+       http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
        http://schemas.xmlsoap.org/ws/2005/02/rm/policy http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd
        http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/schemas/configuration/wsrm-manager.xsd
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-  
-    <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
-    <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-    <bean id="rmLogicalOut" class="org.apache.cxf.ws.rm.RMOutInterceptor">
-        <property name="bus" ref="cxf"/>
-    </bean>
-    <bean id="rmLogicalIn" class="org.apache.cxf.ws.rm.RMInInterceptor">
-        <property name="bus" ref="cxf"/>
-    </bean>
-    <bean id="rmCodec" class="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
-    <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
-    <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
-
-    <!-- We are adding the interceptors to the bus as we will have only one endpoint/service/bus. -->
-
-    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalIn"/>
-                <ref bean="rmCodec"/>
-                <ref bean="logInbound"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalIn"/>
-                <ref bean="rmCodec"/>
-                <ref bean="logInbound"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalOut"/>
-                <ref bean="rmCodec"/>
-                <ref bean="logOutbound"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalOut"/>
-                <ref bean="rmCodec"/>
-                <ref bean="logOutbound"/>
-            </list>
-        </property>
-    </bean>
-
-    <http:conduit name="{http://apache.org/hello_world_soap_http}SoapPort9001.http-conduit">
+ 
+    <cxf:bus>
+        <cxf:features>
+            <cxf:logging/>
+            <wsa:addressing/>
+            <wsrm-mgr:reliableMessaging>
+                <wsrm-policy:RMAssertion>
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="4000"/>           
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>          
+                </wsrm-policy:RMAssertion>
+                <wsrm-mgr:destinationPolicy>
+                    <wsrm-mgr:acksPolicy intraMessageThreshold="0" />
+                </wsrm-mgr:destinationPolicy>
+            </wsrm-mgr:reliableMessaging>
+        </cxf:features>
+    </cxf:bus>
+    
+    <http:conduit name="{http://cxf.apache.org/hello_world_soap_http}GreeterPort.http-conduit">
       <http:client DecoupledEndpoint="http://localhost:9990/decoupled_endpoint"/>
     </http:conduit>
 
-	<wsrm-mgr:rmManager id="org.apache.cxf.ws.rm.RMManager">
-		<wsrm-policy:RMAssertion>
-			<wsrm-policy:BaseRetransmissionInterval Milliseconds="4000"/>           
-      <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>          
-		</wsrm-policy:RMAssertion>
-		<wsrm-mgr:destinationPolicy>
-			<wsrm-mgr:acksPolicy intraMessageThreshold="0" />
-		</wsrm-mgr:destinationPolicy>
-	</wsrm-mgr:rmManager>
-	
 </beans>

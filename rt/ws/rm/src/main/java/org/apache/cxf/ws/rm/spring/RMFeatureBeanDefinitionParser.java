@@ -30,16 +30,17 @@ import org.springframework.beans.factory.xml.ParserContext;
 
 public class RMFeatureBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
-    private static final String RM_CFG_NS = "http://cxf.apache.org/wsrm-config";
+    private static final String RM_NS =
+        "http://cxf.apache.org/ws/rm/manager";
 
     @Override
     protected void parseChildElements(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
         mapElementToJaxbProperty(element, bean, 
-                new QName(RM_CFG_NS, "deliveryAssurance"), "deliveryAssurance");
+                new QName(RM_NS, "deliveryAssurance"), "deliveryAssurance");
         mapElementToJaxbProperty(element, bean, 
-                new QName(RM_CFG_NS, "sourcePolicy"), "sourcePolicy");
+                new QName(RM_NS, "sourcePolicy"), "sourcePolicy");
         mapElementToJaxbProperty(element, bean, 
-                new QName(RM_CFG_NS, "destinationPolicy"), "destinationPolicy");
+                new QName(RM_NS, "destinationPolicy"), "destinationPolicy");
         mapElementToJaxbProperty(element, bean, 
                 new QName("http://schemas.xmlsoap.org/ws/2005/02/rm/policy", "RMAssertion"), 
                 "RMAssertion",
@@ -64,6 +65,11 @@ public class RMFeatureBeanDefinitionParser extends AbstractBeanDefinitionParser 
     @Override
     protected boolean shouldGenerateIdAsFallback() {
         return true;
+    }
+    
+    @Override
+    protected String getJaxbPackage() {
+        return "org.apache.cxf.ws.rm.manager";
     }
     
     

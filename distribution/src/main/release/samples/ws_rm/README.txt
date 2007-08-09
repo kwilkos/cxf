@@ -3,13 +3,14 @@ WS-RM Demo
 
 This demo shows how WS-ReliableMessaging support in Apache CXF may be enabled.  
 
-The client and server both use interceptor configuration to install the
-WS-RM interceptors, comprising logical interceptors (RMInInterceptor/RMOutInterceptor)
+The client and server both apply the reliableMessaging feature to the bus.
+This ensures installation of the WS-RM interceptors,
+comprising logical interceptors (RMInInterceptor/RMOutInterceptor)
 responsible for managing the reliability properties of the current message, and a
 protocol interceptor (RMSoapInterceptor) responsible for encoding/decoding
 these properties as SOAP Headers.
 
-As WS-RM is dependent on WS-Addressing, the configuration uses 
+As WS-RM is dependent on WS-Addressing, the demo uses 
 the same approach as the ws_addressing sample to enable this
 functionality. However, you may notice that the WS-Addressing
 namespace URI is different in this case (i.e.
@@ -17,21 +18,16 @@ http://schemas.xmlsoap.org/ws/2004/08/addressing as opposed to
 http://www.w3.org/2005/08/addressing). This is because the WS-RM
 specification is still based on an older version of WS-Addressing.
 
-Three additional interceptors are configured: 
-
-- LoggingInInterceptor used on both the client- and server-side to log the 
-inbound SOAP messages and display these to the console. Notice the usage of 
+The logging feature is used to log the inbound and outbound
+SOAP messages and display these to the console. Notice the usage of 
 out-of-band RM protocol messages (CreateSequence and CreateSequenceResponse)
 and the WS-RM headers in application-level messages (Sequence,
 SequenceAcknowledgement, AckRequested etc.)  
 
-- LoggingOutInterceptor used on both the client- and server-side to log the 
-outbound SOAP messages and display these to the console.
-
-- MessageLossSimulator used only on the client-side to simulate message 
-loss by discarding every second application level message. This simulated 
-unreliability allows the retransmission of unacknowledged messages to be 
-observed.
+Finally, the MessageLossSimulator interceptor is installed
+on the client-side to simulate message loss by discarding every second
+application level message. This simulated unreliability allows the retransmission
+of unacknowledged messages to be observed.
 
 This demo also illustrates usage of the decoupled HTTP transport, whereby
 a separate server->client HTTP connection is used to deliver responses

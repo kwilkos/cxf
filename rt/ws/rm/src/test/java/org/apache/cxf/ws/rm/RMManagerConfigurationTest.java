@@ -23,9 +23,11 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.ws.rm.persistence.RMMessage;
 import org.apache.cxf.ws.rm.persistence.RMStore;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,19 +36,43 @@ import org.junit.Test;
  */
 public class RMManagerConfigurationTest extends Assert {
 
+    private Bus bus;
+    
+    @After
+    public void tearDown() {
+        bus.shutdown(true);
+        BusFactory.setDefaultBus(null);
+    }
+    
     @Test
     public void testManagerBean() {
         SpringBusFactory factory = new SpringBusFactory();
-        Bus bus = factory.createBus("org/apache/cxf/ws/rm/manager-bean.xml");
+        bus = factory.createBus("org/apache/cxf/ws/rm/manager-bean.xml", false);
         RMManager manager = bus.getExtension(RMManager.class);
+        verifyManager(manager);
+    }
+    
+    @Test
+    public void testFeature() {
+        SpringBusFactory factory = new SpringBusFactory();
+        bus = factory.createBus("org/apache/cxf/ws/rm/feature.xml");
+        RMManager manager = bus.getExtension(RMManager.class);
+        verifyManager(manager);
+    }
+    
+    private void verifyManager(RMManager manager) {
         assertNotNull(manager);
         assertTrue(manager.getSourcePolicy().getSequenceTerminationPolicy().isTerminateOnShutdown());
+        assertEquals(0L, manager.getDestinationPolicy().getAcksPolicy().getIntraMessageThreshold());
         assertEquals(10000L, manager.getRMAssertion().getBaseRetransmissionInterval()
                      .getMilliseconds().longValue());
         assertEquals(10000L, manager.getRMAssertion().getAcknowledgementInterval()
                      .getMilliseconds().longValue());        
         TestStore store = (TestStore)manager.getStore();
-        assertEquals("here", store.getLocation());        
+        assertEquals("here", store.getLocation());     
+        assertNull(manager.getDeliveryAssurance().getAtLeastOnce());
+        assertNull(manager.getDeliveryAssurance().getAtMostOnce());
+        assertNotNull(manager.getDeliveryAssurance().getInOrder());
     }
     
     static class TestStore implements RMStore {

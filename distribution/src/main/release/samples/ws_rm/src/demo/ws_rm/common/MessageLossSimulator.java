@@ -50,10 +50,7 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
         addBefore(MessageSenderInterceptor.class.getName());
     }
 
-    /**
-      * Simulate loss of every second application message by replacing the stream normally 
-      * provided by the transport (in the MessageSenderInterceptor)/ 
-     */ 
+    
     public void handleMessage(Message message) throws Fault {
         AddressingProperties maps =
             RMContextUtils.retrieveMAPs(message, false, true);
@@ -81,7 +78,19 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
             }
         }
         
-        message.setContent(OutputStream.class, new WrappedOutputStream(message));     
+        message.setContent(OutputStream.class, new WrappedOutputStream(message));  
+
+        message.getInterceptorChain().add(new AbstractPhaseInterceptor<Message>(Phase.PREPARE_SEND_ENDING) {
+
+            public void handleMessage(Message message) throws Fault {
+                try {
+                    message.getContent(OutputStream.class).close();
+                } catch (IOException e) {
+                    throw new Fault(e);
+                }
+            }
+            
+        });   
     }
     
     private class WrappedOutputStream extends AbstractWrappedOutputStream {
