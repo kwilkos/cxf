@@ -32,6 +32,7 @@ import javax.xml.ws.WebFault;
 #end
 
 public class $expClass.Name extends Exception {
+    public static final long serialVersionUID = ${suid}L;
 #foreach ($field in $expClass.Fields)
     
     $field.Modifier $field.ClassName $paraName;

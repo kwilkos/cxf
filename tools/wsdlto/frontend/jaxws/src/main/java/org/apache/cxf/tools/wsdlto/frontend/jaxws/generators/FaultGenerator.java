@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -74,6 +76,7 @@ public class FaultGenerator extends AbstractJAXWSGenerator {
                 exceptionClasses.get(expClassName);
 
             clearAttributes();
+            setAttributes("suid", getSUID());
             setAttributes("expClass", expClz);
             for (JavaField jf : expClz.getFields()) {
                 setAttributes("paraName", ProcessorUtil.mangleNameToVariableName(jf.getName()));
@@ -82,5 +85,9 @@ public class FaultGenerator extends AbstractJAXWSGenerator {
             doWrite(FAULT_TEMPLATE, parseOutputName(expClz.getPackageName(),
                     expClz.getName()));
         }
+    }
+
+    private String getSUID() {
+        return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
     }
 }
