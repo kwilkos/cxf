@@ -100,7 +100,8 @@ public final class ToolConstants {
     public static final String CFG_CLASSNAME = "classname";
     public static final String CFG_PORTTYPE = "porttype";
     public static final String CFG_SOURCEDIR = "sourcedir";
-
+    public static final String CFG_WSDL = "wsdl";
+    public static final String CFG_WRAPPERBEAN = "wrapperbean";
 
     // WSDL2Service Constants
     public static final String CFG_ADDRESS = "address";
