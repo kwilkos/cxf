@@ -28,6 +28,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
@@ -404,9 +405,14 @@ public class RMEndpoint {
 
     void buildBindingInfo(ServiceInfo si) {
         // use same binding id as for application endpoint
+        // also, to workaround the problem that it may not be possible to determine
+        // the soap version depending on the bindingId, speciffy the soap version
+        // explicitly
         if (null != applicationEndpoint) {
-            String bindingId = applicationEndpoint.getEndpointInfo().getBinding().getBindingId();
-            SoapBindingInfo bi = new SoapBindingInfo(si, bindingId);
+            SoapBindingInfo sbi = (SoapBindingInfo)applicationEndpoint.getEndpointInfo().getBinding();
+            SoapVersion sv = sbi.getSoapVersion();
+            String bindingId = sbi.getBindingId();
+            SoapBindingInfo bi = new SoapBindingInfo(si, bindingId, sv);
             bi.setName(BINDING_NAME);
             BindingOperationInfo boi = null;
             SoapOperationInfo soi = null;

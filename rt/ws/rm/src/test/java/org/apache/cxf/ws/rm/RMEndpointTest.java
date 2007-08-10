@@ -29,6 +29,9 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.Service;
@@ -171,8 +174,10 @@ public class RMEndpointTest extends Assert {
         EasyMock.expect(ae.getService()).andReturn(as);
         EndpointInfo aei = control.createMock(EndpointInfo.class);
         EasyMock.expect(ae.getEndpointInfo()).andReturn(aei).times(2);
-        BindingInfo bi = control.createMock(BindingInfo.class);
-        EasyMock.expect(aei.getBinding()).andReturn(bi);
+        SoapBindingInfo bi = control.createMock(SoapBindingInfo.class);
+        EasyMock.expect(aei.getBinding()).andReturn(bi); 
+        SoapVersion sv = Soap11.getInstance();
+        EasyMock.expect(bi.getSoapVersion()).andReturn(sv);
         String ns = "http://schemas.xmlsoap.org/wsdl/soap/";
         EasyMock.expect(bi.getBindingId()).andReturn(ns);
         EasyMock.expect(aei.getTransportId()).andReturn(ns);
