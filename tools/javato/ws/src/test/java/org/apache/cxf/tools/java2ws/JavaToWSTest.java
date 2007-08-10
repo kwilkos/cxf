@@ -34,7 +34,7 @@ public class JavaToWSTest extends ToolTestBase {
     protected String cp;
     protected ToolContext env;
     protected File output;
-    
+
     @Before
     public void startUp() throws Exception {
         env = new ToolContext();
@@ -44,7 +44,7 @@ public class JavaToWSTest extends ToolTestBase {
         output = new File(output, "/generated/");
         FileUtils.mkDir(output);
     }
-    
+
     @After
     public void tearDown() {
         super.tearDown();
@@ -57,18 +57,44 @@ public class JavaToWSTest extends ToolTestBase {
         JavaToWS.main(args);
         assertNotNull(getStdOut());
     }
-    
+
     @Test
     public void testFlagWSDL() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", 
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
-        
-        
+
+
     }
-    
+
+    @Test
+    public void testInvalidFlag() throws Exception {
+        String[] args = new String[] {"-frontend", "tmp", "-wsdl", "-o", output.getPath() + "/tmp.wsdl",
+                                      "org.apache.hello_world_soap12_http.Greeter"};
+        JavaToWS.main(args);
+        assertTrue("invalid frontend flag should be detected",
+                   getStdErr().indexOf("is not a valid frontend,") > -1);
+
+        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
+        assertTrue("wsdl is not generated", wsdlFile.exists());
+    }
+
+    @Test
+    public void testInvalidFlag2() throws Exception {
+        String[] args = new String[] {"-frontend", "simple", "-wrapperbean", "-wsdl",
+                                      "-o", output.getPath() + "/tmp.wsdl",
+                                      "org.apache.hello_world_soap12_http.Greeter"};
+        JavaToWS.main(args);
+        assertTrue("wrapperbean flag error should be detected",
+                   getStdErr().indexOf("Wrapperbean only needs to be generated for jaxws front end") > -1);
+        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
+        assertTrue("wsdl is not generated", wsdlFile.exists());
+    }
+
+
+
     protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();

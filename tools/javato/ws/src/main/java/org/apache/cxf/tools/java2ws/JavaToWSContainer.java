@@ -19,8 +19,10 @@
 package org.apache.cxf.tools.java2ws;
 
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -28,13 +30,14 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
+import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToProcessor;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToWSContainer extends AbstractCXFToolContainer {
-
-    private static final String TOOL_NAME = "java2wsdl";
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSContainer.class);
+    private static final String TOOL_NAME = "java2ws";
 
     public JavaToWSContainer(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
@@ -42,8 +45,10 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
 
     public void execute(boolean exitOnFinish) throws ToolException {
         Processor processor = null;
+        ErrorVisitor errors = new ErrorVisitor();
         try {
             super.execute(exitOnFinish);
+            checkParams(errors);
             if (!hasInfoOption()) {
                 ToolContext env = new ToolContext();
                 env.setParameters(getParametersMap(new HashSet()));
@@ -65,7 +70,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
             }
             throw ex;
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("Error: " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
@@ -76,17 +81,41 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
     }
 
     public Class getServiceClass(ToolContext context) {
-        return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME),
-                                        getClass().getClassLoader());
+        return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME), getClass()
+            .getClassLoader());
     }
 
+    public void checkParams(ErrorVisitor errs) throws ToolException {
 
+        CommandDocument doc = super.getCommandDocument();
 
-    public void checkParams(ErrorVisitor errors) throws ToolException {
-        if (errors.getErrors().size() > 0) {
-            Message msg = new Message("PARAMETER_MISSSING", LOG);
-            throw new ToolException(msg, new BadUsageException(getUsage(), errors));
+        if (doc.hasParameter("frontend")) {
+            String ft = doc.getParameter("frontend");
+            
+            if (!"simple".equalsIgnoreCase(ft) && !"jaxws".equalsIgnoreCase(ft)) {
+                Message msg = new Message("INVALID_FORNTEND", LOG, new Object[]{ft});               
+                errs.add(new ErrorVisitor.UserError(msg.toString()));
+            }
         }
+        
+        
+        if (doc.hasParameter("wrapperbean")) {
+            String ft = doc.getParameter("frontend");
+            if (ft != null &&  !"jaxws".equalsIgnoreCase(ft)) {
+                Message msg = new Message("CANT_GEN_WRAPPERBEAN", LOG);               
+                errs.add(new ErrorVisitor.UserError(msg.toString()));
+            }
+        }
+
+        
+        
+        
+        
+        
+        if (errs.getErrors().size() > 0) {
+            Message msg = new Message("PARAMETER_MISSING", LOG);           
+            throw new ToolException(msg, new BadUsageException(getUsage(), errs));
+        }
+
     }
 }
-

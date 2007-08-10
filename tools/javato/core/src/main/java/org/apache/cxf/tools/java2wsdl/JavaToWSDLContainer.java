@@ -66,7 +66,7 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
             }
             throw ex;
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("Error: " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
@@ -85,7 +85,7 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
 
     public void checkParams(ErrorVisitor errors) throws ToolException {
         if (errors.getErrors().size() > 0) {
-            Message msg = new Message("PARAMETER_MISSSING", LOG);
+            Message msg = new Message("PARAMETER_MISSING", LOG);
             throw new ToolException(msg, new BadUsageException(getUsage(), errors));
         }
     }
