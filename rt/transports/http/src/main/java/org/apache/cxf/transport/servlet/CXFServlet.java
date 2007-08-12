@@ -138,8 +138,15 @@ public class CXFServlet extends HttpServlet {
 
         // Spring 2.0
         if (ctx == null) {
-            ctx = (ApplicationContext)svCtx
+            Object ctxObject = svCtx
                 .getAttribute("org.springframework.web.context.WebApplicationContext.ROOT");
+            if (ctxObject instanceof ApplicationContext) {
+                ctx = (ApplicationContext) ctxObject;
+            } else {
+                // it should be the runtime exception
+                Exception ex = (Exception) ctxObject;
+                throw new ServletException(ex);
+            }                   
         }
         
         // This constructor works whether there is a context or not
