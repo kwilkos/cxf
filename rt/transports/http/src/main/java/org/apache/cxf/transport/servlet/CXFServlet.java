@@ -142,8 +142,8 @@ public class CXFServlet extends HttpServlet {
                 .getAttribute("org.springframework.web.context.WebApplicationContext.ROOT");
             if (ctxObject instanceof ApplicationContext) {
                 ctx = (ApplicationContext) ctxObject;
-            } else {
-                // it should be the runtime exception
+            } else if (ctxObject != null) {
+                // it should be the runtime exception                
                 Exception ex = (Exception) ctxObject;
                 throw new ServletException(ex);
             }                   
