@@ -18,11 +18,15 @@
  */
 package org.apache.cxf.systest.servlet;
 
+
 import org.w3c.dom.Document;
 
+
 import com.meterware.httpunit.PostMethodWebRequest;
+import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
+import com.meterware.servletunit.ServletUnitClient;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -40,12 +44,37 @@ public class ExternalServicesServletTest extends AbstractServletTest {
     protected String getConfiguration() {
         return "/org/apache/cxf/systest/servlet/web-external.xml";
     }
+    
+    @Test
+    public void testGetServiceList() throws Exception {
+        
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(false);
+
+        //test the '/' context get service list
+        WebResponse  res = client.getResponse(CONTEXT_URL + "/");
+        WebLink[] links = res.getLinks();
+        assertEquals("There should get two links for the services", 2, links.length);
+        assertEquals(CONTEXT_URL + "/greeter?wsdl", links[0].getURLString()); 
+        assertEquals(CONTEXT_URL + "/greeter2?wsdl", links[1].getURLString()); 
+        assertEquals("text/html", res.getContentType());
+        
+        //HTTPUnit do not support require url with ""
+        /*
+        res = client.getResponse(CONTEXT_URL);
+        links = res.getLinks();
+        assertEquals("There should get two links for the services", 1, links.length);
+        assertEquals(CONTEXT_URL + "/greeter?wsdl", links[0].getURLString());
+        assertEquals(CONTEXT_URL + "/greeter2?wsdl", links[1].getURLString()); 
+        assertEquals("text/html", res.getContentType());*/        
+        
+    }
 
     @Test
     public void testPostInvokeServices() throws Exception {
         newClient();
         
-        WebRequest req = new PostMethodWebRequest(CONTEXT_URL + "/services/greeter",
+        WebRequest req = new PostMethodWebRequest(CONTEXT_URL + "/greeter",
                 getClass().getResourceAsStream("GreeterMessage.xml"),
                 "text/xml; charset=UTF-8");
         

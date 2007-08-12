@@ -60,7 +60,7 @@ public class ServletController {
     
     private synchronized void updateDests(HttpServletRequest request) {
         String base = getBaseURL(request);
-        
+                
         if (base.equals(lastBase)) {
             return;
         }
@@ -88,8 +88,8 @@ public class ServletController {
             ServletDestination d = (ServletDestination)transport.getDestinationForPath(ei.getAddress());
             
             if (d == null) {
-                if (request.getRequestURI().endsWith("services")
-                    || request.getRequestURI().endsWith("services/")
+                if (request.getRequestURI().endsWith("/services")
+                    || request.getRequestURI().endsWith("/services/")
                     || StringUtils.isEmpty(request.getPathInfo())
                     || "/".equals(request.getPathInfo())) {
                     updateDests(request);
@@ -176,10 +176,13 @@ public class ServletController {
     }
 
     private String getBaseURL(HttpServletRequest request) {
-        String reqPerfix = request.getRequestURL().toString();
+        String reqPrefix = request.getRequestURL().toString();        
         String pathInfo = request.getPathInfo() == null ? "" : request.getPathInfo();
-        reqPerfix = reqPerfix.substring(0, reqPerfix.length() - pathInfo.length());
-        return reqPerfix;
+        //fix for CXF-898
+        if (!"/".equals(pathInfo) || reqPrefix.endsWith("/")) {            
+            reqPrefix = reqPrefix.substring(0, reqPrefix.length() - pathInfo.length());
+        }
+        return reqPrefix;
     }
 
     protected void generateNotFound(HttpServletRequest request, HttpServletResponse res) throws IOException {

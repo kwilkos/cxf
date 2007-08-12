@@ -84,19 +84,26 @@ public class CXFServletTest extends AbstractServletTest {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(false);
 
-        WebResponse res = client.getResponse(CONTEXT_URL + "/services");    
+        WebResponse res = client.getResponse(CONTEXT_URL + "/services");
+        
         
         WebLink[] links = res.getLinks();
-        assertEquals("There should get two link for service", 2, links.length);
+        assertEquals("There should get two links for the service", 2, links.length);
         assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
+        assertEquals(CONTEXT_URL + "/services/greeter2?wsdl", links[1].getURLString()); 
         assertEquals("text/html", res.getContentType());
         
-        res = client.getResponse(CONTEXT_URL + "/services");
+        res = client.getResponse(CONTEXT_URL + "/services/");
+       
+        
         links = res.getLinks();
-        assertEquals("There should get two link for service", 2, links.length);
-        assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());       
+        assertEquals("There should get two links for the service", 2, links.length);
+        assertEquals(CONTEXT_URL + "/services/greeter?wsdl", links[0].getURLString());
+        assertEquals(CONTEXT_URL + "/services/greeter2?wsdl", links[1].getURLString()); 
+        
         assertEquals("text/html", res.getContentType());
         
+       
         // Ensure that the Bus is available for people doing an Endpoint.publish() or similar.
         assertNotNull(BusFactory.getDefaultBus(false));
     }
