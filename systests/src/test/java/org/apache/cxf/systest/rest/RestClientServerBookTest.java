@@ -89,6 +89,20 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         assertEquals(book.getName(), "CXF in Action");
     }
     
+    @Test
+    public void testGetBookWrapped() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xmlwrapped/books/123"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass()
+            .getResourceAsStream("resources/expected_get_book123_xmlwrapped.txt");
+
+        //System.out.println("---" + getStringFromInputStream(in));
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
     
     @Test
     public void testGetBooksJSON() throws Exception {
@@ -150,7 +164,7 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         IOUtils.copy(in, bos);
         in.close();
         bos.close();
-        System.out.println(bos.getOut().toString());        
+        //System.out.println(bos.getOut().toString());        
         return bos.getOut().toString();        
     }
 

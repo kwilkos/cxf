@@ -28,6 +28,8 @@ import javax.xml.stream.XMLOutputFactory;
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.customer.book.BookService;
 import org.apache.cxf.customer.book.BookServiceImpl;
+import org.apache.cxf.customer.book.BookServiceWrapped;
+import org.apache.cxf.customer.book.BookServiceWrappedImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -37,6 +39,7 @@ import org.codehaus.jettison.mapped.MappedXMLOutputFactory;
 public class BookServer extends AbstractBusTestServerBase {
 
     protected void run() {
+        //book service in unwrapped style
         BookServiceImpl serviceObj = new BookServiceImpl();
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceClass(BookService.class);
@@ -52,6 +55,17 @@ public class BookServer extends AbstractBusTestServerBase {
         sf.getServiceFactory().setWrapped(false);
 
         sf.create();
+        
+        //book service in wrapped style
+        BookServiceWrappedImpl serviceWrappedObj = new BookServiceWrappedImpl();
+        JaxWsServerFactoryBean sfWrapped = new JaxWsServerFactoryBean();
+        sfWrapped.setServiceClass(BookServiceWrapped.class);
+        // Use the HTTP Binding which understands the Java Rest Annotations
+        sfWrapped.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
+        sfWrapped.setAddress("http://localhost:9080/xmlwrapped");
+        sfWrapped.getServiceFactory().setInvoker(new BeanInvoker(serviceWrappedObj));
+        sfWrapped.create();
+        
         
         JaxWsServerFactoryBean sfJson = new JaxWsServerFactoryBean();
         sfJson.setServiceClass(BookService.class);

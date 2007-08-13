@@ -43,6 +43,7 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
@@ -186,11 +187,21 @@ public final class IriDecoderHelper {
         }
         return null;
     }
+    
+    private static boolean findSchemaUnQualified(Collection<SchemaInfo> schemas, QName name) {
+        for (SchemaInfo inf : schemas) {
+            if (inf.getNamespaceURI().equals(name.getNamespaceURI())) {
+                return inf.getSchema().getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED);
+            }
+        }
+        //Unqualified by default
+        return true;
+    }
 
     /**
      * Create a dom document conformant with the given schema element with the
      * input parameters.
-     *
+     * 
      * @param element
      * @param params
      * @return
@@ -201,11 +212,14 @@ public final class IriDecoderHelper {
 
         XmlSchemaElement element = null;
         QName qname = null;
+        boolean unQualified = false;
+        
         XmlSchemaComplexType cplxType = null;
         if (schemaAnnotation instanceof XmlSchemaElement) {
             element = (XmlSchemaElement)schemaAnnotation;
             qname = element.getQName();
             cplxType = (XmlSchemaComplexType)element.getSchemaType();
+            unQualified = findSchemaUnQualified(schemas, element.getSchemaTypeName());
             if (cplxType == null) {
                 cplxType = (XmlSchemaComplexType)findSchemaType(schemas, element.getSchemaTypeName());
             }
@@ -237,11 +251,17 @@ public final class IriDecoderHelper {
                     break;
                 }
             }
-            Element ec = doc.createElementNS(elChild.getQName().getNamespaceURI(), elChild.getQName()
-                .getLocalPart());
-            if (!elChild.getQName().getNamespaceURI().equals(qname.getNamespaceURI())) {
-                ec.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, elChild.getQName().getNamespaceURI());
+            Element ec = null;
+            if (unQualified) {
+                ec = doc.createElement(elChild.getQName().getLocalPart());
+            } else {
+                ec = doc.createElementNS(elChild.getQName().getNamespaceURI(), elChild.getQName()
+                    .getLocalPart());
+                if (!elChild.getQName().getNamespaceURI().equals(qname.getNamespaceURI())) {
+                    ec.setAttribute(XMLConstants.XMLNS_ATTRIBUTE, elChild.getQName().getNamespaceURI());
+                }
             }
+            
             if (param != null) {
                 params.remove(param);
                 ec.appendChild(doc.createTextNode(param.getValue()));
