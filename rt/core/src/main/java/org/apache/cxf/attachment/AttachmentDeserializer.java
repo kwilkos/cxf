@@ -19,6 +19,7 @@
 
 package org.apache.cxf.attachment;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -46,7 +47,7 @@ public class AttachmentDeserializer {
 
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
 
-    public static final int THRESHHOLD = 1024 * 100;
+    public static final int THRESHOLD = 1024 * 100; //100K (byte unit)
 
     private static final Pattern CONTENT_TYPE_BOUNDARY_PATTERN = Pattern.compile("boundary=\"?([^\";]*)");
 
@@ -129,7 +130,7 @@ public class AttachmentDeserializer {
 
     private String findBoundaryFromInputStream() throws IOException {
         CachedOutputStream bos = new CachedOutputStream();
-
+        
         InputStream is = message.getContent(InputStream.class);
         IOUtils.copy(is, bos);
 
@@ -143,6 +144,28 @@ public class AttachmentDeserializer {
         // Use regex to get the boundary and return null if it's not found
         Matcher m = INPUT_STREAM_BOUNDARY_PATTERN.matcher(msg);
         return m.find() ? "--" + m.group(1) : null;
+    }
+    
+    private void setStreamedAttachmentProperties(CachedOutputStream bos) throws IOException {
+        Object directory = message.getContextualProperty(ATTACHMENT_DIRECTORY);
+        if (directory != null) {
+            if (directory instanceof File) {
+                bos.setOutputDir((File)directory);
+            } else {
+                bos.setOutputDir(new File((String)directory));
+            }
+        }
+        
+        Object threshold = message.getContextualProperty(ATTACHMENT_MEMORY_THRESHOLD);
+        if (threshold != null) {
+            if (threshold instanceof Long) {
+                bos.setThreshold((Long)threshold);
+            } else {
+                bos.setThreshold(Long.valueOf((String)threshold));
+            }
+        } else {
+            bos.setThreshold(THRESHOLD);
+        }
     }
 
     public AttachmentImpl readNext() throws IOException {
@@ -201,6 +224,7 @@ public class AttachmentDeserializer {
         CachedOutputStream out = null;
         try {
             out = new CachedOutputStream();
+            setStreamedAttachmentProperties(out);
             IOUtils.copy(input, out);
             input.setInputStream(out.getInputStream());
         } finally {

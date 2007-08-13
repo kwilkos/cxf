@@ -29,9 +29,6 @@ import org.apache.cxf.phase.Phase;
 
 public class AttachmentInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
-    public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
-    public static final int THRESHHOLD = 1024 * 100;
     private static final Logger LOG = Logger.getLogger(AttachmentInInterceptor.class.getName());
 
     /**

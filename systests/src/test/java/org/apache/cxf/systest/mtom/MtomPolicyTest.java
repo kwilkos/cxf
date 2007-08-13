@@ -37,6 +37,7 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -136,6 +137,7 @@ public class MtomPolicyTest extends AbstractCXFTest {
         MessageImpl resMsg = new MessageImpl();
         resMsg.setContent(InputStream.class, new ByteArrayInputStream(res));
         resMsg.put(Message.CONTENT_TYPE, obs.getResponseContentType());
+        resMsg.setExchange(new ExchangeImpl());
         AttachmentDeserializer deserializer = new AttachmentDeserializer(resMsg);
         deserializer.initializeAttachments();
 

@@ -293,7 +293,6 @@ public class CachedOutputStream extends OutputStream {
 
     public void setOutputDir(File outputDir) throws IOException {
         this.outputDir = outputDir;
-        createFileOutputStream();
     }
 
     public void setThreshold(long threshold) {

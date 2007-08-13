@@ -99,6 +99,7 @@ public class MtomServerTest extends AbstractCXFTest {
         MessageImpl resMsg = new MessageImpl();
         resMsg.setContent(InputStream.class, new ByteArrayInputStream(res));
         resMsg.put(Message.CONTENT_TYPE, obs.getResponseContentType());
+        resMsg.setExchange(new ExchangeImpl());
         AttachmentDeserializer deserializer = new AttachmentDeserializer(resMsg);
         deserializer.initializeAttachments();
 
@@ -165,6 +166,7 @@ public class MtomServerTest extends AbstractCXFTest {
         MessageImpl resMsg = new MessageImpl();
         resMsg.setContent(InputStream.class, new ByteArrayInputStream(res));
         resMsg.put(Message.CONTENT_TYPE, obs.getResponseContentType());
+        resMsg.setExchange(new ExchangeImpl());
         AttachmentDeserializer deserializer = new AttachmentDeserializer(resMsg);
         deserializer.initializeAttachments();
 
