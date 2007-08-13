@@ -22,6 +22,7 @@ package org.apache.cxf.systest.factory_pattern;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,5 +112,17 @@ public class MultiplexHttpAddressClientServerTest extends AbstractBusClientServe
             
         IsEvenResponse numResp = num.isEven();
         assertTrue("103 is not even", Boolean.FALSE.equals(numResp.isEven()));
+    }
+    
+    @Test
+    public void testWithGetWsdlOnServant() throws Exception {
+        
+        int firstChar = new URL(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT 
+                + "?wsdl").openStream().read();        
+        assertTrue("firstChar :" + String.valueOf(firstChar), firstChar == '<');
+        
+        firstChar = new URL(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT 
+                                + "103?wsdl").openStream().read();
+        assertTrue("firstChar :" + String.valueOf(firstChar), firstChar == '<');
     }
 }

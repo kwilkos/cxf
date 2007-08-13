@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
@@ -51,19 +53,21 @@ import org.xml.sax.SAXException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.transports.http.StemMatchingQueryHandler;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.ResourceManagerWSDLLocator;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 
-public class WSDLQueryHandler implements QueryHandler {
+public class WSDLQueryHandler implements StemMatchingQueryHandler {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WSDLQueryHandler.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLQueryHandler.class);
+    private Bus bus;
 
-    Bus bus;
     public WSDLQueryHandler(Bus b) {
         bus = b;
     }
@@ -76,11 +80,17 @@ public class WSDLQueryHandler implements QueryHandler {
         return null;
     }
 
-    public boolean isRecognizedQuery(String baseUri, String ctx, EndpointInfo endpointInfo) {
+    public boolean isRecognizedQuery(String baseUri, String ctx, 
+                                     EndpointInfo endpointInfo, boolean contextMatchExact) {
         if (baseUri != null 
             && (baseUri.toLowerCase().contains("?wsdl")
                 || baseUri.toLowerCase().contains("?xsd="))) {
-            return endpointInfo.getAddress().contains(ctx);
+            if (contextMatchExact) {
+                return endpointInfo.getAddress().contains(ctx);
+            } else {
+                // contextMatchStrategy will be "stem"
+                return endpointInfo.getAddress().contains(getStem(baseUri));
+            }
         }
         return false;
     }
@@ -268,4 +278,24 @@ public class WSDLQueryHandler implements QueryHandler {
             }
         }
     }
+    
+    public boolean isRecognizedQuery(String baseUri, String ctx, EndpointInfo endpointInfo) {
+        return isRecognizedQuery(baseUri, ctx, endpointInfo, false);
+    }
+    
+      
+    private String getStem(String baseURI) {
+        
+        URL url = null;
+        try {
+            url = new URL(baseURI);
+        } catch (MalformedURLException e) {
+            LOG.log(Level.WARNING, "URL creation failed: ", e);
+        }
+        String port = String.valueOf(url.getPort());
+        baseURI = baseURI.substring(baseURI.indexOf(port) + port.length(), baseURI.lastIndexOf("/"));
+        
+        return baseURI;
+    }
+     
 }

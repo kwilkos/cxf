@@ -49,9 +49,9 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.http.WSDLQueryHandler;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
+import org.apache.cxf.transports.http.StemMatchingQueryHandler;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -95,7 +95,7 @@ public class JettyHTTPDestinationTest extends Assert {
     private MessageObserver observer;
     private ServletInputStream is;
     private ServletOutputStream os;
-    private WSDLQueryHandler wsdlQueryHandler;
+    private QueryHandler wsdlQueryHandler;
     private QueryHandlerRegistry  queryHandlerRegistry;
     private List<QueryHandler> queryHandlerList;
     private JettyHTTPTransportFactory transportFactory; 
@@ -225,8 +225,26 @@ public class JettyHTTPDestinationTest extends Assert {
     }
     
     @Test
-    public void testDoServiceWithHttpGETandQueryWSDL() throws Exception {
+    public void testDoServiceWithHttpGETandStemMatchingQueryWSDL() throws Exception {
         destination = setUpDestination(false, true);
+        setUpQueryHandler(true);
+        setUpDoService(false,
+                       false,
+                       false,
+                       "GET",
+                       "?wsdl",
+                       200);
+        
+        destination.doService(request, response);
+        assertNotNull("unexpected null response", response);
+        
+        
+    }
+    
+    @Test
+    public void testDoServiceWithHttpGETandNonStemMatchingQueryWSDL() throws Exception {
+        destination = setUpDestination(false, true);
+        setUpQueryHandler(false);
         setUpDoService(false,
                        false,
                        false,
@@ -479,6 +497,13 @@ public class JettyHTTPDestinationTest extends Assert {
         return dest;
     }
     
+    private void setUpQueryHandler(boolean stemMatching) {
+        wsdlQueryHandler = stemMatching
+                           ? EasyMock.createMock(StemMatchingQueryHandler.class)
+                           : EasyMock.createMock(QueryHandler.class);
+
+    }
+    
     private void setUpRemoveServant() throws Exception {
         EasyMock.reset(engine);
         engine.removeServant(EasyMock.eq(new URL(NOWHERE + "bar/foo")));
@@ -634,7 +659,6 @@ public class JettyHTTPDestinationTest extends Assert {
     }
     
     private void verifyGetWSDLQuery() throws Exception {
-        wsdlQueryHandler = EasyMock.createMock(WSDLQueryHandler.class);
         queryHandlerRegistry = EasyMock.createMock(QueryHandlerRegistry.class);
         queryHandlerList = new ArrayList<QueryHandler>();
         queryHandlerList.add(wsdlQueryHandler);
@@ -655,7 +679,17 @@ public class JettyHTTPDestinationTest extends Assert {
         EasyMock.expectLastCall().andReturn(os).anyTimes();
         request.setHandled(true);
         EasyMock.expectLastCall();
-        wsdlQueryHandler.isRecognizedQuery("http://localhost/bar/foo?wsdl", "/bar/foo", endpointInfo);
+        if (wsdlQueryHandler instanceof StemMatchingQueryHandler) {
+            ((StemMatchingQueryHandler)wsdlQueryHandler).isRecognizedQuery(
+                "http://localhost/bar/foo?wsdl", 
+                "/bar/foo",
+                endpointInfo,
+                false);
+        } else {
+            wsdlQueryHandler.isRecognizedQuery("http://localhost/bar/foo?wsdl",
+                                               "/bar/foo",
+                                               endpointInfo);
+        }
         EasyMock.expectLastCall().andReturn(true);   
         wsdlQueryHandler.getResponseContentType("http://localhost/bar/foo?wsdl", "/bar/foo");
         EasyMock.expectLastCall().andReturn("text/xml");

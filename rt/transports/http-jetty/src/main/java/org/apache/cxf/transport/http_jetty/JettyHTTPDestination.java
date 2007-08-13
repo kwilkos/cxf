@@ -44,6 +44,7 @@ import org.apache.cxf.transport.http.HTTPSession;
 import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
+import org.apache.cxf.transports.http.StemMatchingQueryHandler;
 import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 
@@ -175,7 +176,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         // only update the EndpointAddress if the base path is equal
         // make sure we don't broke the get operation?parament query 
         String address = endpointInfo.getAddress();
-        if (getBasePath(address).equals(getBasePath(addr))) {
+        if (getBasePath(address).equals(getStem(getBasePath(addr)))) {
             endpointInfo.setAddress(addr);
         }
     }
@@ -196,11 +197,22 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             String requestURL = req.getRequestURL() + "?" + req.getQueryString();
             String pathInfo = req.getPathInfo();                     
             for (QueryHandler qh : queryHandlerRegistry.getHandlers()) {
-                if (qh.isRecognizedQuery(requestURL, pathInfo, endpointInfo)) {
+                boolean recognized =
+                    qh instanceof StemMatchingQueryHandler
+                    ? ((StemMatchingQueryHandler)qh).isRecognizedQuery(requestURL,
+                                                                       pathInfo,
+                                                                       endpointInfo,
+                                                                       contextMatchOnExact())
+                    : qh.isRecognizedQuery(requestURL, pathInfo, endpointInfo);
+                if (recognized) {
                     //replace the endpointInfo address with request url only for get wsdl           
                     updateEndpointAddress(req.getRequestURL().toString());   
                     resp.setContentType(qh.getResponseContentType(requestURL, pathInfo));
-                    qh.writeResponse(requestURL, pathInfo, endpointInfo, resp.getOutputStream());
+                    try {
+                        qh.writeResponse(requestURL, pathInfo, endpointInfo, resp.getOutputStream());
+                    } catch (Exception ex) {
+                        LOG.log(Level.WARNING, "writeResponse failed: ", ex);
+                    }
                     resp.getOutputStream().flush();                     
                     baseRequest.setHandled(true);
                     return;
@@ -275,4 +287,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         return engine;
     }
    
+    private String getStem(String baseURI) {    
+        return baseURI.substring(0, baseURI.lastIndexOf("/"));
+    }
 }
