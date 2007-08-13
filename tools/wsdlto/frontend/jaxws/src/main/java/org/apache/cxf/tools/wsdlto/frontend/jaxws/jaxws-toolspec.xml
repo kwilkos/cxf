@@ -24,7 +24,7 @@
       xmlns:ts="http://cxf.apache.org/Xutil/ToolSpecification">
 
     <annotation>
-        Examples :
+Examples:
 
         wsdl2java HelloWorld.wsdl
         wsdl2java -p com.iona.greeting Greeting.wsdl

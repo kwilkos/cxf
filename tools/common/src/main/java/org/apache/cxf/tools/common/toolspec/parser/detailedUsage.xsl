@@ -88,7 +88,7 @@ Form </xsl:text>
 			    <xsl:value-of select="@id"/>
 			    </xsl:otherwise>
 			    </xsl:choose>
-				<xsl:text>&#10;&#10;</xsl:text>
+				<xsl:text>&#10;</xsl:text>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
@@ -112,7 +112,6 @@ Form </xsl:text>
 			     <xsl:otherwise>	
 			     </xsl:otherwise>
 			     </xsl:choose>
-				<xsl:text>&#10;&#10;</xsl:text>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
