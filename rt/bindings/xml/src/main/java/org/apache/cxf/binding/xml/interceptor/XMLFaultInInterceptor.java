@@ -57,7 +57,7 @@ public class XMLFaultInInterceptor extends AbstractInDatabindingInterceptor {
         try {            
             reader.nextTag();
             if (!StaxUtils.toNextElement(reader)) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("ILLEAGAL_XMLFAULT_FORMAT", BUNDLE));
+                throw new Fault(new org.apache.cxf.common.i18n.Message("ILLEGAL_XMLFAULT_FORMAT", BUNDLE));
             }
             String exMessage = reader.getElementText();
             Fault fault = new XMLFault(exMessage);

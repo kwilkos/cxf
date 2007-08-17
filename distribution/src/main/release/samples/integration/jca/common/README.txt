@@ -1,6 +1,6 @@
 
 This directory does not contain an Apache CXF demo.  It contains code that
-is common to other jca samples . You need to build the code of these dirctory
+is common to other jca samples . You need to build the code of these directory
 before to run the other jca samples. 
 
 NOTE

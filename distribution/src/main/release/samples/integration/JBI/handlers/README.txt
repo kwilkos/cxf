@@ -58,7 +58,7 @@ Start ServiceMix
 And then you can see logs from the shell which you start servicemix, including
 ServiceEngine install log, Service Assembly deploy log, cxf service
 consumer and provider communication log. To remove noisy CXF log from the
-console, just edit servicemix starup script, add
+console, just edit servicemix startup script, add
 -Djava.util.logging.config.file="$CXF_HOME/etc/logging.properties" to
 java launch commandline
 

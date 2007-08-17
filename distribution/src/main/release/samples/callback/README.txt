@@ -2,7 +2,7 @@ Callback Demo
 =============================================
 This demo shows a client creating a callback object by 
 passing an EndpointReferenceType to the server. The 
-EndpointRefrenceType is then used by the server to call 
+EndpointReferenceType is then used by the server to call 
 back on the callback object.
 
 Please review the README in the samples directory before

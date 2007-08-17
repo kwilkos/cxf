@@ -14,14 +14,14 @@ A demo-specific logging.properties file is used to snoop the log messages
 relating to WS-A Headers and display these to the console in concise form.
 
 Normally the WS-Addressing MessageAddressProperties are generated and
-propagated implicitly, without any intravention from the
+propagated implicitly, without any intervention from the
 application. In certain circumstances however, the application may wish
 to participate in MAP assembly, for example to associate a sequence of
 requests via the RelatesTo header. This demo illustrates both implicit
 and explicit MAP propagation.
 
 This demo also illustrates usage of the decoupled HTTP transport, whereby
-a seperate server->client HTTP connection is used to deliver the responses.
+a separate server->client HTTP connection is used to deliver the responses.
 Note the normal HTTP mode (where the response is delivered on the back-
 channel of the original client->server HTTP connection) may of course also
 be used  with WS-Addressing; in this case the <wsa:ReplyTo> header is set to

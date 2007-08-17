@@ -212,7 +212,7 @@ public final class DynamicClientFactory {
         srcPath.addFileset(fileSet);
         
         if (!compileJavaSrc(classPath, srcPath, classes.toString())) {
-            LOG.log(Level.SEVERE , new Message("COULD_NOT_COMIPLE_SRC", LOG, wsdlUrl).toString());
+            LOG.log(Level.SEVERE , new Message("COULD_NOT_COMPILE_SRC", LOG, wsdlUrl).toString());
         }
         FileUtils.removeDir(src);
         URLClassLoader cl;

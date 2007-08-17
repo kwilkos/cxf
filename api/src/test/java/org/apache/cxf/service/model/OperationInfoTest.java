@@ -104,7 +104,7 @@ public class OperationInfoTest extends Assert {
             operationInfo.addFault(null, null);
             fail("should get NullPointerException");
         } catch (NullPointerException e) {
-            assertEquals(e.getMessage(), "Faule Name cannot be null.");
+            assertEquals("Fault Name cannot be null.", e.getMessage());
         }
         try {
             operationInfo.addFault(faultName, null);

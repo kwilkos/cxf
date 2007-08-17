@@ -32,7 +32,7 @@ of unacknowledged messages to be observed.
 This demo also illustrates usage of the decoupled HTTP transport, whereby
 a separate server->client HTTP connection is used to deliver responses
 to (application or RM protocol) requests and server side originated 
-standalone acknowlegments.
+standalone acknowledgments.
 The "partial response" referred to in the log output is the payload of
 the HTTP 202 Accepted response sent on the back-channel of the original 
 client->server connection. 

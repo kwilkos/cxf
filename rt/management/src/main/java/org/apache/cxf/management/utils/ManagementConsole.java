@@ -129,10 +129,10 @@ public final class ManagementConsole {
             
         } catch (Exception e) {
             if (null == endpointName) {
-                LOG.log(Level.SEVERE, "FAILT_TO_CREATE_ENDPOINT_OBEJCTNAME", new Object[]{e});
+                LOG.log(Level.SEVERE, "FAIL_TO_CREATE_ENDPOINT_OBEJCTNAME", new Object[]{e});
                 
             } else {
-                LOG.log(Level.SEVERE, "FAIL_TO_INVOKE_MANAGED_OBJECT_OPERTION",
+                LOG.log(Level.SEVERE, "FAIL_TO_INVOKE_MANAGED_OBJECT_OPERATION",
                     new Object[]{endpointName, operation, e.toString()});
             }
         } 

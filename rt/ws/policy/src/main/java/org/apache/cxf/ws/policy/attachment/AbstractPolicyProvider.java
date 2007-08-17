@@ -93,7 +93,7 @@ public abstract class AbstractPolicyProvider implements PolicyProvider {
     
     protected void checkResolved(PolicyReference ref, Policy p) {
         if (null == p) {
-            throw new PolicyException(new Message("UNRESOLVED_POLICY_REEFERENCE_EXC", BUNDLE, ref.getURI()));
+            throw new PolicyException(new Message("UNRESOLVED_POLICY_REFERENCE_EXC", BUNDLE, ref.getURI()));
         }
     }
 }

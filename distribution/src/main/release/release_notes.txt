@@ -88,7 +88,7 @@ Release Notes - CXF - Version 2.0.1
     * [CXF-747] - Redundant Interceptors in the request-response chain while using Provider API
     * [CXF-750] - Support using Session in standalone
     * [CXF-773] - Logical/Soap handlers does not work on the Provider side.
-    * [CXF-777] - velocity engin write errors (NPE)
+    * [CXF-777] - velocity engine write errors (NPE)
     * [CXF-779] - missing jar file(s) in lib directory of 2.0 release or bad wiki page
     * [CXF-781] - Duplicate type error from Aegis on code that worked fine with XFire 1.2.5
     * [CXF-782] - wsdl2java generated wrong package name 
@@ -98,7 +98,7 @@ Release Notes - CXF - Version 2.0.1
     * [CXF-789] - JaxWsServiceConfiguration doesn't correctly find operations with an implementor
     * [CXF-790] - SOAP headers copied from input SOAPMessage to output SOAPMessage
     * [CXF-798] - wsdlvalidator cannot validate on-line wsdl
-    * [CXF-800] - Resouce matching in jra seems incorrect
+    * [CXF-800] - Resource matching in jra seems incorrect
     * [CXF-802] - Java first with unqualified/unannotated JAXB objects don't generate proper soap messages....
     * [CXF-804] - wsdl2java fails to generate code for the imported wsdl 
     * [CXF-809] - no cygwin support in java2wsdl script
@@ -108,14 +108,14 @@ Release Notes - CXF - Version 2.0.1
     * [CXF-814] - In java first wrapped/doc/lit, if Impl and Interface have different targetNamespaces, the "parts" are not read
     * [CXF-818] - Code first, client side, RCP/lit doesn't work without a WSDL
     * [CXF-819] - WSS4JInterceptors don't allow to have a password callback handler by reference
-    * [CXF-821] - Current CXFservletTransportFactory don't support the connduit Initator interfance
+    * [CXF-821] - Current CXFservletTransportFactory don't support the conduit Initiator interface
     * [CXF-824] - SOAPAction can't be used to select an operation
     * [CXF-839] - Fix misspelling of "prefix"
     * [CXF-841] - SOAP RPC/Lit uses paramOrder when sending messages instead of the order in the message
     * [CXF-842] - Code first, RPC/Lit with lots of inouts/outs/headers doesn't work
     * [CXF-843] - Code first, Multiple out headers is only putting one soap:header element in the wsdl
     * [CXF-844] - RPC/Lit null value parameters are skipped
-    * [CXF-845] - OneWay operations agains JAX-WS RI server don't work
+    * [CXF-845] - OneWay operations against JAX-WS RI server don't work
     * [CXF-846] - MTOM Content-Type header is invalid
     * [CXF-848] - WSDLValidator not working well with the bundle jar
     * [CXF-850] - performance of repeated calls to jaxws.Service.createPort is poor, jaxb context is created every time
