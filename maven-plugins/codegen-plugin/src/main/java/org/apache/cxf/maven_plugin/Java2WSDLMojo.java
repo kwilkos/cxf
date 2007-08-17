@@ -22,6 +22,7 @@ package org.apache.cxf.maven_plugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.java2wsdl.JavaToWSDL;
@@ -90,6 +91,11 @@ public class Java2WSDLMojo extends AbstractMojo {
      */
     MavenProject project;
 
+    /**
+     * @parameter
+     */
+    String argline;
+
     public void execute() throws MojoExecutionException {
         File classesDir = new File(classpath);
         FileUtils.mkDir(classesDir);
@@ -100,7 +106,6 @@ public class Java2WSDLMojo extends AbstractMojo {
             buf.append(File.pathSeparatorChar);
         }
         String newCp = buf.toString();
-
         String cp = System.getProperty("java.class.path");
         SecurityManager oldSm = System.getSecurityManager();
         try {
@@ -179,18 +184,31 @@ public class Java2WSDLMojo extends AbstractMojo {
             args.add("-quiet");
         }
 
+        if (argline != null) {
+            StringTokenizer stoken = new StringTokenizer(argline, " ");
+            while (stoken.hasMoreTokens()) {
+                args.add(stoken.nextToken());
+            }
+        }
+
         // classname arg
         args.add(className);
 
-        String exitOnFinish = System.getProperty("exitOnFinish", "");
         try {
-            JavaToWSDL.main(args.toArray(new String[args.size()]));
-        } catch (ExitException e) {
-            if (e.getStatus() != 0) {
-                throw e;
+            String exitOnFinish = System.getProperty("exitOnFinish", "");
+            try {
+                System.setProperty("exitOnFinish", "YES");
+                JavaToWSDL.main(args.toArray(new String[args.size()]));
+            } catch (ExitException e) {
+                if (e.getStatus() != 0) {
+                    throw e;
+                }
+            } finally {
+                System.setProperty("exitOnFinish", exitOnFinish);
             }
-        } finally {
-            System.setProperty("exitOnFinish", exitOnFinish);
+        } catch (Throwable e) {
+            getLog().debug(e);
+            throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 }

@@ -78,8 +78,9 @@ public class JavaToProcessor implements Processor {
         String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
         LOG.log(Level.INFO, "OLD_CP", oldClassPath);
         if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
-            String newCp = (String)context.get(ToolConstants.CFG_CLASSPATH);
-            System.setProperty(JAVA_CLASS_PATH, newCp + File.pathSeparator + oldClassPath);
+            String newCp = (String)context.get(ToolConstants.CFG_CLASSPATH) 
+                + File.pathSeparator + oldClassPath;
+            System.setProperty(JAVA_CLASS_PATH, newCp);
             LOG.log(Level.INFO, "NEW_CP", newCp);
         }
 
