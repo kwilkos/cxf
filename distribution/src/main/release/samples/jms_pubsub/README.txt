@@ -65,21 +65,19 @@ binary or source release.
 Building and running the demo using ant
 ---------------------------------------
 
-From the samples/jms_pubsub directory, the ant build script
-can be used to build and run the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant build
   ant jmsbroker.start 
   ant server
   ant client
     
 
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 

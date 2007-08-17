@@ -22,21 +22,19 @@ environment by running the script.
 
 
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/hello_world_https directory, the ant build script
-can be used to build demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server target automatically builds the demo.
 
 Using either UNIX or Windows:
 
-  ant build
+  ant server
     
 
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 The demo illustrates how authentication can be achieved through

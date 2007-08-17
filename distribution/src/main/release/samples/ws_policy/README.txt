@@ -6,7 +6,7 @@ WSDL 1.1 Policy attachments to enable the use of WS-Addressing.
 
 While most of the demo is very similar to the ws_addressing demo, there
 are two major differences:
-1. À Policy element containing an Addressing assertion is attached to 
+1.  Policy element containing an Addressing assertion is attached to 
 the port element in the demo's wsdl.
 2. The configuration files for the client and server specify that the 
 CXF policy engine should be enabled. 
@@ -55,9 +55,7 @@ both client and server will use the MAPAggregator and MAPCodec
 interceptors to aggregate and encode the WS-Addressing MAPs.
 
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 Buildng the demo using wsdl2java and javac

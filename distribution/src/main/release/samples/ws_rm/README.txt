@@ -56,17 +56,16 @@ If your environment is not properly configured, or if you are planning
 on using wsdl2java, javac, and java to build and run the demos, you must
 set the environment by running the script.
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/ws_rm directory, the ant build script can be used to
-build and run the demo.  The server and client targets automatically build
-the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant server
-  ant client
+  ant server  (from one command line window)
+  ant client  (from a second command line window)
 
 On startup, the client makes a sequence of 4 oneway invocations.
 The output of the logging interceptors will show that only the 1st and 3rd
@@ -77,9 +76,7 @@ application message. These will be acknowledged another 2 seconds
 later so that there will be no further retransmissions from the client.
 
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 Building the demo using wsdl2java and javac

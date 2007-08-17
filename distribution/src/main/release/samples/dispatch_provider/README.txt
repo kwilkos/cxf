@@ -26,23 +26,20 @@ environment.
 
 
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/dispatch_provider directory, the ant build script
-can be used to build and run the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant build
-  ant server
-  ant client
+  ant server  (from one command line window)
+  ant client  (from a second command line window)
     
 
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 
