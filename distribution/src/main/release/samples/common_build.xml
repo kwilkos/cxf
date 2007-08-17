@@ -216,7 +216,8 @@
             </java>
         </sequential>
     </macrodef>
-
+		
+		<property name="war-lib" value="${basedir}/libs" />
     <macrodef name="cxfwar">
         <attribute name="filename"/>
         <attribute name="wsdl"/>
@@ -224,6 +225,10 @@
         <attribute name="classesdir" default="${build.classes.dir}"/>
         <sequential>
             <mkdir dir="@{dir}"/>
+            <mkdir dir="${war-lib}"/>
+            <antcall target="copy-war-libs"/>
+            
+            <delete file="@{dir}/@{filename}" />
             <war destfile="@{dir}/@{filename}" webxml="${cxf.home}/etc/web.xml">
                 <classes dir="@{classesdir}"/>
                 <webinf dir="${wsdl.dir}">
@@ -232,22 +237,24 @@
                 <webinf dir="${wsdl.dir}/..">
                     <include name="wsdl/@{wsdl}"/>
                 </webinf>
+                <lib dir="${war-lib}">
+    							<include name="*.jar"/>
+  							</lib>
             </war>
+            
+            <delete dir="${war-lib}" />
         </sequential>
     </macrodef>
-
-    <target name="prepare.tomcat" unless="cxf.jars.present.in.tomcat">
-        <copy todir="${env.CATALINA_HOME}/shared/lib">
-            <fileset dir="${cxf.home}/modules">
-                <include name="*.jar"/>
-            </fileset>
-        </copy>
-        <copy todir="${env.CATALINA_HOME}/shared/lib">
-            <fileset dir="${cxf.home}/lib">
-                <include name="*.jar"/>
-                <exclude name="cxf-*.jar"/>
-            </fileset>
-        </copy>
+    
+    <target name="copy-war-libs" unless="without.libs">
+    	<copy todir="${war-lib}">
+    		<fileset dir="${cxf.home}/lib">
+    		   <exclude name="servlet-api-*.jar" />
+                   <exclude name="geronimo-servlet_*.jar" />
+                   <exclude name="jetty-*.jar"/>
+                   <exclude name="WHICH_JARS" />
+    		</fileset>
+    	</copy>	
     </target>
 
     <target name="deploy" description="deploy the application into the container">
@@ -256,14 +263,13 @@
     </target>
     <target name="undeploy" depends="undeploy-tomcat" description="undeploy the application from the container"/>
 
-    <target name="deploy-tomcat" if="tomcat">
+    <target name="deploy-tomcat" depends="war">
         <antcall target="validate-tomcat"/>
-        <antcall target="prepare.tomcat"/>
         <copy file="${war.dir}/${cxf.war.file.name}.war"
               todir="${env.CATALINA_HOME}/webapps"/>
     </target>
 
-    <target name="undeploy-tomcat" if="tomcat">
+    <target name="undeploy-tomcat">
         <antcall target="validate-tomcat"/>
         <delete file="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}.war"/>
         <delete dir="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}"/>
@@ -271,28 +277,6 @@
 
     <target name="validate-tomcat">
         <fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
-
-        <condition property="cxf.jars.present.in.tomcat">
-            <and>
-                <available classname="org.apache.cxf.version.Version">
-                    <classpath>
-                        <fileset dir="${env.CATALINA_HOME}/shared/lib">
-                            <include name="*.jar"/>
-                        </fileset>
-                    </classpath>
-                </available>
-                <available file="${env.CATALINA_HOME}/shared/lib/cxf-manifest-incubator.jar" type="file"/>
-            </and>
-        </condition>
-
-        <available property="cxf.jbi.present" classname="org.apache.cxf.jbi.transport.JBIConduit">
-            <classpath>
-                <fileset dir="${env.CATALINA_HOME}/shared/lib">
-                    <include name="*.jar"/>
-                </fileset>
-            </classpath>
-        </available>
-        <fail if="cxf.jbi.present" message="JBI API is not shipped with Apache CXF, so you should remove all jars start with the cxf-integration-jbi from ${env.CATALINA_HOME}/shared/lib"/>
     </target>
 
 </project>

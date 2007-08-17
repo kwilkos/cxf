@@ -18,11 +18,6 @@ you need to set the environment so that the file cxf-manifest-incubator.jar
 is on the CLASSPATH and to insure that the JDK, ant and
 CXF_HOME/bin directories are on the PATH.
 
-To build and run the demos provided in the Apache CXF source distribution
-using ant you will need to edit the common_build.xml file.
-Uncomment the line:
-<import file="../../../target/srcbuild_paths.xml" optional="true"/>
-
 In each of the demos, source code files for the client and
 server mainlines and the Service Endpoint Interface class are
 included in the src directory.  The build process will write
@@ -52,7 +47,7 @@ Save a copy of this script in CXF_HOME/samples.  Run the
 script prior to building and running the demos.
 
 
-Basic Setup for Building and Running the Demos in a Servlet Container
+Building the Demos in a Servlet Container
 =====================================================================
 
 Since Apache CXF requires JDK/JRE 5.0, you must use a servlet container
@@ -66,13 +61,20 @@ and the JAVA_HOME bin directory is included in the system PATH.
 Preparing deploy to APACHE TOMCAT
 
 * set CATALINA_HOME environment to your TOMCAT home directory
+
+Build the WAR:
+
+Now we have two flavors WAR, one is Full WAR that included all the jars 
+in the $WAR/WEB-INF/lib folder, the other is minimum WAR, which did not 
+include any jars in the WAR.
+
+1)run "ant war" to build a Full WAR.
+2)run "ant war -Dwithout.libs=true" to build a minimum WAR.
     
-Deploy the application into APACHE TOMCAT with the commond:
-[NOTE] This step will check if the cxf jars present in Tomcat, 
-       if not, it will automatically copy all the jars into CATALINA_HOME/shared/lib
+Deploy the application (Full WAR) into APACHE TOMCAT with the command:
   
-  ant deploy -Dtomcat=true
+  ant deploy-tomcat
 
 Undeploy the application from the APACHE TOMCAT with the command:
 
-   ant undeploy -Dtomcat=true
+  ant undeploy-tomcat
