@@ -216,7 +216,7 @@ public class JavaToProcessor implements Processor {
             result = nameFromClz;
         }
 
-        // rename the exising wsdl file
+        // rename the existing wsdl file
         if (result.exists()
             && !result.renameTo(new File(result.getParent(), result.getName()))) {
             throw new ToolException(new Message("OUTFILE_EXISTS", LOG));

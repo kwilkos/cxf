@@ -38,7 +38,7 @@ import org.apache.cxf.tools.misc.processor.WSDLToSoapProcessor;
 public class WSDLToSoap extends AbstractCXFToolContainer {
 
     static final String TOOL_NAME = "wsdl2soap";    
-    static final String BINDING_NAME_POSFIX = "_Binding";
+    static final String BINDING_NAME_POSTFIX = "_Binding";
     static final String STYLE_DEF_VALUE = "document";
     static final String USE_DEF_VALUE = "literal";
     
@@ -88,7 +88,7 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
 
     private void setEnvParamDefValues(ToolContext env) {
         if (!env.optionSet(ToolConstants.CFG_BINDING)) {
-            env.put(ToolConstants.CFG_BINDING, env.get(ToolConstants.CFG_PORTTYPE) + BINDING_NAME_POSFIX);
+            env.put(ToolConstants.CFG_BINDING, env.get(ToolConstants.CFG_PORTTYPE) + BINDING_NAME_POSTFIX);
         }
         if (!env.optionSet(ToolConstants.CFG_STYLE)) {
             env.put(ToolConstants.CFG_STYLE, STYLE_DEF_VALUE);

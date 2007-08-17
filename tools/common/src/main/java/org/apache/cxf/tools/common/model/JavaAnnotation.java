@@ -42,7 +42,7 @@ public class JavaAnnotation {
         }        
     }
     
-    public void addArgIgnoreEmtpy(String key , String value, String quote) {
+    public void addArgIgnoreEmpty(String key , String value, String quote) {
         if (value != null) {
             arguments.put(key, quote + value + quote);
         }
