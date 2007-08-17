@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
@@ -35,9 +37,13 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import org.apache.cxf.Bus;
+
 //import org.apache.handler_test.PingException;
 
 /**
@@ -52,6 +58,13 @@ import org.w3c.dom.Node;
 public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerBase 
     implements SOAPHandler<T> {
 
+    
+    
+    @Resource
+    Bus bus;
+    @Resource(name = "org.apache.cxf.wsdl.WSDLManager")
+    org.apache.cxf.wsdl.WSDLManager manager;
+    
     public TestSOAPHandler() {
         this(true); 
     } 
@@ -60,6 +73,17 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
         super(serverSide);
     }
 
+
+    @PostConstruct
+    public void initPost() {
+        if (bus == null) {
+            throw new RuntimeException("No BUS");
+        }
+        if (manager == null) {
+            throw new RuntimeException("No WSDL Manager");
+        }
+    }
+    
     // Implementation of javax.xml.ws.handler.soap.SOAPHandler
 
     public final Set<QName> getHeaders() {

@@ -26,13 +26,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.resource.ObjectTypeResolver;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 
 
-public class ResourceManagerImpl extends DefaultResourceManager {
+public class ResourceManagerImpl extends DefaultResourceManager implements BusExtension {
 
     private Bus bus;
 
@@ -57,9 +59,15 @@ public class ResourceManagerImpl extends DefaultResourceManager {
 
     @PostConstruct
     public void register() {
-        if (null != bus) {
+        super.addResourceResolver(new ObjectTypeResolver(bus));
+        if (null != bus && bus.getExtension(ResourceManager.class) != this) {
             bus.setExtension(this, ResourceManager.class);
         }
     }
+
+    public Class<?> getRegistrationType() {
+        return ResourceManager.class;
+    }
+
 
 }

@@ -32,6 +32,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             <list>
                 <bean class="org.apache.cxf.resource.ClasspathResolver"/>
                 <bean class="org.apache.cxf.resource.ClassLoaderResolver"/>
+                <bean class="org.apache.cxf.bus.spring.BusApplicationContextResourceResolver"/>
             </list>
        </constructor-arg>
        <property name="bus" ref="cxf"/>
