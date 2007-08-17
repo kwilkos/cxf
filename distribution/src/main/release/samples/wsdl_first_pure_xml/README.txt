@@ -1,4 +1,4 @@
-Hello World Demo using BARE Style in XML Binding
+Hello World Demo using BARE Style in XML Binding (pure XML over HTTP)
 =============================================
 
 This demo illustrates the use of Apache CXF's xml binding. This 
@@ -42,7 +42,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/hello_world_xml_bare directory, first create the target
+From the samples/wsdl_first_pure_xml directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -75,7 +75,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world_xml_bare directory run the following 
+From the samples/wsdl_first_pure_xml directory run the following 
 commands. They are entered on a single command line.
 
 For UNIX (must use forward slashes):

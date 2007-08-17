@@ -38,7 +38,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/colocated directory, first create the target
+From the samples/in_jvm_transport directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -71,7 +71,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/colocated directory run the commands, entered on a
+From the samples/in_jvm_transport directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):

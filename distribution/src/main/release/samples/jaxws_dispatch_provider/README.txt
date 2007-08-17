@@ -1,4 +1,4 @@
-Hello World Dispatch Demo using Document/Literal Style
+JAX-WS Dispatch/Provider Demo 
 ======================================================
 
 The demo demonstrates the use of JAX-WS Dispatch and Provider interface.
@@ -46,7 +46,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/dispatch_provider directory, first create the target
+From the samples/jaxws_dispatch_provider directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -89,7 +89,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world_dispatch directory run the commands, entered on a
+From the samples/jaxws_dispatch directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):

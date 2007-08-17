@@ -36,7 +36,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/streamInterceptor directory, first create the target
+From the samples/configuration_interceptor directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -71,7 +71,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/streamInterceptor directory run the commands, entered on a
+From the samples/configuration_interceptor directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):

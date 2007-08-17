@@ -1,4 +1,4 @@
-Hello World Demo using WRAPPED Style in XML Binding
+Hello World Demo using WRAPPED Style in XML Binding (pure XML over HTTP)
 =============================================
 
 This demo illustrates the use of Apache CXF's xml binding. This 
@@ -42,7 +42,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/hello_world_xml_wrapped directory, first create the target
+From the samples/wsdl_first_xml_wrapped directory, first create the target
 directory build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -75,7 +75,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world_xml_wrapped directory run the commands, entered 
+From the samples/wsdl_first_xml_wrapped directory run the commands, entered 
 on a single command line:
 
 For UNIX (must use forward slashes):

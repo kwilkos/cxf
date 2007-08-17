@@ -1,4 +1,4 @@
-Handler Demo
+JAX-WS Handler Demo
 ============
 
 This demo shows how JAX-WS handlers are used.  The server uses a
@@ -67,7 +67,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/handlers directory, first create the target directory
+From the samples/jaxws_handlers directory, first create the target directory
 build/classes and then generate code from the WSDL file.
 
 For UNIX:
@@ -110,7 +110,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/handlers directory run the commands (entered on a single command line):
+From the samples/jaxws_handlers directory run the commands (entered on a single command line):
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME%/etc/logging.properties

@@ -1,4 +1,4 @@
-Hello World Asynchronous Demo using Document/Literal Style
+JAX-WS Asynchronous Demo using Document/Literal Style
 ==========================================================
 
 This demo illustrates the use of the JAX-WS asynchronous 
@@ -69,7 +69,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/hello_world_async directory, run the following wsdl2java 
+From the samples/jaxws_async directory, run the following wsdl2java 
 command to generate classes required in the async case.
 
 For UNIX:
@@ -100,7 +100,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world_async directory run the commands, entered on a
+From the samples/jaxws_async directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
