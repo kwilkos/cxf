@@ -287,7 +287,7 @@ public abstract class WrapperHelper {
                         }
                     } else if (setMethods[x] != null) {
                         setMethods[x].invoke(ret, o);
-                    } else {
+                    } else if (fields[x] != null) {
                         fields[x].set(ret, lst.get(x));
                     }
                 }

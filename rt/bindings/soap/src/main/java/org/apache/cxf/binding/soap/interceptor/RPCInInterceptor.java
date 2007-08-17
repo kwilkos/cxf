@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
@@ -44,7 +45,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
-    private static final Logger LOG = Logger.getLogger(RPCInInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(RPCInInterceptor.class);
     
     public RPCInInterceptor() {
         super(Phase.UNMARSHAL);
@@ -106,7 +107,13 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             }
             if (hasNext) {
                 QName qn = xmlReader.getName();
-                while (!qn.equals(part.getConcreteName())
+                // WSI-BP states that RPC/Lit part accessors should be completely unqualified
+                // However, older toolkits (Axis 1.x) are qualifying them.   We'll go
+                // ahead and just match on the localpart.   The RPCOutInterceptor
+                // will always generate WSI-BP compliant messages so it's unknown if
+                // the non-WSI-BP toolkits will be able to understand the CXF
+                // generated messages if they are expecting it to be qualified.
+                while (!qn.getLocalPart().equals(part.getConcreteName().getLocalPart())
                     && itr.hasNext()) {
                     part = itr.next();
                 }

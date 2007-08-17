@@ -321,6 +321,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>httpunit</groupId>
             <artifactId>httpunit</artifactId>
             <scope>test</scope>

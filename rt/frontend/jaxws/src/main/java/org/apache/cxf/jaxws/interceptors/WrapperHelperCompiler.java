@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jaxws.interceptors;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -35,6 +36,9 @@ import org.objectweb.asm.Opcodes;
 final class WrapperHelperCompiler {
     private static final Map<Class<?>, String> PRIMITIVE_MAP = new HashMap<Class<?>, String>();
     private static final Map<Class<?>, String> NONPRIMITIVE_MAP = new HashMap<Class<?>, String>();
+    
+    private static boolean oldASM;
+    
     static {
         PRIMITIVE_MAP.put(Byte.TYPE, "B");
         PRIMITIVE_MAP.put(Boolean.TYPE, "Z");
@@ -76,8 +80,39 @@ final class WrapperHelperCompiler {
         this.fields = fields;
         this.objectFactory = objectFactory;
         
-        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS 
-                            | ClassWriter.COMPUTE_FRAMES);
+
+        ClassWriter newCw = null;
+        if (!oldASM) {
+            Class<ClassWriter> cls = ClassWriter.class;
+            try {
+                //ASM 1.5.x/2.x
+                Constructor<ClassWriter> cons = cls.getConstructor(new Class<?>[] {Boolean.TYPE});
+                
+                try {
+                    //got constructor, now check if it's 1.x which is very different from 2.x and 3.x 
+                    cls.getMethod("newConstInt", new Class<?>[] {Integer.TYPE});               
+                    //newConstInt was removed in 2.x, if we get this far, we're using 1.5.x,
+                    //set to null so we don't attempt to use it.
+                    newCw = null;    
+                    oldASM = true;
+                } catch (Throwable t) {
+                    newCw = cons.newInstance(new Object[] {Boolean.TRUE});
+                }
+                
+            } catch (Throwable e) {
+                //ASM 3.x
+                try {
+                    Constructor<ClassWriter> cons = cls.getConstructor(new Class<?>[] {Integer.TYPE});
+                    int i = cls.getField("COMPUTE_MAXS").getInt(null);
+                    i |= cls.getField("COMPUTE_FRAMES").getInt(null);
+                    newCw = cons.newInstance(new Object[] {Integer.valueOf(i)});
+                } catch (Throwable e1) {
+                    //ignore
+                }
+                
+            }
+        }
+        cw = newCw;
     }
 
     static WrapperHelper compileWrapperHelper(Class<?> wrapperType,
@@ -86,15 +121,23 @@ final class WrapperHelperCompiler {
                                               Method jaxbMethods[],
                                               Field fields[],
                                               Object objectFactory) {
-        return new WrapperHelperCompiler(wrapperType,
+        try {
+            return new WrapperHelperCompiler(wrapperType,
                                         setMethods,
                                         getMethods,
                                         jaxbMethods,
                                         fields,
                                         objectFactory).compile();
+        } catch (Throwable t) {
+            //Some error - probably a bad version of ASM or similar
+            return null;
+        }
     }
 
     public WrapperHelper compile() {
+        if (cw == null) {
+            return null;
+        }
         String newClassName = wrapperType.getName() + "_WrapperTypeHelper";
         newClassName = newClassName.replaceAll("\\$", ".");
         newClassName = periodToSlashes(newClassName);
