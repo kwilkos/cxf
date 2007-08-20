@@ -32,6 +32,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
+
 public abstract class AbstractToolContainer implements ToolContainer {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractToolContainer.class);
     
@@ -46,8 +47,9 @@ public abstract class AbstractToolContainer implements ToolContainer {
     private CommandLineParser parser;
     private OutputStream outOutputStream;
     private OutputStream errOutputStream;
-    
-   
+
+    private PrintStream stdOutputStream;
+    private PrintStream stdErrorStream;
  
     public class GenericOutputStream extends OutputStream {
         public void write(int b) throws IOException {
@@ -117,6 +119,9 @@ public abstract class AbstractToolContainer implements ToolContainer {
     }
 
     public void redirectOutput() {
+        stdOutputStream = System.out;
+        stdErrorStream = System.err;
+
         outOutputStream = new GenericOutputStream();
         errOutputStream = new GenericOutputStream();
         System.setErr(new PrintStream(errOutputStream));
@@ -161,6 +166,13 @@ public abstract class AbstractToolContainer implements ToolContainer {
         } catch (BadUsageException bue) {
             throw new ToolException(bue);
         }        
+    }
+
+    public void tearDown() {
+        if (isQuietMode()) {
+            System.setOut(stdOutputStream);
+            System.setErr(stdErrorStream);
+        }
     }
 
 }

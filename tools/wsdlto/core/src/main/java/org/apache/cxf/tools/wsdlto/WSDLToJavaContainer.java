@@ -240,6 +240,8 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             throw ex;
         } catch (Exception ex) {
             throw new ToolException(ex);
+        } finally {
+            tearDown();
         }
     }
 

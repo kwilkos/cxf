@@ -77,6 +77,8 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
             }
 
             throw new ToolException(ex.getMessage(), ex.getCause());
+        } finally {
+            tearDown();
         }
     }
 

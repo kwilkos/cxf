@@ -81,7 +81,10 @@ public class WSDLToService extends AbstractCXFToolContainer {
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
+        } finally {
+            tearDown();
         }
+
     }
 
     private void validate(ToolContext env) throws ToolException {

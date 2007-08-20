@@ -83,7 +83,10 @@ public class WSDLToSoap extends AbstractCXFToolContainer {
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
+        } finally {
+            tearDown();
         }
+
     }
 
     private void setEnvParamDefValues(ToolContext env) {

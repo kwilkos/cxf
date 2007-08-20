@@ -73,7 +73,10 @@ public class JavaToWSDLContainer extends AbstractCXFToolContainer {
             }
 
             throw new ToolException(ex.getMessage(), ex.getCause());
+        } finally {
+            tearDown();
         }
+
     }
 
     public Class getServiceClass(ToolContext context) {
