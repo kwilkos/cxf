@@ -11,7 +11,7 @@ to read the JavaScript file and run it.
 Building and running the demo server using ant
 ---------------------------------------
 
-From the samples/hello_world directory, the ant build script
+From the samples/wsdl_first directory, the ant build script
 can be used to build and run the demo.
 
 Using either UNIX or Windows:

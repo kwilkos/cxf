@@ -220,7 +220,7 @@
 		<property name="war-lib" value="${basedir}/libs" />
     <macrodef name="cxfwar">
         <attribute name="filename"/>
-        <attribute name="wsdl"/>
+        <attribute name="wsdl" default=""/>
         <attribute name="dir" default="${war.dir}"/>
         <attribute name="classesdir" default="${build.classes.dir}"/>
         <sequential>
@@ -263,7 +263,7 @@
     </target>
     <target name="undeploy" depends="undeploy-tomcat" description="undeploy the application from the container"/>
 
-    <target name="deploy-tomcat" depends="war">
+    <target name="deploy-tomcat">
         <antcall target="validate-tomcat"/>
         <copy file="${war.dir}/${cxf.war.file.name}.war"
               todir="${env.CATALINA_HOME}/webapps"/>

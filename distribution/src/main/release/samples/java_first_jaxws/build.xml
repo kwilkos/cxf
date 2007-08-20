@@ -35,7 +35,7 @@
 	
     <property name="cxf.war.file.name" value="helloworld"/>
     <target name="war" depends="build">
-	<cxfwar wsdl="hello_world.wsdl" filename="${cxf.war.file.name}.war"/>
+        <cxfwar filename="${cxf.war.file.name}.war"/>
     </target>
 
     <target name="client-servlet" description="run demo client hitting servlet" depends="build">

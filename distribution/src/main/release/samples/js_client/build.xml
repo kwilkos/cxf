@@ -19,7 +19,7 @@
 -->
 <project name="js_client" default="all" basedir=".">   
     <property name="thirdparty.classpath" 
-       value="../hello_world/build/classes;lib/js-1.6R5.jar;lib/xbean-2.2.0.jar"/>
+       value="../wsdl_first/build/classes;lib/js-1.6R5.jar;lib/xbean-2.2.0.jar"/>
 
     <import file="../common_build.xml"/>    
    
