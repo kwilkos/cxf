@@ -34,7 +34,7 @@ public class BookServiceWrappedImpl implements BookServiceWrapped {
     @SuppressWarnings("unchecked")
     public BookServiceWrappedImpl() {
         Book book = createBook();
-        System.out.println("Enregistre Book de id " + book.getId());
+        System.out.println("Register the Book's id " + book.getId());
         books.put(book.getId(), book);
     }
 
@@ -44,7 +44,7 @@ public class BookServiceWrappedImpl implements BookServiceWrapped {
             System.out.println("getBook -> " + me.getKey() + " : " 
                                + ((Book)me.getValue()).getName() + ", " + ((Book)me.getValue()).getId());
         }
-        System.out.println("Book de id " + bookid);
+        System.out.println("The Book's id " + bookid);
         Book b = (Book)books.get(bookid);
 
         if (b == null) {

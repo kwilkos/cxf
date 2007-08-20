@@ -376,24 +376,24 @@ public final class SSLUtils {
                 if (matchesOneOf(supportedCipherSuites[i], includes)
                     && !matchesOneOf(supportedCipherSuites[i], excludes)) {
                     LogUtils.log(log,
-                                 Level.INFO,
+                                 Level.FINE,
                                  "CIPHERSUITE_INCLUDED",
                                  supportedCipherSuites[i]);
                     filteredCipherSuites.add(supportedCipherSuites[i]);
                 } else {
                     LogUtils.log(log,
-                                 Level.INFO,
+                                 Level.FINE,
                                  "CIPHERSUITE_EXCLUDED",
                                  supportedCipherSuites[i]);
                     excludedCipherSuites.add(supportedCipherSuites[i]);
                 }
             }
             LogUtils.log(log,
-                         Level.INFO,
+                         Level.FINE,
                          "CIPHERSUITES_FILTERED",
                          filteredCipherSuites);
             LogUtils.log(log,
-                         Level.INFO,
+                         Level.FINE,
                          "CIPHERSUITES_EXCLUDED",
                          excludedCipherSuites);
             if (exclude) {
@@ -414,7 +414,7 @@ public final class SSLUtils {
                          ? "CIPHERSUITE_INCLUDE_FILTER"
                          : "CIPHERSUITE_EXCLUDE_FILTER";
             for (String s : regexes) {
-                LogUtils.log(log, Level.INFO, msg, s);
+                LogUtils.log(log, Level.FINE, msg, s);
                 patterns.add(Pattern.compile(s));
             }
         }

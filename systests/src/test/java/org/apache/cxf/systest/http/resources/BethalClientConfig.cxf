@@ -60,7 +60,7 @@
 	     <sec:UserName>Betty</sec:UserName>
 	     <sec:Password>password</sec:Password>
 	  </http:authorization>
-      <http:client AutoRedirect="false"/>
+      <http:client AutoRedirect="true"/>
     
    </http:conduit>
 

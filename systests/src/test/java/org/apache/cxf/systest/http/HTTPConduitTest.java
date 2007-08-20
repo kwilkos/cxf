@@ -407,25 +407,29 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
         Greeter bethal = service.getPort(bethalQ, Greeter.class);
         assertNotNull("Port is null", bethal);
         
-        // Okay, I'm sick of configuration files.
-        // This also tests dynamic configuration of the conduit.
+        // we just verified the configurations are loaded successfully
         Client client = ClientProxy.getClient(bethal);
         HTTPConduit http = 
             (HTTPConduit) client.getConduit();
         
-        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+        HTTPClientPolicy httpClientPolicy = http.getClient();
+        assertEquals("the httpClientPolicy's autoRedirect should be true",
+                     true, httpClientPolicy.isAutoRedirect());
+        TLSClientParameters tlsParaments = http.getTlsClientParameters();
+        assertNotNull("the http conduite's tlsParaments should not be null", tlsParaments);
         
-        httpClientPolicy.setAutoRedirect(false);
+        
         // If we set any name, but Edward, Mary, or George,
         // and a password of "password" we will get through
         // Bethal.
-        AuthorizationPolicy authPolicy = new AuthorizationPolicy();
-        authPolicy.setUserName("Betty");
-        authPolicy.setPassword("password");
+        AuthorizationPolicy authPolicy = http.getAuthorization();
+        assertEquals("Set the wrong user name from the configuration",
+                     "Betty", authPolicy.getUserName());
+        assertEquals("Set the wrong pass word form the configuration",
+                     "password", authPolicy.getPassword());
+                     
         
-        http.setClient(httpClientPolicy);
-        http.setTlsClientParameters(tlsClientParameters);
-        http.setAuthorization(authPolicy);
+       
         
         String answer = bethal.sayHi();
         assertTrue("Unexpected answer: " + answer, 
