@@ -113,5 +113,8 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return Arrays.asList(new Foo[] {a, b}, new Foo[] {c, d});
     }
    
+    public int throwException(int i) throws ServiceTestFault {
+        throw new ServiceTestFault(new ServiceTestFault.ServiceTestDetails(i));
+    }
 
 }

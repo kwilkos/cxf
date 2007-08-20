@@ -72,6 +72,9 @@ public interface DocLitWrappedCodeFirstService {
 
     @WebMethod
     List<Foo[]> listObjectArrayOutput();
+    
+    @WebMethod
+    int throwException(int i) throws ServiceTestFault;
 
     static class Foo  {
         String name;

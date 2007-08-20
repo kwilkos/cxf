@@ -254,6 +254,16 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(2, foos2.size());
         assertEquals(2, foos2.get(0).length);
         assertEquals(2, foos2.get(1).length);
+        
+        
+        /*   CXF-926 test case - this should work, but doesn't right now
+        try {
+            port.throwException(10);
+            fail("Expected exception not found");
+        } catch (ServiceTestFault ex) {
+            assertEquals(10, ex.getFaultInfo().getId());
+        }
+        */
     }
     @Test
     public void testRpcLitNoWsdl() throws Exception {
