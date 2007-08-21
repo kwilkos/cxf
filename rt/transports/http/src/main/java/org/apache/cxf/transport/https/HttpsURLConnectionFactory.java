@@ -34,6 +34,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -59,6 +60,8 @@ public final class HttpsURLConnectionFactory
     private static final Logger LOG =
         LogUtils.getL7dLogger(HttpsURLConnectionFactory.class);
     
+    private static final HostnameVerifier VERIFIER = new AlwaysTrueHostnameVerifier();
+    
     /*
      *  For development and testing only
      */
@@ -82,6 +85,12 @@ public final class HttpsURLConnectionFactory
      * this factory.
      */
     TLSClientParameters tlsClientParameters;
+    
+    
+    /**
+     * Cache the last SSLContext to avoid recreation
+     */
+    SSLSocketFactory socketFactory;
 
     /**
      * This constructor initialized the factory with the configured TLS
@@ -156,7 +165,7 @@ public final class HttpsURLConnectionFactory
      * returning true, delegate the trust decision to the 
      * MessageTrustDecider.
      */
-    private class AlwaysTrueHostnameVerifier implements HostnameVerifier {
+    private static class AlwaysTrueHostnameVerifier implements HostnameVerifier {
 
         public boolean verify(
             String      hostname,
@@ -171,43 +180,42 @@ public final class HttpsURLConnectionFactory
      * This method assigns the various TLS parameters on the HttpsURLConnection
      * from the TLS Client Parameters.
      */
-    protected void decorateWithTLS(HttpsURLConnection connection)
+    protected synchronized void decorateWithTLS(HttpsURLConnection connection)
         throws NoSuchAlgorithmException,
                NoSuchProviderException,
                KeyManagementException {
-        String provider = tlsClientParameters.getJsseProvider();
         
-        String protocol = tlsClientParameters.getSecureSocketProtocol() != null
-                  ? tlsClientParameters.getSecureSocketProtocol()
-                  : "TLS";
-                  
-        SSLContext ctx = provider == null
-                  ? SSLContext.getInstance(protocol)
-                  : SSLContext.getInstance(protocol, provider);
-        
-        ctx.init(
-            tlsClientParameters.getKeyManagers(), 
-            tlsClientParameters.getTrustManagers(), 
-            tlsClientParameters.getSecureRandom());
-        
-        // The "false" argument means opposite of exclude.
-        String[] cipherSuites =
-            SSLUtils.getCiphersuites(tlsClientParameters.getCipherSuites(),
-                                     SSLUtils.getSupportedCipherSuites(ctx),
-                                     tlsClientParameters.getCipherSuitesFilter(),
-                                     LOG, false);
-
-        connection.setHostnameVerifier(
-                    new AlwaysTrueHostnameVerifier());
-        
-        // The SSLSocketFactoryWrapper enables certain cipher suites
-        // from the policy.
-        connection.setSSLSocketFactory(
-            new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
-                                        cipherSuites));
-        
-        
+        if (socketFactory == null) {
+            String provider = tlsClientParameters.getJsseProvider();
+            
+            String protocol = tlsClientParameters.getSecureSocketProtocol() != null
+                      ? tlsClientParameters.getSecureSocketProtocol()
+                      : "TLS";
+                      
+            SSLContext ctx = provider == null
+                      ? SSLContext.getInstance(protocol)
+                      : SSLContext.getInstance(protocol, provider);
+            
+            ctx.init(
+                tlsClientParameters.getKeyManagers(), 
+                tlsClientParameters.getTrustManagers(), 
+                tlsClientParameters.getSecureRandom());
+            
+            // The "false" argument means opposite of exclude.
+            String[] cipherSuites =
+                SSLUtils.getCiphersuites(tlsClientParameters.getCipherSuites(),
+                                         SSLUtils.getSupportedCipherSuites(ctx),
+                                         tlsClientParameters.getCipherSuitesFilter(),
+                                         LOG, false);
+            // The SSLSocketFactoryWrapper enables certain cipher suites
+            // from the policy.
+            socketFactory = new SSLSocketFactoryWrapper(ctx.getSocketFactory(),
+                                                        cipherSuites);
+        }
+        connection.setHostnameVerifier(VERIFIER);        
+        connection.setSSLSocketFactory(socketFactory);
     }
+
     /*
      *  For development and testing only
      */
