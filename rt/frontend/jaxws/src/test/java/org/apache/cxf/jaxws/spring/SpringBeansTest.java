@@ -251,6 +251,14 @@ public class SpringBeansTest extends Assert {
         String wsdlLocation = factory.getWsdlLocation();
         assertEquals("We should get the right wsdl location" , wsdlLocation, "wsdl/hello_world.wsdl");
         
+        factory = (JaxWsProxyFactoryBean)ctx.getBean("inlineSoapBinding.proxyFactory");
+        assertNotNull(factory);
         
+        BindingConfiguration bc = factory.getBindingConfig();
+        assertTrue(bc instanceof SoapBindingConfiguration);
+        SoapBindingConfiguration sbc = (SoapBindingConfiguration) bc;
+        assertTrue(sbc.getVersion() instanceof Soap12);
+        assertTrue("the soap configure should set isMtomEnabled to be true",
+                   sbc.isMtomEnabled());
     }
 }
