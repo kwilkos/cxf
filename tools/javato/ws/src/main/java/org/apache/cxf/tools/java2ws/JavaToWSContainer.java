@@ -32,7 +32,8 @@ import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
-import org.apache.cxf.tools.java2wsdl.processor.JavaToProcessor;
+import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
+import org.apache.cxf.tools.java2wsdl.processor.ServiceInfoToJavaProcessor;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaToWSContainer extends AbstractCXFToolContainer {
@@ -55,11 +56,14 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
-
-                processor = new JavaToProcessor();
-
+                processor = new JavaToWSDLProcessor();
                 processor.setEnvironment(env);
                 processor.process();
+                
+                processor = new ServiceInfoToJavaProcessor();
+                processor.setEnvironment(env);
+                processor.process();
+                
             }
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {

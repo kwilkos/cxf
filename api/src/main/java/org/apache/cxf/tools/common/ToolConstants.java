@@ -196,6 +196,7 @@ public final class ToolConstants {
     public static final String IMPORTED_PORTTYPE = "importedPortType";
     public static final String IMPORTED_SERVICE = "importedService";
     public static final String BINDING_GENERATOR = "BindingGenerator";
+   
 
     // Tools framework
     public static final String FRONTEND_PLUGIN = "frontend";
@@ -206,4 +207,7 @@ public final class ToolConstants {
     // Suppress the code generation, in this case you can just get the generated code model
     public static final String CFG_SUPPRESS_GEN = "suppress";
     public static final String DEFAULT_PACKAGE_NAME = "defaultnamespace";
+    
+    //For java2ws tool
+    public static final String SERVICE_LIST = "serviceList";
 }

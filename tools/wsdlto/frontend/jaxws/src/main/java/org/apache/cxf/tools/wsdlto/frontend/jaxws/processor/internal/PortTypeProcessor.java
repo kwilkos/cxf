@@ -55,7 +55,10 @@ public class PortTypeProcessor extends AbstractProcessor {
 
         JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
 
-        JAXWSBinding jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        JAXWSBinding jaxwsBinding = null;
+        if (serviceInfo.getDescription() != null) {
+            jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        }
         JAXWSBinding infBinding = interfaceInfo.getExtensor(JAXWSBinding.class);
         if (infBinding != null && infBinding.getPackage() != null) {
             intf.setPackageName(infBinding.getPackage());
@@ -90,8 +93,11 @@ public class PortTypeProcessor extends AbstractProcessor {
 
         JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
         intf.setJavaModel(jmodel);
-
-        JAXWSBinding jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        
+        JAXWSBinding jaxwsBinding = null;
+        if (serviceInfo.getDescription() != null) {
+            jaxwsBinding = serviceInfo.getDescription().getExtensor(JAXWSBinding.class);
+        }
         JAXWSBinding infBinding = interfaceInfo.getExtensor(JAXWSBinding.class);
         if (infBinding != null && infBinding.getPackage() != null) {
             intf.setPackageName(infBinding.getPackage());

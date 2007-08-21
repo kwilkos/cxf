@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
@@ -46,6 +47,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.ClassNameProcessor;
@@ -67,6 +69,8 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+
+
 
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
@@ -131,47 +135,58 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             WSDLConstants.WSDLVersion version = getWSDLVersion();
 
             String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
-            List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
+            List<ServiceInfo> serviceList = (List<ServiceInfo>)context.get(ToolConstants.SERVICE_LIST);
+            if (serviceList == null) {
+                serviceList = new ArrayList<ServiceInfo>();
 
-            // Build the ServiceModel from the WSDLModel
-            if (version == WSDLConstants.WSDLVersion.WSDL11) {
-                AbstractWSDLBuilder<Definition> builder = (AbstractWSDLBuilder<Definition>)frontend
-                    .getWSDLBuilder();
-                builder.setContext(context);
-                builder.setBus(getBus());
+                // Build the ServiceModel from the WSDLModel
+                if (version == WSDLConstants.WSDLVersion.WSDL11) {
+                    AbstractWSDLBuilder<Definition> builder = (AbstractWSDLBuilder<Definition>)frontend
+                        .getWSDLBuilder();
+                    builder.setContext(context);
+                    builder.setBus(getBus());
 
-                builder.build(URIParserUtil.getAbsoluteURI(wsdlURL));
-                builder.customize();
-                Definition definition = builder.getWSDLModel();
+                    builder.build(URIParserUtil.getAbsoluteURI(wsdlURL));
+                    builder.customize();
+                    Definition definition = builder.getWSDLModel();
 
-                context.put(Definition.class, definition);
-                if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
-                    builder.validate(definition);
+                    context.put(Definition.class, definition);
+                    if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+                        builder.validate(definition);
+                    }
+
+                    WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
+
+                    String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
+
+                    if (serviceName != null) {
+                        List<ServiceInfo> services = serviceBuilder
+                            .buildServices(definition, getServiceQName(definition));
+                        serviceList.addAll(services);
+                    } else if (definition.getServices().size() > 0) {
+                        serviceList = serviceBuilder.buildServices(definition);
+                    } else {
+                        serviceList = serviceBuilder.buildMockServices(definition);
+                    }
+
+                } else {
+                    // TODO: wsdl2.0 support
                 }
-
-                WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-
-                String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
-
-                if (serviceName != null) {
-                    List<ServiceInfo> services = serviceBuilder
-                        .buildServices(definition, getServiceQName(definition));
-                    serviceList.addAll(services);
-                } else  if (definition.getServices().size() > 0) {
-                    serviceList = serviceBuilder.buildServices(definition);
-                } else  {
-                    serviceList = serviceBuilder.buildMockServices(definition);
-                }
-                context.put(ClassCollector.class, new ClassCollector());
-            } else {
-                // TODO: wsdl2.0 support
             }
             Map<String, InterfaceInfo> interfaces = new HashMap<String, InterfaceInfo>();
 
             Map<String, Element> schemas = (Map<String, Element>)serviceList.get(0)
                 .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST);
+            if (schemas == null) {
+                schemas = new java.util.HashMap<String, Element>();
+                ServiceInfo serviceInfo = serviceList.get(0);
+                for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
+                    schemas.put(schemaInfo.getSystemId(), schemaInfo.getElement());
+                }
+            }
             context.put(ToolConstants.SCHEMA_MAP, schemas);
             context.put(ToolConstants.PORTTYPE_MAP, interfaces);
+            context.put(ClassCollector.class, new ClassCollector());
             Processor processor = frontend.getProcessor();
             if (processor instanceof ClassNameProcessor) {
                 processor.setEnvironment(context);

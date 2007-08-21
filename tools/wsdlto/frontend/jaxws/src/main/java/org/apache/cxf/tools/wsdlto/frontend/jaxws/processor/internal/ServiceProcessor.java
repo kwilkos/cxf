@@ -117,7 +117,10 @@ public class ServiceProcessor extends AbstractProcessor {
 
 
         //customizing
-        JAXWSBinding serviceBinding = service.getDescription().getExtensor(JAXWSBinding.class);
+        JAXWSBinding serviceBinding = null;
+        if (service.getDescription() != null) {
+            serviceBinding = service.getDescription().getExtensor(JAXWSBinding.class);
+        }
         JAXWSBinding serviceBinding2 = service.getExtensor(JAXWSBinding.class);
 
         //TODO : Handle service customized class
