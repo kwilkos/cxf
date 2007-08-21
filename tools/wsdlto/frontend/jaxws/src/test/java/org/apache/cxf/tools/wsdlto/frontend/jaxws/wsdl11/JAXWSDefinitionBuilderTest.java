@@ -152,4 +152,16 @@ public class JAXWSDefinitionBuilderTest extends Assert {
         assertTrue(true);
     }
 
+    @Test
+    public void testNoService() {
+        env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("resources/build.wsdl").toString());
+
+        JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
+        builder.setContext(env);
+        builder.build();
+
+        Definition def = builder.getWSDLModel();
+        assertTrue(def.getServices().keySet().contains(new QName("http://apache.org/hello_world_soap_http", 
+                                                                 "SOAPService")));
+    }
 }

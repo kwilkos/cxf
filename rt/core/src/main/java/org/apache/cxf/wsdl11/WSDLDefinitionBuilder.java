@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,6 +114,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         return wsdlDefinition;
     }
 
+    @SuppressWarnings("unchecked")
     protected void parseWSDL(String wsdlURL) {
         try {
 
@@ -123,6 +125,17 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             wsdlDefinition = wsdlReader.readWSDL(wsdlLocator);
 
             parseImports(wsdlDefinition);
+
+            if (wsdlDefinition.getServices().isEmpty()) {
+                for (Definition def : importedDefinitions) {
+                    Set<QName> services = def.getServices().keySet();
+                    for (QName sName : services) {
+                        if (!wsdlDefinition.getServices().keySet().contains(sName)) {
+                            wsdlDefinition.getServices().put(sName, def.getService(sName));
+                        }
+                    }
+                }
+            }
         } catch (Exception we) {
             Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION",
                                       LOG,
