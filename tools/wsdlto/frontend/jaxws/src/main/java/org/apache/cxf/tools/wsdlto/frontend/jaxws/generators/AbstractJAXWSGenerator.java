@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.core.AbstractGenerator;
 
 public abstract class AbstractJAXWSGenerator extends AbstractGenerator {
@@ -33,4 +34,8 @@ public abstract class AbstractJAXWSGenerator extends AbstractGenerator {
     public abstract boolean passthrough();
     
     public abstract void generate(ToolContext penv) throws ToolException;
+
+    public void register(final ClassCollector collector, String packageName, String fileName) {
+        // do nothing
+    }
 }

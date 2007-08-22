@@ -30,6 +30,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaExceptionClass;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public class FaultGenerator extends AbstractJAXWSGenerator {
@@ -89,5 +90,9 @@ public class FaultGenerator extends AbstractJAXWSGenerator {
 
     private String getSUID() {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+    }
+
+    public void register(final ClassCollector collector, String packageName, String fileName) {
+        collector.addExceptionClassName(packageName , fileName , packageName + "." + fileName);
     }
 }

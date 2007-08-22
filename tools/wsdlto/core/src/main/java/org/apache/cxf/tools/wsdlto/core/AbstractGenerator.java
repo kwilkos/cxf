@@ -22,6 +22,7 @@ package org.apache.cxf.tools.wsdlto.core;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Calendar;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
@@ -46,7 +47,9 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
     }
 
     protected void doWrite(String templateName, Writer outputs) throws ToolException {
-        velocity.doWrite(templateName, outputs);
+        if (outputs != null) {
+            velocity.doWrite(templateName, outputs);
+        }
     }
 
     protected boolean isCollision(String packageName, String filename) throws ToolException {        
@@ -61,9 +64,19 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
         return fw.isCollision(packageName, filename + ext);
     }
 
+    protected boolean wantToKeep() {
+        return env.optionSet(ToolConstants.CFG_GEN_KEEP);
+    }
+
     protected Writer parseOutputName(String packageName, String filename, String ext) throws ToolException {
         FileWriterUtil fw = null;
         Writer writer = null;
+
+        if (wantToKeep() && isCollision(packageName, filename, ext)) {
+            Message msg = new Message("SKIP_GEN", LOG, packageName + "." + filename + ext);
+            LOG.log(Level.INFO, msg.toString());
+            return null;
+        }
 
         fw = new FileWriterUtil((String)env.get(ToolConstants.CFG_OUTPUTDIR));
         try {
@@ -76,29 +89,10 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
         return writer;
     }
 
+    public abstract void register(final ClassCollector collector, String packageName, String fileName);
+
     protected Writer parseOutputName(String packageName, String filename) throws ToolException {
-        ClassCollector collector = env.get(ClassCollector.class);
-        
-        if (ToolConstants.SEI_GENERATOR.equals(name)) {
-            collector.addSeiClassName(packageName , filename , packageName + "." + filename);
-        }
-        
-        if (ToolConstants.CLT_GENERATOR.equals(name)) {
-            collector.addClientClassName(packageName , filename , packageName + "." + filename);
-        }
-
-        if (ToolConstants.FAULT_GENERATOR.equals(name)) {
-            collector.addExceptionClassName(packageName , filename , packageName + "." + filename);
-        }
-        if (ToolConstants.SERVICE_GENERATOR.equals(name)) {
-            collector.addServiceClassName(packageName , filename , packageName + "." + filename);
-        }
-        if (ToolConstants.SVR_GENERATOR.equals(name)) {
-            collector.addServiceClassName(packageName , filename , packageName + "." + filename);
-
-        }
-
-
+        register(env.get(ClassCollector.class), packageName, filename);
         return parseOutputName(packageName, filename, ".java");
     }
 

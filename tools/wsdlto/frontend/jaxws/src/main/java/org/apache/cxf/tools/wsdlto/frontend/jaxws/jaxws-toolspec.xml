@@ -235,6 +235,13 @@ Examples:
                 <switch>validate</switch>
             </option>
 
+            <option id="keep" maxOccurs="1">
+                <annotation>
+                    To keep the existing files, NOTE: You have to solve the compilation problems by yourself
+                </annotation>
+                <switch>keep</switch>
+            </option>
+
             <option id="wsdlLocation" maxOccurs="1">
                 <annotation>
                     The wsdlLocation that is injected into code.  This location could be the location

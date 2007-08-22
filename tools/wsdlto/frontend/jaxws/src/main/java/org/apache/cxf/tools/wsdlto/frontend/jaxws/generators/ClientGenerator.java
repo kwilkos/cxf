@@ -31,6 +31,7 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
+import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
 
 public class ClientGenerator extends AbstractJAXWSGenerator {
@@ -101,5 +102,9 @@ public class ClientGenerator extends AbstractJAXWSGenerator {
                 doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(), clientClassName));
             }
         }
+    }
+
+    public void register(final ClassCollector collector, String packageName, String fileName) {
+        collector.addClientClassName(packageName , fileName , packageName + "." + fileName);
     }
 }

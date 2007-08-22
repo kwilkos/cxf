@@ -90,6 +90,8 @@ public final class ToolConstants {
     public static final String CFG_GEN_OVERWRITE = "overwrite";
     public static final String CFG_GEN_FAULT = "genFault";
 
+    public static final String CFG_GEN_KEEP = "keep";
+
     // Java2WSDL Constants
 
     public static final String CFG_CLASSPATH = "classpath";

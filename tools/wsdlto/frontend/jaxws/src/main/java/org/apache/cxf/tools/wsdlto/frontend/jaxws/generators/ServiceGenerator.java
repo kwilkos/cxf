@@ -28,6 +28,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
+import org.apache.cxf.tools.util.ClassCollector;
 
 public class ServiceGenerator extends AbstractJAXWSGenerator {
     //private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
@@ -106,5 +107,9 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
             doWrite(SERVICE_TEMPLATE, parseOutputName(js.getPackageName(), 
                                                       js.getName()));
         }
+    }
+
+    public void register(final ClassCollector collector, String packageName, String fileName) {
+        collector.addServiceClassName(packageName , fileName , packageName + "." + fileName);
     }
 }

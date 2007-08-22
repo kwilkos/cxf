@@ -28,6 +28,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.util.ClassCollector;
 
 public class SEIGenerator extends AbstractJAXWSGenerator {
 
@@ -100,5 +101,9 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
             doWrite(SEI_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName()));
 
         }
+    }
+
+    public void register(final ClassCollector collector, String packageName, String fileName) {
+        collector.addSeiClassName(packageName , fileName , packageName + "." + fileName);
     }
 }

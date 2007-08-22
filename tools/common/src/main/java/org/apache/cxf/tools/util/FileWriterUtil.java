@@ -72,7 +72,7 @@ public class FileWriterUtil {
         return fileExist(dir, fileName);
     }
 
-    private File buildDir(String packageName) {
+    public File buildDir(String packageName) {
         File dir;
         if (packageName == null) {
             dir = target;
