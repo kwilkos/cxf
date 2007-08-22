@@ -58,13 +58,12 @@
 			<option id="server" maxOccurs="1">
 				<annotation>Specify to genearte server side code</annotation>
 				<switch>server</switch>
-			</option>
-			
+			</option>			
+						
 			<option id="wsdl" maxOccurs="1">
 				<annotation>Specify generating wsdl</annotation>
-				<switch>wsdl</switch>W
+				<switch>wsdl</switch>
 			</option>
-
 
 			<option id="outputfile" maxOccurs="1">
 				<annotation>

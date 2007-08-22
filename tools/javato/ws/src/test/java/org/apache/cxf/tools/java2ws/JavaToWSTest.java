@@ -48,7 +48,7 @@ public class JavaToWSTest extends ToolTestBase {
 
     @After
     public void tearDown() {
-        //super.tearDown();
+        super.tearDown();
         System.setProperty("java.class.path", cp);
     }
 
@@ -62,14 +62,37 @@ public class JavaToWSTest extends ToolTestBase {
     @Test
     public void testFlagWSDL() throws Exception {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl",
-                                      "-d", output.getPath(),
+                                      "-d", output.getPath(), "-client", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
-
-
     }
+    
+    
+    @Test 
+    
+    public void testGenServerAndClient() throws Exception {
+        String[] args = new String[] {"-d", output.getPath(), "-client", "-server",
+                                      "org.apache.hello_world_soap12_http.Greeter"};
+        JavaToWS.main(args);
+        File client = new File(output.getPath()
+                               + "/org/apache/hello_world_soap12_http/Greeter_GreeterPort_Client.java");
+
+        assertTrue("Client is not generated", client.exists());
+
+        File service = new File(output.getPath() + "/org/apache/hello_world_soap12_http/GreeterService.java");
+        assertTrue("GreeterService is not generated", service.exists());
+        File server = new File(output.getPath()
+                               + "/org/apache/hello_world_soap12_http/Greeter_GreeterPort_Server.java");
+        assertTrue("Greeter_GreeterPort_Server.java is not generated", server.exists());
+    }
+    
+    
+    
+    
+    
+    
 
     @Ignore
     public void testInvalidFlag() throws Exception {

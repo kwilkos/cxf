@@ -18,6 +18,10 @@
  */
 package org.apache.cxf.tools.java2wsdl.processor;
 
+import java.util.List;
+
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -31,9 +35,26 @@ public class ServiceInfoToJavaProcessor implements Processor {
     public void process() {
         env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
         env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
-        env.put(ToolConstants.CFG_GEN_CLIENT, ToolConstants.CFG_GEN_CLIENT);
-        env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
-        env.put(ToolConstants.CFG_WSDLURL, "dummy");
+        
+        if (env.optionSet(ToolConstants.CFG_CLIENT)) {
+            env.put(ToolConstants.CFG_GEN_SERVICE, ToolConstants.CFG_GEN_SERVICE);
+            env.put(ToolConstants.CFG_GEN_CLIENT, ToolConstants.CFG_GEN_CLIENT);
+        }
+        
+        if (env.optionSet(ToolConstants.CFG_SERVER)) {
+            env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
+            if (env.optionSet(ToolConstants.CFG_IMPL)) {
+                env.put(ToolConstants.CFG_GEN_IMPL, ToolConstants.CFG_GEN_IMPL);       
+            }
+        }
+        List<ServiceInfo> services = (List<ServiceInfo>)env.get(ToolConstants.SERVICE_LIST);
+        ServiceInfo serviceInfo = services.get(0);
+        if (serviceInfo.getEndpoints().iterator().hasNext()) {
+            EndpointInfo endpointInfo = serviceInfo.getEndpoints().iterator().next();
+            env.put(ToolConstants.CFG_WSDLURL, endpointInfo.getAddress() + "?wsdl");
+        } else {
+            env.put(ToolConstants.CFG_WSDLURL, "dummy");
+        }
         try {
             WSDLToJavaContainer w2j = new WSDLToJavaContainer("wsdl2java", null);
             w2j.setContext(env);

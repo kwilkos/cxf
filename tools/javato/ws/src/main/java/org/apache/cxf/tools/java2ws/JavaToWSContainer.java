@@ -60,9 +60,11 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                 processor.setEnvironment(env);
                 processor.process();
                 
-                processor = new ServiceInfoToJavaProcessor();
-                processor.setEnvironment(env);
-                processor.process();
+                if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
+                    processor = new ServiceInfoToJavaProcessor();
+                    processor.setEnvironment(env);
+                    processor.process();
+                }
                 
             }
         } catch (ToolException ex) {
