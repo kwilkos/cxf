@@ -59,13 +59,17 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                 processor = new JavaToWSDLProcessor();
                 processor.setEnvironment(env);
                 processor.process();
-                
-                if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
-                    processor = new ServiceInfoToJavaProcessor();
-                    processor.setEnvironment(env);
-                    processor.process();
-                }
-                
+                String ft = (String)env.get(ToolConstants.CFG_FRONTEND);
+                if (ft == null || "jaxws".equals(ft.toLowerCase())) {
+                    ft = "jaxws";
+                    if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
+                        processor = new ServiceInfoToJavaProcessor();
+                        processor.setEnvironment(env);
+                        processor.process();
+                    }
+                } else {
+                    ft = "simple";
+                }       
             }
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
@@ -98,8 +102,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
         CommandDocument doc = super.getCommandDocument();
 
         if (doc.hasParameter("frontend")) {
-            String ft = doc.getParameter("frontend");
-            
+            String ft = doc.getParameter("frontend");           
             if (!"simple".equalsIgnoreCase(ft) && !"jaxws".equalsIgnoreCase(ft)) {
                 Message msg = new Message("INVALID_FORNTEND", LOG, new Object[]{ft});               
                 errs.add(new ErrorVisitor.UserError(msg.toString()));
@@ -114,12 +117,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                 errs.add(new ErrorVisitor.UserError(msg.toString()));
             }
         }
-
-        
-        
-        
-        
-        
+  
         if (errs.getErrors().size() > 0) {
             Message msg = new Message("PARAMETER_MISSING", LOG);           
             throw new ToolException(msg, new BadUsageException(getUsage(), errs));

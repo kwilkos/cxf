@@ -139,7 +139,14 @@ public class JavaToProcessor implements Processor {
     public ServiceBuilder getServiceBuilder() throws ToolException {
 
         ServiceBuilderFactory builderFactory = ServiceBuilderFactory.getInstance();
-        builderFactory.setServiceClass(getServiceClass());
+        Class<?> clz = getServiceClass();
+        if (clz.isInterface()) {
+            context.put(ToolConstants.GEN_FROM_SEI, Boolean.TRUE);   
+        } else {
+            context.put(ToolConstants.GEN_FROM_SEI, Boolean.FALSE); 
+        }
+        builderFactory.setServiceClass(clz);
+        
         // TODO check if user specify the style from cli arguments
         //      builderFactory.setStyle(style/from/command/line);
         ServiceBuilder builder = builderFactory.newBuilder();

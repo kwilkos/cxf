@@ -58,6 +58,11 @@
 			<option id="server" maxOccurs="1">
 				<annotation>Specify to genearte server side code</annotation>
 				<switch>server</switch>
+			</option>
+			
+			<option id="impl" maxOccurs="1">
+				<annotation>Specify to generate impl class when "-server" flag is specified</annotation>
+				<switch>impl</switch>
 			</option>			
 						
 			<option id="wsdl" maxOccurs="1">

@@ -43,10 +43,12 @@ public class ServiceInfoToJavaProcessor implements Processor {
         
         if (env.optionSet(ToolConstants.CFG_SERVER)) {
             env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
-            if (env.optionSet(ToolConstants.CFG_IMPL)) {
+            Boolean fromSEI = (Boolean)env.get(ToolConstants.GEN_FROM_SEI);
+            if (env.optionSet(ToolConstants.CFG_IMPL) && fromSEI) {
                 env.put(ToolConstants.CFG_GEN_IMPL, ToolConstants.CFG_GEN_IMPL);       
             }
         }
+        
         List<ServiceInfo> services = (List<ServiceInfo>)env.get(ToolConstants.SERVICE_LIST);
         ServiceInfo serviceInfo = services.get(0);
         if (serviceInfo.getEndpoints().iterator().hasNext()) {

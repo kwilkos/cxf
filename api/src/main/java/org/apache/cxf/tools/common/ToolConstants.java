@@ -212,4 +212,5 @@ public final class ToolConstants {
     
     //For java2ws tool
     public static final String SERVICE_LIST = "serviceList";
+    public static final String GEN_FROM_SEI = "genFromSEI";
 }
