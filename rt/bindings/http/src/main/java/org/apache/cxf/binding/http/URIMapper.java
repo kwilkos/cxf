@@ -64,6 +64,10 @@ public class URIMapper {
         info.setOperation(bop);
         locations.put(bop.getOperationInfo(), uri);
         verbs.put(bop.getOperationInfo(), verb);
+        if (bop.getOperationInfo().getUnwrappedOperation() != null) {
+            locations.put(bop.getUnwrappedOperation().getOperationInfo(), uri);
+            verbs.put(bop.getUnwrappedOperation().getOperationInfo(), verb);
+        }
         resources.add(info);
     }
     

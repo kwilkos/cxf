@@ -91,7 +91,6 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore("fail due to cxf-938")
     public void testGetBookWrapped() throws Exception {
         JaxWsProxyFactoryBean sf = new JaxWsProxyFactoryBean();
         sf.setServiceClass(BookServiceWrapped.class);

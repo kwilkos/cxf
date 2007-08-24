@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.binding.http.interceptor;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Document;
@@ -28,6 +29,7 @@ import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageOutInterceptor;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.MapNamespaceContext;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
@@ -37,6 +39,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final WrappedOutInterceptor WRAPPED_OUT = new WrappedOutInterceptor();
@@ -57,6 +60,14 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
             message.setContent(Node.class, document);
             
             XMLStreamWriter writer = new W3CDOMStreamWriter(document);
+            try {
+                MapNamespaceContext nsMap = new MapNamespaceContext();
+                nsMap.addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+                writer.setNamespaceContext(nsMap);
+            } catch (XMLStreamException e) {
+                e.printStackTrace();
+                // ignore
+            }
             message.setContent(XMLStreamWriter.class, writer);
            
             WrappedOutInterceptor wrappedOut = new WrappedOutInterceptor(Phase.PRE_LOGICAL);
