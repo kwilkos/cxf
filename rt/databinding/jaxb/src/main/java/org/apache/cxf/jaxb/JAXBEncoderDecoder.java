@@ -99,7 +99,7 @@ public final class JAXBEncoderDecoder {
         
         if (cls != null && cls.isArray() && elValue instanceof Collection) {
             Collection<?> col = (Collection<?>) elValue;
-            elValue = col.toArray((Object[]) Array.newInstance(cls.getComponentType(), 0));
+            elValue = col.toArray((Object[]) Array.newInstance(cls.getComponentType(), col.size()));
         }
         
         try {
