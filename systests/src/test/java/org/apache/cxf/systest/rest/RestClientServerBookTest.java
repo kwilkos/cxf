@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.customer.book.Book;
 import org.apache.cxf.customer.book.BookService;
+import org.apache.cxf.customer.book.BookServiceWrapped;
 import org.apache.cxf.customer.book.GetAnotherBook;
 import org.apache.cxf.customer.book.GetBook;
 import org.apache.cxf.helpers.IOUtils;
@@ -90,7 +91,23 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    @Ignore("fail due to cxf-938")
     public void testGetBookWrapped() throws Exception {
+        JaxWsProxyFactoryBean sf = new JaxWsProxyFactoryBean();
+        sf.setServiceClass(BookServiceWrapped.class);
+        sf.getServiceFactory().setWrapped(true);
+
+        // Use the HTTP Binding which understands the Java Rest Annotations
+        sf.getClientFactoryBean().setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
+        sf.setAddress("http://localhost:9080/xmlwrapped/");
+        BookServiceWrapped bs = (BookServiceWrapped)sf.create();
+        Book book = bs.getBook(123);
+        assertEquals(book.getId(), (long)123);
+        assertEquals(book.getName(), "CXF in Action");
+    }
+    
+    @Test
+    public void testGetBookWrappedUsingURL() throws Exception {
         String endpointAddress =
             "http://localhost:9080/xmlwrapped/books/123"; 
         URL url = new URL(endpointAddress);
