@@ -753,19 +753,7 @@ public class HTTPConduit
         return headers;
     }
     
-    /* PMD for non-use!
-    private void printHeaders(URLConnection connection) {
-        int i = 0;
-        String k = connection.getHeaderFieldKey(i);
-        String h = connection.getHeaderField(i);
-        while (h != null) {
-            System.out.println(k + ": " + h);
-            k = connection.getHeaderFieldKey(++i);
-            h = connection.getHeaderField(i);
-        }           
-    }
-    */
-
+    
     /**
      * This procedure sets the URLConnection request properties
      * from the PROTOCOL_HEADERS in the message.
