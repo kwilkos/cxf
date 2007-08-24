@@ -33,6 +33,6 @@
 
     <property name="cxf.war.file.name" value="spring_http"/>
       <target name="war" depends="build">
-	  <cxfwar filename="${cxf.war.file.name}.war"/>
+	  <cxfwar filename="${cxf.war.file.name}.war" webxml="webapp/WEB-INF/web.xml" />
     </target>
 </project>

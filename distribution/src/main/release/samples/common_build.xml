@@ -218,18 +218,24 @@
     </macrodef>
 		
 		<property name="war-lib" value="${basedir}/libs" />
+		<property name="config.dir" value="${basedir}/config" />
     <macrodef name="cxfwar">
         <attribute name="filename"/>
         <attribute name="wsdl" default=""/>
         <attribute name="dir" default="${war.dir}"/>
         <attribute name="classesdir" default="${build.classes.dir}"/>
+        <attribute name="webxml" default="${cxf.home}/etc/web.xml" />
         <sequential>
             <mkdir dir="@{dir}"/>
             <mkdir dir="${war-lib}"/>
+            <mkdir dir="${config.dir}"/>
             <antcall target="copy-war-libs"/>
             
+            <available property="has.config" file="${basedir}/webapp/WEB-INF" type="dir" />
+            <antcall target="copy-config-files" />
+            
             <delete file="@{dir}/@{filename}" />
-            <war destfile="@{dir}/@{filename}" webxml="${cxf.home}/etc/web.xml">
+            <war destfile="@{dir}/@{filename}" webxml="@{webxml}">
                 <classes dir="@{classesdir}"/>
                 <webinf dir="${wsdl.dir}">
                     <include name="cxf-servlet.xml"/>
@@ -237,12 +243,16 @@
                 <webinf dir="${wsdl.dir}/..">
                     <include name="wsdl/@{wsdl}"/>
                 </webinf>
+                <webinf dir="${config.dir}">
+                		<include name="*.*" />
+                </webinf> 
                 <lib dir="${war-lib}">
     							<include name="*.jar"/>
   							</lib>
             </war>
             
             <delete dir="${war-lib}" />
+            <delete dir="${config.dir}" />
         </sequential>
     </macrodef>
     
@@ -255,6 +265,15 @@
                    <exclude name="WHICH_JARS" />
     		</fileset>
     	</copy>	
+    </target>
+    
+    <target name="copy-config-files" if="has.config">
+    		<copy todir="${config.dir}" >
+    			<fileset dir="${basedir}/webapp/WEB-INF">
+    				<include name="*.xml" />
+    				<exclude name="web.xml" />
+    			</fileset>
+    		</copy>
     </target>
 
     <target name="deploy" description="deploy the application into the container">

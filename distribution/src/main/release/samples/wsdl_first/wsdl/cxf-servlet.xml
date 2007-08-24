@@ -27,7 +27,7 @@ http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/
 http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
     <jaxws:endpoint
-        id="hello_world_xml_bare"
+        id="hello_world"
         implementor="demo.hw.server.GreeterImpl"
         wsdlLocation="WEB-INF/wsdl/hello_world.wsdl"
         address="/hello_world">
