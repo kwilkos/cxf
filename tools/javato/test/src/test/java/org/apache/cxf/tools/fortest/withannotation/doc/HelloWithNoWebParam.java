@@ -28,8 +28,8 @@ import javax.xml.ws.ResponseWrapper;
 
 public interface HelloWithNoWebParam {
 
-    @ResponseWrapper(className = "org.apache.cxf.tools.fortest.withannotation.doc.SayHi")
-    @RequestWrapper(className = "org.apache.cxf.tools.fortest.withannotation.doc.SayHiResponse")
+    @ResponseWrapper(className = "org.apache.cxf.tools.fortest.withannotation.doc.SayHiResponse")
+    @RequestWrapper(className = "org.apache.cxf.tools.fortest.withannotation.doc.SayHi")
     @WebMethod(operationName = "sayHi")
     void sayHi(
         long l1

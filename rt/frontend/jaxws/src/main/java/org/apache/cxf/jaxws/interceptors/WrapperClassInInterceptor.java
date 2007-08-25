@@ -30,6 +30,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -84,35 +85,25 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             if (lst == null) {
                 return;
             }
-            Class<?> wrapperClass = null;
-            Object wrappedObject = null;
-            MessagePartInfo wrapperPart = null;
-            if (wrappedMessageInfo != null) {
-                for (MessagePartInfo part : wrappedMessageInfo.getMessageParts()) {
-                    //headers should appear in both, find the part that doesn't
-                    if (messageInfo.getMessagePart(part.getName()) == null) {
-                        wrapperClass = part.getTypeClass();
-                        for (Object o : lst) {
-                            if (wrapperClass.isInstance(o)) {
-                                wrappedObject = o;
-                                wrapperPart = part;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            
             if (lst != null) {
                 message.put(MessageInfo.class, messageInfo);
                 message.put(BindingMessageInfo.class, bmi);
                 ex.put(BindingOperationInfo.class, boi2);
                 ex.put(OperationInfo.class, op);
             }
+            
             if (isGET(message)) {
                 LOG.info("WrapperClassInInterceptor skipped in HTTP GET method");
                 return;
+            }
+            
+            MessagePartInfo wrapperPart = wrappedMessageInfo.getMessagePart(0);
+            Class<?> wrapperClass = wrapperPart.getTypeClass();
+            Object wrappedObject = lst.get(wrapperPart.getIndex());
+            if (!wrapperClass.isInstance(wrappedObject)) {
+                wrappedObject = null;
+                wrapperPart = null;
+                wrapperClass = null;
             }
             if (wrapperClass == null || wrappedObject == null) {
                 return;
@@ -129,8 +120,9 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 newParams = new MessageContentsList(helper.getWrapperParts(wrappedObject));
                 
                 for (MessagePartInfo part : messageInfo.getMessageParts()) {
-                    if (wrappedMessageInfo.getMessagePart(part.getName()) != null) {
-                        newParams.put(part, lst.get(part));
+                    if (Boolean.TRUE.equals(part.getProperty(ReflectionServiceFactoryBean.HEADER))) {
+                        MessagePartInfo mpi = wrappedMessageInfo.getMessagePart(part.getName());
+                        newParams.put(mpi, lst.get(part));
                     }
                 }
             } catch (Exception e) {
@@ -149,7 +141,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         List<Class<?>> partClasses = new ArrayList<Class<?>>();
         
         for (MessagePartInfo p : messageInfo.getMessageParts()) {
-            if (wrappedMessageInfo.getMessagePart(p.getName()) != null) {
+            if (Boolean.TRUE.equals(p.getProperty(ReflectionServiceFactoryBean.HEADER))) {
                 int idx = p.getIndex();
                 ensureSize(elTypeNames, idx);
                 ensureSize(partClasses, idx);

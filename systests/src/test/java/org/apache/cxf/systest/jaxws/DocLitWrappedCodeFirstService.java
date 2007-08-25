@@ -23,10 +23,13 @@ import java.util.Vector;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
-import javax.xml.ws.Holder;
 
+import javax.xml.ws.Holder;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 
 @WebService(name = "DocLitWrappedCodeFirstService",
             targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService")
@@ -75,6 +78,16 @@ public interface DocLitWrappedCodeFirstService {
     
     @WebMethod
     int throwException(int i) throws ServiceTestFault;
+    
+    @WebMethod
+    @WebResult(targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService",
+               name = "result")
+    @RequestWrapper(className = "org.apache.cxf.systest.jaxws.Echo")
+    @ResponseWrapper(className = "org.apache.cxf.systest.jaxws.EchoResponse")
+    String echo(@WebParam(targetNamespace = 
+            "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                          name = "String_1")
+                        String msg);
 
     static class Foo  {
         String name;

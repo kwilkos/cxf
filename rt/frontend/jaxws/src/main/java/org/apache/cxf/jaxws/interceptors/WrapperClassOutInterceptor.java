@@ -28,6 +28,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -101,9 +102,18 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                 parts.get(0).setProperty("WRAPPER_CLASS", helper);
             }
             try {
+                MessageContentsList newObjs = new MessageContentsList(); 
                 Object o2 = helper.createWrapperObject(objs);
-                objs.clear();
-                objs.put(parts.get(0), o2);
+                newObjs.put(parts.get(0), o2);
+                
+                for (MessagePartInfo p : messageInfo.getMessageParts()) {
+                    if (Boolean.TRUE.equals(p.getProperty(ReflectionServiceFactoryBean.HEADER))) {
+                        MessagePartInfo mpi = wrappedMsgInfo.getMessagePart(p.getName());
+                        newObjs.put(mpi, objs.get(p));
+                    }
+                }
+
+                message.setContent(List.class, newObjs);
             } catch (Exception e) {
                 throw new Fault(e);
             }

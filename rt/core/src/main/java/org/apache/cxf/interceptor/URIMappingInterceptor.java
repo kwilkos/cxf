@@ -139,7 +139,13 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             queries = keepInOrder(queries, 
                                   operation.getOperationInfo(),
                                   names);
-            if (!emptyQueries && CollectionUtils.isEmpty(queries.values())) {            
+            if (!emptyQueries && CollectionUtils.isEmpty(queries.values())) {
+                if (operation.isUnwrappedCapable()) {
+                    //maybe the wrapper was skipped
+                    return getParameters(message, operation.getUnwrappedOperation());
+                }
+                
+                
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ORDERED_PARAM_REQUIRED", 
                                                                        BUNDLE, 
                                                                        names.toString()));

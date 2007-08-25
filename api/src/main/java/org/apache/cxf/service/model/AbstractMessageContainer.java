@@ -134,6 +134,25 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     }
     
     /**
+     * Returns the n'th message part.
+     *
+     * @param n the n'th part to retrieve.
+     * @return the message part; or <code>null</code> if not found.
+     */
+    public MessagePartInfo getMessagePart(int n) {
+        if (n == -1) {
+            return null;
+        }
+        for (MessagePartInfo mpi : messageParts.values()) {
+            if (n == 0) {
+                return mpi;
+            }
+            n--;
+        }
+        return null;
+    }    
+    
+    /**
      * Returns all message parts for this message.
      *
      * @return all message parts.

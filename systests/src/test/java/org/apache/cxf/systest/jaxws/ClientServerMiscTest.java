@@ -186,6 +186,9 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
     }
     
     private void runDocLitTest(DocLitWrappedCodeFirstService port) throws Exception {
+        String echoMsg = port.echo("Hello");
+        assertEquals("Hello", echoMsg);
+        
         List<String> rev = new ArrayList<String>(Arrays.asList(DocLitWrappedCodeFirstServiceImpl.DATA));
         Collections.reverse(rev);
         
@@ -265,6 +268,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         }
         */
     }
+    
     @Test
     public void testRpcLitNoWsdl() throws Exception {
         QName portName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 

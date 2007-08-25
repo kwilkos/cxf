@@ -414,7 +414,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
-                if (op.hasInput()) {
+                if (op.hasInput() 
+                    && op.getInput().getMessageParts().get(0).getTypeClass() == null) {
+                    
                     QName wraperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
                     XmlSchemaElement e = null;
                     for (SchemaInfo s : serviceInfo.getSchemas()) {
@@ -442,7 +444,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
 
                 }
-                if (op.hasOutput()) {
+                if (op.hasOutput()
+                    && op.getOutput().getMessageParts().get(0).getTypeClass() == null) {
+                    
                     QName wraperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
                     XmlSchemaElement e = null;
                     for (SchemaInfo s : serviceInfo.getSchemas()) {

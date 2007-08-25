@@ -45,7 +45,7 @@ public class ClientServerGreeterNoWsdlTest extends AbstractBusClientServerTestBa
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly",
-                   launchServer(ServerGreeterNoWsdl.class));
+                   launchServer(ServerGreeterNoWsdl.class, true));
     }
     
     @Test    

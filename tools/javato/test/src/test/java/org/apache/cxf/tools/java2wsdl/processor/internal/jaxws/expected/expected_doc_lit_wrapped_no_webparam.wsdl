@@ -30,18 +30,8 @@
 <xs:complexType name="sayHiResponse"/>
 </xs:schema>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/" xmlns:ns0="http://doc.withannotation.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/">
-<xsd:element name="sayHi" nillable="true" type="ns0:sayHiResponse"/>
-<xsd:element name="sayHiResponse" nillable="true" type="ns0:sayHi"/>
-<xsd:element name="sayHi" type="sayHi"/>
-<xsd:complexType name="sayHi">
-<xsd:sequence>
-<xsd:element name="arg0" type="xsd:long"/>
-</xsd:sequence>
-</xsd:complexType>
-<xsd:element name="sayHiResponse" type="sayHiResponse"/>
-<xsd:complexType name="sayHiResponse">
-<xsd:sequence/>
-</xsd:complexType>
+<xsd:element name="sayHi" nillable="true" type="ns0:sayHi"/>
+<xsd:element name="sayHiResponse" nillable="true" type="ns0:sayHiResponse"/>
 </xsd:schema>
   </wsdl:types>
   <wsdl:message name="sayHiResponse">
