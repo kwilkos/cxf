@@ -259,7 +259,9 @@ public class JaxWsImplementorInfo {
             cls = cls.getSuperclass();
         }
         String sei = getImplementorClassName();
+        boolean seiFromWsAnnotation = true;
         if (StringUtils.isEmpty(sei)) {
+            seiFromWsAnnotation = false;
             sei = getWSInterfaceName(implementorClass);                
         }
         if (!StringUtils.isEmpty(sei)) {
@@ -272,9 +274,10 @@ public class JaxWsImplementorInfo {
             if (null == seiAnnotation) {
                 throw new WebServiceException(BUNDLE.getString("SEI_WITHOUT_WEBSERVICE_ANNOTATION_EXC"));
             }
-            if (!StringUtils.isEmpty(seiAnnotation.portName())
+            if (seiFromWsAnnotation &&
+                (!StringUtils.isEmpty(seiAnnotation.portName())
                 || !StringUtils.isEmpty(seiAnnotation.serviceName())
-                || !StringUtils.isEmpty(seiAnnotation.endpointInterface())) {
+                || !StringUtils.isEmpty(seiAnnotation.endpointInterface()))) {
                 String expString = BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC");
                 throw new WebServiceException(expString);
             }
