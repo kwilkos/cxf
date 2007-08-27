@@ -102,7 +102,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                     setFirstChildAsProperty((Element) n, ctx, bean, "bindingConfig");
                 } else if ("inInterceptors".equals(name) || "inFaultInterceptors".equals(name)
                     || "outInterceptors".equals(name) || "outFaultInterceptors".equals(name)
-                    || "features".equals(name)) {
+                    || "features".equals(name) || "schemaLocations".equals(name)) {
                     List list = ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
                     bean.addPropertyValue(name, list);
                 } else if (IMPLEMENTOR.equals(name)) {

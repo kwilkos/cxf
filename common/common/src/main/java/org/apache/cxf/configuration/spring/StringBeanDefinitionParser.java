@@ -16,15 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.frontend.spring;
+package org.apache.cxf.configuration.spring;
 
-import org.apache.cxf.configuration.spring.StringBeanDefinitionParser;
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
+import org.w3c.dom.Element;
 
-public class NamespaceHandler extends NamespaceHandlerSupport {
-    public void init() {
-        registerBeanDefinitionParser("client", new ClientProxyFactoryBeanDefinitionParser());    
-        registerBeanDefinitionParser("server", new ServerFactoryBeanDefinitionParser());     
-        registerBeanDefinitionParser("schemaLocation", new StringBeanDefinitionParser());
+import org.apache.cxf.helpers.DOMUtils;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+
+public class StringBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    @Override
+    protected void doParse(Element element, BeanDefinitionBuilder builder) {
+        builder.addConstructorArg(DOMUtils.getContent(element));
     }
+
+    @Override
+    protected Class getBeanClass(Element arg0) {
+        return String.class;
+    }
+
 }

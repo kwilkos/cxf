@@ -168,7 +168,8 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
                 try {
                     d = DOMUtils.readXml(url.openStream());
                 } catch (Exception e) {
-                    throw new ServiceConstructionException(e);
+                    throw new ServiceConstructionException(
+                        new Message("ERROR_READING_SCHEMA", LOG, l), e);
                 }
                 schemas.add(new DOMSource(d, url.toString()));
             }

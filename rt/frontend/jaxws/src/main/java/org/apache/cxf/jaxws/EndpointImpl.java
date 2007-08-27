@@ -77,6 +77,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     private QName serviceName;
     private Class implementorClass;
     
+    private List<String> schemaLocations;
     private List<AbstractFeature> features;
     private List<Interceptor> in = new ModCountCopyOnWriteArrayList<Interceptor>();
     private List<Interceptor> out = new ModCountCopyOnWriteArrayList<Interceptor>();
@@ -261,6 +262,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             serverFactory.setBus(bus);
             serverFactory.setFeatures(features);
             serverFactory.setInvoker(invoker);
+            serverFactory.setSchemaLocations(schemaLocations);
             
             // Be careful not to override any serverfactory settings as a user might
             // have supplied their own.
@@ -438,6 +440,14 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     
     public BindingConfiguration getBindingConfig() {
         return serverFactory.getBindingConfig();
+    }
+
+    public List<String> getSchemaLocations() {
+        return schemaLocations;
+    }
+
+    public void setSchemaLocations(List<String> schemaLocations) {
+        this.schemaLocations = schemaLocations;
     }
     
     /*
