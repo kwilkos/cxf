@@ -4,5 +4,5 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<soapenv:Body>
-		<testMethod xmlns="http://xfire.codehaus.org/BookService" />	</soapenv:Body>
+		<testMethod xmlns="http://cxf.apache.org/BookService" />	</soapenv:Body>
 </soapenv:Envelope>

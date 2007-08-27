@@ -26,5 +26,5 @@ ZqciSl1dZnaMjx7JYAA=
 </ds:KeyInfo>
 </ds:Signature></wsse:Security></soapenv:Header>
 	<soapenv:Body wsu:Id="id-2554341" xmlns="http://somenamespace.pl" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		<testMethod xmlns="http://xfire.codehaus.org/BookService" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>	</soapenv:Body>
+		<testMethod xmlns="http://cxf.apache.org/BookService" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>	</soapenv:Body>
 </soapenv:Envelope>
