@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.JavaUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -354,7 +355,7 @@ public final class ProcessorUtil {
         //is elementByName is null,it could be generate from serviceInfo, we need read the schema element
         //into schemaCollection
         if (elementByName == null) {
-            Map<String, Element> maps = (Map<String, Element>)context.get(ToolConstants.SCHEMA_MAP);
+            Map<String, Element> maps = CastUtils.cast((Map<?, ?>)context.get(ToolConstants.SCHEMA_MAP));
             if (maps != null) {
                 for (Element ele : maps.values()) {
                     schema.read(ele);
