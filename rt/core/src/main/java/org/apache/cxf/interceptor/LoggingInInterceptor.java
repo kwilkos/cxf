@@ -43,30 +43,39 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     public void handleMessage(Message message) throws Fault {
-        InputStream is = message.getContent(InputStream.class);
-
-        if (is == null) {
-            return;
-        }
 
         if (LOG.isLoggable(Level.INFO)) {
-            CachedOutputStream bos = new CachedOutputStream();
-            try {
-                IOUtils.copy(is, bos);
-
-                is.close();
-                bos.close();
-
-                LOG.info("Inbound Message\n" 
-                         + "--------------------------------------\n"
-                         + bos.getOut().toString()
-                         + "\n--------------------------------------");
-                
-                message.setContent(InputStream.class, bos.getInputStream());
-
-            } catch (IOException e) {
-                throw new Fault(e);
+            StringBuffer buffer = new StringBuffer("Inbound Message\n" 
+                                                   + "--------------------------------------");
+            
+            String encoding = (String)message.get(Message.ENCODING);
+            if (encoding != null) {
+                buffer.append("\nEncoding: " + encoding);
             }
+            Object headers = message.get(Message.PROTOCOL_HEADERS);
+            if (headers != null) {
+                buffer.append("\nHeaders: " + headers);
+            }
+            
+            InputStream is = message.getContent(InputStream.class);
+            if (is != null) {
+                CachedOutputStream bos = new CachedOutputStream();
+                try {
+                    IOUtils.copy(is, bos);
+
+                    is.close();
+                    bos.close();
+
+                    buffer.append("\nMessage:\n");
+                    buffer.append(bos.getOut().toString());
+                    
+                    message.setContent(InputStream.class, bos.getInputStream());
+                } catch (IOException e) {
+                    throw new Fault(e);
+                }
+            }
+            buffer.append("\n--------------------------------------");
+            LOG.info(buffer.toString());
         }
     }
 

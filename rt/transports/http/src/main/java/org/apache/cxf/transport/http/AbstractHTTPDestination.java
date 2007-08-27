@@ -139,6 +139,10 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
                 }
             }
         }
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "Request Headers: " + requestHeaders.toString());
+        }
            
     }
     

@@ -580,6 +580,7 @@ public class JettyHTTPDestinationTest extends Assert {
                 EasyMock.expect(request.getInputStream()).andReturn(is);
                 EasyMock.expect(request.getContextPath()).andReturn("/bar");
                 EasyMock.expect(request.getPathInfo()).andReturn("/foo");
+                EasyMock.expect(request.getCharacterEncoding()).andReturn("UTF-8");
                 EasyMock.expect(request.getQueryString()).andReturn(query);            
                 EasyMock.expect(request.getContentType()).andReturn("text/xml charset=utf8");
                 
@@ -671,6 +672,8 @@ public class JettyHTTPDestinationTest extends Assert {
         EasyMock.expectLastCall().andReturn(new StringBuffer("http://localhost/bar/foo")).times(2);
         request.getPathInfo();
         EasyMock.expectLastCall().andReturn("/bar/foo");
+        request.getCharacterEncoding();
+        EasyMock.expectLastCall().andReturn("UTF-8");
         request.getQueryString();
         EasyMock.expectLastCall().andReturn("wsdl");       
         response.setContentType("text/xml");

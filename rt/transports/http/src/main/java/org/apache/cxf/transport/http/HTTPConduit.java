@@ -814,15 +814,12 @@ public class HTTPConduit
             if (enc != null && ct.indexOf("charset=") == -1) {
                 ct = ct + "; charset=" + enc;
             }
-            connection.setRequestProperty(
-                    HttpHeaderHelper.CONTENT_TYPE, ct);
         } else if (enc != null) {
-            connection.setRequestProperty(
-                    HttpHeaderHelper.CONTENT_TYPE, "text/xml; charset=" + enc);
+            ct = "text/xml; charset=" + enc;
         } else {
-            connection.setRequestProperty(
-                    HttpHeaderHelper.CONTENT_TYPE, "text/xml");
+            ct = "text/xml";
         }
+        connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, ct);
         
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Sending "
@@ -830,7 +827,8 @@ public class HTTPConduit
                 + " Message with Headers to " 
                            + connection.getURL()
                 + " Conduit :"
-                + getConduitName());
+                + getConduitName()
+                + "\nContent-Type: " + ct + "\n");
             logProtocolHeaders(Level.FINE, message);
         }
         
@@ -1125,8 +1123,7 @@ public class HTTPConduit
                 Arrays.asList(new String[] {policy.getAcceptLanguage()}));
         }
         if (policy.isSetContentType()) {
-            headers.put(HttpHeaderHelper.CONTENT_TYPE,
-                Arrays.asList(new String[] {policy.getContentType()}));
+            message.put(Message.CONTENT_TYPE, policy.getContentType());
         }
         if (policy.isSetCookie()) {
             headers.put("Cookie",

@@ -380,7 +380,6 @@ public final class PolicyUtils {
         } else if (p2.isSetAutoRedirect()) {
             p.setAutoRedirect(p2.isAutoRedirect());
         } 
-        p.setAutoRedirect(p1.isAutoRedirect());
         p.setBrowserType(combine(p1.getBrowserType(), p2.getBrowserType()));
         if (p1.isSetCacheControl()) {
             p.setCacheControl(p1.getCacheControl());
@@ -392,7 +391,11 @@ public final class PolicyUtils {
         } else if (p2.isSetConnection()) {
             p.setConnection(p2.getConnection());
         }        
-        p.setContentType(p1.getContentType());
+        if (p1.isSetContentType()) {
+            p.setContentType(p1.getContentType());
+        } else if (p2.isSetContentType()) {
+            p.setContentType(p2.getContentType());            
+        }
         p.setCookie(combine(p1.getCookie(), p2.getCookie()));
         p.setDecoupledEndpoint(combine(p1.getDecoupledEndpoint(), p2.getDecoupledEndpoint()));
         p.setHost(combine(p1.getHost(), p2.getHost()));

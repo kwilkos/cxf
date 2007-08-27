@@ -22,7 +22,6 @@ package org.apache.cxf.interceptor;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLInputFactory;
@@ -30,7 +29,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -40,8 +39,7 @@ import org.apache.cxf.staxutils.StaxUtils;
  * Creates an XMLStreamReader from the InputStream on the Message.
  */
 public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(StaxInInterceptor.class);
-    private static final Logger LOG = Logger.getLogger(StaxInInterceptor.class.getName());    
+    private static final Logger LOG = LogUtils.getL7dLogger(StaxInInterceptor.class);    
 
     private static Map<Object, XMLInputFactory> factories = new HashMap<Object, XMLInputFactory>();
 
@@ -66,7 +64,10 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
         try {
             reader = getXMLInputFactory(message).createXMLStreamReader(is, encoding);
         } catch (XMLStreamException e) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("STREAM_CREATE_EXC", BUNDLE), e);
+            throw new Fault(new org.apache.cxf.common.i18n.Message("STREAM_CREATE_EXC",
+                                                                   LOG,
+                                                                   encoding),
+                            e);
         }
 
         message.setContent(XMLStreamReader.class, reader);
@@ -91,7 +92,7 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
                 } else {
                     throw new Fault(
                                     new org.apache.cxf.common.i18n.Message("INVALID_INPUT_FACTORY", 
-                                                                           BUNDLE, o));
+                                                                           LOG, o));
                 }
 
                 try {

@@ -239,7 +239,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(HTTP_RESPONSE, resp);
             inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
             inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo());
-            
+            inMessage.put(Message.ENCODING, req.getCharacterEncoding());
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
             if (!StringUtils.isEmpty(endpointInfo.getAddress())) {

@@ -65,7 +65,7 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 public class WSDLQueryHandler implements StemMatchingQueryHandler {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WSDLQueryHandler.class);
-    private static final Logger LOG = LogUtils.getL7dLogger(WSDLQueryHandler.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLQueryHandler.class, "QueryMessages");
     private Bus bus;
 
     public WSDLQueryHandler(Bus b) {
