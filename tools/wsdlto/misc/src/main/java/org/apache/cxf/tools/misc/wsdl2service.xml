@@ -58,7 +58,7 @@ wsdl2service -transport http -e servicename -p portname -n bindingname HelloWorl
 	   	    <option id="port" minOccurs="1" maxOccurs="1">
 			 <annotation>
 			    Specifies the value of the name attribute of the generated 
-			    port element, sperate by space
+			    port element
 			  </annotation>
 				<switch>p</switch>
 				<associatedArgument placement="afterSpace">
@@ -69,7 +69,7 @@ wsdl2service -transport http -e servicename -p portname -n bindingname HelloWorl
 	   	    <option id="attrbinding" minOccurs="1" maxOccurs="1">
 			  <annotation>
 			    Specifies the name of the binding for which the service 
-			    is generated, sperate by space
+			    is generated
 			   </annotation>
 				<switch>n</switch>
 				<associatedArgument placement="afterSpace">
@@ -79,7 +79,7 @@ wsdl2service -transport http -e servicename -p portname -n bindingname HelloWorl
 	
 	   	<option id="address" maxOccurs="1">
 			<annotation>
-			    Specifies the value used in the address element of the port, sperate by space
+			    Specifies the value used in the address element of the port
 			</annotation>
 				<switch>a</switch>
 				<associatedArgument placement="afterSpace">
@@ -181,7 +181,7 @@ wsdl2service -transport http -e servicename -p portname -n bindingname HelloWorl
 
 	      	<option id="outputfile" maxOccurs="1">
 		    <annotation>
-		            Sepcify output wsdl  file name.
+		            Specify output wsdl file name
 		    </annotation>
 				<switch>o</switch>
 		        <associatedArgument placement="afterSpace">

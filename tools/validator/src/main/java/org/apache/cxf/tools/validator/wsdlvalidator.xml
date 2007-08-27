@@ -45,7 +45,7 @@ wsdlvalidator -s http://cxf.apache.org/schemas -s http://mycompany/schemas Greet
 			
 			<option id="schemaURL" maxOccurs="unbounded">
 			<annotation>
-			    Specify the user specify schema url.(can be specified multiple times)
+			    Specify the schema URL to validate against.  (This option can be specified multiple times.)
 			</annotation>
 				<switch>s</switch>
 				<associatedArgument placement="afterSpace">

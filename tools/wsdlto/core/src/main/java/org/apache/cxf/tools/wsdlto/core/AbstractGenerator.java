@@ -65,7 +65,7 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
     }
 
     protected boolean wantToKeep() {
-        return env.optionSet(ToolConstants.CFG_GEN_KEEP);
+        return env.optionSet(ToolConstants.CFG_GEN_NEW_ONLY);
     }
 
     protected Writer parseOutputName(String packageName, String filename, String ext) throws ToolException {

@@ -135,8 +135,8 @@ under the License.
 
             <option id="nexclude" maxOccurs="unbounded">
                 <annotation>
-                    The wsdl namespace to exclude for generating code. This
-                    option can be specified multiple times. Also, Optionally
+                    The wsdl namespace to exclude when generating code. This
+                    option can be specified multiple times. Also, optionally
                     specify the java package name to use for this wsdl namespace.
                 </annotation>
                 <switch>nexclude</switch>

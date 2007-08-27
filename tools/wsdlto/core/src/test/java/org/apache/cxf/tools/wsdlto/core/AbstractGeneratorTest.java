@@ -56,7 +56,7 @@ public class AbstractGeneratorTest extends ProcessorTestBase {
 
     @Test
     public void testKeep() throws Exception {
-        context.put(ToolConstants.CFG_GEN_KEEP, "keep");
+        context.put(ToolConstants.CFG_GEN_NEW_ONLY, "keep");
         assertNull(gen.parseOutputName(packageName, className));
     }
 

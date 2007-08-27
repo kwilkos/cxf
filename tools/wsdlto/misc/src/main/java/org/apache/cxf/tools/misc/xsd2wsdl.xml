@@ -35,7 +35,7 @@ xsd2wsdl -t http://org.apache/invoice -n Invoice Invoice.xsd
 				
 			<option id="namespace" minOccurs="1" maxOccurs="1">
 			 <annotation>
-			    Specify the target name space.
+			    Specify the target namespace.
 			  </annotation>
 				<switch>t</switch>
 				<associatedArgument placement="afterSpace">

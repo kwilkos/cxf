@@ -34,7 +34,7 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 		<optionGroup id="options">				
 			<option id="porttype" minOccurs="1" maxOccurs="1">
                         <annotation>
-		            Secify the name of the port type being mapped to a SOAP binding
+		            Specifies the name of the port type being mapped to a SOAP binding
 		        </annotation>
 				<switch>i</switch>
 				<associatedArgument placement="afterSpace">
@@ -44,7 +44,7 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 			
 			<option id="binding" maxOccurs="1">
 			<annotation>
-		            Specify the name for the generated SOAP binding,Defaul to 
+		            Specifies the name for the generated SOAP binding.  Defaults to 
 		            portType_SOAPBinding
 		        </annotation>
 				<switch>b</switch>
@@ -55,7 +55,7 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 
 			<option id="soap12" maxOccurs="1">
 			    <annotation>
-				Specifies to generate SOAP 1.2 binding
+				Generate SOAP 1.2 binding
 			    </annotation>
 			    <switch>soap12</switch>
 			</option>
@@ -82,7 +82,7 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 			
 			<option id="namespace" maxOccurs="1">
 			<annotation>
-			    Specify the soap body namespace when style is RPC
+			    For RPC style, specifies the soap body namespace
 			</annotation>
 				<switch>n</switch>
 				<associatedArgument placement="afterSpace">
@@ -92,8 +92,8 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 			
 			<option id="style" maxOccurs="1">
 		        <annotation>
-		            Specify the binding style(Document/RPC) to use in the 
-		            SOAP binding(default : Document)
+                            Specifies the binding style (document or RPC) to use 
+		            in the SOAP binding (default is document)
 		        </annotation>
 				<switch>style</switch>
 				<associatedArgument placement="afterSpace">
@@ -104,7 +104,7 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 			
 			<option id="use" maxOccurs="1">
 			<annotation>
-			    Specify the binding use (encoded/literal) to use in 
+			    Specifies the binding use (encoded/literal) to use in 
 			    the soap binding.(default : Literal)
 			</annotation>
 				<switch>use</switch>

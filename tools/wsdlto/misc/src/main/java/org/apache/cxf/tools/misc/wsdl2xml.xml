@@ -34,7 +34,7 @@ wsdl2xml -i GreetPortType -a address TestGreeting.wsdl
 		<optionGroup id="options">				
 			<option id="porttype" minOccurs="1" maxOccurs="1">
 		          <annotation>
-		            Specify the portType to use.
+		            Specifies the portType to use.
 		          </annotation>
 				<switch>i</switch>
 				<associatedArgument placement="afterSpace">
@@ -44,7 +44,7 @@ wsdl2xml -i GreetPortType -a address TestGreeting.wsdl
 			
 			<option id="binding" maxOccurs="1">
 			<annotation>
-		            Specify the binding name to use.
+		            Specifies the binding name to use.
 		        </annotation>
 				<switch>b</switch>
 				<associatedArgument placement="afterSpace">
@@ -65,7 +65,7 @@ wsdl2xml -i GreetPortType -a address TestGreeting.wsdl
 	   	    <option id="port" maxOccurs="1">
 		        <annotation>
 		            Specifies the value of the name attribute of the generated 
-		            port element, sperate by space
+		            port element
 		        </annotation>
 				<switch>p</switch>
 				<associatedArgument placement="afterSpace">
@@ -75,8 +75,7 @@ wsdl2xml -i GreetPortType -a address TestGreeting.wsdl
 	
 	   	    <option id="address" maxOccurs="1">
 		        <annotation>
-		            Specifies the value used in the address element of the port, 
-		            sperate by space
+		            Specifies the value used in the address element of the port
 		        </annotation>
 				<switch>a</switch>
 				<associatedArgument placement="afterSpace">
