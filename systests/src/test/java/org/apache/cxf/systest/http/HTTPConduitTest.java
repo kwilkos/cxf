@@ -38,6 +38,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.bus.spring.BusApplicationContext;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -406,8 +407,32 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
 
         Greeter bethal = service.getPort(bethalQ, Greeter.class);
         assertNotNull("Port is null", bethal);
-        
-        // we just verified the configurations are loaded successfully
+        verifyBethalClient(bethal);        
+    }
+    
+    @Test
+    public void testGetClientFromSpringContext() throws Exception {
+        startServer("Bethal");        
+        // The http conduit configuration file , it supports wildcard 
+        URL config = getClass().getResource("resources/BethalClientConfig.cxf");
+        // The client bean configuration file
+        URL beans = getClass().getResource("resources/BethalClientBeans.xml");
+        // We go through the back door, setting the default bus.
+        new DefaultBusFactory().createBus(config);
+        // Init the context which contains the client bean, 
+        // and we use the already loaded bus to set the configuration
+        // The false parameter means we just use the default bus 
+        // which just set by the DefaultBusFactory
+        BusApplicationContext context = new BusApplicationContext(beans, false);
+        Greeter bethal = (Greeter)context.getBean("Bethal");        
+        // verify the client side's setting
+        verifyBethalClient(bethal);         
+    }
+    
+    
+    
+    // we just verify the configurations are loaded successfully
+    private void verifyBethalClient(Greeter bethal) {
         Client client = ClientProxy.getClient(bethal);
         HTTPConduit http = 
             (HTTPConduit) client.getConduit();
@@ -427,14 +452,11 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
                      "Betty", authPolicy.getUserName());
         assertEquals("Set the wrong pass word form the configuration",
                      "password", authPolicy.getPassword());
-                     
-        
-       
-        
         String answer = bethal.sayHi();
         assertTrue("Unexpected answer: " + answer, 
                 "Bonjour from Bethal".equals(answer));
     }
+    
     /**
      * This methods tests a basic https connection to Bethal.
      * It supplies an authorization policy with premetive user/pass
