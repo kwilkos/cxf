@@ -92,9 +92,8 @@ public class JavaToProcessor implements Processor {
                                       service.getName().getLocalPart() + ".wsdl");
 
         File outputDir = getOutputDir(wsdlFile);
-        if (context.containsKey(ToolConstants.CFG_WSDL)) {
-            generators.add(getWSDLGenerator(wsdlFile));
-        }
+        generators.add(getWSDLGenerator(wsdlFile));
+
         if (context.containsKey(ToolConstants.CFG_WRAPPERBEAN)) {
             generators.add(getWrapperBeanGenerator());
             generators.add(getFaultBeanGenerator());
@@ -125,6 +124,7 @@ public class JavaToProcessor implements Processor {
         AbstractGenerator generator = factory.newGenerator();
         generator.setAllowImports(context.containsKey(ToolConstants.CFG_CREATE_XSD_IMPORTS));
         generator.setOutputBase(wsdlFile);
+        
         return generator;
     }
 

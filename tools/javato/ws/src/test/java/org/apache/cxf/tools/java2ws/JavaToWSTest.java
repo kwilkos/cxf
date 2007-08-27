@@ -90,7 +90,7 @@ public class JavaToWSTest extends ToolTestBase {
     
     
     
-    @Test 
+    @Ignore
     public void testGenServerAndImpl() throws Exception {
         String[] args = new String[] {"-d", output.getPath(), "-impl", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
@@ -105,6 +105,16 @@ public class JavaToWSTest extends ToolTestBase {
                                + "/org/apache/hello_world_soap12_http/GreeterImpl.java");
         assertTrue("GreeterImpl.java is not generated", impl.exists());
     }
+    
+    @Test 
+    public void testGenWrapperBean() throws Exception {
+        String[] args = new String[] {"-d", output.getPath(),
+                                      "-wrapperbean",
+                                      "-impl", "-server",
+                                      "org.apache.cxf.tools.java2ws.fortest.Calculator"};
+        JavaToWS.main(args);        
+    }
+    
     
     @Ignore
     public void testInvalidFlag() throws Exception {

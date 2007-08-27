@@ -23,13 +23,21 @@ import java.io.File;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.ToolContext;
 
 public abstract class AbstractGenerator<T> {
     private ServiceInfo service;
     private boolean allowImports;
     private File outputdir;
     private Bus bus;
+    private ToolContext context;
     
+    public void setToolContext(ToolContext arg) {
+        this.context = arg;
+    }
+    public ToolContext getToolContext() {
+        return this.context;
+    }
 
     public void setOutputBase(File out) {
         this.outputdir = out;
