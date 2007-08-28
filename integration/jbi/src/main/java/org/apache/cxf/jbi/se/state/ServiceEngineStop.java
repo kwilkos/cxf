@@ -25,9 +25,6 @@ import java.util.logging.Logger;
 import javax.jbi.JBIException;
 import javax.jbi.component.ComponentContext;
 import javax.jbi.messaging.DeliveryChannel;
-
-
-
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 //import org.apache.cxf.jbi.se.state.ServiceEngineStateMachine.SEOperation;

@@ -97,7 +97,7 @@ public class CXFServiceUnit {
             try {
                 ctx.deactivateEndpoint(ref);
             } catch (JBIException e) {
-                LOG.severe(new Message("SU.FAILED.DEACTIVE.ENDPOINT", LOG).toString() 
+                LOG.severe(new Message("SU.FAILED.DEACTIVATE.ENDPOINT", LOG).toString() 
                            + ref + e);
             }
         } else {
@@ -115,9 +115,9 @@ public class CXFServiceUnit {
                         setDeliveryChannel(ctx.getDeliveryChannel());
                 ref = ctx.activateEndpoint(getServiceName(), getEndpointName());
             } catch (JBIException e) {
-                LOG.severe(new Message("SU.FAIED.ACTIVE.ENDPOINT", LOG).toString() + e);
+                LOG.severe(new Message("SU.FAILED.ACTIVATE.ENDPOINT", LOG).toString() + e);
             } catch (BusException e) {
-                LOG.severe(new Message("SU.FAIED.ACTIVE.ENDPOINT", LOG).toString() + e);
+                LOG.severe(new Message("SU.FAILED.ACTIVATE.ENDPOINT", LOG).toString() + e);
             } 
             LOG.info("activated endpoint: " + ref.getEndpointName() 
                      + " service: " + ref.getServiceName());
