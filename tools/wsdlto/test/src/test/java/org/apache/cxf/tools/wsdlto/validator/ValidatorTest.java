@@ -27,6 +27,7 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.junit.Before;
 import org.junit.Test;
+
     
 public class ValidatorTest extends ProcessorTestBase {
     private WSDLToJavaContainer processor;
@@ -38,7 +39,6 @@ public class ValidatorTest extends ProcessorTestBase {
         env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
         env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());        
-        //env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
     }
     
     @Test
@@ -47,14 +47,13 @@ public class ValidatorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_format_root.wsdl"));
         processor.setContext(env);
 
-        processor.execute();
-
-        // TODO 1: check the exception here:
-        // Binding(Greeter_XMLBinding):BindingOperation({http://apache.org/xml_http_bare}sayHi)-input:
-        //   missing xml format body element
-
-        // TODO 2: turn the validate on
-
-        // TODO 3: change the jaxwscontainer to jaxws_wsdl_to_java_processor, so we can catch the exception
+        try {
+            processor.execute();
+            fail("xml_format_root.wsdl is not a valid wsdl, should throws exception here");
+        } catch (Exception e) {
+            String expected = "Binding(Greeter_XMLBinding):BindingOperation" 
+                + "({http://apache.org/xml_http_bare}sayHi)-input: missing xml format body element";
+            assertEquals(expected, e.getMessage().trim());
+        }
     }
 }

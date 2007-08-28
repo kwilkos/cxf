@@ -23,10 +23,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Modifier;
-
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceClient;
 
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -35,6 +36,7 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.validator.UniqueBodyValidator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -626,6 +628,21 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest1_Server") > -1);
         assertTrue(str.indexOf("org.apache.hello_world_soap_http.Greeter_SoapPortTest2_Server") > -1);        
     }
-    
-    
+ 
+    @Test
+    public void testNonUniqueBody() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/cxf939/bug.wsdl"));
+            //            env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
+            processor.setContext(env);
+            processor.execute();
+        } catch (Exception e) {
+            String ns = "http://bugs.cxf/services/bug1";
+            QName bug1 = new QName(ns, "myBug1");
+            QName bug2 = new QName(ns, "myBug2");
+            Message msg = new Message("NON_UNIQUE_BODY", UniqueBodyValidator.LOG, bug1, bug1, bug2, bug1);
+            assertEquals(msg.toString().trim(), e.getMessage().trim());
+        }
+    }
 }
