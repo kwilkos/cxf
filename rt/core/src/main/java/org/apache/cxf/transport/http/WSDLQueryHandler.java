@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +50,6 @@ import org.xml.sax.SAXException;
 
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
@@ -64,7 +62,6 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 
 public class WSDLQueryHandler implements StemMatchingQueryHandler {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WSDLQueryHandler.class);
     private static final Logger LOG = LogUtils.getL7dLogger(WSDLQueryHandler.class, "QueryMessages");
     private Bus bus;
 
@@ -193,19 +190,19 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
             XMLUtils.writeTo(doc, os);
         } catch (WSDLException wex) {
             throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     BUNDLE,
+                                                     LOG,
                                                      baseUri), wex);
         } catch (SAXException e) {
             throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     BUNDLE,
+                                                     LOG,
                                                      baseUri), e);
         } catch (IOException e) {
             throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     BUNDLE,
+                                                     LOG,
                                                      baseUri), e);
         } catch (ParserConfigurationException e) {
             throw new WSDLQueryException(new Message("COULD_NOT_PROVIDE_WSDL",
-                                                     BUNDLE,
+                                                     LOG,
                                                      baseUri), e);
         }
     }
