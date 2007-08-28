@@ -35,6 +35,7 @@
       xmlns="http://www.w3.org/2001/XMLSchema"
       elementFormDefault="qualified">
       <element name="text" type="xsd:string" />
+      <element name="text2" type="xsd:string" />
     </schema>
   </wsdl:types>
   <wsdl:message name="sayHiRequest">
@@ -44,7 +45,7 @@
     <wsdl:part name="out" element="x1:text" />
   </wsdl:message>
   <wsdl:message name="sayHiRequest2">
-    <wsdl:part name="in" element="x1:text" />
+    <wsdl:part name="in" element="x1:text2" />
   </wsdl:message>
   <wsdl:message name="sayHiResponse2">
     <wsdl:part name="out" element="x1:text" />
