@@ -139,18 +139,21 @@ public final class JAXBEncoderDecoder {
                         && (mObj.getClass().isArray() || mObj instanceof List)
                         && el.getMaxOccurs() != 1) {
                         //Have to handle this ourselves....  which really sucks.... but what can we do?
-                        Object objArray[];
+                        Object objArray;
                         if (mObj instanceof List) {
                             List l = (List)mObj;
                             objArray = l.toArray(new Object[l.size()]);
                             cls = null;
                         } else {
-                            objArray = (Object[])mObj;
-                            cls = cls.getComponentType();
+                            objArray = mObj;
+                            cls = objArray.getClass().getComponentType();
                         }
-                        for (Object o : objArray) {
+                        int len = Array.getLength(objArray);
+                        for (int x = 0; x < len; x++) {
+                            Object o = Array.get(objArray, x);
                             writeObject(u, source, 
-                                        new JAXBElement(elName, cls == null ? o.getClass() : cls , o));
+                                        new JAXBElement(elName, cls == null ? o.getClass() : cls , 
+                                            o));
                         }
                     } else {
                         writeObject(u, source, new JAXBElement(elName, cls, mObj));
@@ -253,14 +256,23 @@ public final class JAXBEncoderDecoder {
             } else if (part.getMessageInfo().getOperation().isUnwrapped()
                         && el.getMaxOccurs() != 1) {
                 //must read ourselves....
-                Collection<Object> ret = unmarshallArray(context, schema, source,
+                List<Object> ret = unmarshallArray(context, schema, source,
                                                    elName, clazz.getComponentType(),
                                                    au, createList(part));
-                if (isList(part)) {
-                    return ret;
-                }
-                return ret.toArray((Object[])java.lang.reflect.Array.newInstance(clazz.getComponentType(),
+                Object o = ret;
+                if (!isList(part)) {
+                    if (clazz.getComponentType().isPrimitive()) {
+                        o = java.lang.reflect.Array.newInstance(clazz.getComponentType(),
+                                                                     ret.size());
+                        for (int x = 0; x < ret.size(); x++) {
+                            Array.set(o, x, ret.get(x));
+                        }
+                    } else {
+                        o = ret.toArray((Object[])Array.newInstance(clazz.getComponentType(),
                                                                        ret.size()));
+                    }
+                }
+                return o;
             }
         } else if (byte[].class == clazz
             && part != null 
@@ -275,23 +287,23 @@ public final class JAXBEncoderDecoder {
         if (o != null
             && o.getClass().isArray()
             && isList(part)) {
-            Collection<Object> ret = createList(part);
+            List<Object> ret = createList(part);
             ret.addAll(Arrays.asList((Object[])o));
             o = ret;
         }
         return o;
     }
     
-    private static Collection<Object> createList(MessagePartInfo part) {
+    private static List<Object> createList(MessagePartInfo part) {
         Type genericType = (Type)part.getProperty("generic.type");
         if (genericType instanceof ParameterizedType) {
             Type tp2 = ((ParameterizedType)genericType).getRawType();
             if (tp2 instanceof Class) {
                 Class<?> cls = (Class)tp2;
                 if (!cls.isInterface()
-                    && Collection.class.isAssignableFrom((Class<?>)cls)) {
+                    && List.class.isAssignableFrom((Class<?>)cls)) {
                     try {
-                        return CastUtils.cast((Collection)cls.newInstance());
+                        return CastUtils.cast((List)cls.newInstance());
                     } catch (Exception e) {
                         //ignore, just return an ArrayList
                     }
@@ -402,13 +414,13 @@ public final class JAXBEncoderDecoder {
         throw new IllegalArgumentException("Cannot get Class object from unknown Type");
     }
     
-    public static Collection<Object> unmarshallArray(JAXBContext context, 
+    public static List<Object> unmarshallArray(JAXBContext context, 
                                     Schema schema, 
                                     Object source,
                                     QName elName,
                                     Class<?> clazz,
                                     AttachmentUnmarshaller au,
-                                    Collection<Object> ret) {
+                                    List<Object> ret) {
         try {
             Unmarshaller u = createUnmarshaller(context, clazz);
             u.setSchema(schema);

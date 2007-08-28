@@ -48,6 +48,9 @@ public interface DocLitWrappedCodeFirstService {
     Vector<String> listOutput();
     
     @WebMethod
+    int[] echoIntArray(int[] ar);
+    
+    @WebMethod
     String listInput(List<String> inputs);
 
     @WebMethod

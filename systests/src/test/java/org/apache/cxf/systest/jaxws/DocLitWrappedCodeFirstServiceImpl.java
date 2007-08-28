@@ -51,6 +51,11 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         }
         return buf.toString();
     }
+    
+    public int[] echoIntArray(int[] ar) {
+        return ar;
+    }
+
 
     public String listInput(List<String> inputs) {
         StringBuffer buf = new StringBuffer();

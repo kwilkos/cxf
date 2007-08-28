@@ -58,7 +58,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
     }
 
     @Test
@@ -258,6 +258,9 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(2, foos2.get(0).length);
         assertEquals(2, foos2.get(1).length);
         
+        int ints[] = port.echoIntArray(new int[] {1, 2 , 3});
+        assertEquals(3, ints.length);
+        assertEquals(1, ints[0]);
         
         /*   CXF-926 test case - this should work, but doesn't right now
         try {
