@@ -54,8 +54,6 @@ public class XMLFormatValidator extends ServiceValidator {
         Collection<BindingInfo> bindings = service.getBindings();
         if (bindings != null) {
             for (BindingInfo binding : bindings) {
-                System.err.println(binding.getBindingId());
-                System.err.println(WSDLConstants.XML_BINDING_NS);
                 if (WSDLConstants.XML_BINDING_NS.equalsIgnoreCase(binding.getBindingId())
                     && !checkXMLFormat(binding)) {
                     return false;
