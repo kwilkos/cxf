@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.jms.BytesMessage;
+
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Message;
@@ -126,7 +128,29 @@ public class JMSConduitTest extends AbstractJMSTester {
                
     }
     
-    
-   
+    @Test
+    public void testJMSMessageMarshal() throws Exception {
+        setupServiceInfo("http://cxf.apache.org/hello_world_jms", 
+                         "/wsdl/jms_test.wsdl", 
+                         "HelloWorldServiceLoop", 
+                         "HelloWorldPortLoop");
 
+        String testMsg = "Test Message"; 
+        JMSConduit conduit = setupJMSConduit(true, false); 
+        Message msg = new MessageImpl();
+        conduit.prepare(msg);
+        PooledSession sess = conduit.base.sessionFactory.get(true);
+        byte [] b = testMsg.getBytes();
+        javax.jms.Message message = conduit.base.marshal(b, 
+                                                         sess.session(), 
+                                                         null, JMSConstants.BYTE_MESSAGE_TYPE);
+        
+        assertTrue("Message should have been of type BytesMessage ", 
+                   message instanceof BytesMessage);
+//        byte[] returnBytes = new byte[(int)((BytesMessage) message).getBodyLength()];
+//        ((BytesMessage) message).readBytes(returnBytes);
+//        assertTrue("Message marshalled was incorrect", 
+//                   testMsg.equals(new String(returnBytes)));
+    }
+    
 }

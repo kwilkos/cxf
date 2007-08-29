@@ -30,6 +30,7 @@ import javax.xml.ws.BindingProvider;
 
 
 import org.apache.cxf.hello_world_jms.BadRecordLitFault;
+import org.apache.cxf.hello_world_jms.HWByteMsgService;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayPort;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayQueueService;
 import org.apache.cxf.hello_world_jms.HelloWorldPortType;
@@ -160,6 +161,35 @@ public class JMSClientServerTest extends AbstractBusClientServerTestBase {
                     assertNotNull(nslf.getFaultInfo());
                     assertNotNull(nslf.getFaultInfo().getCode());
                 } 
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+    @Test
+    public void testByteMessage() throws Exception {
+        QName serviceName = getServiceName(new QName("http://cxf.apache.org/hello_world_jms", 
+                                 "HWByteMsgService"));
+        URL wsdl = getWSDLURL("/wsdl/jms_test.wsdl");
+        assertNotNull(wsdl);
+
+        HWByteMsgService service = new HWByteMsgService(wsdl, serviceName);
+        assertNotNull(service);
+
+        String response1 = new String("Hello Milestone-");
+        String response2 = new String("Bonjour");
+        try {
+            HelloWorldPortType greeter = service.getHWSByteMsgPort();
+            for (int idx = 0; idx < 2; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                String exResponse = response1 + idx;
+                assertEquals(exResponse, greeting);
+
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

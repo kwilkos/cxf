@@ -22,6 +22,7 @@ package org.apache.cxf.transport.jms;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -85,6 +86,10 @@ public class JMSTransportBase {
 
         if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
             message = session.createTextMessage((String)payload);
+        } else if (JMSConstants.BYTE_MESSAGE_TYPE.equals(messageType)) {
+            message = session.createBytesMessage();
+            ((BytesMessage)message).writeBytes((byte[])payload);
+            
         } else {
             message = session.createObjectMessage();
             ((ObjectMessage)message).setObject((byte[])payload);
@@ -105,11 +110,15 @@ public class JMSTransportBase {
      * @return the unmarshalled message payload, either of type String or
      * byte[] depending on payload type
      */
-    protected Object unmarshal(Message message, String messageType) throws JMSException {
+    protected Object unmarshal(Message message) throws JMSException {
         Object ret = null;
 
-        if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
+        if (message instanceof TextMessage) {
             ret = ((TextMessage)message).getText();
+        } else if (message instanceof BytesMessage) {
+            byte[] retBytes = new byte[(int) ((BytesMessage) message).getBodyLength()];
+            ((BytesMessage) message).readBytes(retBytes);
+            ret = retBytes;
         } else {
             ret = (byte[])((ObjectMessage)message).getObject();
         }

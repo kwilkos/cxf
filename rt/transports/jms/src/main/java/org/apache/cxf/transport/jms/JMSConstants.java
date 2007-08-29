@@ -26,6 +26,7 @@ public final class JMSConstants {
 
     public static final String TEXT_MESSAGE_TYPE = "text";
     public static final String BINARY_MESSAGE_TYPE = "binary";
+    public static final String BYTE_MESSAGE_TYPE = "byte";
 
     public static final String JMS_POOLEDSESSION = "jms.pooled.session";   
     public static final String JMS_SERVER_REQUEST_HEADERS = "org.apache.cxf.jms.server.request.headers";

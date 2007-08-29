@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueSender;
-import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.naming.NamingException;
@@ -158,9 +157,7 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
         if (jmsMessage != null) {
             
             base.populateIncomingContext(jmsMessage, outMessage, JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
-            String messageType = jmsMessage instanceof TextMessage 
-                        ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
-            result = base.unmarshal(jmsMessage, messageType);
+            result = base.unmarshal(jmsMessage);
             return result;
         } else {
             String error = "JMSClientTransport.receive() timed out. No message available.";

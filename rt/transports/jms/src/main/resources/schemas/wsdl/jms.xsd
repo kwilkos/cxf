@@ -114,6 +114,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="text"/>
             <xs:enumeration value="binary"/>
+            <xs:enumeration value="byte"/>
         </xs:restriction>
     </xs:simpleType>
     

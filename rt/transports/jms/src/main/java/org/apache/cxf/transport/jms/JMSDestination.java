@@ -34,6 +34,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueSender;
@@ -171,19 +172,18 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
     
     protected void incoming(javax.jms.Message message) throws IOException {
         try {
-            getLogger().log(Level.FINE, "server received request: ", message);           
-
-            String msgType = message instanceof TextMessage 
-                    ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
-            Object request = base.unmarshal(message, msgType);
+            getLogger().log(Level.FINE, "server received request: ", message);
+           
+            Object request = base.unmarshal(message);
             getLogger().log(Level.FINE, "The Request Message is [ " + request + "]");
             byte[] bytes = null;
 
-            if (JMSConstants.TEXT_MESSAGE_TYPE.equals(msgType)) {
+            if (message instanceof TextMessage) {
                 String requestString = (String)request;
                 getLogger().log(Level.FINE, "server received request: ", requestString);
                 bytes = requestString.getBytes();
             } else {
+                //Both ByteMessage and ObjectMessage would get unmarshalled to byte array.
                 bytes = (byte[])request;
             }
 
@@ -406,28 +406,34 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
                     replySession = base.sessionFactory.get(false);
                     sender = (QueueSender)replySession.producer();
                     
-                    boolean textPayload = request instanceof TextMessage 
-                        ? true : false;
-                    if (textPayload) {
-                        
+                    if (request instanceof TextMessage) {
                         reply = base.marshal(currentStream.toString(), 
-                                            replySession.session(), 
-                                            null, 
-                                            JMSConstants.TEXT_MESSAGE_TYPE);
+                                             replySession.session(), 
+                                             null, 
+                                             JMSConstants.TEXT_MESSAGE_TYPE);
                         getLogger().log(Level.FINE,
-                                        "The response message is ["
-                                        + currentStream.toString() + "]");
+                                         "The response message is ["
+                                         + currentStream.toString() + "]");
+                    } else if (request instanceof BytesMessage) {
+                        reply = base.marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
+                                             replySession.session(),
+                                             null, 
+                                             JMSConstants.BYTE_MESSAGE_TYPE);
+                        getLogger().log(Level.FINE, "The response message is [" 
+                                             + new String((
+                                                 (ByteArrayOutputStream)currentStream).toByteArray()) 
+                                             + "]");
                     } else {
                         reply = base.marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
-                                           replySession.session(),
-                                           null, 
-                                          JMSConstants.BINARY_MESSAGE_TYPE);
+                                             replySession.session(),
+                                             null, 
+                                            JMSConstants.BINARY_MESSAGE_TYPE);
                         getLogger().log(Level.FINE, "The response message is [" 
-                                           + new String(((ByteArrayOutputStream)currentStream).toByteArray()) 
-                                           + "]");
-                    }     
-                     
-                    
+                                             + new String((
+                                                 (ByteArrayOutputStream)currentStream).toByteArray()) 
+                                             + "]");
+                    }
+                   
                     setReplyCorrelationID(request, reply);
                     
                     base.setMessageProperties(headers, reply);
