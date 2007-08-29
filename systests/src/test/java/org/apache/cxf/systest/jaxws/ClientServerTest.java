@@ -22,6 +22,9 @@ package org.apache.cxf.systest.jaxws;
 
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
@@ -39,6 +42,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
@@ -846,5 +850,23 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         assertEquals("Hello CXF", result);
     }
 
+    @Test
+    public void testProxy() throws Exception {
+        InvocationHandler handler = new InvocationHandler() {
+
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+        };
+        Object implementor4 = Proxy.newProxyInstance(this.getClass().getClassLoader(),
+                                                     new Class<?>[] {DocLitWrappedCodeFirstService.class},
+                                                     handler);
+        Endpoint.publish("http://localhost:9023/DocLitWrappedCodeFirstService/", implementor4);
+        URL url = new URL("http://localhost:9023/DocLitWrappedCodeFirstService/?wsdl");
+        InputStream ins = url.openStream();
+        ins.close();
+    }
     
 }

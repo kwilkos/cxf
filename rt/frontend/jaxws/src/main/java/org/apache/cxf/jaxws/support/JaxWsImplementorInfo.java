@@ -225,7 +225,7 @@ public class JaxWsImplementorInfo {
     private String getDefaultNamespace(Class clazz) {
         Package pkg = clazz.getPackage();
         if (pkg == null) {
-            return null;
+            return "http://unknown.namespace/";
         } else {
             return PackageUtils.getNamespace(pkg.getName());
         }
