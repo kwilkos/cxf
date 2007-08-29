@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.java2wsdl.processor;
+package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.util.List;
 

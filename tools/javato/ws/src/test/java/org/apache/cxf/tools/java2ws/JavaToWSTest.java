@@ -69,6 +69,18 @@ public class JavaToWSTest extends ToolTestBase {
         assertTrue("wsdl is not generated", wsdlFile.exists());
     }
     
+    @Test
+    public void testSimple() throws Exception {
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
+                                      "-d", output.getPath(),
+                                      "-frontend", "simple",
+                                      "org.apache.hello_world_doc_lit.Greeter"};
+        JavaToWS.main(args);
+        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
+        assertTrue("wsdl is not generated", wsdlFile.exists());
+    }
+    
+    
     
     @Ignore 
     
@@ -106,7 +118,7 @@ public class JavaToWSTest extends ToolTestBase {
         assertTrue("GreeterImpl.java is not generated", impl.exists());
     }
     
-    @Test 
+    @Ignore
     public void testGenWrapperBean() throws Exception {
         String[] args = new String[] {"-d", output.getPath(),
                                       "-wrapperbean",

@@ -266,7 +266,7 @@ public class JavaMethod implements JavaAnnotatable {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < parameters.size(); i++) {
             JavaParameter parameter = parameters.get(i);
-            if (includeAnnotation) {
+            if (includeAnnotation && parameter.getAnnotation() != null) {
                 list.add(parameter.getAnnotation().toString());
             }
             sb.setLength(0);
