@@ -19,6 +19,8 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,17 +30,21 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -79,8 +85,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 new BareInInterceptor().handleMessage(message);
                 return;
             } else {
-                message.getExchange().put(BindingOperationInfo.class, operation);
-                message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
+                setMessage(message, operation);
             }
         } else {
             operation = message.getExchange().get(BindingOperationInfo.class);
@@ -93,7 +98,8 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         } else {
             msg = operation.getOperationInfo().getOutput();
         }
-
+        message.put(MessageInfo.class, msg);
+        
         MessageContentsList parameters = new MessageContentsList();
 
         StaxUtils.nextEvent(xmlReader);
@@ -131,4 +137,40 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         message.setContent(List.class, parameters);
     }
 
+    
+    
+    private void setMessage(Message message, 
+                             BindingOperationInfo operation) {
+        Exchange ex = message.getExchange();
+        ex.put(BindingOperationInfo.class, operation);
+        ex.put(OperationInfo.class, operation.getOperationInfo());
+        ex.setOneWay(operation.getOperationInfo().isOneWay());
+
+        //Set standard MessageContext properties required by JAX_WS, but not specific to JAX_WS.
+        message.put(Message.WSDL_OPERATION, operation.getName());
+
+        ServiceInfo si = operation.getBinding().getService();
+        QName serviceQName = si.getName();
+        message.put(Message.WSDL_SERVICE, serviceQName);
+
+        QName interfaceQName = si.getInterface().getName();
+        message.put(Message.WSDL_INTERFACE, interfaceQName);
+
+        EndpointInfo endpointInfo = ex.get(Endpoint.class).getEndpointInfo();
+        QName portQName = endpointInfo.getName();
+        message.put(Message.WSDL_PORT, portQName);
+
+        
+        URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+        if (wsdlDescription == null) {
+            String address = endpointInfo.getAddress();
+            try {
+                wsdlDescription = new URI(address + "?wsdl");
+            } catch (URISyntaxException e) {
+                //do nothing
+            }
+            endpointInfo.setProperty("URI", wsdlDescription);
+        }
+        message.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+    }    
 }
