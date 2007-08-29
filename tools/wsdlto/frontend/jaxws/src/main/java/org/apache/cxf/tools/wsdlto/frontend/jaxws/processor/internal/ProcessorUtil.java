@@ -342,9 +342,17 @@ public final class ProcessorUtil {
         }
         return clone;
     }
-    
-    public static List<QName> getWrappedElement(ToolContext context, QName partElement) {
+
+    public static List<QName> getWrappedElementQNames(ToolContext context, QName partElement) {
         List<QName> qnames = new ArrayList<QName>();
+        for (WrapperElement element : getWrappedElement(context, partElement)) {
+            qnames.add(element.getElementName());
+        }
+        return qnames;
+    }
+
+    public static List<WrapperElement> getWrappedElement(ToolContext context, QName partElement) {
+        List<WrapperElement> qnames = new ArrayList<WrapperElement>();
         
         ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
         XmlSchemaCollection schema = (XmlSchemaCollection)serviceInfo
@@ -378,9 +386,9 @@ public final class ProcessorUtil {
                 XmlSchemaElement subElement = (XmlSchemaElement)ite.next();
 
                 if (subElement.getQName() != null) {
-                    qnames.add(subElement.getQName());
+                    qnames.add(new WrapperElement(subElement.getQName(), subElement.getSchemaTypeName()));
                 } else {
-                    qnames.add(subElement.getRefName());
+                    qnames.add(new WrapperElement(subElement.getRefName(), subElement.getSchemaTypeName()));
                 }
             }
         }

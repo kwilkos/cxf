@@ -539,6 +539,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     public void validate(final ServiceInfo service) throws ToolException {
         for (ServiceValidator validator : getServiceValidators()) {
+            service.setProperty(ToolContext.class.getName(), context);
             validator.setService(service);
             if (!validator.isValid()) {
                 throw new ToolException(validator.getErrorMessage());

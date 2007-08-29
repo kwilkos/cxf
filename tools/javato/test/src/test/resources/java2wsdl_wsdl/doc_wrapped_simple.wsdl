@@ -24,7 +24,7 @@
 			<element name="getPrice">
 			    <complexType>
 			       <sequence>
-			          <element name="responseType" type="xs:string"/>
+			          <element name="requestType" type="xs:string"/>
 			       </sequence>
 			     </complexType>
                         </element>

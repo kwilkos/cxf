@@ -645,4 +645,24 @@ public class CodeGenBugTest extends ProcessorTestBase {
             assertEquals(msg.toString().trim(), e.getMessage().trim());
         }
     }
+
+    @Test
+    public void testWrapperStyleNameCollision() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/cxf918/bug.wsdl"));
+            processor.setContext(env);
+            processor.execute();
+        } catch (Exception e) {
+            String ns1 = "http://bugs.cxf/services/bug1";
+            String ns2 = "http://www.w3.org/2001/XMLSchema";
+            QName elementName = new QName(ns1, "theSameNameFieldDifferentDataType");
+            QName stringName = new QName(ns2, "string");
+            QName intName = new QName(ns2, "int");
+
+            Message msg = new Message("WRAPPER_STYLE_NAME_COLLISION", UniqueBodyValidator.LOG, 
+                                      elementName, stringName, intName);
+            assertEquals(msg.toString().trim(), e.getMessage().trim());
+        }
+    }
 }
