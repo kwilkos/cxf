@@ -171,9 +171,11 @@ public final class SOAPBindingUtil {
     }
 
     public static SoapBody getSoapBody(List<ExtensibilityElement> exts) {
-        for (ExtensibilityElement ext : exts) {
-            if (isSOAPBody(ext)) {
-                return getSoapBody(ext);
+        if (exts != null) {
+            for (ExtensibilityElement ext : exts) {
+                if (isSOAPBody(ext)) {
+                    return getSoapBody(ext);
+                }
             }
         }
         return null;
@@ -196,9 +198,11 @@ public final class SOAPBindingUtil {
 
     public static List<SoapHeader> getSoapHeaders(List<ExtensibilityElement> exts) {
         List<SoapHeader> headers = new ArrayList<SoapHeader>();
-        for (ExtensibilityElement ext : exts) {
-            if (isSOAPHeader(ext)) {
-                headers.add(getSoapHeader(ext));
+        if (exts != null) {
+            for (ExtensibilityElement ext : exts) {
+                if (isSOAPHeader(ext)) {
+                    headers.add(getSoapHeader(ext));
+                }
             }
         }
         return headers;

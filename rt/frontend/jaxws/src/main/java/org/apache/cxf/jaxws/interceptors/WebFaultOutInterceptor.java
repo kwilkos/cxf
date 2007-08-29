@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebFault;
@@ -29,6 +30,7 @@ import javax.xml.ws.WebFault;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsServiceConfiguration;
@@ -42,6 +44,8 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
 public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
+
+    private static final Logger LOG = LogUtils.getL7dLogger(WebFaultOutInterceptor.class);
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
     public WebFaultOutInterceptor() {
@@ -73,29 +77,32 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
         }
         if (cause instanceof Exception && fault != null) {
             Exception ex = (Exception)cause;
+            Object faultInfo = null;
             try {
                 Method method = cause.getClass().getMethod("getFaultInfo", new Class[0]);
-                Object faultInfo = method.invoke(cause, new Object[0]);
-
-                Service service = message.getExchange().get(Service.class);
-
-                DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
-
-                OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
-                QName faultName = getFaultName(fault);
-                MessagePartInfo part = getFaultMessagePart(faultName, op);
-                writer.write(faultInfo, part, f.getOrCreateDetail());
-
-                f.setMessage(ex.getMessage());
+                faultInfo = method.invoke(cause, new Object[0]);
+            } catch (NoSuchMethodException e) {
+                faultInfo = cause;
+                LOG.fine("Using @WebFault annotated class "
+                        + faultInfo.getClass().getName() 
+                        + " as faultInfo since getFaultInfo() was not found");
             } catch (InvocationTargetException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("INVOCATION_TARGET_EXC", BUNDLE), e);
-            } catch (NoSuchMethodException e) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_GETFAULTINFO_METHOD", BUNDLE), e);
-            } catch (IllegalArgumentException e) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_INVOKE", BUNDLE), e);
             } catch (IllegalAccessException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_INVOKE", BUNDLE), e);
+            } catch (IllegalArgumentException e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_INVOKE", BUNDLE), e);
             }
+            Service service = message.getExchange().get(Service.class);
+
+            DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
+
+            OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
+            QName faultName = getFaultName(fault);
+            MessagePartInfo part = getFaultMessagePart(faultName, op);
+            writer.write(faultInfo, part, f.getOrCreateDetail());
+
+            f.setMessage(ex.getMessage());
         }
     }
 

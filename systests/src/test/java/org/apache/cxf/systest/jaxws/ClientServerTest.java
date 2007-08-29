@@ -53,12 +53,15 @@ import org.w3c.dom.Node;
 
 //import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.DocLitBare;
 import org.apache.hello_world_soap_http.Greeter;
@@ -766,11 +769,25 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         Greeter greeter = service.getPort(fakePortName, Greeter.class);
 
         try {
+            //try the jaxws way
             BindingProvider bp = (BindingProvider)greeter;
             bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "BJ");
             bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "pswd");
             String s = greeter.greetMe("secure");
             assertEquals("Hello BJ", s);
+            bp.getRequestContext().remove(BindingProvider.USERNAME_PROPERTY);
+            bp.getRequestContext().remove(BindingProvider.PASSWORD_PROPERTY);
+            
+            //try setting on the conduit directly
+            Client client = ClientProxy.getClient(greeter);
+            HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
+            AuthorizationPolicy policy = new AuthorizationPolicy();
+            policy.setUserName("BJ2");
+            policy.setPassword("pswd");
+            httpConduit.setAuthorization(policy);
+            
+            s = greeter.greetMe("secure");
+            assertEquals("Hello BJ2", s);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
