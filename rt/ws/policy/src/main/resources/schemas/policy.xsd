@@ -21,7 +21,7 @@
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:cxf-beans="http://cxf.apache.org/configuration/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  targetNamespace="http://cxf.apache.org/policy-config" 
+  targetNamespace="http://cxf.apache.org/policy" 
   elementFormDefault="qualified"
   attributeFormDefault="unqualified"  >
 

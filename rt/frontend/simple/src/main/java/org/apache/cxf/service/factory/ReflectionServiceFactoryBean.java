@@ -48,6 +48,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.frontend.FaultInfoException;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.MethodComparator;
@@ -1154,6 +1155,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (java.rmi.RemoteException.class.isAssignableFrom(exClass)) {
             return null;
         }
+        
+        if (FaultInfoException.class.isAssignableFrom(exClass)) {
+            try {
+                Method m = exClass.getMethod("getFaultInfo");
+                return m.getReturnType();
+            } catch (SecurityException e) {
+                throw new ServiceConstructionException(e);
+            } catch (NoSuchMethodException e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        
         return exClass;
     }
 
