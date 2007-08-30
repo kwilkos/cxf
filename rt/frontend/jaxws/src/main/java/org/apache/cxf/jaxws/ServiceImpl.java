@@ -50,8 +50,11 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.source.SourceDataBinding;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingConfiguration;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
@@ -182,6 +185,11 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
+        JaxWsClientFactoryBean clientFac = new JaxWsClientFactoryBean();
+
+        //Initialize Features.
+        configureObject(portName.toString() + ".jaxws-client.proxyFactory", clientFac);
+
         AbstractServiceFactoryBean sf = null;
         try {
             sf = createDispatchService(new SourceDataBinding());
@@ -189,14 +197,23 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(e);
         }
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
-        Dispatch<T> disp = new DispatchImpl<T>(bus, mode, type, getExecutor(), endpoint);
-
+        Client client = new ClientImpl(getBus(), endpoint, clientFac.getConduitSelector());
+        for (AbstractFeature af : clientFac.getFeatures()) {
+            af.initialize(client, bus);
+        }
+        
+        Dispatch<T> disp = new DispatchImpl<T>(bus, client, mode, type, getExecutor());
         configureObject(disp);
 
         return disp;
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
+        JaxWsClientFactoryBean clientFac = new JaxWsClientFactoryBean();
+        
+        //Initialize Features.
+        configureObject(portName.toString() + ".jaxws-client.proxyFactory", clientFac);
+
         AbstractServiceFactoryBean sf = null;
         try {
             sf = createDispatchService(new JAXBDataBinding(context));
@@ -204,9 +221,12 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(e);
         }
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
-        Dispatch<Object> disp = new DispatchImpl<Object>(bus, mode, context, Object.class, getExecutor(),
-                                                         endpoint);
-
+        Client client = new ClientImpl(getBus(), endpoint, clientFac.getConduitSelector());
+        for (AbstractFeature af : clientFac.getFeatures()) {
+            af.initialize(client, bus);
+        }
+        Dispatch<Object> disp = new DispatchImpl<Object>(bus, client, mode, 
+                                                         context, Object.class, getExecutor());
         configureObject(disp);
 
         return disp;

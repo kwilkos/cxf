@@ -142,7 +142,6 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
 
     }
     
-  
     @Test
     public void testDOMSourceMESSAGE() throws Exception {
         /*URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -206,7 +205,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
         assertEquals("Response should be : Hello TestSOAPInputMessage3", expected3, 
                      tdsh.getReplyBuffer().trim());
     }
-
+    
     @Test
     public void testDOMSourcePAYLOAD() throws Exception {
         /*URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -310,6 +309,43 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
         assertTrue("Expected string, " + expected, expected.equals(responseValue3));
     }
 
+    @Test
+    public void testJAXBObjectPAYLOADWithFeature() throws Exception {
+        createBus("org/apache/cxf/systest/dispatch/client-config.xml");
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        String bindingId = "http://schemas.xmlsoap.org/wsdl/soap/";
+        String endpointUrl = "http://localhost:9006/SOAPDispatchService/SoapDispatchPort";
+        
+        Service service = Service.create(wsdl, serviceName);
+        service.addPort(portName, bindingId, endpointUrl);
+        assertNotNull(service);
+        
+        JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_soap_http.types");
+        Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
+
+        String expected = "Hello Jeeves";
+        GreetMe greetMe = new GreetMe();
+        greetMe.setRequestType("Jeeves");
+
+        Object response = disp.invoke(greetMe);
+        assertNotNull(response);
+        String responseValue = ((GreetMeResponse)response).getResponseType();
+        assertTrue("Expected string, " + expected, expected.equals(responseValue));
+        
+        assertEquals("Feature should be applied", 1, TestDispatchFeature.getCount());
+        assertEquals("Feature based interceptors should be added", 
+                     1, TestDispatchFeature.getCount());
+        
+        assertEquals("Feature based In interceptors has be added to in chain.", 
+                     1, TestDispatchFeature.getInInterceptorCount());
+
+        assertEquals("Feature based interceptors has to be added to out chain.", 
+                     1, TestDispatchFeature.getOutInterceptorCount());
+
+    }
+    
     @Test
     public void testSAXSourceMESSAGE() throws Exception {
 

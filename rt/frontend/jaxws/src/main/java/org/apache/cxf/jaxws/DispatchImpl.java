@@ -56,11 +56,13 @@ import javax.xml.ws.soap.SOAPFaultException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.UpfrontConduitSelector;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
@@ -81,6 +83,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     private static final Logger LOG = LogUtils.getL7dLogger(DispatchImpl.class);
 
     private Bus bus;
+    private InterceptorProvider iProvider;
 
     private Class<T> cl;
     private Executor executor;
@@ -89,19 +92,20 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
     private ConduitSelector conduitSelector;
     
-    DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {
-        this(b, m, null, clazz, e, ep);
-    }
-
-    DispatchImpl(Bus b, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e, Endpoint ep) {
-        super(((JaxWsEndpointImpl)ep).getJaxwsBinding());
+    DispatchImpl(Bus b, Client client, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e) {
+        super(((JaxWsEndpointImpl)client.getEndpoint()).getJaxwsBinding());
         bus = b;
+        this.iProvider = client;
         executor = e;
         context = ctx;
         cl = clazz;
         mode = m;
-        getConduitSelector().setEndpoint(ep);
-        setupEndpointAddressContext(ep);
+        getConduitSelector().setEndpoint(client.getEndpoint());
+        setupEndpointAddressContext(client.getEndpoint());
+    }
+    
+    DispatchImpl(Bus b, Client cl, Service.Mode m, Class<T> clazz, Executor e) {
+        this(b, cl, m, null, clazz, e);
     }
 
     private void setupEndpointAddressContext(Endpoint endpoint) {
@@ -237,6 +241,11 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);
+        List<Interceptor> i2 = iProvider.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by client: " + i2);
+        }
+        chain.add(i2);
         
         if (endpoint instanceof JaxWsEndpointImpl) {
             Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
@@ -269,6 +278,11 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);
+        List<Interceptor> i2 = iProvider.getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by client: " + i2);
+        }
+        chain.add(i2);
 
         if (endpoint instanceof JaxWsEndpointImpl) {
             Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
@@ -380,5 +394,4 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             exchange.put(Message.WSDL_DESCRIPTION, wsdlDescription);
         }      
     }
-
 }
