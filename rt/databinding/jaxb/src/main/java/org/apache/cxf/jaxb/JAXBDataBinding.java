@@ -291,7 +291,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             remoteExceptionObject = (Class)it.next();
             className = remoteExceptionObject.toString();
             if (!("".equals(className)) && className.contains("RemoteException")) {
-                classes.remove(remoteExceptionObject);
+                it.remove();
             }
         }
         // add user extra class into jaxb context
