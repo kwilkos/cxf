@@ -92,7 +92,7 @@ public class HttpBindingServletTest extends AbstractServletTest {
         doc = DOMUtils.readXml(response.getInputStream());
         assertNotNull(doc);
         
-        assertValid("//c:CustomerNotFoundDetails", doc);
+        assertValid("//c:CustomerNotFoundFault", doc);
         
         PostMethodWebRequest postReq = 
             new PostMethodWebRequest(CONTEXT_URL + serviceAddress + "/customers", 

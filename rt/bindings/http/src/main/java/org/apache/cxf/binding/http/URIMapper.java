@@ -38,20 +38,42 @@ public class URIMapper {
         new HashMap<OperationInfo, String>();
     
     public BindingOperationInfo getOperation(String uri, String verb, Message m) {
-        ResourceInfo bestMatch = null;
+        List<ResourceInfo> bestMatch = new ArrayList<ResourceInfo>();
         int bestScore = 0;
         for (ResourceInfo r : resources) {
             if (r.getVerb().equals(verb)) {
                 int newScore = ResourceUtil.getMatchScore(uri, r.getUri());
                 if (newScore > bestScore) {
-                    bestMatch = r;
+                    bestMatch.clear();
                     bestScore = newScore;
+                }
+                if (newScore >= bestScore) {
+                    bestMatch.add(r);
                 }
             }
         }
         
-        if (bestScore > -1 && bestMatch != null) {
-            return bestMatch.getOperation();
+        if (bestScore > -1 && !bestMatch.isEmpty()) {
+            if (bestMatch.size() == 1) {
+                return bestMatch.get(0).getOperation();
+            }
+            
+            //two or more with the same score... find the one with longest match 
+            // NOT counting any tail match
+            bestScore = -1;
+            ResourceInfo newBest = null;
+            for (ResourceInfo r : bestMatch) {
+                String newUri = r.getUri();
+                if (newUri.charAt(newUri.length() - 1) == '}') {
+                    newUri = newUri.substring(0, newUri.lastIndexOf('{'));
+                }
+                int newScore = ResourceUtil.getMatchScore(uri, newUri);
+                if (newScore > bestScore) {
+                    bestScore = newScore;
+                    newBest = r;
+                }
+            }
+            return newBest.getOperation();
         }
         
         return null;

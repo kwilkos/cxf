@@ -21,7 +21,7 @@ package org.apache.cxf.systest.jaxws;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.ws.WebFault;
 
-@WebFault(name = "ServiceTestFault")
+@WebFault()
 public class ServiceTestFault extends Exception {
     private ServiceTestDetails details;
     public ServiceTestFault(String msg, ServiceTestDetails details) {

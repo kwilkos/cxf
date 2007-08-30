@@ -105,7 +105,7 @@ public class BareServiceTest extends AbstractRestTest {
         res = get("http://localhost:9001/foo/customers/0", 500);
         assertNotNull(res);
 
-        assertValid("//c:CustomerNotFoundDetails", res);
+        assertValid("//c:CustomerNotFoundFault", res);
 
         res = put("http://localhost:9001/foo/customers/123", "update.xml");
         assertNotNull(res);

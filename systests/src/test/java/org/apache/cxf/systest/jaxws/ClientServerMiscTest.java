@@ -58,7 +58,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
     }
 
     @Test
@@ -262,15 +262,15 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals(3, ints.length);
         assertEquals(1, ints[0]);
         
-        /*   CXF-926 test case - this should work, but doesn't right now
+        /*   CXF-926 test case */
         try {
             port.throwException(10);
             fail("Expected exception not found");
         } catch (ServiceTestFault ex) {
             assertEquals(10, ex.getFaultInfo().getId());
         }
-        */
     }
+    
     
     @Test
     public void testRpcLitNoWsdl() throws Exception {

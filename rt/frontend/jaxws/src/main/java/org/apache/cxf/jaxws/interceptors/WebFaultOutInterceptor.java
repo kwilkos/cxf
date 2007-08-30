@@ -31,6 +31,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsServiceConfiguration;
@@ -52,8 +53,16 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
         super(Phase.PRE_PROTOCOL);
     }
     
-    private QName getFaultName(WebFault wf) {
-        return new QName(wf.targetNamespace(), wf.name());
+    private QName getFaultName(WebFault wf, Class<?> cls, OperationInfo op) {
+        String ns = wf.targetNamespace();
+        if (StringUtils.isEmpty(ns)) {
+            ns = op.getName().getNamespaceURI();
+        }
+        String name = wf.name();
+        if (StringUtils.isEmpty(name)) {
+            name = cls.getSimpleName();
+        }
+        return new QName(ns, name);
     }
     
 
@@ -98,7 +107,7 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
             DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
 
             OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
-            QName faultName = getFaultName(fault);
+            QName faultName = getFaultName(fault, cause.getClass(), op);
             MessagePartInfo part = getFaultMessagePart(faultName, op);
             writer.write(faultInfo, part, f.getOrCreateDetail());
 

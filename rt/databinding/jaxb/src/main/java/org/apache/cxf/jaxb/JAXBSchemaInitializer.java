@@ -155,6 +155,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
                 el = createXsElement(part, typeName, schemaInfo);
 
+                schemaInfo.getSchema().getElements().add(el.getQName(), el);
                 schemaInfo.getSchema().getItems().add(el);
                 
                 return;
@@ -166,6 +167,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
         XmlSchema schema = new XmlSchema(qn.getNamespaceURI(), schemas);
         schemaInfo.setSchema(schema);
+        schema.getElements().add(el.getQName(), el);
         schema.getItems().add(el);
 
         NamespaceMap nsMap = new NamespaceMap();
@@ -195,7 +197,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(cls);
             SchemaInfo schemaInfo = null;
             for (SchemaInfo s : serviceInfo.getSchemas()) {
-                if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())) {
+                if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())
+                    && !isExistSchemaElement(s.getSchema(), part.getElementQName())) {
                     schemaInfo = s;
                     
                     XmlSchemaElement el = new XmlSchemaElement();
@@ -203,10 +206,9 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                     el.setName(part.getElementQName().getLocalPart());
                     el.setNillable(true);
                     
-                    if (!isExistSchemaElement(schemaInfo.getSchema(), part.getElementQName())) {
-                        schemaInfo.getSchema().getItems().add(el);
-                    }
-                    
+                    schemaInfo.getSchema().getItems().add(el);
+                    schemaInfo.getSchema().getElements().add(el.getQName(), el);
+
                     Iterator<QName> itr = beanInfo.getTypeNames().iterator();
                     if (!itr.hasNext()) {
                         continue;
@@ -259,7 +261,8 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         el.setQName(part.getElementQName());
         el.setName(part.getElementQName().getLocalPart());
         schema.getItems().add(el);
-        
+        schema.getElements().add(el.getQName(), el);
+
         schema.getItems().add(ct);
         schema.addType(ct);
         el.setSchemaTypeName(part.getElementQName());
