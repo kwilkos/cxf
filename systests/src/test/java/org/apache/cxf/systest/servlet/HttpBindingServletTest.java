@@ -36,6 +36,9 @@ import org.junit.Test;
 
 
 public class HttpBindingServletTest extends AbstractServletTest {
+    static final String JSON_CUSTOMER = "{\"jra.customer\":"
+              + "{\"jra.id\":\"123\",\"jra.name\":\"Dan Diephouse\"}}";
+   
 
     @Override
     protected String getConfiguration() {
@@ -56,6 +59,21 @@ public class HttpBindingServletTest extends AbstractServletTest {
     @Test
     public void testEndpointRestService() throws Exception {
         testInvokingRestService("/services/endpoint/restful");
+    }
+    
+    @Test
+    public void testJsonService() throws Exception {
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(false);
+        
+        WebRequest req = 
+            new GetMethodQueryWebRequest(CONTEXT_URL + "/services/serverFactory/json/customers");
+        WebResponse response = client.getResponse(req);
+        assertTrue("Can't get the right Json customers ", response.getText().indexOf(JSON_CUSTOMER) > 0);
+        
+        req = new GetMethodQueryWebRequest(CONTEXT_URL + "/services/serverFactory/json/customers/123");
+        response = client.getResponse(req);        
+        assertEquals("Can't get the right Json customer ", response.getText(), JSON_CUSTOMER);
     }
     
     

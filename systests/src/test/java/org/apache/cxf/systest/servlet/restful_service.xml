@@ -33,6 +33,22 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <property name="wrapped" value="false"/>
   </bean>
   
+  <bean id="MappedXMLInputFactory" class="org.codehaus.jettison.mapped.MappedXMLInputFactory">
+     <constructor-arg>
+      <map>
+       <entry key="http://cxf.apache.org/jra" value="jra"/>  
+      </map>  
+     </constructor-arg>    
+  </bean>
+  
+  <bean id="MappedXMLOutputFactory" class="org.codehaus.jettison.mapped.MappedXMLOutputFactory">
+     <constructor-arg>
+      <map>
+       <entry key="http://cxf.apache.org/jra" value="jra"/>  
+      </map>  
+     </constructor-arg>
+  </bean>
+  
   <bean id="greeterServerFactory"
     class="org.apache.cxf.jaxws.JaxWsServerFactoryBean" init-method="create">
     <property name="serviceClass" value="org.apache.cxf.customer.bare.CustomerService" />
@@ -44,7 +60,71 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <property name="bindingId" value="http://apache.org/cxf/binding/http"/>
     <property name="transportId" value="http://schemas.xmlsoap.org/wsdl/soap/http"/>
     <property name="serviceFactory" ref="JaxWsServiceFactoryBean"/>
-  </bean>  
+  </bean> 
+  
+  <!--jaxws:server id="greeterJsonServer" address="/services/serverFactory/json"
+      bus="cxf" bindingId="http://apache.org/cxf/binding/http" 
+      transportId="http://schemas.xmlsoap.org/wsdl/soap/http" >
+    <jaxws:serviceBean>
+      <bean class="org.apache.cxf.customer.bare.CustomerService"/>
+    </jaxws:serviceBean>
+    <jaxws:serviceFactory>
+       <bean class="org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean">
+         <property name="wrapped" value="false"/>
+       </bean>
+    </jaxws:serviceFactory>  
+    <jaxws:properties>
+       <map>
+           <entry key="Content-Type" value="text/plain"/>           
+           <entry>
+            <key> 
+              <value>javax.xml.stream.XMLInputFactory</value>
+            </key>
+            <ref bean="MappedXMLInputFactory"/>
+           </entry>
+           <entry>
+            <key>
+              <value>javax.xml.stream.XMLOutputFactory</value> 
+            </key>
+            <ref bean="MappedXMLOutputFactory"/>
+           </entry>           
+       </map>
+    </jaxws:properties>   
+  </jaxws:server-->
+  
+  <bean id="greeterJsonServerFactory"
+    class="org.apache.cxf.jaxws.JaxWsServerFactoryBean" init-method="create">
+    <property name="serviceClass" value="org.apache.cxf.customer.bare.CustomerService" />
+    <property name="serviceBean">
+      <bean class="org.apache.cxf.customer.bare.CustomerService"/>
+    </property>
+    <property name="address" value="/services/serverFactory/json"/>
+    <property name="bus" ref="cxf"/>
+    <property name="bindingId" value="http://apache.org/cxf/binding/http"/>
+    <property name="transportId" value="http://schemas.xmlsoap.org/wsdl/soap/http"/>
+    <property name="serviceFactory"> 
+       <bean class="org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean">
+         <property name="wrapped" value="false"/>
+       </bean>
+    </property>   
+    <property name="properties">
+       <map>
+           <entry key="Content-Type" value="text/plain"/>           
+           <entry>
+            <key> 
+              <value>javax.xml.stream.XMLInputFactory</value>
+            </key>
+            <ref bean="MappedXMLInputFactory"/>
+           </entry>
+           <entry>
+            <key>
+              <value>javax.xml.stream.XMLOutputFactory</value> 
+            </key>
+            <ref bean="MappedXMLOutputFactory"/>
+           </entry>           
+       </map>
+    </property>   
+  </bean> 
   
   <jaxws:endpoint id="restfulServer" 
               implementor="org.apache.cxf.customer.bare.CustomerService"
