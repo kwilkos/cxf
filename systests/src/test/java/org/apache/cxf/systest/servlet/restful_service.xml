@@ -62,8 +62,8 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     <property name="serviceFactory" ref="JaxWsServiceFactoryBean"/>
   </bean> 
   
-  <!--jaxws:server id="greeterJsonServer" address="/services/serverFactory/json"
-      bus="cxf" bindingId="http://apache.org/cxf/binding/http" 
+  <!--jaxws:server id="greeterJsonServer" address="/services/serverFactory/json2"
+      bindingId="http://apache.org/cxf/binding/http" 
       transportId="http://schemas.xmlsoap.org/wsdl/soap/http" >
     <jaxws:serviceBean>
       <bean class="org.apache.cxf.customer.bare.CustomerService"/>
@@ -74,8 +74,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
        </bean>
     </jaxws:serviceFactory>  
     <jaxws:properties>
-       <map>
-           <entry key="Content-Type" value="text/plain"/>           
+         <entry key="Content-Type" value="text/plain"/>           
            <entry>
             <key> 
               <value>javax.xml.stream.XMLInputFactory</value>
@@ -87,8 +86,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
               <value>javax.xml.stream.XMLOutputFactory</value> 
             </key>
             <ref bean="MappedXMLOutputFactory"/>
-           </entry>           
-       </map>
+           </entry> 
     </jaxws:properties>   
   </jaxws:server-->
   
