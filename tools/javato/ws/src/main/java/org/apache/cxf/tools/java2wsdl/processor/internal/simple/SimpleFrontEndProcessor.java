@@ -22,6 +22,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -39,6 +40,7 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
 import org.apache.cxf.tools.common.model.JavaType.Style;
+import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.AbstractSimpleGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleClientGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleImplGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.SimpleSEIGenerator;
@@ -46,6 +48,7 @@ import org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator.Simple
 
 public class SimpleFrontEndProcessor implements Processor {
     private ToolContext context;
+    private List<AbstractSimpleGenerator> generators = new ArrayList<AbstractSimpleGenerator>();
     @SuppressWarnings("unchecked")
     public void process() throws ToolException {       
         List<ServiceInfo> services = (List<ServiceInfo>)context.get(ToolConstants.SERVICE_LIST);
@@ -55,14 +58,15 @@ public class SimpleFrontEndProcessor implements Processor {
         jm.addInterface("inf", jinf);
         jinf.setJavaModel(jm);
         context.put(JavaModel.class, jm);
-        SimpleSEIGenerator seiGenerator = new SimpleSEIGenerator();
-        seiGenerator.generate(context);
-        SimpleImplGenerator implGenerator = new SimpleImplGenerator();
-        implGenerator.generate(context);
-        SimpleServerGenerator svrGenerator = new SimpleServerGenerator();
-        svrGenerator.generate(context);
-        SimpleClientGenerator clientGenerator = new SimpleClientGenerator();
-        clientGenerator.generate(context);
+        generators.add(new SimpleSEIGenerator());
+        generators.add(new SimpleImplGenerator());
+        generators.add(new SimpleServerGenerator());
+        generators.add(new SimpleClientGenerator());
+        
+        for (AbstractSimpleGenerator generator : generators) {
+            generator.generate(context);
+        }
+
     }
     
     public void setEnvironment(ToolContext env) {

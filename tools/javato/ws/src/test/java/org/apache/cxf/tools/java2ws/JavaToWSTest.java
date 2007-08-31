@@ -74,6 +74,7 @@ public class JavaToWSTest extends ToolTestBase {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
                                       "-d", output.getPath(),
                                       "-frontend", "simple",
+                                      "-client",
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");

@@ -34,8 +34,8 @@ public abstract class AbstractSimpleGenerator extends AbstractGenerator {
     public abstract boolean passthrough();
 
     public abstract void generate(ToolContext penv) throws ToolException;
-
     public void register(final ClassCollector collector, String packageName, String fileName) {
-        // do nothing
+        
     }
+
 }

@@ -63,6 +63,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                 String ft = (String)env.get(ToolConstants.CFG_FRONTEND);
                 if (ft == null || "jaxws".equals(ft.toLowerCase())) {
                     ft = "jaxws";
+                    env.put(ToolConstants.CFG_FRONTEND, "jaxws");
                     if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
                         processor = new ServiceInfoToJavaProcessor();
                         processor.setEnvironment(env);
@@ -70,6 +71,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                     }
                 } else {
                     ft = "simple";
+                    env.put(ToolConstants.CFG_FRONTEND, "simple");
                     processor = new SimpleFrontEndProcessor();
                     processor.setEnvironment(env);
                     processor.process();
