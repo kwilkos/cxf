@@ -58,7 +58,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
     }
 
     @Test
@@ -275,7 +275,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
     @Test
     public void testRpcLitNoWsdl() throws Exception {
         QName portName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 
-                                   "RpcLitCodeFirstServicePort");
+                                   "RpcLitCodimlpementor6eFirstServicePort");
         QName servName = new QName("http://cxf.apache.org/systest/jaxws/RpcLitCodeFirstService", 
                                    "RpcLitCodeFirstService");
         
@@ -413,5 +413,30 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         assertEquals("B", obj.getBaseObject().getName());
         assertTrue(obj.getBaseObject() instanceof SubTypeB);
         
+    }
+    
+    @Test
+    public void testInterfaceExtension() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstBaseService", 
+            "DocLitWrappedCodeFirstBaseServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstBaseService", 
+            "DocLitWrappedCodeFirstBaseService");
+
+        //try without wsdl
+        Service service = Service.create(servName);
+        service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, ServerMisc.DOCLIT_CODEFIRST_BASE_URL);
+        DocLitWrappedCodeFirstBaseService port = service.getPort(portName,
+                                  DocLitWrappedCodeFirstBaseService.class);
+        assertEquals(1, port.operationInBase(1));
+        assertEquals(2, port.operationInSub1(2));
+        assertEquals(3, port.operationInSub2(3));
+        
+        //try with wsdl
+        service = Service.create(new URL(ServerMisc.DOCLIT_CODEFIRST_BASE_URL + "?wsdl"),
+                                         servName);
+        port = service.getPort(portName, DocLitWrappedCodeFirstBaseService.class);        
+        assertEquals(1, port.operationInBase(1));
+        assertEquals(2, port.operationInSub1(2));
+        assertEquals(3, port.operationInSub2(3));
     }
 }

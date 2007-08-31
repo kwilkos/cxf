@@ -231,7 +231,11 @@ public class JaxWsImplementorInfo {
         }
     }
         
-    private String getWSInterfaceName(Class implClz) {
+    private String getWSInterfaceName(Class<?> implClz) {
+        if (implClz.isInterface() 
+            && implClz.getAnnotation(WebService.class) != null) {
+            return implClz.getName();
+        }
         Class<?>[] clzs = implClz.getInterfaces();
         for (Class<?> clz : clzs) {
             if (null != clz.getAnnotation(WebService.class)) {
@@ -254,9 +258,14 @@ public class JaxWsImplementorInfo {
         while (cls != null) {
             WebService annotation = cls.getAnnotation(WebService.class);
             if (annotation != null) {
-                wsAnnotations.add(annotation); 
+                wsAnnotations.add(annotation);
+                if (cls.isInterface()) {
+                    cls = null;
+                }
             }
-            cls = cls.getSuperclass();
+            if (cls != null) {
+                cls = cls.getSuperclass();                
+            }
         }
         String sei = getImplementorClassName();
         boolean seiFromWsAnnotation = true;

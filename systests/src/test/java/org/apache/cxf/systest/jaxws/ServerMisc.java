@@ -32,13 +32,15 @@ public class ServerMisc extends AbstractBusTestServerBase {
         "http://localhost:9003/DocLitWrappedCodeFirstService/";
     public static final String RPCLIT_CODEFIRST_URL = 
         "http://localhost:9003/RpcLitCodeFirstService/";
-    
+    public static final String DOCLIT_CODEFIRST_BASE_URL =
+        "http://localhost:9003/DocLitWrappedCodeFirstServiceBaseService/";
     
     protected void run() {
+        Object implementor6 = new InterfaceInheritTestImpl();
+        Endpoint.publish(DOCLIT_CODEFIRST_BASE_URL, implementor6);
+        
         Object implementor4 = new DocLitWrappedCodeFirstServiceImpl();
         Endpoint.publish(DOCLIT_CODEFIRST_URL, implementor4);
-        
-        
         
         Object implementor1 = new AnonymousComplexTypeImpl();
         String address = "http://localhost:9000/anonymous_complex_typeSOAP";
