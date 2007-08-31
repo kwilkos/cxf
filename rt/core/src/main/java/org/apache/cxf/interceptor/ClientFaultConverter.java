@@ -72,6 +72,9 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
 
     protected void processFaultDetail(Fault fault, Message msg) {
         Element exDetail = (Element) DOMUtils.getChild(fault.getDetail(), Node.ELEMENT_NODE);
+        if (exDetail == null) {
+            return;
+        }
         QName qname = new QName(exDetail.getNamespaceURI(), exDetail.getLocalName());
         FaultInfo faultWanted = null;
         MessagePartInfo part = null;

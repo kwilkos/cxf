@@ -130,7 +130,15 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
      * @return the message part; or <code>null</code> if not found.
      */
     public MessagePartInfo getMessagePart(QName name) {
-        return messageParts.get(name);
+        MessagePartInfo mpi = messageParts.get(name);
+        if (mpi == null) {
+            for (MessagePartInfo mpi2 : messageParts.values()) {
+                if (name.equals(mpi2.getConcreteName())) {
+                    return mpi2;
+                }
+            }
+        }
+        return mpi;
     }
     
     /**
