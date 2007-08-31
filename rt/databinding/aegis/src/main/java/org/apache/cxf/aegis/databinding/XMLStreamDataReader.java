@@ -34,6 +34,7 @@ import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
@@ -45,12 +46,13 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
 
     private AegisDatabinding databinding;
 
-    private Context context = new Context();
+    private Context context;
 
     private Map<String, Object> properties;
     
     public XMLStreamDataReader(AegisDatabinding databinding) {
         this.databinding = databinding;
+        this.context = new Context(false);
     }
 
     public Object read(MessagePartInfo part, XMLStreamReader input) {
@@ -61,7 +63,13 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         if (type == null) {
             throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG));
         }
-
+        
+        Map<String, Object> props = (Endpoint)getProperty(ENDPOINT);
+        if (props == null) {
+            props = new HashMap<String, Object>();
+        }
+        context.setDelegateProperties(props);
+        
          // I don't think this is the right type mapping
         context.setTypeMapping(type.getTypeMapping());
         context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));

@@ -29,6 +29,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -124,6 +125,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         }
         
         writer.setAttachments(atts);
+        writer.setProperty(DataWriter.ENDPOINT, message.getExchange().get(Endpoint.class));
         
         setSchemaOutMessage(service, message, writer);
         return writer;

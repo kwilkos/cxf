@@ -70,4 +70,8 @@ public class NodeDataWriter implements DataWriter<Node> {
     public void setAttachments(Collection<Attachment> attachments) {
  
     }
+
+    public void setProperty(String key, Object value) {
+    }
+    
 }

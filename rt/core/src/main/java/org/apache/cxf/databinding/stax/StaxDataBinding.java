@@ -136,7 +136,10 @@ public class StaxDataBinding implements DataBinding {
         }
 
         public void setAttachments(Collection<Attachment> attachments) {
+        }
 
-        }   
+        public void setProperty(String key, Object value) {
+        }
+        
     }
 }

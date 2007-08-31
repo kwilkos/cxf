@@ -19,6 +19,8 @@
 package org.apache.cxf.aegis.databinding;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
@@ -32,6 +34,7 @@ import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
@@ -44,6 +47,8 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     private AegisDatabinding databinding;
 
     private Collection<Attachment> attachments;
+    
+    private Map<String, Object> properties;
     
     public XMLStreamDataWriter(AegisDatabinding databinding) {
         this.databinding = databinding;
@@ -65,7 +70,13 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
             throw new Fault(new Message("NO_MESSAGE_FOR_PART", LOG));
         }
 
-        Context context = new Context();
+
+        Map<String, Object> props = (Endpoint)getProperty(ENDPOINT);
+        if (props == null) {
+            props = new HashMap<String, Object>();
+        }
+        Context context = new Context(props);
+        
         // I'm not sure that this is the right type mapping
         context.setTypeMapping(type.getTypeMapping());
         context.setOverrideTypes(CastUtils.cast(databinding.getOverrideTypes(), String.class));
@@ -95,4 +106,22 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     public void write(Object obj, XMLStreamWriter output) {
         write(obj, null, output);
     }
+
+
+    public void setProperty(String prop, Object value) {
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
+        }
+        
+        properties.put(prop, value);
+    }
+
+    public Object getProperty(String key) {
+        if (properties == null) {
+            return null;
+        }
+        return properties.get(key);
+    }
+
+
 }

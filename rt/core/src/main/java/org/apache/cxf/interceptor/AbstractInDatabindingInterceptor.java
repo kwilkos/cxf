@@ -72,6 +72,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
                                                                    BUNDLE, service.getName()));
         }
         dataReader.setAttachments(message.getAttachments());
+        dataReader.setProperty(DataReader.ENDPOINT, message.getExchange().get(Endpoint.class));
         setSchemaInMessage(service, message, dataReader);
 
         

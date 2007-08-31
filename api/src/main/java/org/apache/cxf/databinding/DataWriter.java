@@ -27,8 +27,11 @@ import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
 
 public interface DataWriter<T> {
+    String ENDPOINT = DataWriter.class.getName() + "Endpoint";
+    
     void write(Object obj, T output);
     void write(Object obj, MessagePartInfo part, T output);
     void setSchema(Schema s);
     void setAttachments(Collection<Attachment> attachments);
+    void setProperty(String key, Object value);
 }

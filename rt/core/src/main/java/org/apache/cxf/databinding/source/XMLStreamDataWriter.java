@@ -75,4 +75,8 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     public void setAttachments(Collection<Attachment> attachments) {
 
     }   
+
+    public void setProperty(String key, Object value) {
+    }
+    
 }
