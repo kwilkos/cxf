@@ -33,6 +33,7 @@ public final class HttpHeaderHelper {
     public static final String CHUNKED = "chunked";
     public static final String CONNECTION = "Connection";
     public static final String CLOSE = "close";
+    public static final String AUTHORIZATION = "Authorization";
 
     
     private static Map<String, String> internalHeaders = new HashMap<String, String>();
@@ -43,6 +44,7 @@ public final class HttpHeaderHelper {
         internalHeaders.put("Content-Transfer-Encoding", "content-transfer-encoding"); 
         internalHeaders.put("Transfer-Encoding", "transfer-encoding");
         internalHeaders.put("Connection", "connection");
+        internalHeaders.put("authorization", "Authorization");
     }
     
     private HttpHeaderHelper() {

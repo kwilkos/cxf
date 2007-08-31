@@ -176,12 +176,13 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
         //TODO how to deal with the fields        
         for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
             String fname = (String)e.nextElement();
+            String mappedName = HttpHeaderHelper.getHeaderKey(fname);
             List<String> values;
-            if (headers.containsKey(fname)) {
-                values = headers.get(fname);
+            if (headers.containsKey(mappedName)) {
+                values = headers.get(mappedName);
             } else {
                 values = new ArrayList<String>();
-                headers.put(HttpHeaderHelper.getHeaderKey(fname), values);
+                headers.put(mappedName, values);
             }
             for (Enumeration e2 = req.getHeaders(fname); e2.hasMoreElements();) {
                 String val = (String)e2.nextElement();
