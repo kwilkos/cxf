@@ -258,7 +258,7 @@ public class HTTPConduit
     /**
      * Variables for holding session state if sessions are supposed to be maintained
      */
-    private String sessionId;
+    private List<Cookie> sessionCookies;
     private boolean maintainSession;
 
     /**
@@ -530,9 +530,10 @@ public class HTTPConduit
         //Do we need to maintain a session?
         maintainSession = Boolean.TRUE.equals((Boolean)message.get(Message.MAINTAIN_SESSION));
         
-        //If we have a sessionId and we are maintaining sessions, then use it
-        if (maintainSession && sessionId != null) {
-            connection.setRequestProperty(HttpHeaderHelper.COOKIE, "JSESSIONID=" + sessionId);
+        //If we have any cookies and we are maintaining sessions, then use them
+        if (maintainSession && sessionCookies != null && sessionCookies.size() > 0) {
+            connection.setRequestProperty(HttpHeaderHelper.COOKIE, 
+                                          Cookie.requestCookieHeader(sessionCookies));
         }
 
         // The trust decision is relagated to after the "flushing" of the
@@ -1914,15 +1915,7 @@ public class HTTPConduit
             
             if (maintainSession) {
                 String cookieStr = connection.getHeaderField("Set-Cookie");
-                if (cookieStr != null) {
-                    String cookies[] = cookieStr.split(";");
-                    for (int i = 0; i < cookies.length; i++) {
-                        String nameValue[] = cookies[i].split("=");
-                        if (nameValue[0].equals("JSESSIONID") || nameValue[0].equals("jsessionid")) {
-                            sessionId = nameValue[1];
-                        }
-                    }
-                }
+                sessionCookies = Cookie.handleSetCookie(sessionCookies, cookieStr);
             }
 
             in = in == null
