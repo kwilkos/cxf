@@ -20,7 +20,12 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-some thirdparty jars needs:
+Get some thirdparty jars:
+
+You can run the following command to get the thirdparty jars
+
+  ant get.dep
+
 
 Spring script jars:
 * spring-aop-2.0.4.jar
@@ -29,7 +34,7 @@ download from
 http://repo1.maven.org/maven2/org/springframework/
 copy into $CXF_HOME/lib/
 
-Groovy jars:
+JRuby jars:
 * jruby-0.9.8.jar
 * cglib-nodep-2.1_3.jar
 download from:

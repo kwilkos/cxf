@@ -20,7 +20,11 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-some thirdparty jars needs:
+Get some thirdparty jars:
+
+You can run the following command to get the thirdparty jars
+
+  ant get.dep
 
 Spring script jars:
 * spring-aop-2.0.4.jar
