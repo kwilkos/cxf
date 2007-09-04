@@ -161,7 +161,7 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="30000">
+                <xs:attribute name="ReceiveTimeout" type="xs:unsignedInt" use="optional" default="60000">
                     <xs:annotation>
                         <xs:documentation>
                         Receive timeout in milliseconds, 0 is infinite

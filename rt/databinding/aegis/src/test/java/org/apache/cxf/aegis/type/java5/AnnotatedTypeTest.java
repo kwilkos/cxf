@@ -158,11 +158,11 @@ public class AnnotatedTypeTest extends AbstractAegisTest {
 
         assertValid(
                     "//xsd:complexType[@name='AnnotatedBean2']/xsd:sequence/xsd:element"
-                    + "[@name='element'][@type='string']",
+                    + "[@name='element'][@type='xsd:string']",
                     wsdl);
         assertValid(
                     "//xsd:complexType[@name='AnnotatedBean2']/xsd:attribute"
-                    + "[@name='attribute'][@type='string']",
+                    + "[@name='attribute'][@type='xsd:string']",
                     wsdl);
     }
 

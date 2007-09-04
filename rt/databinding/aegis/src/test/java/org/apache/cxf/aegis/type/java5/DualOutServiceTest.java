@@ -44,11 +44,11 @@ public class DualOutServiceTest extends AbstractAegisTest {
  
         assertValid(
                     "//xsd:complexType[@name='getValuesResponse']//xsd:element"
-                    + "[@name='return'][@type='string']",
+                    + "[@name='return'][@type='xsd:string']",
                     wsdl);
         assertValid(
                     "//xsd:complexType[@name='getValuesResponse']//xsd:element"
-                    + "[@name='return1'][@type='string']",
+                    + "[@name='return1'][@type='xsd:string']",
                     wsdl);
     }
 }

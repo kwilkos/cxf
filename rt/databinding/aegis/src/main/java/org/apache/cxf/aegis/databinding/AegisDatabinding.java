@@ -247,6 +247,7 @@ public class AegisDatabinding implements DataBinding {
     }
 
     private void createSchemas(Service s, Set<Type> deps) {
+
         Map<String, Set<Type>> tns2Type = new HashMap<String, Set<Type>>();
         for (Type t : deps) {
             String ns = t.getSchemaType().getNamespaceURI();
@@ -293,6 +294,7 @@ public class AegisDatabinding implements DataBinding {
                     info.setElement(schema.getDocumentElement());
 
                     XmlSchema xmlSchema = col.read(schema.getDocumentElement());
+                    xmlSchema.setNamespaceContext(nsMap);
                     info.setSchema(xmlSchema);
 
                     info.setSystemId(entry.getKey());
