@@ -54,7 +54,8 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
   
   <jaxws:server id="inlineInvoker" 
     serviceClass="org.apache.hello_world_soap_http.GreeterImpl"
-    address="http://localhost:8080/simpleWithAddress">
+    address="http://localhost:8080/simpleWithAddress" 
+    bus="cxf" >
     <jaxws:invoker>
       <bean class="org.apache.cxf.service.invoker.BeanInvoker">
         <constructor-arg>

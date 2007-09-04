@@ -69,10 +69,15 @@ public abstract class AbstractBeanDefinitionParser
             } else if ("abstract".equals(name)) {
                 bean.setAbstract(true);
             } else if (!"id".equals(name) && !"name".equals(name)) {
-                if ("bus".equals(name)) {
-                    setBus = true;
-                } 
-                mapAttribute(bean, element, name, val);
+                if ("bus".equals(name)) {                                     
+                    if (val != null && val.trim().length() > 0 
+                        && ctx.getRegistry().containsBeanDefinition(val)) {
+                        bean.addPropertyReference(name, val);
+                        setBus = true;                         
+                    }
+                } else {
+                    mapAttribute(bean, element, name, val);
+                }    
             }
         } 
         return setBus;
