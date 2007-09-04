@@ -665,4 +665,16 @@ public class CodeGenBugTest extends ProcessorTestBase {
             assertEquals(msg.toString().trim(), e.getMessage().trim());
         }
     }
+
+    @Test
+    public void testParamterOrderNoOutputMessage() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/bug967.wsdl"));
+            processor.setContext(env);
+            processor.execute();
+        } catch (Exception e) {
+            fail("The cxf967.wsdl is a valid wsdl, should pass the test, caused by: " + e.getMessage());
+        }
+    }
 }
