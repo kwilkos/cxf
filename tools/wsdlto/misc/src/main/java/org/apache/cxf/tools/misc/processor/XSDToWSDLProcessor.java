@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -97,11 +98,16 @@ public class XSDToWSDLProcessor implements Processor {
     private void initXSD() throws ToolException {
         InputStream in;
         try {
-            in = new FileInputStream(xsdUrl);
-        } catch (IOException ioe) {
-            Message msg = new Message("FAIL_TO_OPEN_XSD_FILE", LOG, xsdUrl);
-            throw new ToolException(msg, ioe);
+            in = new URL(xsdUrl).openStream();
+        } catch (Exception m) {
+            try {
+                in = new FileInputStream(xsdUrl);
+            } catch (IOException ioe) {
+                Message msg = new Message("FAIL_TO_OPEN_XSD_FILE", LOG, xsdUrl);
+                throw new ToolException(msg, ioe);
+            }
         }
+
         if (in == null) {
             throw new NullPointerException("Cannot create a ToolSpec object from a null stream");
         }
