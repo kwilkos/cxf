@@ -64,7 +64,6 @@ public class FaultProcessor extends AbstractProcessor {
         return collision;
     }
 
-    @SuppressWarnings("unchecked")
     private void processFault(JavaMethod method, FaultInfo faultMessage) throws ToolException {
         JavaModel model = method.getInterface().getJavaModel();
 

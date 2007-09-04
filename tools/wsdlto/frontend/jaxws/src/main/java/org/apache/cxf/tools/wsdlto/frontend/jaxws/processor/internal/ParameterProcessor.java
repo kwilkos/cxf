@@ -157,7 +157,6 @@ public class ParameterProcessor extends AbstractProcessor {
         return message.getMessageParts().size() - count > 1;
     }
 
-    @SuppressWarnings("unchecked")
     private void processInput(JavaMethod method, MessageInfo inputMessage) throws ToolException {
         if (requireOutOfBandHeader()) {
             try {
@@ -175,7 +174,6 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void processWrappedInput(JavaMethod method, MessageInfo inputMessage) throws ToolException {
         List<MessagePartInfo> inputParts = inputMessage.getMessageParts();
 
@@ -213,7 +211,6 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void processOutput(JavaMethod method, MessageInfo inputMessage, MessageInfo outputMessage)
         throws ToolException {
         Map<QName, MessagePartInfo> inputPartsMap = inputMessage.getMessagePartsMap();
@@ -268,7 +265,6 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void processWrappedAbstractOutput(JavaMethod method,
                                               MessageInfo inputMessage,
                                               MessageInfo outputMessage) throws ToolException {
@@ -482,7 +478,6 @@ public class ParameterProcessor extends AbstractProcessor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void buildParamModelsWithOrdering(JavaMethod method,
                                               MessageInfo inputMessage,
                                               MessageInfo outputMessage,
@@ -499,7 +494,7 @@ public class ParameterProcessor extends AbstractProcessor {
         List<MessagePartInfo> outputParts = new ArrayList<MessagePartInfo>();
 
         if (outputMessage != null) {
-            outputMessage.getMessageParts();
+            outputParts = outputMessage.getMessageParts();
         }
 
         List<MessagePartInfo> inputUnlistedParts = new ArrayList<MessagePartInfo>();
@@ -576,7 +571,6 @@ public class ParameterProcessor extends AbstractProcessor {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     private boolean isValidOrdering(List<String> parameterOrder,
                                     MessageInfo inputMessage, MessageInfo outputMessage) {
         Iterator<String> params = parameterOrder.iterator();

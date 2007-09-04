@@ -51,7 +51,6 @@ public class OperationProcessor  extends AbstractProcessor {
         super(c);
     }
 
-    @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, OperationInfo operation) throws ToolException {
         JavaMethod method = new MethodMapper().map(operation);
         method.setInterface(intf);
@@ -62,7 +61,6 @@ public class OperationProcessor  extends AbstractProcessor {
         intf.addMethod(method);
     }
 
-    @SuppressWarnings("unchecked")
     void processMethod(JavaMethod method, OperationInfo operation,
                               JAXWSBinding globalBinding) throws ToolException {
         if (isAsynCMethod(method)) {
