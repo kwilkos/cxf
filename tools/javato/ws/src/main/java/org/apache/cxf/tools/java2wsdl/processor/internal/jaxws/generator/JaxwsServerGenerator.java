@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator;
+
+package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator;
 
 import java.util.Map;
 
@@ -26,39 +27,43 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 
-public class SimpleClientGenerator extends AbstractSimpleGenerator {
+/**
+ * 
+ */
+public class JaxwsServerGenerator extends AbstractJaxwsGenerator {
 
-    private static final String CLIENT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
+    private static final String SERVER_TEMPLATE = TEMPLATE_BASE + "/javafirst-server.vm";
 
-    public SimpleClientGenerator() {
-        this.name = ToolConstants.CLT_GENERATOR;
+    public JaxwsServerGenerator() {
+        this.name = ToolConstants.SVR_GENERATOR;
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_CLIENT)) {
+        if (env.optionSet(ToolConstants.CFG_SERVER)) {
             return false;
         }
         return true;
     }
 
-
     public void generate(ToolContext penv) throws ToolException {
+
         this.env = penv;
         JavaModel javaModel = env.get(JavaModel.class);
         
         if (passthrough()) {
             return;
         }
-        
+
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
 
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
-            setAttributes("seiClass", ((Class)env.get(ToolConstants.SEI_CLASS)).getName());
+            setAttributes("address", "http://localhost:9090/hello");
+            setAttributes("implClass", (String)env.get(ToolConstants.IMPL_CLASS));
             setCommonAttributes();
-            doWrite(CLIENT_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Client"));
-
+            doWrite(SERVER_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Server"));
         }
     }
+
 }

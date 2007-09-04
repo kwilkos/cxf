@@ -73,8 +73,8 @@ public class JavaToWSTest extends ToolTestBase {
     public void testSimple() throws Exception {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
                                       "-d", output.getPath(),
-                                      "-frontend", "simple",
-                                      "-client",
+                                      "-frontend", "jaxws",
+                                      "-client", "-server",
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");

@@ -32,6 +32,7 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
 public class ServiceInfoToJavaProcessor implements Processor {
     private ToolContext env;
+   
     public void process() {
         env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
         env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));

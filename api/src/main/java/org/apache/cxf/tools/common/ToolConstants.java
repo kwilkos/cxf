@@ -216,4 +216,6 @@ public final class ToolConstants {
     //For Simple FrontEnd
     public static final String SEI_CLASS = "seiClass";
     public static final String IMPL_CLASS = "implClass";
+    public static final String SERVICE_NAME = "serviceName";
+    public static final String PORT_NAME = "portName";
 }

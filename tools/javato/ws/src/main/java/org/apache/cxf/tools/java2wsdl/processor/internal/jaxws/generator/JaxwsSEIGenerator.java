@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator;
+
+package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator;
 
 import java.util.Map;
 
@@ -26,19 +27,22 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 
-public class SimpleClientGenerator extends AbstractSimpleGenerator {
+public class JaxwsSEIGenerator extends AbstractJaxwsGenerator {
 
-    private static final String CLIENT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
+    private static final String SEI_TEMPLATE = TEMPLATE_BASE + "/javafirst-sei.vm";
 
-    public SimpleClientGenerator() {
-        this.name = ToolConstants.CLT_GENERATOR;
+    public JaxwsSEIGenerator() {
+        this.name = ToolConstants.SEI_GENERATOR;
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_CLIENT)) {
+        Boolean genFromSei = (Boolean)env.get(ToolConstants.GEN_FROM_SEI);
+        if (!genFromSei && env.optionSet(ToolConstants.CFG_CLIENT)
+            && (!env.optionSet(ToolConstants.SEI_CLASS))) {
             return false;
         }
         return true;
+
     }
 
 
@@ -55,10 +59,12 @@ public class SimpleClientGenerator extends AbstractSimpleGenerator {
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
-            setAttributes("seiClass", ((Class)env.get(ToolConstants.SEI_CLASS)).getName());
             setCommonAttributes();
-            doWrite(CLIENT_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Client"));
 
+            doWrite(SEI_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName()));
+            env.put(ToolConstants.SEI_CLASS, intf.getFullClassName());
         }
     }
+
+
 }

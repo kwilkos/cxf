@@ -33,7 +33,7 @@ import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
-import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.ServiceInfoToJavaProcessor;
+import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.JAXWSFrontEndProcessor;
 import org.apache.cxf.tools.java2wsdl.processor.internal.simple.SimpleFrontEndProcessor;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
@@ -65,7 +65,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                     ft = "jaxws";
                     env.put(ToolConstants.CFG_FRONTEND, "jaxws");
                     if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
-                        processor = new ServiceInfoToJavaProcessor();
+                        processor = new JAXWSFrontEndProcessor();
                         processor.setEnvironment(env);
                         processor.process();
                     }

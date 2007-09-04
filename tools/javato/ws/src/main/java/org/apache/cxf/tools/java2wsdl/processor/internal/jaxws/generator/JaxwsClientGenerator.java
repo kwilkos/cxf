@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator;
+
+package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator;
 
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -26,11 +29,11 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 
-public class SimpleClientGenerator extends AbstractSimpleGenerator {
+public class JaxwsClientGenerator extends AbstractJaxwsGenerator {
 
-    private static final String CLIENT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
+    private static final String CLIENT_TEMPLATE = TEMPLATE_BASE + "/javafirst-client.vm";
 
-    public SimpleClientGenerator() {
+    public JaxwsClientGenerator() {
         this.name = ToolConstants.CLT_GENERATOR;
     }
 
@@ -41,20 +44,23 @@ public class SimpleClientGenerator extends AbstractSimpleGenerator {
         return true;
     }
 
-
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
         JavaModel javaModel = env.get(JavaModel.class);
-        
+
         if (passthrough()) {
             return;
         }
-        
-        Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
 
+        Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
+        QName service = (QName)env.get(ToolConstants.SERVICE_NAME);
+        QName port = (QName)env.get(ToolConstants.PORT_NAME);
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
+            setAttributes("service", service);
+            setAttributes("port", port);
+            setAttributes("address", "http://localhost:9090/hello");
             setAttributes("seiClass", ((Class)env.get(ToolConstants.SEI_CLASS)).getName());
             setCommonAttributes();
             doWrite(CLIENT_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Client"));
