@@ -632,10 +632,14 @@ public class PolicyEngineTest extends Assert {
         Policy p = new Policy();
         a = new PrimitiveAssertion(new QName("http://x.y.z", "a"));
         p.addAssertion(a);
-        PolicyReference pr = new PolicyReference();
-        pr.setURI("a#b");
-        engine.getRegistry().register("a#b", p);
         
+        // id has no #
+        engine.getRegistry().register("ab", p);
+        
+        // local reference is an id + #
+        PolicyReference pr = new PolicyReference();
+        pr.setURI("#ab");
+                
         engine.addAssertions(pr, false, assertions);
         assertEquals(1, assertions.size());
         assertSame(a, assertions.iterator().next());       
