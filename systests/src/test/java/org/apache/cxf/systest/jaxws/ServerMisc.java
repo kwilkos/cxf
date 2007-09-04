@@ -34,8 +34,13 @@ public class ServerMisc extends AbstractBusTestServerBase {
         "http://localhost:9003/RpcLitCodeFirstService/";
     public static final String DOCLIT_CODEFIRST_BASE_URL =
         "http://localhost:9003/DocLitWrappedCodeFirstServiceBaseService/";
+    public static final String DOCLITBARE_CODEFIRST_URL = 
+        "http://localhost:9003/DocLitBareCodeFirstService/";
     
     protected void run() {
+        Object implementor7 = new DocLitBareCodeFirstServiceImpl();
+        Endpoint.publish(DOCLITBARE_CODEFIRST_URL, implementor7);
+        
         Object implementor6 = new InterfaceInheritTestImpl();
         Endpoint.publish(DOCLIT_CODEFIRST_BASE_URL, implementor6);
         

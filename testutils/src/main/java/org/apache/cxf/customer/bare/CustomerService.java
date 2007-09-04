@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
@@ -55,6 +56,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers")
     @WebMethod
+    @WebResult(name = "customers")
     public Customers getCustomers(@WebParam(name = "GetCustomers") GetCustomers req) {
         Customers cbean = new Customers();
         cbean.setCustomer(customers.values());
@@ -69,6 +71,7 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers/{id}")
     @WebMethod
+    @WebResult(name = "customer")
     public Customer getCustomer(@WebParam(name = "GetCustomer") GetCustomer getCustomer) 
         throws CustomerNotFoundFault {
         Customer c = customers.get(getCustomer.getId());

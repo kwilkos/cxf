@@ -489,7 +489,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 return;
             }
         }
-        SchemaInfo si = getOrCreateSchema(serviceInfo, mpi.getElementQName().getNamespaceURI());
+        SchemaInfo si = getOrCreateSchema(serviceInfo, 
+                                          mpi.getElementQName().getNamespaceURI(),
+                                          qualifyWrapperSchema());
         XmlSchema schema = si.getSchema();
 
         XmlSchemaElement el = new XmlSchemaElement();
@@ -513,7 +515,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
                                        AbstractMessageContainer unwrappedMessage, QName wraperBeanName) {
-        SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo, wraperBeanName.getNamespaceURI());
+        SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo,
+                                                  wraperBeanName.getNamespaceURI(),
+                                                  qualifyWrapperSchema());
 
         createWrappedMessageSchema(serviceInfo, wrappedMessage, unwrappedMessage,
                                    schemaInfo.getSchema(), wraperBeanName);
@@ -562,16 +566,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
 
             if (schemaInfo == null) {
-                schemaInfo = new SchemaInfo(serviceInfo, qname.getNamespaceURI());
-                XmlSchemaCollection col = new XmlSchemaCollection();
-                schema = new XmlSchema(qname.getNamespaceURI(), col);
-                schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
-                serviceInfo.setXmlSchemaCollection(col);
-
-                NamespaceMap nsMap = new NamespaceMap();
-                nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
-                schema.setNamespaceContext(nsMap);
-                serviceInfo.addSchema(schemaInfo);
+                schemaInfo = getOrCreateSchema(serviceInfo, qname.getNamespaceURI(), true);
+                schema = schemaInfo.getSchema();
             } else {
                 schema = schemaInfo.getSchema();
                 if (schema != null && schema.getElementByName(qname) != null) {
@@ -585,16 +581,26 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             XmlSchemaElement el = new XmlSchemaElement();
             el.setQName(qname);
             el.setName(qname.getLocalPart());
-
-            if (!isExistSchemaElement(schema, qname)) {
-                schema.getItems().add(el);
-            }
-
             el.setMinOccurs(1);
             el.setMaxOccurs(0);
             el.setNillable(true);
+            
+            if (!isExistSchemaElement(schema, qname)) {
+                schema.getItems().add(el);
+                schema.getElements().add(qname, el);
+            } else {
+                el = getExistingSchemaElement(schema, qname);    
+            }
 
             if (mpi.isElement()) {
+                XmlSchemaElement oldEl = (XmlSchemaElement)mpi.getXmlSchema();
+                if (!oldEl.getQName().equals(qname)) {
+                    el.setSchemaTypeName(oldEl.getSchemaTypeName());
+                    el.setSchemaType(oldEl.getSchemaType());
+                }
+                mpi.setXmlSchema(el);
+                mpi.setElementQName(qname);
+                mpi.setConcreteName(qname);
                 continue;
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
@@ -633,19 +639,20 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     }
 
-    private boolean isExistSchemaElement(XmlSchema schema, QName qn) {
-        boolean isExist = false;
+    private XmlSchemaElement getExistingSchemaElement(XmlSchema schema, QName qn) {
         for (Iterator ite = schema.getItems().getIterator(); ite.hasNext();) {
             XmlSchemaObject obj = (XmlSchemaObject)ite.next();
             if (obj instanceof XmlSchemaElement) {
                 XmlSchemaElement xsEle = (XmlSchemaElement)obj;
                 if (xsEle.getQName().equals(qn)) {
-                    isExist = true;
-                    break;
+                    return xsEle;
                 }
             }
         }
-        return isExist;
+        return null;
+    }
+    private boolean isExistSchemaElement(XmlSchema schema, QName qn) {
+        return getExistingSchemaElement(schema, qn) != null;
     }
 
 
@@ -716,7 +723,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 el.setName(qn.getLocalPart());
                 el.setQName(qn);
 
-                SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, qn.getNamespaceURI());
+                SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, 
+                                                                qn.getNamespaceURI(),
+                                                                qualifyWrapperSchema());
                 if (!isExistSchemaElement(headerSchemaInfo.getSchema(), qn)) {
                     headerSchemaInfo.getSchema().getItems().add(el);
                 }
@@ -725,7 +734,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     }
 
-    private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo, String namespaceURI) {
+    private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo,
+                                         String namespaceURI, 
+                                         boolean qualified) {
         for (SchemaInfo s : serviceInfo.getSchemas()) {
             if (s.getNamespaceURI().equals(namespaceURI)) {
                 return s;
@@ -735,7 +746,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
         XmlSchemaCollection col = new XmlSchemaCollection();
         XmlSchema schema = new XmlSchema(namespaceURI, col);
-        if (qualifyWrapperSchema()) {
+        if (qualified) {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
         }
         serviceInfo.setXmlSchemaCollection(col);

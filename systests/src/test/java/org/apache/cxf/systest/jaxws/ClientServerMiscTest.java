@@ -58,8 +58,38 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
     }
+    
+    @Test
+    public void testDocLitBare() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitBareCodeFirstService", 
+            "DocLitBareCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitBareCodeFirstService", 
+            "DocLitBareCodeFirstService");
+    
+        //try without wsdl
+        Service service = Service.create(servName);
+        service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, 
+                        ServerMisc.DOCLITBARE_CODEFIRST_URL);
+        DocLitBareCodeFirstService port = service.getPort(portName,
+                                  DocLitBareCodeFirstService.class);
+        DocLitBareCodeFirstService.GreetMeRequest req = 
+            new DocLitBareCodeFirstService.GreetMeRequest();
+        req.setName("Foo");
+        DocLitBareCodeFirstService.GreetMeResponse resp =
+            port.greetMe(req);
+        
+        assertEquals(req.getName(), resp.getName());
+        
+        //try with wsdl
+        service = Service.create(new URL(ServerMisc.DOCLITBARE_CODEFIRST_URL + "?wsdl"),
+                                         servName);
+        port = service.getPort(portName, DocLitBareCodeFirstService.class);
+        resp = port.greetMe(req);
+        assertEquals(req.getName(), resp.getName());
+    }
+    
 
     @Test
     public void testAnonymousComplexType() throws Exception {

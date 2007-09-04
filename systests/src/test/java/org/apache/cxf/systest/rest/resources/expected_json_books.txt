@@ -1,1 +1,1 @@
-{"acme.books":{"acme.books":{"acme.id":"123","acme.name":"CXF in Action"}}}
+{"acme.Books":{"acme.books":{"acme.id":"123","acme.name":"CXF in Action"}}}

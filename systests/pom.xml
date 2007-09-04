@@ -59,11 +59,11 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/test/resources/wsdl/pizza_service.wsdl</wsdl>
-                                    <extraargs>
+                                    <!--extraargs>
                                       <extraarg>-exsh</extraarg>
                                       <extraarg>true</extraarg>
                                       <extraarg>-V</extraarg>
-                                    </extraargs>
+                                    </extraargs-->
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>
