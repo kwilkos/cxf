@@ -28,10 +28,12 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.classloader.FireWallClassLoader;
+import org.apache.cxf.common.logging.LogUtils;
 
 public class ComponentClassLoader extends URLClassLoader {
 
-    private static final Logger LOG =  Logger.getLogger(ComponentClassLoader.class.getName());
+    private static final Logger LOG =  LogUtils.getL7dLogger(ComponentClassLoader.class);
+    
     private static final String FILTERS_PROPS_FILE = "filters.properties";
     private static final String NEFILTERS_PROPS_FILE = "negativefilters.properties";
 

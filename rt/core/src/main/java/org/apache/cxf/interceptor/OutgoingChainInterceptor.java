@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.PreexistingConduitSelector;
@@ -43,7 +44,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final Logger LOG = Logger.getLogger(OutgoingChainInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(OutgoingChainInterceptor.class);
     
     private PhaseChainCache chainCache = new PhaseChainCache();
     

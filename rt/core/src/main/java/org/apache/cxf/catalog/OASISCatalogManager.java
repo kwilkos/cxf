@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.CatalogManager;
 import org.apache.xml.resolver.tools.CatalogResolver;
@@ -39,7 +40,7 @@ public class OASISCatalogManager {
     public static final String DEFAULT_CATALOG_NAME = "META-INF/jax-ws-catalog.xml";
 
     private static final Logger LOG =
-        Logger.getLogger(OASISCatalogManager.class.getName());
+        LogUtils.getL7dLogger(OASISCatalogManager.class);
 
     private Catalog resolver;
     private Set<URL> loadedCatalogs = Collections.synchronizedSet(new HashSet<URL>());

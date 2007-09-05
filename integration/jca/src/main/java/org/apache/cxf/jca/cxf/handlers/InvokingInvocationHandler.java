@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 import javax.resource.ResourceException;
+
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 
 /**
@@ -30,7 +32,7 @@ import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
  */
 public class InvokingInvocationHandler extends CXFInvocationHandlerBase {
 
-    private static final Logger LOG = Logger.getLogger(InvokingInvocationHandler.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(InvokingInvocationHandler.class);
 
     public InvokingInvocationHandler(CXFInvocationHandlerData data) {
         super(data);

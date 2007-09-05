@@ -28,11 +28,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -48,8 +47,7 @@ import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
     
-    private static final Logger LOG = Logger.getLogger(URIMappingInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIMappingInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(URIMappingInterceptor.class);
     
     public URIMappingInterceptor() {
         super(Phase.UNMARSHAL);
@@ -76,7 +74,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         if (op == null || opName == null || op.getName() == null
             || StringUtils.isEmpty(op.getName().getLocalPart())
             || !opName.equals(op.getName().getLocalPart())) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, opName));
         }
         message.getExchange().put(BindingOperationInfo.class, op);
         MessageContentsList params = getParameters(message, op);
@@ -147,7 +145,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
                 
                 
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ORDERED_PARAM_REQUIRED", 
-                                                                       BUNDLE, 
+                                                                       LOG, 
                                                                        names.toString()));
             }
         }
@@ -182,7 +180,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
                        
             if (type == null) {
                 LOG.warning("URIMappingInterceptor MessagePartInfo NULL ");
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, 
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", LOG, 
                                                                        "index: " + idx + " on key " + key));
             }
 

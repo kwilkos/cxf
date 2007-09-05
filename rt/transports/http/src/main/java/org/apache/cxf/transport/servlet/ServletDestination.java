@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -34,7 +35,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
 public class ServletDestination extends AbstractHTTPDestination {
     
-    static final Logger LOG = Logger.getLogger(ServletDestination.class.getName());
+    static final Logger LOG = LogUtils.getL7dLogger(ServletDestination.class);
         
     private static final long serialVersionUID = 1L;        
     

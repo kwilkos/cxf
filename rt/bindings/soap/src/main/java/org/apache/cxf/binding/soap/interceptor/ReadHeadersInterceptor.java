@@ -20,7 +20,6 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 import java.io.InputStream;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -42,8 +41,8 @@ import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.SoapVersionFactory;
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.headers.HeaderManager;
@@ -55,8 +54,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
-    private static final Logger LOG = Logger.getLogger(ReadHeadersInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReadHeadersInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(ReadHeadersInterceptor.class);
 
     private Bus bus;
     public ReadHeadersInterceptor(Bus b) {
@@ -89,7 +87,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
                 if (soapVersion == null) {
-                    throw new SoapFault(new Message("INVALID_VERSION", BUNDLE, ns),
+                    throw new SoapFault(new Message("INVALID_VERSION", LOG, ns),
                                             Soap11.getInstance().getVersionMismatch());
                 }
                 message.setVersion(soapVersion);
@@ -186,7 +184,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 }
             }
         } catch (XMLStreamException e) {
-            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, message.getVersion().getSender());
+            throw new SoapFault(new Message("XML_STREAM_EXC", LOG), e, message.getVersion().getSender());
         }
     }
 

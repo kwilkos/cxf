@@ -63,6 +63,9 @@ public class SoapFault extends Fault {
         super(new Message(message, (ResourceBundle)null), faultCode);
     }
 
+    public SoapFault(String message, Throwable t, QName faultCode) {
+        super(new Message(message, (ResourceBundle)null), t, faultCode);
+    }
 
     
     public String getCodeString(String prefix, String defaultPrefix) {

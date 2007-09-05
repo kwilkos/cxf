@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -37,7 +38,7 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOG = Logger.getLogger(HolderOutInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(HolderOutInterceptor.class);
 
     public HolderOutInterceptor() {
         super(Phase.PRE_LOGICAL);

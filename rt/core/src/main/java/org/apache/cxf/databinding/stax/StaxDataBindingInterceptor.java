@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
@@ -38,7 +39,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class StaxDataBindingInterceptor extends AbstractInDatabindingInterceptor {
-    private static final Logger LOG = Logger.getLogger(DocLiteralInInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(DocLiteralInInterceptor.class);
 
     public StaxDataBindingInterceptor() {
         super(Phase.UNMARSHAL);

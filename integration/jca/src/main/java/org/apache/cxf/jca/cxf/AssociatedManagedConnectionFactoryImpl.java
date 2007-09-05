@@ -28,13 +28,14 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
 
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 
 public class AssociatedManagedConnectionFactoryImpl 
     extends ManagedConnectionFactoryImpl implements ResourceAdapterAssociation {
 
     private static final Logger LOG = 
-        Logger.getLogger(AssociatedManagedConnectionFactoryImpl.class.getName());
+        LogUtils.getL7dLogger(AssociatedManagedConnectionFactoryImpl.class);
     private ResourceAdapter ra;
 
     public AssociatedManagedConnectionFactoryImpl() {

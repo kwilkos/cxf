@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -47,7 +48,7 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class ServletController {
     
-    private static final Logger LOG = Logger.getLogger(ServletController.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ServletController.class);
 
     private ServletTransportFactory transport;
     private CXFServlet cxfServlet;

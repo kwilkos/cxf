@@ -33,6 +33,7 @@ import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
@@ -42,7 +43,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 
 public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
 
-    private static final Logger LOG = Logger.getLogger(XMLStreamDataReader.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(XMLStreamDataReader.class);
 
     private AegisDatabinding databinding;
 

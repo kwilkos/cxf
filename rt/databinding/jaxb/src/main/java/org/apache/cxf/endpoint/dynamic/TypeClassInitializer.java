@@ -29,6 +29,7 @@ import com.sun.tools.xjc.api.TypeAndAnnotation;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -37,7 +38,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public class TypeClassInitializer extends ServiceModelVisitor {
-    private static final Logger LOG = Logger.getLogger(TypeClassInitializer.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(TypeClassInitializer.class);
     
     S2JJAXBModel model;
     

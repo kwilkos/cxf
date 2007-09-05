@@ -53,13 +53,14 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
 
 public final class StaxUtils {
 
-    private static final Logger LOG = Logger.getLogger(StaxUtils.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(StaxUtils.class);
     
     private static final XMLInputFactory XML_NS_AWARE_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
@@ -572,13 +573,13 @@ public final class StaxUtils {
             e.setAttributeNode(attr);
         }
 
-        reader.next();
-
-        readDocElements(e, reader, repairing);
-
         if (repairing && !isDeclared(e, reader.getNamespaceURI(), reader.getPrefix())) {
             declare(e, reader.getNamespaceURI(), reader.getPrefix());
         }
+
+        reader.next();
+
+        readDocElements(e, reader, repairing);
 
         return e;
     }
@@ -618,10 +619,6 @@ public final class StaxUtils {
                 startElement(parent, reader, repairing);
                 
                 if (parent instanceof Document) {
-                    if (reader.hasNext()) {
-                        reader.next();
-                    }
-                    
                     return;
                 }
                 break;

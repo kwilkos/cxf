@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
@@ -38,8 +39,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
 public final class ColocUtil {
-    //private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ColocInInterceptor.class);
-    private static final Logger LOG = Logger.getLogger(ColocUtil.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ColocUtil.class);
 
     private ColocUtil() {
         //Completge

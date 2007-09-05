@@ -23,14 +23,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
@@ -47,8 +46,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
-    private static final Logger LOG = Logger.getLogger(WrappedInInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(WrappedInInterceptor.class);
 
     public WrappedInInterceptor() {
         super(Phase.UNMARSHAL);
@@ -81,7 +79,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             // TODO: Allow overridden methods.
             operation = ServiceModelUtil.getOperation(message.getExchange(), local);
             if (operation == null) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", BUNDLE, local),
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, local),
                                 Fault.FAULT_CODE_CLIENT);
             }
 

@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
@@ -46,7 +47,7 @@ public class LocalTransportFactory extends AbstractTransportFactory
    
     public static final String TRANSPORT_ID = "http://cxf.apache.org/transports/local";
 
-    private static final Logger LOG = Logger.getLogger(LocalTransportFactory.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(LocalTransportFactory.class);
     private static final Set<String> URI_PREFIXES = new HashSet<String>();
 
     static {

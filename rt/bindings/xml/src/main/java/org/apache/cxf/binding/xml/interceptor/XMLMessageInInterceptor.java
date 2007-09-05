@@ -20,7 +20,6 @@
 package org.apache.cxf.binding.xml.interceptor;
 
 import java.util.Collection;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -29,7 +28,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.binding.xml.XMLFault;
 import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.DocLiteralInInterceptor;
@@ -46,8 +45,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
-    private static final Logger LOG = Logger.getLogger(XMLMessageInInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageInInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(XMLMessageInInterceptor.class);
     
     public XMLMessageInInterceptor() {
         this(Phase.UNMARSHAL);
@@ -67,7 +65,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
         XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
         if (!StaxUtils.toNextElement(reader)) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", LOG));
         }
 
         Exchange ex = message.getExchange();
@@ -99,7 +97,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                 try {
                     xsr.nextTag();
                 } catch (XMLStreamException xse) {
-                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", LOG));
                 }
             }
         }
@@ -125,7 +123,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                 try {
                     xsr.nextTag();
                 } catch (XMLStreamException xse) {
-                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", LOG));
                 }
             } else {
                 Collection<MessagePartInfo> bodyParts = bmi.getMessageParts();

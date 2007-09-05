@@ -36,11 +36,12 @@ import javax.transaction.xa.XAResource;
 
 import org.apache.cxf.Bus;
 //import org.apache.cxf.BusException;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.resourceadapter.ResourceBean;
 
 public class ResourceAdapterImpl extends ResourceBean implements ResourceAdapter {
 
-    private static final Logger LOG = Logger.getLogger(ResourceAdapterImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ResourceAdapterImpl.class);
     private BootstrapContext ctx;
     private Set <Bus> busCache = new HashSet<Bus>();
    

@@ -30,7 +30,6 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.ClientFaultConverter;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.staxutils.FragmentStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class Soap11FaultInInterceptor extends AbstractSoapInterceptor {
@@ -58,11 +57,13 @@ public class Soap11FaultInInterceptor extends AbstractSoapInterceptor {
                 } else if (reader.getLocalName().equals("faultactor")) {
                     role = reader.getElementText();
                 } else if (reader.getLocalName().equals("detail")) {
-                    detail = StaxUtils.read(new FragmentStreamReader(reader)).getDocumentElement();
+                    //XMLStreamReader newReader = new DepthXMLStreamReader(reader);
+                    detail = StaxUtils.read(reader).getDocumentElement();
                 }
             }
         } catch (XMLStreamException e) {
-            throw new SoapFault("Could not parse message.", 
+            throw new SoapFault("Could not parse message.",
+                                e,
                                 message.getVersion().getSender());
         }
 

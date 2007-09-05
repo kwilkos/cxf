@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javax.security.auth.Subject;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
@@ -33,7 +34,7 @@ import org.apache.cxf.jca.cxf.CXFManagedConnection;
 
 public class InvocationHandlerFactory {
 
-    private static final Logger LOG = Logger.getLogger(InvocationHandlerFactory.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(InvocationHandlerFactory.class);
 
     final Class<?>[] handlerChainTypes;
 

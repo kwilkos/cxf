@@ -39,6 +39,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -61,7 +62,7 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
     public static final String TIMESTAMP_RESULT = "wss4j.timestamp.result";
     public static final String SIGNATURE_RESULT = "wss4j.signature.result";
 
-    private static final Logger LOG = Logger.getLogger(WSS4JInInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(WSS4JInInterceptor.class);
     private static final Logger TIME_LOG = Logger.getLogger(WSS4JInInterceptor.class.getName() + "-Time");
     
     public WSS4JInInterceptor() {

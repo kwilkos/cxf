@@ -37,6 +37,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.connector.Connection;
 import org.apache.cxf.jca.core.resourceadapter.AbstractManagedConnectionImpl;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
@@ -46,7 +47,7 @@ public class ManagedConnectionImpl
     extends AbstractManagedConnectionImpl 
     implements CXFManagedConnection, Connection {
 
-    private static final Logger LOG = Logger.getLogger(ManagedConnectionImpl.class.getName());    
+    private static final Logger LOG = LogUtils.getL7dLogger(ManagedConnectionImpl.class);    
 
     private InvocationHandlerFactory handlerFactory;
     

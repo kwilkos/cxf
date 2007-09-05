@@ -36,7 +36,7 @@ import org.apache.cxf.transport.MessageObserver;
 
 public abstract class AbstractFaultChainInitiatorObserver implements MessageObserver {
     
-    private static final Logger LOG = Logger.getLogger(AbstractFaultChainInitiatorObserver.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractFaultChainInitiatorObserver.class);
     
     private Bus bus;
 

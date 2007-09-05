@@ -27,10 +27,11 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.cxf.BusException;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.cxf.JCABusFactory;
 
 public class CXFConnectEJBServant extends EJBServant {
-    private static final Logger LOG = Logger.getLogger(CXFConnectEJBServant.class.toString());
+    private static final Logger LOG = LogUtils.getL7dLogger(CXFConnectEJBServant.class);
 
     final String loginModuleName = "";
     final String userName = "";

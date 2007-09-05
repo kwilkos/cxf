@@ -25,13 +25,14 @@ import java.util.logging.Logger;
 import javax.security.auth.Subject;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 import org.apache.cxf.jca.cxf.CXFManagedConnection;
 
 abstract class CXFInvocationHandlerBase<T> implements CXFInvocationHandler {
 
-    private static final Logger LOG = Logger.getLogger(CXFInvocationHandlerBase.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(CXFInvocationHandlerBase.class);
 
     private CXFInvocationHandler next;
     private CXFInvocationHandlerData data;

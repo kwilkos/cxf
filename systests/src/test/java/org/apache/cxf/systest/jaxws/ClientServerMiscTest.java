@@ -88,7 +88,17 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         port = service.getPort(portName, DocLitBareCodeFirstService.class);
         resp = port.greetMe(req);
         assertEquals(req.getName(), resp.getName());
-    }
+        
+        //try the fault
+        req.setName("fault");
+        try {
+            resp = port.greetMe(req);
+            fail("did not get fault back");
+        } catch (SOAPFaultException ex) {
+            assertEquals("mr.actor", ex.getFault().getFaultActor());
+            assertEquals("test", ex.getFault().getDetail().getFirstChild().getLocalName());
+        }
+    } 
     
 
     @Test

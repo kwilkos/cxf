@@ -24,12 +24,13 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.jarloader.JarLoader;
 
 
 public final class PlugInClassLoaderHelper {
     private static final Logger LOG = 
-        Logger.getLogger(PlugInClassLoaderHelper.class.getName());
+        LogUtils.getL7dLogger(PlugInClassLoaderHelper.class);
     private static Map<String, byte[]> nonClassesMap = new HashMap<String, byte[]>();
    
 

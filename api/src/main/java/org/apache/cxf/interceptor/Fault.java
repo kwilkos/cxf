@@ -131,9 +131,11 @@ public class Fault extends UncheckedException {
     }
 
     public Element getOrCreateDetail() {
-        Document d = DOMUtils.createDocument();
-        Element element = d.createElement("Fault");
-        this.detail = element;
-        return element;
+        if (detail == null) {
+            Document d = DOMUtils.createDocument();
+            Element element = d.createElement("Fault");
+            this.detail = element;
+        }
+        return detail;
     }
 }

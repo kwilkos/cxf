@@ -20,7 +20,6 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamException;
@@ -31,8 +30,8 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
@@ -40,8 +39,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class Soap12FaultOutInterceptor extends AbstractSoapInterceptor {
-    private static final Logger LOG = Logger.getLogger(URIMappingInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Soap12FaultOutInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(URIMappingInterceptor.class);
 
     public Soap12FaultOutInterceptor() {
         super(Phase.MARSHAL);
@@ -115,12 +113,12 @@ public class Soap12FaultOutInterceptor extends AbstractSoapInterceptor {
             // Fault
             writer.writeEndElement();
         } catch (XMLStreamException xe) {
-            throw new Fault(new Message("XML_WRITE_EXC", BUNDLE), xe);
+            throw new Fault(new Message("XML_WRITE_EXC", LOG), xe);
         }
     }
     
     private String getLangCode() {        
-        String code = BUNDLE.getLocale().getDisplayLanguage();
+        String code = LOG.getResourceBundle().getLocale().getDisplayLanguage();
         if (StringUtils.isEmpty(code)) {
             return "en";
         }

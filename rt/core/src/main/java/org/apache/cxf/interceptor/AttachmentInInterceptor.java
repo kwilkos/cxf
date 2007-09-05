@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.apache.cxf.attachment.AttachmentDeserializer;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
 public class AttachmentInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOG = Logger.getLogger(AttachmentInInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(AttachmentInInterceptor.class);
 
     /**
      * contruct the soap message with attachments from mime input stream

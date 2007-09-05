@@ -55,6 +55,7 @@ import com.sun.tools.xjc.api.XJC;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
@@ -75,7 +76,7 @@ import org.apache.tools.ant.types.Path;
  */
 public final class DynamicClientFactory {
 
-    private static final Logger LOG = Logger.getLogger(DynamicClientFactory.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(DynamicClientFactory.class);
 
     private Bus bus;
 

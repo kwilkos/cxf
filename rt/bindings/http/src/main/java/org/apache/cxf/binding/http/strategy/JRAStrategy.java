@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 import org.apache.cxf.binding.http.URIMapper;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.codehaus.jra.Delete;
 import org.codehaus.jra.Get;
@@ -39,7 +40,7 @@ import static org.apache.cxf.binding.http.HttpConstants.PUT;
  * <a href="http://jra.codehaus.org">Java Rest Annotations</a>.
  */
 public class JRAStrategy implements ResourceStrategy {
-    private static final Logger LOG = Logger.getLogger(JRAStrategy.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JRAStrategy.class);
     
     public boolean map(BindingOperationInfo bop, Method m, URIMapper mapper) {
         HttpResource r = m.getAnnotation(HttpResource.class);

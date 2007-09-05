@@ -44,6 +44,7 @@ import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.source.NodeDataReader;
 import org.apache.cxf.databinding.source.XMLStreamDataReader;
@@ -69,7 +70,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInterceptor {
 
-    private static final Logger LOG = Logger.getLogger(DispatchInDatabindingInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(DispatchInDatabindingInterceptor.class);
     private Class type;
     private Service.Mode mode;
     

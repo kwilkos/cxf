@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
 
@@ -34,7 +35,7 @@ import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
  */
 public class ProxyInvocationHandler extends CXFInvocationHandlerBase  {
 
-    private static final Logger LOG = Logger.getLogger(ProxyInvocationHandler.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ProxyInvocationHandler.class);
     
     public ProxyInvocationHandler(CXFInvocationHandlerData data) {
         super(data);

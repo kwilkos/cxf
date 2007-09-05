@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 import org.apache.cxf.binding.http.URIMapper;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 
@@ -70,7 +71,7 @@ import static org.apache.cxf.binding.http.HttpConstants.PUT;
  *
  */
 public class ConventionStrategy implements ResourceStrategy {
-    private static final Logger LOG = Logger.getLogger(ConventionStrategy.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ConventionStrategy.class);
     private Inflector inflector = new EnglishInflector();
 
     public boolean map(BindingOperationInfo bop, Method m, URIMapper mapper) {

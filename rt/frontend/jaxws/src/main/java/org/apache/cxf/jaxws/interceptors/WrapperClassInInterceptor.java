@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -39,7 +40,7 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOG = Logger.getLogger(WrapperClassInInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(WrapperClassInInterceptor.class);
     
     public WrapperClassInInterceptor() {
         super(Phase.POST_LOGICAL);

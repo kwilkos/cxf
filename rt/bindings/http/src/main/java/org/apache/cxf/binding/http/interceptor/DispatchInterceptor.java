@@ -18,11 +18,10 @@
  */
 package org.apache.cxf.binding.http.interceptor;
 
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import org.apache.cxf.binding.http.URIMapper;
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 //import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -34,8 +33,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 public class DispatchInterceptor extends AbstractPhaseInterceptor<Message> {
     
     public static final String RELATIVE_PATH = "relative.path";
-    private static final Logger LOG = Logger.getLogger(DispatchInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DispatchInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(DispatchInterceptor.class);
 
     public DispatchInterceptor() {
         super(Phase.PRE_STREAM);
@@ -73,7 +71,7 @@ public class DispatchInterceptor extends AbstractPhaseInterceptor<Message> {
         BindingOperationInfo op = mapper.getOperation(path, method, message);
 
         if (op == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", BUNDLE, method, path));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OP", LOG, method, path));
         }
 
         message.getExchange().put(BindingOperationInfo.class, op);

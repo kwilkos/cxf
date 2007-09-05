@@ -27,12 +27,13 @@ import javax.annotation.Resource;
 import javax.management.JMException;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.management.InstrumentationManager;
 
 public class WorkQueueManagerImpl implements WorkQueueManager {
 
     private static final Logger LOG =
-        Logger.getLogger(WorkQueueManagerImpl.class.getName());
+        LogUtils.getL7dLogger(WorkQueueManagerImpl.class);
 
     ThreadingModel threadingModel = ThreadingModel.MULTI_THREADED;
     AutomaticWorkQueue autoQueue;

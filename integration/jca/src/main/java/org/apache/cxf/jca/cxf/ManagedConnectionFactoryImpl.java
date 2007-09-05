@@ -30,6 +30,7 @@ import javax.security.auth.Subject;
 
 import org.apache.cxf.Bus;
 //import org.apache.cxf.BusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.resourceadapter.AbstractManagedConnectionFactoryImpl;
 import org.apache.cxf.jca.core.resourceadapter.AbstractManagedConnectionImpl;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
@@ -38,7 +39,7 @@ public class ManagedConnectionFactoryImpl
     extends AbstractManagedConnectionFactoryImpl
     implements CXFManagedConnectionFactory {
 
-    private static final Logger LOG = Logger.getLogger(ManagedConnectionFactoryImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ManagedConnectionFactoryImpl.class);
     protected JCABusFactory jcaBusFactory;
 
     public ManagedConnectionFactoryImpl() {

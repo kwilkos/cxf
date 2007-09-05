@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
@@ -46,7 +47,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 
 public class ColocMessageObserver extends ChainInitiationObserver {
-    private static final Logger LOG = Logger.getLogger(ColocMessageObserver.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ColocMessageObserver.class);
     private static final String COLOCATED = Message.class.getName() + ".COLOCATED";
     
     public ColocMessageObserver(Endpoint endpoint, Bus bus) {

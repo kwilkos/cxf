@@ -36,6 +36,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 
 /**
  * This servant is used to dispatch invocations to an EJB.
@@ -48,7 +49,7 @@ public class EJBServant extends AbstractServant {
      * Name of the default Initial Context properties file.
      */
     public static final String INITIAL_CONTEXT_PROPS_FILE = "initial_context.properties";
-    private static final Logger LOG = Logger.getLogger(EJBServant.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(EJBServant.class);
     /**
      * Properties for Initial Context.
      */

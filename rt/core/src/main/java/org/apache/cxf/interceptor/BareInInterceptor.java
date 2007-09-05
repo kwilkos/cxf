@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -47,8 +46,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class BareInInterceptor extends AbstractInDatabindingInterceptor {
-    private static final Logger LOG = Logger.getLogger(BareInInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(BareInInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(BareInInterceptor.class);
 
     private static Set<String> filter = new HashSet<String>();
 
@@ -132,7 +130,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             }
 
             if (p == null) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName),
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", LOG, elName),
                                 Fault.FAULT_CODE_CLIENT);
             }
 

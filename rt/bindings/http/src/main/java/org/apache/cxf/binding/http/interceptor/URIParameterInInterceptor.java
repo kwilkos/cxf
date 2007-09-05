@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLInputFactory;
@@ -36,7 +35,7 @@ import org.apache.cxf.binding.http.IriDecoderHelper;
 import org.apache.cxf.binding.http.IriDecoderHelper.Param;
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -52,8 +51,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message> {
     
-    private static final Logger LOG = Logger.getLogger(URIParameterInInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIParameterInInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(URIParameterInInterceptor.class);
 
     public URIParameterInInterceptor() {
         super(Phase.UNMARSHAL);
@@ -81,7 +79,7 @@ public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message>
         }
 
         if (parts.size() > 1) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("SINGLE_PART_REQUIRED", BUNDLE));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("SINGLE_PART_REQUIRED", LOG));
         }
 
         message.getInterceptorChain().add(new XMLMessageInInterceptor());

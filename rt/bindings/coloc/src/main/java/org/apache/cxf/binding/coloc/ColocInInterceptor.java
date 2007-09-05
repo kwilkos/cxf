@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 //import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.ServiceInvokerInterceptor;
@@ -39,8 +40,7 @@ import org.apache.cxf.service.model.MessageInfo;
 
 public class ColocInInterceptor extends AbstractPhaseInterceptor<Message> {
     
-//    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ColocInInterceptor.class);
-    private static final Logger LOG = Logger.getLogger(ColocInInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ColocInInterceptor.class);
 
     
     public ColocInInterceptor() {

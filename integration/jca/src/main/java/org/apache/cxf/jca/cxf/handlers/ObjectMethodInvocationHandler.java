@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 
@@ -35,7 +36,7 @@ public class ObjectMethodInvocationHandler extends CXFInvocationHandlerBase {
     private static final String EQUALS_METHOD_NAME = "equals";
     private static final String TO_STRING_METHOD_NAME = "toString";
 
-    private static final Logger LOG = Logger.getLogger(ObjectMethodInvocationHandler.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ObjectMethodInvocationHandler.class);
 
     public ObjectMethodInvocationHandler(CXFInvocationHandlerData data) {
         super(data);

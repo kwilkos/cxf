@@ -51,7 +51,7 @@ import org.apache.cxf.transport.MessageObserver;
  */
 public class PhaseInterceptorChain implements InterceptorChain {
 
-    private static final Logger LOG = Logger.getLogger(PhaseInterceptorChain.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(PhaseInterceptorChain.class); 
 
     
     private final Map<String, Integer> nameMap;

@@ -20,6 +20,12 @@
 package org.apache.cxf.systest.jaxws;
 
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.soap.SOAPFaultException;
 
 @WebService(endpointInterface = "org.apache.cxf.systest.jaxws.DocLitBareCodeFirstService",
             serviceName = "DocLitBareCodeFirstService",
@@ -28,6 +34,19 @@ import javax.jws.WebService;
 public class DocLitBareCodeFirstServiceImpl implements DocLitBareCodeFirstService {
 
     public GreetMeResponse greetMe(GreetMeRequest gmr) {
+        if ("fault".equals(gmr.getName())) {
+            try { 
+                SOAPFactory factory = SOAPFactory.newInstance();
+                SOAPFault fault = factory.createFault("this is a fault string!",
+                                                      new QName("http://foo", "FooCode"));
+                fault.setFaultActor("mr.actor");
+                fault.addDetail().addChildElement("test").addTextNode("TestText");
+                throw new SOAPFaultException(fault);
+            } catch (SOAPException ex) {
+                throw new WebServiceException(ex);
+            }
+        }
+        
         GreetMeResponse resp = new GreetMeResponse();
         resp.setName(gmr.getName());
         return resp;

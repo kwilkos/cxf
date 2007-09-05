@@ -33,13 +33,14 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.xml.namespace.QName;
 
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.connector.CXFConnectionFactory;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 
 public class ConnectionFactoryImpl implements CXFConnectionFactory, 
                                               Referenceable, 
                                               Serializable {
-    private static final Logger LOG = Logger.getLogger(ConnectionFactoryImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ConnectionFactoryImpl.class);
     private ManagedConnectionFactory managedConnectionFactory;
     private ConnectionManager connectionManager;
     private Reference reference;

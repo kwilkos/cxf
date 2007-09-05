@@ -20,6 +20,7 @@
 package org.apache.cxf.common.logging;
 
 import java.text.MessageFormat;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -48,7 +49,11 @@ public final class LogUtils {
      * @return an appropriate Logger 
      */
     public static Logger getL7dLogger(Class<?> cls) {
-        return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
+        try {
+            return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
+        } catch (MissingResourceException rex) {
+            return Logger.getLogger(cls.getName());
+        }
     }
     
     /**

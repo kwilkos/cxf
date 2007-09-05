@@ -25,11 +25,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
+
 
 
 public final class ComponentClassLoaderHelper {
     private static final Logger LOG = 
-        Logger.getLogger(ComponentClassLoaderHelper.class.getName());
+        LogUtils.getL7dLogger(ComponentClassLoaderHelper.class);
     private static Map<String, byte[]> nonClassesMap = new HashMap<String, byte[]>();
    
 

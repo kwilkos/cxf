@@ -26,9 +26,12 @@ import java.util.Map;
 
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
+import javax.xml.ws.soap.SOAPFaultException;
 
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.common.util.factory.Factory;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
@@ -58,6 +61,21 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
         super(factory, scope);
     }
 
+    protected Fault createFault(Throwable ex) {
+        //map the JAX-WS faults
+        if (ex instanceof SOAPFaultException) {
+            SOAPFaultException sfe = (SOAPFaultException)ex;
+            SoapFault fault = new SoapFault(sfe.getFault().getFaultString(),
+                                            sfe,
+                                            sfe.getFault().getFaultCodeAsQName());
+            fault.setRole(sfe.getFault().getFaultActor());
+            fault.setDetail(sfe.getFault().getDetail());
+            
+            return fault;
+        }
+        return super.createFault(ex);
+    }
+    
     protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
         // set up the webservice request context 
         MessageContext ctx = 

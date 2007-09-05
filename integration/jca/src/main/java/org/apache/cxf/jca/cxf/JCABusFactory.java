@@ -52,6 +52,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapTransportFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -72,7 +73,7 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 public class JCABusFactory {
     
-    private static final Logger LOG = Logger.getLogger(JCABusFactory.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(JCABusFactory.class);
 
     private Bus bus;
     private BusFactory bf;

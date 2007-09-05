@@ -47,6 +47,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CachedOutputStream;
@@ -58,7 +59,7 @@ import org.apache.cxf.wsdl.WSDLConstants;
 
 
 public class LogicalMessageImpl implements LogicalMessage {
-    private static final Logger LOG = Logger.getLogger(LogicalMessageImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(LogicalMessageImpl.class);
     private final LogicalMessageContextImpl msgContext;
     
     public LogicalMessageImpl(LogicalMessageContextImpl lmctx) {
