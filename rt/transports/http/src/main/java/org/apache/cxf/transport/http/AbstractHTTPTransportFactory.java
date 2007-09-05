@@ -20,6 +20,7 @@
 package org.apache.cxf.transport.http;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -121,10 +122,15 @@ public abstract class AbstractHTTPTransportFactory
      * named "activationNamespaces").
      */
     @PostConstruct
-    void registerWithBindingManager() {
+    public void registerWithBindingManager() {
         if (null == bus) {
             return;
         }
+        
+        if (getTransportIds() == null) {
+            setTransportIds(new ArrayList<String>(activationNamespaces));
+        }
+        
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
 
         //Note, activationNamespaces can be null

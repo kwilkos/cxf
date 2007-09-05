@@ -20,6 +20,7 @@
 package org.apache.cxf.bus.extension;
 
 public interface ExtensionManager {
+    void activateAll();
     
     void activateViaNS(String namespace);
     

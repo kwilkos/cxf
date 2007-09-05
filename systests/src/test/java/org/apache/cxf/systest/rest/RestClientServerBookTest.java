@@ -39,7 +39,6 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -52,7 +51,6 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    @Ignore
     public void testGetBookWithXmlRootElement() throws Exception {
         JaxWsProxyFactoryBean sf = new JaxWsProxyFactoryBean();
         sf.setServiceClass(BookService.class);
@@ -134,7 +132,6 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    @Ignore
     public void testGetBookJSON() throws Exception {
         String endpointAddress =
             "http://localhost:9080/json/books/123"; 
@@ -161,14 +158,14 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         
         try {
             int result = httpclient.executeMethod(post);
-            System.out.println("Response status code: " + result);
-            System.out.println("Response body: ");
-            System.out.println(post.getResponseBodyAsString());
+            assertEquals(200, result);
+            //System.out.println("Response status code: " + result);
+            //System.out.println("Response body: ");
+            //System.out.println(post.getResponseBodyAsString());
             
-            //InputStream expected = getClass().getResourceAsStream("resources/expected_add_book_json.txt");
+            InputStream expected = getClass().getResourceAsStream("resources/expected_add_book_json.txt");
             
-            //FIXME: result returned is not correct: {"acme.addBookResponse":"2"}
-            //assertEquals(getStringFromInputStream(expected), post.getResponseBodyAsString());
+            assertEquals(getStringFromInputStream(expected), post.getResponseBodyAsString());
         } finally {
             // Release current connection to the connection pool once you are done
             post.releaseConnection();

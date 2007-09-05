@@ -86,6 +86,12 @@ public class ExtensionManagerImpl implements ExtensionManager {
         extensions.clear();
         deferred.remove(namespaceURI);
     }
+    
+    public synchronized void activateAll() {
+        while (!deferred.isEmpty()) {
+            activateViaNS(deferred.keySet().iterator().next());
+        }
+    }
 
     final void load(String resource) throws IOException {
         Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(resource);
@@ -106,11 +112,10 @@ public class ExtensionManagerImpl implements ExtensionManager {
     }
 
     final void processExtension(Extension e) {
-
+        
         if (!e.isDeferred()) {
             loadAndRegister(e);
         }
-
         Collection<String> namespaces = e.getNamespaces();
         for (String ns : namespaces) {
             Collection<Extension> extensions = deferred.get(ns);
@@ -177,6 +182,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
     }
 
     public <T> T getExtension(String ns, Class<T> type) {
+        
         Collection<Object> nsExts = namespaced.get(ns);
         if (nsExts != null) {
             for (Object o : nsExts) {

@@ -31,6 +31,11 @@ public class DeferredMap<V> extends ConcurrentHashMap<String, V> {
         
         this.type = type;
     }
+    
+    public void undefer() {
+        em.activateAll();
+    }
+    
 
     @Override
     public V get(Object key) {

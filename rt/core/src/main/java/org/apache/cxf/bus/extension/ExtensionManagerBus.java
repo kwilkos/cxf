@@ -117,6 +117,8 @@ public class ExtensionManagerBus extends CXFBusImpl {
             bfm = new BindingFactoryManagerImpl(new DeferredMap<BindingFactory>(em, BindingFactory.class));
             extensions.put(BindingFactoryManager.class, bfm);
         }
+        
+        this.setExtension(em, ExtensionManager.class);
     }
 
     public ExtensionManagerBus() {

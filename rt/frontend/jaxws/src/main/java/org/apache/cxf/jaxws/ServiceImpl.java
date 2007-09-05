@@ -387,12 +387,24 @@ public class ServiceImpl extends ServiceDelegate {
                                             PortInfoImpl portInfo) throws BusException {
         EndpointInfo ei = null;               
         String address = portInfo.getAddress();
+        String bindingID = BindingID.getBindingID(portInfo.getBindingID());
        
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        DestinationFactory df = dfm.getDestinationFactoryForUri(portInfo.getAddress());
+        try {
+            //the bindingId might be the transportId, just attempt to 
+            //load it to force the factory to load
+            dfm.getDestinationFactory(bindingID);
+        } catch (BusException ex) {
+            //ignore
+        }
+        DestinationFactory df = dfm.getDestinationFactoryForUri(address);
 
-        String transportId = df.getTransportIds().get(0);
-        String bindingID = BindingID.getBindingID(portInfo.getBindingID());
+        String transportId = null;
+        if (df != null && df.getTransportIds() != null && !df.getTransportIds().isEmpty()) {
+            transportId = df.getTransportIds().get(0);
+        } else {
+            transportId = bindingID;
+        }
                 
         Object config = null;
         if (serviceFactory instanceof JaxWsServiceFactoryBean) {

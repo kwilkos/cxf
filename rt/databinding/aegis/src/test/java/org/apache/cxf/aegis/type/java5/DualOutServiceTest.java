@@ -32,7 +32,7 @@ public class DualOutServiceTest extends AbstractAegisTest {
     public void testWSDL() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceClass(DualOutService.class);
-        sf.setAddress("DualOutService");
+        sf.setAddress("local://DualOutService");
         sf.setBus(getBus());
         setupAegis(sf);
         sf.create();

@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.bus.extension.DeferredMap;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 
@@ -109,6 +110,7 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
     }
 
     public DestinationFactory getDestinationFactoryForUri(String uri) {
+        //first attempt the ones already registered
         for (DestinationFactory df : destinationFactories.values()) {
             for (String prefix : df.getUriPrefixes()) {
                 if (uri.startsWith(prefix)) {
@@ -116,6 +118,18 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
                 }
             }
         }
+        //looks like we'll need to undefer everything so we can try again.
+        if (destinationFactories instanceof DeferredMap) {
+            ((DeferredMap)destinationFactories).undefer();
+            for (DestinationFactory df : destinationFactories.values()) {
+                for (String prefix : df.getUriPrefixes()) {
+                    if (uri.startsWith(prefix)) {
+                        return df;
+                    }
+                }
+            }
+        }
+        
         return null;
     }
 

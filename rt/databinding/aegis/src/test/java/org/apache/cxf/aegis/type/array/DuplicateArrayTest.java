@@ -49,7 +49,7 @@ public class DuplicateArrayTest extends AbstractAegisTest {
         // Enable the writing of xsi:type attributes
         props.put(AegisDatabinding.WRITE_XSI_TYPE_KEY, Boolean.TRUE);
 
-        serviceFactory.setAddress("local:://DuplicateArrayService");
+        serviceFactory.setAddress("local://DuplicateArrayService");
         serviceFactory.setServiceBean(new DuplicateArrayServiceBean());
         serviceFactory.setServiceClass(DuplicateArrayService.class);
         serviceFactory.setProperties(props);
