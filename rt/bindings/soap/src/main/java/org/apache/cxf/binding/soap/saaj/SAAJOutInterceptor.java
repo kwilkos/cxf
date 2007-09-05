@@ -93,6 +93,8 @@ public class SAAJOutInterceptor extends AbstractSoapInterceptor {
                 // do nothing
             }
         }
+        //must turn off mtom when using SAAJ so binary is properly inlined
+        message.put(org.apache.cxf.message.Message.MTOM_ENABLED, false);
         
         // Add a final interceptor to write the message
         message.getInterceptorChain().add(new SAAJOutEndingInterceptor());

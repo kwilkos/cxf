@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb.attachment;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.UUID;
@@ -34,7 +35,7 @@ import org.apache.cxf.message.Attachment;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
-    private static final int THRESH_HOLD = 10 * 1024;
+    private static final int THRESH_HOLD = 5 * 1024;
     private Collection<Attachment> atts;
     private boolean isXop;
 
@@ -48,15 +49,18 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
     public String addMtomAttachment(byte[] data, int offset, int length, String mimeType, String elementNS,
                                     String elementLocalName) {
         
-        if (!isXop && length < THRESH_HOLD) {
+        if (!isXop) {
             return null;
         }        
-        ByteDataSource source = new ByteDataSource(data, offset, length);
-        if (mimeType != null) {
-            source.setContentType(mimeType);
-        } else {
-            source.setContentType("application/octet-stream");
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
         }
+        if ("application/octet-stream".equals(mimeType)
+            && length < THRESH_HOLD) {
+            return null;
+        }
+        ByteDataSource source = new ByteDataSource(data, offset, length);
+        source.setContentType(mimeType);
         DataHandler handler = new DataHandler(source);
 
         String id;
@@ -77,6 +81,21 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         if (!isXop) {
             return null;
         }        
+
+        if ("application/octet-stream".equals(handler.getContentType())) {
+            try {
+                Object o = handler.getContent();
+                if (o instanceof String 
+                    && ((String)o).length() < THRESH_HOLD) {
+                    return null;
+                } else if (o instanceof byte[]
+                            && ((byte[])o).length < THRESH_HOLD) {
+                    return null;
+                }
+            } catch (IOException e1) {
+                //ignore, just do the normal attachment thing
+            }
+        }
         
         String id;
         try {
