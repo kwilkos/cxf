@@ -667,7 +667,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
 
     @Test
-    public void testParamterOrderNoOutputMessage() throws Exception {
+    public void testParameterOrderNoOutputMessage() throws Exception {
         try {
             env.put(ToolConstants.CFG_WSDLURL,
                     getLocation("/wsdl2java_wsdl/bug967.wsdl"));
