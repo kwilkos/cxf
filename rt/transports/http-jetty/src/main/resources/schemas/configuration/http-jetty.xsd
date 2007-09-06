@@ -95,7 +95,8 @@
                        type="tns:JettyHTTPServerEngineConfigType" 
                        minOccurs="0" maxOccurs="unbounded"/>
        </xs:sequence>
-         <xs:attribute name="bus" type="xs:string" use="required"/>
+       <xs:attribute name="bus" type="xs:string" default="cxf"/>
+       <xs:attribute name="id" type="xs:ID" use="optional"/>
     </xs:complexType>
     
     <xs:element name="engine-factory" 

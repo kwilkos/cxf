@@ -80,6 +80,8 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
                 if ("endpointName".equals(name) || "serviceName".equals(name)) {
                     QName q = parseQName(element, val);
                     bean.addPropertyValue(name, q);
+                } else if ("depends-on".equals(name)) {
+                    bean.addDependsOn(val);
                 } else if (IMPLEMENTOR.equals(name)) {
                     loadImplementor(bean, val);
                 } else if (!"name".equals(name)) {

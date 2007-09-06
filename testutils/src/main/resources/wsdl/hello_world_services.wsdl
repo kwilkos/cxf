@@ -35,6 +35,10 @@ under the License.
 	<wsdl:port name="SoapPort" binding="x1:SOAPBinding">
 	    <soap:address location="http://localhost:9000/SoapContext/SoapPort"/>
 	</wsdl:port>
+	<wsdl:port name="HttpsPort" binding="x1:SOAPBinding">
+	    <soap:address location="https://localhost:9001/SoapContext/HttpsPort"/>
+	</wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
+
 

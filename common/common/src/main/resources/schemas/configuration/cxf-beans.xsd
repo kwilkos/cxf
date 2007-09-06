@@ -43,6 +43,14 @@
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <xsd:attribute name="depends-on" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                    See documentation for attribute depends-on in attribute group beanAttributes
+                    in http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
         <xsd:attribute name="createdFromAPI" type="xsd:boolean">
             <xsd:annotation>
                 <xsd:documentation>

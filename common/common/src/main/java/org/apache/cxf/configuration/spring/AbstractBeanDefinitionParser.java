@@ -68,6 +68,8 @@ public abstract class AbstractBeanDefinitionParser
                 bean.setAbstract(true);
             } else if ("abstract".equals(name)) {
                 bean.setAbstract(true);
+            } else if ("depends-on".equals(name)) {
+                bean.addDependsOn(val);
             } else if (!"id".equals(name) && !"name".equals(name)) {
                 if ("bus".equals(name)) {                                     
                     if (val != null && val.trim().length() > 0 
