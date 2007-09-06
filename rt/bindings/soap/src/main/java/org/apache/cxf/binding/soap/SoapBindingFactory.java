@@ -222,6 +222,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                         soapHeader.setPart(headerInfo.getPart().getName().getLocalPart());
                         soapHeader.setUse("literal");
                         bodyParts.remove(headerInfo.getPart().getName().getLocalPart());
+                        headerInfo.getPart().setProperty(HEADER, true);
                         b.getInput().addExtensor(soapHeader);
                     }
                 }
@@ -449,6 +450,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
             }
             pi.setProperty(OUT_OF_BAND_HEADER, Boolean.TRUE);
+            pi.setProperty(HEADER, Boolean.TRUE);
         }
     }
 

@@ -110,7 +110,12 @@ public class WrappedMessageContext implements MessageContext {
     }
 
     public final Object get(Object key) {
-        return contextMap.get(key);
+        Object ret = contextMap.get(key);
+        if (ret == null
+            && Message.class.getName().equals(key)) {
+            return message;
+        }
+        return ret;
     }
 
     public final boolean isEmpty() {
