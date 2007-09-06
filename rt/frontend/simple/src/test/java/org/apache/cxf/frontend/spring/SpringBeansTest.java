@@ -129,5 +129,8 @@ public class SpringBeansTest extends Assert {
         assertEquals("get the wrong bindingId", 
                      clientProxyFactoryBean.getBindingId(),
                      "http://cxf.apache.org/bindings/xformat");
+        
+        greeter = (HelloService) ctx.getBean("client2");
+        assertNotNull(greeter);
     }
 }

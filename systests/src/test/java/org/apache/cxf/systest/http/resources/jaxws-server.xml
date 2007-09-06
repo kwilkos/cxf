@@ -48,6 +48,10 @@ under the License.
     <jaxws:server 
         id="JaxwsHttpsEndpoint"        
         address="https://localhost:9002/SoapContext/HttpsPort"
+        serviceName="s:SOAPService"
+        endpointName="e:HttpsPort"
+        xmlns:e="http://apache.org/hello_world/services"
+        xmlns:s="http://apache.org/hello_world/services"
         depends-on="port-9002-tls-config">
         <jaxws:serviceBean>
            <bean class="org.apache.cxf.systest.http.GreeterImpl"/>
@@ -55,7 +59,7 @@ under the License.
     </jaxws:server>    
 
     <!-- -->
-    <!-- TLS Port configuration parameters for port 9001 -->
+    <!-- TLS Port configuration parameters for port 9002 -->
     <!-- -->
     <httpj:engine-factory id="port-9002-tls-config">
         <httpj:engine port="9002">

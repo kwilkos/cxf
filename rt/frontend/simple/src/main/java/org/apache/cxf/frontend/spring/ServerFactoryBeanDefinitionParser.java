@@ -21,6 +21,8 @@ package org.apache.cxf.frontend.spring;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.w3c.dom.Element;
 
 import org.apache.cxf.common.util.StringUtils;
@@ -39,6 +41,16 @@ public class ServerFactoryBeanDefinitionParser extends AbstractBeanDefinitionPar
     public ServerFactoryBeanDefinitionParser() {
         super();
         setBeanClass(ServerFactoryBean.class);
+    }
+    
+    @Override
+    protected void mapAttribute(BeanDefinitionBuilder bean, Element e, String name, String val) {
+        if ("endpointName".equals(name) || "serviceName".equals(name)) {
+            QName q = parseQName(e, val);
+            bean.addPropertyValue(name, q);
+        } else {
+            mapToProperty(bean, name, val);
+        }
     }
 
     @Override

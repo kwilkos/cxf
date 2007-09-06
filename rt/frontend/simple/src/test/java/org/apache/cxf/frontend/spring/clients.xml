@@ -70,6 +70,7 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
     address="http://localhost:9000/foo2"
     serviceName="s:XMLService"
     xmlns:s="http://apache.org/hello_world_soap_http"
+    endpointName="s:XMLPort"    
     bindingId="http://cxf.apache.org/bindings/xformat">    
    </simple:client>
 </beans>

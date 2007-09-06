@@ -68,6 +68,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private DestinationFactory destinationFactory;
     private ReflectionServiceFactoryBean serviceFactory;
     private QName endpointName;
+    private QName serviceName;
     private Map<String, Object> properties;
     private List<AbstractFeature> features;
     private BindingConfiguration bindingConfig;
@@ -80,6 +81,10 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         if (service == null) {
             initializeServiceFactory();
             service = serviceFactory.create();
+        }
+        
+        if (serviceName != null) {
+            serviceFactory.setServiceName(serviceName);
         }
         
         if (endpointName == null) {
@@ -364,6 +369,14 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
 
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         this.serviceFactory = serviceFactory;
+    }
+    
+    public void setServiceName(QName name) {
+        serviceName = name;
+    }
+    
+    public QName getServiceName() {
+        return serviceName;
     }
 
     public QName getEndpointName() {
