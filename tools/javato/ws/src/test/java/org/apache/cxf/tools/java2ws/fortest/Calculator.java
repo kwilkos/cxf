@@ -21,7 +21,7 @@ package org.apache.cxf.tools.java2ws.fortest;
 public class Calculator {
     public int add(int a, int b) throws AddException {
         if (a < 0 || b < 0) {
-            throw new AddException("No negetive please");
+            throw new AddException("No negative values please");
         }
         return a + b;
     }
