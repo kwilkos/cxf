@@ -35,7 +35,7 @@ import org.apache.cxf.message.Attachment;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
-    private static final int THRESH_HOLD = 5 * 1024;
+    private static final int THRESHOLD = 5 * 1024;
     private Collection<Attachment> atts;
     private boolean isXop;
 
@@ -56,7 +56,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
             mimeType = "application/octet-stream";
         }
         if ("application/octet-stream".equals(mimeType)
-            && length < THRESH_HOLD) {
+            && length < THRESHOLD) {
             return null;
         }
         ByteDataSource source = new ByteDataSource(data, offset, length);
@@ -86,10 +86,10 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
             try {
                 Object o = handler.getContent();
                 if (o instanceof String 
-                    && ((String)o).length() < THRESH_HOLD) {
+                    && ((String)o).length() < THRESHOLD) {
                     return null;
                 } else if (o instanceof byte[]
-                            && ((byte[])o).length < THRESH_HOLD) {
+                            && ((byte[])o).length < THRESHOLD) {
                     return null;
                 }
             } catch (IOException e1) {

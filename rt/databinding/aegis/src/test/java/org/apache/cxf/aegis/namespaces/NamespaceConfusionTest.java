@@ -41,6 +41,13 @@ import org.jaxen.dom.DOMXPath;
 import org.junit.Before;
 import org.junit.Test;
 
+
+/** 
+ * Regression test for CXF-959. This is a point test for consistent 
+ * use of namespace prefixes in generated WSDL/XMLSchema. This test could 
+ * be made into a more comprehensive functional test by exercising
+ * cases such as multiple schema.
+ */
 public class NamespaceConfusionTest extends AbstractAegisTest {
     
     private TypeMapping tm;

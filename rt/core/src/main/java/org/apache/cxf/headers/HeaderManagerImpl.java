@@ -47,6 +47,9 @@ public class HeaderManagerImpl implements HeaderManager {
     }
     
     public HeaderProcessor getHeaderProcessor(String namespace) {
+        if (namespace == null) {
+            namespace = "";
+        }
         return processors.get(namespace);
     }
 
