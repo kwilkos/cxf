@@ -89,7 +89,7 @@ public final class JBIDispatcherUtil {
                 synchronized (channel) {
                     running = true;
                 }
-                getLogger().info(new org.apache.cxf.common.i18n.Message(
+                getLogger().fine(new org.apache.cxf.common.i18n.Message(
                     "RECEIVE.THREAD.START", getLogger()).toString());
                 do {
                     MessageExchange exchange = null;
@@ -105,7 +105,7 @@ public final class JBIDispatcherUtil {
                         && exchange.getStatus() == ExchangeStatus.ACTIVE) {
                         
                         try {
-                            getLogger().info(new org.apache.cxf.common.i18n.Message(
+                            getLogger().fine(new org.apache.cxf.common.i18n.Message(
                                     "DISPATCH.TO.SU", getLogger()).toString());
                             dispatch(exchange);
                             
@@ -129,7 +129,7 @@ public final class JBIDispatcherUtil {
     public void dispatch(MessageExchange exchange) throws IOException {
         
         QName opName = exchange.getOperation(); 
-        getLogger().info("dispatch method: " + opName);
+        getLogger().fine("dispatch method: " + opName);
                 
         NormalizedMessage nm = exchange.getMessage("in");
         try {
