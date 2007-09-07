@@ -1,0 +1,170 @@
+Apache CXF 2.0.2 (incubating) Release Notes
+
+1. Overview
+
+Apache CXF 2.0.2, under incubation,  delivers the second milestone of 
+the Celtix project (http://celtix.objectweb.org) and the XFire project
+(http://xfire.codehaus.org) merge.  This release is mostly a patch release
+from 2.0.1.  However, there are some new features as well:
+    * Configuration support for the WS-Policy engine
+    * WS-Addressing Feature (easier to configure WS-A)
+    * WS-Reliable Messaging Feature (easier to configure WS-RM)
+    * Lots of sample improvements
+    * Several Spring configuration improvements
+
+
+2. Installation Prerequisites 
+
+Before installing Apache CXF (incubating), make sure the following products,
+with the specified versions, are installed on your system:
+
+    * Java 5 Development Kit
+    * Apache ant 1.6
+
+2.1 Java 5 Development Kit
+
+You must install the J2SE Development Kit (JDK) 5.0, which can be downloaded
+from:
+
+    http://java.sun.com/j2se/1.5.0/download.jsp
+
+After installing the JDK, set or modify the following environment variables:
+
+    * JAVA_HOME -- set this environment variable
+      to point at the root directory of the JDK 5.0 installation.
+
+    * PATH -- make sure that your PATH includes: 
+      %JAVA_HOME%\bin  (Windows) 
+      $JAVA_HOME/bin   (UNIX)
+
+2.2 Apache Ant 1.6.5 (or newer, 1.7.0 should work as well)
+
+To run samples included in the binary distribution of Apache CXF (incubating),
+you must install the Apache Ant 1.6.5 build utility, which can be downloaded
+from:
+
+    http://ant.apache.org/bindownload.cgi
+
+After installing Apache Ant, add the <AntInstallDir>/bin directory to your PATH.
+
+For more details, see the Installation Guide.
+
+3. Building the Samples
+
+Building the samples included in the binary distribution is easy. Change to
+the samples directory and follow the build instructions in the README.txt file 
+included with each sample.
+
+4. Errata
+
+4.1 WS-Security
+The WS-Security configuration mechanisms may change between this release and 
+the next one as we add in support for WS-SecurityPolicy and WS-Trust.
+
+5. Reporting Problems
+
+If you have any problems or want to send feedback of any kind, please e-mail the
+cxf dev list, cxf-dev@incubator.apache.org.  You can also file issues in JIRA at:
+
+http://issues.apache.org/jira/browse/CXF
+
+6. Specific issues, features, and improvements fixed in the 
+Apache CXF 2.0.2 (incubating) release:
+
+
+
+Release Notes - CXF - Version 2.0.2
+
+** Sub-task
+    * [CXF-901] - Update "WAR" building for full war
+    * [CXF-902] - Add java_first_pojo sample
+
+** Bug
+    * [CXF-687] - SOAP over HTTP messages have two Content-Type headers and SOAP action as a separate header
+    * [CXF-849] - SSLUtils logs too much at INFO level
+    * [CXF-869] - jaxws:endpoint, simple:client  not support setting binding element value
+    * [CXF-870] - WebService methods generated from implementation instead of interface
+    * [CXF-874] - Problems with service beans that use AOP
+    * [CXF-882] - @Features and @XXInterceptors doesn't work for client proxies
+    * [CXF-886] - XSD2WSDL Tool seems to be unable to access remote xsdurls
+    * [CXF-897] - Default JAXB Data Binding does not unmarshal parameters correctly for a POJO service
+    * [CXF-898] - Invalid links in Service Listing at root of CXF servlet if the context path does not end in '/'
+    * [CXF-900] - Generated exception classes don't have serialVersionID
+    * [CXF-903] - HTTP binding/REST does not handle Wrapped request correctly
+    * [CXF-904] - Tools output (-help) needs reformatting
+    * [CXF-906] - ClassCastException in CXFServlet.loadSpringBus when context initialization fails
+    * [CXF-910] - maven codegen plugin needs to allow passing arguments for java2wsdl goal
+    * [CXF-911] - java2wsdl goal of the codegen plugin does not throw an exception to stop the maven build on error
+    * [CXF-912] - java2wsdl goal of the codegen plugin turns off all maven output if the 'quiet' tag is set...
+    * [CXF-915] - ASM3.0 dependency affects spring 2.0 functionality
+    * [CXF-916] - Package renaming needed from org.codehaus.xfire -> org.apache.cxf?
+    * [CXF-918] - java code from wsdl2java for wrapped style if request and response have elements with the same names and different datatypes
+    * [CXF-925] - ClassCastException in JAXBEncoderDecoder.unmarshall()
+    * [CXF-926] - JAX-WS code first fault mapping is not writing proper element name on wire if detail has XmlRootElement
+    * [CXF-929] - Https connections recreated for each request
+    * [CXF-934] - Remove redundant configuration in WS-Security unit tests
+    * [CXF-936] - HTTPConduit requires geronimo-mail, cannot use Sun's mail jar
+    * [CXF-937] - Features does not work with a JAX-WS Dispatch Client when defined via spring config.
+    * [CXF-938] - URIMapper did not handle Wrapped/Unwrapped operation correctly when service is in wrapped mode
+    * [CXF-939] - wsdl defining two different operations on the same port using the same messages lead to wsdl2java producing wrong code instead of an error message
+    * [CXF-942] - throwing SOAPFault from IMPL is not correctly mapped on the wire
+    * [CXF-943] - Doc/Lit/Bare creating wrong element names in wsdl
+    * [CXF-944] - Switch URI of BookService test from xfire.codehaus.org to cxf.apache.org
+    * [CXF-946] - AOP with WS Endpoint
+    * [CXF-947] - FaultInfoExceptions don't work when migrating from XFire to CXF
+    * [CXF-950] - CXF WSDL2Java tool doesnt work well for the WCF RPC/Literal wsdl.
+    * [CXF-951] - RCPInInterceptor not adding all the normal attributes to the message
+    * [CXF-953] - In services list, last character in link url is swallowed when no trailing slash is available
+    * [CXF-955] - Implicit dependency from jaxws:endpoint on httpj:engine-factory is not encoded in Spring
+    * [CXF-959] - Incorrect namespace configuration when generating wsdl from Aegis databinding
+    * [CXF-960] - JAX-WS client interfaces that inherit from other interfaces don't map all the operations
+    * [CXF-961] - In tomcat, AuthorizationPolicy object is not found in Message
+    * [CXF-966] - SESSION_MAINTAIN_PROPERTY doesn't track cookies other than JSESSIONID
+    * [CXF-967] - WSDL2Java tool doesnt generate code for empty Input/Output (RPC/Literal)
+    * [CXF-971] - DefinitionParsers don't ignore namespace attributes
+    * [CXF-974] - Jaxws and simple front ends do not support set serviceName and endpointName from spring configuration
+    * [CXF-975] - WS-Policy distribution sample uses outdated cxf policy namespaces
+    * [CXF-978] - WSDL2Java generated code will miss the parameter for wsdl operation has "parameterOrder" attribute.
+
+** Improvement
+    * [CXF-232] - Unify dispatch/providers with JAX-WS
+    * [CXF-340] - Support adding extra classes to JAXB context
+    * [CXF-488] - Add java2wsdl support for the Maven plugin
+    * [CXF-661] - Jetty Destination not programatically configurable
+    * [CXF-743] - Standardized text in README files for each of the samples.
+    * [CXF-763] - samples improvement
+    * [CXF-871] - Improve message strings in CLI tools
+    * [CXF-887] - messages.properties improvements in org.apache.cxf.jbi.se
+    * [CXF-888] - Control directory for on-disk attachments
+    * [CXF-899] - Missing getFaultInfo() fallback patch - use @WebFault bean as faultInfo if getFaultInfo() is not present
+    * [CXF-928] - wsdl2java should not overwrite existing files
+    * [CXF-930] - XercesImpl.jar needs to be added to CXF_HOME/lib directory
+    * [CXF-931] - UNnecessary library dependency
+    * [CXF-965] - add groovy and ruby script samples
+    * [CXF-972] - Define a tns prefix
+
+** New Feature
+    * [CXF-861] - WS-Reliable Messaging Feature
+
+
+** Task
+    * [CXF-771] - Upgrade to Neethi 2.0.2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
