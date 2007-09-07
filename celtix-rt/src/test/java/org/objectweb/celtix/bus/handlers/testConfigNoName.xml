@@ -1,8 +1,0 @@
-<handler-config> 
-  <handler-chain> 
-    <handler-chain-name>TestHandlerChain</handler-chain-name> 
-    <handler> 
-      <handler-class>org.objectweb.celtix.bus.handlers.DummyHandler</handler-class> 
-    </handler> 
-  </handler-chain> 
-</handler-config> 
