@@ -42,6 +42,7 @@
     </prerequisites>
 
     <properties>
+            <topDirectoryLocation>.</topDirectoryLocation>
          <compiler.fork>false</compiler.fork>
      </properties>
 
@@ -139,7 +140,29 @@
         <module>maven-plugins/archetypes</module>
         <module>maven-plugins/eclipse-plugin-generator</module>
     </modules>
+    
 
+    <repositories>
+        <repository>
+            <id>private-repo</id>
+            <name>private repo</name>
+            <url>file:${basedir}/${topDirectoryLocation}/maven_repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>java.net</id>
+            <name>java.net Maven Repository</name>
+            <url>https://maven-repository.dev.java.net/nonav/repository/</url>
+            <layout>legacy</layout>
+        </repository>
+    </repositories>
+    
+    
     <profiles>
         <profile>
             <!-- default profile enables checkstyle and Xlint stuff -->

@@ -39,6 +39,7 @@
         <module>bindings</module>
         <module>frontend/simple</module>
         <module>frontend/jaxws</module>
+        <module>frontend/jaxrs</module>
         <module>frontend/js</module>
         <module>transports/http</module>
         <module>transports/http-jetty</module>

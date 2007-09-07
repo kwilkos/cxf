@@ -42,7 +42,7 @@ import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
-import org.apache.cxf.frontend.AbstractEndpointFactory;
+import org.apache.cxf.frontend.AbstractWSDLBasedEndpointFactory;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.test.AbstractCXFTest;
@@ -128,7 +128,7 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         return sf;
     }
 
-    protected void setupAegis(AbstractEndpointFactory sf) {
+    protected void setupAegis(AbstractWSDLBasedEndpointFactory sf) {
         sf.getServiceFactory().getServiceConfigurations().add(0, new AegisServiceConfiguration());
         sf.getServiceFactory().setDataBinding(new AegisDatabinding());
     }

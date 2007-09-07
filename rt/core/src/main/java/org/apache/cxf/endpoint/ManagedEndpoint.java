@@ -86,7 +86,7 @@ public class ManagedEndpoint implements ManagedComponent, ServerLifeCycleListene
         buffer.append(ManagementConstants.TYPE_PROP + "=" + "Bus.Service.Endpoint,");
        
 
-        String serviceName = ObjectName.quote(endpoint.getEndpointInfo().getService().getName().toString());
+        String serviceName = ObjectName.quote(endpoint.getService().getName().toString());
         buffer.append(ManagementConstants.SERVICE_NAME_PROP + "=" + serviceName + ",");
         String endpointName = ObjectName.quote(endpoint.getEndpointInfo().getName().toString());
         buffer.append(ManagementConstants.PORT_NAME_PROP + "=" + endpointName);

@@ -16,33 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.frontend;
 
-import java.io.File;
+package org.apache.cxf.systest.jaxrs;
 
-import org.apache.cxf.service.ServiceBuilder;
-import org.apache.cxf.service.model.ServiceInfo;
+import javax.xml.bind.annotation.XmlRootElement;
 
-public abstract class AbstractServiceFactory extends AbstractWSDLBasedEndpointFactory implements
-    ServiceBuilder {
-    public ServiceInfo createService() {
-        try {
-            return createEndpoint().getEndpointInfo().getService();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+@XmlRootElement(name = "CD")
+public class CD {
+    private String name;
+    private long id;
+    
+    public CD() {
+    }
+    
+    public void setName(String n) {
+        name = n;
     }
 
-    public File getOutputFile() {
-        return null;
+    public String getName() {
+        return name;
+    }
+    
+    public void setId(long i) {
+        id = i;
+    }
+    
+    public long getId() {
+        return id;
     }
 
-    public void setServiceClass(Class clz) {
-        super.setServiceClass(clz);
-        getServiceFactory().setServiceClass(clz);
-    }
-
-    public void validate() {
-        // nothing to validate here
-    }
 }
