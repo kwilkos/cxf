@@ -96,9 +96,6 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
     
     // WorkQueue interface
      
-    /* (non-Javadoc)
-     * @see org.objectweb.celtix.workqueue.WorkQueue#execute(java.lang.Runnable, long)
-     */
     public void execute(Runnable work, long timeout) {
         try {
             execute(work);
@@ -111,9 +108,6 @@ public class AutomaticWorkQueueImpl extends ThreadPoolExecutor implements Automa
         }    
     }
 
-    /* (non-Javadoc)
-     * @see org.objectweb.celtix.workqueue.WorkQueue#schedule(java.lang.Runnable, long)
-     */
     public void schedule(final Runnable work, final long delay) {
         // temporary implementation, replace with shared long-lived scheduler
         // task

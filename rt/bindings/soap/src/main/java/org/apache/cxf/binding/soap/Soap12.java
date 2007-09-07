@@ -24,9 +24,8 @@ import javax.xml.namespace.QName;
 /**
  * Represents the SOAP 1.2 version
  * 
- * @version $Revision$
  */
-public class Soap12 implements SoapVersion {
+public final class Soap12 implements SoapVersion {
     public static final String SOAP_NAMESPACE = "http://www.w3.org/2003/05/soap-envelope";
     
     private static Soap12 instance = new Soap12();
@@ -42,7 +41,6 @@ public class Soap12 implements SoapVersion {
     private final String ultimateReceiverRole = namespace + "/role/ultimateReceiver";
 
     private final String nextRole = namespace + "/role/next";
-    
 
     private final String soapEncodingStyle = "http://www.w3.org/2003/05/soap-encoding";
 
@@ -54,14 +52,14 @@ public class Soap12 implements SoapVersion {
 
     private final QName fault = new QName(namespace, "Fault", prefix);
 
+    private Soap12() {
+       // Singleton 
+    }
+    
     public static Soap12 getInstance() {
         return instance;
     }
 
-    public String getSoapMimeType() {
-        return "application/soap+xml; charset=utf-8";
-    }
-    
     public double getVersion() {
         return version;
     }
@@ -116,4 +114,26 @@ public class Soap12 implements SoapVersion {
         return "mustUnderstand";
     }
 
+    public QName getReceiver() {
+        return new QName(SOAP_NAMESPACE, "Receiver");
+    }
+
+    public QName getSender() {
+        return new QName(SOAP_NAMESPACE, "Sender");
+    }
+
+    public QName getMustUnderstand() {
+        return new QName(SOAP_NAMESPACE, "MustUnderstand");
+    }
+
+    public QName getVersionMismatch() {
+        return new QName(SOAP_NAMESPACE, "VersionMismatch");
+    }
+
+    public QName getDateEncodingUnknown() {
+        return new QName(SOAP_NAMESPACE, "DataEncodingUnknown");
+    }
+    public String getContentType() {
+        return "application/soap+xml";
+    }
 }

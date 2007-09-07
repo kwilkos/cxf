@@ -19,136 +19,148 @@
 
 package org.apache.cxf.jaxws;
 
-import java.io.IOException;
+import java.security.AccessController;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
-import javax.xml.validation.Schema;
 import javax.xml.ws.Binding;
-import javax.xml.ws.Provider;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.Handler;
+import javax.xml.ws.WebServicePermission;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
-import org.apache.cxf.common.injection.ResourceInjector;
-import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingConfiguration;
+import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
-import org.apache.cxf.jaxws.context.WebContextResourceResolver;
-import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
-//import org.apache.cxf.jaxws.javaee.HandlerChainType;
+import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
-import org.apache.cxf.resource.DefaultResourceManager;
-import org.apache.cxf.resource.ResourceManager;
-import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.ChainInitiationObserver;
-import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.apache.cxf.service.invoker.Invoker;
 
-public class EndpointImpl extends javax.xml.ws.Endpoint {
+public class EndpointImpl extends javax.xml.ws.Endpoint 
+    implements InterceptorProvider, Configurable {
+    /**
+     * This property controls whether the 'publishEndpoint' permission is checked 
+     * using only the AccessController (i.e. when SecurityManager is not installed).
+     * By default this check is not done as the system property is not set.
+     */
+    public static final String CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY =
+        "org.apache.cxf.jaxws.checkPublishEndpointPermission";
 
-    private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
-    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
-
-    protected boolean doInit;
-
+    private static final WebServicePermission PUBLISH_PERMISSION =
+        new WebServicePermission("publishEndpoint");
+    
     private Bus bus;
-    // private String bindingURI;
     private Object implementor;
-    private ServerImpl server;
+    private Server server;
+    private JaxWsServerFactoryBean serverFactory;
+    private JaxWsServiceFactoryBean serviceFactory;
     private Service service;
-    private JaxWsEndpointImpl endpoint;
-    private JaxWsImplementorInfo implInfo;
+    private Map<String, Object> properties;
+    private List<Source> metadata;
+    private Invoker invoker;
+    private Executor executor;
+    private String bindingUri;
+    private String wsdlLocation;
+    private String address;
+    private QName endpointName;
+    private QName serviceName;
+    private Class implementorClass;
+    
+    private List<String> schemaLocations;
+    private List<AbstractFeature> features;
+    private List<Interceptor> in = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> out = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> outFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> inFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
 
-    @SuppressWarnings("unchecked")
-    public EndpointImpl(Bus b, Object i, String uri) {
+    public EndpointImpl(Object implementor) {
+        this(BusFactory.getThreadDefaultBus(), implementor);
+    }
+   
+    public EndpointImpl(Bus b, Object implementor, 
+                        JaxWsServerFactoryBean sf) {
+        this.bus = b;
+        this.serverFactory = sf;
+        this.implementor = implementor;
+    }
+    
+    /**
+     * 
+     * @param b
+     * @param i The implementor object.
+     * @param bindingUri The URI of the Binding being used. Optional.
+     * @param wsdl The URL of the WSDL for the service, if different than the URL specified on the
+     * WebService annotation. Optional.
+     */
+    public EndpointImpl(Bus b, Object i, String bindingUri, String wsdl) {
         bus = b;
         implementor = i;
-        // bindingURI = uri;
-        // build up the Service model
-        implInfo = new JaxWsImplementorInfo(implementor.getClass());
-
-        AbstractServiceFactoryBean serviceFactory;
-        if (implInfo.isWebServiceProvider()) {
-            serviceFactory = new ProviderServiceFactoryBean(implInfo);
-        } else {
-            serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-        }
-        serviceFactory.setBus(bus);
-        service = serviceFactory.create();
-        configureObject(service);
-
-        // create the endpoint       
-        QName endpointName = implInfo.getEndpointName();
-        EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-        if (ei == null) {
-            throw new NullPointerException("Could not find endpoint " + endpointName + " in Service.");
-        }
-
-        // revisit: should get enableSchemaValidation from configuration
-        if (false) {
-            addSchemaValidation();
-        }
-
-        if (implInfo.isWebServiceProvider()) {
-            service.setInvoker(new ProviderInvoker((Provider<?>)i));
-        } else {
-            service.setInvoker(new JAXWSMethodInvoker(i));
-        }
-
-        //      TODO: use bindigURI     
-        try {
-            endpoint = new JaxWsEndpointImpl(bus, service, ei);
-        } catch (EndpointException e) {
-            throw new WebServiceException(e);
-        }
-        configureObject(endpoint);
-
-        doInit = true;
+        this.bindingUri = bindingUri;
+        wsdlLocation = wsdl == null ? null : new String(wsdl);
+        serverFactory = new JaxWsServerFactoryBean();
+    }
+    
+    
+    public EndpointImpl(Bus b, Object i, String bindingUri) {
+        this(b, i, bindingUri, (String)null);
+    }
+   
+    public EndpointImpl(Bus bus, Object implementor) {
+        this(bus, implementor, (String) null);
     }
 
     public Binding getBinding() {
-        return endpoint.getJaxwsBinding();
+        return ((JaxWsEndpointImpl) getEndpoint()).getJaxwsBinding();
     }
 
     public void setExecutor(Executor executor) {
-        server.getEndpoint().getService().setExecutor(executor);
+        this.executor = executor;
     }
 
     public Executor getExecutor() {
-        return server.getEndpoint().getService().getExecutor();
+        return executor;
     }
 
+    public Service getService() {
+        return service;
+    }
+    
+    public JaxWsServiceFactoryBean getServiceFactory() {
+        return serviceFactory;
+    }
+
+    
     @Override
     public Object getImplementor() {
         return implementor;
     }
 
-    @Override
+    /**
+     * Gets the class of the implementor.
+     * @return the class of the implementor object
+     */
+    public Class getImplementorClass() {
+        return implementorClass != null ? implementorClass : implementor.getClass();
+    }
+
     public List<Source> getMetadata() {
-        // TODO Auto-generated method stub
-        return null;
+        return metadata;
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return properties;
     }
 
     @Override
@@ -158,24 +170,30 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     @Override
     public void publish(Object arg0) {
-        // TODO Auto-generated method stub
-
+        // Since this does not do anything now, just check the permission
+        checkPublishPermission();
     }
 
     @Override
-    public void publish(String address) {
-        doPublish(address);
+    public void publish(String addr) {
+        doPublish(addr);
     }
 
-    public void setMetadata(List<Source> arg0) {
-        // TODO Auto-generated method stub
-
+    public void setServiceFactory(JaxWsServiceFactoryBean sf) {
+        serviceFactory = sf;
+    }
+    
+    public void setMetadata(List<Source> metadata) {
+        this.metadata = metadata;
     }
 
     @Override
-    public void setProperties(Map<String, Object> arg0) {
-        // TODO Auto-generated method stub
-
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+        
+        if (server != null) {
+            server.getEndpoint().putAll(properties);
+        }
     }
 
     @Override
@@ -183,112 +201,266 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         if (null != server) {
             server.stop();
         }
+    }    
+   
+    public String getBeanName() {
+        return endpointName.toString() + ".jaxws-endpoint";
     }
 
+    protected void checkProperties() {
+        if (properties != null) {
+            if (properties.containsKey("javax.xml.ws.wsdl.description")) {
+                wsdlLocation = properties.get("javax.xml.ws.wsdl.description").toString();
+            }
+            if (properties.containsKey(javax.xml.ws.Endpoint.WSDL_PORT)) {
+                endpointName = (QName)properties.get(javax.xml.ws.Endpoint.WSDL_PORT);
+            }
+            if (properties.containsKey(javax.xml.ws.Endpoint.WSDL_SERVICE)) {
+                serviceName = (QName)properties.get(javax.xml.ws.Endpoint.WSDL_SERVICE);
+            }
+        }
+    }
+    
+    protected void doPublish(String addr) {
+        checkPublishPermission();
+        
+        ServerImpl serv = getServer(addr);
+        if (addr != null) {
+            serv.getEndpoint().getEndpointInfo().setAddress(addr);
+        }
+        serv.start();
+    }
+    
     public ServerImpl getServer() {
-        return server;
+        return getServer(null);
     }
+    public synchronized ServerImpl getServer(String addr) {
+        if (server == null) {
+            checkProperties();
 
-    /**
-     * inject resources into servant.  The resources are injected
-     * according to @Resource annotations.  See JSR 250 for more
-     * information.
-     */
-    /**
-     * @param instance
-     */
-    protected void injectResources(Object instance) {
-        if (instance != null) {
-            ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
-            List<ResourceResolver> resolvers = resourceManager.getResourceResolvers();
-            resourceManager = new DefaultResourceManager(resolvers); 
-            resourceManager.addResourceResolver(new WebContextResourceResolver());
-            ResourceInjector injector = new ResourceInjector(resourceManager);
-            injector.inject(instance);
-        }
-    }
-
-    protected void doPublish(String address) {
-        init();
-
-        if (null != address) {
-            endpoint.getEndpointInfo().setAddress(address);
-        }
-
-        try {
-            MessageObserver observer;
-            if (implInfo.isWebServiceProvider()) {
-                observer = new ProviderChainObserver(endpoint, bus, implInfo);
-            } else {
-                observer = new ChainInitiationObserver(endpoint, bus);
+            // Initialize the endpointName so we can do configureObject
+            if (endpointName == null) {
+                JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(getImplementorClass());
+                endpointName = implInfo.getEndpointName();
+            }
+            
+            if (serviceFactory != null) {
+                serverFactory.setServiceFactory(serviceFactory);
             }
 
-            server = new ServerImpl(bus, endpoint, observer);
-            server.start();
-        } catch (BusException ex) {
-            throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
-        } catch (IOException ex) {
-            throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
+            /*if (serviceName != null) {
+                serverFactory.getServiceFactory().setServiceName(serviceName);
+            }*/
+
+            configureObject(this);
+            
+            // Set up the server factory
+            serverFactory.setAddress(addr);
+            serverFactory.setStart(false);
+            serverFactory.setEndpointName(endpointName);
+            serverFactory.setServiceBean(implementor);
+            serverFactory.setBus(bus);
+            serverFactory.setFeatures(features);
+            serverFactory.setInvoker(invoker);
+            serverFactory.setSchemaLocations(schemaLocations);
+            
+            // Be careful not to override any serverfactory settings as a user might
+            // have supplied their own.
+            if (getWsdlLocation() != null) {
+                serverFactory.setWsdlURL(getWsdlLocation());
+            }
+            
+            if (bindingUri != null) {
+                serverFactory.setBindingId(bindingUri);
+            }
+            
+            if (serviceName != null) {
+                serverFactory.getServiceFactory().setServiceName(serviceName);
+            }
+            
+            if (implementorClass != null) {
+                serverFactory.setServiceClass(implementorClass);
+            }
+            
+            configureObject(serverFactory);
+            
+            server = serverFactory.create();
+            
+            org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
+            if (getInInterceptors() != null) {
+                endpoint.getInInterceptors().addAll(getInInterceptors());
+            }
+            if (getOutInterceptors() != null) {
+                endpoint.getOutInterceptors().addAll(getOutInterceptors());
+            }
+            if (getInFaultInterceptors() != null) {
+                endpoint.getInFaultInterceptors().addAll(getInFaultInterceptors());
+            }
+            if (getOutFaultInterceptors() != null) {
+                endpoint.getOutFaultInterceptors().addAll(getOutFaultInterceptors());
+            }
+            
+            if (properties != null) {
+                endpoint.putAll(properties);
+            }
+            
+            configureObject(endpoint.getService());
+            configureObject(endpoint);
+            this.service = endpoint.getService();
+            
+            if (getWsdlLocation() == null) {
+                //hold onto the wsdl location so cache won't clear till we go away
+                setWsdlLocation(serverFactory.getWsdlURL());
+            }
         }
+        return (ServerImpl) server;
     }
-
+    
     org.apache.cxf.endpoint.Endpoint getEndpoint() {
-        return endpoint;
+        return ((ServerImpl)getServer(null)).getEndpoint();
     }
-
+    
     private void configureObject(Object instance) {
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(instance);
         }
     }
-
-    private void addSchemaValidation() {
-        Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
-
-        if (service.getDataBinding().getDataReaderFactory() instanceof JAXBDataReaderFactory) {
-            ((JAXBDataReaderFactory)service.getDataBinding().getDataReaderFactory()).setSchema(schema);
-        }
-
-        if (service.getDataBinding().getDataWriterFactory() instanceof JAXBDataWriterFactory) {
-            ((JAXBDataWriterFactory)service.getDataBinding().getDataWriterFactory()).setSchema(schema);
+    
+    protected void checkPublishPermission() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(PUBLISH_PERMISSION);
+        } else if (Boolean.getBoolean(CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY)) {
+            AccessController.checkPermission(PUBLISH_PERMISSION);
         }
     }
 
-    private synchronized void init() {
-        if (doInit) {
-            try {
-                injectResources(implementor);
-                configureHandlers();
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                if (ex instanceof WebServiceException) {
-                    throw (WebServiceException)ex;
-                }
-                throw new WebServiceException("Creation of Endpoint failed", ex);
-            }
-        }
-        doInit = false;
+    public void publish() {
+        publish(getAddress());
+    }
+    
+    public String getAddress() {
+        return address;
     }
 
-    /**
-     * Obtain handler chain from configuration first. If none is specified,
-     * default to the chain configured in the code, i.e. in annotations.
-     *
-     */
-    private void configureHandlers() {
-        LOG.fine("loading handler chain for endpoint");
-        AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
-
-        //TBD: get configuratoin from config file
-        //List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
-        //builder.setHandlerInitEnabled(configuration.getBoolean(ENABLE_HANDLER_INIT));
-        List<Handler> chain = null;
-
-        if (null == chain || chain.size() == 0) {
-            chain = builder.buildHandlerChainFromClass(implementor.getClass());
-        }
-        getBinding().setHandlerChain(chain);
+    public void setAddress(String address) {
+        this.address = address;
     }
+
+    public QName getEndpointName() {
+        return endpointName;
+    }
+
+    public void setEndpointName(QName endpointName) {
+        this.endpointName = endpointName;
+    }
+
+    public QName getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(QName serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getWsdlLocation() {
+        return wsdlLocation;
+    }
+
+    public void setWsdlLocation(String wsdlLocation) {
+        this.wsdlLocation = wsdlLocation;
+    }
+
+    public void setBindingUri(String binding) {
+        this.bindingUri = binding;
+    }
+    public String getBindingUri() {
+        return this.bindingUri;
+    }
+
+    public List<Interceptor> getOutFaultInterceptors() {
+        return outFault;
+    }
+
+    public List<Interceptor> getInFaultInterceptors() {
+        return inFault;
+    }
+
+    public List<Interceptor> getInInterceptors() {
+        return in;
+    }
+
+    public List<Interceptor> getOutInterceptors() {
+        return out;
+    }
+
+    public void setInInterceptors(List<Interceptor> interceptors) {
+        in = interceptors;
+    }
+
+    public void setInFaultInterceptors(List<Interceptor> interceptors) {
+        inFault = interceptors;
+    }
+
+    public void setOutInterceptors(List<Interceptor> interceptors) {
+        out = interceptors;
+    }
+
+    public void setOutFaultInterceptors(List<Interceptor> interceptors) {
+        outFault = interceptors;
+    }
+
+    public List<AbstractFeature> getFeatures() {
+        if (features == null) {
+            features = new ArrayList<AbstractFeature>();
+        }
+        return features;
+    }
+
+    public void setFeatures(List<AbstractFeature> features) {
+        this.features = features;
+    }
+
+    public Invoker getInvoker() {
+        return invoker;
+    }
+
+    public void setInvoker(Invoker invoker) {
+        this.invoker = invoker;
+    }
+
+    public void setImplementorClass(Class implementorClass) {
+        this.implementorClass = implementorClass;
+    }
+    
+    public void setBindingConfig(BindingConfiguration config) {
+        serverFactory.setBindingConfig(config);
+    }
+    
+    public BindingConfiguration getBindingConfig() {
+        return serverFactory.getBindingConfig();
+    }
+
+    public List<String> getSchemaLocations() {
+        return schemaLocations;
+    }
+
+    public void setSchemaLocations(List<String> schemaLocations) {
+        this.schemaLocations = schemaLocations;
+    }
+    
+    /*
+    //TODO JAX-WS 2.1
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+    */
 }

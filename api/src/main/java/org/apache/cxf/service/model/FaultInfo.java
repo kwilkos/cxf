@@ -21,7 +21,7 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-public final class FaultInfo extends AbstractMessageContainer {
+public class FaultInfo extends AbstractMessageContainer {
     private QName faultName;
     
     public FaultInfo(QName fname, QName mname, OperationInfo info) {

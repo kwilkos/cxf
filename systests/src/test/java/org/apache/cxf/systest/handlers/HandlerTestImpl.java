@@ -23,9 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 //import javax.jws.HandlerChain;
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
+
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.handler_test.HandlerTest;
 import org.apache.handler_test.PingException;
 import org.apache.handler_test.types.PingFaultDetails;
@@ -33,7 +42,9 @@ import org.apache.handler_test.types.PingFaultDetails;
 @WebService(serviceName = "HandlerTestService",
             portName = "SoapPort",
             endpointInterface = "org.apache.handler_test.HandlerTest",
-            targetNamespace = "http://apache.org/handler_test")
+            targetNamespace = "http://apache.org/handler_test",
+            wsdlLocation = "testutils/handler_test.wsdl")
+@HandlerChain(file = "./handlers_invocation.xml", name = "TestHandlerChain")
 public class HandlerTestImpl implements HandlerTest {
 
     private WebServiceContext context;
@@ -61,25 +72,43 @@ public class HandlerTestImpl implements HandlerTest {
 
         List<String> ret = new ArrayList<String>();
         ret.add(handlerCommand);
-        //ret.addAll(getHandlersInfo(context.getMessageContext()));
+        ret.addAll(getHandlersInfo(context.getMessageContext()));
 
-        if (handlerCommand.contains("throw exception")) {
+        if (handlerCommand.contains("servant throw exception")) {
             PingFaultDetails details = new PingFaultDetails();
             details.setDetail(ret.toString());
             throw new PingException("from servant", details);
+        } else if (handlerCommand.contains("servant throw RuntimeException")) {
+            throw new RuntimeException("servant throw RuntimeException");
+        } else if (handlerCommand.contains("servant throw SOAPFaultException")) {
+            throw createSOAPFaultException("servant throws SOAPFaultException");
+        } else if (handlerCommand.contains("servant throw WebServiceException")) {
+            RuntimeException re = new RuntimeException("servant throws RuntimeException");
+            throw new WebServiceException("RemoteException with nested RuntimeException", re);
         }
 
         return ret;
     }
 
+    private SOAPFaultException createSOAPFaultException(String faultString) {
+        try {
+            SOAPFault fault = SOAPFactory.newInstance().createFault();
+            fault.setFaultString(faultString);
+            fault.setFaultCode(new QName("http://cxf.apache.org/faultcode", "Server"));
+            return new SOAPFaultException(fault);
+        } catch (SOAPException e) {
+            // do nothing
+        }
+        return null;
+    }
 
-    @Resource public void setWebServiceContext(WebServiceContext ctx) {
+    @Resource
+    public void setWebServiceContext(WebServiceContext ctx) {
         context = ctx;
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> getHandlersInfo(MessageContext ctx) {
-        List<String> ret = (List<String>)ctx.get("handler.info");
+        List<String> ret = CastUtils.cast((List)ctx.get("handler.info"));
         if (ret == null) {
             ret = new ArrayList<String>();
         }

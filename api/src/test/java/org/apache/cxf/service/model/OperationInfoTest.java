@@ -21,20 +21,20 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class OperationInfoTest extends TestCase {
+public class OperationInfoTest extends Assert {
 
     private OperationInfo operationInfo;
     
+    @Before
     public void setUp() throws Exception {
         operationInfo = new OperationInfo(null, new QName("urn:test:ns", "operationTest"));
     }
     
-    public void tearDown() throws Exception {
-        
-    }
-    
+    @Test
     public void testName() throws Exception {
         assertNull(operationInfo.getInterface());
         assertEquals("operationTest", operationInfo.getName().getLocalPart());
@@ -48,6 +48,7 @@ public class OperationInfoTest extends TestCase {
         }
     }
     
+    @Test
     public void testInput() throws Exception {
         assertFalse(operationInfo.hasInput());
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
@@ -61,6 +62,7 @@ public class OperationInfoTest extends TestCase {
         assertEquals(operationInfo.getInputName(), "input");
     }
     
+    @Test
     public void testOutput() throws Exception {
         assertFalse(operationInfo.hasOutput());
         MessageInfo outputMessage = operationInfo.createMessage(new QName(
@@ -74,6 +76,7 @@ public class OperationInfoTest extends TestCase {
         assertEquals(operationInfo.getOutputName(), "output");
     }
     
+    @Test
     public void testOneWay() throws Exception {
         assertFalse(operationInfo.isOneWay());
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
@@ -82,6 +85,7 @@ public class OperationInfoTest extends TestCase {
         assertTrue(operationInfo.isOneWay());
     }
     
+    @Test
     public void testFault() throws Exception {
         assertEquals(operationInfo.getFaults().size(), 0);
         QName faultName = new QName("urn:test:ns", "fault");
@@ -100,7 +104,7 @@ public class OperationInfoTest extends TestCase {
             operationInfo.addFault(null, null);
             fail("should get NullPointerException");
         } catch (NullPointerException e) {
-            assertEquals(e.getMessage(), "Faule Name cannot be null.");
+            assertEquals("Fault Name cannot be null.", e.getMessage());
         }
         try {
             operationInfo.addFault(faultName, null);

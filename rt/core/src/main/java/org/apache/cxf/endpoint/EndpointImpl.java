@@ -19,6 +19,8 @@
 
 package org.apache.cxf.endpoint;
 
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -27,20 +29,25 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
-import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptor.FaultChainIntiatorInterceptor;
-import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.interceptor.ClientFaultConverter;
+import org.apache.cxf.interceptor.InFaultChainInitiatorObserver;
+import org.apache.cxf.interceptor.MessageSenderInterceptor;
+import org.apache.cxf.interceptor.OutFaultChainInitiatorObserver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.MessageObserver;
 
-public class EndpointImpl extends AbstractBasicInterceptorProvider implements Endpoint, Configurable {
+public class EndpointImpl extends AbstractAttributedInterceptorProvider implements Endpoint, Configurable {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
@@ -50,11 +57,12 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private EndpointInfo endpointInfo;
     private Executor executor;
     private Bus bus;
-    private Interceptor faultInterceptor;
-    private boolean validating;
-    
+    private MessageObserver inFaultObserver;
+    private MessageObserver outFaultObserver;
+    private List<AbstractFeature> activeFeatures;
+
     public EndpointImpl(Bus bus, Service s, QName endpointName) throws EndpointException {
-        this(bus, s, s.getServiceInfo().getEndpoint(endpointName));
+        this(bus, s, s.getEndpointInfo(endpointName));
     }
     
     public EndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
@@ -62,33 +70,29 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
             throw new NullPointerException("EndpointInfo can not be null!");
         }
         
-        this.bus = bus;
+        if (bus == null) {
+            this.bus = BusFactory.getThreadDefaultBus();
+        } else {
+            this.bus = bus;
+        }
         service = s;
         endpointInfo = ei;
-        faultInterceptor = new FaultChainIntiatorInterceptor(this, bus);
-        createBinding(endpointInfo.getBinding());
-    }
 
-    public String getBeanName() {
-        return endpointInfo.getName().toString();
+        createBinding(endpointInfo.getBinding());
+        
+        inFaultObserver = new InFaultChainInitiatorObserver(bus);
+        outFaultObserver = new OutFaultChainInitiatorObserver(bus);
+
+        getInFaultInterceptors().add(new ClientFaultConverter());
+        getOutInterceptors().add(new MessageSenderInterceptor());
+        getOutFaultInterceptors().add(new MessageSenderInterceptor());
     }
     
-    public boolean getValidating() {
-        return validating;
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".endpoint";
     }
-
-    public void setValidating(boolean v) {
-        validating = v;
-    }
-
-    public Interceptor getFaultInterceptor() {
-        return faultInterceptor;
-    }
-
-    public void setFaultInterceptor(Interceptor faultInterceptor) {
-        this.faultInterceptor = faultInterceptor;
-    }
-
+    
+   
     public EndpointInfo getEndpointInfo() {
         return endpointInfo;
     }
@@ -102,7 +106,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     }
 
     public Executor getExecutor() {
-        return executor;
+        return executor == null ? service.getExecutor() : executor;
     }
 
     public void setExecutor(Executor e) {
@@ -118,18 +122,60 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     }
 
     final void createBinding(BindingInfo bi) throws EndpointException {
-        String namespace = bi.getBindingId();
-        BindingFactory bf = null;
-        try {
-            bf = bus.getExtension(BindingFactoryManager.class).getBindingFactory(namespace);
-            binding = bf.createBinding(bi);
-        } catch (BusException ex) {
-            throw new EndpointException(ex);
-        }
-        if (null == bf) {
-            Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
-            throw new EndpointException(msg);
-        }
+        if (null != bi) {
+            String namespace = bi.getBindingId();
+            BindingFactory bf = null;
+            try {
+                bf = bus.getExtension(BindingFactoryManager.class).getBindingFactory(namespace);
+                binding = bf.createBinding(bi);
+            } catch (BusException ex) {
+                throw new EndpointException(ex);
+            }
+            if (null == bf) {
+                Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
+                throw new EndpointException(msg);
+            }
+        }    
+    }
+    
+
+    public MessageObserver getInFaultObserver() {
+        return inFaultObserver;
     }
 
+    public MessageObserver getOutFaultObserver() {
+        return outFaultObserver;
+    }
+
+    public void setInFaultObserver(MessageObserver observer) {
+        inFaultObserver = observer;        
+    }
+
+    public void setOutFaultObserver(MessageObserver observer) {
+        outFaultObserver = observer;
+        
+    }
+    
+    /**
+     * Utility method to make it easy to set properties from Spring.
+     * 
+     * @param properties
+     */
+    public void setProperties(Map<String, Object> properties) {
+        this.putAll(properties);
+    }
+    
+    /**
+     * @return the list of fearures <b>already</b> activated for this endpoint.
+     */
+    public List<AbstractFeature> getActiveFeatures() {
+        return activeFeatures;
+    }
+
+    /**
+     * @param the list of fearures <b>already</b> activated for this endpoint.
+     */
+    public void initializeActiveFeatures(List<AbstractFeature> features) {
+        activeFeatures = features;
+    }
 }

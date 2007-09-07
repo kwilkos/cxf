@@ -32,10 +32,9 @@ import javax.wsdl.OperationType;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 
-public class JavaMethod {
-    private static final Logger LOG = LogUtils.getL7dLogger(JavaMethod .class);
+public class JavaMethod implements JavaAnnotatable {
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaMethod.class);
     private String name;
     private String operationName;
     private JavaReturn javaReturn;
@@ -43,28 +42,27 @@ public class JavaMethod {
     private String soapAction;
     private SOAPBinding.Style soapStyle;
     private SOAPBinding.Use soapUse;
-    private WSDLParameter requestParameter;
-    private WSDLParameter responseParameter;
     private boolean wrapperStyle;
-    private final JavaInterface javaInterface;
+    private boolean enableMime;
+    private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
-    private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
-    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
-    private JAXWSBinding bindingExt = new JAXWSBinding();
 
+    private JavaCodeBlock block;
+    
     public JavaMethod() {
-        this.javaInterface = null;
+        this(new JavaInterface());
     }
 
     public JavaMethod(JavaInterface i) {
         this.javaInterface = i;
+        this.javaReturn = new JavaReturn();
     }
 
     public void clear() {
         parameters.clear();
-        javaReturn = null;
+        javaReturn = new JavaReturn();
     }
 
     public String getSignature() {
@@ -110,6 +108,10 @@ public class JavaMethod {
     }
 
     public void setReturn(JavaReturn rt) {
+        if (rt != null && rt.getType() == null && rt.getClassName() == null) {
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_OUTPUT_PARAMETER", LOG, rt.name, this.getName());
+            throw new ToolException(msg);
+        }
         this.javaReturn = rt;
     }
 
@@ -121,21 +123,31 @@ public class JavaMethod {
         }
         return false;
     }
-
-    private void removeParameter(JavaParameter param) {
-        parameters.remove(param);
+    
+    private void replaceParameter(JavaParameter p1, JavaParameter p2) {
+        int index = ((ArrayList)parameters).indexOf(p1);
+        parameters.remove(index);
+        parameters.add(index, p2);
     }
 
     public void addParameter(JavaParameter param) {
         if (hasParameter(param.getName())) {
             JavaParameter paramInList = getParameter(param.getName());
             if (paramInList.isIN() || paramInList.isINOUT()) {
-                removeParameter(paramInList);
+                //removeParameter(paramInList);
+                replaceParameter(paramInList, param);
+                return;
             } else {
                 Message message = new Message("PARAMETER_ALREADY_EXIST", LOG, param.getName());
                 throw new ToolException(message);
             }
         }
+        
+        if (param.getType() == null && param.getClassName() == null) {
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_PARAMETER", LOG, param.name, this.getName());
+            throw new ToolException(msg);
+        }
+        
         parameters.add(param);
     }
 
@@ -192,6 +204,15 @@ public class JavaMethod {
     public void setWrapperStyle(boolean w) {
         this.wrapperStyle = w;
     }
+    
+    
+    public boolean enableMime() {
+        return this.enableMime;
+    }
+    
+    public void setMimeEnable(boolean arg) {
+        enableMime = arg;
+    }
 
     public void setSoapStyle(SOAPBinding.Style sty) {
         this.soapStyle = sty;
@@ -232,35 +253,6 @@ public class JavaMethod {
         return this.annotations;
     }
 
-    public void addWSDLException(WSDLException exception) {
-        if (wsdlExceptions.contains(exception)) {
-            Message message = new Message("EXCEPTION_ALREADY_EXIST", LOG, 
-                                          exception.getDetailType().getName());
-            throw new ToolException(message);
-        }
-        wsdlExceptions.add(exception);
-    }
-
-    public List<WSDLException> getWSDLExceptions() {
-        return wsdlExceptions;
-    }
-
-    public void addRequest(WSDLParameter param) {
-        this.requestParameter = param;
-    }
-
-    public WSDLParameter getRequest() {
-        return this.requestParameter;
-    }
-
-    public void addResponse(WSDLParameter param) {
-        this.responseParameter = param;
-    }
-
-    public WSDLParameter getResponse() {
-        return this.responseParameter;
-    }
-
     public List<String> getParameterList() {
         return getParameterList(true);
     }
@@ -274,14 +266,14 @@ public class JavaMethod {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < parameters.size(); i++) {
             JavaParameter parameter = parameters.get(i);
-            if (includeAnnotation) {
+            if (includeAnnotation && parameter.getAnnotation() != null) {
                 list.add(parameter.getAnnotation().toString());
             }
             sb.setLength(0);
             if (parameter.isHolder()) {
                 sb.append(parameter.getHolderName());
                 sb.append("<");
-                sb.append(parameter.getHolderClass());
+                sb.append(parameter.getClassName());
                 sb.append(">");
             } else {
                 sb.append(parameter.getClassName());
@@ -294,16 +286,6 @@ public class JavaMethod {
             list.add(sb.toString());
         }
         return list;
-    }
-
-    public JAXWSBinding getJAXWSBinding() {
-        return this.jaxwsBinding;
-    }
-
-    public void setJAXWSBinding(JAXWSBinding binding) {
-        if (binding != null) {
-            this.jaxwsBinding = binding;
-        }
     }
 
     public String toString() {
@@ -324,11 +306,19 @@ public class JavaMethod {
         return sb.toString();
     }
 
-    public JAXWSBinding getBindingExt() {
-        return bindingExt;
+    public void setInterface(JavaInterface intf) {
+        this.javaInterface = intf;
     }
 
-    public void setBindingExt(JAXWSBinding pBindingExt) {
-        this.bindingExt = pBindingExt;
+    public void annotate(Annotator annotator) {
+        annotator.annotate(this);
+    }
+
+    public void setJavaCodeBlock(JavaCodeBlock b) {
+        this.block = b;
+    }
+
+    public JavaCodeBlock getJavaCodeBlock() {
+        return this.block;
     }
 }

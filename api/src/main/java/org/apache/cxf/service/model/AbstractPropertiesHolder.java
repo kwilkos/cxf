@@ -20,17 +20,18 @@
 package org.apache.cxf.service.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
 
-public abstract class AbstractPropertiesHolder {
+public abstract class AbstractPropertiesHolder implements Extensible {
     private AtomicReference<Map<String, Object>> propertyMap = new AtomicReference<Map<String, Object>>();
     private AtomicReference<Object[]> extensors = new AtomicReference<Object[]>();
+    private Map<QName, Object> extensionAttributes;
     
     public Object getProperty(String name) {
         if (null == propertyMap.get()) {
@@ -99,34 +100,44 @@ public abstract class AbstractPropertiesHolder {
         return list;
     }
 
-    public List<ExtensibilityElement> getWSDL11Extensors() {
-        if (extensors.get() == null) {
-            return null;
-        }
-        List<ExtensibilityElement> list
-            = new ArrayList<ExtensibilityElement>(extensors.get().length);
-        for (Object obj : extensors.get()) {
-            if (obj instanceof ExtensibilityElement) {
-                list.add((ExtensibilityElement)obj);
-            }
-        }
-        return Collections.unmodifiableList(list);
+    public AtomicReference<Object[]> getExtensors() {
+        return extensors;
     }
-    /*
-    //eventually for wsdl20 support
-    public List<org.apache.woden.wsdl20.extensions.ExtensionElement> getWSDL12Extensors() {
-        if (extensors.get() == null) {
-            return null;
-        }
-        List<ExtensionElement> list
-            = new ArrayList<ExtensionElement>(extensors.get().length);
-        for (Object obj : extensors.get()) {
-            if (obj instanceof ExtensionElement) {
-                list.add((ExtensionElement)obj);
-            }
-        }
-        return Collections.unmodifiableList(list);
+    
+      
+    public Object getExtensionAttribute(QName name) {        
+        return null == extensionAttributes ? null : extensionAttributes.get(name);
     }
-    */
 
+    public Map<QName, Object> getExtensionAttributes() {
+        return extensionAttributes;
+    }
+    
+    public void addExtensionAttribute(QName name, Object attr) {
+        if (null == extensionAttributes) {
+            extensionAttributes = new HashMap<QName, Object>();
+        }
+        extensionAttributes.put(name, attr);
+    }
+   
+    public void setExtensionAttributes(Map<QName, Object> attrs) {
+        extensionAttributes = attrs;        
+    }
+
+    /**
+     * Lookup a configuration value. This may be found in the properties holder supplied
+     * (i.e. an EndpointInfo or ServiceInfo), or it may be a property on the Bus itself.
+     * If no value is found, the defaultValue is returned.
+     * 
+     * @param defaultValue the default value
+     * @param type the extensor type
+     * @return the configuration value or the default
+     */
+    public <T> T getTraversedExtensor(T defaultValue, Class<T> type) {
+        T extensor = getExtensor(type);
+        if (extensor == null) {
+            return defaultValue;
+        }
+        return extensor;
+    }
 }

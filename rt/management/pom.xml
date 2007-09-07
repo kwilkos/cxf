@@ -16,25 +16,21 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-rt-management</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-incubator-M1-SNAPSHOT</version>
-    <name>CXF Runtime Management</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <name>Apache CXF Runtime Management</name>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt</artifactId>
-        <version>2.0-incubator-M1-SNAPSHOT</version>
+        <artifactId>cxf-parent</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
-
-    <properties>
-        <topDirectoryLocation>../..</topDirectoryLocation>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -59,11 +55,17 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
@@ -88,7 +90,7 @@
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/instrumentation.xsd</xsd>
                                     <extension>true</extension>
                                     <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
+                                        <extensionArg>-Xdv</extensionArg>
                                     </extensionArgs>
                                 </xsdOption>
                             </xsdOptions>
@@ -101,12 +103,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-cfg</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-dv</artifactId>
+                        <artifactId>cxf-xjc-dv</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
@@ -119,5 +116,12 @@
 
         </plugins>
     </build>
+
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/management</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/management</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-management</url>
+  </scm>
 
 </project>

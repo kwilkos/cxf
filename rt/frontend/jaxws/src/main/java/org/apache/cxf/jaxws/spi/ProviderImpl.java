@@ -24,11 +24,18 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.spi.ServiceDelegate;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.wsaddressing.W3CEndpointReference;
+
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -44,7 +51,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public ServiceDelegate createServiceDelegate(URL url,
                                                  QName qname,
                                                  Class cls) {
-        Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
+        Bus bus = BusFactory.getThreadDefaultBus();
         return new ServiceImpl(bus, url, qname, cls);
     }
 
@@ -53,7 +60,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
 
         Endpoint ep = null;
         if (EndpointUtils.isValidImplementor(implementor)) {
-            Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
+            Bus bus = BusFactory.getThreadDefaultBus();
             ep = new EndpointImpl(bus, implementor, bindingId);
             return ep;
         } else {
@@ -67,5 +74,30 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
         ep.publish(url);
         return ep;
     }
+
+    // TODO JAX-WS 2.1
+    /*
+    public W3CEndpointReference createW3CEndpointReference(String address,
+                                                           QName serviceName,
+                                                           QName portName,
+                                                           List<Element> metadata,
+                                                           String wsdlDocumentLocation,
+                                                           List<Element> referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> T getPort(EndpointReference endpointReference,
+                         Class<T> serviceEndpointInterface,
+                         WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public EndpointReference readEndpointReference(Source eprInfoset) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+    */
 
 }

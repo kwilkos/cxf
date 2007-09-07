@@ -21,26 +21,32 @@ package org.apache.cxf.ws.addressing;
 
 
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.ws.addressing.policy.MetadataConstants;
+import org.apache.cxf.ws.policy.AssertionInfo;
+import org.apache.cxf.ws.policy.AssertionInfoMap;
 
 
 /**
@@ -64,20 +70,57 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     /**
      * Whether the endpoint supports WS-Addressing.
      */
-    private final AtomicBoolean usingAddressingDetermined = new AtomicBoolean(false);
-    private final AtomicBoolean usingAddressing = new AtomicBoolean(false);
-    
-    /**
-     * REVISIT allow this policy to be configured.
-     */
-    private final boolean allowDuplicates = true;
+
+    private Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
+    private boolean usingAddressingAdvisory;    
+
+    private boolean allowDuplicates = true;
     
     /**
      * Constructor.
      */
     public MAPAggregator() {
-        super();
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
+    }
+    
+    /**
+     * Indicates if duplicate messageIDs are allowed.
+     * @return true iff duplicate messageIDs are allowed
+     */
+    public boolean allowDuplicates() {
+        return allowDuplicates;
+    }
+
+    /**
+     * Allows/disallows duplicate messageIdDs.  
+     * @param ad whether duplicate messageIDs are allowed
+     */
+    public void setAllowDuplicates(boolean ad) {
+        allowDuplicates = ad;
+    }
+
+    /**
+     * Whether the presence of the <wsaw:UsingAddressing> element
+     * in the WSDL is purely advisory, i.e. its absence doesn't prevent
+     * the encoding of WS-A headers.
+     *
+     * @return true if the presence of the <wsaw:UsingAddressing> element is 
+     * advisory
+     */
+    public boolean isUsingAddressingAdvisory() {
+        return usingAddressingAdvisory;
+    }
+
+    /**
+     * Controls whether the presence of the <wsaw:UsingAddressing> element
+     * in the WSDL is purely advisory, i.e. its absence doesn't prevent
+     * the encoding of WS-A headers.
+     *
+     * @param advisory true if the presence of the <wsaw:UsingAddressing>
+     * element is to be advisory
+     */
+    public void setUsingAddressingAdvisory(boolean advisory) {
+        usingAddressingAdvisory = advisory;
     }
 
     /**
@@ -86,16 +129,15 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @param message the current message
      */
     public void handleMessage(Message message) {
-        mediate(message, false);
+        mediate(message, ContextUtils.isFault(message));
     }
 
     /**
-     * Invoked for fault processing.
+     * Invoked when unwinding normal interceptor chain when a fault occurred.
      *
      * @param message the current message
      */
     public void  handleFault(Message message) {
-        mediate(message, true);
     }
 
     /**
@@ -107,39 +149,131 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean usingAddressing(Message message) {
         boolean ret = false;
         if (ContextUtils.isRequestor(message)) {
-            if (!usingAddressingDetermined.get()) {
-                Endpoint endpoint = message.getExchange().get(Endpoint.class);
-                if (endpoint != null) {
-                    EndpointInfo endpointInfo = endpoint.getEndpointInfo();
-                    List<ExtensibilityElement> endpointExts =
-                        endpointInfo != null
-                        ? endpointInfo.getExtensors(ExtensibilityElement.class)
-                        : null;
-                    List<ExtensibilityElement> bindingExts =
-                        endpointInfo != null
-                            && endpointInfo.getBinding() != null
-                        ? endpointInfo.getBinding().getExtensors(ExtensibilityElement.class)
-                        : null;
-                    List<ExtensibilityElement> serviceExts =
-                        endpointInfo != null
-                            && endpointInfo.getService() != null
-                        ? endpointInfo.getService().getExtensors(ExtensibilityElement.class)
-                        : null;
-                    ret = hasUsingAddressing(endpointExts)
-                          || hasUsingAddressing(bindingExts)
-                          || hasUsingAddressing(serviceExts);
-                } else {
-                    ret = WSAContextUtils.retrieveUsingAddressing(message);
-                }
-                setUsingAddressing(ret);
-            } else {
-                ret = usingAddressing.get();
-            }
+            ret = usingAddressingAdvisory
+                || WSAContextUtils.retrieveUsingAddressing(message)
+                || hasUsingAddressing(message) 
+                || hasAddressingAssertion(message)
+                || hasUsingAddressingAssertion(message);
         } else {
             ret = getMAPs(message, false, false) != null;
         }
         return ret;
     }
+      
+   /**
+    * Determine if the use of addressing is indicated by the presence of a
+    * the usingAddressing attribute.
+    *
+    * @param message the current message
+    * @pre message is outbound
+    * @pre requestor role
+    */
+    private boolean hasUsingAddressing(Message message) {
+        boolean ret = false;
+        Endpoint endpoint = message.getExchange().get(Endpoint.class);
+        if (null != endpoint) {
+            Boolean b = usingAddressing.get(endpoint);
+            if (null == b) {
+                EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+                List<ExtensibilityElement> endpointExts = endpointInfo != null ? endpointInfo
+                    .getExtensors(ExtensibilityElement.class) : null;
+                List<ExtensibilityElement> bindingExts = endpointInfo != null
+                    && endpointInfo.getBinding() != null ? endpointInfo
+                    .getBinding().getExtensors(ExtensibilityElement.class) : null;
+                List<ExtensibilityElement> serviceExts = endpointInfo != null
+                    && endpointInfo.getService() != null ? endpointInfo
+                    .getService().getExtensors(ExtensibilityElement.class) : null;
+                ret = hasUsingAddressing(endpointExts) || hasUsingAddressing(bindingExts)
+                             || hasUsingAddressing(serviceExts);
+                b = ret ? Boolean.TRUE : Boolean.FALSE;
+                usingAddressing.put(endpoint, b);
+            } else {
+                ret = b.booleanValue();
+            }
+        }    
+        return ret;
+    }
+    
+    /**
+     * Determine if the use of addressing is indicated by an Addressing assertion in the
+     * alternative chosen for the current message.
+     * 
+     * @param message the current message
+     * @pre message is outbound
+     * @pre requestor role
+     */
+    private boolean hasAddressingAssertion(Message message) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return false;
+            
+        }
+        Collection<AssertionInfo> ais = aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
+        if (null == ais || ais.size() == 0) {
+            return false;
+        }
+        // no need to analyse the content of the Addressing assertion here
+        
+        return true;
+    }
+    
+    /**
+     * Determine if the use of addressing is indicated by a UsingAddressing in the
+     * alternative chosen for the current message.
+     * 
+     * @param message the current message
+     * @pre message is outbound
+     * @pre requestor role
+     */
+    private boolean hasUsingAddressingAssertion(Message message) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return false;
+            
+        }
+        Collection<AssertionInfo> ais = aim.get(MetadataConstants.USING_ADDRESSING_2004_QNAME);
+        if (null != ais || ais.size() > 0) {
+            return true;
+        }
+        ais = aim.get(MetadataConstants.USING_ADDRESSING_2005_QNAME);
+        if (null != ais || ais.size() > 0) {
+            return true;
+        }
+        ais = aim.get(MetadataConstants.USING_ADDRESSING_2006_QNAME);
+        if (null != ais || ais.size() > 0) {
+            return true;
+        } 
+        return false;
+    }
+    
+    /**
+     * Asserts all Addressing assertions for the current message, regardless their nested 
+     * Policies.
+     * @param message the current message
+     */
+    private void assertAddressing(Message message) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return;
+            
+        }
+        QName[] types = new QName[] {
+            MetadataConstants.ADDRESSING_ASSERTION_QNAME,
+            MetadataConstants.USING_ADDRESSING_2004_QNAME,
+            MetadataConstants.USING_ADDRESSING_2005_QNAME,
+            MetadataConstants.USING_ADDRESSING_2006_QNAME
+        };
+        
+        for (QName type : types) {
+            Collection<AssertionInfo> ais = aim.get(type);
+            if (null != ais) {
+                for (AssertionInfo ai : ais) {
+                    ai.setAsserted(true);
+                }
+            }
+        }
+    }
+
 
     /**
      * @param exts list of extension elements
@@ -165,7 +299,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @param isFault true if a fault is being mediated
      * @return true if processing should continue on dispatch path 
      */
-    private boolean mediate(Message message, boolean isFault) {    
+    protected boolean mediate(Message message, boolean isFault) {    
         boolean continueProcessing = true;
         if (ContextUtils.isOutbound(message)) {
             if (usingAddressing(message)) {
@@ -175,21 +309,34 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         } else if (!ContextUtils.isRequestor(message)) {
             // responder validates incoming MAPs
             AddressingPropertiesImpl maps = getMAPs(message, false, false);
-            setUsingAddressing(true);
+            if (null == maps) {
+                return false;
+            }
             boolean isOneway = message.getExchange().isOneWay();
             continueProcessing = validateIncomingMAPs(maps, message);
             if (continueProcessing) {
+                // any faults thrown from here on can be correlated with this message
+                message.put(FaultMode.class, FaultMode.LOGICAL_RUNTIME_FAULT);
                 if (isOneway
                     || !ContextUtils.isGenericAddress(maps.getReplyTo())) {
                     ContextUtils.rebaseResponse(maps.getReplyTo(),
                                                 maps,
                                                 message);
-                }          
+                }
+                if (!isOneway) {
+                    // ensure the inbound MAPs are available in both the full & fault
+                    // response messages (used to determine relatesTo etc.)
+                    ContextUtils.propogateReceivedMAPs(maps,
+                                                       message.getExchange());
+                }
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated
                 aggregate(message, isFault);
             }
+        }
+        if (null != ContextUtils.retrieveMAPs(message, false, ContextUtils.isOutbound(message))) {            
+            assertAddressing(message);
         }
         return continueProcessing;
     }
@@ -261,10 +408,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 }
                 EndpointReferenceType reference = conduit != null
                                                   ? conduit.getTarget()
-                                                  : null;
-                maps.setTo(reference != null 
-                           ? reference.getAddress()
-                           : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));                
+                                                  : ContextUtils.getNoneEndpointReference();
+                maps.setTo(reference);
             }
 
             // ReplyTo, set if null in MAPs or if set to a generic address
@@ -279,7 +424,11 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                         replyTo = backChannel.getAddress();
                     }
                 }
-                if (replyTo == null || isOneway) {
+                if (replyTo == null
+                    || (isOneway
+                        && (replyTo.getAddress() == null
+                            || !Names.WSA_NONE_ADDRESS.equals(
+                                    replyTo.getAddress().getValue())))) {
                     AttributedURIType address =
                         ContextUtils.getAttributedURI(isOneway
                                                       ? Names.WSA_NONE_ADDRESS
@@ -290,23 +439,38 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 }
                 maps.setReplyTo(replyTo);
             }
-            if (!isOneway) {
-                // REVISIT FaultTo if cached by transport in message
+
+            // FaultTo
+            if (maps.getFaultTo() == null) {
+                maps.setFaultTo(maps.getReplyTo());
+            } else if (maps.getFaultTo().getAddress() == null) {
+                maps.setFaultTo(null);
             }
         } else {
             // add response-specific MAPs
             AddressingPropertiesImpl inMAPs = getMAPs(message, false, false);
             maps.exposeAs(inMAPs.getNamespaceURI());
-            // To taken from ReplyTo in incoming MAPs
-            if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
-                maps.setTo(inMAPs.getReplyTo().getAddress());
+            // To taken from ReplyTo or FaultTo in incoming MAPs (depending
+            // on the fault status of the response)
+            if (isFault && inMAPs.getFaultTo() != null) {
+                maps.setTo(inMAPs.getFaultTo());
+            } else if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
+                maps.setTo(inMAPs.getReplyTo());
             }
+
             // RelatesTo taken from MessageID in incoming MAPs
-            if (inMAPs.getMessageID() != null) {
+            if (inMAPs.getMessageID() != null
+                && !Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE))) {
                 String inMessageID = inMAPs.getMessageID().getValue();
                 maps.setRelatesTo(ContextUtils.getRelatesTo(inMessageID));
             }
 
+            // fallback fault action
+            if (isFault && maps.getAction() == null) {
+                maps.setAction(ContextUtils.getAttributedURI(
+                    Names.WSA_DEFAULT_FAULT_ACTION));
+            }
+ 
             if (isFault
                 && !ContextUtils.isGenericAddress(inMAPs.getFaultTo())) {
                 ContextUtils.rebaseResponse(inMAPs.getFaultTo(),
@@ -353,7 +517,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean validateIncomingMAPs(AddressingProperties maps,
                                          Message message) {
         boolean valid = true;
-        if (allowDuplicates && maps != null) {
+        if (!allowDuplicates && maps != null) {
             AttributedURIType messageID = maps.getMessageID();
             if (messageID != null
                 && messageIDs.put(messageID.getValue(), 
@@ -372,16 +536,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             }
         }
         return valid;
-    }
-    
-    /**
-     * Set using addressing flag.
-     * 
-     * @param using true if addressing in use.
-     */
-    private void setUsingAddressing(boolean using) {
-        usingAddressing.set(using);
-        usingAddressingDetermined.set(true);
     }
 }
 

@@ -1,0 +1,365 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-bundle</artifactId>
+    <packaging>jar</packaging>
+    <name>Apache CXF Bundle Jar</name>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <url>http://cwiki.apache.org/CXF</url>
+
+    <parent>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-parent</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
+    </parent>
+
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+        <cxf.version>${pom.version}</cxf.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-common-utilities</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-common-schemas</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-common</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-validator</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-wsdlto-core</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-misctools</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-xjc-ts</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-xjc-dv</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-core</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-management</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-transports-local</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-transports-jms</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-coloc</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-object</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-xml</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-http</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-databinding-aegis</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-frontend-js</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-frontend-simple</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-policy</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-addr</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-rm</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>shade-maven-plugin</artifactId>
+                <version>1.0-alpha-10</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedGroupFilter>org.apache.cxf</shadedGroupFilter>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <transformers>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.ApacheNoticeResourceTransformer">
+                                    <projectName>Apache CXF</projectName>
+                                </transformer>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/com.sun.tools.xjc.Plugin</resource>
+                                </transformer>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/cxf/cxf.extension</resource>
+                                </transformer>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.XmlAppendingTransformer">
+                                    <resource>META-INF/extensions.xml</resource>
+                                </transformer>
+                                <transformer implementation="org.codehaus.mojo.shade.resource.XmlAppendingTransformer">
+                                    <resource>META-INF/bus-extensions.xml</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.cxf.maven.PluginTransformer">
+                                    <resource>META-INF/tools-plugin.xml</resource>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>cxf-buildtools</artifactId>
+                        <version>${pom.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+         <profile>
+             <id>deploy</id>
+             <build>
+                 <plugins>
+                     <plugin>
+                         <groupId>org.apache.maven.plugins</groupId>
+                         <artifactId>maven-dependency-plugin</artifactId>
+                         <executions>
+                             <execution>
+                                 <id>unpack-sources</id>
+                                 <phase>generate-sources</phase>
+                                 <goals>
+                                     <goal>unpack-dependencies</goal>
+                                 </goals>
+                                 <configuration>
+                                     <includeGroupIds>org.apache.cxf</includeGroupIds>
+                                     <classifier>sources</classifier>
+                                     <outputDirectory>${project.build.directory}/sources</outputDirectory>
+                                 </configuration>
+                             </execution>
+                         </executions>
+                     </plugin>
+
+                     <plugin>
+                         <groupId>org.apache.maven.plugins</groupId>
+                         <artifactId>maven-javadoc-plugin</artifactId>
+                         <executions>
+                             <execution>
+                                 <id>package</id>
+                                 <phase>package</phase>
+                                 <goals>
+                                     <goal>jar</goal>
+                                 </goals>
+                             </execution>
+                         </executions>
+                         <configuration>
+                             <header>Apache CXF API</header>
+                             <footer>Apache CXF API</footer>
+                             <sourcepath>${project.build.directory}/sources</sourcepath>
+                         </configuration>
+                     </plugin>
+                 </plugins>
+             </build>
+         </profile>
+    </profiles>
+
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-bundle</url>
+    </scm>
+
+</project>

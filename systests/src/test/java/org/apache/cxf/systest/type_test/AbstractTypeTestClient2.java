@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
 import org.apache.type_test.types1.AnonymousStruct;
 import org.apache.type_test.types1.BoundedArray;
 import org.apache.type_test.types1.ChoiceArray;
+import org.apache.type_test.types1.ColourEnum;
 import org.apache.type_test.types1.CompoundArray;
 import org.apache.type_test.types1.DerivedStructBaseEmpty;
 import org.apache.type_test.types1.Document;
@@ -79,13 +79,9 @@ import org.apache.type_test.types3.StructWithMultipleSubstitutionGroups;
 import org.apache.type_test.types3.StructWithSubstitutionGroup;
 import org.apache.type_test.types3.StructWithSubstitutionGroupAbstract;
 import org.apache.type_test.types3.StructWithSubstitutionGroupNil;
+import org.junit.Test;
 
 public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
-
-    public AbstractTypeTestClient2(String name, QName theServicename,
-            QName thePort, String theWsdlPath) {
-        super(name, theServicename, thePort, theWsdlPath);
-    }
 
     protected <T> boolean equalsNilable(T x, T y) {
         if (x == null) {
@@ -102,7 +98,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
 
     //org.apache.type_test.types1.EmptyStruct
-    
+    @Test
     public void testEmptyStruct() throws Exception {
         EmptyStruct x = new EmptyStruct();
         EmptyStruct yOrig = new EmptyStruct();
@@ -111,6 +107,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         EmptyStruct ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyStruct(x, y, z);            
         } else {
             ret = rpcClient.testEmptyStruct(x, y, z);
         }
@@ -136,6 +134,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         z = new Holder<EmptyStruct>();
         if (testDocLiteral) {
             ret = docClient.testEmptyStruct(derivedX, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyStruct(derivedX, y, z);
         } else {
             ret = rpcClient.testEmptyStruct(derivedX, y, z);
         }
@@ -156,7 +156,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarString().equals(y.getVarString()))
             && (equalsNilable(x.getVarAttrString(), y.getVarAttrString()));
     }
-    
+    @Test
     public void testSimpleStruct() throws Exception {
         SimpleStruct x = new SimpleStruct();
         x.setVarFloat(3.14f);
@@ -173,6 +173,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleStruct ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleStruct(x, y, z);
         } else {
             ret = rpcClient.testSimpleStruct(x, y, z);
         }
@@ -193,7 +195,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && equalsNilable(x.getVarString(), y.getVarString())
             && equalsNilable(x.getVarStruct(), y.getVarStruct());
     }
-    
+    @Test
     public void testStructWithNillables() throws Exception {
         StructWithNillables x = new StructWithNillables();
         StructWithNillables yOrig = new StructWithNillables();
@@ -206,6 +208,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithNillables ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithNillables(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillables(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillables(x, y, z);
         }
@@ -225,7 +229,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarInt() == y.getVarInt())
             && (x.getVarString().equals(y.getVarString()));
     }
-    
+    @Test
     public void testAnonymousStruct() throws Exception {
         AnonymousStruct x = new AnonymousStruct();
         x.setVarInt(100);
@@ -242,6 +246,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         AnonymousStruct ret;
         if (testDocLiteral) {
             ret = docClient.testAnonymousStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testAnonymousStruct(x, y, z);
         } else {
             ret = rpcClient.testAnonymousStruct(x, y, z);
         }
@@ -280,7 +286,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return equals(x, y);
         }
     }
-    
+    @Test
     public void testNestedStruct() throws Exception {
         SimpleStruct xs = new SimpleStruct();
         xs.setVarFloat(30.14);
@@ -310,6 +316,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         NestedStruct ret;
         if (testDocLiteral) {
             ret = docClient.testNestedStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNestedStruct(x, y, z);
         } else {
             ret = rpcClient.testNestedStruct(x, y, z);
         }
@@ -323,7 +331,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.FixedArray
-    
+    @Test
     public void testFixedArray() throws Exception {
         FixedArray x = new FixedArray();
         x.getItem().addAll(Arrays.asList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE));
@@ -336,6 +344,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         FixedArray ret;
         if (testDocLiteral) {
             ret = docClient.testFixedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testFixedArray(x, y, z);
         } else {
             ret = rpcClient.testFixedArray(x, y, z);
         }
@@ -352,7 +362,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.BoundedArray
-    
+    @Test
     public void testBoundedArray() throws Exception {
         BoundedArray x = new BoundedArray();
         x.getItem().addAll(Arrays.asList(-100.00f, 0f, 100.00f));
@@ -364,6 +374,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         BoundedArray ret;
         if (testDocLiteral) {
             ret = docClient.testBoundedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testBoundedArray(x, y, z);
         } else {
             ret = rpcClient.testBoundedArray(x, y, z);
         }
@@ -402,7 +414,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testUnboundedArray() throws Exception {
         UnboundedArray x = new UnboundedArray();
         x.getItem().addAll(Arrays.asList("AAA", "BBB", "CCC"));
@@ -414,6 +426,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         UnboundedArray ret;
         if (testDocLiteral) {
             ret = docClient.testUnboundedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnboundedArray(x, y, z);
         } else {
             ret = rpcClient.testUnboundedArray(x, y, z);
         }
@@ -432,7 +446,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getArray1().equals(y.getArray1())
             && x.getArray2().equals(y.getArray2());
     }
-    
+    @Test
     public void testCompoundArray() throws Exception {
         CompoundArray x = new CompoundArray();
         x.getArray1().addAll(Arrays.asList("AAA", "BBB", "CCC"));
@@ -447,6 +461,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         CompoundArray ret;
         if (testDocLiteral) {
             ret = docClient.testCompoundArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testCompoundArray(x, y, z);
         } else {
             ret = rpcClient.testCompoundArray(x, y, z);
         }
@@ -460,7 +476,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
 
     //org.apache.type_test.types1.NestedArray
-    
+    @Test
     public void testNestedArray() throws Exception {
         String[][] xs = {{"AAA", "BBB", "CCC"}, {"aaa", "bbb", "ccc"}, {"a_a_a", "b_b_b", "c_c_c"}};
         String[][] ys = {{"XXX", "YYY", "ZZZ"}, {"xxx", "yyy", "zzz"}, {"x_x_x", "y_y_y", "z_z_z"}};
@@ -485,6 +501,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         NestedArray ret;
         if (testDocLiteral) {
             ret = docClient.testNestedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNestedArray(x, y, z);
         } else {
             ret = rpcClient.testNestedArray(x, y, z);
         }
@@ -528,7 +546,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             }
         }
     }
-
+    @Test
     public void testStructWithList() throws Exception {
         StructWithList x = new StructWithList();
         x.getVarList().add("I");
@@ -545,6 +563,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithList ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithList(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithList(x, y, z);
         } else {
             ret = rpcClient.testStructWithList(x, y, z);
         }
@@ -560,6 +580,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithList(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithList(x, y, z);
         } else {
             ret = rpcClient.testStructWithList(x, y, z);
         }
@@ -575,6 +597,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithList(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithList(x, y, z);
         } else {
             ret = rpcClient.testStructWithList(x, y, z);
         }
@@ -593,7 +617,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getVarUnion(), y.getVarUnion());
         assertEquals(msg, x.getAttribUnion(), y.getAttribUnion());
     }
-
+    @Test
     public void testStructWithUnion() throws Exception {
         StructWithUnion x = new StructWithUnion();
         x.setVarUnion("999");
@@ -605,6 +629,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithUnion ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithUnion(x, y, z);
         } else {
             ret = rpcClient.testStructWithUnion(x, y, z);
         }
@@ -618,6 +644,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithUnion(x, y, z);
         } else {
             ret = rpcClient.testStructWithUnion(x, y, z);
         }
@@ -631,6 +659,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithUnion(x, y, z);
         } else {
             ret = rpcClient.testStructWithUnion(x, y, z);
         }
@@ -642,7 +672,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.EmptyChoice
-
+    @Test
     public void testEmptyChoice() throws Exception {
         EmptyChoice x = new EmptyChoice();
         EmptyChoice yOrig = new EmptyChoice();
@@ -651,6 +681,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         EmptyChoice ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyChoice(x, y, z);
         } else {
             ret = rpcClient.testEmptyChoice(x, y, z);
         }
@@ -676,7 +708,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return false;
         }
     }
-
+    @Test
     public void testSimpleChoice() throws Exception {
         SimpleChoice x = new SimpleChoice();
         x.setVarFloat(-3.14f);
@@ -689,6 +721,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleChoice ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleChoice(x, y, z);
         } else {
             ret = rpcClient.testSimpleChoice(x, y, z);
         }
@@ -702,7 +736,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.EmptyAll
-
+    @Test
     public void testEmptyAll() throws Exception {
         EmptyAll x = new EmptyAll();
         EmptyAll yOrig = new EmptyAll();
@@ -711,6 +745,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         EmptyAll ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyAll(x, y, z);
         } else {
             ret = rpcClient.testEmptyAll(x, y, z);
         }
@@ -731,7 +767,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarString().equals(y.getVarString()))
             && (x.getVarAttrString().equals(y.getVarAttrString()));
     }
-    
+    @Test
     public void testSimpleAll() throws Exception {
         SimpleAll x = new SimpleAll();
         x.setVarFloat(3.14f);
@@ -751,6 +787,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleAll ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleAll(x, y, z);
         } else {
             ret = rpcClient.testSimpleAll(x, y, z);
         }
@@ -771,7 +809,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && equalsNilable(x.getVarString(), y.getVarString())
             && equalsNilable(x.getVarStruct(), y.getVarStruct());
     }
-    
+    @Test
     public void testStructWithOptionals() throws Exception {
         StructWithOptionals x = new StructWithOptionals();
         StructWithOptionals yOrig = new StructWithOptionals();
@@ -785,6 +823,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithOptionals ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithOptionals(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOptionals(x, y, z);
         } else {
             ret = rpcClient.testStructWithOptionals(x, y, z);
         }
@@ -805,7 +845,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarString().equals(y.getVarString()))
             && equals(x.getVarStructArray(), y.getVarStructArray());
     }
-    
+    @Test
     public void testRecursiveStruct() throws Exception {
         RecursiveStruct xtmp = new RecursiveStruct();
         xtmp.setVarFloat(0.14f);
@@ -840,6 +880,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveStruct ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveStruct(x, y, z);
         } else {
             ret = rpcClient.testRecursiveStruct(x, y, z);
         }
@@ -870,7 +912,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testRecursiveStructArray() throws Exception {
         RecursiveStruct xtmp = new RecursiveStruct();
         xtmp.setVarFloat(0.14f);
@@ -896,6 +938,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveStructArray ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveStructArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveStructArray(x, y, z);
         } else {
             ret = rpcClient.testRecursiveStructArray(x, y, z);
         }
@@ -919,7 +963,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-
+    @Test
     public void testRecursiveUnion() throws Exception {
         RecursiveUnion tmp1 = new RecursiveUnion();
         tmp1.setVarString("RecusiveUnion-1");
@@ -951,6 +995,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveUnion ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveUnion(x, y, z);
         } else {
             ret = rpcClient.testRecursiveUnion(x, y, z);
         }
@@ -969,7 +1015,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getVarInt() == y.getVarInt()
             && equals(x.getVarChoiceArray(), y.getVarChoiceArray());
     }
-
+    @Test
     public void testRecursiveUnionData() throws Exception {
         RecursiveUnion tmp1 = new RecursiveUnion();
         tmp1.setVarString("RecusiveUnion-1");
@@ -995,6 +1041,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveUnionData ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveUnionData(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveUnionData(x, y, z);
         } else {
             ret = rpcClient.testRecursiveUnionData(x, y, z);
         }
@@ -1025,7 +1073,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testChoiceArray() throws Exception {
         RecursiveUnion tmp1 = new RecursiveUnion();
         tmp1.setVarString("RecusiveUnion-1");
@@ -1044,6 +1092,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceArray ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceArray(x, y, z);
         } else {
             ret = rpcClient.testChoiceArray(x, y, z);
         }
@@ -1058,7 +1108,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
 
     //org.apache.type_test.types2.ExtendsSimpleType
-    
+    @Test
     public void testExtendsSimpleType() throws Exception {
         ExtendsSimpleType x = new ExtendsSimpleType();
         x.setValue("foo");
@@ -1069,6 +1119,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtendsSimpleType ret;
         if (testDocLiteral) {
             ret = docClient.testExtendsSimpleType(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtendsSimpleType(x, y, z);
         } else {
             ret = rpcClient.testExtendsSimpleType(x, y, z);
         }
@@ -1080,7 +1132,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.ExtendsSimpleContent
-
+    @Test
     public void testExtendsSimpleContent() throws Exception {
         ExtendsSimpleContent x = new ExtendsSimpleContent();
         x.setValue("foo");
@@ -1092,6 +1144,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtendsSimpleContent ret;
         if (testDocLiteral) {
             ret = docClient.testExtendsSimpleContent(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtendsSimpleContent(x, y, z);
         } else {
             ret = rpcClient.testExtendsSimpleContent(x, y, z);
         }
@@ -1108,7 +1162,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getValue(), y.getValue());
         assertEquals(msg, x.getID(), y.getID());
     }
-    
+    @Test
     public void testDocument() throws Exception {
         Document x = new Document();
         x.setValue("content-x");
@@ -1123,6 +1177,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         Document ret;
         if (testDocLiteral) {
             ret = docClient.testDocument(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDocument(x, y, z);
         } else {
             ret = rpcClient.testDocument(x, y, z);
         }
@@ -1143,6 +1199,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
 
         if (testDocLiteral) {
             ret = docClient.testDocument(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDocument(x, y, z);
         } else {
             ret = rpcClient.testDocument(x, y, z);
         }
@@ -1156,15 +1214,14 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     // org.apache.type_test.types1.ExtColourEnum
-    // XXX - TODO - ColourEnum generated method fromValue() isn't static...
+
     protected boolean equals(ExtColourEnum x, ExtColourEnum y) {
-        return (x.getAttrib1() == y.getAttrib1())
+        return (x.getAttrib1().equals(y.getAttrib1()))
             && (x.getAttrib2().equals(y.getAttrib2()))
             && (x.getValue().equals(y.getValue()));
     }
-    
+    @Test
     public void testExtColourEnum() throws Exception {
-        /*
         ExtColourEnum x = new ExtColourEnum();
         x.setAttrib1(new Integer(1));
         x.setAttrib2("Ax");
@@ -1180,6 +1237,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtColourEnum ret;
         if (testDocLiteral) {
             ret = docClient.testExtColourEnum(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtColourEnum(x, y, z);
         } else {
             ret = rpcClient.testExtColourEnum(x, y, z);
         }
@@ -1190,13 +1249,12 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
                        equals(yOrig, z.value));
             assertTrue("testExtColourEnum(): Incorrect return value", equals(x, ret));
         }
-        */
     }
 
     protected boolean equals(ExtBase64Binary x, ExtBase64Binary y) {
         return x.getId() == y.getId() && Arrays.equals(x.getValue(), y.getValue());
     }
-
+    @Test
     public void testExtBase64Binary() throws Exception {
         ExtBase64Binary x1 = new ExtBase64Binary();
         x1.setValue("base64a".getBytes());
@@ -1211,6 +1269,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtBase64Binary ret;
         if (testDocLiteral) {
             ret = docClient.testExtBase64Binary(x1, y1Holder, z1);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtBase64Binary(x1, y1Holder, z1);
         } else {
             ret = rpcClient.testExtBase64Binary(x1, y1Holder, z1);
         }
@@ -1235,7 +1295,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-    
+    @Test
     public void testStructWithSubstitutionGroup() throws Exception {
         SgBaseTypeA baseA = new SgBaseTypeA();
         baseA.setVarInt(new BigInteger("1"));
@@ -1258,6 +1318,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithSubstitutionGroup ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithSubstitutionGroup(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithSubstitutionGroup(x, y, z);
         } else {
             ret = rpcClient.testStructWithSubstitutionGroup(x, y, z);
         }
@@ -1281,7 +1343,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-
+    @Test
     public void testStructWithSubstitutionGroupAbstract() throws Exception {
         SgDerivedTypeB derivedB = new SgDerivedTypeB();
         derivedB.setVarInt(new BigInteger("32"));
@@ -1307,6 +1369,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithSubstitutionGroupAbstract ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithSubstitutionGroupAbstract(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithSubstitutionGroupAbstract(x, y, z);
         } else {
             ret = rpcClient.testStructWithSubstitutionGroupAbstract(x, y, z);
         }
@@ -1332,7 +1396,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return equals(xTypeA, yTypeA);
         }
     }
-    
+    @Test
     public void testStructWithSubstitutionGroupNil() throws Exception {
         StructWithSubstitutionGroupNil x = new StructWithSubstitutionGroupNil();
         ObjectFactory objectFactory = new ObjectFactory();
@@ -1347,6 +1411,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithSubstitutionGroupNil ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithSubstitutionGroupNil(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithSubstitutionGroupNil(x, y, z);
         } else {
             ret = rpcClient.testStructWithSubstitutionGroupNil(x, y, z);
         }
@@ -1397,7 +1463,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testStructWithMultipleSubstitutionGroups() throws Exception {
         SgBaseTypeA baseA = new SgBaseTypeA();
         baseA.setVarInt(new BigInteger("1"));
@@ -1436,6 +1502,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithMultipleSubstitutionGroups ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithMultipleSubstitutionGroups(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithMultipleSubstitutionGroups(x, y, z);
         } else {
             ret = rpcClient.testStructWithMultipleSubstitutionGroups(x, y, z);
         }
@@ -1463,7 +1531,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-    
+    @Test
     public void testChoiceWithSubstitutionGroupAbstract() throws Exception {
         SgDerivedTypeB derivedB = new SgDerivedTypeB();
         derivedB.setVarInt(new BigInteger("32"));
@@ -1489,6 +1557,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceWithSubstitutionGroupAbstract ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithSubstitutionGroupAbstract(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithSubstitutionGroupAbstract(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithSubstitutionGroupAbstract(x, y, z);
         }
@@ -1537,7 +1607,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return y.getSg04NillableBaseElementA() == null;
         }
     }
-    
+    @Test
     public void testChoiceWithSubstitutionGroupNil() throws Exception {
         ObjectFactory objectFactory = new ObjectFactory();
         
@@ -1555,6 +1625,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceWithSubstitutionGroupNil ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithSubstitutionGroupNil(x, y, z); 
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithSubstitutionGroupNil(x, y, z); 
         } else {
             ret = rpcClient.testChoiceWithSubstitutionGroupNil(x, y, z);
         }
@@ -1618,7 +1690,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-
+    @Test
     public void testChoiceWithSubstitutionGroup() throws Exception {
         SgBaseTypeA baseA = new SgBaseTypeA();
         baseA.setVarInt(new BigInteger("1"));
@@ -1645,6 +1717,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceWithSubstitutionGroup ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithSubstitutionGroup(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithSubstitutionGroup(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithSubstitutionGroup(x, y, z);
         }
@@ -1679,7 +1753,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getVarInt() == y.getVarInt()
             && equals(x.getRecElNext(), y.getRecElNext());
     }
-
+    @Test
     public void testRecElType() throws Exception {
         RecElType x = new RecElType();
         RecElType y = new RecElType();
@@ -1698,6 +1772,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecElType ret;
         if (testDocLiteral) {
             ret = docClient.testRecElType(x, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecElType(x, yh, zh);
         } else {
             ret = rpcClient.testRecElType(x, yh, zh);
         }
@@ -1806,7 +1882,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getVarInt() == y.getVarInt()
             && equals(x.getRecOuterNext(), y.getRecOuterNext());
     }
-
+    @Test
     public void testRecOuterType() throws Exception {
         RecMostInnerType mitx = new RecMostInnerType();
         RecMostInnerType mity = new RecMostInnerType();
@@ -1849,6 +1925,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecOuterType ret;
         if (testDocLiteral) {
             ret = docClient.testRecOuterType(otx, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecOuterType(otx, yh, zh);
         } else {
             ret = rpcClient.testRecOuterType(otx, yh, zh);
         }
@@ -1867,7 +1945,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getAttrib1B(), y.getAttrib1B());
         assertEquals(msg, x.getValue(), y.getValue());
     }
-
+    @Test
     public void testSimpleContent1() throws Exception {
         SimpleContent1 x1 = new SimpleContent1();
         x1.setValue("foo");
@@ -1884,6 +1962,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleContent1 ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContent1(x1, y1Holder, z1);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleContent1(x1, y1Holder, z1);
         } else {
             ret = rpcClient.testSimpleContent1(x1, y1Holder, z1);
         }
@@ -1899,7 +1979,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getAttrib2B(), y.getAttrib2B());
         equals(msg, (SimpleContent1)x, (SimpleContent1)y);
     }
-
+    @Test
     public void testSimpleContent2() throws Exception {
         SimpleContent2 x2 = new SimpleContent2();
         x2.setValue("foo");
@@ -1920,6 +2000,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleContent2 ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContent2(x2, y2Holder, z2);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleContent2(x2, y2Holder, z2);
         } else {
             ret = rpcClient.testSimpleContent2(x2, y2Holder, z2);
         }
@@ -1935,7 +2017,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.isAttrib3B(), y.isAttrib3B());
         equals(msg, (SimpleContent2)x, (SimpleContent2)y);
     }
-
+    @Test
     public void testSimpleContent3() throws Exception {
         SimpleContent3 x3 = new SimpleContent3();
         x3.setValue("foo");
@@ -1960,6 +2042,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleContent3 ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContent3(x3, y3Holder, z3);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleContent3(x3, y3Holder, z3);
         } else {
             ret = rpcClient.testSimpleContent3(x3, y3Holder, z3);
         }
@@ -1975,7 +2059,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertTrue(msg, y != null);
         assertEquals(msg, x.getValue(), y.getValue());
     }
-
+    @Test
     public void testUnionSimpleContent() throws Exception {
         UnionSimpleContent x = new UnionSimpleContent();
         x.setValue("5");
@@ -1987,6 +2071,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         UnionSimpleContent ret;
         if (testDocLiteral) {
             ret = docClient.testUnionSimpleContent(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnionSimpleContent(x, y, z);
         } else {
             ret = rpcClient.testUnionSimpleContent(x, y, z);
         }

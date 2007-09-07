@@ -24,7 +24,8 @@ import org.apache.cxf.jms_greeter.JMSGreeterPortType;
 @javax.jws.WebService(portName = "GreeterPort", 
                       serviceName = "JMSGreeterService",
                       targetNamespace = "http://cxf.apache.org/jms_greeter",
-                      endpointInterface = "org.apache.cxf.jms_greeter.JMSGreeterPortType")
+                      endpointInterface = "org.apache.cxf.jms_greeter.JMSGreeterPortType",
+                      wsdlLocation = "file:./wsdl/jms_greeter.wsdl")
 public class GreeterJMSImpl implements JMSGreeterPortType {
 
     private static final Logger LOG = Logger.getLogger(GreeterJMSImpl.class.getPackage().getName());

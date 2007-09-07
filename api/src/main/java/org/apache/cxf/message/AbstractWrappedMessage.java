@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
 /**
@@ -68,12 +67,16 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getAttachments();
     }
 
-    public String getAttachmentMimeType() {
-        return message.getAttachmentMimeType();
+    public void setAttachments(Collection<Attachment> attachments) {
+        message.setAttachments(attachments);
     }
-    
-    public Conduit getConduit() {
-        return message.getConduit();
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
     }
     
     public Destination getDestination() {
@@ -84,7 +87,7 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getExchange();
     }
 
-    public void setExchange(Exchange exchange) {
+    public final void setExchange(Exchange exchange) {
         message.setExchange(exchange);
     }
 
@@ -92,6 +95,10 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getId();
     }
 
+    public void setId(String id) {
+        message.setId(id);
+    }
+    
     public InterceptorChain getInterceptorChain() {
         return message.getInterceptorChain();
     }
@@ -101,6 +108,9 @@ public abstract class AbstractWrappedMessage implements Message {
 
     public <T> T getContent(Class<T> format) {
         return message.getContent(format);
+    }
+    public <T> void removeContent(Class<T> format) {
+        message.removeContent(format);
     }
 
     public Set<Class<?>> getContentFormats() {
@@ -152,6 +162,5 @@ public abstract class AbstractWrappedMessage implements Message {
 
     public Object getContextualProperty(String key) {
         return message.getContextualProperty(key);
-    }
-    
+    }       
 }

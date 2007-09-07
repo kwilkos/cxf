@@ -19,9 +19,15 @@
 
 package org.apache.cxf.endpoint;
 
+import org.apache.cxf.transport.Destination;
+
 public interface Server  {
 
     void start();
     
     void stop();
+    
+    Destination getDestination();
+    
+    Endpoint getEndpoint();
 }

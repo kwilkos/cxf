@@ -20,6 +20,7 @@
 package org.apache.hello_world_soap_http;
 
 
+import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -27,38 +28,73 @@ import javax.annotation.Resource;
 
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.ErrorCode;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
 import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 @WebService(serviceName = "SOAPService",
             portName = "SoapPort",
             endpointInterface = "org.apache.hello_world_soap_http.Greeter",
-            targetNamespace = "http://apache.org/hello_world_soap_http")
+            targetNamespace = "http://apache.org/hello_world_soap_http",
+            wsdlLocation = "testutils/hello_world.wsdl")
 public class GreeterImpl implements Greeter {
 
     private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
 
     @Resource
     private WebServiceContext context;
+    
+    private String prefix = "";
 
     private int invocationCount;
 
     public WebServiceContext getContext() {
         return context;
     }
-
+    
+    public void setPrefix(String p) {
+        prefix = p;
+    }    
+    
+    public String getPrefix() {
+        return prefix;
+    }
     public String greetMe(String me) {
-        LOG.info("Invoking greetMe");
+        if ("secure".equals(me)) {
+            MessageContext ctx = getContext().getMessageContext();
+            return "Hello " + ctx.get(BindingProvider.USERNAME_PROPERTY);
+        }
+        if ("principal".equals(me)) {
+            return "Hello " + getContext().getUserPrincipal().getName();
+        }
+        
+        
+        LOG.info("Invoking greetMe " + prefix + me);
         invocationCount++;
         return "Hello " + me;
+    }
+
+    public String greetMeLater(long delay) {
+        LOG.info("Invoking greetMeLater " + delay);
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                /// ignore
+            }
+        }
+        return "Hello, finally!";
     }
 
     public String sayHi() {
@@ -81,6 +117,7 @@ public class GreeterImpl implements Greeter {
             nscl.setCode(ec);
             throw new NoSuchCodeLitFault("TestNoSuchCodeLit", nscl);
         }
+        throw new RuntimeException("Unknown source", new IOException("dummy io exception"));
     }
 
     public void greetMeOneWay(String requestType) {
@@ -155,6 +192,16 @@ public class GreeterImpl implements Greeter {
         /*not called */
     }
 
+    public Future<?> greetMeLaterAsync(long requestType, AsyncHandler<GreetMeLaterResponse> asyncHandler) {
+        return null;
+        /*not called */
+    }
+
+    public Response<GreetMeLaterResponse> greetMeLaterAsync(long requestType) {
+        return null;
+        /*not called */
+    }
+
     public Future<?> sayHiAsync(AsyncHandler<SayHiResponse> asyncHandler) {
         invocationCount++;
         return null;
@@ -170,5 +217,22 @@ public class GreeterImpl implements Greeter {
     public int getInvocationCount() {
         return invocationCount;
     }
+
+    public String testNillable(String nillElem, int intElem) {
+        System.out.println("the testNillable is invoked");
+        return nillElem;
+    }
+
+    public Response<TestNillableResponse> testNillableAsync(String nillElem,
+                                                            int intElem) {
+        return null;
+    }
+    
+    public Future<?> testNillableAsync(String nillElem, 
+                                       int intElem,
+                                       AsyncHandler<TestNillableResponse> asyncHandler) {
+        return null;
+    }
+    
 
 }

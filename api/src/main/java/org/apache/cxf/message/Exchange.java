@@ -19,21 +19,22 @@
 
 package org.apache.cxf.message;
 
-import java.util.Map;
-
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.Session;
 
-public interface Exchange extends Map<String, Object> {
+public interface Exchange extends StringMap {
     Message getInMessage();
     void setInMessage(Message m);
     
     Message getOutMessage();
     void setOutMessage(Message m);
     
-    Message getFaultMessage();
-    void setFaultMessage(Message m);
+    Message getInFaultMessage();
+    void setInFaultMessage(Message m);
+
+    Message getOutFaultMessage();
+    void setOutFaultMessage(Message m);
     
     Session getSession();
     
@@ -48,38 +49,26 @@ public interface Exchange extends Map<String, Object> {
     void setDestination(Destination destination);
 
     /**
+     * @param message the associated message
      * @return the associated outgoing Conduit (may be anonymous)
      */
-    Conduit getConduit();
+    Conduit getConduit(Message message);
 
     /**
      * @param conduit the associated outgoing Conduit 
      */
     void setConduit(Conduit conduit);
     
-
     /**
      * @return true if the exchange is known to be a one-way exchange
      */
     boolean isOneWay();
+
     /**
      * 
      * @param b true if the exchange is known to be a one-way exchange
      */
     void setOneWay(boolean b);
     
-    /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  (T)get(key.getName());
-     * @param <T> key
-     * @return
-     */
-    <T> T get(Class<T> key);
-    /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  put(key.getName(), value);
-     * @param <T> key
-     * @return
-     */
-    <T> void put(Class<T> key, T value);
+    void clear();
 }

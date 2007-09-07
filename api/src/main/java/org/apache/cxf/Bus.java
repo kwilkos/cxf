@@ -21,7 +21,15 @@ package org.apache.cxf;
 
 import org.apache.cxf.interceptor.InterceptorProvider;
 
+/**
+ * The Bus is the central place in CXF. Its primary responsibility is
+ * providing access to the different extensions (such as the DestinationFactoryManager,
+ * ConduitFactoryManager, BindingFactoryManager, etc). Depending on the implementation
+ * of the Bus it may also be responsible for wiring up the CXF internals.
+ */
 public interface Bus extends InterceptorProvider {
+    
+    String DEFAULT_BUS_ID = "cxf";
     
     <T> T getExtension(Class<T> extensionType);
     
@@ -32,5 +40,4 @@ public interface Bus extends InterceptorProvider {
     void shutdown(boolean wait);
     
     void run();
-
 }

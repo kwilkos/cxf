@@ -19,12 +19,12 @@
 -->
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.cxf.binding.BindingFactoryManagerImpl"
-           interface="org.apache.cxf.binding.BindingFactoryManager"/>
-    <extension class="org.apache.cxf.transport.DestinationFactoryManagerImpl"
-           interface="org.apache.cxf.transport.DestinationFactoryManager"/>
-    <extension class="org.apache.cxf.transport.ConduitInitiatorManagerImpl"
-           interface="org.apache.cxf.transport.ConduitInitiatorManager"/>
+<!--    <extension class="org.apache.cxf.binding.BindingFactoryManagerImpl"-->
+<!--           interface="org.apache.cxf.binding.BindingFactoryManager"/>-->
+<!--    <extension class="org.apache.cxf.transport.DestinationFactoryManagerImpl"-->
+<!--           interface="org.apache.cxf.transport.DestinationFactoryManager"/>-->
+<!--    <extension class="org.apache.cxf.transport.ConduitInitiatorManagerImpl"-->
+<!--           interface="org.apache.cxf.transport.ConduitInitiatorManager"/>-->
     <extension class="org.apache.cxf.wsdl11.WSDLManagerImpl"
            interface="org.apache.cxf.wsdl.WSDLManager"/>
     <extension class="org.apache.cxf.phase.PhaseManagerImpl"
@@ -35,5 +35,13 @@
        	   interface="org.apache.cxf.buslifecycle.BusLifeCycleManager"/>   	   
     <extension class="org.apache.cxf.endpoint.ServerRegistryImpl"
        	   interface="org.apache.cxf.endpoint.ServerRegistry"/>
-    
+    <extension class="org.apache.cxf.transport.http.QueryHandlerRegistryImpl"
+       	   interface="org.apache.cxf.transports.http.QueryHandlerRegistry"/> 
+    <extension class="org.apache.cxf.endpoint.EndpointResolverRegistryImpl"
+       	   interface="org.apache.cxf.endpoint.EndpointResolverRegistry"/>
+    <extension class="org.apache.cxf.headers.HeaderManagerImpl"
+       	   interface="org.apache.cxf.headers.HeaderManager"/>
+    <extension class="org.apache.cxf.catalog.OASISCatalogManager"
+       	   interface="org.apache.cxf.catalog.OASISCatalogManager"/>
+           
 </extensions>

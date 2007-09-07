@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +48,7 @@ public class HandlerChainBuilder {
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     private Bus bus;
-
-    private boolean handlerInitEnabled;
+    private boolean handlerInitEnabled = true;
 
     public HandlerChainBuilder(Bus aBus) {
         bus = aBus;
@@ -65,6 +65,15 @@ public class HandlerChainBuilder {
         return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
     }
 
+    // methods used by Geronimo to allow configuring things themselves
+    public void setHandlerInitEnabled(boolean b) {
+        handlerInitEnabled = b;
+    }
+
+    public boolean isHandlerInitEnabled() {
+        return handlerInitEnabled;
+    }
+    
     /**
      * sorts the handlers into correct order. All of the logical handlers first
      * followed by the protocol handlers
@@ -89,14 +98,6 @@ public class HandlerChainBuilder {
         sortedHandlers.addAll(logicalHandlers);
         sortedHandlers.addAll(protocolHandlers);
         return sortedHandlers;
-    }
-
-    public void setHandlerInitEnabled(boolean b) {
-        handlerInitEnabled = b;
-    }
-
-    public boolean isHandlerInitEnabled() {
-        return handlerInitEnabled;
     }
 
     protected ClassLoader getHandlerClassLoader() {
@@ -124,7 +125,29 @@ public class HandlerChainBuilder {
         }
         return handlerChain;
     }
-
+    
+    /**
+     * Resolve handler chain configuration file associated with the given class
+     * 
+     * @param clz
+     * @param filename
+     * @return A URL object or null if no resource with this name is found
+     */    
+    protected URL resolveHandlerChainFile(Class clz, String filename) {
+        URL handlerFile = clz.getResource(filename);
+        if (handlerFile == null) {
+            //the file location might be an absolute java.net.URL in externalForm.
+            try {
+                handlerFile = new URL(filename);
+                //test if the URL can be opened
+                handlerFile.openStream();
+            } catch (Exception e) {
+                //do nothing
+            } 
+        }
+        return handlerFile;
+    } 
+    
     private void configureHandler(Handler handler, PortComponentHandlerType h) {
         if (!handlerInitEnabled) {
             return;
@@ -150,11 +173,13 @@ public class HandlerChainBuilder {
     }
 
     private void initializeViaInjection(Handler handler, final Map<String, String> params) {
-        ResourceManager resMgr = bus.getExtension(ResourceManager.class);
-        List<ResourceResolver> resolvers = resMgr.getResourceResolvers();
-        resolvers.add(new InitParamResourceResolver(params));
-        ResourceInjector resInj = new ResourceInjector(resMgr, resolvers);
-        resInj.inject(handler);
+        if (bus != null) {
+            ResourceManager resMgr = bus.getExtension(ResourceManager.class);
+            List<ResourceResolver> resolvers = resMgr.getResourceResolvers();
+            resolvers.add(new InitParamResourceResolver(params));
+            ResourceInjector resInj = new ResourceInjector(resMgr, resolvers);
+            resInj.inject(handler);
+        }
     }
 
     private void initializeViaInitMethod(Handler handler, Map<String, String> params, Method init) {

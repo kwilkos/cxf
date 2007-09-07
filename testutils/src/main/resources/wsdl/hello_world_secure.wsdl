@@ -117,7 +117,7 @@
     <wsdl:service name="SecureSOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9001/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
@@ -125,7 +125,7 @@
     <wsdl:service name="SecureDontRequireClientAuthSOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9002/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service> 
     
@@ -133,63 +133,63 @@
     <wsdl:service name="TargetSecureSOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9001/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="InterSecureSOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9003/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="TargetSecureDontRequireClientAuthSOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9002/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="InterSecureDontRequireClientAuthSOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9004/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="SecureSOAPServiceServerConfiguredByGoodProvider">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9005/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="SecureSOAPServiceServerConfiguredByBadProvider">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9006/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="SecureSOAPServiceP12">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9007/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="SecureSOAPServiceDifferentCipherSuites">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9011/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
     <wsdl:service name="SecureSOAPServiceClientPropertiesSet">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9014/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 
@@ -197,7 +197,7 @@
     <wsdl:service name="SecureSOAPServiceClientPropertiesNotSet">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="https://localhost:9015/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
 

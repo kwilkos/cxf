@@ -19,40 +19,111 @@
 
 package org.apache.cxf.tools.util;
 
-import org.w3c.dom.*;
+import java.io.File;
+import java.io.FileOutputStream;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 
 public final class JAXBUtils {
     private JAXBUtils() {
     }
-    
+
     private static Node innerJaxbBinding(Element schema) {
         String schemaNamespace = schema.getNamespaceURI();
-        Document doc = schema.getOwnerDocument();
-        
-        Element annotation = doc.createElementNS(schemaNamespace, "annotation");
-        Element appinfo  = doc.createElementNS(schemaNamespace, "appinfo");
-        annotation.appendChild(appinfo);
-        Element jaxbBindings = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
-        appinfo.appendChild(jaxbBindings);
+        NodeList annoList = schema.getElementsByTagNameNS(schemaNamespace, "annotation");
+        Element annotation = null;
+        if (annoList.getLength() > 0) {
+            annotation = (Element)annoList.item(0);
+        } else {
+            annotation = schema.getOwnerDocument().createElementNS(schemaNamespace, "annotation");
+        }
+
+        NodeList appList = annotation.getElementsByTagNameNS(schemaNamespace, "appinfo");
+        Element appInfo = null;
+        if (appList.getLength() > 0) {
+            appInfo = (Element)appList.item(0);
+        } else {
+            appInfo = schema.getOwnerDocument().createElementNS(schemaNamespace, "appinfo");
+            annotation.appendChild(appInfo);
+        }
+
+        Element jaxbBindings = null;
+        NodeList jaxbList = schema.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
+        if (jaxbList.getLength() > 0) {
+            jaxbBindings = (Element)jaxbList.item(0);
+        } else {
+            jaxbBindings = schema.getOwnerDocument().createElementNS(ToolConstants.NS_JAXB_BINDINGS, 
+                                                                     "schemaBindings");
+            appInfo.appendChild(jaxbBindings);
+        }
         return jaxbBindings;
+
     }
 
     public static Node innerJaxbPackageBinding(Element schema, String packagevalue) {
         Document doc = schema.getOwnerDocument();
-        
+
         if (!XMLUtils.hasAttribute(schema, ToolConstants.NS_JAXB_BINDINGS)) {
             schema.setAttributeNS(ToolConstants.NS_JAXB_BINDINGS, "version", "2.0");
         }
 
         Node schemaBindings = innerJaxbBinding(schema);
-        
-        Element packagename = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "package");
+
+        NodeList pkgList = doc.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS,
+                                                      "package");
+        Element packagename = null;
+        if (pkgList.getLength() > 0) {
+            packagename = (Element)pkgList.item(0);
+        } else {
+            packagename = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "package");
+        }
         packagename.setAttribute("name", packagevalue);
-        
+
         schemaBindings.appendChild(packagename);
 
         return schemaBindings.getParentNode().getParentNode();
+    }
+
+    /**
+     * Create the jaxb binding file to customize namespace to package mapping
+     * 
+     * @param namespace
+     * @param pkgName
+     * @return file
+     */
+    public static File getPackageMappingSchemaBindingFile(String namespace, String pkgName) {
+        Document doc = DOMUtils.createDocument();
+        Element rootElement = doc.createElement("schema");
+        rootElement.setAttribute("xmlns", ToolConstants.SCHEMA_URI);
+        rootElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+        rootElement.setAttribute("jaxb:version", "2.0");
+        rootElement.setAttribute("targetNamespace", namespace);
+        Element annoElement = doc.createElement("annotation");
+        Element appInfo = doc.createElement("appinfo");
+        Element schemaBindings = doc.createElement("jaxb:schemaBindings");
+        Element pkgElement = doc.createElement("jaxb:package");
+        pkgElement.setAttribute("name", pkgName);
+        annoElement.appendChild(appInfo);
+        appInfo.appendChild(schemaBindings);
+        schemaBindings.appendChild(pkgElement);
+        rootElement.appendChild(annoElement);
+        File tmpFile = null;
+        try {
+            tmpFile = FileUtils.createTempFile("customzied", ".xsd");
+            FileOutputStream fout = new FileOutputStream(tmpFile);
+            DOMUtils.writeXml(rootElement, fout);
+            fout.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tmpFile;
     }
 }

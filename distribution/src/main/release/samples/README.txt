@@ -1,9 +1,9 @@
 Basic Setup for Building and Running the Demos
 ==============================================
 
-As described in the installation notes, extract the celtixfire
+As described in the installation notes, extract the Apache CXF
 binary distribution archive into an installation directory
-under the root drive.  This creates the sub-directory celtixfire,
+under the root drive.  This creates the sub-directory cxf,
 which includes all of the product directories.
 
 To build and run the demos, you must install the J2SE Development
@@ -12,16 +12,11 @@ Kit (JDK) 5.0
 If you want to use ant to build and run the demos, you must
 install the Apache ant 1.6 build utility.
 
-To build and run the demos provided in the celtixfire binary
+To build and run the demos provided in the Apache CXF binary
 distribution using either ant or wsdl2java, javac and java,
-you need to set the environment so that the file cxf-incubator.jar
+you need to set the environment so that the file cxf-manifest-incubator.jar
 is on the CLASSPATH and to insure that the JDK, ant and
-celtixfire bin directories are on the PATH.
-
-To build and run the demos provided in the celtixfire source distribution
-using ant you will need to edit the common_build.xml file.
-Uncomment the line:
-<import file="../../../target/srcbuild_paths.xml" optional="true"/>
+CXF_HOME/bin directories are on the PATH.
 
 In each of the demos, source code files for the client and
 server mainlines and the Service Endpoint Interface class are
@@ -33,29 +28,29 @@ You may find it convenient to use a script to set the required
 environment variables.
 
 For UNIX:
-  CXF_HOME=/<installation_directory>/celtixfire
+  CXF_HOME=/<installation_directory>
   JAVA_HOME=/<jdk_installation_directory>
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
   export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$CXF_HOME/bin:$PATH
-  export CLASSPATH=.:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
+  export CLASSPATH=.:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
 
 For Windows:
-  set CXF_HOME=C:\<installation_directory>\celtixfire
+  set CXF_HOME=C:\<installation_directory>
   set JAVA_HOME=C:\<jdk_installation_directory>
   set ANT_HOME=C:\<ant_installation_directory>\apache-ant-1.6.5
 
   set PATH=%JAVA_HOME%\bin;%ANT_HOME%\bin;%CXF_HOME%\bin;%PATH%
-  set CLASSPATH=.;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
+  set CLASSPATH=.;%CXF_HOME%\lib\cxf-manifest-incubator.jar;.\build\classes
 
-Save a copy of this script in the Celtixfire samples directory.  Run the
+Save a copy of this script in CXF_HOME/samples.  Run the
 script prior to building and running the demos.
 
 
-Basic Setup for Building and Running the Demos in a Servlet Container
+Building the Demos in a Servlet Container
 =====================================================================
 
-Since celtixfire requires JDK/JRE 5.0, you must use a servlet container
+Since Apache CXF requires JDK/JRE 5.0, you must use a servlet container
 that is compatible with this JDK/JRE.  A suitable servlet container is
 Tomcat 5.5 or above.
 
@@ -63,5 +58,23 @@ Be certain to start the servlet container under an environment in which
 the JAVA_HOME environment variable points to the JDK/JRE 5.0 installation
 and the JAVA_HOME bin directory is included in the system PATH.
 
-Make sure copy all jars from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
-.
+Preparing deploy to APACHE TOMCAT
+
+* set CATALINA_HOME environment to your TOMCAT home directory
+
+Build the WAR:
+
+Now we have two flavors WAR, one is Full WAR that included all the jars 
+in the $WAR/WEB-INF/lib folder, the other is minimum WAR, which did not 
+include any jars in the WAR.
+
+1)run "ant war" to build a Full WAR.
+2)run "ant war -Dwithout.libs=true" to build a minimum WAR.
+    
+Deploy the application (Full WAR) into APACHE TOMCAT with the command:
+  
+  ant deploy-tomcat
+
+Undeploy the application from the APACHE TOMCAT with the command:
+
+  ant undeploy-tomcat

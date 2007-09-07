@@ -27,6 +27,9 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.handler_test.PingException;
+
 /**
  * Describe class TestHandlerBase here.
  *
@@ -37,13 +40,19 @@ import javax.xml.ws.handler.MessageContext;
  * @version 1.0
  */
 public abstract class TestHandlerBase {
-
+   
     private static final Logger LOG = Logger.getLogger(TestHandlerBase.class.getName());
 
-    private static int sid; 
+    private static int sid;
+    private static int sinvokedOrder;
 
-    protected boolean handleMessageRet = true; 
-    Map<String, Integer> methodCallCount = new HashMap<String, Integer>();
+    private boolean handleMessageRet = true;
+
+    private int invokeOrderOfHandleMessage;
+    private int invokeOrderOfHandleFault;
+    private int invokeOrderOfClose;
+
+    private Map<String, Integer> methodCallCount = new HashMap<String, Integer>();
     private final int id;
     private final boolean isServerSideHandler;
 
@@ -57,10 +66,29 @@ public abstract class TestHandlerBase {
         if (methodCallCount.keySet().contains(methodName)) { 
             val = methodCallCount.get(methodName);
         } 
+        if ("handleMessage".equals(methodName)) {
+            invokeOrderOfHandleMessage = ++sinvokedOrder;
+        } else if ("handleFault".equals(methodName)) {
+            invokeOrderOfHandleFault = ++sinvokedOrder;
+        } else if ("close".equals(methodName)) {
+            invokeOrderOfClose = ++sinvokedOrder;
+        }
+
         val++; 
         methodCallCount.put(methodName, val);
     } 
 
+    public int getInvokeOrderOfHandleMessage() {
+        return invokeOrderOfHandleMessage;
+    }
+    
+    public int getInvokeOrderOfHandleFault() {
+        return invokeOrderOfHandleFault;
+    }
+    
+    public int getInvokeOrderOfClose() {
+        return invokeOrderOfClose;
+    }  
     
     public int getId() {
         return id; 
@@ -85,6 +113,10 @@ public abstract class TestHandlerBase {
         return getMethodCallCount("handleFault");
     }
 
+    public int getCloseInvoked() {
+        return getMethodCallCount("close");
+    }
+    
     public boolean isHandleMessageInvoked() {
         return methodCallCount.containsKey("handleMessage");
     }
@@ -97,27 +129,61 @@ public abstract class TestHandlerBase {
         return methodCallCount.containsKey("init");
     }
     
+    public boolean isPostConstructInvoked() {
+        return methodCallCount.containsKey("doPostConstruct");
+    }    
+    
     public void setHandleMessageRet(boolean ret) { 
         handleMessageRet = ret; 
     }
 
+    public boolean getHandleMessageRet() { 
+        return handleMessageRet; 
+    }
+    
     public boolean isServerSideHandler() {
         return isServerSideHandler; 
     } 
+    
+    public void verifyJAXWSProperties(MessageContext ctx) throws PingException {
+        if (isServerSideHandler() && isOutbound(ctx)) {
+            /*
+            QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
+            if (operationName == null) {
+                throw new PingException("WSDL_OPERATION not found");
+            }
+            URI wsdlDescription = (URI)ctx.get(MessageContext.WSDL_DESCRIPTION);
+            if (!wsdlDescription.toString().equals("http://localhost:9005/HandlerTest/SoapPort?wsdl")) {
+                throw new PingException("WSDL_DESCRIPTION not found");
+            }
+            QName wsdlPort = (QName)ctx.get(MessageContext.WSDL_PORT);
+            if (!wsdlPort.getLocalPart().equals("SoapPort")) {
+                throw new PingException("WSDL_PORT not found");
+            }       
+            QName wsdlInterface = (QName)ctx.get(MessageContext.WSDL_INTERFACE);
+            if (!wsdlInterface.getLocalPart().equals("HandlerTest")) {
+                throw new PingException("WSDL_INTERFACE not found");
+            }      
+            QName wsdlService = (QName)ctx.get(MessageContext.WSDL_SERVICE);
+            if (!wsdlService.getLocalPart().equals("HandlerTestService")) {
+                throw new PingException("WSDL_SERVICE not found");
+            }
+            */
+        }
+    }
 
     protected void printHandlerInfo(String methodName, boolean outbound) { 
         String info = getHandlerId() + " "
             + (outbound ? "outbound" : "inbound") + " "
-            + methodName;
+            + methodName + "   " + Thread.currentThread().getName();
         LOG.info(info);
     } 
 
 
-    @SuppressWarnings("unchecked")
     protected List<String> getHandlerInfoList(MessageContext ctx) { 
         List<String> handlerInfoList = null; 
         if (ctx.containsKey("handler.info")) { 
-            handlerInfoList = (List<String>)ctx.get("handler.info"); 
+            handlerInfoList = CastUtils.cast((List)ctx.get("handler.info")); 
         } else {
             handlerInfoList = new ArrayList<String>();
             ctx.put("handler.info", handlerInfoList);

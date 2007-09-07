@@ -18,106 +18,68 @@
  */
 package org.apache.cxf.binding.xml.interceptor;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.binding.xml.XMLFault;
 import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.FaultInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLFaultOutInterceptor.class);
 
     public XMLFaultOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
+    }
+    public XMLFaultOutInterceptor(String phase) {
+        super(phase);
     }
 
     public void handleMessage(Message message) throws Fault {
+        message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
+        NSStack nsStack = new NSStack();
+        nsStack.push();
 
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
         Fault f = (Fault) message.getContent(Exception.class);
         XMLFault xmlFault = XMLFault.createFault(f);
         try {
-            writer.writeStartElement(XMLFault.XML_FAULT_PREFIX, XMLFault.XML_FAULT_ROOT.getLocalPart(),
-                            XMLConstants.NS_XML_FORMAT);
-
-            writer.writeStartElement(XMLFault.XML_FAULT_PREFIX, XMLFault.XML_FAULT_STRING.getLocalPart(),
-                            XMLConstants.NS_XML_FORMAT);
-
+            nsStack.add(XMLConstants.NS_XML_FORMAT);
+            String prefix = nsStack.getPrefix(XMLConstants.NS_XML_FORMAT);
+            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_ROOT, 
+                    XMLConstants.NS_XML_FORMAT);
+            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_STRING, 
+                    XMLConstants.NS_XML_FORMAT);
             Throwable t = xmlFault.getCause();
-            StringBuffer str = new StringBuffer(t.toString());
-            
-            QName elName = null;
-            
-            BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-            if (!bop.isUnwrappedCapable()) {
-                bop = bop.getUnwrappedOperation();
-            }
-            Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
-            Boolean isWebFault = null;
-            while (it.hasNext()) {
-                FaultInfo fi = it.next();
-                for (MessagePartInfo mpi : fi.getMessageParts()) {
-                    Class cls = mpi.getProperty(Class.class.getName(), Class.class);
-                    if (cls != null && cls.equals(t.getClass())) {
-                        if (mpi.isElement()) {
-                            elName = mpi.getElementQName();
-                        } else {
-                            elName = mpi.getTypeQName();
-                        }
-                        isWebFault = mpi.getProperty("javax.xml.ws.WebFault", Boolean.class);
-                        break;
-                    }
-                }
-            }
-            if (!(isWebFault != null && isWebFault.booleanValue())) {
-                str.append("\n");
-                for (StackTraceElement s : t.getStackTrace()) {
-                    str.append(s.toString());
-                    str.append("\n");
-                }
-            }
-            writer.writeCharacters(str.toString());
+            writer.writeCharacters(t == null ? xmlFault.getMessage() : t.toString());
             // fault string
             writer.writeEndElement();
-            // call data writer to marshal exception
-            if (elName != null) {
-                DataWriter<Message> dataWriter = getMessageDataWriter(message);            
-                dataWriter.write(getFaultInfo(t), elName, message);
+            // call StaxUtils to write Fault detail.
+            
+            if (xmlFault.getDetail() != null) {
+                StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
+                        XMLConstants.NS_XML_FORMAT);
+                StaxUtils.writeNode(DOMUtils.getChild(xmlFault.getDetail(), Node.ELEMENT_NODE), 
+                                    writer, false);
+                writer.writeEndElement();
             }
             // fault root
             writer.writeEndElement();
+            writer.flush();
         } catch (XMLStreamException xe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), xe);
         }
-
-    }
-
-    private static Object getFaultInfo(Throwable fault) {
-        try {
-            Method faultInfoMethod = fault.getClass().getMethod("getFaultInfo");
-            if (faultInfoMethod != null) {
-                return faultInfoMethod.invoke(fault);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException("Could not get faultInfo out of Exception", ex);
-        }
-
-        return null;
     }
 }

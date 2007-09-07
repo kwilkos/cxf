@@ -19,18 +19,21 @@
 
 package org.apache.cxf.systest.mtom;
 
-import junit.framework.TestCase;
 
-import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
+import org.junit.Assert;
 
-public class TestMultipartMessageInterceptor extends MultipartMessageInterceptor {
+public class TestMultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public void handleMessage(SoapMessage message) throws Fault {
-        super.handleMessage(message);
-        AttachmentDeserializer ad = message.get(AttachmentDeserializer.class);
-        TestCase.assertNotNull("Not MIME Message received, Attachment Deserializer hasn't been created", ad);
+    public TestMultipartMessageInterceptor() {
+        super(Phase.INVOKE);
+    }
+
+    public void handleMessage(Message message) throws Fault {
+        Assert.assertNotNull(message.getAttachments());
+        Assert.assertEquals(1, message.getAttachments().size());
     }
 }

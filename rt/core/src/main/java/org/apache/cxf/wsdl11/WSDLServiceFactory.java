@@ -20,6 +20,8 @@
 package org.apache.cxf.wsdl11;
 
 import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -35,6 +37,7 @@ import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.ws.commons.schema.XmlSchemaException;
 
 public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     
@@ -42,31 +45,82 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     
     private URL wsdlUrl;
     private QName serviceName;
-        
-    public WSDLServiceFactory(Bus b, URL url, QName sn) {
+    private Definition definition;
+    
+    public WSDLServiceFactory(Bus b, Definition d) {
         setBus(b);
-        wsdlUrl = url;
-        serviceName = sn;        
+        definition = d;
     }
     
-    public Service create() {
-        // use wsdl manager to parse wsdl or get cached definition
+    public WSDLServiceFactory(Bus b, Definition d, QName sn) {
+        this(b, d);
+        serviceName = sn;
+    }
+    
+    public WSDLServiceFactory(Bus b, URL url) {
+        setBus(b);
+        wsdlUrl = url;
         
-        Definition definition = null;
         try {
+            // use wsdl manager to parse wsdl or get cached definition
             definition = getBus().getExtension(WSDLManager.class).getDefinition(wsdlUrl);
         } catch (WSDLException ex) {
             throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
         }
         
-        javax.wsdl.Service wsdlService = definition.getService(serviceName);
-        if (wsdlService == null) {
-            throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE", LOG, serviceName));
+    }
+    
+    public WSDLServiceFactory(Bus b, URL url, QName sn) {
+        this(b, url);
+        serviceName = sn;
+    }
+    public WSDLServiceFactory(Bus b, String url, QName sn) {
+        setBus(b);
+        try {
+            // use wsdl manager to parse wsdl or get cached definition
+            definition = getBus().getExtension(WSDLManager.class).getDefinition(url);
+        } catch (WSDLException ex) {
+            throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
         }
-        ServiceInfo si = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
         
-        ServiceImpl service = new ServiceImpl(si);
+        serviceName = sn;
+    }
+    
+    public Service create() {
         
+        List<ServiceInfo> services;
+        if (serviceName == null) {
+            try {
+                services = new WSDLServiceBuilder(getBus()).buildServices(definition);
+            } catch (XmlSchemaException ex) {
+                throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
+            }
+            if (services.size() == 0) {
+                throw new ServiceConstructionException(new Message("NO_SERVICE_EXC", LOG));
+            } else {
+                //@@TODO  - this isn't good, need to return all the services
+                serviceName = services.get(0).getName();
+                //get all the service info's that match that first one.
+                Iterator<ServiceInfo> it = services.iterator();
+                while (it.hasNext()) {
+                    if (!it.next().getName().equals(serviceName)) {
+                        it.remove();
+                    }
+                }
+            }
+        } else {
+            javax.wsdl.Service wsdlService = definition.getService(serviceName);
+            if (wsdlService == null) {
+                throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE_EXC", LOG, serviceName));
+            }
+            try {
+                services = new WSDLServiceBuilder(getBus()).buildServices(definition, wsdlService);
+            } catch (XmlSchemaException ex) {
+                throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
+            }
+        }
+        ServiceImpl service = new ServiceImpl(services);
+        setService(service);
         return service;
     }
     

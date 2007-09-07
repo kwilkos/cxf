@@ -42,10 +42,6 @@ import javax.naming.NamingException;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.AbstractTwoStageCache;
-import org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean;
-import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
-import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
-
 
 /**
  * This class encapsulates the creation and pooling logic for JMS Sessions.
@@ -115,8 +111,8 @@ public class JMSSessionFactory {
     private AbstractTwoStageCache<PooledSession> replyCapableSessionCache;
     private AbstractTwoStageCache<PooledSession> sendOnlySessionCache;
     private final Destination theReplyDestination;
-    private final JMSTransportBaseConfigBean jmsBaseConfigBean;
-    private final JMSDestinationConfigBean jmsDestConfigBean;
+    private final JMSTransport jmsTransport;
+    private final ServerBehaviorPolicyType runtimePolicy;
  
     /**
      * Constructor.
@@ -126,15 +122,15 @@ public class JMSSessionFactory {
     public JMSSessionFactory(Connection connection, 
                              Destination replyDestination,
                              Context context,
-                             JMSTransportBaseConfigBean tbb,
-                             JMSDestinationConfigBean db) {
+                             JMSTransport tbb,
+                             ServerBehaviorPolicyType runtimePolicy) {
         theConnection = connection;
         theReplyDestination = replyDestination;
         initialContext = context;
-        jmsBaseConfigBean = tbb;
-        jmsDestConfigBean = db;
+        jmsTransport = tbb;
+        this.runtimePolicy = runtimePolicy;
         
-        JMSSessionPoolConfigPolicy sessionPoolConfig = jmsBaseConfigBean.getSessionPoolConfig();
+        SessionPoolType sessionPoolConfig = jmsTransport.getSessionPool();
         
         lowWaterMark = sessionPoolConfig.getLowWaterMark();
         highWaterMark = sessionPoolConfig.getHighWaterMark();
@@ -448,7 +444,7 @@ public class JMSSessionFactory {
         
         return new PooledSession(session, destination, session.createSender(null),
                                  session.createReceiver((Queue)destination, 
-                                 jmsDestConfigBean.getServer().getMessageSelector()));
+                                                        runtimePolicy.getMessageSelector()));
     }
 
 
@@ -467,8 +463,8 @@ public class JMSSessionFactory {
                                                                                    Session.AUTO_ACKNOWLEDGE);
         TopicSubscriber sub = null;
         if (consumer) {
-            String messageSelector =  jmsDestConfigBean.getServer().getMessageSelector();
-            String durableName = jmsDestConfigBean.getServer().getDurableSubscriberName();
+            String messageSelector = runtimePolicy.getMessageSelector();
+            String durableName = runtimePolicy.getDurableSubscriberName();
             if (durableName != null) {
                 sub = session.createDurableSubscriber((Topic)destination,
                                                       durableName,
@@ -505,6 +501,6 @@ public class JMSSessionFactory {
 
     private boolean isDestinationStyleQueue() {
         return JMSConstants.JMS_QUEUE.equals(
-            jmsBaseConfigBean.getAddressPolicy().getDestinationStyle().value());
+            jmsTransport.getJMSAddress().getDestinationStyle().value());
     }
 }

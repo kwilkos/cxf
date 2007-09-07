@@ -18,6 +18,7 @@
   under the License.
 -->
 <project name="hello world javascript demo" default="build" basedir=".">
+    <property environment="env"/>
     <condition property="cxf.home" value="${env.CXF_HOME}">
         <isset property="env.CXF_HOME"/>
     </condition>
@@ -47,7 +48,9 @@
         
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
-        <wsdl2java file="hello_world.wsdl"/>
+        <wsdl2java file="hello_world.wsdl" servicename.arg="-sn SOAPService1"/>
+        <wsdl2java file="hello_world.wsdl" servicename.arg="-sn SOAPService2"/>
+        <wsdl2java file="hello_world.wsdl" servicename.arg="-sn SOAPService3"/>
     </target>
 
 </project>

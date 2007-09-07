@@ -25,17 +25,15 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ProviderClientServerTest extends ClientServerTestBase {
-    public static class Server extends TestServerBase {
+public class ProviderClientServerTest extends AbstractBusClientServerTestBase {
+    public static class Server extends AbstractBusTestServerBase {
 
         protected void run() {
             Object implementor = new HWSoapMessageDocProvider();
@@ -56,15 +54,12 @@ public class ProviderClientServerTest extends ClientServerTestBase {
         }
     }
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ProviderClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testSOAPMessageModeDocLit() throws Exception {
         
         QName serviceName = 

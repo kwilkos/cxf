@@ -30,23 +30,26 @@ import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.PortInfo;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
 
 public class HandlerResolverImpl implements HandlerResolver {
-    public static final String PORT_CONFIGURATION_URI =
-        "http://cxf.apache.org/bus/jaxws/port-config";
-
     private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();
-    //private Configuration busConfiguration;
-    //private QName service;
-    private ClassLoader serviceEndpointInterfaceClassLoader;
+    
+    //private QName service;   
+    private Class<?> annotationClass;
+    private Bus bus;
 
-    public HandlerResolverImpl(Bus bus, QName serviceName) {
-        //this.busConfiguration = pBusConfiguration;
+    public HandlerResolverImpl(Bus bus, QName serviceName, Class<?> clazz) {
         //this.service = pService;
+        this.bus = bus;
+        this.annotationClass = clazz;
     }
 
     public HandlerResolverImpl() {
-        this(null, null);
+        this(null, null, null);
     }
 
     public List<Handler> getHandlerChain(PortInfo portInfo) {
@@ -61,34 +64,51 @@ public class HandlerResolverImpl implements HandlerResolver {
 
     private List<Handler> createHandlerChain(PortInfo portInfo) {
         List<Handler> chain = null;
-        /*
-        Configuration portConfiguration = null;
-        String id = portInfo.getPortName().getLocalPart();
-        if (service != null) {
-            id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
-        }
-        if (null != busConfiguration) {
-            portConfiguration = busConfiguration
-                .getChild(PORT_CONFIGURATION_URI, id);
-        }
-        if (null != portConfiguration) {
-            HandlerChainBuilder builder = new HandlerChainBuilder();
-            builder.setHandlerClassLoader(serviceEndpointInterfaceClassLoader);
-            HandlerChainType hc = (HandlerChainType)portConfiguration.getObject("handlerChain");
-            chain = builder.buildHandlerChainFromConfiguration(hc);
-        }
-        */
+
         if (null == chain) {
             chain = new ArrayList<Handler>();
         }
+        if (annotationClass != null) {
+            chain.addAll(getHandlersFromAnnotation(annotationClass));            
+        }
+        
+        for (Handler h : chain) {
+            configHandler(h);
+        }       
+        
         return chain;
     }
 
-    public ClassLoader getServiceEndpointInterfaceClassLoader() {
-        return serviceEndpointInterfaceClassLoader;
-    }
+    /**
+     * Obtain handler chain from annotations.
+     * 
+     * @param obj A endpoint implementation class or a SEI, or a generated
+     *            service class.
+     */
+    private List<Handler> getHandlersFromAnnotation(Class<?> clazz) {
+        AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-    public void setServiceEndpointInterfaceClassLoader(ClassLoader classLoader) {
-        this.serviceEndpointInterfaceClassLoader = classLoader;
+        List<Handler> chain = builder.buildHandlerChainFromClass(clazz);
+        
+        return chain;
+    }
+    
+    /**
+     * JAX-WS section 9.3.1: The runtime MUST then carry out any injections
+     * requested by the handler, typically via the javax .annotation.Resource
+     * annotation. After all the injections have been carried out, including in
+     * the case where no injections were requested, the runtime MUST invoke the
+     * method carrying a javax.annotation .PostConstruct annotation, if present.
+     */
+    private void configHandler(Handler handler) {
+        if (handler != null) {
+            ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+            List<ResourceResolver> resolvers = resourceManager.getResourceResolvers();
+            resourceManager = new DefaultResourceManager(resolvers);
+//            resourceManager.addResourceResolver(new WebContextEntriesResourceResolver());
+            ResourceInjector injector = new ResourceInjector(resourceManager);
+            injector.inject(handler);
+        }
+
     }
 }

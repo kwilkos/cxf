@@ -26,20 +26,17 @@ import java.util.ResourceBundle;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 
 public class SoapFault extends Fault {
 
-    public static final QName VERSION_MISMATCH = new QName(Soap12.SOAP_NAMESPACE, "VersionMismatch");
-    public static final QName MUST_UNDERSTAND = new QName(Soap12.SOAP_NAMESPACE, "MustUnderstand");
-    public static final QName DATA_ENCODING_UNKNOWN = new QName(Soap12.SOAP_NAMESPACE, "DataEncodingUnknown");
     public static final QName ATTACHMENT_IO = new QName(Soap12.SOAP_NAMESPACE, "AttachmentIOError");
 
     /**
      * "The message was incorrectly formed or did not contain the appropriate
      * information in order to succeed." -- SOAP 1.2 Spec
-     */
-    public static final QName SENDER = new QName(Soap12.SOAP_NAMESPACE, "Sender");
+     */ 
 
     /**
      * A SOAP 1.2 only fault code. <p/> "The message could not be processed for
@@ -47,50 +44,50 @@ public class SoapFault extends Fault {
      * contents of the message itself." -- SOAP 1.2 Spec <p/> If this message is
      * used in a SOAP 1.1 Fault it will most likely (depending on the
      * FaultHandler) be mapped to "Sender" instead.
-     */
-    public static final QName RECEIVER = new QName(Soap12.SOAP_NAMESPACE, "Receiver");
+     */ 
 
-    public static final QName SOAP11_SERVER = new QName(Soap11.SOAP_NAMESPACE, "Server");
-    public static final QName SOAP11_CLIENT = new QName(Soap11.SOAP_NAMESPACE, "Client");
-    public static final QName SOAP11_MUST_UNDERSTAND = new QName(Soap11.SOAP_NAMESPACE, "MustUnderstand");
-    public static final QName SOAP11_VERSION_MISMATCH = new QName(Soap11.SOAP_NAMESPACE, "VersionMismatch");
-
-    private QName faultCode;
     private QName subCode;
     private String role;
+    private String node;
     private Map<String, String> namespaces = new HashMap<String, String>();
 
-    public SoapFault(Message message, Throwable throwable, QName type) {
-        super(message, throwable);
-        this.faultCode = type;
+    public SoapFault(Message message, Throwable throwable, QName faultCode) {
+        super(message, throwable, faultCode);
     }
 
     public SoapFault(Message message, QName faultCode) {
-        super(message);
-        this.faultCode = faultCode;
+        super(message, faultCode);
     }
 
     public SoapFault(String message, QName faultCode) {
-        super(new Message(message, (ResourceBundle)null));
-        this.faultCode = faultCode;
+        super(new Message(message, (ResourceBundle)null), faultCode);
     }
 
-    /**
-     * Returns the fault code of this fault.
-     * 
-     * @return the fault code.
-     */
-    public QName getFaultCode() {
-        return faultCode;
+    public SoapFault(String message, Throwable t, QName faultCode) {
+        super(new Message(message, (ResourceBundle)null), t, faultCode);
     }
 
-    /**
-     * Sets the fault code of this fault.
-     * 
-     * @param faultCode the fault code.
-     */
-    public void setFaultCode(QName faultCode) {
-        this.faultCode = faultCode;
+    
+    public String getCodeString(String prefix, String defaultPrefix) {
+        return getFaultCodeString(prefix, defaultPrefix, getFaultCode());
+    }
+    
+    public String getSubCodeString(String prefix, String defaultPrefix) {
+        return getFaultCodeString(prefix, defaultPrefix, subCode);
+    }
+    
+    private String getFaultCodeString(String prefix, String defaultPrefix, QName fCode) {
+        String codePrefix = null;
+        if (StringUtils.isEmpty(prefix)) {
+            codePrefix = fCode.getPrefix();
+            if (StringUtils.isEmpty(codePrefix)) {
+                codePrefix = defaultPrefix;
+            }
+        } else {
+            codePrefix = prefix;
+        }
+        
+        return codePrefix + ":" + fCode.getLocalPart();        
     }
 
     public String getReason() {
@@ -114,6 +111,14 @@ public class SoapFault extends Fault {
     public void setRole(String actor) {
         this.role = actor;
     }
+    
+    public String getNode() {
+        return node;
+    }
+
+    public void setNode(String n) {
+        this.node = n;
+    }    
 
     /**
      * Returns the SubCode for the Fault Code.
@@ -141,13 +146,21 @@ public class SoapFault extends Fault {
         this.namespaces = namespaces;
     }
 
-    public static SoapFault createFault(Fault f) {
+    public static SoapFault createFault(Fault f, SoapVersion v) {
         if (f instanceof SoapFault) {
             return (SoapFault)f;
         }
 
-        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null), f.getCause(),
-                                            RECEIVER);
+        QName fc = f.getFaultCode();
+        if (Fault.FAULT_CODE_CLIENT.equals(fc)) {
+            fc = v.getSender();
+        } else if (Fault.FAULT_CODE_SERVER.equals(fc)) { 
+            fc = v.getReceiver();
+        }
+        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null),
+                                            f.getCause(),
+                                            fc);
+        
         soapFault.setDetail(f.getDetail());
         return soapFault;
     }

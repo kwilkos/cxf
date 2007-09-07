@@ -19,18 +19,21 @@
 
 package org.apache.cxf.tools.common.toolspec;
 
-import junit.framework.TestCase;
 import org.apache.cxf.tools.common.ToolException;
-public class ToolSpecTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Test;
+
+public class ToolSpecTest extends Assert {
     ToolSpec toolSpec;
 
+    @Test
     public void testConstruct() {
         toolSpec = null;
         toolSpec = new ToolSpec();
         assertTrue(toolSpec != null);
-
     }
-
+    
+    @Test
     public void testConstructFromInputStream() {
         String tsSource = "parser/resources/testtool.xml";
         try {
@@ -41,6 +44,7 @@ public class ToolSpecTest extends TestCase {
         assertTrue(toolSpec.getAnnotation() == null);
     }
 
+    @Test
     public void testGetParameterDefault() throws Exception {
         String tsSource = "parser/resources/testtool.xml";
 
@@ -50,17 +54,22 @@ public class ToolSpecTest extends TestCase {
         assertTrue(toolSpec.getParameterDefault("namespace") == null);
         assertTrue(toolSpec.getParameterDefault("wsdlurl") == null);
     }
+    
+    @Test
     public void testGetStreamRefName1() throws Exception {
         String tsSource = "parser/resources/testtool1.xml";
         toolSpec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
         assertEquals("test getStreamRefName failed", toolSpec.getStreamRefName("streamref"), "namespace");
     }
+
+    @Test
     public void testGetStreamRefName2() throws Exception {
         String tsSource = "parser/resources/testtool2.xml";
         toolSpec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
         assertEquals("test getStreamRefName2 failed", toolSpec.getStreamRefName("streamref"), "wsdlurl");
     }
 
+    @Test
     public void testIsValidInputStream() throws Exception {
         String tsSource = "parser/resources/testtool1.xml";
         toolSpec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
@@ -69,6 +78,7 @@ public class ToolSpecTest extends TestCase {
         assertTrue(toolSpec.getInstreamIds().size() == 1);
     }
 
+    @Test
     public void testGetHandler() throws Exception {
         String tsSource = "parser/resources/testtool1.xml";
         toolSpec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
@@ -76,6 +86,7 @@ public class ToolSpecTest extends TestCase {
         assertNotNull(toolSpec.getHandler(this.getClass().getClassLoader()));
     }
 
+    @Test
     public void testGetOutstreamIds() throws Exception {
         String tsSource = "parser/resources/testtool2.xml";
         toolSpec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);

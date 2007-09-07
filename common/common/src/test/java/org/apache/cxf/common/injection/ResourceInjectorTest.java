@@ -25,29 +25,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
-import junit.framework.TestCase;
 
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ResourceInjectorTest extends TestCase {
+public class ResourceInjectorTest extends Assert {
     private static final String RESOURCE_ONE = "resource one";
-    private static final String RESOURCE_TWO = "resource one";
-
+    private static final String RESOURCE_TWO = "resource two";
+    
     private ResourceInjector injector; 
         
-    public void setUp() { 
+    public void setUpResourceManager(String pfx) { 
 
         ResourceManager resMgr = EasyMock.createMock(ResourceManager.class);
         List<ResourceResolver> resolvers = new ArrayList<ResourceResolver>();
         
         resMgr.getResourceResolvers();
         EasyMock.expectLastCall().andReturn(resolvers);
-        resMgr.resolveResource("resource1", String.class, resolvers);
+        resMgr.resolveResource(pfx + "resource1", String.class, resolvers);
         EasyMock.expectLastCall().andReturn(RESOURCE_ONE);
         resMgr.resolveResource("resource2", String.class, resolvers);
         EasyMock.expectLastCall().andReturn(RESOURCE_TWO);
@@ -56,31 +58,58 @@ public class ResourceInjectorTest extends TestCase {
         injector = new ResourceInjector(resMgr); 
     } 
 
+    @Test
     public void testFieldInjection() { 
-
+        setUpResourceManager(FieldTarget.class.getCanonicalName() + "/");
         doInjectTest(new FieldTarget()); 
     }
+    
+    @Test
+    public void testFieldInSuperClassInjection() { 
+        setUpResourceManager("org.apache.cxf.common.injection.FieldTarget/");
+        doInjectTest(new SubFieldTarget()); 
+    }
+    
+    @Test
+    public void testSetterInSuperClassInjection() {
+        setUpResourceManager("org.apache.cxf.common.injection.SetterTarget/");
+        doInjectTest(new SubSetterTarget()); 
+    }
 
+    @Test
     public void testSetterInjection() {
-
+        setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
         doInjectTest(new SetterTarget()); 
     }
 
+    @Test
     public void testClassLevelInjection() {
+        setUpResourceManager("");
         doInjectTest(new ClassTarget());
     }
 
+    @Test
     public void testResourcesContainer() {
+        setUpResourceManager("");
         doInjectTest(new ResourcesContainerTarget()); 
     }
 
+    @Test
     public void testPostConstruct() { 
+        setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
 
         SetterTarget target = new SetterTarget(); 
         doInjectTest(target); 
         assertTrue(target.injectionCompleteCalled()); 
     }
 
+    @Test
+    public void testPreDestroy() { 
+        injector = new ResourceInjector(null, null);
+        SetterTarget target = new SetterTarget(); 
+        injector.destroy(target); 
+        assertTrue(target.preDestroyCalled()); 
+    }
 
     protected void doInjectTest(Target target) { 
 
@@ -99,13 +128,16 @@ public class ResourceInjectorTest extends TestCase {
 interface Target {
     String getResource1(); 
     String getResource2(); 
-} 
+}
+
 
 class FieldTarget implements Target {
 
-    @Resource private String resource1; 
+    @Resource
+    private String resource1; 
 
-    @Resource(name = "resource2") private String resource2foo;
+    @Resource(name = "resource2")
+    private String resource2foo;
 
     public String getResource1() { 
         return resource1; 
@@ -121,18 +153,28 @@ class FieldTarget implements Target {
 
 }
 
+class SubFieldTarget extends FieldTarget {
+}
+
+class SubSetterTarget extends SetterTarget {
+    
+}
+
 class SetterTarget implements Target { 
 
     private String resource1;
     private String resource2;
     private boolean injectionCompletePublic; 
     private boolean injectionCompletePrivate; 
+    private boolean preDestroy; 
+    private boolean preDestroyPrivate; 
 
     public final String getResource1() {
         return this.resource1;
     }
 
-    @Resource public final void setResource1(final String argResource1) {
+    @Resource
+    public final void setResource1(final String argResource1) {
         this.resource1 = argResource1;
     }
     
@@ -140,23 +182,46 @@ class SetterTarget implements Target {
         return this.resource2;
     }
     
-    @Resource(name = "resource2") public final void setResource2(final String argResource2) {
+    @Resource(name = "resource2")
+    private void setResource2(final String argResource2) {
         this.resource2 = argResource2;
     }
 
-    @PostConstruct public void injectionIsAllFinishedNowThankYouVeryMuch() { 
+    @PostConstruct
+    public void injectionIsAllFinishedNowThankYouVeryMuch() { 
         injectionCompletePublic = true;
 
         // stick this here to keep PMD happy...
         injectionIsAllFinishedNowThankYouVeryMuchPrivate();
     } 
     
-    @PostConstruct private void injectionIsAllFinishedNowThankYouVeryMuchPrivate() { 
+    @PostConstruct
+    private void injectionIsAllFinishedNowThankYouVeryMuchPrivate() { 
         injectionCompletePrivate = true;
+    } 
+    
+    @PreDestroy
+    public void preDestroyMethod() { 
+        preDestroy = true;
+    } 
+    
+    @PreDestroy
+    private void preDestroyMethodPrivate() { 
+        preDestroyPrivate = true;
     } 
     
     public boolean injectionCompleteCalled() { 
         return injectionCompletePrivate && injectionCompletePublic;
+    }
+
+    public boolean preDestroyCalled() { 
+        return preDestroy && preDestroyPrivate;
+    }
+    
+    // dummy method to access the private methods to avoid compile warnings
+    public void dummyMethod() {
+        preDestroyMethodPrivate();
+        setResource2("");
     }
 }
 

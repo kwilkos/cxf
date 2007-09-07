@@ -21,13 +21,45 @@ package org.apache.cxf.endpoint;
 
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.MessageObserver;
 
-public interface Client extends InterceptorProvider {
+public interface Client extends InterceptorProvider, MessageObserver {
     String REQUEST_CONTEXT = "RequestContext";
     String RESPONSE_CONTEXT = "ResponseContext";
-    
+    String REQUEST_METHOD = "RequestMethod";
+    /**
+     * Invokes an operation syncronously
+     * @param operationName The name of the operation to be invoked. The service namespace will be used
+     * when looking up the BindingOperationInfo.
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(String operationName,
+                    Object... params) throws Exception;
+
+    /**
+     * Invokes an operation syncronously
+     * @param operationName The name of the operation to be invoked
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(QName operationName,
+                    Object... params) throws Exception;
+
+    /**
+     * Invokes an operation syncronously
+     * @param oi  The operation to be invoked
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(BindingOperationInfo oi,
+                    Object... params) throws Exception;
+
     /**
      * Invokes an operation syncronously
      * @param oi  The operation to be invoked
@@ -37,8 +69,34 @@ public interface Client extends InterceptorProvider {
      */
     Object[] invoke(BindingOperationInfo oi,
                     Object[] params,
-                    Map<String, Object> context);
+                    Map<String, Object> context) throws Exception;
 
     Endpoint getEndpoint();
-   
+
+    /**
+     * Get the Conduit that messages for this client will be sent on.
+     * @return Conduit
+     */
+    Conduit getConduit();
+    
+    /**
+     * Get the ConduitSelector responsible for retreiving the Conduit.
+     * 
+     * @return the current ConduitSelector
+     */
+    ConduitSelector getConduitSelector();
+
+    /**
+     * Set the ConduitSelector responsible for retreiving the Conduit.
+     * 
+     * @param selector the ConduitSelector to use
+     */
+    void setConduitSelector(ConduitSelector selector);
+    
+    /**
+     * Indicates that the client is no longer needed and that any resources it holds
+     * can now be freed.
+     *
+     */
+    void destroy();
 }

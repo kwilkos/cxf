@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Service;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Script;
@@ -39,7 +40,7 @@ public class ProviderFactory {
     public static final String NO_SUCH_FILE = ": file does not exist";
     public static final String NO_PROVIDER = ": file contains no WebServiceProviders";
 
-    private static final Logger LOG = Logger.getLogger(ProviderFactory.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ProviderFactory.class);
 
     private String epAddress;
     private boolean isBaseAddr;

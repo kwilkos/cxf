@@ -27,27 +27,28 @@ import java.util.logging.Logger;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase implements VerificationCache {
-    
+public class Server extends AbstractBusTestServerBase implements VerificationCache {
+    static final String ADDRESS = "http://localhost:9008/SoapContext/SoapPort";
+
     private String verified;
  
     protected void run()  {
 
         SpringBusFactory factory = new SpringBusFactory();
-        Bus bus = factory.createBus("org/apache/cxf/systest/ws/addressing/cxf.xml");
-        factory.setDefaultBus(bus);
+        Bus bus = factory.createBus("org/apache/cxf/systest/ws/addressing/wsa_interceptors.xml");
+        BusFactory.setDefaultBus(bus);
         setBus(bus);
 
         addVerifiers();
 
         GreeterImpl implementor = new GreeterImpl();
-        implementor.verificationCache = this;         
-        String address = "http://localhost:9008/SoapContext/SoapPort";
-        Endpoint.publish(address, implementor);
+        implementor.verificationCache = this;
+        Endpoint.publish(ADDRESS, implementor);
     }
 
     protected void addVerifiers() {
@@ -98,6 +99,7 @@ public class Server extends TestServerBase implements VerificationCache {
      */
     protected boolean verify(Logger log) {
         if (verified != null) {
+            System.out.println("MAP/Header verification failed: " + verified);
             log.log(Level.WARNING, 
                     "MAP/Header verification failed: {0}",
                     verified);

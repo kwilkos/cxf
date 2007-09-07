@@ -20,15 +20,18 @@
 package org.apache.cxf.jaxws.interceptors;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
-import org.apache.cxf.jaxb.WrapperHelper;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -37,18 +40,20 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(WrapperClassInInterceptor.class);
+    
     public WrapperClassInInterceptor() {
-        super();
-        setPhase(Phase.POST_LOGICAL);
+        super(Phase.POST_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {
-        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        Exchange ex = message.getExchange();
+        BindingOperationInfo boi = ex.get(BindingOperationInfo.class);
         if (boi == null) {
             return;
         }
-                
-        Method method = message.getExchange().get(Method.class);
+               
+        Method method = ex.get(Method.class);
 
         if (method != null && method.getName().endsWith("Async")) {
             Class<?> retType = method.getReturnType();
@@ -59,76 +64,122 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         }        
 
         
-        if (method != null && method.getName().endsWith("Async")) {
-            Class<?> retType = method.getReturnType();
-            if (retType.getName().equals("java.util.concurrent.Future") 
-                || retType.getName().equals("javax.xml.ws.Response")) {
-                return;
-            }
-
-        }
-      
-
-
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
-            
-            // Sometimes, an uperation can be unwrapped according to WSDLServiceFactory,
-            // but not according to JAX-WS. We should unify these at some point, but
-            // for now check for the wrapper class.
-            if (boi2.getOperationInfo().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS) 
-                == null) {
-                return;
-            }
-            
             OperationInfo op = boi2.getOperationInfo();
-            MessageInfo messageInfo = message.get(MessageInfo.class);
             BindingMessageInfo bmi;
-            if (messageInfo == boi.getOperationInfo().getInput()) {
+            
+            MessageInfo wrappedMessageInfo = message.get(MessageInfo.class);
+            MessageInfo messageInfo;
+            if (wrappedMessageInfo == boi.getOperationInfo().getInput()) {
                 messageInfo = op.getInput();
                 bmi = boi2.getInput();
             } else {
                 messageInfo = op.getOutput();
                 bmi = boi2.getOutput();
             }
-                        
-            List<?> lst = message.getContent(List.class);
             
+            // Sometimes, an operation can be unwrapped according to WSDLServiceFactory,
+            // but not according to JAX-WS. We should unify these at some point, but
+            // for now check for the wrapper class.
+            MessageContentsList lst = MessageContentsList.getContentsList(message);
+            if (lst == null) {
+                return;
+            }
             if (lst != null) {
                 message.put(MessageInfo.class, messageInfo);
                 message.put(BindingMessageInfo.class, bmi);
-                message.getExchange().put(BindingOperationInfo.class, boi2);
-                message.getExchange().put(OperationInfo.class, op);
+                ex.put(BindingOperationInfo.class, boi2);
+                ex.put(OperationInfo.class, op);
             }
             
-            if (lst != null && lst.size() == 1) {
-                if (messageInfo.getMessageParts().size() > 0) {
-                    Object wrappedObject = lst.get(0);
-                    lst.clear();
-                    
-                    for (MessagePartInfo part : messageInfo.getMessageParts()) {
-                        try {
-                            String elementType = null;
-                            if (part.isElement()) {
-                                elementType = part.getElementQName().getLocalPart();
-                            } else {
-                                elementType = part.getTypeQName().getLocalPart();
-                            }
-                            Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(), 
-                                                                      wrappedObject,
-                                                                      elementType);
-                        
-                            CastUtils.cast(lst, Object.class).add(obj);
-                        } catch (Exception e) {
-                            // TODO - fault
-                            throw new Fault(e);
-                        }
+            if (isGET(message)) {
+                LOG.info("WrapperClassInInterceptor skipped in HTTP GET method");
+                return;
+            }
+            
+            MessagePartInfo wrapperPart = wrappedMessageInfo.getMessagePart(0);
+            Class<?> wrapperClass = wrapperPart.getTypeClass();
+            Object wrappedObject = lst.get(wrapperPart.getIndex());
+            if (!wrapperClass.isInstance(wrappedObject)) {
+                wrappedObject = null;
+                wrapperPart = null;
+                wrapperClass = null;
+            }
+            if (wrapperClass == null || wrappedObject == null) {
+                return;
+            }
+            
+            WrapperHelper helper = wrapperPart.getProperty("WRAPPER_CLASS", WrapperHelper.class);
+            if (helper == null) {
+                helper = createWrapperHelper(messageInfo, wrappedMessageInfo, wrapperClass);
+                wrapperPart.setProperty("WRAPPER_CLASS", helper);
+            }            
+            
+            MessageContentsList newParams;
+            try {
+                newParams = new MessageContentsList(helper.getWrapperParts(wrappedObject));
+                
+                for (MessagePartInfo part : messageInfo.getMessageParts()) {
+                    if (Boolean.TRUE.equals(part.getProperty(ReflectionServiceFactoryBean.HEADER))) {
+                        MessagePartInfo mpi = wrappedMessageInfo.getMessagePart(part.getName());
+                        newParams.put(part, lst.get(mpi));
                     }
-                } else {
-                    lst.clear();
                 }
-            }           
+            } catch (Exception e) {
+                throw new Fault(e);
+            }
+            
+            message.setContent(List.class, newParams);
         }
     }
-
+    
+    private WrapperHelper createWrapperHelper(MessageInfo messageInfo,
+                                              MessageInfo wrappedMessageInfo,
+                                              Class<?> wrapperClass) {
+        List<String> partNames = new ArrayList<String>();
+        List<String> elTypeNames = new ArrayList<String>();
+        List<Class<?>> partClasses = new ArrayList<Class<?>>();
+        
+        for (MessagePartInfo p : messageInfo.getMessageParts()) {
+            if (Boolean.TRUE.equals(p.getProperty(ReflectionServiceFactoryBean.HEADER))) {
+                int idx = p.getIndex();
+                ensureSize(elTypeNames, idx);
+                ensureSize(partClasses, idx);
+                ensureSize(partNames, idx);
+                elTypeNames.set(idx, null);
+                partClasses.set(idx, null);
+                partNames.set(idx, null);
+            } else {
+                String elementType = null;
+                if (p.isElement()) {
+                    elementType = p.getElementQName().getLocalPart();
+                } else {
+                    if (p.getTypeQName() == null) {
+                        // handling anonymous complex type
+                        elementType = null;
+                    } else {
+                        elementType = p.getTypeQName().getLocalPart();
+                    }
+                }
+                int idx = p.getIndex();
+                ensureSize(elTypeNames, idx);
+                ensureSize(partClasses, idx);
+                ensureSize(partNames, idx);
+                
+                elTypeNames.set(idx, elementType);
+                partClasses.set(idx, p.getTypeClass());
+                partNames.set(idx, p.getName().getLocalPart());
+            }
+        }
+        return WrapperHelper.createWrapperHelper(wrapperClass,
+                                                  partNames,
+                                                  elTypeNames,
+                                                  partClasses);
+    }
+    private void ensureSize(List<?> lst, int idx) {
+        while (idx >= lst.size()) {
+            lst.add(null);
+        }
+    }
 }

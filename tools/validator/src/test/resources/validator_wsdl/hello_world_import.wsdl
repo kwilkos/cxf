@@ -27,6 +27,23 @@
   <wsdl:import namespace="http://apache.org/hello_world_soap_http/types" 
                location="hello_world_types.wsdl" />
 
+  <wsdl:types>
+    <schema targetNamespace="http://apache.org/hello_world_soap_http/types"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified">
+      <element name="anotherGreetMe">
+        <complexType>
+          <sequence>
+            <element name="requestType" type="string"/>
+          </sequence>
+        </complexType>
+      </element>
+    </schema>
+  </wsdl:types>
+
+  <wsdl:message name="anotherGreetMeRequest">
+    <wsdl:part name="in" element="x1:anotherGreetMe"/>
+  </wsdl:message>
   <wsdl:message name="greetMeRequest">
     <wsdl:part name="in" element="x1:greetMe"/>
   </wsdl:message>

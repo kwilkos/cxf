@@ -120,7 +120,7 @@ public final class ServiceUtils {
             sb.append(word);
         }
 
-        return protocol + "://" + sb.toString();
+        return protocol + "://" + sb.toString() + "/";
     }
 
     /**

@@ -19,16 +19,22 @@
 
 package org.apache.cxf.ws.addressing;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class AddressingBuilderImplTest extends TestCase {
+
+
+public class AddressingBuilderImplTest extends Assert {
     private AddressingBuilderImpl builder;
 
+    @Before
     public void setUp() {
         builder = new AddressingBuilderImpl();
     }
 
+    @Test
     public void testGetAddressingProperties() throws Exception {
         AddressingProperties properties = builder.newAddressingProperties();
         assertNotNull("expected AddressingProperties ", properties);
@@ -37,6 +43,7 @@ public class AddressingBuilderImplTest extends TestCase {
                       properties);
     }
 
+    @Test
     public void testGetAddressingConstants() throws Exception {
         AddressingConstants constants = builder.newAddressingConstants();
         assertNotNull("expected AddressingConstants ", constants);

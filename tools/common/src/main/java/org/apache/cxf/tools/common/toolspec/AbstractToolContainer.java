@@ -27,44 +27,60 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
+
 public abstract class AbstractToolContainer implements ToolContainer {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractToolContainer.class);
-    private static boolean isVerbose;
-    private static String arguments[];
+    
 
     protected ToolSpec toolspec;
-
+    protected ToolContext context;
+    
+    private String arguments[];
+    private boolean isVerbose;
     private boolean isQuiet;
     private CommandDocument commandDoc;
     private CommandLineParser parser;
     private OutputStream outOutputStream;
     private OutputStream errOutputStream;
 
+    private PrintStream stdOutputStream;
+    private PrintStream stdErrorStream;
+ 
     public class GenericOutputStream extends OutputStream {
         public void write(int b) throws IOException {
 
         }
     }
 
+    public AbstractToolContainer() {
+        
+    }
+    
     public AbstractToolContainer(ToolSpec ts) throws BadUsageException {
         toolspec = ts;
     }
 
-    public void setCommandLine(String[] args) throws BadUsageException {
+    public void setArguments(String[] args) {
+        if (args == null) {
+            return;
+        }
         arguments = new String[args.length];
         System.arraycopy(args, 0, arguments, 0, args.length);
         setMode(args);
         if (isQuietMode()) {
             redirectOutput();
-        }
+        }        
+    }
+    
+    public void parseCommandLine() throws BadUsageException {
         if (toolspec != null) {
             parser = new CommandLineParser(toolspec);
-            commandDoc = parser.parseArguments(args);
-           
+            commandDoc = parser.parseArguments(arguments);           
         }
     }
 
@@ -103,6 +119,9 @@ public abstract class AbstractToolContainer implements ToolContainer {
     }
 
     public void redirectOutput() {
+        stdOutputStream = System.out;
+        stdErrorStream = System.err;
+
         outOutputStream = new GenericOutputStream();
         errOutputStream = new GenericOutputStream();
         System.setErr(new PrintStream(errOutputStream));
@@ -113,11 +132,11 @@ public abstract class AbstractToolContainer implements ToolContainer {
         return isQuiet;
     }
 
-    public static boolean isVerboseMode() {
+    public boolean isVerboseMode() {
         return isVerbose;
     }
 
-    public static String[] getArgument() {
+    public String[] getArgument() {
         return arguments;
     }
 
@@ -128,7 +147,32 @@ public abstract class AbstractToolContainer implements ToolContainer {
     public OutputStream getErrOutputStream() {
         return errOutputStream;
     }
+    
+    public void setContext(ToolContext c) {
+        context = c;
+    }
+    
+    public ToolContext getContext() {
+        if (context == null) {
+            context = new ToolContext();
+        }
+        return context;
+    }
 
-    public abstract void execute(boolean exitOnFinish) throws ToolException;
+    public void execute(boolean exitOnFinish) throws ToolException {
+        init();
+        try {
+            parseCommandLine();
+        } catch (BadUsageException bue) {
+            throw new ToolException(bue);
+        }        
+    }
+
+    public void tearDown() {
+        if (isQuietMode()) {
+            System.setOut(stdOutputStream);
+            System.setErr(stdErrorStream);
+        }
+    }
 
 }

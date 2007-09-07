@@ -26,13 +26,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.resource.ObjectTypeResolver;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 
 
-public class ResourceManagerImpl extends DefaultResourceManager {
+public class ResourceManagerImpl extends DefaultResourceManager implements BusExtension {
 
     private Bus bus;
 
@@ -48,33 +50,6 @@ public class ResourceManagerImpl extends DefaultResourceManager {
         registeredResolvers.clear();
         
         registeredResolvers.add(new PropertiesResolver(properties));
-        
-        // TODO: replace by dynamic loading
-        
-        /*
-        Configuration conf = bus.getConfiguration(); g
-        assert null != conf;
-        Object obj = conf.getObject("resourceResolvers");
-        assert null != obj;
-        
-        
-        
-        try { 
-            for (String className : ((StringListType)obj).getItem()) { 
-                if (LOG.isLoggable(Level.FINEST)) { 
-                    LOG.finest("attempting to load resolver " + className);
-                }
-                
-                Class<? extends ResourceResolver> clz = getClass().getClassLoader().loadClass(className)
-                    .asSubclass(ResourceResolver.class);
-
-                ResourceResolver rr = clz.newInstance();
-                registeredResolvers.add(rr);
-            } 
-        } catch (Exception ex) { 
-            throw new BusException(ex);
-        } 
-        */
     } 
     
     @Resource
@@ -84,9 +59,15 @@ public class ResourceManagerImpl extends DefaultResourceManager {
 
     @PostConstruct
     public void register() {
-        if (null != bus) {
+        super.addResourceResolver(new ObjectTypeResolver(bus));
+        if (null != bus && bus.getExtension(ResourceManager.class) != this) {
             bus.setExtension(this, ResourceManager.class);
         }
     }
+
+    public Class<?> getRegistrationType() {
+        return ResourceManager.class;
+    }
+
 
 }

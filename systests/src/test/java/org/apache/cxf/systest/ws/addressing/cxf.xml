@@ -19,134 +19,15 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xsi:schemaLocation="
+http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <bean name="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit" abstract="true">
-        <property name="client">
-            <value>
-                <http-conf:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
-            </value>
-        </property>
-    </bean>
-
-
-    <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
-    <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-
-    <!-- We are adding the interceptors to the bus as we will have only one endpoint/service/bus. -->
-
-    <bean id="cxf" class="org.apache.cxf.bus.spring.SpringBusImpl">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-    </bean>
+    <http:conduit name="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit">
+      <http:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
+    </http:conduit>
     
-    <!-- Configuring the service level interceptors would work also but is not as convenient
-         as we have to remember to include the default interceptors. -->
-  
-    <!-- 
-    <bean id="messageSender" class="org.apache.cxf.interceptor.MessageSenderInterceptor"/> 
-    <bean id="outgoingChain" class="org.apache.cxf.interceptor.OutgoingChainInterceptor"/> 
-    <bean id="outgoingChainSetup" class="org.apache.cxf.interceptor.OutgoingChainSetupInterceptor"/> 
-    <bean id="serviceInvoker" class="org.apache.cxf.interceptor.ServiceInvokerInterceptor"/> 
-    <bean id="webFaultOut" class="org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor"/> 
-
-    <bean name="{http://apache.org/hello_world_soap_http}SOAPServiceAddressing" abstract="true">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="serviceInvoker"/>
-                <ref bean="outgoingChainSetup"/>
-                <ref bean="outgoingChain"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="messageSender"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="messageSender"/>
-                <ref bean="webFaultOut"/>
-            </list>
-        </property>
-    </bean>
-    -->
-   
-    <!-- Configuring the endpoint level interceptors would work also but again is not as convenient
-         as we have to remember to include the default interceptors.
-         Note that these include the JAX-WS handler interceptors; we have have to omit them here
-         because their constructor requires a reference to the binding.
-         As this test does not use JAX-WS handlers, the omission does not have any effect. --> 
-    
-    <!-- 
-    <bean id="wrapperClassIn" class="org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor"/> 
-    <bean id="wrapperClassOut" class="org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor"/> 
-   
-    <bean name="{http://apache.org/hello_world_soap_http}SoapPort" abstract="true">
-        <property name="inInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="wrapperClassIn"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="wrapperClassOut"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
-    </bean>
-    -->
-   
-    
+    <import resource="wsa_interceptors.xml"/>
 </beans>
+

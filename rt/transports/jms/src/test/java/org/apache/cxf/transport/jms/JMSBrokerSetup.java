@@ -19,33 +19,26 @@
 
 package org.apache.cxf.transport.jms;
 
-import junit.extensions.TestSetup;
-import junit.framework.TestSuite;
+import java.io.File;
 
-import org.activemq.broker.impl.BrokerContainerImpl;
-import org.activemq.store.vm.VMPersistenceAdapter;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 
 
-class JMSBrokerSetup extends TestSetup {
+class JMSBrokerSetup {
     JMSEmbeddedBroker jmsBrokerThread;
     String jmsBrokerUrl = "tcp://localhost:61616";
     String activeMQStorageDir;
-    public JMSBrokerSetup(TestSuite suite, String url) {
-        super(suite);
+    public JMSBrokerSetup(String url) {
         jmsBrokerUrl = url;
     }
     
-    public JMSBrokerSetup(TestSuite suite) {
-        super(suite);
-    }
-    
-    public void setUp() throws Exception {
-        
+    public void start() throws Exception {
         jmsBrokerThread = new JMSEmbeddedBroker(jmsBrokerUrl);
         jmsBrokerThread.startBroker();
     }
     
-    public void tearDown() throws Exception {
+    public void stop() throws Exception {
         synchronized (this) {
             jmsBrokerThread.shutdownBroker = true;
         }
@@ -82,12 +75,13 @@ class JMSBrokerSetup extends TestSetup {
         
         public void run() {
             try {  
-                ContainerWapper container;
-                synchronized (this) {
-                    container = new ContainerWapper();
-                    container.addConnector(brokerUrl);
-                    container.setPersistenceAdapter(new VMPersistenceAdapter());
-                    container.start();
+                //ContainerWapper container;
+                BrokerService broker = new BrokerService();
+                synchronized (this) {                                     
+                    broker.setPersistenceAdapter(new MemoryPersistenceAdapter());                    
+                    broker.setTmpDataDirectory(new File("./target"));
+                    broker.addConnector(brokerUrl);
+                    broker.start();
                     Thread.sleep(200);
                     notifyAll();
                 }
@@ -95,9 +89,9 @@ class JMSBrokerSetup extends TestSetup {
                     while (!shutdownBroker) {
                         wait(1000);
                     }
-                }
-                container.shutdown();
-                container = null;
+                }                
+                broker.stop();              
+                broker = null;                
             } catch (Exception e) {
                 exception = e;
                 e.printStackTrace();
@@ -107,10 +101,10 @@ class JMSBrokerSetup extends TestSetup {
        
     }
     
-    class ContainerWapper extends  BrokerContainerImpl {
+    /*class ContainerWapper extends  BrokerContainerImpl {
         
         public void shutdown() {
             super.containerShutdown();
         }
-    }
+    }*/
 }

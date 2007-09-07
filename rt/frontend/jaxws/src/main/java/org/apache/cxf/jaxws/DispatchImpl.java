@@ -19,9 +19,13 @@
 
 package org.apache.cxf.jaxws;
 
-import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,62 +33,90 @@ import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.activation.DataSource;
 import javax.xml.bind.JAXBContext;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPFault;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.http.HTTPBinding;
+import javax.xml.ws.http.HTTPException;
+import javax.xml.ws.soap.SOAPBinding;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
+import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.UpfrontConduitSelector;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
-import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
-import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
+import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchInDatabindingInterceptor;
+import org.apache.cxf.jaxws.interceptors.DispatchOutDatabindingInterceptor;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
 
 public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>, MessageObserver {
     private static final Logger LOG = LogUtils.getL7dLogger(DispatchImpl.class);
 
     private Bus bus;
+    private InterceptorProvider iProvider;
 
     private Class<T> cl;
     private Executor executor;
     private JAXBContext context;
     private Service.Mode mode;
 
-    private Endpoint endpoint;
-
-    DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {
+    private ConduitSelector conduitSelector;
+    
+    DispatchImpl(Bus b, Client client, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e) {
+        super(((JaxWsEndpointImpl)client.getEndpoint()).getJaxwsBinding());
         bus = b;
-        cl = clazz;
-        executor = e;
-        mode = m;
-
-        endpoint = ep;
-    }
-
-    DispatchImpl(Bus b, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e, Endpoint ep) {
-        bus = b;
+        this.iProvider = client;
         executor = e;
         context = ctx;
         cl = clazz;
         mode = m;
-
-        endpoint = ep;
+        getConduitSelector().setEndpoint(client.getEndpoint());
+        setupEndpointAddressContext(client.getEndpoint());
+    }
+    
+    DispatchImpl(Bus b, Client cl, Service.Mode m, Class<T> clazz, Executor e) {
+        this(b, cl, m, null, clazz, e);
     }
 
+    private void setupEndpointAddressContext(Endpoint endpoint) {
+        //NOTE for jms transport the address would be null
+        if (null != endpoint
+            && null != endpoint.getEndpointInfo().getAddress()) {
+            Map<String, Object> requestContext = this.getRequestContext();
+            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                           endpoint.getEndpointInfo().getAddress());
+        }    
+    }
     public T invoke(T obj) {
         return invoke(obj, false);
     }
@@ -94,39 +126,76 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.info("Dispatch: invoke called");
         }
 
+        Endpoint endpoint = getEndpoint();
         Message message = endpoint.getBinding().createMessage();
 
         if (context != null) {
             message.setContent(JAXBContext.class, context);
         }
-
+        
+        
+        Map<String, Object> reqContext = new HashMap<String, Object>(this.getRequestContext());
+        Map<String, Object> respContext = this.getResponseContext();
+        // clear the response context's hold information
+        // Not call the clear Context is to avoid the error 
+        // that getResponseContext() would be called by Client code first
+        respContext.clear();
+        
+        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(reqContext);
+        message.putAll(reqContext);
+        //need to do context mapping from jax-ws to cxf message
+        
         Exchange exchange = new ExchangeImpl();
-        exchange.put(Service.Mode.class, mode);
-        exchange.put(Class.class, cl);
-        exchange.put(org.apache.cxf.service.Service.class, endpoint.getService());
 
         exchange.setOutMessage(message);
-        message.setExchange(exchange);
+        setExchangeProperties(exchange, endpoint);
 
         message.setContent(Object.class, obj);
+        
+        if (obj instanceof SOAPMessage) {
+            message.setContent(SOAPMessage.class, obj);
+        } else if (obj instanceof Source) {
+            message.setContent(Source.class, obj);
+        } else if (obj instanceof DataSource) {
+            message.setContent(DataSource.class, obj);
+        }
+  
+        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
 
-        PhaseInterceptorChain chain = getDispatchOutChain();
+        PhaseInterceptorChain chain = getDispatchOutChain(endpoint);
         message.setInterceptorChain(chain);
 
-        // setup conduit
-        Conduit conduit = getConduit();
-        exchange.setConduit(conduit);
-        conduit.setMessageObserver(this);
-
+        // setup conduit selector
+        prepareConduitSelector(message);
+        
         // execute chain
         chain.doIntercept(message);
-
+        
+        getConduitSelector().complete(exchange);
+                
         if (message.getContent(Exception.class) != null) {
-            throw new RuntimeException(message.get(Exception.class));
+            if (getBinding() instanceof SOAPBinding) {
+                try {
+                    SOAPFault soapFault = SOAPFactory.newInstance().createFault();
+                    Fault fault = (Fault)message.getContent(Exception.class);
+                    soapFault.setFaultCode(fault.getFaultCode());
+                    soapFault.setFaultString(fault.getMessage());
+                    SOAPFaultException exception = new SOAPFaultException(soapFault);
+                    throw exception;
+                } catch (SOAPException e) {
+                    throw new WebServiceException(e);
+                }
+            } else if (getBinding() instanceof HTTPBinding) {
+                HTTPException exception = new HTTPException(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                exception.initCause(message.getContent(Exception.class));
+                throw exception;
+            } else {
+                throw new WebServiceException(message.getContent(Exception.class));
+            }
         }
 
         // correlate response        
-        if (conduit.getBackChannel() != null) {
+        if (getConduitSelector().selectConduit(message).getBackChannel() != null) {
             // process partial response and wait for decoupled response
         } else {
             // process response: send was synchronous so when we get here we can assume that the 
@@ -136,12 +205,14 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (!isOneWay) {
             synchronized (exchange) {
                 Message inMsg = waitResponse(exchange);
+                respContext.putAll(inMsg);
+                //need to do context mapping from cxf message to jax-ws 
+                ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
                 return cl.cast(inMsg.getContent(Object.class));
             }
         }
         return null;
-        //         populateResponseContext(objMsgContext);
-        //         return cl.cast(objMsgContext.getReturn());
+        
     }
 
     private Message waitResponse(Exchange exchange) {
@@ -161,7 +232,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         return inMsg;
     }
 
-    private PhaseInterceptorChain getDispatchOutChain() {
+    private PhaseInterceptorChain getDispatchOutChain(Endpoint endpoint) {
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
 
@@ -170,22 +241,30 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);
-        il = endpoint.getOutInterceptors();
+        List<Interceptor> i2 = iProvider.getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by endpoint: " + il);
+            LOG.fine("Interceptors contributed by client: " + i2);
         }
-        chain.add(il);
+        chain.add(i2);
+        
+        if (endpoint instanceof JaxWsEndpointImpl) {
+            Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
+            if (endpoint.getBinding() instanceof SoapBinding) {
+                chain.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
+            } else {
+                // TODO: what for non soap bindings?
+            }       
+            chain.add(new DispatchLogicalHandlerInterceptor(jaxwsBinding));
+        }   
+        
+        chain.add(new MessageSenderInterceptor());
 
-        List<Interceptor> outInterceptors = new ArrayList<Interceptor>();
-        outInterceptors.add(new MessageSenderInterceptor());
-        outInterceptors.add(new DispatchOutInterceptor());
-
-        chain.add(outInterceptors);
-
+        chain.add(new DispatchOutDatabindingInterceptor(mode));
         return chain;
     }
 
     public void onMessage(Message message) {
+        Endpoint endpoint = getEndpoint();
         message = endpoint.getBinding().createMessage(message);
 
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
@@ -199,14 +278,24 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);
-        il = endpoint.getInInterceptors();
+        List<Interceptor> i2 = iProvider.getInInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by endpoint: " + il);
+            LOG.fine("Interceptors contributed by client: " + i2);
         }
-        chain.add(il);
+        chain.add(i2);
+
+        if (endpoint instanceof JaxWsEndpointImpl) {
+            Binding jaxwsBinding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
+            if (endpoint.getBinding() instanceof SoapBinding) {
+                chain.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
+            }      
+            DispatchLogicalHandlerInterceptor slhi 
+                = new DispatchLogicalHandlerInterceptor(jaxwsBinding, Phase.USER_LOGICAL);            
+            chain.add(slhi);
+        }           
 
         List<Interceptor> inInterceptors = new ArrayList<Interceptor>();
-        inInterceptors.add(new DispatchInInterceptor());
+        inInterceptors.add(new DispatchInDatabindingInterceptor(cl, mode));
         chain.add(inInterceptors);
 
         // execute chain
@@ -220,27 +309,9 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         }
     }
 
-    private Conduit getConduit() {
-        EndpointInfo ei = endpoint.getEndpointInfo();
-        String transportID = ei.getTransportId();
-        try {
-            ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
-                .getConduitInitiator(transportID);
-            return ci.getConduit(ei);
-        } catch (BusException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        }
-
-        return null;
-    }
-
     private Executor getExecutor() {
         if (executor == null) {
-            executor = endpoint.getService().getExecutor();
+            executor = getEndpoint().getService().getExecutor();
         }
         if (executor == null) {
             executor = Executors.newFixedThreadPool(5);
@@ -249,6 +320,10 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             System.err.println("Can't not get executor");
         }
         return executor;
+    }
+    
+    private Endpoint getEndpoint() {
+        return getConduitSelector().getEndpoint();
     }
 
     public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
@@ -259,7 +334,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         return callback;
     }
 
-    @SuppressWarnings("unchecked")
     public Response<T> invokeAsync(T obj) {
         FutureTask<T> f = new FutureTask<T>(new DispatchAsyncCallable<T>(this, obj));
 
@@ -269,5 +343,55 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
     public void invokeOneWay(T obj) {
         invoke(obj, true);
+    }
+        
+    public synchronized ConduitSelector getConduitSelector() {
+        if (null == conduitSelector) {
+            conduitSelector = new UpfrontConduitSelector();
+        }
+        return conduitSelector;
+    }
+
+    public void setConduitSelector(ConduitSelector selector) {
+        conduitSelector = selector;
+    }
+    
+    protected void prepareConduitSelector(Message message) {
+        message.getExchange().put(ConduitSelector.class, getConduitSelector());
+    }
+    
+    protected void setExchangeProperties(Exchange exchange, Endpoint endpoint) {
+        exchange.put(Service.Mode.class, mode);
+        exchange.put(Class.class, cl);
+        exchange.put(org.apache.cxf.service.Service.class, endpoint.getService());
+        exchange.put(Endpoint.class, endpoint);
+        
+        exchange.put(MessageObserver.class, this);
+        exchange.put(Bus.class, bus);
+
+        if (endpoint != null) {
+
+            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+
+            QName serviceQName = endpointInfo.getService().getName();
+            exchange.put(Message.WSDL_SERVICE, serviceQName);
+
+            QName interfaceQName = endpointInfo.getService().getInterface().getName();
+            exchange.put(Message.WSDL_INTERFACE, interfaceQName);
+
+            QName portQName = endpointInfo.getName();
+            exchange.put(Message.WSDL_PORT, portQName);
+            URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+            if (wsdlDescription == null) {
+                String address = endpointInfo.getAddress();
+                try {
+                    wsdlDescription = new URI(address + "?wsdl");
+                } catch (URISyntaxException e) {
+                    // do nothing
+                }
+                endpointInfo.setProperty("URI", wsdlDescription);
+            }
+            exchange.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+        }      
     }
 }

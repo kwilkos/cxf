@@ -36,27 +36,29 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 
+import org.w3c.dom.Node;
+
 import org.xml.sax.InputSource;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class DispatchClientServerTest extends ClientServerTestBase {
+public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
 
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPDispatchService");
     private final QName portName = new QName("http://apache.org/hello_world_soap_http", "SoapDispatchPort");
 
-    public static class Server extends TestServerBase {        
+    public static class Server extends AbstractBusTestServerBase {        
 
         protected void run() {
             Object implementor = new GreeterImpl();
@@ -78,15 +80,12 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         }
     }
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(DispatchClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testSOAPMessage() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -103,10 +102,11 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null, is);
         assertNotNull(soapReqMsg);
         SOAPMessage soapResMsg = disp.invoke(soapReqMsg);
+        
         assertNotNull(soapResMsg);
         String expected = "Hello TestSOAPInputMessage";
         assertEquals("Response should be : Hello TestSOAPInputMessage", expected, soapResMsg.getSOAPBody()
-            .getTextContent());
+            .getTextContent().trim());
 
         // Test oneway
         InputStream is1 = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq1.xml");
@@ -124,7 +124,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertNotNull(soapResMsg2);
         String expected2 = "Hello TestSOAPInputMessage2";
         assertEquals("Response should be : Hello TestSOAPInputMessage2", expected2, soapResMsg2.getSOAPBody()
-            .getTextContent());
+            .getTextContent().trim());
 
         // Test async callback
         InputStream is3 = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq3.xml");
@@ -137,29 +137,37 @@ public class DispatchClientServerTest extends ClientServerTestBase {
             // wait
         }
         String expected3 = "Hello TestSOAPInputMessage3";
-        assertEquals("Response should be : Hello TestSOAPInputMessage3", expected3, tsmh.getReplyBuffer());
+        assertEquals("Response should be : Hello TestSOAPInputMessage3", 
+                     expected3, tsmh.getReplyBuffer().trim());
 
     }
-
+    
+    @Test
     public void testDOMSourceMESSAGE() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        /*URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);*/
+        Service service = Service.create(serviceName);
         assertNotNull(service);
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/", 
+                        "http://localhost:9006/SOAPDispatchService/SoapDispatchPort");
+
+        Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.MESSAGE);
 
         InputStream is = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null, is);
         DOMSource domReqMsg = new DOMSource(soapReqMsg.getSOAPPart());
         assertNotNull(domReqMsg);
 
-        Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.MESSAGE);
+
         DOMSource domResMsg = disp.invoke(domReqMsg);
         assertNotNull(domResMsg);
         String expected = "Hello TestSOAPInputMessage";
 
         assertEquals("Response should be : Hello TestSOAPInputMessage", expected, domResMsg.getNode()
-            .getFirstChild().getTextContent());
+            .getFirstChild().getTextContent().trim());
 
         // Test invoke oneway
         InputStream is1 = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq1.xml");
@@ -179,7 +187,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertNotNull(domReqMsg2);
         String expected2 = "Hello TestSOAPInputMessage2";
         assertEquals("Response should be : Hello TestSOAPInputMessage2", expected2, domRespMsg2.getNode()
-            .getFirstChild().getTextContent());
+            .getFirstChild().getTextContent().trim());
 
         // Test async callback
         InputStream is3 = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq3.xml");
@@ -194,15 +202,21 @@ public class DispatchClientServerTest extends ClientServerTestBase {
             // wait
         }
         String expected3 = "Hello TestSOAPInputMessage3";
-        assertEquals("Response should be : Hello TestSOAPInputMessage3", expected3, tdsh.getReplyBuffer());
+        assertEquals("Response should be : Hello TestSOAPInputMessage3", expected3, 
+                     tdsh.getReplyBuffer().trim());
     }
-
+    
+    @Test
     public void testDOMSourcePAYLOAD() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        /*URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);*/
+        Service service = Service.create(serviceName);
         assertNotNull(service);
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/", 
+                        "http://localhost:9006/SOAPDispatchService/SoapDispatchPort");
 
         Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
 
@@ -213,10 +227,11 @@ public class DispatchClientServerTest extends ClientServerTestBase {
 
         // invoke
         DOMSource domResMsg = disp.invoke(domReqMsg);
+        
         assertNotNull(domResMsg);
         String expected = "Hello TestSOAPInputMessage";
         assertEquals("Response should be : Hello TestSOAPInputMessage", expected, domResMsg.getNode()
-            .getFirstChild().getTextContent());
+            .getTextContent().trim());
 
         InputStream is1 = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq1.xml");
         SOAPMessage soapReqMsg1 = MessageFactory.newInstance().createMessage(null, is1);
@@ -235,7 +250,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertNotNull(domRespMsg2);
         String expected2 = "Hello TestSOAPInputMessage2";
         assertEquals("Response should be : Hello TestSOAPInputMessage2", expected2, domRespMsg2.getNode()
-            .getFirstChild().getTextContent());
+            .getTextContent().trim());
 
         InputStream is3 = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq3.xml");
         SOAPMessage soapReqMsg3 = MessageFactory.newInstance().createMessage(null, is3);
@@ -249,16 +264,18 @@ public class DispatchClientServerTest extends ClientServerTestBase {
             // wait
         }
         String expected3 = "Hello TestSOAPInputMessage3";
-        assertEquals("Response should be : Hello TestSOAPInputMessage3", expected3, tdsh.getReplyBuffer());
+        assertEquals("Response should be : Hello TestSOAPInputMessage3", 
+                     expected3, tdsh.getReplyBuffer().trim());
     }
 
+    @Test
     public void testJAXBObjectPAYLOAD() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
-
+        
         JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_soap_http.types");
         Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
 
@@ -292,6 +309,44 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertTrue("Expected string, " + expected, expected.equals(responseValue3));
     }
 
+    @Test
+    public void testJAXBObjectPAYLOADWithFeature() throws Exception {
+        createBus("org/apache/cxf/systest/dispatch/client-config.xml");
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+
+        String bindingId = "http://schemas.xmlsoap.org/wsdl/soap/";
+        String endpointUrl = "http://localhost:9006/SOAPDispatchService/SoapDispatchPort";
+        
+        Service service = Service.create(wsdl, serviceName);
+        service.addPort(portName, bindingId, endpointUrl);
+        assertNotNull(service);
+        
+        JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_soap_http.types");
+        Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
+
+        String expected = "Hello Jeeves";
+        GreetMe greetMe = new GreetMe();
+        greetMe.setRequestType("Jeeves");
+
+        Object response = disp.invoke(greetMe);
+        assertNotNull(response);
+        String responseValue = ((GreetMeResponse)response).getResponseType();
+        assertTrue("Expected string, " + expected, expected.equals(responseValue));
+        
+        assertEquals("Feature should be applied", 1, TestDispatchFeature.getCount());
+        assertEquals("Feature based interceptors should be added", 
+                     1, TestDispatchFeature.getCount());
+        
+        assertEquals("Feature based In interceptors has be added to in chain.", 
+                     1, TestDispatchFeature.getInInterceptorCount());
+
+        assertEquals("Feature based interceptors has to be added to out chain.", 
+                     1, TestDispatchFeature.getOutInterceptorCount());
+
+    }
+    
+    @Test
     public void testSAXSourceMESSAGE() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -347,6 +402,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertTrue("Expected: " + expected, XMLUtils.toString(saxSourceResp3).contains(expected3));
     }
 
+    @Test
     public void testSAXSourcePAYLOAD() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -403,6 +459,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertTrue("Expected: " + expected, XMLUtils.toString(saxSourceResp3).contains(expected3));
     }
 
+    @Test
     public void testStreamSourceMESSAGE() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -449,6 +506,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertTrue("Expected: " + expected, XMLUtils.toString(streamSourceResp3).contains(expected3));
     }
 
+    @Test
     public void testStreamSourcePAYLOAD() throws Exception {
 
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -524,7 +582,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         public void handleResponse(Response<DOMSource> response) {
             try {
                 DOMSource reply = response.get();
-                replyBuffer = reply.getNode().getFirstChild().getTextContent();
+                replyBuffer = DOMUtils.getChild(reply.getNode(), Node.ELEMENT_NODE).getTextContent();
             } catch (Exception e) {
                 e.printStackTrace();
             }

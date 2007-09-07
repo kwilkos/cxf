@@ -28,32 +28,32 @@ import java.io.OutputStream;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.w3c.dom.Element;
-
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SoapOutInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;
     private SoapOutInterceptor soi;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
-        StaxInInterceptor sii = new StaxInInterceptor();
-        sii.setPhase("phase1");
+        StaxInInterceptor sii = new StaxInInterceptor("phase1");
         chain.add(sii);
 
-        rhi = new ReadHeadersInterceptor();
-        rhi.setPhase("phase2");
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus(), "phase2");
         chain.add(rhi);
 
-        soi = new SoapOutInterceptor();
-        soi.setPhase("phase3");
+        soi = new SoapOutInterceptor(BusFactory.getDefaultBus(), "phase3");
         chain.add(soi);
     }
 
+    @Test
     public void testHandleMessage() throws Exception {
         prepareSoapMessage();
 
@@ -63,7 +63,7 @@ public class SoapOutInterceptorTest extends TestBase {
         
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
         
-        assertNotNull(soapMessage.getHeaders(Element.class));
+        assertNotNull(soapMessage.getHeaders());
 
         Exception oe = (Exception)soapMessage.getContent(Exception.class);
         if (oe != null) {
@@ -94,7 +94,7 @@ public class SoapOutInterceptorTest extends TestBase {
     }
 
     private void prepareSoapMessage() throws IOException {
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
 
         soapMessage.setContent(InputStream.class, getClass().getResourceAsStream("test-soap-header.xml"));
     }

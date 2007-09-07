@@ -20,6 +20,10 @@
 package org.apache.cxf.systest.rest;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
@@ -34,7 +38,9 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.w3c.dom.Document;
 
-import org.apache.cxf.message.Message;
+import org.apache.cxf.helpers.CastUtils;
+
+
 
 @WebServiceProvider()
 @ServiceMode(value = Service.Mode.PAYLOAD)
@@ -49,15 +55,28 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
 
     public DOMSource invoke(DOMSource request) {
         MessageContext mc = wsContext.getMessageContext();
-        String path = (String)mc.get(Message.PATH_INFO);
-        String query = (String)mc.get(Message.QUERY_STRING);
-        String httpMethod = (String)mc.get(Message.HTTP_REQUEST_METHOD);
-
-        /*
-         * System.out.println("--path--- " + path);
-         * System.out.println("--query--- " + query);
-         * System.out.println("--httpMethod--- " + httpMethod);
-         */
+        String path = (String)mc.get(MessageContext.PATH_INFO);
+        String query = (String)mc.get(MessageContext.QUERY_STRING);
+        String httpMethod = (String)mc.get(MessageContext.HTTP_REQUEST_METHOD);
+        
+      
+        /*Map<String, List<String>> requestHeader = 
+            (Map<String, List<String>>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);*/
+        
+        Map<String, List<String>> responseHeader =
+            CastUtils.cast((Map)mc.get(MessageContext.HTTP_RESPONSE_HEADERS));
+        if (responseHeader == null) {
+            responseHeader = new HashMap<String, List<String>>();
+            mc.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeader);
+        }
+        List<String> values = new ArrayList<String>();
+        values.add("hello1");
+        values.add("hello2");
+        responseHeader.put("REST", values);
+//        System.out.println("--path--- " + path);
+//        System.out.println("--query--- " + query);
+//        System.out.println("--httpMethod--- " + httpMethod);
+        
         if (httpMethod.equalsIgnoreCase("POST")) {
             // TBD: parse query info from DOMSource
             // System.out.println("--POST: getAllCustomers--- ");
@@ -68,6 +87,7 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
                 return getAllCustomers();
             } else if ("/XMLService/RestProviderPort/Customer".equals(path) && query != null) {
                 // System.out.println("--GET:getCustomer--- ");
+                // setup return context
                 return getCustomer(query);
             }
         }
@@ -91,7 +111,7 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
 
         try {
             factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
+            factory.setNamespaceAware(true);
             builder = factory.newDocumentBuilder();
             InputStream greetMeResponse = getClass().getResourceAsStream(fileName);
 
@@ -101,5 +121,6 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
             e.printStackTrace();
         }
         return response;
-    }
+    }    
+   
 }

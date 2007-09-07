@@ -23,10 +23,10 @@
         <delete file="build.out"/>
         <delete file="build.out.clean"/>
         <exec executable="mvn" dir="${basedir}" failonerror="false" output="build.out.clean" logError="true">
-            <arg line="clean"/>
+            <arg line="-U clean -Dmaven.repo.local=${user.home}/.m2/repository_cxf"/>
         </exec>
         <exec executable="mvn" dir="${basedir}" failonerror="false" resultproperty="build.result" output="build.out" logError="true">
-            <arg line="install -Dsurefire.fork.mode=once -Drelease"/>
+            <arg line="-U install -Peverything -Dmaven.repo.local=${user.home}/.m2/repository_cxf"/>
         </exec>
 
         <copy todir="target/surefire-reports">
@@ -53,11 +53,11 @@
         <delete file="distribution/build.out"/>
         <delete file="distribution/build.out.clean"/>
         <exec executable="mvn" dir="${basedir}/distribution" failonerror="false" output="distribution/build.out.clean" logError="true">
-            <arg line="clean -Drelease"/>
+            <arg line="clean -Drelease -Dmaven.repo.local=${user.home}/.m2/repository_cxf"/>
         </exec>
         <exec executable="mvn" dir="${basedir}/distribution" failonerror="false" resultproperty="build.result"
             output="distribution/build.out" logError="true">
-            <arg line="install -Drelease"/>
+            <arg line="install -Drelease -Dmaven.repo.local=${user.home}/.m2/repository_cxf"/>
         </exec>
 
         <condition property="build.failed">

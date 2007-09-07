@@ -33,11 +33,13 @@ import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.ErrorCode;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
 import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 
@@ -45,7 +47,8 @@ import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PRO
 @WebService(serviceName = "SOAPServiceAddressing", 
             portName = "SoapPort", 
             endpointInterface = "org.apache.hello_world_soap_http.Greeter", 
-            targetNamespace = "http://apache.org/hello_world_soap_http")
+            targetNamespace = "http://apache.org/hello_world_soap_http",
+            wsdlLocation = "testutils/hello_world.wsdl")
 public class GreeterImpl implements Greeter {
     VerificationCache verificationCache;
 
@@ -60,6 +63,19 @@ public class GreeterImpl implements Greeter {
         System.out.println("\n\n*** GreetMe called with: " + me + "***\n\n");
         verifyMAPs();
         return "Hello " + me;
+    }
+
+    public String greetMeLater(long delay) {
+        System.out.println("\n\n*** GreetMeLater called with: " + delay + "***\n\n");
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        verifyMAPs();
+        return "Hello, finally";
     }
 
     public void greetMeOneWay(String requestType) {   
@@ -148,6 +164,16 @@ public class GreeterImpl implements Greeter {
         /*not called */
     }
     
+    public Future<?> greetMeLaterAsync(long requestType, AsyncHandler<GreetMeLaterResponse> asyncHandler) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<GreetMeLaterResponse> greetMeLaterAsync(long requestType) { 
+        return null; 
+        /*not called */
+    }
+    
     public Future<?> sayHiAsync(AsyncHandler<SayHiResponse> asyncHandler) { 
         return null; 
         /*not called */
@@ -156,6 +182,22 @@ public class GreeterImpl implements Greeter {
     public Response<SayHiResponse> sayHiAsync() { 
         return null; 
         /*not called */
+    }
+
+    public String testNillable(String nillElem, int intElem) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Response<TestNillableResponse> testNillableAsync(String nillElem,
+                                                            int intElem) {
+        return null;
+    }
+    
+    public Future<?> testNillableAsync(String nillElem, 
+                                       int intElem,
+                                       AsyncHandler<TestNillableResponse> asyncHandler) {
+        return null;
     }
     
 }

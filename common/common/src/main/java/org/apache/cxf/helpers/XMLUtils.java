@@ -19,11 +19,18 @@
 
 package org.apache.cxf.helpers;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,15 +42,23 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.logging.LogUtils;
@@ -74,6 +89,16 @@ public final class XMLUtils {
 
     public static DocumentBuilder getParser() throws ParserConfigurationException {
         return parserFactory.newDocumentBuilder();
+    }
+
+    public static Document parse(InputSource is) throws ParserConfigurationException, SAXException,
+        IOException {
+        return getParser().parse(is.getSystemId());
+    }
+
+    public static Document parse(File is) throws ParserConfigurationException, SAXException,
+        IOException {
+        return getParser().parse(is);
     }
 
     public static Document parse(InputStream in) throws ParserConfigurationException, SAXException,
@@ -116,9 +141,12 @@ public final class XMLUtils {
     }
 
     public static void writeTo(Node node, OutputStream os) {
+        writeTo(new DOMSource(node), os);
+    }
+    public static void writeTo(Source src, OutputStream os) {
+        Transformer it;
         try {
-            Transformer it = newTransformer();
-
+            it = newTransformer();
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             if (indent()) {
                 it.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -126,12 +154,13 @@ public final class XMLUtils {
             }
             it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, omitXmlDecl);
             it.setOutputProperty(OutputKeys.ENCODING, charset);
-            it.transform(new DOMSource(node), new StreamResult(os));
-        } catch (Exception e) {
+            it.transform(src, new StreamResult(os));
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
 
+    }
     public static String toString(Source source) throws TransformerException, IOException {
         return toString(source, null);
     }
@@ -262,13 +291,21 @@ public final class XMLUtils {
     }
 
     public static InputStream getInputStream(Document doc) throws Exception {
-        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
-        if (impl == null) {
-            System.setProperty(DOMImplementationRegistry.PROPERTY,
-                               "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
-            registry = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = null;
+        DOMImplementation docImpl = doc.getImplementation();
+        // Try to get the DOMImplementation from doc first before
+        // defaulting to the sun implementation.
+        if (docImpl != null && docImpl.hasFeature("LS", "3.0")) {
+            impl = (DOMImplementationLS)docImpl.getFeature("LS", "3.0");
+        } else {
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
             impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+            if (impl == null) {
+                System.setProperty(DOMImplementationRegistry.PROPERTY,
+                                   "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+                registry = DOMImplementationRegistry.newInstance();
+                impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+            }
         }
         LSOutput output = impl.createLSOutput();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -291,5 +328,35 @@ public final class XMLUtils {
             }
         }
         return ret;
+    }
+
+    public static QName getQName(String value, Node node) {
+        if (value == null) {
+            return null;
+        }
+
+        int index = value.indexOf(":");
+
+        if (index == -1) {
+            return new QName(value);
+        }
+
+        String prefix = value.substring(0, index);
+        String localName = value.substring(index + 1);
+        String ns = node.lookupNamespaceURI(prefix);
+
+        if (ns == null || localName == null) {
+            throw new RuntimeException("Invalid QName in mapping: " + value);
+        }
+
+        return new QName(ns, localName, prefix);
+    }
+
+    public static Node  fromSource(Source src) throws Exception {
+
+        Transformer trans = TransformerFactory.newInstance().newTransformer();
+        DOMResult res = new DOMResult();
+        trans.transform(src, res);
+        return res.getNode();
     }
 }

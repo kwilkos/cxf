@@ -27,33 +27,36 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
         <schema targetNamespace="http://cxf.apache.org/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://cxf.apache.org/hello_world_jms/types" elementFormDefault="qualified">
-            <complexType name="ErrorCode">
-                 <sequence>
-                    <element name="minor" type="short"/>
-                    <element name="major" type="short"/>
-                </sequence>
-            </complexType>
-                <complexType name="testRpcLitFault">
-                    <sequence>
-                        <element name="faultType" type="string"/>
-                    </sequence>
-                </complexType>
-                <complexType name="testRpcLitFaultResponse">
-                    <sequence/>
-                </complexType>
+	    <complexType name="ErrorCode">
+		<sequence>
+		    <element name="minor" type="short"/>
+		    <element name="major" type="short"/>
+		</sequence>
+	    </complexType>
+	    <complexType name="testRpcLitFault">
+		<sequence>
+		    <element name="faultType" type="string"/>
+		</sequence>
+	    </complexType>
+	    <complexType name="testRpcLitFaultResponse">
+		<sequence/>
+	    </complexType>
+	    
+	    <element name="NoSuchCodeLit" type="x1:NoSuchCodeLit"/>
+	    <complexType name="NoSuchCodeLit">
+		<sequence>
+		    <element name="code" type="x1:ErrorCode"/>
+		</sequence>
+	    </complexType>
 
-                <complexType name="NoSuchCodeLit">
-                    <sequence>
-                        <element name="code" type="x1:ErrorCode"/>
-                    </sequence>
-                </complexType>
-            <complexType name="BadRecord">
-                <sequence>
-                    <element name="reason" type="string"/>
-                    <element name="code" type="short"/>
-                </sequence>
-            </complexType>
-        </schema>
+	    <element name="BadRecordLit" type="x1:BadRecordLit"/>
+	    <complexType name="BadRecordLit">
+		<sequence>
+		    <element name="reason" type="string"/>
+		    <element name="code" type="short"/>
+		</sequence>
+	    </complexType>
+	</schema>
     </types>
 
     <message name="greetMe">
@@ -77,10 +80,10 @@
         <part name="out" type="x1:testRpcLitFaultResponse"/>
     </message>
     <message name="NoSuchCodeLitFault">
-        <part name="NoSuchCodeLit" type="x1:NoSuchCodeLit"/>
+        <part name="NoSuchCodeLit" element="x1:NoSuchCodeLit"/>
     </message>
     <message name="BadRecordLitFault">
-        <part name="BadRecordLit" type="xsd:string"/>
+        <part name="BadRecordLit" element="x1:BadRecordLit"/>
     </message>
     
     <portType name="HelloWorldPortType">
@@ -156,10 +159,10 @@
                 <soap:body namespace="http://cxf.apache.org/hello_world_jms"  use="literal"/>
             </output>
             <fault name="NoSuchCodeLitFault">
-                <soap:fault name="NoSuchCodeLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                <soap:fault name="NoSuchCodeLitFault" use="literal"/>
             </fault>
             <fault name="BadRecordLitFault">
-                <soap:fault name="BadRecordLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
+                <soap:fault name="BadRecordLitFault" use="literal"/>
             </fault>
         </operation>
     </binding>
@@ -338,7 +341,7 @@
                <jms:address
                    jndiConnectionFactoryName="ConnectionFactory" 
                    jndiDestinationName="dynamicQueues/test.jmstransport.text">
-                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
                </jms:address>
             
@@ -352,7 +355,7 @@
                 jndiConnectionFactoryName="ConnectionFactory" 
                 jndiDestinationName="dynamicQueues/test.jmstransport.binary"
                 jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary">
-                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                 <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -367,11 +370,25 @@
                 jndiConnectionFactoryName="ConnectionFactory" 
                 jndiDestinationName="dynamicQueues/test.jmstransport.binary"
                 jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary.reply">
-                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                 <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
             <jms:client messageType="binary"/>
+            <jms:server durableSubscriberName="CXF_subscriber"/>
+        </port>
+    </service>
+    <service name="HWByteMsgService">
+        <port binding="tns:HelloWorldPortBinding" name="HWSByteMsgPort">
+            <jms:address
+                jndiConnectionFactoryName="ConnectionFactory" 
+                jndiDestinationName="dynamicQueues/test.jmstransport.binary"
+                jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary.reply">
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
+            </jms:address>
+            
+            <jms:client messageType="byte"/>
             <jms:server durableSubscriberName="CXF_subscriber"/>
         </port>
     </service>
@@ -383,7 +400,7 @@
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jmstransport.text"
                jndiReplyDestinationName="dynamicQueues/test.jmstransport.text.reply">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -396,7 +413,7 @@
             <jms:address
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jmstransport.oneway">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -410,7 +427,7 @@
                destinationStyle="topic"
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicTopics/test.jmstransport.oneway.topic">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
         </port>
@@ -422,10 +439,10 @@
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jms.addr.queue"
                jndiReplyDestinationName="dynamicQueues/test.jms.addr.reply.queue">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </port>
     </service>
     

@@ -29,8 +29,10 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
@@ -38,6 +40,8 @@ import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.junit.Before;
+import org.junit.Test;
 
 public class MustUnderstandInterceptorTest extends TestBase {
 
@@ -49,23 +53,24 @@ public class MustUnderstandInterceptorTest extends TestBase {
     private DummySoapInterceptor dsi;
     private ReadHeadersInterceptor rhi;
 
+    @Before
     public void setUp() throws Exception {
 
         super.setUp();
+        
+        Bus bus = BusFactory.getDefaultBus();
 
-        rhi = new ReadHeadersInterceptor();
-        rhi.setPhase("phase1");
+        rhi = new ReadHeadersInterceptor(bus, "phase1");
         chain.add(rhi);
 
-        mui = new MustUnderstandInterceptor();
-        mui.setPhase("phase2");
+        mui = new MustUnderstandInterceptor("phase2");
         chain.add(mui);
 
-        dsi = new DummySoapInterceptor();
-        dsi.setPhase("phase3");
+        dsi = new DummySoapInterceptor("phase3");
         chain.add(dsi);
     }
 
+    @Test
     public void testHandleMessageSucc() throws Exception {
         prepareSoapMessage();
         dsi.getUnderstoodHeaders().add(RESERVATION);
@@ -77,6 +82,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
             .isCalledGetUnderstood());
     }
 
+    @Test
     public void testHandleMessageFail() throws Exception {
         prepareSoapMessage();
 
@@ -92,11 +98,12 @@ public class MustUnderstandInterceptorTest extends TestBase {
         if (ie == null) {
             fail("InBound Exception Missing! Exception should be Can't understands QNames: " + PASSENGER);
         } else {
-            assertEquals(SoapFault.MUST_UNDERSTAND, ie.getFaultCode());
+            assertEquals(soapMessage.getVersion().getMustUnderstand(), ie.getFaultCode());
             assertEquals("Can not understand QNames: " + PASSENGER, ie.getMessage().toString());
         }
     }
 
+    @Test
     public void testHandleMessageWithHeaderParam() throws Exception {
         prepareSoapMessage();
         dsi.getUnderstoodHeaders().add(RESERVATION);
@@ -117,7 +124,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
     private void prepareSoapMessage() throws Exception {
 
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
             .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://cxf.apache.org");
@@ -134,6 +141,13 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
         private Set<URI> roles = new HashSet<URI>();
         private Set<QName> understood = new HashSet<QName>();
+
+        public DummySoapInterceptor() {
+            super("");
+        }
+        public DummySoapInterceptor(String phase) {
+            super(phase);
+        }
 
         public void handleMessage(SoapMessage messageParam) {
         }

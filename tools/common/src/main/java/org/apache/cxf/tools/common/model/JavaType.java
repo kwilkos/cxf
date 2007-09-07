@@ -19,10 +19,12 @@
 
 package org.apache.cxf.tools.common.model;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.namespace.QName;
-import com.sun.xml.bind.api.TypeReference;
 
 public class JavaType {
     
@@ -38,6 +40,7 @@ public class JavaType {
         typeMapping.put("float", "0.0f");
         typeMapping.put("double", "0.0");
         typeMapping.put("char", "0");
+        typeMapping.put("java.lang.String", "\"\"");
         
         typeMapping.put("javax.xml.namespace.QName", "new javax.xml.namespace.QName(\"\", \"\")");
         typeMapping.put("java.net.URI", "new java.net.URI(\"\")");
@@ -55,9 +58,10 @@ public class JavaType {
     protected String className;
     protected String targetNamespace;
     protected Style style;
-    protected TypeReference typeRef;
     protected boolean isHeader;
     private QName qname;
+    private JavaInterface owner;
+    private DefaultValueWriter dvw;
 
     public JavaType() {
     }
@@ -69,6 +73,13 @@ public class JavaType {
         this.className = t;
     }
 
+    public void setDefaultValueWriter(DefaultValueWriter w) {
+        dvw = w;
+    }
+    public DefaultValueWriter getDefaultValueWriter() {
+        return dvw;
+    }
+    
     public void setQName(QName qn) {
         this.qname = qn;
     }
@@ -85,7 +96,22 @@ public class JavaType {
         return this.className;
     }
 
-    public String getDefaultTypeValue() {
+    public void writeDefaultValue(Writer writer, String indent,
+                                  String opName, String varName) throws IOException {
+        if (dvw != null) {
+            dvw.writeDefaultValue(writer, indent, opName, varName);
+        } else {
+            writer.write(className);
+            writer.write(' ');
+            writer.write(varName);
+            writer.write(" = ");
+            writer.write(getDefaultTypeValue());
+            writer.write(";");
+        }
+    }
+    
+    
+    protected String getDefaultTypeValue() {
         if (this.className.trim().endsWith("[]")) {
             return "new " + this.className.substring(0, this.className.length() - 2) + "[0]";
         }
@@ -125,8 +151,12 @@ public class JavaType {
         return this.targetNamespace;
     }
 
+    public String getRawName() {
+        return this.name;
+    }
+    
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String s) {
@@ -163,13 +193,6 @@ public class JavaType {
     public boolean isINOUT() {
         return this.style == Style.INOUT;
     }
-    public void setTypeReference(TypeReference ref) {
-        this.typeRef = ref;
-    }
-
-    public TypeReference getTypeReference() {
-        return this.typeRef;
-    }
 
     public void setHeader(boolean header) {
         this.isHeader = header;
@@ -192,5 +215,13 @@ public class JavaType {
         sb.append("\nStyle: ");
         sb.append(style);
         return sb.toString();
+    }
+
+    public JavaInterface getOwner() {
+        return this.owner;
+    }
+
+    public void setOwner(JavaInterface intf) {
+        this.owner = intf;
     }
 }

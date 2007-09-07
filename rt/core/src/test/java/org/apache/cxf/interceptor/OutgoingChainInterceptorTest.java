@@ -22,8 +22,6 @@ package org.apache.cxf.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
@@ -32,6 +30,7 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.phase.PhaseManagerImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -39,8 +38,12 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class OutgoingChainInterceptorTest extends TestCase {
+public class OutgoingChainInterceptorTest extends Assert {
 
     private IMocksControl control;
     private Bus bus;
@@ -54,8 +57,8 @@ public class OutgoingChainInterceptorTest extends TestCase {
     private List<Interceptor> empty;
     private Binding binding;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
 
         control = EasyMock.createNiceControl();
 
@@ -64,9 +67,8 @@ public class OutgoingChainInterceptorTest extends TestCase {
         empty = new ArrayList<Interceptor>();
 
         bus = control.createMock(Bus.class);
-        PhaseManager pm = control.createMock(PhaseManager.class);
-        EasyMock.expect(bus.getExtension(PhaseManager.class)).andReturn(pm);
-        EasyMock.expect(pm.getOutPhases()).andReturn(phases);
+        PhaseManager pm = new PhaseManagerImpl();
+        EasyMock.expect(bus.getExtension(PhaseManager.class)).andReturn(pm).anyTimes();
 
         service = control.createMock(Service.class);
         endpoint = control.createMock(Endpoint.class);
@@ -74,29 +76,32 @@ public class OutgoingChainInterceptorTest extends TestCase {
         EasyMock.expect(endpoint.getBinding()).andStubReturn(binding);
         MessageImpl m = new MessageImpl();
         EasyMock.expect(binding.createMessage()).andStubReturn(m);
-        
-        EasyMock.expect(endpoint.getService()).andReturn(service);
+
+        EasyMock.expect(endpoint.getService()).andReturn(service).anyTimes();
         EasyMock.expect(endpoint.getOutInterceptors()).andReturn(empty);
         EasyMock.expect(service.getOutInterceptors()).andReturn(empty);
+        EasyMock.expect(bus.getOutInterceptors()).andReturn(empty);
 
         bopInfo = control.createMock(BindingOperationInfo.class);
         opInfo = control.createMock(OperationInfo.class);
         mInfo = control.createMock(MessageInfo.class);
         bmInfo = control.createMock(BindingMessageInfo.class);
-        EasyMock.expect(bopInfo.getOperationInfo()).andReturn(opInfo);
+        EasyMock.expect(bopInfo.getOperationInfo()).andReturn(opInfo).times(3);
         EasyMock.expect(opInfo.getOutput()).andReturn(mInfo);
+        EasyMock.expect(opInfo.isOneWay()).andReturn(false);
         EasyMock.expect(bopInfo.getOutput()).andReturn(bmInfo);
 
         control.replay();
 
     }
 
+    @After
     public void tearDown() {
         control.verify();
     }
 
+    @Test
     public void testInterceptor() throws Exception {
-        OutgoingChainSetupInterceptor setupIntc = new OutgoingChainSetupInterceptor();
         OutgoingChainInterceptor intc = new OutgoingChainInterceptor();
 
         MessageImpl m = new MessageImpl();
@@ -104,9 +109,9 @@ public class OutgoingChainInterceptorTest extends TestCase {
         m.setExchange(exchange);
         exchange.put(Bus.class, bus);
         exchange.put(Endpoint.class, endpoint);
+        exchange.put(Binding.class, binding);
         exchange.put(BindingOperationInfo.class, bopInfo);
         exchange.setOutMessage(m);
-        setupIntc.handleMessage(m);
         intc.handleMessage(m);
     }
 

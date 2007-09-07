@@ -21,42 +21,88 @@ package org.apache.cxf.jaxws.handler;
 
 import javax.xml.ws.Binding;
 
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
 public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
     private Binding binding;
     
-    protected AbstractJAXWSHandlerInterceptor(Binding b) {
+    protected AbstractJAXWSHandlerInterceptor(Binding b, String phase) {
+        super(phase);
         binding = b;
     }
     
-    boolean isOneway(T message) {
-        //@@TODO
-        return true;
+    protected boolean isOutbound(T message) {
+        return isOutbound(message, message.getExchange());
     }
     
-    boolean isOutbound(T message) {
-        return message == message.getExchange().getOutMessage();
+    private boolean isOutbound(T message, Exchange ex) {
+        return message == ex.getOutMessage()
+            || message == ex.getOutFaultMessage();
     }
     
-    boolean isRequestor(T message) {
-        Boolean b = (Boolean)message.get(Message.REQUESTOR_ROLE);
-        return b == null ? true : b.booleanValue();
+    
+    protected boolean isRequestor(T message) {
+        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
     protected HandlerChainInvoker getInvoker(T message) {
+        Exchange ex = message.getExchange();
         HandlerChainInvoker invoker = 
-            message.getExchange().get(HandlerChainInvoker.class);
+            ex.get(HandlerChainInvoker.class);
         if (null == invoker) {
             invoker = new HandlerChainInvoker(binding.getHandlerChain(),
                                               isOutbound(message));
-            message.getExchange().put(HandlerChainInvoker.class, invoker);
+            ex.put(HandlerChainInvoker.class, invoker);
         }
+        
+        boolean outbound = isOutbound(message, ex);
+        if (outbound) {
+            invoker.setOutbound();
+        } else {
+            invoker.setInbound();
+        }
+        invoker.setRequestor(isRequestor(message));
+        
+        if (ex.isOneWay()
+            || ((isRequestor(message) && !outbound) 
+                || (!isRequestor(message) && outbound))) {
+            invoker.setResponseExpected(false);
+        } else { 
+            invoker.setResponseExpected(true);
+        }
+        
         return invoker;
     }
     
     protected Binding getBinding() {
         return binding;
+    }
+    
+    public void onCompletion(T message) {
+        getInvoker(message).mepComplete(message);
+    }   
+    
+    public boolean isMEPComlete(T message) {
+        HandlerChainInvoker invoker = getInvoker(message);
+      
+        if (invoker.isRequestor()) {
+            //client inbound and client outbound with no response are end of MEP
+            if (invoker.isInbound()) {
+                return true;
+            } else if (!invoker.isResponseExpected()) {
+                return true;
+            }            
+        } else {
+            //server outbound and server inbound with no response are end of MEP
+            if (!invoker.isInbound()) {
+                return true;
+            } else if (!invoker.isResponseExpected()) {
+                return true;
+            }            
+        } 
+        
+        return false;
     }
 }

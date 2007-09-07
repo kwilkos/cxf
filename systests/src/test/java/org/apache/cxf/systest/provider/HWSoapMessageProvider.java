@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.provider;
 import java.io.InputStream;
 
+import javax.jws.HandlerChain;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
@@ -37,7 +38,8 @@ import org.w3c.dom.Node;
                     serviceName = "SOAPServiceProviderRPCLit",
                     targetNamespace = "http://apache.org/hello_world_rpclit",
                     wsdlLocation = "wsdl/hello_world_rpc_lit.wsdl")
-@ServiceMode(value = Service.Mode.MESSAGE)            
+@ServiceMode(value = Service.Mode.MESSAGE)      
+@HandlerChain(file = "./handlers_invocation.xml", name = "TestHandlerChain")
 public class HWSoapMessageProvider implements Provider<SOAPMessage> {
 
     private static QName sayHi = new QName("http://apache.org/hello_world_rpclit", "sayHi");

@@ -19,13 +19,8 @@
 
 package org.apache.cxf.tools.common;
 
-/**
- * Interface for code generators used by the tools
- *
- * @author codea
- */
 public interface FrontEndGenerator {
-
+    String getName();
     void generate(ToolContext penv);
 }
 

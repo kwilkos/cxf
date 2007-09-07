@@ -25,16 +25,33 @@ import java.io.OutputStream;
 
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.jaxws.service.Hello;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.apache.hello_world_soap_http.HelloImpl;
+import org.apache.hello_world_soap_http.HelloWrongAnnotation;
+import org.junit.Test;
 
 public class EndpointImplTest extends AbstractJaxWsTest {
 
+    
+    @Override
+    protected Bus createBus() throws BusException {
+        return BusFactory.getDefaultBus();
+    }
+
+
+    @Test
     public void testEndpoint() throws Exception {   
         GreeterImpl greeter = new GreeterImpl();
-        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, "anyuri");
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
  
         WebServiceContext ctx = greeter.getContext();
         assertNull(ctx);
@@ -42,13 +59,94 @@ public class EndpointImplTest extends AbstractJaxWsTest {
             String address = "http://localhost:8080/test";
             endpoint.publish(address);
         } catch (IllegalArgumentException ex) {
-            //assertTrue(ex.getCause() instanceof BusException);
-            //assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
         }
         ctx = greeter.getContext();
         
         assertNotNull(ctx);
         
+    }
+    
+
+    @Test
+    public void testEndpointServiceConstructor() throws Exception {   
+        GreeterImpl greeter = new GreeterImpl();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(greeter));
+        serviceFactory.setServiceClass(GreeterImpl.class);
+        
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, 
+                                                 new JaxWsServerFactoryBean(serviceFactory));
+ 
+        WebServiceContext ctx = greeter.getContext();
+        assertNull(ctx);
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+        ctx = greeter.getContext();
+        
+        assertNotNull(ctx);
+    }
+    
+    @Test
+    public void testWSAnnoWithoutWSDLLocationInSEI() throws Exception {
+        HelloImpl hello = new HelloImpl();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(hello));
+        serviceFactory.setServiceClass(HelloImpl.class);
+        
+        EndpointImpl endpoint = new EndpointImpl(getBus(), hello, 
+                                                 new JaxWsServerFactoryBean(serviceFactory));
+
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+    }
+    
+    @Test
+    public void testSOAPBindingOnMethodWithRPC() {
+        HelloWrongAnnotation hello = new HelloWrongAnnotation();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(hello));
+        serviceFactory.setServiceClass(HelloWrongAnnotation.class);
+        
+        try {
+            new EndpointImpl(getBus(), hello, new JaxWsServerFactoryBean(serviceFactory));
+        } catch (Exception e) {
+            String expeced = "Method [sayHi] processing error: SOAPBinding can not on method with RPC style";
+            assertEquals(expeced, e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testPublishEndpointPermission() throws Exception {
+        Hello service = new Hello();
+        EndpointImpl ep = new EndpointImpl(getBus(), service, (String) null);
+
+        System.setProperty(EndpointImpl.CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY, "true");
+
+        try {
+            ep.publish("local://localhost:9090/hello");
+            fail("Did not throw exception as expected");
+        } catch (SecurityException e) {
+            // that's expected
+        } finally {
+            System.setProperty(EndpointImpl.CHECK_PUBLISH_ENDPOINT_PERMISSON_PROPERTY, "false");
+        }
+        
+        ep.publish("local://localhost:9090/hello");
     }
 
     static class EchoObserver implements MessageObserver {
@@ -57,7 +155,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
             try {
                 Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
 
-                backChannel.send(message);
+                backChannel.prepare(message);
 
                 OutputStream out = message.getContent(OutputStream.class);
                 assertNotNull(out);

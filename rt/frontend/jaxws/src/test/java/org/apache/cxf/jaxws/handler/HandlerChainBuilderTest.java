@@ -28,16 +28,16 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.javaee.FullyQualifiedClassType;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.javaee.ParamValueType;
 import org.apache.cxf.jaxws.javaee.PortComponentHandlerType;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class HandlerChainBuilderTest extends TestCase {
+public class HandlerChainBuilderTest extends Assert {
 
     Handler[] allHandlers = {EasyMock.createMock(LogicalHandler.class), EasyMock.createMock(Handler.class),
                              EasyMock.createMock(Handler.class), EasyMock.createMock(LogicalHandler.class)};
@@ -46,10 +46,8 @@ public class HandlerChainBuilderTest extends TestCase {
 
     HandlerChainBuilder builder = new HandlerChainBuilder(EasyMock.createNiceMock(Bus.class));
 
-    public void setUp() {
-        builder.setHandlerInitEnabled(true);
-    }
 
+    @Test
     public void testChainSorting() {
         List<Handler> sortedHandlerChain = builder.sortHandlers(Arrays.asList(allHandlers));
         assertSame(logicalHandlers[0], sortedHandlerChain.get(0));
@@ -58,6 +56,7 @@ public class HandlerChainBuilderTest extends TestCase {
         assertSame(protocolHandlers[1], sortedHandlerChain.get(3));
     }
 
+    @Test
     public void testBuildHandlerChainFromConfiguration() {
 
         HandlerChainType hc = createHandlerChainType();
@@ -75,6 +74,7 @@ public class HandlerChainBuilderTest extends TestCase {
         assertNull(tlh.config);
     }
 
+    @Test
     public void testBuilderCallsInit() {
         HandlerChainType hc = createHandlerChainType();
         hc.getHandler().remove(3);
@@ -115,6 +115,7 @@ public class HandlerChainBuilderTest extends TestCase {
         assertEquals("2", cfg.get("bar"));
     }
 
+    @Test
     public void testBuilderCallsInitWithNoInitParamValues() {
         HandlerChainType hc = createHandlerChainType();
         hc.getHandler().remove(3);
@@ -140,6 +141,7 @@ public class HandlerChainBuilderTest extends TestCase {
         assertEquals(1, cfg.keySet().size());
     }
 
+    @Test
     public void testBuilderCannotLoadHandlerClass() {
         HandlerChainType hc = createHandlerChainType();
         hc.getHandler().remove(3);

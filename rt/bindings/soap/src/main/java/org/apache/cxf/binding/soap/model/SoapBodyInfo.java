@@ -26,6 +26,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 
 public class SoapBodyInfo {
     private List <MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
+    private List <MessagePartInfo> attachments = new ArrayList<MessagePartInfo>();
     private String use;
     
     public List<MessagePartInfo> getParts() {
@@ -43,4 +44,13 @@ public class SoapBodyInfo {
     public void setUse(String use) {
         this.use = use;
     }
+
+    public List<MessagePartInfo> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<MessagePartInfo> attachments) {
+        this.attachments = attachments;
+    }
+    
 }

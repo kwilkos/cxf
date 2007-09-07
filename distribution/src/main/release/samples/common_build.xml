@@ -6,9 +6,9 @@
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
   with the License. You may obtain a copy of the License at
- 
+
   http://www.apache.org/licenses/LICENSE-2.0
- 
+
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -16,7 +16,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="celtixfire  build file" default="build">
+<project name="cxf  build file" default="build">
 
 
     <property environment="env"/>
@@ -25,17 +25,22 @@
     <property name="build.src.dir" location ="${build.dir}/src"/>
     <property name="build.var.dir" location ="${build.dir}/var"/>
     <property name="codegen.timestamp.file" value="${build.src.dir}/.CODEGEN_DONE"/>
-    <property name="wsdl.dir" location="${basedir}/wsdl"/>
     <property name="war.dir" location="${build.dir}/war"/>
 
+    <property name="host" value="localhost"/>
+    <property name="port" value="8080"/>
+    <property name="base.url" value="http://${host}:${port}"/>
 
-    <!-- Setup for building in a source build -->
-    <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml">
-        <available file="../../lib/cxf-incubator.jar"/>
-    </condition>
-    <!-- default setting -->
-    <property name="srcbuild_paths.file" value="../../../target/srcbuild_paths.xml"/>
+    <available property="wsdl.dir" value="${basedir}/wsdl"
+        file="${basedir}/wsdl"/>
+    <property name="wsdl.dir" location="."/>
 
+    <!-- Setup for building in a source build-->
+    <available property="srcbuild_paths.file"
+        value="../../../../target/srcbuild_paths.xml"
+        file="target/srcbuild_paths.xml"
+        filepath="../../../.."/>
+    <property name="srcbuild_paths.file" value="notsrcbuildpath"/>
     <import file="${srcbuild_paths.file}" optional="true"/>
     <property name="srcbuild.classpath" value=""/>
 
@@ -45,7 +50,7 @@
         <mapper type="merge" to="${codegen.timestamp.file}"/>
     </uptodate>
 
-    <!-- find the tools jar, which on darwin, tools.jar does not exist -->
+    <!-- find the tools jar -->
     <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
        file="${env.JAVA_HOME}/lib/tools.jar"/>
     <path id="jdk.tools.classpath">
@@ -56,7 +61,7 @@
         <equals arg1="${ant.java.version}" arg2="1.5"/>
     </condition>
 
-    <fail message="celtixfire requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
+    <fail message="Apache CXF requires Java version 1.5. You are currently using Java version ${ant.java.version}."
         unless="is.java.version.15"/>
 
 
@@ -67,24 +72,25 @@
     <condition property="cxf.home" value="${env.CXF_HOME}">
         <isset property="env.CXF_HOME"/>
     </condition>
+    <condition property="cxf.home" value="../..">
+        <available file="../../etc" type="dir" property=""/>
+    </condition>
+    <condition property="cxf.home" value="../../..">
+        <available file="../../../etc" type="dir" property=""/>
+    </condition>
     <property name="cxf.home" location="../.."/>
-    <property name="activemq.home" location="${cxf.home}/lib/activemq/3.2"/>
     <property name="cxf.etc.dir" location="${cxf.home}/etc"/>
-
-     <path id="activeMQ.classpath">
-        <pathelement location="${activemq.home}/lib/spring-core-1.2.5.jar"/>
-        <pathelement location="${activemq.home}/lib/spring-beans-1.2.5.jar"/>
-        <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
-    </path>
 
     <path id="cxf.classpath">
         <pathelement location="${basedir}"/>
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
-        <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
+        <pathelement location="${cxf.home}/lib/cxf-manifest-incubator.jar"/>
     </path>
     <condition property="thirdparty.classpath" value="">
-        <not> <isset property="thirdparty.classpath"/> </not>
+        <not>
+            <isset property="thirdparty.classpath"/>
+        </not>
     </condition>
 
     <target name="maybe.generate.code" unless="codegen.notrequired">
@@ -93,6 +99,9 @@
     </target>
 
     <target name="compile" depends="maybe.generate.code">
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.src.dir}"/>
+
         <javac destdir="${build.classes.dir}" debug="true">
             <src path="${build.src.dir}"/>
             <src path="${basedir}/src"/>
@@ -123,27 +132,10 @@
         <delete dir="${build.src.dir}"/>
         <delete file="${codegen.timestamp.file}"/>
         <delete file="demo.log"/>
-        <delete file="${wsdl.dir}/async_binding.xml"/>
         <delete dir="${build.var.dir}"/>
         <delete dir="${activemq.home}/var"/>
     </target>
 
-    <!-- Target to start JMS Broker for JMS samples -->
-    <target name="jmsbroker.start">
-        <property name="derby.system.home" location="${build.var.dir}"/>
-
-        <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
-            <classpath>
-                <path refid="activeMQ.classpath"/>
-            </classpath>
-            <arg value="${activemq.home}/conf/activemq.xml"/>
-            <jvmarg value="-Dactivemq.home=${activemq.home}"/>
-            <jvmarg value="-Dderby.system.home=${derby.system.home}"/>
-            <jvmarg value="-Dderby.storage.fileSyncTransactionLog=true"/>
-            <jvmarg value="-Dderby.storage.dir=${build.var.dir}"/>
-            <sysproperty key="log4j.configuration" value="file:///${cxf.etc.dir}/log4j.properties"/>
-        </java>
-    </target>
 
     <target name="build"  depends="compile" description="build demo client and server"/>
 
@@ -155,11 +147,11 @@
         <attribute name="param3" default=""/>
         <attribute name="param4" default=""/>
         <attribute name="param5" default=""/>
-        <attribute name="jvmarg1" default="-D"/>
-        <attribute name="jvmarg2" default="-D"/>
-        <attribute name="jvmarg3" default="-D"/>
-        <attribute name="jvmarg4" default="-D"/>
-        <attribute name="jvmarg5" default="-D"/>
+        <attribute name="jvmarg1" default="-D' '"/>
+        <attribute name="jvmarg2" default="-D' '"/>
+        <attribute name="jvmarg3" default="-D' '"/>
+        <attribute name="jvmarg4" default="-D' '"/>
+        <attribute name="jvmarg5" default="-D' '"/>
         <sequential>
             <java classname="@{classname}" fork="yes">
                 <classpath>
@@ -177,11 +169,10 @@
                 <jvmarg value="@{jvmarg3}"/>
                 <jvmarg value="@{jvmarg4}"/>
                 <jvmarg value="@{jvmarg5}"/>
-                <assertions>
+                <!--assertions>
                     <enable package="org.apache.cxf"/>
-                </assertions>
+                </assertions-->
                 <sysproperty key="java.util.logging.config.file" value="@{logging-properties-file}"/>
-                <sysproperty key="log4j.configuration" value="file:///${cxf.etc.dir}/log4j.properties"/>
             </java>
         </sequential>
     </macrodef>
@@ -190,6 +181,7 @@
         <attribute name="srcdestdir" default="${build.src.dir}"/>
         <attribute name="destdir" default="${build.classes.dir}"/>
         <attribute name="file"/>
+        <attribute name="servicename.arg" default=""/>
         <attribute name="bindingfile" default=""/>
         <attribute name="dir" default="${wsdl.dir}"/>
         <attribute name="package" default="NOT_SPECIFIED"/>
@@ -202,18 +194,19 @@
                 </not>
             </condition>
             <property name="package.arg.@{file}" value=""/>
-            <condition property="binding.arg" value="-b @{bindingfile}">
+            <condition property="binding.arg" value='-b "@{bindingfile}"'>
                 <not>
                     <equals arg1="@{bindingfile}" arg2=""/>
                 </not>
             </condition>
             <property name="binding.arg" value=""/>
-
-            <java failonerror="true" classname="org.apache.cxf.tools.wsdl2java.WSDLToJava" fork="yes">
+            <java failonerror="true" classname="org.apache.cxf.tools.wsdlto.WSDLToJava" fork="yes">
                 <classpath>
                     <path refid="cxf.classpath" />
                 </classpath>
                 <sysproperty key="java.util.logging.config.file" value="${cxf.etc.dir}/logging.properties"/>
+                <sysproperty key="exitOnFinish" value="true"/>
+                <arg line="@{servicename.arg}"/>
                 <arg line="${package.arg.@{file}}"/>
                 <arg line="${binding.arg}"/>
                 <arg value="-verbose"/>
@@ -223,15 +216,26 @@
             </java>
         </sequential>
     </macrodef>
-
+		
+		<property name="war-lib" value="${basedir}/libs" />
+		<property name="config.dir" value="${basedir}/config" />
     <macrodef name="cxfwar">
         <attribute name="filename"/>
-        <attribute name="wsdl"/>
+        <attribute name="wsdl" default=""/>
         <attribute name="dir" default="${war.dir}"/>
         <attribute name="classesdir" default="${build.classes.dir}"/>
+        <attribute name="webxml" default="${cxf.home}/etc/web.xml" />
         <sequential>
             <mkdir dir="@{dir}"/>
-            <war destfile="@{dir}/@{filename}" webxml="${cxf.home}/etc/web.xml">
+            <mkdir dir="${war-lib}"/>
+            <mkdir dir="${config.dir}"/>
+            <antcall target="copy-war-libs"/>
+            
+            <available property="has.config" file="${basedir}/webapp/WEB-INF" type="dir" />
+            <antcall target="copy-config-files" />
+            
+            <delete file="@{dir}/@{filename}" />
+            <war destfile="@{dir}/@{filename}" webxml="@{webxml}">
                 <classes dir="@{classesdir}"/>
                 <webinf dir="${wsdl.dir}">
                     <include name="cxf-servlet.xml"/>
@@ -239,8 +243,59 @@
                 <webinf dir="${wsdl.dir}/..">
                     <include name="wsdl/@{wsdl}"/>
                 </webinf>
+                <webinf dir="${config.dir}">
+                		<include name="*.*" />
+                </webinf> 
+                <lib dir="${war-lib}">
+    							<include name="*.jar"/>
+  							</lib>
             </war>
+            
+            <delete dir="${war-lib}" />
+            <delete dir="${config.dir}" />
         </sequential>
     </macrodef>
+    
+    <target name="copy-war-libs" unless="without.libs">
+    	<copy todir="${war-lib}">
+    		<fileset dir="${cxf.home}/lib">
+    		   <exclude name="servlet-api-*.jar" />
+                   <exclude name="geronimo-servlet_*.jar" />
+                   <exclude name="jetty-*.jar"/>
+                   <exclude name="WHICH_JARS" />
+    		</fileset>
+    	</copy>	
+    </target>
+    
+    <target name="copy-config-files" if="has.config">
+    		<copy todir="${config.dir}" >
+    			<fileset dir="${basedir}/webapp/WEB-INF">
+    				<include name="*.xml" />
+    				<exclude name="web.xml" />
+    			</fileset>
+    		</copy>
+    </target>
+
+    <target name="deploy" description="deploy the application into the container">
+        <antcall target="war"/>
+        <antcall target="deploy-tomcat"/>
+    </target>
+    <target name="undeploy" depends="undeploy-tomcat" description="undeploy the application from the container"/>
+
+    <target name="deploy-tomcat">
+        <antcall target="validate-tomcat"/>
+        <copy file="${war.dir}/${cxf.war.file.name}.war"
+              todir="${env.CATALINA_HOME}/webapps"/>
+    </target>
+
+    <target name="undeploy-tomcat">
+        <antcall target="validate-tomcat"/>
+        <delete file="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}.war"/>
+        <delete dir="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}"/>
+    </target>
+
+    <target name="validate-tomcat">
+        <fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
+    </target>
 
 </project>

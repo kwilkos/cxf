@@ -20,165 +20,129 @@
 package org.apache.cxf.interceptor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class BareInInterceptor extends AbstractInDatabindingInterceptor {
+    private static final Logger LOG = LogUtils.getL7dLogger(BareInInterceptor.class);
 
     private static Set<String> filter = new HashSet<String>();
-    
+
     static {
         filter.add("void");
-        filter.add("javax.activation.DataHandler");        
+        filter.add("javax.activation.DataHandler");
     }
-    
+
     public BareInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
+        addAfter(URIMappingInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) {
+        if (isGET(message) && message.getContent(List.class) != null) {
+            LOG.info("BareInInterceptor skipped in HTTP GET method");
+            return;
+        }
+
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         Exchange exchange = message.getExchange();
 
-        BindingOperationInfo operation = exchange.get(BindingOperationInfo.class);
+        DataReader<XMLStreamReader> dr = getDataReader(message);
+        MessageContentsList parameters = new MessageContentsList();
 
-        DataReader<Message> dr = getMessageDataReader(message);
-        List<Object> parameters = new ArrayList<Object>();
-
-        List<MessagePartInfo> piList = null;
-        if (operation != null) {
-            if (isRequestor(message)) {
-                piList = operation.getOperationInfo().getOutput().getMessageParts();
-            } else {
-                piList = operation.getOperationInfo().getInput().getMessageParts();
-            }
-        }
-        while (StaxUtils.toNextElement(xmlReader)) {
-            QName streamParaQName = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
-            Object o = null;
-            if (piList != null) {                
-                for (MessagePartInfo mpi : piList) {
-                    QName paraQName = null;
-                    if (mpi.isElement()) {
-                        paraQName = mpi.getElementQName();
-                    } else {
-                        paraQName = mpi.getTypeQName();
-                    }
-                    if (streamParaQName.equals(paraQName)) {
-                        Class cls = (Class)mpi.getProperty(Class.class.getName());
-                        if (cls != null && !filter.contains(cls.getName()) && !cls.isArray()) {
-                            o = dr.read(paraQName, message, cls);
-                        } else {
-                            o = dr.read(paraQName, message, null);
-                        }
-                        break;
-                    }
-                }
-                if (o == null) {
-                    o = dr.read(message);                    
-                }
-            } else {
-                o = dr.read(message);
-            }
-            if (o != null) {
-                parameters.add(o);
-            }
-        }
-        
         Endpoint ep = exchange.get(Endpoint.class);
-        Service service = ep.getService();
+        BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
+        ServiceInfo si = ep.getEndpointInfo().getService();
+        // XXX - Should the BindingMessageInfo.class be put on
+        // the message?
+        //MessageInfo msgInfo = message.get(MessageInfo.class);
+        BindingMessageInfo msgInfo = null;
 
-        if (message.get(Element.class) != null) {
-            parameters.addAll(abstractParamsFromHeader(message.get(Element.class), ep, message));
-        }
+        boolean client = isRequestor(message);
 
-        if (operation == null) {            
-            // If we didn't know the operation going into this, lets try to
-            // figure it out
-            OperationInfo op = findOperation(service.getServiceInfo().getInterface().getOperations(),
-                            parameters, isRequestor(message));
-            for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
-                if (bop.getOperationInfo().equals(op)) {
-                    operation = bop;
-                    exchange.put(BindingOperationInfo.class, bop);
-                    exchange.setOneWay(bop.getOutput() == null);
-                    break;
-                }
-            }
-        }
-
-        List<Object> newParameters = new ArrayList<Object>();
-        for (Iterator iter = parameters.iterator(); iter.hasNext();) {
-            Object element = (Object) iter.next();
-            if (element instanceof JAXBElement) {
-                element = ((JAXBElement) element).getValue();
-            }
-            newParameters.add(element);
-
-        }
-
-        message.setContent(List.class, newParameters);
-    }
-
-    private List<Object> abstractParamsFromHeader(Element headerElement, Endpoint ep, Message message) {
-        List<Object> paramInHeader = new ArrayList<Object>();
-        List<MessagePartInfo> parts = null;
-        List<Element> elemInHeader = new ArrayList<Element>();
-        for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
-
-            if (isRequestor(message)) {
-                parts = bop.getOutput().getMessageInfo().getMessageParts();
-            } else {
-                parts = bop.getInput().getMessageInfo().getMessageParts();
-            }
-
-            for (MessagePartInfo mpi : parts) {
-                if (mpi.isInSoapHeader()) {
-                    NodeList nodeList = headerElement.getChildNodes();
-                    if (nodeList != null) {
-                        for (int i = 0; i < nodeList.getLength(); i++) {
-                            if (nodeList.item(i).getNamespaceURI().equals(
-                                            mpi.getElementQName().getNamespaceURI())
-                                            && nodeList.item(i).getLocalName().equals(
-                                                            mpi.getElementQName().getLocalPart())) {
-                                Element param = (Element) nodeList.item(i);
-                                if (!elemInHeader.contains(param)) {
-                                    elemInHeader.add(param);
-                                }
-                            }
-                        }
-
+        Collection<OperationInfo> ops = null;
+        if (bop == null) {
+            ops = new ArrayList<OperationInfo>();
+            ops.addAll(si.getInterface().getOperations());
+            if (xmlReader.getEventType() == XMLStreamReader.END_ELEMENT && !client) {
+                //empty input
+                //TO DO : check duplicate operation with no input
+                for (OperationInfo op : ops) {
+                    MessageInfo bmsg = op.getInput();
+                    if (bmsg.getMessageParts().size() == 0) {
+                        BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
+                        exchange.put(BindingOperationInfo.class, boi);
+                        exchange.put(OperationInfo.class, op);
+                        exchange.setOneWay(op.isOneWay());
                     }
-
                 }
+
+            }
+        } else if (msgInfo == null) {
+            // XXX - Is the call to
+            // AbstractInDatabindingInterceptor.getMessageInfo()
+            // necessary?  Should we put the BindingMessageInfo on
+            // the message instead of the MessageInfo?
+            // msgInfo = getMessageInfo(message, bop, exchange);
+            getMessageInfo(message, bop);
+            if (client) {
+                msgInfo = bop.getOutput();
+            } else {
+                msgInfo = bop.getInput();
             }
         }
 
-        for (Iterator iter = elemInHeader.iterator(); iter.hasNext();) {
-            Element element = (Element)iter.next();
-            paramInHeader.add(getNodeDataReader(message).read(element));
+        int paramNum = 0;
+
+        
+        while (StaxUtils.toNextElement(xmlReader)) {
+            QName elName = xmlReader.getName();
+            Object o = null;
+
+            MessagePartInfo p;
+            if (msgInfo != null && msgInfo.getMessageParts() != null) {
+                assert msgInfo.getMessageParts().size() > paramNum;
+                p = msgInfo.getMessageParts().get(paramNum);
+            } else {
+                p = findMessagePart(exchange, ops, elName, client, paramNum);
+            }
+
+            if (p == null) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", LOG, elName),
+                                Fault.FAULT_CODE_CLIENT);
+            }
+
+            o = dr.read(p, xmlReader);
+
+            if (o != null) {
+                parameters.put(p, o);
+            }
+            paramNum++;
         }
-        return paramInHeader;
+        if (parameters.size() > 0) {
+            message.setContent(List.class, parameters);
+        }
     }
 }

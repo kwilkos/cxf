@@ -19,10 +19,12 @@
 
 package org.apache.cxf.bus.spring;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class BusApplicationContextTest extends TestCase {
+public class BusApplicationContextTest extends Assert {
        
+    @Test
     public void testGetResources() {
         BusApplicationContext ctx = new BusApplicationContext("nowhere.xml", false);
         assertNull("Unexpected number of resources", ctx.getConfigResources());
@@ -30,8 +32,8 @@ public class BusApplicationContextTest extends TestCase {
         ctx = new BusApplicationContext(cfgFile, false);
         assertEquals("Unexpected number of resources", 1, ctx.getConfigResources().length);
         ctx = new BusApplicationContext("nowhere.xml", true);
-        assertEquals("Unexpected number of resources", 2, ctx.getConfigResources().length);
+        assertEquals("Unexpected number of resources", 1, ctx.getConfigResources().length);
         ctx = new BusApplicationContext(cfgFile, true);
-        assertEquals("Unexpected number of resources", 3, ctx.getConfigResources().length);
+        assertEquals("Unexpected number of resources", 2, ctx.getConfigResources().length);
     }
 }

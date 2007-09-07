@@ -21,15 +21,22 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
+import org.apache.ws.commons.schema.XmlSchemaAnnotated;
+
 public final class MessagePartInfo extends AbstractPropertiesHolder {
+
     private QName pname;
     private AbstractMessageContainer mInfo;
     
     private boolean isElement;
     private QName typeName;
-    private boolean isInSoapHeader;
-
-    MessagePartInfo(QName n, AbstractMessageContainer info) {
+    private QName elementName;
+    private QName concreteName;
+    private XmlSchemaAnnotated xmlSchema;
+    private Class<?> typeClass;
+    private int index;
+    
+    public MessagePartInfo(QName n, AbstractMessageContainer info) {
         mInfo = info;
         pname = n;
     }
@@ -41,49 +48,88 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
         return pname;
     }
     /**
-     * @param name The name to set.
+     * @param n The name to set.
      */
     public void setName(QName n) {
         pname = n;
     }
     
+    public QName getConcreteName() {
+        return concreteName;
+    }
+    
+    public void setConcreteName(QName concreteName) {
+        this.concreteName = concreteName;
+    }
+
     public boolean isElement() { 
         return isElement;
     }
-    public void setIsElement(boolean b) {
+    public void setElement(boolean b) {
         isElement = b;
     }
     
     public QName getElementQName() {
         if (isElement) {
-            return typeName; 
+            return elementName;
         }
         return null;
     }
     public QName getTypeQName() {
         if (!isElement) {
-            return typeName; 
+            return typeName;
         }
         return null;
     }
     public void setTypeQName(QName qn) {
         isElement = false;
+        if (concreteName == null) {
+            concreteName = new QName(null, pname.getLocalPart());
+        }
         typeName = qn;
     }
     public void setElementQName(QName qn) {
         isElement = true;
-        typeName = qn;
+        elementName = qn;
+        concreteName = qn;
     }
     
     public AbstractMessageContainer getMessageInfo() {
         return mInfo;
     }
 
-    public boolean isInSoapHeader() {
-        return isInSoapHeader;
+    public XmlSchemaAnnotated getXmlSchema() {
+        return xmlSchema;
     }
 
-    public void setInSoapHeader(boolean inSoapHeader) {
-        this.isInSoapHeader = inSoapHeader;
+    public void setXmlSchema(XmlSchemaAnnotated xmlSchema) {
+        this.xmlSchema = xmlSchema;
     }
+
+    public Class<?> getTypeClass() {
+        return typeClass;
+    }
+
+    public void setTypeClass(Class<?> typeClass) {
+        this.typeClass = typeClass;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("[MessagePartInfo name=")
+            .append(getName())
+            .append(", ConcreteName=")
+            .append(getConcreteName()).toString();
+    }
+    
+    
+    
 }

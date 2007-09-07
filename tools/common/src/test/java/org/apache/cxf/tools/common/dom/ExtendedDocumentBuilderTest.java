@@ -21,9 +21,11 @@ package org.apache.cxf.tools.common.dom;
 
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ExtendedDocumentBuilderTest extends TestCase {
+public class ExtendedDocumentBuilderTest extends Assert {
+    @Test
     public void testMassMethod() throws Exception {
         ExtendedDocumentBuilder builder = new ExtendedDocumentBuilder();
         builder.setValidating(false);
@@ -31,6 +33,7 @@ public class ExtendedDocumentBuilderTest extends TestCase {
         assertTrue(builder.parse(getClass().getResourceAsStream(tsSource)) != null);
     }
 
+    @Test
     public void testParse() throws Exception {
         ExtendedDocumentBuilder builder = new ExtendedDocumentBuilder();
         String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool1.xml";

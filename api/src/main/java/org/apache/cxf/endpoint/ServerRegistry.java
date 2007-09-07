@@ -24,5 +24,6 @@ import java.util.List;
 
 public interface ServerRegistry {
     void register(Server server);
+    void unregister(Server server);
     List<Server> getServers();
 }

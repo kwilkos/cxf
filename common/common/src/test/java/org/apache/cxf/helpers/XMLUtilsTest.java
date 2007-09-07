@@ -24,14 +24,16 @@ import java.io.InputStream;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class XMLUtilsTest extends TestCase {
+public class XMLUtilsTest {
 
+    @Test
     public void testToString() throws Exception {
         InputStream is = getClass().getResourceAsStream("resources/test.xml");
         Source source = new StreamSource(is);
         
-        assertEquals("<test><ok/></test>", XMLUtils.toString(source));
+        Assert.assertEquals("<test><ok/></test>", XMLUtils.toString(source));
     }
 }

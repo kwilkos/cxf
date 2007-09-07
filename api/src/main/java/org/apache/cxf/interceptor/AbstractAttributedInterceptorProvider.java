@@ -19,17 +19,18 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 
 public abstract class AbstractAttributedInterceptorProvider extends HashMap<String, Object>
     implements InterceptorProvider {
 
-    private List<Interceptor> in = new ArrayList<Interceptor>();
-    private List<Interceptor> out = new ArrayList<Interceptor>();
-    private List<Interceptor> outFault  = new ArrayList<Interceptor>();
-    private List<Interceptor> inFault  = new ArrayList<Interceptor>();
+    private List<Interceptor> in = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> out = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> outFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> inFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
     
     public List<Interceptor> getOutFaultInterceptors() {
         return outFault;
@@ -61,6 +62,16 @@ public abstract class AbstractAttributedInterceptorProvider extends HashMap<Stri
 
     public void setOutFaultInterceptors(List<Interceptor> interceptors) {
         outFault = interceptors;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o == this;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
     
     

@@ -19,17 +19,26 @@
 
 package org.apache.cxf.ws.addressing;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
+import javax.xml.namespace.QName;
+
 /**
  * Abstraction of Message Addressing Properties. 
  */
 public class AddressingPropertiesImpl implements AddressingProperties {
-    private AttributedURIType to;
+    private EndpointReferenceType to;
+    private EndpointReferenceType from;
     private AttributedURIType messageID;
     private EndpointReferenceType replyTo;
     private EndpointReferenceType faultTo;
     private RelatesToType relatesTo;
     private AttributedURIType action;
     private String namespaceURI;
+    private QName duplicate;
+    private List<QName> mustUnderstand;
 
     /**
      * Constructor, defaults to 2005/08 namespace.
@@ -47,20 +56,40 @@ public class AddressingPropertiesImpl implements AddressingProperties {
         namespaceURI = uri;
     }
 
+    public EndpointReferenceType getToEndpointReference() {
+        return to;
+    }
+
     /**
      * Accessor for the <b>To</b> property.
      * @return To property
      */
     public AttributedURIType getTo() {
-        return to;
+        return null != to ? to.getAddress() : null;
     }
-
+    
     /**
      * Mutator for the <b>To</b> property.
      * @param iri new value for To property
      */
-    public void setTo(AttributedURIType iri) {
-        to = iri;
+    public void setTo(EndpointReferenceType epr) {
+        to = epr;
+    }
+
+    /**
+     * Accessor for the <b>From</b> property.
+     * @return current value of From property
+     */
+    public EndpointReferenceType getFrom() {
+        return from;
+    }
+
+    /**
+     * Mutator for the <b>From</b> property.
+     * @param epr new value for From property
+     */
+    public void setFrom(EndpointReferenceType epr) {
+        from = epr;
     }
 
     /**
@@ -160,5 +189,76 @@ public class AddressingPropertiesImpl implements AddressingProperties {
      */
     public void exposeAs(String uri) {
         namespaceURI = uri;
+    }
+
+    public void setDuplicate(QName dup) {
+        duplicate = dup;
+    }
+
+    public QName getDuplicate() {
+        return duplicate;
+    }
+
+    public List<QName> getMustUnderstand() {
+        if (mustUnderstand == null) {
+            mustUnderstand = new ArrayList<QName>();
+        }
+        return mustUnderstand;
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
+        if (null != messageID) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("MessageId: ");
+            buf.append(messageID.getValue());
+        }
+        if (null != action) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("Action: ");
+            buf.append(action.getValue());
+        }
+        if (null != to) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("To: ");
+            buf.append(to.getAddress().getValue()); 
+        }
+        if (null != replyTo) {
+            AttributedURIType address = replyTo.getAddress();
+            if (null != address) {
+                if (buf.length() > 1) {
+                    buf.append(", ");
+                }
+                buf.append("ReplyTo: ");
+                buf.append(address.getValue()); 
+            }
+        }
+        if (null != faultTo) {
+            AttributedURIType address = faultTo.getAddress();
+            if (null != address) {
+                if (buf.length() > 1) {
+                    buf.append(", ");
+                }
+                buf.append("FaultTo: ");
+                buf.append(address.getValue()); 
+            }
+        }
+        if (null != relatesTo) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("RelatesTo: ");
+            buf.append(relatesTo.getValue());
+        }
+        buf.append("]");
+        return buf.toString();
+        
     }
 }

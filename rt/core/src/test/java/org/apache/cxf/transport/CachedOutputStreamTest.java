@@ -21,11 +21,13 @@ package org.apache.cxf.transport;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.apache.cxf.io.CachedOutputStream;
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class CachedOutputStreamTest extends TestCase {    
+public class CachedOutputStreamTest extends Assert {    
     
+    @Test
     public void testResetOut() throws IOException {
         CachedOutputStream cos = new CachedOutputStream();        
         String result = initTestData(16);
@@ -34,6 +36,19 @@ public class CachedOutputStreamTest extends TestCase {
         cos.resetOut(out, true);
         String test = out.toString();        
         assertEquals("The test stream content isn't same ", test , result);
+    }
+    
+    @Test
+    public void testDeleteTmpFile() throws IOException {
+        CachedOutputStream cos = new CachedOutputStream();        
+        //ensure output data size larger then 64k which will generate tmp file
+        String result = initTestData(65);
+        cos.write(result.getBytes());
+        //assert tmp file is generated
+        assertTrue(cos.getTempFile().exists());
+        cos.close();
+        //assert tmp file is deleted after close the CachedOutputStream
+        assertFalse(cos.getTempFile().exists());
     }
     
     String initTestData(int packetSize) {

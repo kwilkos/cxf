@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<xs:schema version="1.0" targetNamespace="http://apache.org/hello_world_soap_http/types" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema version="1.0" targetNamespace="http://apache.org/hello_world_soap_http/types1" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:element name="sayHi">
     <xs:complexType/>
@@ -55,21 +55,5 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="pingMe">
-    <xs:complexType/>
-  </xs:element>
-
-  <xs:element name="faultDetail">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="minor" type="xs:short" form="qualified" minOccurs="0"/>
-        <xs:element name="major" type="xs:short" form="qualified" minOccurs="0"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="pingMeResponse">
-    <xs:complexType/>
-  </xs:element>
 </xs:schema>
 

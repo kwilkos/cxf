@@ -19,151 +19,176 @@
 
 package org.apache.cxf.jaxws;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.test.AbstractCXFTest;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.apache.hello_world_soap_http.BadRecordLitFault;
+import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JaxWsClientTest extends AbstractCXFTest {
+public class JaxWsClientTest extends AbstractJaxWsTest {
 
-    private Bus bus;
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        
-        bus = getBus();
-        
-        SoapBindingFactory bindingFactory = new SoapBindingFactory();
-
-        bus.getExtension(BindingFactoryManager.class)
-            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
-
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
-
-        LocalTransportFactory localTransport = new LocalTransportFactory();
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
-
-        ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
-        extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/", localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
-        
-        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        AddressType a = new AddressType();
-        a.setLocation("http://localhost:9000/SoapContext/SoapPort");
-        ei.addExtensor(a);
-
-        Destination d = localTransport.getDestination(ei);
-        d.setMessageObserver(new EchoObserver());
-    }
+    private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
+                    "SOAPService");    
+    private final QName portName = new QName("http://apache.org/hello_world_soap_http",
+                    "SoapPort");
+    private final String address = "http://localhost:9000/SoapContext/SoapPort";
+    private Destination d;
     
+    @Before
+    public void setUp() throws Exception {
+        super.setUpBus();
+
+        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
+        ei.setAddress(address);
+
+        d = localTransport.getDestination(ei);
+    }
+
+    @Test
     public void testCreate() throws Exception {
-        javax.xml.ws.Service s =
-            javax.xml.ws.Service.create(new QName("http://apache.org/hello_world_soap_http",
-                                                          "SoapPort"));
+        javax.xml.ws.Service s = javax.xml.ws.Service
+            .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
         assertNotNull(s);
         
         try {
             s = javax.xml.ws.Service.create(new URL("file:/does/not/exist.wsdl"),
-                                            new QName("http://apache.org/hello_world_soap_http",
-                                                "SoapPort"));
-        } catch (ServiceConstructionException sce) {
-            //ignore, this is expected
+                                            new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
+            fail("did not throw exception");
+        } catch (WebServiceException sce) {
+            // ignore, this is expected
+        }
+    }
+    
+    @Test
+    public void testRequestContext() throws Exception {
+        URL url = getClass().getResource("/wsdl/hello_world.wsdl");
+        javax.xml.ws.Service s = javax.xml.ws.Service
+            .create(url, serviceName);
+        Greeter greeter = s.getPort(portName, Greeter.class);
+        InvocationHandler handler  = Proxy.getInvocationHandler(greeter);
+        BindingProvider  bp = null;
+        
+        if (handler instanceof BindingProvider) {
+            bp = (BindingProvider)handler;
+            //System.out.println(bp.toString());
+            Map<String, Object> requestContext = bp.getRequestContext();
+            String reqAddr = 
+                (String)requestContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            assertEquals("the address get from requestContext is not equal",
+                         address, reqAddr);
+        } else {
+            fail("can't get the requset context");
         }
     }
 
+    @Test
     public void testEndpoint() throws Exception {
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
-        bean.setWsdlURL(resource);
-        bean.setBus(bus);        
-        bean.setServiceClass(GreeterImpl.class);        
+        bean.setWsdlURL(resource.toString());
+        bean.setBus(getBus());
+        bean.setServiceClass(GreeterImpl.class);
         GreeterImpl greeter = new GreeterImpl();
         BeanInvoker invoker = new BeanInvoker(greeter);
         bean.setInvoker(invoker);
-        
+
         Service service = bean.create();
 
         String namespace = "http://apache.org/hello_world_soap_http";
-        EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName(namespace, "SoapPort"));
-        JaxWsEndpointImpl endpoint = new JaxWsEndpointImpl(bus, service, ei);
-        
-        ClientImpl client = new ClientImpl(bus, endpoint);
-        
+        EndpointInfo ei = service.getServiceInfos().get(0).getEndpoint(new QName(namespace, "SoapPort"));
+        JaxWsEndpointImpl endpoint = new JaxWsEndpointImpl(getBus(), service, ei);
+
+        ClientImpl client = new ClientImpl(getBus(), endpoint);
+
         BindingOperationInfo bop = ei.getBinding().getOperation(new QName(namespace, "sayHi"));
         assertNotNull(bop);
         bop = bop.getUnwrappedOperation();
         assertNotNull(bop);
-        Object ret[] = client.invoke(bop, new Object[0], null);
+
+        MessagePartInfo part = bop.getOutput().getMessageParts().get(0);
+        assertEquals(0, part.getIndex());
+        
+        d.setMessageObserver(new MessageReplayObserver("sayHiResponse.xml"));
+        Object ret[] = client.invoke(bop, new Object[] {"hi"}, null);
         assertNotNull(ret);
         assertEquals("Wrong number of return objects", 1, ret.length);
-    }
 
-    static class EchoObserver implements MessageObserver {
-
-        public void onMessage(Message message) {
-            try {
-                Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
-
-                backChannel.send(message);
-
-                OutputStream out = message.getContent(OutputStream.class);
-                assertNotNull(out);
-                InputStream in = message.getContent(InputStream.class);
-                assertNotNull(in);
-                
-                copy(in, out, 2045);
-
-                out.close();
-                in.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void copy(final InputStream input, final OutputStream output, final int bufferSize)
-        throws IOException {
+        // test fault handling
+        bop = ei.getBinding().getOperation(new QName(namespace, "testDocLitFault"));
+        bop = bop.getUnwrappedOperation();
+        d.setMessageObserver(new MessageReplayObserver("testDocLitFault.xml"));
         try {
-            final byte[] buffer = new byte[bufferSize];
-
-            int n = input.read(buffer);
-            while (-1 != n) {
-                output.write(buffer, 0, n);
-                n = input.read(buffer);
-            }
-        } finally {
-            input.close();
-            output.close();
+            client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
+            fail("Should have returned a fault!");
+        } catch (BadRecordLitFault fault) {
+            assertEquals("foo", fault.getFaultInfo().trim());
+            assertEquals("Hadrian did it.", fault.getMessage());
         }
+
+        try {
+            client.getEndpoint().getOutInterceptors().add(new NestedFaultThrower());
+            client.getEndpoint().getOutInterceptors().add(new FaultThrower());
+            client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
+            fail("Should have returned a fault!");
+        } catch (Fault fault) {
+            assertEquals(true, fault.getMessage().indexOf("Foo") >= 0);
+        }         
+        
     }
+
+    
+    public static class NestedFaultThrower extends AbstractPhaseInterceptor<Message> {
+        
+        public NestedFaultThrower() {
+            super(Phase.PRE_LOGICAL);
+            addBefore(FaultThrower.class.getName());
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            boolean result = message.getInterceptorChain().doIntercept(message);
+            assertEquals("doIntercept not return false", result, false);
+            assertNotNull(message.getContent(Exception.class));
+            throw new Fault(message.getContent(Exception.class));
+        }
+
+    }
+
+    
+    public static class FaultThrower extends AbstractPhaseInterceptor<Message> {
+        
+        public FaultThrower() {
+            super(Phase.PRE_LOGICAL);
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("Foo", (ResourceBundle)null));
+        }
+
+    }
+
 }

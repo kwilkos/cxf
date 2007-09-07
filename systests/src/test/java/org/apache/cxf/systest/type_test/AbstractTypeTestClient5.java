@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.systest.type_test;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
 import org.apache.type_test.types1.ComplexRestriction;
@@ -26,16 +25,13 @@ import org.apache.type_test.types1.ComplexRestriction2;
 import org.apache.type_test.types1.ComplexRestriction3;
 import org.apache.type_test.types1.ComplexRestriction4;
 import org.apache.type_test.types1.ComplexRestriction5;
+import org.junit.Test;
 
 public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
-    public AbstractTypeTestClient5(String name, QName theServicename,
-            QName thePort, String theWsdlPath) {
-        super(name, theServicename, thePort, theWsdlPath);
-    }
-
     //org.apache.type_test.types1.ComplexRestriction
 
+    @Test
     public void testComplexRestriction() throws Exception {
         // normal case, maxLength=10
         ComplexRestriction x = new ComplexRestriction();
@@ -48,6 +44,8 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         ComplexRestriction ret;
         if (testDocLiteral) {
             ret = docClient.testComplexRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexRestriction(x, y, z);            
         } else {
             ret = rpcClient.testComplexRestriction(x, y, z);
         }
@@ -61,7 +59,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         }
 
         // abnormal case
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             try {
                 x = new ComplexRestriction();
                 x.setValue("string_x");
@@ -70,16 +68,18 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
                 y = new Holder<ComplexRestriction>(yOrig);
                 z = new Holder<ComplexRestriction>();
 
-                ret = docClient.testComplexRestriction(x, y, z);
-                //fail("maxLength=10 restriction is violated.");
+                ret = testDocLiteral ? docClient.testComplexRestriction(x, y, z) 
+                        : xmlClient.testComplexRestriction(x, y, z);
+                fail("maxLength=10 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
-        }
+        } 
     }
 
     //org.apache.type_test.types1.ComplexRestriction2
 
+    @Test
     public void testComplexRestriction2() throws Exception {
         // normal case, length=10
         ComplexRestriction2 x = new ComplexRestriction2();
@@ -92,6 +92,8 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         ComplexRestriction2 ret;
         if (testDocLiteral) {
             ret = docClient.testComplexRestriction2(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexRestriction2(x, y, z);
         } else {
             ret = rpcClient.testComplexRestriction2(x, y, z);
         }
@@ -105,7 +107,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         }
 
         // abnormal case
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             try {
                 x = new ComplexRestriction2();
                 x.setValue("str_x");
@@ -114,8 +116,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
                 y = new Holder<ComplexRestriction2>(yOrig);
                 z = new Holder<ComplexRestriction2>();
 
-                ret = docClient.testComplexRestriction2(x, y, z);
-                //fail("length=10 restriction is violated.");
+                ret = testDocLiteral ? docClient.testComplexRestriction2(x, y, z) 
+                        : xmlClient.testComplexRestriction2(x, y, z);
+                fail("length=10 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -124,6 +127,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     //org.apache.type_test.types1.ComplexRestriction3
 
+    @Test
     public void testComplexRestriction3() throws Exception {
         // normal case, maxLength=10 for ComplexRestriction
         // && minLength=5 for ComplexRestriction3
@@ -137,6 +141,8 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         ComplexRestriction3 ret;
         if (testDocLiteral) {
             ret = docClient.testComplexRestriction3(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexRestriction3(x, y, z);
         } else {
             ret = rpcClient.testComplexRestriction3(x, y, z);
         }
@@ -150,18 +156,18 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         }
 
         // abnormal cases
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             try {
                 x = new ComplexRestriction3();
                 x.setValue("str");
                 y = new Holder<ComplexRestriction3>(yOrig);
                 z = new Holder<ComplexRestriction3>();
-                ret = docClient.testComplexRestriction3(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testComplexRestriction3(x, y, z) 
+                        : xmlClient.testComplexRestriction3(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
-
             try {
                 x = new ComplexRestriction3();
                 x.setValue("string_x");
@@ -169,17 +175,18 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
                 yOrig.setValue("string_yyyyyy");
                 y = new Holder<ComplexRestriction3>(yOrig);
                 z = new Holder<ComplexRestriction3>();
-
-                ret = docClient.testComplexRestriction3(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testComplexRestriction3(x, y, z) 
+                        : xmlClient.testComplexRestriction3(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
-        }
+        } 
     }
 
     //org.apache.type_test.types1.ComplexRestriction4
 
+    @Test
     public void testComplexRestriction4() throws Exception {
         // normal case, maxLength=10 for ComplexRestriction
         // && maxLength=5 for ComplexRestriction4
@@ -193,6 +200,8 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         ComplexRestriction4 ret;
         if (testDocLiteral) {
             ret = docClient.testComplexRestriction4(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexRestriction4(x, y, z);
         } else {
             ret = rpcClient.testComplexRestriction4(x, y, z);
         }
@@ -206,15 +215,15 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         }
 
         // abnormal case
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             try {
                 x = new ComplexRestriction4();
                 x.setValue("str_xxx");
                 y = new Holder<ComplexRestriction4>(yOrig);
                 z = new Holder<ComplexRestriction4>();
-
-                ret = docClient.testComplexRestriction4(x, y, z);
-                //fail("maxLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testComplexRestriction4(x, y, z) 
+                        : xmlClient.testComplexRestriction4(x, y, z);
+                fail("maxLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -222,7 +231,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
     }
 
     //org.apache.type_test.types1.ComplexRestriction5
-
+    @Test
     public void testComplexRestriction5() throws Exception {
         // normal case, maxLength=50 && minLength=5 for ComplexRestriction5
         ComplexRestriction5 x = new ComplexRestriction5();
@@ -235,6 +244,8 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         ComplexRestriction5 ret;
         if (testDocLiteral) {
             ret = docClient.testComplexRestriction5(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexRestriction5(x, y, z);
         } else {
             ret = rpcClient.testComplexRestriction5(x, y, z);
         }
@@ -248,14 +259,14 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
         }
 
         // abnormal cases
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             try {
                 x = new ComplexRestriction5();
                 x.setValue("uri");
                 y = new Holder<ComplexRestriction5>(yOrig);
                 z = new Holder<ComplexRestriction5>();
                 ret = docClient.testComplexRestriction5(x, y, z);
-                //fail("maxLength=50 && minLength=5 restriction is violated.");
+                fail("maxLength=50 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -267,8 +278,9 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
                 yOrig.setValue("http://www.iona.com/info/services/oss/info_services_oss_train.html");
                 y = new Holder<ComplexRestriction5>(yOrig);
                 z = new Holder<ComplexRestriction5>();
-                ret = docClient.testComplexRestriction5(x, y, z);
-                //fail("maxLength=50 && minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testComplexRestriction5(x, y, z) 
+                        : xmlClient.testComplexRestriction5(x, y, z);
+                fail("maxLength=50 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }

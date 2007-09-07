@@ -31,14 +31,15 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
 
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -51,10 +52,14 @@ import org.apache.cxf.ws.addressing.Names;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.Relationship;
-
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.apache.cxf.message.Message.MIME_HEADERS;
 import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
@@ -64,7 +69,7 @@ import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PRO
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_OUTBOUND;
 
 
-public class MAPCodecTest extends TestCase {
+public class MAPCodecTest extends Assert {
 
     private MAPCodec codec;
     private IMocksControl control;
@@ -77,11 +82,13 @@ public class MAPCodecTest extends TestCase {
     private Exchange correlatedExchange;
     private boolean expectRelatesTo;
 
+    @Before
     public void setUp() {
         codec = new MAPCodec();
         control = EasyMock.createNiceControl();
     }
 
+    @After
     public void tearDown() {
         expectedNames = null;
         expectedDeclaredTypes = null;
@@ -92,6 +99,7 @@ public class MAPCodecTest extends TestCase {
         correlatedExchange = null;
     }
 
+    @Test
     public void testGetHeaders() throws Exception {
         Set<QName> headers = codec.getUnderstoodHeaders();
         assertTrue("expected From header", 
@@ -108,20 +116,15 @@ public class MAPCodecTest extends TestCase {
                    headers.contains(Names.WSA_MESSAGEID_QNAME));
     }
 
+    @Test
     public void testRequestorOutbound() throws Exception {
         SoapMessage message = setUpMessage(true, true);
         codec.handleMessage(message);
         control.verify();
         verifyMessage(message, true, true, true);
     }
-
-    public void testRequestorOutboundFault() throws Exception {
-        SoapMessage message = setUpMessage(true, true);
-        codec.handleFault(message);
-        control.verify();
-        verifyMessage(message, true, true, true);
-    }
     
+    @Test
     public void testRequestorOutboundPreExistingSOAPAction() throws Exception {
         SoapMessage message = setUpMessage(true, true, false, true);
         codec.handleMessage(message);
@@ -130,6 +133,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, true, true, true);
     }
     
+    @Test
     public void testRequestorOutboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -139,6 +143,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, true, true, false);
     }
     
+    @Test
     public void testResponderInbound() throws Exception {
         SoapMessage message = setUpMessage(false, false);
         codec.handleMessage(message);
@@ -146,13 +151,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, false, true);
     }
 
-    public void testResponderInboundFault() throws Exception {
-        SoapMessage message = setUpMessage(false, false);
-        codec.handleFault(message);
-        control.verify();
-        verifyMessage(message, false, false, true);
-    }
-
+    @Test
     public void testResponderOutbound() throws Exception {
         SoapMessage message = setUpMessage(false, true);
         codec.handleMessage(message);
@@ -160,6 +159,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, true);
     }
     
+    @Test
     public void testResponderInboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -169,41 +169,22 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, false, false);
     }
     
+    @Test
     public void testResponderOutboundInvalidMAP() throws Exception {
         SoapMessage message = setUpMessage(false, true, true);
         try {
             codec.handleMessage(message);
             fail("expected SOAPFaultException on invalid MAP");
-        } catch (SOAPFaultException sfe) {
+        } catch (SoapFault sfe) {
             assertEquals("unexpected fault string",
                          "Duplicate Message ID urn:uuid:12345", 
-                         sfe.getFault().getFaultString());
-        }
-        control.verify();
-        verifyMessage(message, false, true, true);
-    }
-
-    public void testResponderOutboundFault() throws Exception {
-        SoapMessage message = setUpMessage(false, true);
-        codec.handleFault(message);
-        control.verify();
-        verifyMessage(message, false, true, true);
-    }
-
-    public void testResponderOutboundFaultInvalidMAP() throws Exception {
-        SoapMessage message = setUpMessage(false, true, true);
-        try {
-            codec.handleFault(message);
-            fail("expected SOAPFaultException on invalid MAP");
-        } catch (SOAPFaultException sfe) {
-            assertEquals("unexpected fault string",
-                         "Duplicate Message ID urn:uuid:12345",
-                         sfe.getFault().getFaultString());
+                         sfe.getMessage());
         }
         control.verify();
         verifyMessage(message, false, true, true);
     }
     
+    @Test
     public void testResponderOutboundPreExistingSOAPAction() throws Exception {
         SoapMessage message = setUpMessage(false, true, false, true);
         codec.handleMessage(message);
@@ -212,6 +193,7 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, true);
     }
 
+    @Test
     public void testResponderOutboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -221,20 +203,15 @@ public class MAPCodecTest extends TestCase {
         verifyMessage(message, false, true, false);
     }
     
+    @Test
     public void testRequestorInbound() throws Exception {
         SoapMessage message = setUpMessage(true, false);
         codec.handleMessage(message);
         control.verify();
         verifyMessage(message, true, false, true);
     }
-
-    public void testRequestorInboundFault() throws Exception {
-        SoapMessage message = setUpMessage(true, false);
-        codec.handleFault(message);
-        control.verify();
-        verifyMessage(message, true, false, true);
-    }
     
+    @Test
     public void testRequestorInboundNonNative() throws Exception {
         String uri = VersionTransformer.Names200408.WSA_NAMESPACE_NAME;
         SoapMessage message = 
@@ -284,8 +261,13 @@ public class MAPCodecTest extends TestCase {
         message.put(REQUESTOR_ROLE, Boolean.valueOf(requestor));
         String mapProperty = getMAPProperty(requestor, outbound);
         AddressingPropertiesImpl maps = getMAPs(requestor, outbound, exposeAs);
-        Element header = control.createMock(Element.class);
-        message.setHeaders(Element.class, header);
+        final Element header = control.createMock(Element.class);
+        codec.setHeaderFactory(new MAPCodec.HeaderFactory() {
+            public Element getHeader(SoapVersion version) {
+                return header;
+            }
+        });
+        List<Header> headers = message.getHeaders();
         JAXBContext jaxbContext = control.createMock(JAXBContext.class);
         ContextUtils.setJAXBContext(jaxbContext);
         VersionTransformer.Names200408.setJAXBContext(jaxbContext);
@@ -298,7 +280,7 @@ public class MAPCodecTest extends TestCase {
                         invalidMAP,
                         preExistingSOAPAction);
         } else {
-            setUpDecode(message, header, maps, mapProperty, requestor);
+            setUpDecode(message, headers, maps, mapProperty, requestor);
         }
         control.replay();
         return message;
@@ -312,16 +294,6 @@ public class MAPCodecTest extends TestCase {
                              boolean invalidMAP,
                              boolean preExistingSOAPAction) throws Exception { 
         message.put(mapProperty, maps);
-        NodeList headerElements = control.createMock(NodeList.class);
-        header.getElementsByTagNameNS(EasyMock.eq(maps.getNamespaceURI()),
-                                      EasyMock.eq("*"));
-        EasyMock.expectLastCall().andReturn(headerElements);
-        headerElements.getLength();
-        EasyMock.expectLastCall().andReturn(0);
-        header.setAttributeNS(EasyMock.eq("http://www.w3.org/2000/xmlns/"),
-                              EasyMock.eq("xmlns:" + Names.WSA_NAMESPACE_PREFIX),
-                              EasyMock.eq(maps.getNamespaceURI()));
-        EasyMock.expectLastCall();
         Marshaller marshaller = control.createMock(Marshaller.class);
         ContextUtils.getJAXBContext().createMarshaller();
         EasyMock.expectLastCall().andReturn(marshaller);
@@ -337,6 +309,28 @@ public class MAPCodecTest extends TestCase {
             marshaller.marshal(null, header);
             EasyMock.expectLastCall();
         }
+        
+        NodeList children = control.createMock(NodeList.class);
+        header.getChildNodes();
+        EasyMock.expectLastCall().andReturn(children);
+        children.getLength();
+        EasyMock.expectLastCall().andReturn(expectedMarshals).anyTimes();
+        for (int i = 0; i < expectedMarshals; i++) {
+            Element child = control.createMock(Element.class);
+            children.item(i);
+            EasyMock.expectLastCall().andReturn(child);
+            /*
+            child.setAttributeNS(EasyMock.eq("http://www.w3.org/2000/xmlns/"),
+                                 EasyMock.eq("xmlns:wsa"),
+                                 EasyMock.eq(maps.getNamespaceURI()));
+            EasyMock.expectLastCall();
+            */
+            child.getNamespaceURI();
+            EasyMock.expectLastCall().andReturn(expectedNames[i].getNamespaceURI());
+            child.getLocalName();
+            EasyMock.expectLastCall().andReturn(expectedNames[i].getLocalPart());
+        }
+        
         mimeHeaders = new HashMap<String, List<String>>();
         message.put(MIME_HEADERS, mimeHeaders);
         if (preExistingSOAPAction) {
@@ -353,25 +347,20 @@ public class MAPCodecTest extends TestCase {
     }
     
     private void setUpDecode(SoapMessage message, 
-                             Element header,
+                             List<Header> headers,
                              AddressingPropertiesImpl maps,
                              String mapProperty,
                              boolean requestor) throws Exception {
         Unmarshaller unmarshaller = control.createMock(Unmarshaller.class);
         ContextUtils.getJAXBContext().createUnmarshaller();
         EasyMock.expectLastCall().andReturn(unmarshaller);
-        NodeList headerElements = control.createMock(NodeList.class);
-        header.getChildNodes();
-        EasyMock.expectLastCall().andReturn(headerElements);
         String uri = maps.getNamespaceURI();
         boolean exposedAsNative = Names.WSA_NAMESPACE_NAME.equals(uri);
         boolean exposedAs200408 = 
             VersionTransformer.Names200408.WSA_NAMESPACE_NAME.equals(uri);
         assertTrue("unexpected namescape URI: " + uri, 
                    exposedAsNative || exposedAs200408);
-        headerElements.getLength();
-        EasyMock.expectLastCall().andReturn(6);
-        setUpHeaderDecode(headerElements,
+        setUpHeaderDecode(headers,
                           uri,
                           Names.WSA_MESSAGEID_NAME,
                           exposedAsNative
@@ -379,7 +368,7 @@ public class MAPCodecTest extends TestCase {
                           : AttributedURI.class,
                           0,
                           unmarshaller);
-        setUpHeaderDecode(headerElements,
+        setUpHeaderDecode(headers,
                           uri,
                           Names.WSA_TO_NAME,
                           exposedAsNative
@@ -387,7 +376,7 @@ public class MAPCodecTest extends TestCase {
                           : AttributedURI.class,
                           1,
                           unmarshaller);
-        setUpHeaderDecode(headerElements,
+        setUpHeaderDecode(headers,
                           uri,
                           Names.WSA_REPLYTO_NAME,
                           exposedAsNative
@@ -395,7 +384,7 @@ public class MAPCodecTest extends TestCase {
                           : VersionTransformer.Names200408.EPR_TYPE,
                           2,
                           unmarshaller);
-        setUpHeaderDecode(headerElements,
+        setUpHeaderDecode(headers,
                           uri,
                           Names.WSA_FAULTTO_NAME,
                           exposedAsNative
@@ -403,7 +392,7 @@ public class MAPCodecTest extends TestCase {
                           : VersionTransformer.Names200408.EPR_TYPE,
                           3,
                           unmarshaller);
-        setUpHeaderDecode(headerElements,
+        setUpHeaderDecode(headers,
                           uri,
                           Names.WSA_RELATESTO_NAME,
                           exposedAsNative
@@ -411,7 +400,7 @@ public class MAPCodecTest extends TestCase {
                           : Relationship.class,
                           4,
                           unmarshaller);
-        setUpHeaderDecode(headerElements,
+        setUpHeaderDecode(headers,
                           uri,
                           Names.WSA_ACTION_NAME,
                           exposedAsNative
@@ -421,7 +410,7 @@ public class MAPCodecTest extends TestCase {
                           unmarshaller);
     }
 
-    private <T> void setUpHeaderDecode(NodeList headerElements,
+    private <T> void setUpHeaderDecode(List<Header> headers,
                                        String uri,
                                        String name,
                                        Class<T> clz,
@@ -429,8 +418,7 @@ public class MAPCodecTest extends TestCase {
                                        Unmarshaller unmarshaller) 
         throws Exception { 
         Element headerElement = control.createMock(Element.class);
-        headerElements.item(index);
-        EasyMock.expectLastCall().andReturn(headerElement).times(2);
+        headers.add(new Header(new QName(uri, name), headerElement));
         headerElement.getNamespaceURI();
         EasyMock.expectLastCall().andReturn(uri);
         headerElement.getLocalName();
@@ -470,7 +458,8 @@ public class MAPCodecTest extends TestCase {
         maps.setMessageID(id);
         AttributedURIType to =
             ContextUtils.getAttributedURI("foobar");
-        maps.setTo(to);
+        EndpointReferenceType toEpr = EndpointReferenceUtils.getEndpointReference(to);
+        maps.setTo(toEpr);
         EndpointReferenceType replyTo = new EndpointReferenceType();
         String anonymous = 
             exposeAsNative
@@ -566,7 +555,7 @@ public class MAPCodecTest extends TestCase {
         }
 
         public void appendTo(StringBuffer buffer) {
-            buffer.append("JAXBElements did not match");
+            buffer.append("JAXBElements did not match[" + expectedIndex + "]");
         }
         
         private boolean compare(Object a, Object b) {
@@ -676,6 +665,18 @@ public class MAPCodecTest extends TestCase {
                 assertSame("unexpected correlated exchange",
                            correlatedExchange,
                            message.getExchange());
+            }
+        }
+        if (outbound) {
+            int expectedMarshals = requestor 
+                                   ? expectedValues.length - 1
+                                   : expectedValues.length;
+            List<Header> headers = message.getHeaders();
+            assertTrue("expected holders added to header list",
+                       headers.size() >= expectedMarshals);
+            for (int i = 0; i < expectedMarshals; i++) {
+                assertTrue("expected " + expectedNames[i] + " added to headers",
+                           message.hasHeader(expectedNames[i]));
             }
         }
         assertTrue("unexpected MAPs",

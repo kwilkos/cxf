@@ -27,7 +27,8 @@ import org.apache.hello_world_rpclit.types.MyComplexStruct;
 @WebService(name = "GreeterRPCLit", serviceName = "SOAPServiceRPCLit", 
                 portName = "SoapPortRPCLit",
                 targetNamespace = "http://apache.org/hello_world_rpclit",
-                endpointInterface = "org.apache.hello_world_rpclit.GreeterRPCLit")
+                endpointInterface = "org.apache.hello_world_rpclit.GreeterRPCLit",
+                wsdlLocation = "testutils/hello_world_rpc_lit.wsdl")
                 
 public class RPCLitGreeterImpl implements GreeterRPCLit {
 
@@ -49,6 +50,12 @@ public class RPCLitGreeterImpl implements GreeterRPCLit {
         System.out.println("Received struct with values :\nElement-1 : " + in.getElem1() + "\nElement-2 : "
                            + in.getElem2() + "\nElement-3 : " + in.getElem3() + "\n");
         return in;
+    }
+
+    public String greetUs(String you, String me) {
+        System.out.println("Executing operation greetUs");
+        System.out.println("Message received: you are " + you + " I'm " + me + "\n");
+        return "Hello " + you + " and " + me;
     }
 
 

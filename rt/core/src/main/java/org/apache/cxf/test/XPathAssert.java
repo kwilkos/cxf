@@ -62,7 +62,7 @@ public final class XPathAssert {
 
         if (nodes.getLength() == 0) {
             throw new AssertionFailedError("Failed to select any nodes for expression:\n" + xpath
-                                           + "From document:\n" + writeNodeToString(node));
+                                           + " from document:\n" + writeNodeToString(node));
         }
 
         return nodes;

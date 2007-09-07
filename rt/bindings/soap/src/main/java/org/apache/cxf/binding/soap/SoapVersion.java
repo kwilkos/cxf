@@ -21,9 +21,6 @@ package org.apache.cxf.binding.soap;
 
 import javax.xml.namespace.QName;
 
-/**
- * @version $Revision$
- */
 public interface SoapVersion {
 
     double getVersion();
@@ -39,6 +36,16 @@ public interface SoapVersion {
     QName getBody();
     
     QName getFault();
+    
+    QName getReceiver();
+    
+    QName getSender();
+    
+    QName getMustUnderstand();
+    
+    QName getVersionMismatch();
+    
+    QName getDateEncodingUnknown();
 
     String getSoapEncodingStyle();
 
@@ -54,5 +61,5 @@ public interface SoapVersion {
 
     String getNextRole();
     
-    String getSoapMimeType();
+    String getContentType();
 }

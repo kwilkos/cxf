@@ -20,6 +20,7 @@
 package org.apache.cxf.wsdl;
 
 import java.net.URL;
+import java.util.Map;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
@@ -83,5 +84,11 @@ public interface WSDLManager {
      * @param wsdl
      */
     void addDefinition(Object key, Definition wsdl);
+    
+    /**
+     * 
+     * @return all Definitions in the map
+     */
+    Map<Object, Definition> getDefinitions();
     
 }

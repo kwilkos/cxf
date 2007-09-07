@@ -27,10 +27,6 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
-import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-
-
 
 /**
  * This class acts as the hub of JMS provider usage, creating shared
@@ -60,12 +56,16 @@ public final class JMSProviderHub {
         return "JMSProviderHub";
     }
 
-  
-    protected static void connect(JMSTransportBase jmsTransport,
-                                  JMSDestinationConfigBean jmsDestConfigBean)
+    protected static void connect(JMSTransport jmsTransport) throws JMSException, NamingException {
+        connect(jmsTransport, null, null);
+    }
+    
+    protected static void connect(JMSTransport jmsTransport, 
+                                  ServerConfig jmsDestConfigBean,
+                                  ServerBehaviorPolicyType runtimePolicy)
         throws JMSException, NamingException {
 
-        JMSAddressPolicyType  addrDetails = jmsTransport.getAddressPolicy();
+        AddressType  addrDetails = jmsTransport.getJMSAddress();
       
         // get JMS connection resources and destination
         //
@@ -93,7 +93,7 @@ public final class JMSProviderHub {
         }
         
         if (null != jmsDestConfigBean) {
-            String clientID = jmsDestConfigBean.getServerConfig().getDurableSubscriptionClientId();
+            String clientID = jmsDestConfigBean.getDurableSubscriptionClientId();
             
             if  (clientID != null) {
                 connection.setClientID(clientID);
@@ -116,7 +116,7 @@ public final class JMSProviderHub {
                                   replyDestination,
                                   context,
                                   jmsTransport,
-                                  jmsDestConfigBean);
+                                  runtimePolicy);
 
         // notify transport that connection is complete        
         jmsTransport.connected(requestDestination, replyDestination, sf);

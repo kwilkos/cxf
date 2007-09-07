@@ -19,26 +19,31 @@
 
 package org.apache.cxf.service.model;
 
-import javax.wsdl.extensions.http.HTTPAddress;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
 
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
-public class EndpointInfo extends AbstractPropertiesHolder {
-    final String endpointType;
+public class EndpointInfo extends AbstractDescriptionElement {
+    String transportId;
     ServiceInfo service;
     BindingInfo binding;
     QName name;
-    String address;
+    EndpointReferenceType address;
+    
+    public EndpointInfo() {
+    }
     
     public EndpointInfo(ServiceInfo serv, String ns) {
-        endpointType = ns;
+        transportId = ns;
         service = serv;
     }
     public String getTransportId() {
-        return endpointType;
+        return transportId;
     }    
+    public void setTransportId(String tid) {
+        transportId = tid;
+    }
     public InterfaceInfo getInterface() {
         return service.getInterface();
     }
@@ -61,24 +66,42 @@ public class EndpointInfo extends AbstractPropertiesHolder {
     }    
     
     public String getAddress() {
-        if (null != address) {
-            return address;
-        }
-        SOAPAddress sa = getExtensor(SOAPAddress.class);
-        if (null != sa) {
-            return sa.getLocationURI();
-        }
-        HTTPAddress ha = getExtensor(HTTPAddress.class);
-        if (null != ha) {
-            return ha.getLocationURI();
-        }
-        AddressType a = getExtensor(AddressType.class);
-        if (null != a) {
-            return a.getLocation();
-        }
-        return null;
+        return (null != address) ? address.getAddress().getValue() : null;
     }
-    public void setAddress(String a) {
-        address = a;
+    
+    public void setAddress(String addr) {
+        if (null == address) {
+            address = EndpointReferenceUtils.getEndpointReference(addr);
+        } else {
+            EndpointReferenceUtils.setAddress(address, addr);
+        }
+    }
+    public void setAddress(EndpointReferenceType endpointReference) {
+        address = endpointReference;
+    }
+    
+    @Override
+    public <T> T getTraversedExtensor(T defaultValue, Class<T> type) {
+        T value = getExtensor(type);
+        
+        if (value == null) {
+            if (value == null && binding != null) {
+                value = binding.getExtensor(type);
+            }
+            
+            if (service != null && value == null) {
+                value = service.getExtensor(type);
+            }
+            
+            if (value == null) {
+                value = defaultValue;
+            }
+        }
+        
+        return value;
+    }
+
+    public EndpointReferenceType getTarget() {
+        return address;
     }
 }

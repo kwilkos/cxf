@@ -33,20 +33,10 @@ public interface AddressingConstants {
     String getNamespaceURI();
     
     /**
-     * @return prefix associated with the WS-Addressing namespace
-     */
-    String getNamespacePrefix();
-    
-    /**
      * @return namespace defined by the normative WS-Addressing WSDL bindings
      * schema
      */
     String getWSDLNamespaceURI();
-    
-    /**
-     * @return prefix associated with the WS-Addressing WSDL bindings schema
-     */
-    String getWSDLNamespacePrefix();
     
     /**
      * @return QName of the WSDL extensiblity element

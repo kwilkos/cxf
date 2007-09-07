@@ -40,11 +40,14 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
-    
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageOutInterceptor.class);
+
     public XMLMessageOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        this(Phase.MARSHAL);
+    }
+    public XMLMessageOutInterceptor(String phase) {
+        super(phase);
+        addAfter(WrappedOutInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -70,7 +73,7 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
             if (rootInModel == null) {
                 rootInModel = boi.getName();
             }
-            if (mi.getMessageParts().size() == 0) {
+            if (mi.getMessageParts().size() == 0 && !boi.isUnwrapped()) {
                 // write empty operation qname
                 writeMessage(message, rootInModel, false);
             } else {
@@ -90,7 +93,10 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
     private void writeMessage(Message message, QName name, boolean executeBare) {
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
         try {
-            StaxUtils.writeStartElement(xmlWriter, "xmlroot", name.getLocalPart(), name.getNamespaceURI());
+            StaxUtils.writeStartElement(xmlWriter,
+                                        name.getPrefix(),
+                                        name.getLocalPart(),
+                                        name.getNamespaceURI());
             if (executeBare) {
                 new BareOutInterceptor().handleMessage(message);
             }

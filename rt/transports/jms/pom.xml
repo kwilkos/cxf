@@ -16,25 +16,21 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-rt-transports-jms</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-incubator-M1-SNAPSHOT</version>
-    <name>CXF Runtime JMS Transport</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <name>Apache CXF Runtime JMS Transport</name>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt</artifactId>
-        <version>2.0-incubator-M1-SNAPSHOT</version>
+        <artifactId>cxf-parent</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
+        <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
-
-    <properties>
-        <topDirectoryLocation>../../..</topDirectoryLocation>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -70,213 +66,78 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <scope>test</scope>
-        </dependency>
-       
-     
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.sun.xml.messaging.saaj</groupId>
-            <artifactId>saaj-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-            <version>1.0</version>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${saaj.impl.groupId}</groupId>
+            <artifactId>${saaj.impl.artifactId}</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
-            <version>1.0</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
-            <version>1.0</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
-            <version>3.2</version>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xerces</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>activesoap</groupId>
-                    <artifactId>jaxp-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>cglib</groupId>
-                    <artifactId>cglib-full</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jmock</groupId>
-                    <artifactId>jmock-cglib</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jmock</groupId>
-                    <artifactId>jmock</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>howl</groupId>
-                    <artifactId>howl-logger</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>hsqldb</groupId>
-                    <artifactId>hsqldb</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>activemq</groupId>
-                    <artifactId>smack</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>activemq</groupId>
-                    <artifactId>smackx</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>axion</groupId>
-                    <artifactId>axion</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>stax</groupId>
-                    <artifactId>stax</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xmlbeans</groupId>
-                    <artifactId>xmlpublic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xmlbeans</groupId>
-                    <artifactId>xbean_xpath</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xmlbeans</groupId>
-                    <artifactId>xbean</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>test</scope>
         </dependency>
-
+        
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-common-xsd</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-                            <xsdOptions>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms-context.xjb</bindingFile>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/jms-conduit.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/jms-destination.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/jms-transport-base.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                            </xsdOptions>
-                        </configuration>
-                        <goals>
-                            <goal>xsdtojava</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-cfg</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-dv</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-common-utilities</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+	<plugins>
+	    <plugin>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-common-xsd</artifactId>
+		<version>${project.version}</version>
+		<executions>
+		    <execution>
+			<id>generate-sources</id>
+			<phase>generate-sources</phase>
+			<configuration>
+			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+			    <xsdOptions>
+  			      <xsdOption>
+    			        <xsd>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</xsd>
+    			        <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
+                                <catalog>${basedir}/src/main/resources/catalog.cat</catalog>
+    			        <deleteDirs>
+      			          <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
+    			        </deleteDirs>
+  			      </xsdOption>
+			    </xsdOptions>
+			</configuration>
+			<goals>
+			    <goal>xsdtojava</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
+	</plugins>
+    </build>    
+
+    <repositories>
+        <repository>
+            <id>apache.incubating.releases</id>
+            <name>Apache Incubating Release Distribution Repository</name>
+            <url>http://people.apache.org/repo/m2-incubating-repository</url>
+        </repository>
+    </repositories>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/jms</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/jms</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-transports-jms</url>
+  </scm>
 
 </project>

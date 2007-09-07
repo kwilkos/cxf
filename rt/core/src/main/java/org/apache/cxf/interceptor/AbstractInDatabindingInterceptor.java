@@ -19,210 +19,196 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.validation.Schema;
 
 import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.databinding.DataReaderFactory;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
+
+    private static final QName XSD_ANY = new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd");
+
     private static final ResourceBundle BUNDLE = BundleUtils
         .getBundle(AbstractInDatabindingInterceptor.class);
 
+    
+    public AbstractInDatabindingInterceptor(String phase) {
+        super(phase);
+    }
+    public AbstractInDatabindingInterceptor(String i, String phase) {
+        super(i, phase);
+    }
+    
     protected boolean isRequestor(Message message) {
-        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
+        return Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE));
     }
 
-    protected DataReader getDataReader(Message message, Class<?> input) {
+    protected <T> DataReader<T> getDataReader(Message message, Class<T> input) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
-        DataReader dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == input) {
-                dataReader = factory.createReader(input);
-                break;
-            }
-        }
+        DataReader<T> dataReader = service.getDataBinding().createReader(input);
         if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
+                                                                   BUNDLE, service.getName()));
         }
-        return dataReader;        
-    }
+        dataReader.setAttachments(message.getAttachments());
+        dataReader.setProperty(DataReader.ENDPOINT, message.getExchange().get(Endpoint.class));
+        setSchemaInMessage(service, message, dataReader);
 
-    protected DataReader<Message> getMessageDataReader(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
-        DataReader<Message> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == Message.class) {
-                dataReader = factory.createReader(Message.class);
-                break;
-            }
-        }
-        if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
-        }
+        
         return dataReader;
     }
 
     protected DataReader<XMLStreamReader> getDataReader(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
+        return getDataReader(message, XMLStreamReader.class);
+    }
 
-        DataReader<XMLStreamReader> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == XMLStreamReader.class) {
-                dataReader = factory.createReader(XMLStreamReader.class);
-                break;
-            }
+    protected DataReader<Node> getNodeDataReader(Message message) {
+        return getDataReader(message, Node.class);
+    }
+
+    private void setSchemaInMessage(Service service, Message message, DataReader<?> reader) {
+        Object en = message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED);
+        if (Boolean.TRUE.equals(en) || "true".equals(en)) {
+            //all serviceInfos have the same schemas
+            Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfos().get(0));
+            reader.setSchema(schema);
         }
-        if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
-        }
-        return dataReader;
     }
     
-    protected DataReader<Node> getNodeDataReader(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
-        DataReader<Node> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == Node.class) {
-                dataReader = factory.createReader(Node.class);
-                break;
-            }
-        }
-        if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
-        }
-        return dataReader;
-    }
-
     protected DepthXMLStreamReader getXMLStreamReader(Message message) {
         XMLStreamReader xr = message.getContent(XMLStreamReader.class);
-        return new DepthXMLStreamReader(xr);
+        if (xr instanceof DepthXMLStreamReader) {
+            return (DepthXMLStreamReader) xr;
+        }
+        DepthXMLStreamReader dr = new DepthXMLStreamReader(xr);
+        message.setContent(XMLStreamReader.class, dr);
+        return dr;
     }
 
-    protected OperationInfo findOperation(Collection<OperationInfo> operations, 
-                                          List<Object> parameters, boolean isRequestor) {
-        // first check for exact matches
-        for (OperationInfo o : operations) {
-            List messageParts = null;
-            if (isRequestor) {
-                if (o.hasOutput()) {
-                    messageParts = o.getOutput().getMessageParts();
-                } else {
-                    messageParts = new ArrayList();
-                }
+    /**
+     * Find the next possible message part in the message. If an operation in
+     * the list of operations is no longer a viable match, it will be removed
+     * from the Collection.
+     * 
+     * @param exchange
+     * @param operations
+     * @param name
+     * @param client
+     * @param index
+     * @return
+     */
+    protected MessagePartInfo findMessagePart(Exchange exchange, Collection<OperationInfo> operations,
+                                              QName name, boolean client, int index) {
+        Endpoint ep = exchange.get(Endpoint.class);
+        MessagePartInfo lastChoice = null;
+        for (Iterator<OperationInfo> itr = operations.iterator(); itr.hasNext();) {
+            OperationInfo op = itr.next();
+
+            BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
+            if (boi == null) {
+                continue;
+            }
+            BindingMessageInfo msgInfo = null;
+            if (client) {
+                msgInfo = boi.getOutput();
             } else {
-                if (o.hasInput()) {
-                    messageParts = o.getInput().getMessageParts();
-                } else {
-                    messageParts = new ArrayList();
-                }
+                msgInfo = boi.getInput();
             }
-            if (messageParts.size() == parameters.size() 
-                    && checkExactParameters(messageParts, parameters)) {
-                return o;
-                
-            }
-        }
 
-//        // now check for assignable matches
-        /*for (OperationInfo o : operations) {
-            List messageParts = o.getInput().getMessageParts();
-            if (messageParts.size() == parameters.size()) {
-                if (checkParameters(messageParts, parameters)) {
-                    return o;
-                }
+            if (msgInfo == null) {
+                itr.remove();
+                continue;
             }
-        }*/
-        return null;
-    }
+            
+            Collection bodyParts = msgInfo.getMessageParts();
+            if (bodyParts.size() == 0 || bodyParts.size() <= index) {
+                itr.remove();
+                continue;
+            }
 
-      /**
-       * Return true only if the message parts exactly match the classes of the
-       * parameters
-       * 
-       * @param messageParts
-       * @param parameters
-       * @return
-       */
-    private boolean checkExactParameters(List messageParts, List parameters) {
-        Iterator messagePartIterator = messageParts.iterator();
-        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
-            Object param = parameterIterator.next();
-            JAXBElement paramEl = null;
-            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
-            if (param instanceof JAXBElement) {
-                paramEl = (JAXBElement)param;
-                if (!mpi.getElementQName().equals(paramEl.getName())) {
-                    return false;
-                }
+            MessagePartInfo p = (MessagePartInfo)msgInfo.getMessageParts().get(index);
+            if (name.getNamespaceURI() == null || name.getNamespaceURI().length() == 0) {
+                // message part has same namespace with the message
+                name = new QName(p.getMessageInfo().getName().getNamespaceURI(), name.getLocalPart());
+            }
+            if (name.equals(p.getConcreteName())) {
+                exchange.put(BindingOperationInfo.class, boi);
+                exchange.put(OperationInfo.class, boi.getOperationInfo());
+                exchange.setOneWay(op.isOneWay());
+                return p;
+            }
+
+            if (XSD_ANY.equals(p.getTypeQName())) {
+                lastChoice = p;
             } else {
-                
-                if (!mpi.getElementQName().getLocalPart().equals(
-                    param.getClass().getAnnotation(XmlRootElement.class).name())) {
-               
-                    return false;
-                }
+                itr.remove();
             }
         }
-        return true;
-    }
+        return lastChoice;
+    }    
 
-    /*private boolean checkParameters(List messageParts, List parameters) {
-        Iterator messagePartIterator = messageParts.iterator();
-        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
-            Object param = parameterIterator.next();
-            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
-
-            if (!mpi.getTypeClass().isAssignableFrom(param.getClass())) {
-                if (!param.getClass().isPrimitive() && mpi.getTypeClass().isPrimitive()) {
-                    return checkPrimitiveMatch(mpi.getTypeClass(), param.getClass());
-                } else {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean checkPrimitiveMatch(Class clazz, Class typeClass) {
-        if ((typeClass == Integer.class && clazz == int.class)
-            || (typeClass == Double.class && clazz == double.class)
-            || (typeClass == Long.class && clazz == long.class)
-            || (typeClass == Float.class && clazz == float.class)
-            || (typeClass == Short.class && clazz == short.class)
-            || (typeClass == Boolean.class && clazz == boolean.class)
-            || (typeClass == Byte.class && clazz == byte.class)) {
-            return true;
+    /**
+     * Returns a BindingOperationInfo if the operation is indentified as 
+     * a wrapped method,  return null if it is not a wrapped method 
+     * (i.e., it is a bare method)
+     * 
+     * @param exchange
+     * @param name
+     * @param client
+     * @return
+     */
+    protected BindingOperationInfo getBindingOperationInfo(Exchange exchange, QName name,
+                                                              boolean client) {
+        String local = name.getLocalPart();
+        if (client && local.endsWith("Response")) {
+            local = local.substring(0, local.length() - 8);
         }
 
-        return false;
-    }*/
+        // TODO: Allow overridden methods.
+        BindingOperationInfo bop = ServiceModelUtil.getOperation(exchange, local);
+        
+        if (bop != null) {
+            exchange.put(BindingOperationInfo.class, bop);
+            exchange.put(OperationInfo.class, bop.getOperationInfo());
+        }
+        return bop;
+    }
+    
+    protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation) {
+        return getMessageInfo(message, operation, isRequestor(message));
+    }
+
+    protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation, boolean requestor) {
+        MessageInfo msgInfo;
+        OperationInfo intfOp = operation.getOperationInfo();
+        if (requestor) {
+            msgInfo = intfOp.getOutput();
+            message.put(MessageInfo.class, intfOp.getOutput());
+        } else {
+            msgInfo = intfOp.getInput();
+            message.put(MessageInfo.class, intfOp.getInput());
+        }
+        return msgInfo;
+    }
 }

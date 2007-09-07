@@ -19,10 +19,14 @@
 
 package org.apache.cxf.tools.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class BuiltInTypesJavaMappingUtilTest extends TestCase {
+
+public class BuiltInTypesJavaMappingUtilTest extends Assert {
     private final String xmlSchemaNS = "http://www.w3.org/2000/10/XMLSchema";
+    
+    @Test
     public void testGetJType() {
         String jType = BuiltInTypesJavaMappingUtil.getJType(xmlSchemaNS, "string");
         assertEquals(jType, "java.lang.String");

@@ -19,9 +19,9 @@
 -->
 
 <schema
-  targetNamespace="http://www.xsume.com/Xutil/ToolSpecification"
+  targetNamespace="http://cxf.apache.org/Xutil/ToolSpecification"
   xmlns="http://www.w3.org/2001/XMLSchema"
-  xmlns:tool="http://www.xsume.com/Xutil/ToolSpecification">
+  xmlns:tool="http://cxf.apache.org/Xutil/ToolSpecification">
 
   <simpleType name="classname">
     <annotation>

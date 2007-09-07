@@ -19,9 +19,12 @@
 
 package org.apache.cxf.helpers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 public final class IOUtils {
 
@@ -31,22 +34,98 @@ public final class IOUtils {
         
     }
     
-    public static void copy(final InputStream input, final OutputStream output)
+    public static int copy(final InputStream input, final OutputStream output)
         throws IOException {
-        copy(input, output, DEFAULT_BUFFER_SIZE);
+        return copy(input, output, DEFAULT_BUFFER_SIZE);
     }
 
     
-    public static void copy(final InputStream input,
+    public static int copy(final InputStream input,
                             final OutputStream output,
+                            int bufferSize)
+        throws IOException {
+        int avail = input.available();
+        if (avail > 262144) {
+            avail = 262144;
+        }
+        if (avail > bufferSize) {
+            bufferSize = avail;
+        }
+        final byte[] buffer = new byte[bufferSize];
+        int n = 0;
+        n = input.read(buffer);
+        int total = 0;
+        while (-1 != n) {
+            output.write(buffer, 0, n);
+            total += n;
+            n = input.read(buffer);
+        }
+        return total;
+    }
+    public static void copy(final Reader input,
+                            final Writer output,
                             final int bufferSize)
         throws IOException {
-        final byte[] buffer = new byte[bufferSize];
+        final char[] buffer = new char[bufferSize];
         int n = 0;
         n = input.read(buffer);
         while (-1 != n) {
             output.write(buffer, 0, n);
             n = input.read(buffer);
         }
+    }
+
+    
+    public static String toString(final InputStream input) 
+        throws IOException {
+        
+        StringBuffer buf = new StringBuffer();
+        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        int n = 0;
+        n = input.read(buffer);
+        while (-1 != n) {
+            buf.append(new String(buffer, 0, n));
+            n = input.read(buffer);
+        }
+        return buf.toString();
+    }
+    public static String toString(final Reader input) 
+        throws IOException {
+        
+        StringBuffer buf = new StringBuffer();
+        final char[] buffer = new char[DEFAULT_BUFFER_SIZE];
+        int n = 0;
+        n = input.read(buffer);
+        while (-1 != n) {
+            buf.append(new String(buffer, 0, n));
+            n = input.read(buffer);
+        }
+        return buf.toString();
+    }
+    
+    public static String readStringFromStream(InputStream in) throws IOException {
+
+        StringBuilder sb = new StringBuilder(1024);
+
+        for (int i = in.read(); i != -1; i = in.read()) {
+            sb.append((char)i);
+        }
+
+        in.close();
+
+        return sb.toString();
+    }
+
+    public static byte[] readBytesFromStream(InputStream in) throws IOException {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+
+        for (int i = in.read(); i != -1; i = in.read()) {
+            bos.write(i);
+        }
+
+        in.close();
+
+        return bos.toByteArray();
     }
 }

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class ServerLauncher {
             while (!serverIsStopped) {
                 try {
                     TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
-                    mutex.wait(DEFAULT_TIMEOUT);
+                    mutex.wait(1000);
                     if (tc.isTimeoutExpired()) {
                         System.out.println("destroying server process");
                         process.destroy();
@@ -176,7 +177,14 @@ public class ServerLauncher {
                 serverLaunchFailed = true;
             }
         } else {
-            List<String> cmd = getCommand();
+            List<String> cmd;
+            try {
+                cmd = getCommand();
+            } catch (URISyntaxException e1) {
+                IOException ex = new IOException();
+                ex.initCause(e1);
+                throw ex;
+            }
 
             if (debug) {
                 System.err.print("CMD: ");
@@ -193,7 +201,7 @@ public class ServerLauncher {
                 do {
                     TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
                     try {
-                        mutex.wait(DEFAULT_TIMEOUT);
+                        mutex.wait(1000);
                         if (tc.isTimeoutExpired()) {
                             break;
                         }
@@ -203,7 +211,7 @@ public class ServerLauncher {
                 } while (!serverIsReady && !serverLaunchFailed);
             }
         }
-        return serverIsReady;
+        return serverIsReady && !serverLaunchFailed;
     }
 
     public int waitForServer() {
@@ -297,11 +305,12 @@ public class ServerLauncher {
     void notifyServerFailed() {
         synchronized (mutex) {
             serverIsStopped = true;
+            serverLaunchFailed = true;
             mutex.notifyAll();
         }
     }
 
-    private List<String> getCommand() {
+    private List<String> getCommand() throws URISyntaxException {
 
         List<String> cmd = new ArrayList<String>();
         cmd.add(javaExe);
@@ -321,7 +330,7 @@ public class ServerLauncher {
             URLClassLoader urlloader = (URLClassLoader)loader; 
             for (URL url : urlloader.getURLs()) {
                 classpath.append(File.pathSeparatorChar);
-                classpath.append(url.getFile());
+                classpath.append(url.toURI().getPath());
             }
         }
         cmd.add(classpath.toString());
@@ -333,6 +342,21 @@ public class ServerLauncher {
             cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
         } 
 
+        // If the client set the transformer factory property,
+        // we want the server to also set that property.
+        String transformerProperty = System.getProperty("javax.xml.transform.TransformerFactory");
+        if (null != transformerProperty) {
+            cmd.add("-Djavax.xml.transform.TransformerFactory=" + transformerProperty);
+        }
+        String validationMode = System.getProperty("spring.validation.mode");
+        if (null != validationMode) {
+            cmd.add("-Dspring.validation.mode=" + validationMode);
+        }
+        String derbyHome = System.getProperty("derby.system.home");
+        if (null != derbyHome) {
+            cmd.add("-Dderby.system.home=" + derbyHome);
+        }
+        
         cmd.add(className);
 
         if (null != serverArgs) {

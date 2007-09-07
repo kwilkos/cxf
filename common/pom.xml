@@ -16,45 +16,33 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-common</artifactId>
     <packaging>pom</packaging>
-    <version>2.0-incubator-M1-SNAPSHOT</version>
-    <name>CXF Common</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <name>Apache CXF Common</name>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf</artifactId>
-	<version>2.0-incubator-M1-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
     </parent>
 
-    <properties>
-	<topDirectoryLocation>..</topDirectoryLocation>
-    </properties>
-    
     <modules>
-	<module>common</module>	        
-	<module>xsd</module>
-	<!--module>metacode</module-->
+        <module>common</module>
+        <module>xsd</module>
+        <module>schemas</module>
+        <module>xjc</module>
     </modules>
-    <dependencies>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-xjc</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-impl</artifactId>
-	</dependency>
 
-	<dependency>
-	    <groupId>javax.xml.bind</groupId>
-	    <artifactId>jsr173_api</artifactId>
-	    <version>1.0</version>
-	</dependency>
-    </dependencies>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-common</url>
+  </scm>
+
 </project>

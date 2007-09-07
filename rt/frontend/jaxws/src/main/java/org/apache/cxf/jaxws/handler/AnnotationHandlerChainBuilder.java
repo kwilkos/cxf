@@ -27,14 +27,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.HandlerChain;
+import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 
@@ -55,9 +59,10 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
      * @param existingHandlers
      * @return
      */
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers) {
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers,
+                                                    QName endpointName) {
         LOG.fine("building handler chain");
-        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz);
+        HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz, true);
         List<Handler> chain = null;
         if (hcAnn == null) {
             LOG.fine("no HandlerChain annotation on " + clz);
@@ -65,12 +70,17 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         } else {
             hcAnn.validate();
 
-            HandlerChainType hc = null;
             try {
                 JAXBContext jc = JAXBContext
                         .newInstance(org.apache.cxf.jaxws.javaee.ObjectFactory.class);
                 Unmarshaller u = jc.createUnmarshaller();                
-                URL handlerFileURL  = clz.getResource(hcAnn.getFileName()); 
+                URL handlerFileURL  = resolveHandlerChainFile(clz, hcAnn.getFileName()); 
+                
+                if (handlerFileURL == null) {
+                    throw new WebServiceException(new Message("HANDLER_CFG_FILE_NOT_FOUND_EXC", BUNDLE, hcAnn
+                        .getFileName()).toString());
+                }
+                
                 JAXBElement<?> o = (JAXBElement<?>)u.unmarshal(handlerFileURL);
 
                 HandlerChainsType handlerChainsType = (HandlerChainsType) o.getValue();
@@ -79,14 +89,25 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                     throw new WebServiceException(BUNDLE
                             .getString("CHAIN_NOT_SPECIFIED_EXC"));
                 }
-                //We expect only one HandlerChainType here
-                hc = (HandlerChainType) handlerChainsType.getHandlerChain().iterator().next();
+                
+                chain = new ArrayList<Handler>();
+                for (HandlerChainType hc : handlerChainsType.getHandlerChain()) {
+                    //Only add handlers if <port-name-pattern> is not presented or is matched.
+                    //TODO: match the namespace, match the wild card etc. JSR-181, Appendix B. 
+                    if (hc.getPortNamePattern() != null && endpointName != null) {
+                        String portNamePattern = hc.getPortNamePattern();
+                        String localPart = portNamePattern.substring(portNamePattern.indexOf(':') + 1,
+                                                                     portNamePattern.length());
+                        if (!localPart.equals(endpointName.getLocalPart())) {
+                            continue;
+                        }
+                    }
+                    chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));                    
+                }
+
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new WebServiceException(BUNDLE.getString("CHAIN_NOT_SPECIFIED_EXC"), e);
             }
-
-            chain = buildHandlerChain(hc, clz.getClassLoader());
         }
         assert chain != null;
         if (existingHandlers != null) {
@@ -95,34 +116,63 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         return sortHandlers(chain);
     }
 
-    public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
-        return buildHandlerChainFromClass(clz, null);
+    protected URL resolveHandlerChainAnnotationFile(Class clazz, String name) {
+        return clazz.getResource(name);
     }
 
-    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz) {
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz, QName endpointName) {
+        return buildHandlerChainFromClass(clz, null, endpointName);
+    }
 
+    public List<Handler> buildHandlerChainFromClass(Class<?> clz) {
+        return buildHandlerChainFromClass(clz, null, null);
+    }
+    
+    private HandlerChainAnnotation findHandlerChainAnnotation(Class<?> clz, boolean searchSEI) {        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Checking for HandlerChain annotation on " + clz.getName());
+        }
+        HandlerChainAnnotation hcAnn = null;
         HandlerChain ann = clz.getAnnotation(HandlerChain.class);
-        Class<?> declaringClass = clz;
-
         if (ann == null) {
-            for (Class<?> iface : clz.getInterfaces()) {
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("checking for HandlerChain annotation on " + iface.getName());
-                }
-                ann = iface.getAnnotation(HandlerChain.class);
-                if (ann != null) {
-                    declaringClass = iface;
-                    break;
+            if (searchSEI) {
+                /* HandlerChain annotation can be specified on the SEI
+                 * but the implementation bean might not implement the SEI.          
+                 */
+                WebService ws = clz.getAnnotation(WebService.class);
+                if (ws != null && !StringUtils.isEmpty(ws.endpointInterface())) {
+                    String seiClassName = ws.endpointInterface().trim();
+                    Class seiClass = null;
+                    try {
+                        seiClass = clz.getClassLoader().loadClass(seiClassName);
+                    } catch (ClassNotFoundException e) {
+                        throw new WebServiceException(BUNDLE.getString("SEI_LOAD_FAILURE_EXC"), e);
+                    }
+
+                    // check SEI class and its interfaces for HandlerChain annotation
+                    hcAnn = findHandlerChainAnnotation(seiClass, false);
                 }
             }
-        }
-        if (ann != null) {
-            return new HandlerChainAnnotation(ann, declaringClass);
+            if (hcAnn == null) {
+                // check interfaces for HandlerChain annotation
+                for (Class<?> iface : clz.getInterfaces()) {
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("Checking for HandlerChain annotation on " + iface.getName());
+                    }
+                    ann = iface.getAnnotation(HandlerChain.class);
+                    if (ann != null) {
+                        hcAnn = new HandlerChainAnnotation(ann, iface);
+                        break;
+                    }
+                }
+            }
         } else {
-            return null;
+            hcAnn = new HandlerChainAnnotation(ann, clz);
         }
+        
+        return hcAnn;
     }
-
+    
     private static class HandlerChainAnnotation {
         private final Class<?> declaringClass;
         private final HandlerChain ann;
@@ -140,16 +190,9 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
             return ann.file();
         }
 
-        public String getChainName() {
-            return ann.name();
-        }
-
         public void validate() {
             if (null == ann.file() || "".equals(ann.file())) {
                 throw new WebServiceException(BUNDLE.getString("ANNOTATION_WITHOUT_URL_EXC"));
-            }
-            if (null == ann.name() || "".equals(ann.name())) {
-                LOG.fine("no handler name specified, defaulting to first declared");
             }
         }
 

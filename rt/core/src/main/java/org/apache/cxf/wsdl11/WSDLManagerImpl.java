@@ -21,29 +21,40 @@ package org.apache.cxf.wsdl11;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Definition;
+import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.extensions.mime.MIMEPart;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import com.ibm.wsdl.extensions.soap.SOAPHeaderImpl;
+import com.ibm.wsdl.extensions.soap.SOAPHeaderSerializer;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.catalog.CatalogWSDLLocator;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
 
 /**
@@ -59,17 +70,29 @@ public class WSDLManagerImpl implements WSDLManager {
 
     final ExtensionRegistry registry;
     final WSDLFactory factory;
-    final WeakHashMap<Object, Definition> definitionsMap;
+    final Map<Object, Definition> definitionsMap;
     private Bus bus;
 
     public WSDLManagerImpl() throws BusException {
         try {
             factory = WSDLFactory.newInstance();
             registry = factory.newPopulatedExtensionRegistry();
+            registry.registerSerializer(Types.class, 
+                                        WSDLConstants.SCHEMA_QNAME,
+                                        new SchemaSerializer());
+            QName header = new QName("http://schemas.xmlsoap.org/wsdl/soap/", 
+                                     "header");
+            registry.registerDeserializer(MIMEPart.class, 
+                                          header, 
+                                          new SOAPHeaderSerializer());
+            registry.registerSerializer(MIMEPart.class, 
+                                        header, 
+                                        new SOAPHeaderSerializer());
+            registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
         } catch (WSDLException e) {
             throw new BusException(e);
         }
-        definitionsMap = new WeakHashMap<Object, Definition>();
+        definitionsMap = new CacheMap<Object, Definition>();
 
         registerInitialExtensions();
     }
@@ -89,6 +112,13 @@ public class WSDLManagerImpl implements WSDLManager {
     public WSDLFactory getWSDLFactory() {
         return factory;
     }
+    
+    public Map<Object, Definition> getDefinitions() {
+        synchronized (definitionsMap) {
+            return Collections.unmodifiableMap(definitionsMap);
+        }
+    }
+    
 
     /*
      * (non-Javadoc)
@@ -141,8 +171,8 @@ public class WSDLManagerImpl implements WSDLManager {
         }
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
-        reader.setExtensionRegistry(registry);
-        Definition def = reader.readWSDL(null, el);
+        reader.setExtensionRegistry(registry);       
+        Definition def = reader.readWSDL("", el);
         synchronized (definitionsMap) {
             definitionsMap.put(el, def);
         }
@@ -160,7 +190,13 @@ public class WSDLManagerImpl implements WSDLManager {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         reader.setExtensionRegistry(registry);
-        Definition def = reader.readWSDL(url);
+        CatalogWSDLLocator catLocator = 
+            new CatalogWSDLLocator(url, OASISCatalogManager.getCatalogManager(bus));
+        ResourceManagerWSDLLocator wsdlLocator = new ResourceManagerWSDLLocator(url,
+                                                                                catLocator,
+                                                                                bus);
+        
+        Definition def = reader.readWSDL(wsdlLocator);
         synchronized (definitionsMap) {
             definitionsMap.put(url, def);
         }

@@ -50,6 +50,37 @@
                     </sequence>
                 </complexType>
             </element>
+
+            <element name="testNillable">
+                <complexType>
+                    <sequence>
+                        <element name="NillElem" nillable="true" type="string"/>
+                        <element name="intElem" type="int"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="testNillableResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" nillable="true" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="greetMeLater">
+                <complexType>
+                    <sequence>
+                        <element name="requestType" type="long"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="greetMeLaterResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
             <element name="greetMeSometime">
                 <complexType>
                     <sequence>
@@ -145,6 +176,18 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part name="out" element="x1:greetMeResponse"/>
     </wsdl:message>
+    <wsdl:message name="testNillableRequest">
+        <wsdl:part name="in" element="x1:testNillable"/>
+    </wsdl:message>
+    <wsdl:message name="testNillableResponse">
+        <wsdl:part name="out" element="x1:testNillableResponse"/>
+    </wsdl:message>
+    <wsdl:message name="greetMeLaterRequest">
+        <wsdl:part name="in" element="x1:greetMeLater"/>
+    </wsdl:message>
+    <wsdl:message name="greetMeLaterResponse">
+        <wsdl:part name="out" element="x1:greetMeLaterResponse"/>
+    </wsdl:message>
     <wsdl:message name="greetMeSometimeRequest">
         <wsdl:part name="in" element="x1:greetMeSometime"/>
     </wsdl:message>
@@ -181,6 +224,14 @@
             <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
             <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="testNillable">
+            <wsdl:input name="testNillableRequest" message="tns:testNillableRequest"/>
+            <wsdl:output name="testNillableResponse" message="tns:testNillableResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greetMeLater">
+            <wsdl:input name="greetMeLaterRequest" message="tns:greetMeLaterRequest"/>
+            <wsdl:output name="greetMeLaterResponse" message="tns:greetMeLaterResponse"/>
+        </wsdl:operation>
        <wsdl:operation name="greetMeSometime">
             <wsdl:input name="greetMeSometimeRequest" message="tns:greetMeSometimeRequest"/>
             <wsdl:output name="greetMeSometimeResponse" message="tns:greetMeSometimeResponse"/>
@@ -215,6 +266,24 @@
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="testNillable">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="greetMeLater">
             <soap:operation style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
@@ -296,6 +365,12 @@
             <soap:address location="http://localhost:7600/SoapContext/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
+    <wsdl:service name="SOAPServiceAddressingDocLitBare">
+        <wsdl:port name="SoapPort" binding="tns:Doc_Lit_Bare_SOAPBinding">
+            <soap:address location="http://localhost:7600/SoapContext/SoapPort"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
+        </wsdl:port>
+    </wsdl:service>
     <wsdl:service name="SOAPService_Test1">
         <wsdl:port name="SoapPort_Test1" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9100"/>
@@ -307,13 +382,26 @@
     <wsdl:service name="SOAPServiceAddressing">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9008/SoapContext/SoapPort"/>
-            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>
+            <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/02/addressing/wsdl"/>
         </wsdl:port>
     </wsdl:service>
     <wsdl:service name="SOAPServiceConcurrencyTest">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9009/SoapContext/SoapPort"/>
         </wsdl:port>
+    </wsdl:service>
+    <wsdl:service name="SOAPServiceBogusAddressTest">
+        <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="FOO"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:service name="SOAPServiceMultiPortTypeTest">
+		<wsdl:port name="GreeterPort" binding="tns:Greeter_SOAPBinding">
+            <soap:address location="http://localhost:9020/MultiPort/GreeterPort"/>
+        </wsdl:port>
+        <wsdl:port name="DocLitBarePort" binding="tns:Doc_Lit_Bare_SOAPBinding">
+            <soap:address location="http://localhost:9021/MultiPort/DocBarePort"/>
+        </wsdl:port>        
     </wsdl:service>
 </wsdl:definitions>
 

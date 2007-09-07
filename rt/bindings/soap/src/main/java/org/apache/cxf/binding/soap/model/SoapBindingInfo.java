@@ -19,11 +19,15 @@
 
 package org.apache.cxf.binding.soap.model;
 
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+
+import org.apache.cxf.wsdl.WSDLConstants;
 
 public class SoapBindingInfo extends BindingInfo {
     private SoapVersion soapVersion;
@@ -31,6 +35,11 @@ public class SoapBindingInfo extends BindingInfo {
     private String style;
 
     private String transportURI;
+    
+    public SoapBindingInfo(ServiceInfo serv, String n) {
+        this(serv, n, null);
+        resolveSoapVersion(n);
+    }
 
     public SoapBindingInfo(ServiceInfo serv, String n, SoapVersion soapVersion) {
         super(serv, n);
@@ -38,7 +47,21 @@ public class SoapBindingInfo extends BindingInfo {
         this.soapVersion = soapVersion;
     }
 
+    private void resolveSoapVersion(String n) {
+        if (WSDLConstants.SOAP11_NAMESPACE.equalsIgnoreCase(n)) {
+            this.soapVersion = Soap11.getInstance();
+        } else if (WSDLConstants.SOAP12_NAMESPACE.equalsIgnoreCase(n)) {
+            this.soapVersion = Soap12.getInstance();
+        } else {
+            throw new RuntimeException("Unknow bindingId: " + n + ". Can not resolve the SOAP version");
+        }
+    }
+
+
     public SoapVersion getSoapVersion() {
+        if (soapVersion == null) {
+            resolveSoapVersion(getBindingId());
+        }
         return soapVersion;
     }
 

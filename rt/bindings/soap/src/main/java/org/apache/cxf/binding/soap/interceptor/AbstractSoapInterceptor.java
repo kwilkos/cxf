@@ -24,13 +24,31 @@ import java.util.Collections;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<SoapMessage> 
     implements SoapInterceptor {
 
+    /**
+     * @deprecated
+     */
+    public AbstractSoapInterceptor() {
+        super(null);
+    }
+    
+    public AbstractSoapInterceptor(String p) {
+        super(p);
+    }
+    public AbstractSoapInterceptor(String i, String p) {
+        super(i, p);
+    }
+
+    
     protected boolean isRequestor(org.apache.cxf.message.Message message) {
         return Boolean.TRUE.equals(message.containsKey(
             org.apache.cxf.message.Message.REQUESTOR_ROLE));
@@ -43,4 +61,13 @@ public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<S
     public Set<QName> getUnderstoodHeaders() {
         return Collections.emptySet();
     }
+    
+    protected String getFaultCodePrefix(XMLStreamWriter writer, QName faultCode) throws XMLStreamException {
+        String codeNs = faultCode.getNamespaceURI();
+        String prefix = null;
+        if (codeNs.length() > 0) {
+            prefix = StaxUtils.getUniquePrefix(writer, codeNs, true);
+        }        
+        return prefix;
+    }    
 }

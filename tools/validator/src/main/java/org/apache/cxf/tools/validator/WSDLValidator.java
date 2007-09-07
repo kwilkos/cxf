@@ -37,7 +37,6 @@ import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 public class WSDLValidator extends AbstractCXFToolContainer {
 
     private static final String TOOL_NAME = "wsdlvalidator";
-    private static String[] args;
 
     public WSDLValidator(ToolSpec toolspec) throws Exception {
         super(TOOL_NAME, toolspec);
@@ -59,45 +58,40 @@ public class WSDLValidator extends AbstractCXFToolContainer {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
 
-                env.put(ToolConstants.CFG_CMD_ARG, args);
+                env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
-                String schemaDir = (String)env.get(ToolConstants.CFG_SCHEMA_DIR);
-                if (schemaDir == null) {
-                    throw new ToolException("Schema search directory should "
-                                            + "be defined before validating wsdl.");
-                }
-
+              
                 WSDL11Validator wsdlValidator = new WSDL11Validator(null, env);
                 if (wsdlValidator.isValid()) {
                     System.out.println("Passed Validation : Valid WSDL ");
                 }
             }
         } catch (ToolException ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("WSDLValidator Error : " + ex.getMessage());
             if (ex.getCause() instanceof BadUsageException) {
-                getInstance().printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
+                printUsageException(TOOL_NAME, (BadUsageException)ex.getCause());
             }
             System.err.println();
             if (isVerboseOn()) {
+                System.err.println("[+] Verbose turned on");
+                System.err.println();                
                 ex.printStackTrace();
             }
         } catch (Exception ex) {
-            System.err.println("Error : " + ex.getMessage());
+            System.err.println("WSDLValidator Error : " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
+                System.err.println("[+] Verbose turned on");
+                System.err.println();
                 ex.printStackTrace();
             }
         }
     }
 
     public static void main(String[] pargs) {
-        args = pargs;
-
         try { 
             ToolRunner.runTool(WSDLValidator.class, WSDLValidator.class
-                .getResourceAsStream("wsdlvalidator.xml"), false, args);
-        } catch (BadUsageException ex) {
-            getInstance().printUsageException(TOOL_NAME, ex);
+                .getResourceAsStream("wsdlvalidator.xml"), false, pargs);
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();

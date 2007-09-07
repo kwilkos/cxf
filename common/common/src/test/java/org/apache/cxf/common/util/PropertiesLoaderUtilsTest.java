@@ -21,13 +21,16 @@ package org.apache.cxf.common.util;
 
 import java.util.*;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PropertiesLoaderUtilsTest extends TestCase {
+public class PropertiesLoaderUtilsTest extends Assert {
 
     Properties properties;
     String soapBindingFactory = "org.apache.cxf.bindings.soap.SOAPBindingFactory";
     
+    @Before
     public void setUp() throws Exception {
         properties = PropertiesLoaderUtils.
             loadAllProperties("org/apache/cxf/common/util/resources/bindings.properties.xml",
@@ -35,6 +38,7 @@ public class PropertiesLoaderUtilsTest extends TestCase {
         assertNotNull(properties);        
         
     }
+    @Test
     public void testLoadBindings() throws Exception {
 
         assertEquals(soapBindingFactory,
@@ -49,6 +53,7 @@ public class PropertiesLoaderUtilsTest extends TestCase {
 
     }
 
+    @Test
     public void testGetPropertyNames() throws Exception {
         Collection<String> names = PropertiesLoaderUtils.getPropertyNames(properties, soapBindingFactory);
         assertNotNull(names);

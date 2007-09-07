@@ -23,23 +23,25 @@ import java.io.File;
 
 import javax.xml.ws.Service;
 
-import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Scriptable;
 
 
-public class ProviderFactoryTest extends TestCase {
+public class ProviderFactoryTest extends Assert {
 
     private String epAddr = "http://cxf.apache.org/";
 
     private ProviderFactory ph;
     private AbstractDOMProvider dpMock;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         dpMock = EasyMock.createMock(AbstractDOMProvider.class);
         ph = new ProviderFactory(epAddr) {
                 protected AbstractDOMProvider createProvider(Service.Mode mode,
@@ -54,32 +56,36 @@ public class ProviderFactoryTest extends TestCase {
             };
     }
 
+    @Test
     public void testMsgJSFile() throws Exception {
         dpMock.publish();
         dpMock.publish();
         EasyMock.replay(dpMock);
-        File f = new File(getClass().getResource("msg.js").getFile());
+        File f = new File(getClass().getResource("msg.js").toURI().getPath());
         ph.createAndPublish(f);
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testBadJSFile() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "broken.js";
-        File f = new File(getClass().getResource(fname).getFile());
+        File f = new File(getClass().getResource(fname).toURI().getPath());
         try {
             ph.createAndPublish(f);
             fail("expected exception did not occur");
         } catch (EvaluatorException ex) {
-            assertTrue("wrong exception", ex.getMessage().startsWith("syntax error"));
+            assertTrue("wrong exception", ex.getMessage().startsWith("syntax error")
+                                       || ex.getMessage().startsWith("erreur de syntaxe"));
         }
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testEmptyJSFile() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "empty.js";
-        File f = new File(getClass().getResource(fname).getFile());
+        File f = new File(getClass().getResource(fname).toURI().getPath());
         try {
             ph.createAndPublish(f);
             fail("expected exception did not occur");
@@ -91,6 +97,7 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testNoSuchJSFile() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "none.js";
@@ -106,10 +113,11 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testIllegalServiceMode() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "illegal1.js";
-        File f = new File(getClass().getResource(fname).getFile());
+        File f = new File(getClass().getResource(fname).toURI().getPath());
         try {
             ph.createAndPublish(f);
             fail("expected exception did not occur");
@@ -121,10 +129,11 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testIllegalServiceModeType() throws Exception {
         EasyMock.replay(dpMock);
         final String fname = "illegal2.js";
-        File f = new File(getClass().getResource(fname).getFile());
+        File f = new File(getClass().getResource(fname).toURI().getPath());
         try {
             ph.createAndPublish(f);
             fail("expected exception did not occur");
@@ -136,12 +145,13 @@ public class ProviderFactoryTest extends TestCase {
         EasyMock.verify(dpMock);
     }
 
+    @Test
     public void testProviderException() throws Exception {
         dpMock.publish();
         EasyMock.expectLastCall()
             .andThrow(new AbstractDOMProvider.JSDOMProviderException(AbstractDOMProvider.NO_EP_ADDR));
         EasyMock.replay(dpMock);
-        File f = new File(getClass().getResource("msg.js").getFile());
+        File f = new File(getClass().getResource("msg.js").toURI().getPath());
         try {
             ph.createAndPublish(f);
             fail("expected exception did not occur");

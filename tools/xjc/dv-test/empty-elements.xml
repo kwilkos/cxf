@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<foo:Foo xmlns:foo="http://cxf.apache.org/configuration/foo">
-   <foo:longElem>76</foo:longElem>
-</foo:Foo>

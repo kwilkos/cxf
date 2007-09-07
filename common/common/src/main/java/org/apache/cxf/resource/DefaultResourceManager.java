@@ -20,10 +20,9 @@
 package org.apache.cxf.resource;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,9 +31,9 @@ import org.apache.cxf.common.logging.LogUtils;
 public class DefaultResourceManager implements ResourceManager {
     
     private static final Logger LOG = LogUtils.getL7dLogger(DefaultResourceManager.class);
-    private static ResourceManager instance; 
 
-    protected final List<ResourceResolver> registeredResolvers = new LinkedList<ResourceResolver>();
+    protected final List<ResourceResolver> registeredResolvers 
+        = new CopyOnWriteArrayList<ResourceResolver>();
 
     public DefaultResourceManager() { 
         initializeDefaultResolvers(); 
@@ -45,9 +44,7 @@ public class DefaultResourceManager implements ResourceManager {
     }
     
     public DefaultResourceManager(List<ResourceResolver> resolvers) {
-        for (Iterator<ResourceResolver> it = resolvers.iterator(); it.hasNext();) {
-            addResourceResolver(it.next());
-        }
+        registeredResolvers.addAll(resolvers);
     }
  
     public final <T> T resolveResource(String name, Class<T> type) { 
@@ -78,9 +75,7 @@ public class DefaultResourceManager implements ResourceManager {
 
 
     public final List<ResourceResolver> getResourceResolvers() {
-        List<ResourceResolver> ret = new ArrayList<ResourceResolver>();
-        ret.addAll(registeredResolvers);
-        return ret; 
+        return Collections.unmodifiableList(registeredResolvers); 
     }
 
     
@@ -106,17 +101,6 @@ public class DefaultResourceManager implements ResourceManager {
         } 
         return ret;
     } 
-
-
-    public static synchronized ResourceManager instance() { 
-        if (instance == null) { 
-            instance = new DefaultResourceManager();
-        } 
-        return instance;
-    }
-    public static synchronized void clearInstance() {
-        instance = null;
-    }
 
     private void initializeDefaultResolvers() { 
         addResourceResolver(new ClasspathResolver());

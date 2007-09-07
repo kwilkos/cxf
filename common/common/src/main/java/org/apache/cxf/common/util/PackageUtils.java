@@ -54,6 +54,9 @@ public final class PackageUtils {
     
     public static String getPackageName(Class<?> clazz) {
         String className = clazz.getName();
+        if (className.startsWith("[L")) {
+            className = className.substring(2);
+        }
         return getPackageName(className);
     }
     
@@ -176,6 +179,32 @@ public final class PackageUtils {
 
     private static boolean contiansReservedKeywords(String token) {
         return KEYWORDS.contains(token);
+    }
+
+    public static String getNamespace(String packageName) {
+        if (packageName == null || packageName.length() == 0) {
+            return null;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(packageName, ".");
+        String[] tokens;
+        if (tokenizer.countTokens() == 0) {
+            tokens = new String[0];
+        } else {
+            tokens = new String[tokenizer.countTokens()];
+            for (int i = tokenizer.countTokens() - 1; i >= 0; i--) {
+                tokens[i] = tokenizer.nextToken();
+            }
+        }
+        StringBuffer namespace = new StringBuffer("http://");
+        String dot = "";
+        for (int i = 0; i < tokens.length; i++) {
+            if (i == 1) {
+                dot = ".";
+            }
+            namespace.append(dot + tokens[i]);
+        }
+        namespace.append('/');
+        return namespace.toString();
     }
     
 }

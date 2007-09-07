@@ -22,15 +22,14 @@ package org.apache.cxf.binding.soap.interceptor;
 import java.util.HashMap;
 import java.util.List;
 
-
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 
 import static org.apache.cxf.message.Message.MIME_HEADERS;
-
 
 /**
  * This interceptor is responsible for setting up the SOAP version
@@ -40,8 +39,8 @@ import static org.apache.cxf.message.Message.MIME_HEADERS;
 public class SoapPreProtocolOutInterceptor extends AbstractSoapInterceptor {
 
     public SoapPreProtocolOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_PROTOCOL);
+        super(Phase.PRE_STREAM);
+        getBefore().add(AttachmentOutInterceptor.class.getName());
     }
 
     /**

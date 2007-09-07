@@ -19,19 +19,29 @@
 
 package org.apache.cxf.transport;
 
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseChainCache;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.EndpointInfo;
 
 public class ChainInitiationObserver implements MessageObserver {
-    Endpoint endpoint;
-    Bus bus;
+    protected Endpoint endpoint;
+    protected Bus bus;
+    
+    private PhaseChainCache chainCache = new PhaseChainCache();
 
     public ChainInitiationObserver(Endpoint endpoint, Bus bus) {
         super();
@@ -40,34 +50,70 @@ public class ChainInitiationObserver implements MessageObserver {
     }
 
     public void onMessage(Message m) {
-        Message message = endpoint.getBinding().createMessage(m);
-        Exchange exchange = new ExchangeImpl();
-        exchange.setInMessage(message);
-        message.setExchange(exchange);
-        setExchangProperties(exchange, message);
-        
+        Message message = getBinding().createMessage(m);
+        Exchange exchange = message.getExchange();
+        if (exchange == null) {
+            exchange = new ExchangeImpl();
+            exchange.setInMessage(message);
+        }
+        setExchangeProperties(exchange, message);
+
         // setup chain
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
-            .getInPhases());
+        PhaseInterceptorChain chain = chainCache.get(bus.getExtension(PhaseManager.class).getInPhases(),
+                                                     bus.getInInterceptors(),
+                                                     endpoint.getInInterceptors(),
+                                                     getBinding().getInInterceptors(),
+                                                     endpoint.getService().getInInterceptors());
+        
         
         message.setInterceptorChain(chain);
         
-        chain.add(bus.getInInterceptors());
-        chain.add(endpoint.getInInterceptors());
-        chain.add(endpoint.getBinding().getInInterceptors());
-        chain.add(endpoint.getService().getInInterceptors());
-
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());
+        chain.setFaultObserver(endpoint.getOutFaultObserver());
        
         chain.doIntercept(message);        
     }
+
+
+    protected Binding getBinding() {
+        return endpoint.getBinding();
+    }
     
-    protected void setExchangProperties(Exchange exchange, Message m) {
+    protected void setExchangeProperties(Exchange exchange, Message m) {
         exchange.put(Endpoint.class, endpoint);
         exchange.put(Service.class, endpoint.getService());
-        exchange.put(Binding.class, endpoint.getBinding());
+        exchange.put(Binding.class, getBinding());
         exchange.put(Bus.class, bus);
-        exchange.setDestination(m.getDestination());
+        if (exchange.getDestination() == null) {
+            exchange.setDestination(m.getDestination());
+        }
+        if (endpoint != null) {
+
+            EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+
+            QName serviceQName = endpointInfo.getService().getName();
+            exchange.put(Message.WSDL_SERVICE, serviceQName);
+
+            QName interfaceQName = endpointInfo.getService().getInterface().getName();
+            exchange.put(Message.WSDL_INTERFACE, interfaceQName);
+
+            QName portQName = endpointInfo.getName();
+            exchange.put(Message.WSDL_PORT, portQName);
+            URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+            if (wsdlDescription == null) {
+                String address = endpointInfo.getAddress();
+                try {
+                    wsdlDescription = new URI(address + "?wsdl");
+                } catch (URISyntaxException e) {
+                    // do nothing
+                }
+                endpointInfo.setProperty("URI", wsdlDescription);
+            }
+            exchange.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+        }  
+    }
+
+    public Endpoint getEndpoint() {
+        return endpoint;
     }
     
 }

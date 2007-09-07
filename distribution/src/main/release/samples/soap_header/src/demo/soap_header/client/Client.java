@@ -96,13 +96,13 @@ public final class Client {
     }
 
     private static void invokeInOutHeader(HeaderTester proxy) {
-        System.out.println("Inovking inoutHeader operation");
+        System.out.println("Invoking inoutHeader operation");
         InoutHeader me = new InoutHeader();
         me.setRequestType("CXF user");
         Holder<SOAPHeaderData> headerInfo = new Holder<SOAPHeaderData>();
         SOAPHeaderData shd = new SOAPHeaderData();
         shd.setOriginator("CXF client");
-        shd.setMessage("Inovking inoutHeader operation");
+        shd.setMessage("Invoking inoutHeader operation");
         headerInfo.value = shd;
         InoutHeaderResponse response = proxy.inoutHeader(me, headerInfo);
         System.out.println("\tinoutHeader invocation returned: ");

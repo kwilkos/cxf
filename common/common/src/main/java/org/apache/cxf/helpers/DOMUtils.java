@@ -36,6 +36,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -58,6 +59,7 @@ public final class DOMUtils {
     
     private static synchronized DocumentBuilder getBuilder() throws ParserConfigurationException {
         if (builder == null) {
+            FACTORY.setNamespaceAware(true);
             builder = FACTORY.newDocumentBuilder();
         }
         return builder;
@@ -79,6 +81,23 @@ public final class DOMUtils {
         return n1.getNodeValue().trim();
     }
 
+    /**
+     * Get the raw text content of a node or null if there is no text
+     */
+    public static String getRawContent(Node n) {
+        if (n == null) {
+            return null;
+        }
+        
+        Node n1 = DOMUtils.getChild(n, Node.TEXT_NODE);
+
+        if (n1 == null) {
+            return null;
+        }
+        
+        return n1.getNodeValue();
+    }
+    
     /**
      * Get the first element child.
      * 
@@ -190,6 +209,19 @@ public final class DOMUtils {
             }
         }
         return null;
+    }
+    /**
+     * Get the first direct child with a given type
+     */
+    public static Element getFirstElement(Node parent) {
+        Node n = parent.getFirstChild();
+        while (n != null && Node.ELEMENT_NODE != n.getNodeType()) {
+            n = n.getNextSibling();
+        }
+        if (n == null) {
+            return null;
+        }
+        return (Element) n;
     }
 
     /**
@@ -315,5 +347,63 @@ public final class DOMUtils {
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Couldn't find a DOM parser.", e);
         }
+    }
+
+    public static String getUniquePrefix(Element el, String ns) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    public static String getPrefixRecursive(Element el, String ns) {
+        String prefix = getPrefix(el, ns);
+        if (prefix == null && el.getParentNode() instanceof Element) {
+            prefix = getPrefixRecursive((Element) el.getParentNode(), ns);
+        }
+        return prefix;
+    }
+
+    public static String getPrefix(Element el, String ns) {
+        NamedNodeMap atts = el.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Node node = atts.item(i);
+            String name = node.getNodeName();
+            if (ns.equals(node.getNodeValue()) 
+                && (name != null && ("xmlns".equals(name) || name.startsWith("xmlns:")))) { 
+                return node.getPrefix();
+            }
+        }
+        return null;
+    }
+
+    public static String createNamespace(Element el, String ns) {
+        String p = "ns1";
+        int i = 1;
+        while (getPrefix(el, ns) != null) {
+            p = "ns" + i;
+            i++;
+        }
+        el.setAttribute("xmlns:" + p, ns);
+        return p;
+    }
+
+    public static String getNamespace(Element el, String pre) {
+        NamedNodeMap atts = el.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Node node = atts.item(i);
+            String name = node.getLocalName();
+            String pre2 = node.getPrefix();
+            if (pre.equals(name) && "xmlns".equals(pre2)) {
+                return node.getNodeValue();
+            } else if (pre.length() == 0 && "xmlns".equals(name) && pre2.length() == 0) {
+                return node.getNodeValue();
+            }
+        }
+        
+        Node parent = el.getParentNode();
+        if (parent instanceof Element) {
+            return getNamespace((Element) parent, pre);
+        }
+        
+        return null;
     }
 }

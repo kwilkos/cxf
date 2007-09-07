@@ -52,4 +52,6 @@ public interface DestinationFactoryManager {
      * @throws BusException
      */
     DestinationFactory getDestinationFactory(String name) throws BusException;
+
+    DestinationFactory getDestinationFactoryForUri(String uri);
 }

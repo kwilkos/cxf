@@ -34,7 +34,8 @@ import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 @WebService(serviceName = "SOAPService_DocLitBare", 
             portName = "SoapPort2", 
             endpointInterface = "org.apache.hello_world_soap_http.DocLitBare",
-            targetNamespace = "http://apache.org/hello_world_soap_http")
+            targetNamespace = "http://apache.org/hello_world_soap_http",
+            wsdlLocation = "testutils/hello_world.wsdl")
 
 public class DocLitBareGreeterImpl implements DocLitBare {
 

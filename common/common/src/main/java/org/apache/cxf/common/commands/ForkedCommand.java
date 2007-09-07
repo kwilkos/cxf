@@ -25,12 +25,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 
 
 public class ForkedCommand extends Thread {
     public static final String EXE_SUFFIX;
     public static final int DEFAULT_TIMEOUT = 0;
-    private static final Logger LOG = Logger.getLogger(ForkedCommand.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ForkedCommand.class);
     private String[] arguments;
     private String[] environment;
     private PrintStream outputStream;

@@ -26,7 +26,6 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -38,11 +37,18 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ServiceModelUtilTest extends TestCase {
+import static org.easymock.EasyMock.expect;
+
+public class ServiceModelUtilTest extends Assert {
     private static final String WSDL_PATH = "test-soap-header.wsdl";
     private Definition def;
     private Service service;
@@ -52,6 +58,7 @@ public class ServiceModelUtilTest extends TestCase {
     private Bus bus;
     private BindingFactoryManager bindingFactoryManager;
     
+    @Before
     public void setUp() throws Exception {
         String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
@@ -74,14 +81,19 @@ public class ServiceModelUtilTest extends TestCase {
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
 
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
+        expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
+
         control.replay();
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
     }
     
+    @After
     public void tearDown() throws Exception {
         
     }
     
+    @Test
     public void testGetSchema() throws Exception {
         BindingInfo bindingInfo = null;
         bindingInfo = serviceInfo.getBindings().iterator().next();

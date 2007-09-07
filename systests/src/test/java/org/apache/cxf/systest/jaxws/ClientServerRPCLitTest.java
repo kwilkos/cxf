@@ -24,23 +24,21 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.testutil.common.AbstractClientServerTestBase;
 import org.apache.hello_world_rpclit.GreeterRPCLit;
 import org.apache.hello_world_rpclit.SOAPServiceRPCLit;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
 import org.apache.hello_world_soap_http.RPCLitGreeterImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
-public class ClientServerRPCLitTest extends TestCase {
+public class ClientServerRPCLitTest extends AbstractClientServerTestBase {
 
     private final QName portName = new QName("http://apache.org/hello_world_rpclit", "SoapPortRPCLit");
 
-    public static class Server extends TestServerBase {        
+    public static class Server extends AbstractBusTestServerBase {        
 
         protected void run()  {
             Object implementor = new RPCLitGreeterImpl();
@@ -61,15 +59,12 @@ public class ClientServerRPCLitTest extends TestCase {
         }
     }
    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerRPCLitTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
     
+    @Test
     public void testBasicConnection() throws Exception {
         
         SOAPServiceRPCLit service = new SOAPServiceRPCLit();
@@ -94,6 +89,7 @@ public class ClientServerRPCLitTest extends TestCase {
         }
     }
     
+    @Test
     public void testComplexType() throws Exception {
         SOAPServiceRPCLit service = new SOAPServiceRPCLit();
         assertNotNull(service);

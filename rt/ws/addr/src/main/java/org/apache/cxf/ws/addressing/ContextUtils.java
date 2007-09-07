@@ -21,30 +21,47 @@ package org.apache.cxf.ws.addressing;
 
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.common.util.TwoStageMap;
+import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.NullConduitSelector;
+import org.apache.cxf.endpoint.PreexistingConduitSelector;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
+import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.workqueue.OneShotAsyncExecutor;
+import org.apache.cxf.workqueue.SynchronousExecutor;
+import org.apache.cxf.workqueue.WorkQueueManager;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
+import static org.apache.cxf.message.Message.ASYNC_POST_RESPONSE_DISPATCH;
 import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
 
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
@@ -63,6 +80,13 @@ public final class ContextUtils {
 
     private static final String WS_ADDRESSING_PACKAGE = 
         PackageUtils.getPackageName(EndpointReferenceType.class);
+    private static final EndpointReferenceType NONE_ENDPOINT_REFERENCE = 
+        EndpointReferenceUtils.getEndpointReference(Names.WSA_NONE_ADDRESS);
+    private static final String HTTP_URI_SCHEME = "http:";
+    private static final String URI_AUTHORITY_PREFIX = "//";
+    private static final Map<BindingOperationInfo, String> ACTION_MAP =
+        new TwoStageMap<BindingOperationInfo, String>();
+    
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
     
     
@@ -107,7 +131,21 @@ public final class ContextUtils {
         Exchange exchange = message.getExchange();
         return message != null
                && exchange != null
-               && message == exchange.getOutMessage();
+               && (message == exchange.getOutMessage()
+                   || message == exchange.getOutFaultMessage());
+    }
+
+   /**
+    * Determine if message is fault.
+    *
+    * @param message the current Message
+    * @return true iff the message is a fault
+    */
+    public static boolean isFault(Message message) {
+        return message != null
+               && message.getExchange() != null
+               && (message == message.getExchange().getInFaultMessage()
+                   || message == message.getExchange().getOutFaultMessage());
     }
 
    /**
@@ -199,8 +237,7 @@ public final class ContextUtils {
             message.put(mapProperty, maps);
         }
     }
-
-
+    
     /**
      * @param message the current message
      * @param isProviderContext true if the binding provider request context
@@ -213,6 +250,23 @@ public final class ContextUtils {
                                                    Message message, 
                                                    boolean isProviderContext,
                                                    boolean isOutbound) {
+        return retrieveMAPs(message, isProviderContext, isOutbound, true);
+    }
+
+    /**
+     * @param message the current message
+     * @param isProviderContext true if the binding provider request context
+     * available to the client application as opposed to the message context
+     * visible to handlers
+     * @param isOutbound true iff the message is outbound
+     * @param warnIfMissing log a warning  message if properties cannot be retrieved
+     * @return the current addressing properties
+     */
+    public static AddressingPropertiesImpl retrieveMAPs(
+                                                   Message message, 
+                                                   boolean isProviderContext,
+                                                   boolean isOutbound,
+                                                   boolean warnIfMissing) {
         boolean isRequestor = ContextUtils.isRequestor(message);
         String mapProperty =
             ContextUtils.getMAPProperty(isProviderContext, 
@@ -226,7 +280,8 @@ public final class ContextUtils {
         if (maps != null) {
             LOG.log(Level.INFO, "current MAPs {0}", maps);
         } else if (!isProviderContext) {
-            LOG.warning("MAPS_RETRIEVAL_FAILURE_MSG");
+            LogUtils.log(LOG, warnIfMissing ? Level.WARNING : Level.INFO, 
+                "MAPS_RETRIEVAL_FAILURE_MSG");         
         }
         return maps;
     }
@@ -293,54 +348,105 @@ public final class ContextUtils {
      * Rebase response on replyTo
      * 
      * @param reference the replyTo reference
-     * @param namespaceURI determines the WS-A version
+     * @param inMAPs the inbound MAPs
      * @param inMessage the current message
      */
     public static void rebaseResponse(EndpointReferenceType reference,
                                       AddressingProperties inMAPs,
-                                      Message inMessage) {
+                                      final Message inMessage) {
         String namespaceURI = inMAPs.getNamespaceURI();
         if (!retrievePartialResponseSent(inMessage)) {
+            storePartialResponseSent(inMessage);
             Exchange exchange = inMessage.getExchange();
             Message fullResponse = exchange.getOutMessage();
-            Endpoint endpoint = exchange.get(Endpoint.class);
-            Message partialResponse = endpoint.getBinding().createMessage();
+            Message partialResponse = createMessage(exchange);
             ensurePartialResponseMAPs(partialResponse, namespaceURI);
             
-            // ensure the inbound MAPs are available in both the full, fault
-            // and partial response messages (used to determine relatesTo etc.)
+            // ensure the inbound MAPs are available in the partial response
+            // message (used to determine relatesTo etc.)
             propogateReceivedMAPs(inMAPs, partialResponse);
-            propogateReceivedMAPs(inMAPs, fullResponse);
-            propogateReceivedMAPs(inMAPs, exchange.getFaultMessage());
+            partialResponse.put(Message.PARTIAL_RESPONSE_MESSAGE, Boolean.TRUE);
+            Destination target = inMessage.getDestination();
+            if (target == null) {
+                return;
+            }
             
             try {
-                Destination target = inMessage.getDestination();
+                exchange.setOutMessage(partialResponse);
                 Conduit backChannel = target.getBackChannel(inMessage,
                                                             partialResponse,
                                                             reference);
+
                 if (backChannel != null) {
                     // set up interceptor chains and send message
-
-                    exchange.setOutMessage(partialResponse);
                     InterceptorChain chain =
                         fullResponse != null
                         ? fullResponse.getInterceptorChain()
-                        : OutgoingChainSetupInterceptor.getOutInterceptorChain(exchange);
+                        : OutgoingChainInterceptor.getOutInterceptorChain(exchange);
                     partialResponse.setInterceptorChain(chain);
-                    exchange.setConduit(backChannel);
-                    
-                    partialResponse.getInterceptorChain().doIntercept(partialResponse);
+                    exchange.put(ConduitSelector.class,
+                                 new PreexistingConduitSelector(backChannel,
+                                                                exchange.get(Endpoint.class)));
+
+                    if (!partialResponse.getInterceptorChain().doIntercept(partialResponse) 
+                            && partialResponse.getContent(Exception.class) != null) {
+                        if (partialResponse.getContent(Exception.class) instanceof Fault) {
+                            throw (Fault)partialResponse.getContent(Exception.class);
+                        } else {
+                            throw new Fault(partialResponse.getContent(Exception.class));
+                        }
+                    }
                     
                     partialResponse.getInterceptorChain().reset();
-                    exchange.setConduit(null);
-                    exchange.setOutMessage(fullResponse);
+                    exchange.put(ConduitSelector.class, new NullConduitSelector());
+                    if (fullResponse != null) {
+                        exchange.setOutMessage(fullResponse);
+                    } else {
+                        fullResponse = createMessage(exchange);
+                        exchange.setOutMessage(fullResponse);
+                    }
+                    
+                    if (retrieveAsyncPostResponseDispatch(inMessage)) {
+                        // async service invocation required *after* a response
+                        // has been sent (i.e. to a oneway, or a partial response
+                        // to a decoupled twoway)
+                        
+                        // pause dispatch on current thread ...
+                        inMessage.getInterceptorChain().pause();
+
+                        // ... and resume on executor thread
+                        getExecutor(inMessage).execute(new Runnable() {
+                            public void run() {
+                                inMessage.getInterceptorChain().resume();
+                            }
+                        });
+                    }
                 }
             } catch (Exception e) {
                 LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);
             }
-        } 
+        }
     }
+
     
+    /**
+     * Propogate inbound MAPs onto full reponse & fault messages.
+     * 
+     * @param inMAPs the inbound MAPs
+     * @param exchange the current Exchange
+     */
+    public static void propogateReceivedMAPs(AddressingProperties inMAPs,
+                                              Exchange exchange) {
+        if (exchange.getOutMessage() == null) {
+            exchange.setOutMessage(createMessage(exchange));
+        }
+        propogateReceivedMAPs(inMAPs, exchange.getOutMessage());
+        if (exchange.getOutFaultMessage() == null) {
+            exchange.setOutFaultMessage(createMessage(exchange));
+        }
+        propogateReceivedMAPs(inMAPs, exchange.getOutFaultMessage());
+    }
+
     /**
      * Propogate inbound MAPs onto reponse message if applicable
      * (not applicable for oneways).
@@ -349,7 +455,7 @@ public final class ContextUtils {
      * @param responseMessage
      */
     private static void propogateReceivedMAPs(AddressingProperties inMAPs,
-                                               Message responseMessage) {
+                                             Message responseMessage) {
         if (responseMessage != null) {
             storeMAPs(inMAPs, responseMessage, false, false, false);
         }
@@ -367,7 +473,7 @@ public final class ContextUtils {
         // partial response that contains appropriate To and ReplyTo
         // properties (i.e. anonymous & none respectively)
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-        maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
+        maps.setTo(EndpointReferenceUtils.getAnonymousEndpointReference());
         maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
         maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
         maps.setAction(getAttributedURI(""));
@@ -375,6 +481,34 @@ public final class ContextUtils {
         storeMAPs(maps, partialResponse, true, true, false);
     }
 
+    /**
+     * Get the Executor for this invocation.
+     * @param endpoint
+     * @return
+     */
+    private static Executor getExecutor(final Message message) {
+        Endpoint endpoint = message.getExchange().get(Endpoint.class);
+        Executor executor = endpoint.getService().getExecutor();
+        
+        if (executor == null || SynchronousExecutor.isA(executor)) {
+            // need true asynchrony
+            Bus bus = message.getExchange().get(Bus.class);
+            if (bus != null) {
+                WorkQueueManager workQueueManager =
+                    bus.getExtension(WorkQueueManager.class);
+                Executor autoWorkQueue =
+                    workQueueManager.getAutomaticWorkQueue();
+                executor = autoWorkQueue != null
+                           ? autoWorkQueue
+                           : OneShotAsyncExecutor.getInstance();
+            } else {
+                executor = OneShotAsyncExecutor.getInstance();
+            }
+        }
+        message.getExchange().put(Executor.class, executor);
+        return executor;
+    }
+    
     /**
      * Store bad MAP fault name in the message.
      *
@@ -442,6 +576,18 @@ public final class ContextUtils {
         return ret != null && ret.booleanValue();
     }
 
+    /**
+     * Retrieve indication that an async post-response service invocation
+     * is required.
+     * 
+     * @param message the current message
+     * @returned the retrieved indication that an async post-response service
+     * invocation is required.
+     */
+    public static boolean retrieveAsyncPostResponseDispatch(Message message) {
+        Boolean ret = (Boolean)message.get(ASYNC_POST_RESPONSE_DISPATCH);
+        return ret != null && ret.booleanValue();
+    }
     
     /**
      * Retrieve a JAXBContext for marshalling and unmarshalling JAXB generated
@@ -487,7 +633,7 @@ public final class ContextUtils {
     public static Conduit getConduit(Conduit conduit, Message message) {
         if (conduit == null) {
             Exchange exchange = message.getExchange();
-            conduit = exchange != null ? exchange.getConduit() : null;
+            conduit = exchange != null ? exchange.getConduit(message) : null;
         }
         return conduit;
     }
@@ -500,64 +646,183 @@ public final class ContextUtils {
      */
     public static AttributedURIType getAction(Message message) {
         String action = null;
-        // REVISIT: add support for @{Fault}Action annotation (generated
-        // from the wsaw:Action WSDL element)
         LOG.fine("Determining action");
         Exception fault = message.getContent(Exception.class);
-        Method method = getMethod(message);
-        LOG.fine("method: " + method + ", fault: " + fault);
-        if (method != null) {
-            if (fault != null) {
-                WebFault webFault = fault.getClass().getAnnotation(WebFault.class);
-                if (webFault != null) {
-                    action = getAction(webFault.targetNamespace(),
-                                       method, 
-                                       webFault.name(),
-                                       true);
+
+        // REVISIT: add support for @{Fault}Action annotation (generated
+        // from the wsaw:Action WSDL element). For the moment we just
+        // pick up the wsaw:Action attribute by walking the WSDL model
+        // directly 
+        action = getActionFromServiceModel(message, fault);
+
+        if (action == null) {
+            Method method = getMethod(message);
+            LOG.fine("method: " + method + ", fault: " + fault);
+            if (method != null) {
+                action = getActionFromAnnotations(message, method, fault); 
+            }
+        }
+        LOG.fine("action: " + action);
+        return action != null ? getAttributedURI(action) : null;
+    }
+
+    /**
+     * Get action from service model.
+     *
+     * @param message the current message
+     * @param fault the fault if one is set
+     */
+    private static String getActionFromServiceModel(Message message,
+                                                    Exception fault) {
+        String action = null;
+        if (fault == null) {
+            BindingOperationInfo bindingOpInfo =
+                message.getExchange().get(BindingOperationInfo.class);
+            if (bindingOpInfo != null) {
+                SoapOperationInfo soi = 
+                    bindingOpInfo.getExtensor(SoapOperationInfo.class);
+                if (null != soi) {
+                    action = soi.getAction();
                 }
-            } else {
-                if (ContextUtils.isRequestor(message)) {
-                    RequestWrapper requestWrapper =
-                        method.getAnnotation(RequestWrapper.class);
-                    if (requestWrapper != null) {
-                        action = getAction(requestWrapper.targetNamespace(),
-                                           method,
-                                           requestWrapper.localName(),
-                                           false);
+
+                if (action == null || "".equals(action)) {
+                    String cachedAction = ACTION_MAP.get(bindingOpInfo);
+                    if (cachedAction == null) {
+                        MessageInfo msgInfo = 
+                            ContextUtils.isRequestor(message)
+                            ? bindingOpInfo.getInput().getMessageInfo()
+                            : bindingOpInfo.getOutput().getMessageInfo();
+                        action = getActionFromMessageAttributes(bindingOpInfo,
+                                                                msgInfo);
                     } else {
-                        WebService wsAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
-                        WebMethod wmAnnotation = method.getAnnotation(WebMethod.class);
-                        
-                        action = getAction(wsAnnotation.targetNamespace(),
-                                           method,
-                                           wmAnnotation.operationName(),
-                                           false);
-                    }
-                        
-                } else {
-                    ResponseWrapper responseWrapper =
-                        method.getAnnotation(ResponseWrapper.class);
-                    if (responseWrapper != null) {
-                        action = getAction(responseWrapper.targetNamespace(),
-                                           method,
-                                           responseWrapper.localName(),
-                                          false);
-                    } else {
-                       //RPC-Literal case.
-                        WebService wsAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
-                        WebMethod wmAnnotation = method.getAnnotation(WebMethod.class);
-                        
-                        if (wsAnnotation != null && wmAnnotation != null) {
-                            action = getAction(wsAnnotation.targetNamespace(),
-                                               method,
-                                               wmAnnotation.operationName(),
-                                               false);
-                        }
+                        action = cachedAction;
                     }
                 }
             }
+        } else {
+            // FaultAction attribute is not defined in 
+            // http://www.w3.org/2005/02/addressing/wsdl schema
         }
-        return action != null ? getAttributedURI(action) : null;
+        LOG.fine("action determined from service model: " + action);
+        return action;
+    }
+
+    /**
+     * Get action from attributes on MessageInfo
+     *
+     * @param bindingOpInfo the current BindingOperationInfo
+     * @param msgInfo the current MessageInfo
+     * @return the action if set
+     */
+    private static String getActionFromMessageAttributes(
+                                           BindingOperationInfo bindingOpInfo,
+                                           MessageInfo msgInfo) {
+        String action = null;
+        if (msgInfo != null
+            && msgInfo.getExtensionAttributes() != null) {
+            QName attr = (QName)
+                msgInfo.getExtensionAttributes().get(Names.WSAW_ACTION_QNAME);
+            if (attr != null) {
+                action = getURI(attr.getLocalPart());
+                ACTION_MAP.put(bindingOpInfo, action);
+            }
+        }
+        return action;
+    }
+
+    /**
+     * Get action from annotations.
+     *
+     * @param message the current message
+     * @param method the invoked on method
+     * @param fault the fault if one is set
+     */
+    private static String getActionFromAnnotations(Message message,
+                                                   Method method,
+                                                   Exception fault) {
+        String action = null;
+        if (fault != null) {
+            WebFault webFault = fault.getClass().getAnnotation(WebFault.class);
+            if (webFault != null) {
+                action = getAction(webFault.targetNamespace(),
+                                   method, 
+                                   webFault.name(),
+                                   true);
+            }
+        } else {
+            String namespace = getWrapperNamespace(message, method);
+            if (namespace != null) {
+                action = getAction(namespace,
+                                   method,
+                                   getWrapperLocalName(message, method),
+                                   false);
+            } else {
+                WebService wsAnnotation = 
+                    method.getDeclaringClass().getAnnotation(WebService.class);
+                WebMethod wmAnnotation = 
+                    method.getAnnotation(WebMethod.class);
+                action = wsAnnotation != null && wmAnnotation != null
+                         ? getAction(wsAnnotation.targetNamespace(),
+                                     method,
+                                     wmAnnotation.operationName(),
+                                     false)
+                         : null;
+            }
+        }
+        LOG.fine("action determined from annotations: " + action);
+        return action;
+    }
+ 
+     /**
+      * Get the target namespace from the {Request|Response}Wrapper annotation
+      *
+      * @param message the current message
+      * @param method the target method
+      * @return the annotated namespace 
+      */
+    private static String getWrapperNamespace(Message message, 
+                                               Method method) {
+        String namespace = null;
+        if (ContextUtils.isRequestor(message)) {
+            RequestWrapper requestWrapper =
+                method.getAnnotation(RequestWrapper.class);
+            if (requestWrapper != null) {
+                namespace = requestWrapper.targetNamespace();
+            }
+        } else {
+            ResponseWrapper responseWrapper =
+                method.getAnnotation(ResponseWrapper.class);
+            if (responseWrapper != null) {
+                namespace = responseWrapper.targetNamespace();
+            }
+        }
+        return namespace;
+    }
+
+     /**
+      * Get the target local name from the {Request|Response}Wrapper annotation
+      *
+      * @param message the current message
+      * @param method the target method
+      * @return the annotated local name 
+      */
+    private static String getWrapperLocalName(Message message,
+                                              Method method) {
+        String localName = null;
+        if (ContextUtils.isRequestor(message)) {
+            RequestWrapper requestWrapper =
+                method.getAnnotation(RequestWrapper.class);
+            if (requestWrapper != null) {
+                localName = requestWrapper.localName();
+            }
+        } else {
+            ResponseWrapper responseWrapper =
+                method.getAnnotation(ResponseWrapper.class);
+            if (responseWrapper != null) {
+                localName = responseWrapper.localName();
+            }
+        }
+        return localName;
     }
 
     /**
@@ -604,15 +869,47 @@ public final class ContextUtils {
         }
         return method;
     }
+
+    /**
+     * @param s a string that may be a URI without a scheme identifier
+     * @return a properly formed URI
+     */
+    private static String getURI(String s) {
+        String uri = null;
+        if (s.startsWith(HTTP_URI_SCHEME)) {
+            uri = s;
+        } else if (s.startsWith(URI_AUTHORITY_PREFIX)) {
+            uri = HTTP_URI_SCHEME + s;
+        } else {
+            uri = HTTP_URI_SCHEME + URI_AUTHORITY_PREFIX + s;
+        }
+        return uri;
+    }
+
+    public static EndpointReferenceType getNoneEndpointReference() {
+        return NONE_ENDPOINT_REFERENCE;
+    }
+
+    public static void applyReferenceParam(EndpointReferenceType toEpr, JAXBElement<String> el) {
+        if (null == toEpr.getReferenceParameters()) {
+            toEpr.setReferenceParameters(WSA_OBJECT_FACTORY.createReferenceParametersType());
+        }
+        toEpr.getReferenceParameters().getAny().add(el);
+    }
+
+    /**
+     * Create a Binding specific Message.
+     * 
+     * @param message the current message
+     * @return the Method from the BindingOperationInfo
+     */
+    private static Message createMessage(Exchange exchange) {
+        Endpoint ep = exchange.get(Endpoint.class);
+        Message msg = null;
+        if (ep != null) {
+            msg = ep.getBinding().createMessage();
+        }
+        return msg;
+    }
+    
 }
-
-
-
-
-
-
-
-
-
-
-

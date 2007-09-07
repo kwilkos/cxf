@@ -24,6 +24,8 @@ import java.security.Principal;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.security.SecurityContext;
+
 
 public class WebServiceContextImpl implements WebServiceContext {
 
@@ -43,18 +45,44 @@ public class WebServiceContextImpl implements WebServiceContext {
     }
 
     public final Principal getUserPrincipal() {
-        return null;
+        SecurityContext ctx = (SecurityContext)getMessageContext().get(SecurityContext.class.getName());
+        if (ctx == null) {
+            return null;
+        }
+        return ctx.getUserPrincipal();
     }
 
-    public final boolean isUserInRole(final String string) {
-        return false;
+    public final boolean isUserInRole(final String role) {
+        SecurityContext ctx = (SecurityContext)getMessageContext().get(SecurityContext.class.getName());
+        if (ctx == null) {
+            return false;
+        }
+        return ctx.isUserInRole(role);
     }
+    
+    //  TODO JAX-WS 2.1
+    /*
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+    */
+    
+    
 
     public static void setMessageContext(MessageContext ctx) {
+        //ContextPropertiesMapping.mapCxf2Jaxws(ctx);
         context.set(ctx);
     }
 
     public static void clear() {
         context.set(null);
     }
+
 }

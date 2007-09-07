@@ -36,7 +36,8 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
 @javax.jws.WebService(serviceName = "SOAPService", 
                       portName = "SOAPPort",
                       targetNamespace = "http://apache.org/callback",
-                      endpointInterface = "org.apache.callback.ServerPortType") 
+                      endpointInterface = "org.apache.callback.ServerPortType",
+                      wsdlLocation = "testutils/basic_callback_test.wsdl") 
                       
                   
 public class ServerImpl implements ServerPortType  {

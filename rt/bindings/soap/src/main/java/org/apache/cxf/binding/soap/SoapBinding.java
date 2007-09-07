@@ -19,28 +19,36 @@
 
 package org.apache.cxf.binding.soap;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class SoapBinding extends AbstractBasicInterceptorProvider implements Binding {
+    
+    private SoapVersion version;
+    private BindingInfo bindingInfo;
+    
+    public SoapBinding(BindingInfo info) {
+        this(info, Soap11.getInstance());
+    }
+    
+    public SoapBinding(BindingInfo info, SoapVersion v) {
+        version = v; 
+        bindingInfo = info;
+    }
+    
+    public BindingInfo getBindingInfo() {
+        return bindingInfo;
+    }
 
-    // default to support mtom, left to config to turn on this feature.
-    private boolean mtomEnabled;
-    
-    private List<Interceptor> in;
-    private List<Interceptor> out;
-    private List<Interceptor> fault;
-    
-    public SoapBinding() {
-        in = new ArrayList<Interceptor>();
-        out = new ArrayList<Interceptor>();
-        fault = new ArrayList<Interceptor>();
+    public void setSoapVersion(SoapVersion v) {
+        this.version = v;
+    }
+
+    public SoapVersion getSoapVersion() {
+        return version;
     }
     
     public Message createMessage() {
@@ -48,30 +56,14 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
     }
 
     public Message createMessage(Message m) {
-        if (mtomEnabled) {
-            m.put(Message.MTOM_ENABLED, Boolean.TRUE);
+        SoapMessage soapMessage = new SoapMessage(m);
+        soapMessage.setVersion(version);
+
+        if (!soapMessage.containsKey(Message.CONTENT_TYPE)) {
+            soapMessage.put(Message.CONTENT_TYPE, version.getContentType());
         }
-        return new SoapMessage(m);
-    }
-
-    public List<Interceptor> getFaultInterceptors() {
-        return fault;
-    }
-
-    public List<Interceptor> getInInterceptors() {
-        return in;
-    }
-
-    public List<Interceptor> getOutInterceptors() {
-        return out;
-    }
-
-    public boolean isMtomEnabled() {
-        return mtomEnabled;
-    }
-
-    public void setMtomEnabled(boolean enabled) {
-        mtomEnabled = enabled;
+        
+        return soapMessage;
     }
 
 }

@@ -40,17 +40,22 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ServiceWSDLBuilderTest extends TestCase {
+public class ServiceWSDLBuilderTest extends Assert {
 
     private static final Logger LOG = Logger.getLogger(ServiceWSDLBuilderTest.class.getName());
     private static final String WSDL_PATH = "hello_world.wsdl";
@@ -65,7 +70,10 @@ public class ServiceWSDLBuilderTest extends TestCase {
     private IMocksControl control;
     private Bus bus;
     private BindingFactoryManager bindingFactoryManager;
+    private DestinationFactoryManager destinationFactoryManager;
+    private DestinationFactory destinationFactory;
     
+    @Before
     public void setUp() throws Exception {
   
         String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
@@ -78,6 +86,8 @@ public class ServiceWSDLBuilderTest extends TestCase {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
+        destinationFactory = control.createMock(DestinationFactory.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
@@ -86,23 +96,32 @@ public class ServiceWSDLBuilderTest extends TestCase {
                 break;
             }
         }
+        EasyMock.expect(bus.getExtension(WSDLManager.class)).andReturn(new WSDLManagerImpl()).anyTimes();
         
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
+            .andReturn(destinationFactoryManager);
+        
+        EasyMock.expect(destinationFactoryManager
+                        .getDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/"))
+            .andReturn(destinationFactory);
+
         control.replay();
         
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        newDef = ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(serviceInfo);
+        newDef = new ServiceWSDLBuilder(bus, serviceInfo).build();
         
     }
     
+    @After
     public void tearDown() throws Exception {        
         control.verify();
         newDef = null;
     }
     
-        
+    @Test    
     public void testDefinition() throws Exception {
         assertEquals("http://apache.org/hello_world_soap_http", newDef.getTargetNamespace());
         Service serv = newDef.getService(new QName("http://apache.org/hello_world_soap_http",
@@ -111,6 +130,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         assertNotNull(serv.getPort("SoapPort"));
     }
     
+    @Test
     public void testPortType() throws Exception {
         assertEquals(newDef.getPortTypes().size(), 1);
         PortType portType = (PortType)newDef.getPortTypes().values().iterator().next();
@@ -119,6 +139,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         
     }
     
+    @Test
     public void testSayHiOperation() throws Exception {
         PortType portType = newDef.getPortType(new QName(newDef.getTargetNamespace(), 
             "Greeter"));
@@ -152,6 +173,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
               
     }
     
+    @Test
     public void testGreetMeOperation() throws Exception {
         PortType portType = newDef.getPortType(new QName(newDef.getTargetNamespace(), 
             "Greeter"));
@@ -180,6 +202,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         
     }
     
+    @Test
     public void testGreetMeOneWayOperation() throws Exception {
         PortType portType = newDef.getPortType(new QName(newDef.getTargetNamespace(), 
             "Greeter"));
@@ -200,6 +223,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         assertTrue(greetMeOneWay.getFaults().size() == 0);
     }
     
+    @Test
     public void testPingMeOperation() throws Exception {
         PortType portType = newDef.getPortType(new QName(newDef.getTargetNamespace(), 
             "Greeter"));
@@ -237,6 +261,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         assertNull(message.getPart("faultDetail").getTypeName());
     }
     
+    @Test
     public void testBinding() throws Exception {
         assertEquals(newDef.getBindings().size(), 1);
         Binding binding = newDef.getBinding(new QName(newDef.getTargetNamespace(), "Greeter_SOAPBinding"));
@@ -244,6 +269,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         assertEquals(binding.getBindingOperations().size(), 4);
     }
     
+    @Test
     public void testSchemas() throws Exception {
         Types types = newDef.getTypes();
         assertNotNull(types);

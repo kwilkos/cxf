@@ -19,38 +19,34 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes cxf.jar on the
+If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/js_provider directory, the ant build script
-can be used to build and run the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant build
-  ant server  (in the background or another window)
-  ant client
+  ant server  (from one command line window)
+  ant client  (from a second command line window)
     
-
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 
-Buildng the demo using wsdl2java and javac
-------------------------------------------
+Building the demo using wsdl2java and javac
+-------------------------------------------
 
 From the samples/dispatch_provider directory, first create the target
 directory build/classes and then generate code from the WSDL file.
@@ -70,13 +66,31 @@ For Windows:
 Now compile both the generated code and the provided client
 application with the commands:
 
+For UNIX:
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest-incubator.jar:
+	$CXF_HOME/lib/js-1.6R5.jar:$CXF_HOME/lib/xbean-2.2.0.jar:
+	build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
+
+For Windows:
+  set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-manifest-incubator.jar;
+	%CXF_HOME%\lib\js-1.6R5.jar;%CXF_HOME%\lib\xbean-2.2.0.jar;
+	build\classes
+  javac -d build\classes src\demo\hwDispatch\client\*.java
 
 Windows may use either forward or back slashes.
 
 Since JavaScript and E4X are interpreted at runtime and do not require
 compilation, there is no server-side java code requiring compilation.
 
+
+Finally, copy resource files into the build/classes directory with the commands:
+
+For UNIX:    
+  cp ./src/demo/hwDispatch/client/*.xml ./build/classes/demo/hwDispatch/client
+
+For Windows:
+  copy src\demo\hwDispatch\client\*.xml build\classes\demo\hwDispatch\client
 
 
 Running the demo using java
@@ -86,7 +100,7 @@ From the samples/js_dispatch directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          org.apache.cxf.js.rhino.ServerApp -v
          -b http://localhost:9000/SoapContext impl.jsx impl.js
 

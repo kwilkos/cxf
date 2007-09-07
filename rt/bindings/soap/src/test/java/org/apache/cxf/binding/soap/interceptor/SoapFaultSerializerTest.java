@@ -22,24 +22,33 @@ package org.apache.cxf.binding.soap.interceptor;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Document;
 
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.junit.Test;
 
 public class SoapFaultSerializerTest extends AbstractCXFTest {
+    
+    @Test
     public void testSoap11Out() throws Exception {
         String faultString = "Hadrian caused this Fault!";
-        SoapFault fault = new SoapFault(faultString, SoapFault.SENDER);
+        SoapFault fault = new SoapFault(faultString, Soap11.getInstance().getSender());
 
         SoapMessage m = new SoapMessage(new MessageImpl());
+        m.setExchange(new ExchangeImpl());
         m.setContent(Exception.class, fault);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -71,6 +80,78 @@ public class SoapFaultSerializerTest extends AbstractCXFTest {
         SoapFault fault2 = (SoapFault)m.getContent(Exception.class);
         assertNotNull(fault2);
         assertEquals(fault.getMessage(), fault2.getMessage());
-        assertEquals(SoapFault.SOAP11_CLIENT, fault2.getFaultCode());
+        assertEquals(Soap11.getInstance().getSender(), fault2.getFaultCode());
+    }
+    
+    @Test
+    public void testSoap12Out() throws Exception {
+        String faultString = "Hadrian caused this Fault!";
+        SoapFault fault = new SoapFault(faultString, Soap12.getInstance().getSender());
+        
+        QName qname = new QName("http://cxf.apache.org/soap/fault", "invalidsoap", "cxffaultcode");
+        fault.setSubCode(qname);
+
+        SoapMessage m = new SoapMessage(new MessageImpl());
+        m.setVersion(Soap12.getInstance());
+        
+        m.setContent(Exception.class, fault);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        XMLStreamWriter writer = StaxUtils.createXMLStreamWriter(out);
+        writer.writeStartDocument();
+        writer.writeStartElement("Body");
+
+        m.setContent(XMLStreamWriter.class, writer);
+
+        Soap12FaultOutInterceptor interceptor = new Soap12FaultOutInterceptor();
+        interceptor.handleMessage(m);
+
+        writer.writeEndElement();
+        writer.writeEndDocument();
+        writer.close();
+
+        Document faultDoc = DOMUtils.readXml(new ByteArrayInputStream(out.toByteArray()));
+        
+        assertValid("//soap12env:Fault/soap12env:Code/soap12env:Value[text()='ns1:Sender']", 
+                    faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Code/soap12env:Subcode[text()='ns2:invalidsoap']", 
+                    faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Reason/soap12env:Text[@xml:lang='en']", 
+                    faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Reason/soap12env:Text[text()='" + faultString + "']", 
+                    faultDoc);
+
+        XMLStreamReader reader = StaxUtils.createXMLStreamReader(new ByteArrayInputStream(out.toByteArray()));
+        m.setContent(XMLStreamReader.class, reader);
+
+        reader.nextTag();
+
+        Soap12FaultInInterceptor inInterceptor = new Soap12FaultInInterceptor();
+        inInterceptor.handleMessage(m);
+
+        SoapFault fault2 = (SoapFault)m.getContent(Exception.class);
+        assertNotNull(fault2);
+        assertEquals(Soap12.getInstance().getSender(), fault2.getFaultCode());
+        assertEquals(fault.getMessage(), fault2.getMessage());        
+    }
+    
+    @Test
+    public void testFaultToSoapFault() throws Exception {
+        Exception ex = new Exception();
+        Fault fault = new Fault(ex, Fault.FAULT_CODE_CLIENT);
+        
+        SoapFault sf = SoapFault.createFault(fault, Soap11.getInstance());
+        assertEquals(Soap11.getInstance().getSender(), sf.getFaultCode());
+        
+        sf = SoapFault.createFault(fault, Soap12.getInstance());
+        assertEquals(Soap12.getInstance().getSender(), sf.getFaultCode());
+        
+        fault = new Fault(ex, Fault.FAULT_CODE_SERVER);
+        sf = SoapFault.createFault(fault, Soap11.getInstance());
+        assertEquals(Soap11.getInstance().getReceiver(), sf.getFaultCode());
+        
+        sf = SoapFault.createFault(fault, Soap12.getInstance());
+        assertEquals(Soap12.getInstance().getReceiver(), sf.getFaultCode());
+        
     }
 }

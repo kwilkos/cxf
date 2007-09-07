@@ -19,28 +19,40 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.Binding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.binding.xml.XMLBinding;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
+import org.apache.cxf.jaxws.binding.http.HTTPBindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
-import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
-import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultInInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerFaultOutInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerInInterceptor;
+import org.apache.cxf.jaxws.handler.logical.LogicalHandlerOutInterceptor;
+import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultInInterceptor;
+import org.apache.cxf.jaxws.handler.soap.SOAPHandlerFaultOutInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
+import org.apache.cxf.jaxws.interceptors.SwAInInterceptor;
+import org.apache.cxf.jaxws.interceptors.SwAOutInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 
 /**
- * A JAX-WS specific implementation of the CXF {@link Endpoint} interface.
+ * A JAX-WS specific implementation of the CXF {@link org.apache.cxf.endpoint.Endpoint} interface.
  * Extends the interceptor provider functionality of its base class by adding 
  * interceptors in which to execute the JAX-WS handlers.
  * Creates and owns an implementation of {@link Binding} in addition to the
@@ -49,44 +61,82 @@ import org.apache.cxf.service.model.EndpointInfo;
  */
 public class JaxWsEndpointImpl extends EndpointImpl {
 
-    private Binding binding;
+    private Binding jaxwsBinding;
+    private JaxWsImplementorInfo implInfo; 
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
-        super(bus, s, ei);
+        this(bus, s, ei, null);
+    }
 
+    public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo)
+        throws EndpointException {
+        super(bus, s, ei);
+        this.implInfo = implementorInfo;
+        
         createJaxwsBinding();
         
-        List<Interceptor> handlerInterceptors;
-                
-        handlerInterceptors = new ArrayList<Interceptor>();
-        handlerInterceptors.add(new LogicalHandlerInterceptor(binding));
-        if (getBinding() instanceof SoapBinding) {
-            handlerInterceptors.add(new SOAPHandlerInterceptor(binding));
-        } else {
-             // TODO: what for non soap bindings?
-        }
-        handlerInterceptors.add(new StreamHandlerInterceptor(binding));
-        
-        List<Interceptor> fault = super.getOutFaultInterceptors();
-        fault.addAll(handlerInterceptors);
-        List<Interceptor> in = super.getInInterceptors();
-        in.addAll(handlerInterceptors);
-        in.add(new WrapperClassInInterceptor());
-        
+        List<Interceptor> in = super.getInInterceptors();       
         List<Interceptor> out = super.getOutInterceptors();
-        out.addAll(handlerInterceptors);
-        out.add(new WrapperClassOutInterceptor());
+        
+        if (implInfo != null && implInfo.isWebServiceProvider()) {
+            DispatchLogicalHandlerInterceptor slhi = new DispatchLogicalHandlerInterceptor(jaxwsBinding,
+                Phase.USER_LOGICAL);
+            in.add(slhi);
+            out.add(new DispatchLogicalHandlerInterceptor(jaxwsBinding));
+
+            if (getBinding() instanceof SoapBinding) {
+                in.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
+                out.add(new DispatchSOAPHandlerInterceptor(jaxwsBinding));
+            } 
+        } else {
+            // Inbound chain
+            in.add(new LogicalHandlerInInterceptor(jaxwsBinding));
+            in.add(new WrapperClassInInterceptor());
+            in.add(new HolderInInterceptor());
+            if (getBinding() instanceof SoapBinding) {
+                in.add(new SOAPHandlerInterceptor(jaxwsBinding));
+                in.add(new SwAInInterceptor());
+                getOutInterceptors().add(new SwAOutInterceptor());
+            } else {
+                // TODO: what for non soap bindings?
+            }
+
+            // Outbound chain
+            out.add(new LogicalHandlerOutInterceptor(jaxwsBinding));
+            out.add(new WrapperClassOutInterceptor());
+            out.add(new HolderOutInterceptor());
+            if (getBinding() instanceof SoapBinding) {
+                out.add(new SOAPHandlerInterceptor(jaxwsBinding));
+            }
+        }
+      
+        
+        //Outbound fault chain
+        List<Interceptor> outFault = super.getOutFaultInterceptors();    
+        outFault.add(new LogicalHandlerFaultOutInterceptor(jaxwsBinding));
+        if (getBinding() instanceof SoapBinding) {
+            outFault.add(new SOAPHandlerFaultOutInterceptor(jaxwsBinding));
+        }
+
+        //Inbound fault chain
+        List<Interceptor> inFault = super.getInFaultInterceptors(); 
+        inFault.add(new LogicalHandlerFaultInInterceptor(jaxwsBinding));
+        if (getBinding() instanceof SoapBinding) {
+            inFault.add(new SOAPHandlerFaultInInterceptor(jaxwsBinding));
+        }
     }
     
     public Binding getJaxwsBinding() {
-        return binding;
+        return jaxwsBinding;
     }
     
     final void createJaxwsBinding() {
         if (getBinding() instanceof SoapBinding) {
-            binding = new SOAPBindingImpl((SoapBinding)getBinding());
+            jaxwsBinding = new SOAPBindingImpl(getEndpointInfo().getBinding());
+        } else if (getBinding() instanceof XMLBinding) {
+            jaxwsBinding = new HTTPBindingImpl(getEndpointInfo().getBinding());
         } else {
-            binding = new BindingImpl();
+            jaxwsBinding = new BindingImpl();
         }
     }
 }

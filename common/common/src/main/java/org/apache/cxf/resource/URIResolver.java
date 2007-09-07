@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.resource;
 
 import java.io.File;
@@ -24,22 +23,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.util.Base64Utility;
 
 /**
  * Resolves a File, classpath resource, or URL according to the follow rules:
  * <ul>
- * <li>Check to see if a File exists with the specified URI.</li>
- * <li>Attempt to create URI from the uri string directly and create an
- * InputStream from it.</li>
- * <li>Check to see if a File exists relative to the specified base URI.</li>
- * <li>Attempt to create URI relative to the base URI and create an InputStream
- * from it.</li>
+ * <li>Check to see if a file exists, relative to the base URI.</li>
+ * <li>If the file doesn't exist, check the classpath</li>
  * <li>If the classpath doesn't exist, try to create URL from the URI.</li>
  * </ul>
  * 
@@ -48,7 +45,12 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 public class URIResolver {
     private File file;
     private URI uri;
+    private URL url;
     private InputStream is;
+    private Class calling;
+
+    public URIResolver() {
+    }
 
     public URIResolver(String path) throws IOException {
         this("", path);
@@ -57,42 +59,125 @@ public class URIResolver {
     public URIResolver(String baseUriStr, String uriStr) throws IOException {
         this(baseUriStr, uriStr, null);
     }
+    
+    public URIResolver(String baseUriStr, String uriStr, Class calling) throws IOException {
+        this.calling = (calling != null) ? calling : getClass();
+        if (uriStr.startsWith("classpath:")) {
+            tryClasspath(uriStr);
+        } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
+            tryJar(baseUriStr, uriStr);
+        } else if (uriStr.startsWith("jar:")) {
+            tryJar(uriStr);
+        } else {
+            tryFileSystem(baseUriStr, uriStr);
+        }
+    }
 
-    public URIResolver(String baseUriStr, String uriStr, Class callingClass) throws IOException {
+    
+    public void resolve(String baseUriStr, String uriStr, Class callingCls) throws IOException {
+        this.calling = (callingCls != null) ? callingCls : getClass();
+        this.file = null;
+        this.uri = null;
+
+        this.is = null;
+
+        if (uriStr.startsWith("classpath:")) {
+            tryClasspath(uriStr);
+        } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
+            tryJar(baseUriStr, uriStr);
+        } else if (uriStr.startsWith("jar:")) {
+            tryJar(uriStr);
+        } else {
+            tryFileSystem(baseUriStr, uriStr);
+        }
+    }
+
+    
+    
+    private void tryFileSystem(String baseUriStr, String uriStr) throws IOException, MalformedURLException {
         try {
             URI relative;
             File uriFile = new File(uriStr);
             uriFile = new File(uriFile.getAbsolutePath());
+
             if (uriFile.exists()) {
                 relative = uriFile.toURI();
             } else {
-                relative = new URI(uriStr);
+                relative = new URI(uriStr.replaceAll(" ", "%20"));
             }
-
+            
             if (relative.isAbsolute()) {
                 uri = relative;
-                is = relative.toURL().openStream();
+                url = relative.toURL();
+
+                try {
+                    HttpURLConnection huc = (HttpURLConnection)url.openConnection();
+
+                    String host = System.getProperty("http.proxyHost");
+                    if (host != null) {
+                        //comment out unused port to pass pmd check
+                        /*String ports = System.getProperty("http.proxyPort");
+                        int port = 80;
+                        if (ports != null) {
+                            port = Integer.parseInt(ports);
+                        }*/
+
+                        String username = System.getProperty("http.proxy.user");
+                        String password = System.getProperty("http.proxy.password");
+
+                        if (username != null && password != null) {
+                            String encoded = Base64Utility.encode((username + ":" + password).getBytes());
+                            huc.setRequestProperty("Proxy-Authorization", "Basic " + encoded);
+                        }
+                    }
+                    is =  huc.getInputStream();
+                } catch (ClassCastException ex) {
+                    is = url.openStream();
+                }
             } else if (baseUriStr != null) {
                 URI base;
                 File baseFile = new File(baseUriStr);
+
+                if (!baseFile.exists() && baseUriStr.startsWith("file:/")) {
+                    baseFile = new File(baseUriStr.substring(6));
+                }
+
                 if (baseFile.exists()) {
                     base = baseFile.toURI();
                 } else {
                     base = new URI(baseUriStr);
                 }
-
+                
                 base = base.resolve(relative);
                 if (base.isAbsolute()) {
-                    is = base.toURL().openStream();
-                    uri = base;
+                    try {
+                        baseFile = new File(base);
+                        if (baseFile.exists()) {
+                            is = base.toURL().openStream();
+                            uri = base;
+                        } else {
+                            tryClasspath(base.toString().startsWith("file:") 
+                                         ? base.toString().substring(5) : base.toString());
+                        }
+                    } catch (Throwable th) {
+                        tryClasspath(base.toString().startsWith("file:") 
+                                     ? base.toString().substring(5) : base.toString());
+                    }
                 }
             }
         } catch (URISyntaxException e) {
-            // Do nothing
+            // do nothing
         }
 
         if (uri != null && "file".equals(uri.getScheme())) {
-            file = new File(uri);
+            try {
+                file = new File(uri);
+            } catch (IllegalArgumentException iae) {
+                file = new File(uri.toURL().getPath());
+                if (!file.exists()) {
+                    file = null;
+                }
+            }
         }
 
         if (is == null && file != null && file.exists()) {
@@ -102,31 +187,96 @@ public class URIResolver {
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("File was deleted! " + uriStr, e);
             }
+            url = file.toURI().toURL();
         } else if (is == null) {
-            if (callingClass == null) {
-                callingClass = getClass();
-            }
-            
-            URL url = ClassLoaderUtils.getResource(uriStr, callingClass);
-            
-            if (url == null) {
-                try {
-                    url = new URL(uriStr);
-                    uri = new URI(url.toString());
-                    is = url.openStream();
-                } catch (MalformedURLException e) {
-                    // Do nothing
-                } catch (URISyntaxException e) {
-                    // Do nothing
+            tryClasspath(uriStr);
+        }
+    }
+    
+    private void tryJar(String baseStr, String uriStr) throws IOException {
+        int i = baseStr.indexOf('!');
+        if (i == -1) {
+            tryFileSystem(baseStr, uriStr);
+        }
+
+        String jarBase = baseStr.substring(0, i + 1);
+        String jarEntry = baseStr.substring(i + 1);
+        try {
+            URI u = new URI(jarEntry).resolve(uriStr);
+
+            tryJar(jarBase + u.toString());
+
+            if (is != null) {
+                if (u.isAbsolute()) {
+                    url = u.toURL();
                 }
-            } else {
-                try {
-                    uri = new URI(url.toString());
-                } catch (URISyntaxException e) {
-                    // do nothing?
-                }
-                is = url.openStream();
+                return;
             }
+        } catch (URISyntaxException e) {
+            // do nothing
+        }
+        
+        tryFileSystem("", uriStr);
+    }
+    
+    private void tryJar(String uriStr) throws IOException {
+        int i = uriStr.indexOf('!');
+        if (i == -1) {
+            return;
+        }
+
+        url = new URL(uriStr);
+        try {
+            is = url.openStream();
+            try {
+                uri = url.toURI();
+            } catch (URISyntaxException ex) {
+                // ignore
+            }
+        } catch (IOException e) {
+            uriStr = uriStr.substring(i + 1);
+            tryClasspath(uriStr);
+        }
+    }
+    
+    private void tryClasspath(String uriStr) throws IOException {
+        if (uriStr.startsWith("classpath:")) {
+            uriStr = uriStr.substring(10);
+        }
+        url = ClassLoaderUtils.getResource(uriStr, calling);
+        if (url == null) {
+            tryRemote(uriStr);
+        } else {
+            try {
+                uri = url.toURI();
+            } catch (URISyntaxException e) {
+                // processing the jar:file:/ type value
+                String urlStr = url.toString();
+                if (urlStr.startsWith("jar:")) {
+                    int pos = urlStr.indexOf('!');
+                    if (pos != -1) {
+                        try {
+                            uri = new URI("classpath:" + urlStr.substring(pos + 1));
+                        } catch (URISyntaxException ue) {
+                            // ignore
+                        }
+                    }
+                }
+                
+            }
+            is = url.openStream();
+        }
+    }
+
+    private void tryRemote(String uriStr) throws IOException {
+        try {
+            url = new URL(uriStr);
+            uri = new URI(url.toString());
+            is = url.openStream();
+        } catch (MalformedURLException e) {
+            // do nothing
+        } catch (URISyntaxException e) {
+            // do nothing
         }
     }
 
@@ -134,19 +284,26 @@ public class URIResolver {
         return uri;
     }
 
+    public URL getURL() {
+        return url;
+    }
+
     public InputStream getInputStream() {
         return is;
     }
 
     public boolean isFile() {
-        return file.exists();
+        if (file != null) {
+            return file.exists();
+        }
+        return false;
     }
 
     public File getFile() {
         return file;
     }
-
+    
     public boolean isResolved() {
-        return uri != null;
+        return is != null;
     }
 }

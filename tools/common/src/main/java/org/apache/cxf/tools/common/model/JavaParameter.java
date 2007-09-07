@@ -19,23 +19,19 @@
 
 package org.apache.cxf.tools.common.model;
 
-import com.sun.xml.bind.api.TypeReference;
 
-public class JavaParameter extends JavaType {
+public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     private boolean holder;
     private String holderName;
-    private String holderClass;
     private JavaAnnotation annotation;
     private String partName;
 
+    private JavaMethod javaMethod;
+    
     public JavaParameter() {
     }
-    public JavaParameter(String pname, TypeReference pref , JavaType.Style pstyle) {
-        name = pname;
-        typeRef = pref;
-        style = pstyle;
-    }
+
     public JavaParameter(String n, String t, String tns) {
         super(n, t, tns);
     }
@@ -54,14 +50,6 @@ public class JavaParameter extends JavaType {
 
     public void setHolderName(String hn) {
         this.holderName = hn;
-    }
-
-    public void setHolderClass(String clz) {
-        this.holderClass = clz;
-    }
-
-    public String getHolderClass() {
-        return this.holderClass;
     }
 
     public void setAnnotation(JavaAnnotation anno) {
@@ -96,5 +84,17 @@ public class JavaParameter extends JavaType {
         sb.append("\n PartName");
         sb.append(partName);
         return sb.toString();
+    }
+    
+    public void setMethod(JavaMethod jm) {
+        this.javaMethod = jm;
+    }
+
+    public JavaMethod getMethod() {
+        return this.javaMethod;
+    }
+
+    public void annotate(Annotator annotator) {
+        annotator.annotate(this);
     }
 }

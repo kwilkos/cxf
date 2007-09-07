@@ -22,26 +22,27 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class MessagePartInfoTest extends TestCase {
+public class MessagePartInfoTest extends Assert {
     
         
     private MessagePartInfo messagePartInfo;
         
+    @Before
     public void setUp() throws Exception {
         
+        MessageInfo msg = new MessageInfo(null, 
+                                          new QName("http://apache.org/hello_world_soap_http/types",
+                                                    "testMessage"));
         messagePartInfo = new MessagePartInfo(new QName(
-            "http://apache.org/hello_world_soap_http", "testMessagePart"), null);
-        messagePartInfo.setIsElement(true);
-        messagePartInfo.setElementQName(new QName(
-            "http://apache.org/hello_world_soap_http/types", "testElement"));
+            "http://apache.org/hello_world_soap_http", "testMessagePart"), msg);
+        messagePartInfo.setElement(true);
     }
     
-    public void tearDown() throws Exception {
-        
-    }
-    
+    @Test
     public void testName() throws Exception {
         assertEquals(messagePartInfo.getName().getLocalPart(), "testMessagePart");
         assertEquals(messagePartInfo.getName().getNamespaceURI()
@@ -54,7 +55,10 @@ public class MessagePartInfoTest extends TestCase {
         
     }
 
+    @Test
     public void testElement() {
+        messagePartInfo.setElementQName(new QName("http://apache.org/hello_world_soap_http/types",
+                                                  "testElement"));
         assertTrue(messagePartInfo.isElement());
         assertEquals(messagePartInfo.getElementQName().getLocalPart(), "testElement");
         assertEquals(messagePartInfo.getElementQName().getNamespaceURI(),
@@ -62,6 +66,7 @@ public class MessagePartInfoTest extends TestCase {
         assertNull(messagePartInfo.getTypeQName());
     }
     
+    @Test
     public void testType() {
         messagePartInfo.setTypeQName(new QName(
             "http://apache.org/hello_world_soap_http/types", "testType"));

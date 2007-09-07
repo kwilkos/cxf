@@ -27,11 +27,13 @@ import javax.xml.ws.Response;
 
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.ErrorCode;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
 import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 
 
@@ -44,6 +46,18 @@ public class NotAnnotatedGreeterImpl implements Greeter {
     public String greetMe(String me) {
         LOG.info("Executing operation greetMe");
         return me;
+    }
+
+    public String greetMeLater(long delay) {
+        LOG.info("Executing operation greetMeLater");
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                /// ignore
+            }
+        }
+        return "Hello, finally!";
     }
     
     public String greetMeSometime(String me) {
@@ -69,6 +83,16 @@ public class NotAnnotatedGreeterImpl implements Greeter {
     
     public Response<GreetMeResponse> greetMeAsync(String requestType) { 
         return null; 
+        /*not called */
+    }
+
+    public Future<?> greetMeLaterAsync(long requestType, AsyncHandler<GreetMeLaterResponse> asyncHandler) {
+        return null;
+        /*not called */
+    }
+
+    public Response<GreetMeLaterResponse> greetMeLaterAsync(long requestType) {
+        return null;
         /*not called */
     }
     
@@ -129,5 +153,22 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         res.setCompany("CXF");
         res.setId(1);
         return res;
+    }
+
+    public String testNillable(String nillElem, int intElem) {
+        // TODO Auto-generated method stub
+        return null;
     }    
+    
+    public Response<TestNillableResponse> testNillableAsync(String nillElem,
+                                                            int intElem) {
+        return null;
+    }
+    
+    public Future<?> testNillableAsync(String nillElem, 
+                                       int intElem,
+                                       AsyncHandler<TestNillableResponse> asyncHandler) {
+        return null;
+    }
+    
 }

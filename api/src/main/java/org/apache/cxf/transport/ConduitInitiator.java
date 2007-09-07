@@ -20,6 +20,7 @@
 package org.apache.cxf.transport;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -46,4 +47,6 @@ public interface ConduitInitiator {
      */
     Conduit getConduit(EndpointInfo localInfo,
                        EndpointReferenceType target) throws IOException;
+    
+    Set<String> getUriPrefixes();
 }

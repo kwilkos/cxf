@@ -27,23 +27,12 @@ import org.apache.cxf.tools.common.ToolException;
 public class ToolSupport implements Tool {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ToolSupport.class);
-    private ToolContext ctx;
+    //private ToolContext ctx;
 
     public void init() throws ToolException {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Initializing " + this);
         }
-    }
-
-    public void setContext(ToolContext c) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Setting context to " + c);
-        }
-        this.ctx = c;
-    }
-
-    public ToolContext getContext() {
-        return ctx;
     }
 
     public void performFunction() throws ToolException {

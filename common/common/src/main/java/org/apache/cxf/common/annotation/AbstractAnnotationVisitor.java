@@ -26,14 +26,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractAnnotationVisitor implements AnnotationVisitor {
+    protected Object target; 
 
     private final List<Class<? extends Annotation>> targetAnnotations = 
                                  new ArrayList<Class<? extends Annotation>>(); 
     
-    private Object target; 
     
     protected AbstractAnnotationVisitor(Class<? extends Annotation> ann) {
         addTargetAnnotation(ann);
+    }
+    
+    protected AbstractAnnotationVisitor(List<Class<? extends Annotation>> ann) {
+        targetAnnotations.addAll(ann);
     }
 
     protected final void addTargetAnnotation(Class<? extends Annotation> ann) { 

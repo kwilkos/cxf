@@ -19,9 +19,15 @@
 
 package org.apache.cxf.staxutils;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+//import java.util.HashMap;
+//import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.stream.StreamFilter;
@@ -31,32 +37,64 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.EntityReference;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
+import org.w3c.dom.Text;
 
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
 
 public final class StaxUtils {
 
-    private static final Logger LOG = Logger.getLogger(StaxUtils.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(StaxUtils.class);
     
+    private static final XMLInputFactory XML_NS_AWARE_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
     
     private static final String XML_NS = "http://www.w3.org/2000/xmlns/";
     
+    static {
+        XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
+        XML_NS_AWARE_INPUT_FACTORY.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+    }
+    
     private StaxUtils() {
     }
 
     public static XMLInputFactory getXMLInputFactory() {
-        return XML_INPUT_FACTORY;
+        return getXMLInputFactory(true);
+    }
+    public static XMLInputFactory getXMLInputFactory(boolean nsAware) {
+        return nsAware ? XML_NS_AWARE_INPUT_FACTORY : XML_INPUT_FACTORY;
     }
 
     public static XMLOutputFactory getXMLOutputFactory() {
         return XML_OUTPUT_FACTORY;
     }
 
+    public static XMLStreamWriter createXMLStreamWriter(Writer out) {
+        try {
+            return getXMLOutputFactory().createXMLStreamWriter(out);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Cant' create XMLStreamWriter", e);
+        }
+    } 
+    
     public static XMLStreamWriter createXMLStreamWriter(OutputStream out) {
         return createXMLStreamWriter(out, null);
     }
@@ -68,6 +106,14 @@ public final class StaxUtils {
 
         try {
             return getXMLOutputFactory().createXMLStreamWriter(out, encoding);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Cant' create XMLStreamWriter", e);
+        }
+    }
+    
+    public static XMLStreamWriter createXMLStreamWriter(Result r) {
+        try {
+            return getXMLOutputFactory().createXMLStreamWriter(r);
         } catch (XMLStreamException e) {
             throw new RuntimeException("Cant' create XMLStreamWriter", e);
         }
@@ -109,6 +155,23 @@ public final class StaxUtils {
         }
     }
 
+    public static boolean toNextTag(DepthXMLStreamReader reader, QName endTag) {
+        try {
+            int depth = reader.getDepth();
+            int event = reader.getEventType();
+            while (reader.getDepth() >= depth && reader.hasNext()) {
+                if (event == XMLStreamReader.START_ELEMENT && reader.getName().equals(endTag) 
+                    && reader.getDepth() == depth + 1) {
+                    return true;
+                }
+                event = reader.next();
+            }
+            return false;
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Couldn't parse stream.", e);
+        }
+    }    
+    
     public static void writeStartElement(XMLStreamWriter writer, String prefix, String name, String namespace)
         throws XMLStreamException {
         if (prefix == null) {
@@ -171,6 +234,15 @@ public final class StaxUtils {
         return false;
     }
 
+    public static void copy(Document doc, XMLStreamWriter writer) throws XMLStreamException {
+        XMLStreamReader reader = createXMLStreamReader(doc);
+        copy(reader, writer);
+    }
+    public static void copy(Element node, XMLStreamWriter writer) throws XMLStreamException {
+        XMLStreamReader reader = createXMLStreamReader(node);
+        copy(reader, writer);
+    }
+    
     /**
      * Copies the reader to the writer. The start and end document methods must
      * be handled on the writer manually. TODO: if the namespace on the reader
@@ -223,16 +295,19 @@ public final class StaxUtils {
             prefix = "";
         }
 
-        String boundPrefix = writer.getPrefix(uri);
+        
+//        System.out.println("STAXUTILS:writeStartElement : node name : " + local +  " namespace URI" + uri);
         boolean writeElementNS = false;
-        if (boundPrefix == null || !prefix.equals(boundPrefix)) {
-            writeElementNS = true;
+        if (uri != null) {
+            String boundPrefix = writer.getPrefix(uri);
+            if (boundPrefix == null || !prefix.equals(boundPrefix)) {
+                writeElementNS = true;
+            }
         }
 
         // Write out the element name
         if (uri != null) {
-            if (prefix.length() == 0) {
-
+            if (prefix.length() == 0 && StringUtils.isEmpty(uri)) {
                 writer.writeStartElement(local);
                 writer.setDefaultNamespace(uri);
 
@@ -241,7 +316,7 @@ public final class StaxUtils {
                 writer.setPrefix(prefix, uri);
             }
         } else {
-            writer.writeStartElement(reader.getLocalName());
+            writer.writeStartElement(local);
         }
 
         // Write out the namespaces
@@ -272,8 +347,8 @@ public final class StaxUtils {
             } else {
                 writer.writeNamespace(prefix, uri);
             }
-        }
-
+        }        
+        
         // Write out attributes
         for (int i = 0; i < reader.getAttributeCount(); i++) {
             String ns = reader.getAttributeNamespace(i);
@@ -327,7 +402,7 @@ public final class StaxUtils {
 
     /**
      * Writes an Element to an XMLStreamWriter. The writer must already have
-     * started the doucment (via writeStartDocument()). Also, this probably
+     * started the document (via writeStartDocument()). Also, this probably
      * won't work with just a fragment of a document. The Element should be the
      * root element of the document.
      * 
@@ -345,6 +420,8 @@ public final class StaxUtils {
         String ns = e.getNamespaceURI();
         String localName = e.getLocalName();
 
+       
+//        System.out.println("local name : " + localName + " URI: " + ns + " Prefix :" + prefix);
         if (prefix == null) {
             prefix = "";
         }
@@ -362,6 +439,8 @@ public final class StaxUtils {
         if (ns == null || ns.length() == 0) {
             writer.writeStartElement(localName);
         } else {
+//            System.out.println("Calling writeStartElement for local name : " 
+//            + localName + " URI: " + ns + " Prefix :" + prefix);
             writer.writeStartElement(prefix, localName, ns);
         }
 
@@ -376,8 +455,10 @@ public final class StaxUtils {
                 attrPrefix = name.substring(0, prefixIndex);
                 name = name.substring(prefixIndex + 1);
             }
-
+     
             if ("xmlns".equals(attrPrefix)) {
+//                System.out.println("WriteNamespace is called for prefix : " 
+//                + name + " namespace :" + attr.getNodeValue());
                 writer.writeNamespace(name, attr.getNodeValue());
                 if (name.equals(prefix) && attr.getNodeValue().equals(ns)) {
                     declareNamespace = false;
@@ -395,7 +476,11 @@ public final class StaxUtils {
         }
 
         if (declareNamespace && repairing) {
-            writer.writeNamespace(prefix, ns);
+            if (ns == null) {
+                writer.writeNamespace(prefix, "");
+            } else {
+                writer.writeNamespace(prefix, ns);
+            }
         }
 
         NodeList nodes = e.getChildNodes();
@@ -424,7 +509,9 @@ public final class StaxUtils {
         } else if (n instanceof ProcessingInstruction) {
             ProcessingInstruction pi = (ProcessingInstruction)n;
             writer.writeProcessingInstruction(pi.getTarget(), pi.getData());
-        }
+        } else if (n instanceof Document) {
+            writeDocument((Document)n, writer, repairing);
+        } 
     }
 
     public static Document read(XMLStreamReader reader) throws XMLStreamException {
@@ -486,13 +573,13 @@ public final class StaxUtils {
             e.setAttributeNode(attr);
         }
 
-        reader.next();
-
-        readDocElements(e, reader, repairing);
-
         if (repairing && !isDeclared(e, reader.getNamespaceURI(), reader.getPrefix())) {
             declare(e, reader.getNamespaceURI(), reader.getPrefix());
         }
+
+        reader.next();
+
+        readDocElements(e, reader, repairing);
 
         return e;
     }
@@ -521,7 +608,7 @@ public final class StaxUtils {
      * @param reader
      * @throws XMLStreamException
      */
-    private static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing)
+    public static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing)
         throws XMLStreamException {
         Document doc = getDocument(parent);
 
@@ -532,10 +619,6 @@ public final class StaxUtils {
                 startElement(parent, reader, repairing);
                 
                 if (parent instanceof Document) {
-                    if (reader.hasNext()) {
-                        reader.next();
-                    }
-                    
                     return;
                 }
                 break;
@@ -612,9 +695,37 @@ public final class StaxUtils {
      * @return
      */
     public static XMLStreamReader createXMLStreamReader(InputStream in) {
-
         try {
             return getXMLInputFactory().createXMLStreamReader(in);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Couldn't parse stream.", e);
+        }
+    }
+    
+    public static XMLStreamReader createXMLStreamReader(Element el) {
+        return new W3CDOMStreamReader(el);
+    }
+    public static XMLStreamReader createXMLStreamReader(Document doc) {
+        return new W3CDOMStreamReader(doc.getDocumentElement());
+    }
+    public static XMLStreamReader createXMLStreamReader(Source source) {
+        try {
+            if (source instanceof DOMSource) {
+                DOMSource ds = (DOMSource)source;
+                Node nd = ds.getNode();
+                Element el = null;
+                if (nd instanceof Document) {
+                    el = ((Document)nd).getDocumentElement();
+                } else if (nd instanceof Element) {
+                    el = (Element)nd;
+                }
+                
+                if (null != el) {
+                    return new W3CDOMStreamReader(el);
+                }
+            }
+            
+            return getXMLInputFactory().createXMLStreamReader(source);
         } catch (XMLStreamException e) {
             throw new RuntimeException("Couldn't parse stream.", e);
         }
@@ -653,10 +764,14 @@ public final class StaxUtils {
         String localName = value.substring(index + 1);
         String ns = reader.getNamespaceURI(prefix);
 
-        if (ns == null || localName == null) {
+        if ((prefix != null && ns == null) || localName == null) {
             throw new RuntimeException("Invalid QName in mapping: " + value);
         }
 
+        if (ns == null) {
+            return new QName(localName);
+        }
+        
         return new QName(ns, localName, prefix);
     }
     
@@ -685,11 +800,12 @@ public final class StaxUtils {
 
     public static String getUniquePrefix(XMLStreamWriter writer) {
         int n = 1;
-
+        
+        NamespaceContext nc = writer.getNamespaceContext();
         while (true) {
             String nsPrefix = "ns" + n;
 
-            if (writer.getNamespaceContext().getNamespaceURI(nsPrefix) == null) {
+            if (nc == null || nc.getNamespaceURI(nsPrefix) == null) {
                 return nsPrefix;
             }
 

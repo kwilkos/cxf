@@ -19,25 +19,64 @@
 
 package org.apache.cxf.io;
 
-import org.apache.cxf.message.Message;
+import java.io.IOException;
+import java.io.OutputStream;
 
-public abstract class AbstractWrappedOutputStream extends AbstractCachedOutputStream {
+/**
+ * Provides a convenient hook onFirstWrite() for those needing
+ * to wrap an output stream.
+ *
+ */
+public abstract class AbstractWrappedOutputStream extends OutputStream {
 
-    protected Message outMessage;
-    private boolean flushed;
+    protected OutputStream wrappedStream;
+    protected boolean written;
     
-    protected AbstractWrappedOutputStream(Message m) {
+    protected AbstractWrappedOutputStream() {
         super();
-        outMessage = m;
     }
 
-    /**
-     * @return true if already flushed
-     */
-    protected boolean alreadyFlushed() {
-        boolean ret = flushed;
-        flushed = true;
-        return ret;
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        if (!written) {
+            onFirstWrite();
+            written = true;
+        }
+        wrappedStream.write(b, off, len);
     }
 
+    protected void onFirstWrite() throws IOException {
+    }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+        if (!written) {
+            onFirstWrite();
+            written = true;
+        }
+        wrappedStream.write(b);
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+        if (!written) {
+            onFirstWrite();
+            written = true;
+        }
+        wrappedStream.write(b);
+    }
+    
+    @Override
+    public void close() throws IOException {
+        if (wrappedStream != null) {
+            wrappedStream.close();
+        }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        if (written) {
+            wrappedStream.flush();
+        }
+    }
 }

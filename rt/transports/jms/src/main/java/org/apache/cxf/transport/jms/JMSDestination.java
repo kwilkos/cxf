@@ -25,10 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
@@ -36,6 +34,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueSender;
@@ -44,138 +43,89 @@ import javax.naming.NamingException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractConduit;
+import org.apache.cxf.transport.AbstractMultiplexDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
-import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.jms_conf.JMSServerConfig;
 import org.apache.cxf.workqueue.WorkQueueManager;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 
 
-public class JMSDestination extends JMSTransportBase implements Destination {
-    static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);
-    final EndpointInfo endpointInfo;
-    final EndpointReferenceType reference;
+public class JMSDestination extends AbstractMultiplexDestination implements Configurable, JMSTransport {
+        
+    protected static final String BASE_BEAN_NAME_SUFFIX = ".jms-destination-base";
+
+    private static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);
+    
+    protected ServerConfig serverConfig;
+    protected ServerBehaviorPolicyType runtimePolicy;
+    protected AddressType address;
+    protected SessionPoolType sessionPool;
+     
     final ConduitInitiator conduitInitiator;
-    JMSDestinationConfigBean jmsDestinationConfigBean;
+    final JMSTransportBase base;
+  
     PooledSession listenerSession;
     JMSListenerThread listenerThread;
-    MessageObserver incomingObserver;
     
     public JMSDestination(Bus b,
                           ConduitInitiator ci,
                           EndpointInfo info) throws IOException {
-        super(b, info, true);
-        endpointInfo = info;
-        initConfig();
-        conduitInitiator = ci;
-        reference = new EndpointReferenceType();
-        AttributedURIType address = new AttributedURIType();
-        address.setValue(endpointInfo.getAddress());
-        reference.setAddress(address);        
-    }
-    
-    @Override
-    public String getBeanName() {
-        return endpointInfo.getName().toString() + ".jms-destination-base";
-    }
-    
-    public EndpointReferenceType getAddress() {       
-        return reference;
-    }
-
-    public Conduit getBackChannel(Message inMessage, 
-                                  Message partialResponse, 
-                                  EndpointReferenceType address) throws IOException {
-                
-        Conduit backChannel = null;
-        if (address == null) {
-            backChannel = new BackChannelConduit(address, inMessage, this);
-        } else {
-            if (partialResponse != null) {
-                // just send back the partialResponse 
-                backChannel = new BackChannelConduit(address, inMessage , this);
-            } else {                
-                backChannel = conduitInitiator.getConduit(endpointInfo, address);
-                // ensure decoupled back channel input stream is closed
-                backChannel.setMessageObserver(new MessageObserver() {
-                    public void onMessage(Message m) {
-                        //need to set up the headers 
-                        if (m.getContentFormats().contains(InputStream.class)) {
-                            InputStream is = m.getContent(InputStream.class);
-                            try {
-                                is.close();
-                            } catch (Exception e) {
-                                // ignore
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        return backChannel;
+        super(b, getTargetReference(info, b), info);    
         
+        base = new JMSTransportBase(b, endpointInfo, true, BASE_BEAN_NAME_SUFFIX, this);
+
+        conduitInitiator = ci;
+
+        initConfig();
     }
 
-  
-    public void setMessageObserver(MessageObserver observer) {
-        // to handle the incomming message        
-        if (null != observer) {
-            try {
-                activate();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else {
-            LOG.log(Level.FINE, "JMSDestination shutdown()");
-            try {
-                deactivate();
-            } catch (IOException e) {
-                //Ignore for now.
-            }
-        }
-        incomingObserver = observer;
+    protected Logger getLogger() {
+        return LOG;
     }
     
-    private void activate() throws IOException {
-        LOG.log(Level.INFO, "JMSServerTransport activate().... ");        
+    /**
+     * @param inMessage the incoming message
+     * @return the inbuilt backchannel
+     */
+    protected Conduit getInbuiltBackChannel(Message inMessage) {
+        return new BackChannelConduit(EndpointReferenceUtils.getAnonymousEndpointReference(),
+                                      inMessage);
+    }
+     
+    public void activate()  {
+        getLogger().log(Level.INFO, "JMSServerTransport activate().... ");        
 
         try {
-            LOG.log(Level.FINE, "establishing JMS connection");
-            JMSProviderHub.connect(this, jmsDestinationConfigBean);
+            getLogger().log(Level.FINE, "establishing JMS connection");
+            JMSProviderHub.connect(this, serverConfig, runtimePolicy);
             //Get a non-pooled session. 
-            listenerSession = sessionFactory.get(targetDestination);
-            listenerThread = new JMSListenerThread(listenerSession, this);
+            listenerSession = base.sessionFactory.get(base.targetDestination);
+            listenerThread = new JMSListenerThread(listenerSession);
             listenerThread.start();
         } catch (JMSException ex) {
-            LOG.log(Level.FINE, "JMS connect failed with JMSException : ", ex);
-            throw new IOException(ex.getMessage());
+            getLogger().log(Level.SEVERE, "JMS connect failed with JMSException : ", ex);
         } catch (NamingException nex) {
-            LOG.log(Level.FINE, "JMS connect failed with NamingException : ", nex);
-            throw new IOException(nex.getMessage());
+            getLogger().log(Level.SEVERE, "JMS connect failed with NamingException : ", nex);
         }
     }
     
-    public void deactivate() throws IOException {
+    public void deactivate()  {
         try {
             listenerSession.consumer().close();
             if (listenerThread != null) {
                 listenerThread.join();
             }
-            sessionFactory.shutdown();
+            base.sessionFactory.shutdown();
         } catch (InterruptedException e) {
             //Do nothing here
         } catch (JMSException ex) {
@@ -184,12 +134,8 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     }
 
     public void shutdown() {
-        LOG.log(Level.FINE, "JMSDestination shutdown()");
-        try {
-            this.deactivate();
-        } catch (IOException ex) {
-            // Ignore for now.
-        }         
+        getLogger().log(Level.FINE, "JMSDestination shutdown()");
+        this.deactivate();
     }
 
     public Queue getReplyToDestination(Message inMessage) 
@@ -199,11 +145,11 @@ public class JMSDestination extends JMSTransportBase implements Destination {
             (javax.jms.Message)inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE);
         // If WS-Addressing had set the replyTo header.
         if  (inMessage.get(JMSConstants.JMS_REBASED_REPLY_TO) != null) {
-            replyTo = sessionFactory.getQueueFromInitialContext(
+            replyTo = base.sessionFactory.getQueueFromInitialContext(
                               (String)  inMessage.get(JMSConstants.JMS_REBASED_REPLY_TO));
         } else {
             replyTo = (null != message.getJMSReplyTo()) 
-                ? (Queue)message.getJMSReplyTo() : (Queue)replyDestination;
+                ? (Queue)message.getJMSReplyTo() : (Queue)base.replyDestination;
         }    
         return replyTo;
     }
@@ -215,7 +161,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         
         if (correlationID == null
             || "".equals(correlationID)
-            && jmsDestinationConfigBean.getServer().isUseMessageIDAsCorrelationID()) {
+            && getRuntimePolicy().isUseMessageIDAsCorrelationID()) {
             correlationID = request.getJMSMessageID();
         }
     
@@ -226,28 +172,26 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     
     protected void incoming(javax.jms.Message message) throws IOException {
         try {
-            LOG.log(Level.FINE, "server received request: ", message);           
-
-            String msgType = message instanceof TextMessage 
-                    ? JMSConstants.TEXT_MESSAGE_TYPE : JMSConstants.BINARY_MESSAGE_TYPE;
-            Object request = unmarshal(message, msgType);
-            LOG.log(Level.FINE, "The Request Message is [ " + request + "]");
+            getLogger().log(Level.FINE, "server received request: ", message);
+           
+            Object request = base.unmarshal(message);
+            getLogger().log(Level.FINE, "The Request Message is [ " + request + "]");
             byte[] bytes = null;
 
-            if (JMSConstants.TEXT_MESSAGE_TYPE.equals(msgType)) {
+            if (message instanceof TextMessage) {
                 String requestString = (String)request;
-                LOG.log(Level.FINE, "server received request: ", requestString);
+                getLogger().log(Level.FINE, "server received request: ", requestString);
                 bytes = requestString.getBytes();
             } else {
+                //Both ByteMessage and ObjectMessage would get unmarshalled to byte array.
                 bytes = (byte[])request;
             }
 
             // get the message to be interceptor
             MessageImpl inMessage = new MessageImpl();
             inMessage.setContent(InputStream.class, new ByteArrayInputStream(bytes));
-            JMSMessageHeadersType headers = 
-                populateIncomingContext(message, inMessage, JMSConstants.JMS_SERVER_HEADERS);
-            inMessage.put(JMSConstants.JMS_SERVER_HEADERS, headers);
+            base.populateIncomingContext(message, inMessage, JMSConstants.JMS_SERVER_REQUEST_HEADERS);
+            inMessage.put(JMSConstants.JMS_SERVER_RESPONSE_HEADERS, new JMSMessageHeadersType());
             inMessage.put(JMSConstants.JMS_REQUEST_MESSAGE, message);
                         
             inMessage.setDestination(this);            
@@ -261,54 +205,66 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         } 
     }
     
-    private void initConfig() {
-        
-        final class JMSDestinationConfiguration extends JMSDestinationConfigBean {
-
-            @Override
-            public String getBeanName() {
-                return endpointInfo.getName().toString() + ".jms-destination";
-            }
-        }
-        JMSDestinationConfigBean bean = new JMSDestinationConfiguration();
-        Configurer configurer = bus.getExtension(Configurer.class);
-        if (null != configurer) {
-            configurer.configureBean(bean);
-        }
-        
-        if (!bean.isSetServer()) {
-            bean.setServer(new JMSServerBehaviorPolicyType());
-        }
-        if (!bean.isSetServerConfig()) {
-            bean.setServerConfig(new JMSServerConfig());
-        }
-        
-        ConfigurationProvider p = new ServiceModelJMSConfigurationProvider(endpointInfo);
-        List<ConfigurationProvider> providers = getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        providers.add(p);
-        setOverwriteProviders(providers);
-        
-        providers = bean.getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        providers.add(p);
-        bean.setOverwriteProviders(providers);
-
-        jmsDestinationConfigBean = bean;
+    public void connected(javax.jms.Destination target, 
+                          javax.jms.Destination reply, 
+                          JMSSessionFactory factory) {
+        base.connected(target, reply, factory);
     }
 
-    class JMSListenerThread extends Thread {
-        final JMSDestination jmsDestination;
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".jms-destination";
+    }
+    
+    private void initConfig() {
+        this.runtimePolicy = endpointInfo.getTraversedExtensor(new ServerBehaviorPolicyType(),
+                                                               ServerBehaviorPolicyType.class);
+        this.serverConfig = endpointInfo.getTraversedExtensor(new ServerConfig(), ServerConfig.class);
+        this.address = endpointInfo.getTraversedExtensor(new AddressType(), AddressType.class);
+        this.sessionPool = endpointInfo.getTraversedExtensor(new SessionPoolType(), SessionPoolType.class);
+        
+        Configurer configurer = base.bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(this);
+        }
+    }
+
+    public AddressType getJMSAddress() {
+        return address;
+    }
+
+    public void setJMSAddress(AddressType a) {
+        this.address = a;
+    }
+
+    public ServerBehaviorPolicyType getRuntimePolicy() {
+        return runtimePolicy;
+    }
+
+    public void setRuntimePolicy(ServerBehaviorPolicyType runtimePolicy) {
+        this.runtimePolicy = runtimePolicy;
+    }
+
+    public ServerConfig getServerConfig() {
+        return serverConfig;
+    }
+
+    public void setServerConfig(ServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
+    public SessionPoolType getSessionPool() {
+        return sessionPool;
+    }
+
+    public void setSessionPool(SessionPoolType sessionPool) {
+        this.sessionPool = sessionPool;
+    }
+    
+    protected class JMSListenerThread extends Thread {
         private final PooledSession listenSession;
 
-        public JMSListenerThread(PooledSession session,
-                                 JMSDestination destination) {
+        public JMSListenerThread(PooledSession session) {
             listenSession = session;
-            jmsDestination = destination;
         }
 
         public void run() {
@@ -316,7 +272,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                 while (true) {
                     javax.jms.Message message = listenSession.consumer().receive();                   
                     if (message == null) {
-                        LOG.log(Level.WARNING,
+                        getLogger().log(Level.WARNING,
                                 "Null message received from message consumer.",
                                 " Exiting ListenerThread::run().");
                         return;
@@ -326,14 +282,15 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                         //Executor executor = jmsDestination.callback.getExecutor();
                         Executor executor = null;
                         if (executor == null) {
-                            WorkQueueManager wqm = jmsDestination.bus.getExtension(WorkQueueManager.class);
+                            WorkQueueManager wqm =
+                                base.bus.getExtension(WorkQueueManager.class);
                             if (null != wqm) {
                                 executor = wqm.getAutomaticWorkQueue();
                             }    
                         }
                         if (executor != null) {
                             try {
-                                executor.execute(new JMSExecutor(jmsDestination, message));
+                                executor.execute(new JMSExecutor(message));
                                 message = null;
                             } catch (RejectedExecutionException ree) {
                                 //FIXME - no room left on workqueue, what to do
@@ -341,11 +298,11 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                                 //although we could just dispatch on this thread.
                             }                            
                         } else {
-                            LOG.log(Level.INFO, "handle the incoming message in listener thread");
+                            getLogger().log(Level.INFO, "handle the incoming message in listener thread");
                             try {
-                                jmsDestination.incoming(message);
+                                incoming(message);
                             } catch (IOException ex) {
-                                LOG.log(Level.WARNING, "Failed to process incoming message : ", ex);
+                                getLogger().log(Level.WARNING, "Failed to process incoming message : ", ex);
                             }                            
                         }                        
                         message = null;
@@ -353,30 +310,28 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                 }
             } catch (JMSException jmsex) {
                 jmsex.printStackTrace();
-                LOG.log(Level.SEVERE, "Exiting ListenerThread::run(): ", jmsex.getMessage());
+                getLogger().log(Level.SEVERE, "Exiting ListenerThread::run(): ", jmsex.getMessage());
             } catch (Throwable jmsex) {
                 jmsex.printStackTrace();
-                LOG.log(Level.SEVERE, "Exiting ListenerThread::run(): ", jmsex.getMessage());
+                getLogger().log(Level.SEVERE, "Exiting ListenerThread::run(): ", jmsex.getMessage());
             }
         }
     }
     
-    static class JMSExecutor implements Runnable {
+    protected class JMSExecutor implements Runnable {
         javax.jms.Message message;
-        JMSDestination jmsDestination;
         
-        JMSExecutor(JMSDestination destionation, javax.jms.Message m) {
+        JMSExecutor(javax.jms.Message m) {
             message = m;
-            jmsDestination = destionation;
         }
 
         public void run() {
-            LOG.log(Level.INFO, "run the incoming message in the threadpool");
+            getLogger().log(Level.INFO, "run the incoming message in the threadpool");
             try {
-                jmsDestination.incoming(message);
+                incoming(message);
             } catch (IOException ex) {
                 //TODO: Decide what to do if we receive the exception.
-                LOG.log(Level.WARNING,
+                getLogger().log(Level.WARNING,
                         "Failed to process incoming message : ", ex);
             }
         }
@@ -384,22 +339,15 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     }
     
     // this should deal with the cxf message 
-    protected class BackChannelConduit implements Conduit {
+    protected class BackChannelConduit extends AbstractConduit {
         
         protected Message inMessage;
-        protected EndpointReferenceType target;
-        protected JMSDestination jmsDestination;
                 
-        BackChannelConduit(EndpointReferenceType ref, Message message, JMSDestination dest) {
+        BackChannelConduit(EndpointReferenceType ref, Message message) {
+            super(ref);
             inMessage = message;
-            target = ref;
-            jmsDestination = dest;
         }
         
-        public void close(Message msg) throws IOException {
-            msg.getContent(OutputStream.class).close();        
-        }
-
         /**
          * Register a message observer for incoming messages.
          * 
@@ -415,120 +363,107 @@ public class JMSDestination extends JMSTransportBase implements Destination {
          * 
          * @param message the message to be sent.
          */
-        public void send(Message message) throws IOException {
+        public void prepare(Message message) throws IOException {
             // setup the message to be send back
             message.put(JMSConstants.JMS_REQUEST_MESSAGE, 
                         inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE));
             message.setContent(OutputStream.class,
-                               new JMSOutputStream(inMessage, jmsDestination));
+                               new JMSOutputStream(inMessage));
         }
         
-        /**
-         * @return the reference associated with the target Destination
-         */    
-        public EndpointReferenceType getTarget() {
-            return target;
-        }
-        
-        /**
-         * Retreive the back-channel Destination.
-         * 
-         * @return the backchannel Destination (or null if the backchannel is
-         * built-in)
-         */
-        public Destination getBackChannel() {
-            return null;
-        }
-        
-        /**
-         * Close the conduit
-         */
-        public void close() {
+        protected Logger getLogger() {
+            return LOG;
         }
     }
     
-    private class JMSOutputStream extends AbstractCachedOutputStream {
+    private class JMSOutputStream extends CachedOutputStream {
                 
         private Message inMessage;
-        private JMSDestination jmsDestination;
         private javax.jms.Message reply;
         private Queue replyTo;
         private QueueSender sender;
         
         // setup the ByteArrayStream
-        public JMSOutputStream(Message m, JMSDestination d) {
+        public JMSOutputStream(Message m) {
             super();
             inMessage = m;
-            jmsDestination = d;
         }
         
         //to prepear the message and get the send out message
         private void commitOutputMessage() throws IOException {
             
             JMSMessageHeadersType headers =
-                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_HEADERS);
+                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_RESPONSE_HEADERS);
             javax.jms.Message request = 
                 (javax.jms.Message) inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE);              
             
             PooledSession replySession = null;          
             
-            if (jmsDestination.isDestinationStyleQueue()) {
+            if (base.isDestinationStyleQueue()) {
                 try {
                     //setup the reply message                
                     replyTo = getReplyToDestination(inMessage);
-                    replySession = sessionFactory.get(false);
+                    replySession = base.sessionFactory.get(false);
                     sender = (QueueSender)replySession.producer();
                     
-                    boolean textPayload = request instanceof TextMessage 
-                        ? true : false;
-                    if (textPayload) {
-                        
-                        reply = marshal(currentStream.toString(), 
-                                            replySession.session(), 
-                                            null, 
-                                            JMSConstants.TEXT_MESSAGE_TYPE);
-                        LOG.log(Level.FINE, "The response message is [" + currentStream.toString() + "]");
+                    if (request instanceof TextMessage) {
+                        reply = base.marshal(currentStream.toString(), 
+                                             replySession.session(), 
+                                             null, 
+                                             JMSConstants.TEXT_MESSAGE_TYPE);
+                        getLogger().log(Level.FINE,
+                                         "The response message is ["
+                                         + currentStream.toString() + "]");
+                    } else if (request instanceof BytesMessage) {
+                        reply = base.marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
+                                             replySession.session(),
+                                             null, 
+                                             JMSConstants.BYTE_MESSAGE_TYPE);
+                        getLogger().log(Level.FINE, "The response message is [" 
+                                             + new String((
+                                                 (ByteArrayOutputStream)currentStream).toByteArray()) 
+                                             + "]");
                     } else {
-                        reply = marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
-                                           replySession.session(),
-                                           null, 
-                                          JMSConstants.BINARY_MESSAGE_TYPE);
-                        LOG.log(Level.FINE, "The response message is [" 
-                                           + new String(((ByteArrayOutputStream)currentStream).toByteArray()) 
-                                           + "]");
-                    }     
-                     
-                    
+                        reply = base.marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
+                                             replySession.session(),
+                                             null, 
+                                            JMSConstants.BINARY_MESSAGE_TYPE);
+                        getLogger().log(Level.FINE, "The response message is [" 
+                                             + new String((
+                                                 (ByteArrayOutputStream)currentStream).toByteArray()) 
+                                             + "]");
+                    }
+                   
                     setReplyCorrelationID(request, reply);
                     
-                    setMessageProperties(headers, reply);
+                    base.setMessageProperties(headers, reply);
 
                     sendResponse();
                     
                 } catch (JMSException ex) {
-                    LOG.log(Level.WARNING, "Failed in post dispatch ...", ex);                
+                    getLogger().log(Level.WARNING, "Failed in post dispatch ...", ex);                
                     throw new IOException(ex.getMessage());                    
                 } catch (NamingException nex) {
-                    LOG.log(Level.WARNING, "Failed in post dispatch ...", nex);                
+                    getLogger().log(Level.WARNING, "Failed in post dispatch ...", nex);                
                     throw new IOException(nex.getMessage());                    
                 } finally {
                     // house-keeping
                     if (replySession != null) {
-                        sessionFactory.recycle(replySession);
+                        base.sessionFactory.recycle(replySession);
                     }
                 }
             } else {
                 // we will never receive a non-oneway invocation in pub-sub
-                // domain from Celtix client - however a mis-behaving pure JMS
+                // domain from CXF client - however a mis-behaving pure JMS
                 // client could conceivably make suce an invocation, in which
                 // case we silently discard the reply
-                LOG.log(Level.WARNING,
+                getLogger().log(Level.WARNING,
                         "discarding reply for non-oneway invocation ",
                         "with 'topic' destinationStyle");
                 
             }        
             
-            LOG.log(Level.FINE, "just server sending reply: ", reply);
+            getLogger().log(Level.FINE, "just server sending reply: ", reply);
             // Check the reply time limit Stream close will call for this
             
            
@@ -536,16 +471,16 @@ public class JMSDestination extends JMSTransportBase implements Destination {
 
         private void sendResponse() throws JMSException {
             JMSMessageHeadersType headers =
-                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_HEADERS);
+                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_REQUEST_HEADERS);
             javax.jms.Message request = 
                 (javax.jms.Message) inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE);   
             
-            int deliveryMode = getJMSDeliveryMode(headers);
-            int priority = getJMSPriority(headers);
-            long ttl = getTimeToLive(headers);
+            int deliveryMode = base.getJMSDeliveryMode(headers);
+            int priority = base.getJMSPriority(headers);
+            long ttl = base.getTimeToLive(headers);
             
             if (ttl <= 0) {
-                ttl = jmsDestinationConfigBean.getServerConfig().getMessageTimeToLive();
+                ttl = getServerConfig().getMessageTimeToLive();
             }
             
             long timeToLive = 0;
@@ -557,11 +492,11 @@ public class JMSDestination extends JMSTransportBase implements Destination {
             
             if (timeToLive >= 0) {
                 ttl = ttl > 0 ? ttl : timeToLive;
-                LOG.log(Level.FINE, "send out the message!");
+                getLogger().log(Level.FINE, "send out the message!");
                 sender.send(replyTo, reply, deliveryMode, priority, ttl);
             } else {
                 // the request message had dead
-                LOG.log(Level.INFO, "Message time to live is already expired skipping response.");
+                getLogger().log(Level.INFO, "Message time to live is already expired skipping response.");
             }         
         }
            

@@ -19,9 +19,10 @@
 
 package org.apache.cxf.service.model;
 
+import java.util.Collection;
 import java.util.List;
 
-import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
 
 public class UnwrappedOperationInfo extends OperationInfo {
     OperationInfo wrappedOp;
@@ -39,7 +40,17 @@ public class UnwrappedOperationInfo extends OperationInfo {
         return true;
     }
 
+    public FaultInfo addFault(QName name, QName message) {
+        return wrappedOp.addFault(name, message);
+    }
     
+    public FaultInfo getFault(QName name) {
+        return wrappedOp.getFault(name);
+    }
+    
+    public Collection<FaultInfo> getFaults() {
+        return wrappedOp.getFaults();
+    }
     
     public Object getProperty(String name) {
         return wrappedOp.getProperty(name);
@@ -64,7 +75,4 @@ public class UnwrappedOperationInfo extends OperationInfo {
         return wrappedOp.getExtensors(cls);
     }
 
-    public List<ExtensibilityElement> getWSDL11Extensors() {
-        return wrappedOp.getWSDL11Extensors();
-    }
 }

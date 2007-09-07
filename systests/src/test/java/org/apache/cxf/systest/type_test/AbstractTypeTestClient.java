@@ -30,63 +30,53 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
-//import javax.xml.ws.WebServiceException;
 
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.type_test.doc.TypeTestPortType;
 import org.apache.type_test.rpc.SOAPService;
 import org.apache.type_test.types1.AnyURIEnum;
+import org.apache.type_test.types1.ColourEnum;
 import org.apache.type_test.types1.DecimalEnum;
 import org.apache.type_test.types1.NMTokenEnum;
 import org.apache.type_test.types1.NumberEnum;
 import org.apache.type_test.types1.StringEnum;
+import org.junit.Test;
 
-public abstract class AbstractTypeTestClient extends ClientServerTestBase implements TypeTestTester {
+public abstract class AbstractTypeTestClient
+    extends AbstractBusClientServerTestBase implements TypeTestTester {
     protected static TypeTestPortType docClient;
+    protected static org.apache.type_test.xml.TypeTestPortType xmlClient;
     protected static org.apache.type_test.rpc.TypeTestPortType rpcClient;
     protected static boolean testDocLiteral;
     protected static boolean testXMLBinding;
 
     protected boolean perfTestOnly;
 
-    private final QName serviceName;
-    private final QName portName;
-    private final String wsdlPath;
-
-    public AbstractTypeTestClient(String name, QName theServicename, QName thePort, String theWsdlPath) {
-        super(name); 
-        serviceName = theServicename;
-        portName = thePort;
-        wsdlPath = theWsdlPath;
-    }
-
     public void setPerformanceTestOnly() {
         perfTestOnly = true;
     }
 
-    public void setUp() throws Exception {
-        super.setUp(); 
-
-       
-        URL wsdlLocation = getClass().getResource(wsdlPath);
+    public static void initClient(Class clz, QName serviceName, QName portName, String wsdlPath)
+        throws Exception {
+        URL wsdlLocation = clz.getResource(wsdlPath);
         assertNotNull("Could not load wsdl " + wsdlPath, wsdlLocation);
         testDocLiteral = wsdlPath.contains("doclit");
         testXMLBinding = wsdlPath.contains("_xml");
         if (testXMLBinding) {
-            testDocLiteral = true;
-            org.apache.type_test.doc.XMLService docService =
-                new org.apache.type_test.doc.XMLService(wsdlLocation, serviceName);
-            docClient = docService.getPort(portName, org.apache.type_test.doc.TypeTestPortType.class);
-            assertNotNull("Could not create docClient", docClient);
+            org.apache.type_test.xml.XMLService xmlService
+                = new org.apache.type_test.xml.XMLService(wsdlLocation,
+                                                           serviceName);
+            xmlClient = xmlService.getPort(portName, org.apache.type_test.xml.TypeTestPortType.class);
+            assertNotNull("Could not create xmlClient", xmlClient);
         } else {
             if (testDocLiteral) {
-                org.apache.type_test.doc.SOAPService docService =
-                    new org.apache.type_test.doc.SOAPService(wsdlLocation, serviceName);
+                org.apache.type_test.doc.SOAPService docService
+                    = new org.apache.type_test.doc.SOAPService(wsdlLocation,
+                                                                serviceName);
                 docClient = docService.getPort(portName, org.apache.type_test.doc.TypeTestPortType.class);
                 assertNotNull("Could not create docClient", docClient);
             } else {
-                SOAPService rpcService =
-                    new SOAPService(wsdlLocation, serviceName);
+                SOAPService rpcService = new SOAPService(wsdlLocation, serviceName);
                 rpcClient = rpcService.getPort(portName, org.apache.type_test.rpc.TypeTestPortType.class);
                 assertNotNull("Could not create rpcClient", rpcClient);
             }
@@ -96,10 +86,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     protected boolean equalsDate(XMLGregorianCalendar orig, XMLGregorianCalendar actual) {
         boolean result = false;
 
-        if ((orig.getYear() == actual.getYear()) 
-            && (orig.getMonth() == actual.getMonth())
-            && (orig.getDay() == actual.getDay())
-            && (actual.getHour() == DatatypeConstants.FIELD_UNDEFINED) 
+        if ((orig.getYear() == actual.getYear()) && (orig.getMonth() == actual.getMonth())
+            && (orig.getDay() == actual.getDay()) && (actual.getHour() == DatatypeConstants.FIELD_UNDEFINED)
             && (actual.getMinute() == DatatypeConstants.FIELD_UNDEFINED)
             && (actual.getSecond() == DatatypeConstants.FIELD_UNDEFINED)
             && (actual.getMillisecond() == DatatypeConstants.FIELD_UNDEFINED)) {
@@ -111,10 +99,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
     protected boolean equalsTime(XMLGregorianCalendar orig, XMLGregorianCalendar actual) {
         boolean result = false;
-        if ((orig.getHour() == actual.getHour())
-            && (orig.getMinute() == actual.getMinute())
-            && (orig.getSecond() == actual.getSecond())
-            && (orig.getMillisecond() == actual.getMillisecond())
+        if ((orig.getHour() == actual.getHour()) && (orig.getMinute() == actual.getMinute())
+            && (orig.getSecond() == actual.getSecond()) && (orig.getMillisecond() == actual.getMillisecond())
             && (orig.getTimezone() == actual.getTimezone())) {
             result = true;
         }
@@ -123,12 +109,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
     protected boolean equalsDateTime(XMLGregorianCalendar orig, XMLGregorianCalendar actual) {
         boolean result = false;
-        if ((orig.getYear() == actual.getYear())
-            && (orig.getMonth() == actual.getMonth())
-            && (orig.getDay() == actual.getDay())
-            && (orig.getHour() == actual.getHour())
-            && (orig.getMinute() == actual.getMinute())
-            && (orig.getSecond() == actual.getSecond())
+        if ((orig.getYear() == actual.getYear()) && (orig.getMonth() == actual.getMonth())
+            && (orig.getDay() == actual.getDay()) && (orig.getHour() == actual.getHour())
+            && (orig.getMinute() == actual.getMinute()) && (orig.getSecond() == actual.getSecond())
             && (orig.getMillisecond() == actual.getMillisecond())) {
 
             result = orig.getTimezone() == actual.getTimezone();
@@ -136,30 +119,33 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         return result;
     }
 
+    @Test
     public void testVoid() throws Exception {
         if (testDocLiteral) {
             docClient.testVoid();
+        } else if (testXMLBinding) {
+            xmlClient.testVoid();
         } else {
             rpcClient.testVoid();
         }
     }
 
+    @Test
     public void testOneway() throws Exception {
         String x = "hello";
         String y = "oneway";
         if (testDocLiteral) {
             docClient.testOneway(x, y);
+        } else if (testXMLBinding) {
+            xmlClient.testOneway(x, y);
         } else {
             rpcClient.testOneway(x, y);
         }
     }
 
+    @Test
     public void testByte() throws Exception {
-        byte valueSets[][] = {
-            {0, 1},
-            {-1, 0},
-            {Byte.MIN_VALUE, Byte.MAX_VALUE}
-        };
+        byte valueSets[][] = {{0, 1}, {-1, 0}, {Byte.MIN_VALUE, Byte.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
             byte x = valueSets[i][0];
@@ -170,25 +156,22 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             byte ret;
             if (testDocLiteral) {
                 ret = docClient.testByte(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testByte(x, y, z);
             } else {
                 ret = rpcClient.testByte(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testByte(): Incorrect value for inout param",
-                             Byte.valueOf(x), y.value);
-                assertEquals("testByte(): Incorrect value for out param",
-                             yOrig.value, z.value);
+                assertEquals("testByte(): Incorrect value for inout param", Byte.valueOf(x), y.value);
+                assertEquals("testByte(): Incorrect value for out param", yOrig.value, z.value);
                 assertEquals("testByte(): Incorrect return value", x, ret);
             }
         }
     }
 
+    @Test
     public void testShort() throws Exception {
-        short valueSets[][] = {
-            {0, 1},
-            {-1, 0},
-            {Short.MIN_VALUE, Short.MAX_VALUE}
-        };
+        short valueSets[][] = {{0, 1}, {-1, 0}, {Short.MIN_VALUE, Short.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
             short x = valueSets[i][0];
@@ -199,6 +182,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             short ret;
             if (testDocLiteral) {
                 ret = docClient.testShort(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testShort(x, y, z);
             } else {
                 ret = rpcClient.testShort(x, y, z);
             }
@@ -210,6 +195,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testUnsignedShort() throws Exception {
         int valueSets[][] = {{0, 1}, {1, 0}, {0, Short.MAX_VALUE * 2 + 1}};
 
@@ -222,32 +208,35 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             int ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedShort(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedShort(x, y, z);
             } else {
                 ret = rpcClient.testUnsignedShort(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testUnsignedShort(): Incorrect value for inout param",
-                             Integer.valueOf(x), y.value);
-                assertEquals("testUnsignedShort(): Incorrect value for out param",
-                             yOrig.value, z.value);
+                assertEquals("testUnsignedShort(): Incorrect value for inout param", Integer.valueOf(x),
+                             y.value);
+                assertEquals("testUnsignedShort(): Incorrect value for out param", yOrig.value, z.value);
                 assertEquals("testUnsignedShort(): Incorrect return value", x, ret);
             }
         }
     }
 
+    @Test
     public void testInt() throws Exception {
-        int valueSets[][] = {{5, 10}, {-10, 50},
-                             {Integer.MIN_VALUE, Integer.MAX_VALUE}};
+        int valueSets[][] = {{5, 10}, {-10, 50}, {Integer.MIN_VALUE, Integer.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
             int x = valueSets[i][0];
             Holder<Integer> yOrig = new Holder<Integer>(valueSets[i][1]);
             Holder<Integer> y = new Holder<Integer>(valueSets[i][1]);
             Holder<Integer> z = new Holder<Integer>();
-            
+
             int ret;
             if (testDocLiteral) {
                 ret = docClient.testInt(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testInt(x, y, z);
             } else {
                 ret = rpcClient.testInt(x, y, z);
             }
@@ -259,9 +248,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testUnsignedInt() throws Exception {
-        long valueSets[][] = {{11, 20}, {1, 0},
-                              {0, ((long)Integer.MAX_VALUE) * 2 + 1}};
+        long valueSets[][] = {{11, 20}, {1, 0}, {0, ((long)Integer.MAX_VALUE) * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
             long x = valueSets[i][0];
@@ -272,12 +261,13 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             long ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedInt(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedInt(x, y, z);
             } else {
                 ret = rpcClient.testUnsignedInt(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testUnsignedInt(): Incorrect value for inout param",
-                             Long.valueOf(x), y.value);
+                assertEquals("testUnsignedInt(): Incorrect value for inout param", Long.valueOf(x), y.value);
                 assertEquals("testUnsignedInt(): Incorrect value for out param",
                              Long.valueOf(yOrig), z.value);
                 assertEquals("testUnsignedInt(): Incorrect return value", x, ret);
@@ -285,9 +275,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testLong() throws Exception {
-        long valueSets[][] = {{0, 1}, {-1, 0},
-                              {Long.MIN_VALUE, Long.MAX_VALUE}};
+        long valueSets[][] = {{0, 1}, {-1, 0}, {Long.MIN_VALUE, Long.MAX_VALUE}};
 
         for (int i = 0; i < valueSets.length; i++) {
             long x = valueSets[i][0];
@@ -298,6 +288,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             long ret;
             if (testDocLiteral) {
                 ret = docClient.testLong(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testLong(x, y, z);
             } else {
                 ret = rpcClient.testLong(x, y, z);
             }
@@ -309,10 +301,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testUnsignedLong() throws Exception {
         BigInteger valueSets[][] = {{new BigInteger("0"), new BigInteger("1")},
                                     {new BigInteger("1"), new BigInteger("0")},
-                                    {new BigInteger("0"), 
+                                    {new BigInteger("0"),
                                      new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
@@ -324,6 +317,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedLong(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedLong(x, y, z);
             } else {
                 ret = rpcClient.testUnsignedLong(x, y, z);
             }
@@ -335,14 +330,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testFloat() throws Exception {
         float delta = 0.0f;
-        float valueSets[][] = {
-            {0.0f, 1.0f},
-            {-1.0f, (float)java.lang.Math.PI},
-            {-100.0f, 100.0f},
-            {Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY},
-        };
+        float valueSets[][] = {{0.0f, 1.0f}, {-1.0f, (float)java.lang.Math.PI}, {-100.0f, 100.0f},
+                               {Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY}, };
 
         for (int i = 0; i < valueSets.length; i++) {
             float x = valueSets[i][0];
@@ -353,6 +345,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             float ret;
             if (testDocLiteral) {
                 ret = docClient.testFloat(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testFloat(x, y, z);
             } else {
                 ret = rpcClient.testFloat(x, y, z);
             }
@@ -370,6 +364,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         float ret;
         if (testDocLiteral) {
             ret = docClient.testFloat(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testFloat(x, y, z);
         } else {
             ret = rpcClient.testFloat(x, y, z);
         }
@@ -380,15 +376,13 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testDouble() throws Exception {
         double delta = 0.0d;
-        double valueSets[][] = {
-            {0.0f, 1.0f},
-            {-1, java.lang.Math.PI},
-            {-100.0, 100.0},
-            {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY},
-            //{Double.MIN_VALUE, 0},
-            //{Double.MAX_VALUE,0},
+        double valueSets[][] = {{0.0f, 1.0f}, {-1, java.lang.Math.PI}, {-100.0, 100.0},
+                                {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY},
+        // {Double.MIN_VALUE, 0},
+        // {Double.MAX_VALUE,0},
         };
         for (int i = 0; i < valueSets.length; i++) {
             double x = valueSets[i][0];
@@ -399,6 +393,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             double ret;
             if (testDocLiteral) {
                 ret = docClient.testDouble(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testDouble(x, y, z);
             } else {
                 ret = rpcClient.testDouble(x, y, z);
             }
@@ -416,6 +412,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         double ret;
         if (testDocLiteral) {
             ret = docClient.testDouble(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDouble(x, y, z);
         } else {
             ret = rpcClient.testDouble(x, y, z);
         }
@@ -426,9 +424,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testUnsignedByte() throws Exception {
-        short valueSets[][] = {{0, 1}, {1, 0},
-                               {0, Byte.MAX_VALUE * 2 + 1}};
+        short valueSets[][] = {{0, 1}, {1, 0}, {0, Byte.MAX_VALUE * 2 + 1}};
 
         for (int i = 0; i < valueSets.length; i++) {
             short x = valueSets[i][0];
@@ -439,22 +437,23 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             short ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedByte(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedByte(x, y, z);
             } else {
                 ret = rpcClient.testUnsignedByte(x, y, z);
             }
             if (!perfTestOnly) {
                 assertEquals("testUnsignedByte(): Incorrect value for inout param",
                              Short.valueOf(x), y.value);
-                assertEquals("testUnsignedByte(): Incorrect value for out param",
-                             yOrig.value, z.value);
+                assertEquals("testUnsignedByte(): Incorrect value for out param", yOrig.value, z.value);
                 assertEquals("testUnsignedByte(): Incorrect return value", x, ret);
             }
         }
     }
 
+    @Test
     public void testBoolean() throws Exception {
-        boolean valueSets[][] = {{true, false}, {true, true},
-                                 {false, true}, {false, false}};
+        boolean valueSets[][] = {{true, false}, {true, true}, {false, true}, {false, false}};
 
         for (int i = 0; i < valueSets.length; i++) {
             boolean x = valueSets[i][0];
@@ -465,6 +464,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             boolean ret;
             if (testDocLiteral) {
                 ret = docClient.testBoolean(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testBoolean(x, y, z);
             } else {
                 ret = rpcClient.testBoolean(x, y, z);
             }
@@ -476,6 +477,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testString() throws Exception {
         int bufferSize = 1000;
         StringBuffer buffer = new StringBuffer(bufferSize);
@@ -484,10 +486,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             buffer.append((char)('a' + (x % 26)));
             buffer2.append((char)('A' + (x % 26)));
         }
-        
+
         String valueSets[][] = {{"hello", "world"}, {"is pi > 3 ?", " is pi < 4\\\""},
-                                {"<illegal_tag/>", ""},
-                                {buffer.toString(), buffer2.toString()}};
+                                {"<illegal_tag/>", ""}, {buffer.toString(), buffer2.toString()}};
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = valueSets[i][0];
@@ -498,6 +499,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             String ret;
             if (testDocLiteral) {
                 ret = docClient.testString(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testString(x, y, z);
             } else {
                 ret = rpcClient.testString(x, y, z);
             }
@@ -509,11 +512,10 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testStringI18N() throws Exception {
-        String valueSets[][] = {
-            {"hello", I18NStrings.CHINESE_COMPLEX_STRING},
-            {"hello", I18NStrings.JAP_SIMPLE_STRING},
-        };
+        String valueSets[][] = {{"hello", I18NStrings.CHINESE_COMPLEX_STRING},
+                                {"hello", I18NStrings.JAP_SIMPLE_STRING}, };
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = valueSets[i][0];
@@ -524,6 +526,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             String ret;
             if (testDocLiteral) {
                 ret = docClient.testString(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testString(x, y, z);
             } else {
                 ret = rpcClient.testString(x, y, z);
             }
@@ -535,13 +539,12 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testQName() throws Exception {
-        String valueSets[][] = {
-            {"NoNamespaceService", ""},
-            {"HelloWorldService", "http://www.iona.com/services"},
-            {I18NStrings.JAP_SIMPLE_STRING, "http://www.iona.com/iona"},
-            {"MyService", "http://www.iona.com/iona"}
-        };
+        String valueSets[][] = {{"NoNamespaceService", ""},
+                                {"HelloWorldService", "http://www.iona.com/services"},
+                                {I18NStrings.JAP_SIMPLE_STRING, "http://www.iona.com/iona"},
+                                {"MyService", "http://www.iona.com/iona"}};
         for (int i = 0; i < valueSets.length; i++) {
             QName x = new QName(valueSets[i][1], valueSets[i][0]);
             QName yOrig = new QName("http://www.iona.com/inoutqname", "InOutQName");
@@ -551,6 +554,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             QName ret;
             if (testDocLiteral) {
                 ret = docClient.testQName(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testQName(x, y, z);
             } else {
                 ret = rpcClient.testQName(x, y, z);
             }
@@ -562,10 +567,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
         }
     }
-    public void testDate() throws Exception {
-        assertEquals(true, true);
-    }
-    /* Revisit When client Fault is ready. Comment should be removed
+
+    // Revisit When client Fault is ready. Comment should be removed
+    @Test
     public void testDate() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -584,15 +588,14 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testDate(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDate(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testDate(x, y, z);
-            return;
+            ret = rpcClient.testDate(x, y, z);
         }
         if (!perfTestOnly) {
-            assertTrue("testDate(): Incorrect value for inout param " + x
-                       + " != " + y.value, equalsDate(x, y.value));
+            assertTrue("testDate(): Incorrect value for inout param " + x + " != " + y.value,
+                       equalsDate(x, y.value));
             assertTrue("testDate(): Incorrect value for out param", equalsDate(yOrig, z.value));
             assertTrue("testDate(): Incorrect return value", equalsDate(x, ret));
         }
@@ -611,11 +614,12 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
             fail("Expected to catch WebServiceException when calling"
                  + " testDate() with uninitialized parameters.");
-        } catch (WebServiceException e) {
-            // Ignore expected //failure.
+        } catch (RuntimeException re) {
+            assertNotNull(re);
         }
-    }*/
+    }
 
+    @Test
     public void testDateTime() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -640,11 +644,10 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testDateTime(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDateTime(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testDateTime(x, y, z);
-            return;
+            ret = rpcClient.testDateTime(x, y, z);
         }
         if (!perfTestOnly) {
             assertTrue("testDateTime(): Incorrect value for inout param", equalsDateTime(x, y.value));
@@ -653,6 +656,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testTime() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -664,7 +668,10 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         yOrig.setHour(22);
         yOrig.setMinute(4);
         yOrig.setSecond(15);
-        yOrig.setMillisecond(250);
+        // XXX - Setting the millisecond part here seems to cause
+        // a xerces validation error with the ibm jdk. That should
+        // be valid.
+        // yOrig.setMillisecond(250);
 
         Holder<XMLGregorianCalendar> y = new Holder<XMLGregorianCalendar>(yOrig);
         Holder<XMLGregorianCalendar> z = new Holder<XMLGregorianCalendar>();
@@ -672,11 +679,10 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testTime(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testTime(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
-            //ret = rpcClient.testTime(x, y, z);
-            return;
+            ret = rpcClient.testTime(x, y, z);
         }
         if (!perfTestOnly) {
             assertTrue("testTime(): Incorrect value for inout param", equalsTime(x, y.value));
@@ -685,6 +691,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testGYear() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -697,17 +704,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGYear(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGYear(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGYear(x, y, z);
-            return;
+            ret = rpcClient.testGYear(x, y, z);
         }
         assertTrue("testGYear(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGYear(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testGYear(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testGYearMonth() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -720,22 +727,31 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGYearMonth(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGYearMonth(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGYearMonth(x, y, z);
-            return;
+            ret = rpcClient.testGYearMonth(x, y, z);
         }
         assertTrue("testGYearMonth(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGYearMonth(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testGYearMonth(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testGMonth() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
-        XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar("--08--");
-        XMLGregorianCalendar yOrig = datatypeFactory.newXMLGregorianCalendar("--12--+05:00");
+        XMLGregorianCalendar x;
+        XMLGregorianCalendar yOrig;
+
+        try {
+            x = datatypeFactory.newXMLGregorianCalendar("--08");
+            yOrig = datatypeFactory.newXMLGregorianCalendar("--12+05:00");
+        } catch (java.lang.IllegalArgumentException iae) {
+            // broken XMLGregorianCalendar impl
+            x = datatypeFactory.newXMLGregorianCalendar("--08--");
+            yOrig = datatypeFactory.newXMLGregorianCalendar("--12--+05:00");
+        }
 
         Holder<XMLGregorianCalendar> y = new Holder<XMLGregorianCalendar>(yOrig);
         Holder<XMLGregorianCalendar> z = new Holder<XMLGregorianCalendar>();
@@ -743,17 +759,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGMonth(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGMonth(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGMonth(x, y, z);
-            return;
+            ret = rpcClient.testGMonth(x, y, z);
         }
         assertTrue("testGMonth(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGMonth(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testGMonth(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testGMonthDay() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -766,17 +782,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGMonthDay(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGMonthDay(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGMonthDay(x, y, z);
-            return;
+            ret = rpcClient.testGMonthDay(x, y, z);
         }
         assertTrue("testGMonthDay(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGMonthDay(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testGMonthDay(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testGDay() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -789,17 +805,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGDay(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGDay(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGDay(x, y, z);
-            return;
+            ret = rpcClient.testGDay(x, y, z);
         }
         assertTrue("testGDay(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGDay(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testGDay(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testDuration() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -812,17 +828,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         Duration ret;
         if (testDocLiteral) {
             ret = docClient.testDuration(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDuration(x, y, z);
         } else {
-            // XXX - TODO getting a MarshalException with rpc-lit for the
-            // xsd:duration test [DurationImpl is not known to this context].
-            //ret = rpcClient.testDuration(x, y, z);
-            return;
+            ret = rpcClient.testDuration(x, y, z);
         }
         assertTrue("testDuration(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testDuration(): Incorrect value for out param", yOrig.equals(z.value));
         assertTrue("testDuration(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testNormalizedString() throws Exception {
         String x = "  normalized string ";
         String yOrig = "  another normalized  string ";
@@ -833,6 +849,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testNormalizedString(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNormalizedString(x, y, z);
         } else {
             ret = rpcClient.testNormalizedString(x, y, z);
         }
@@ -841,6 +859,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testNormalizedString(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testToken() throws Exception {
         String x = "token";
         String yOrig = "another token";
@@ -851,6 +870,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testToken(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testToken(x, y, z);
         } else {
             ret = rpcClient.testToken(x, y, z);
         }
@@ -859,6 +880,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testToken(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testLanguage() throws Exception {
         String x = "abc";
         String yOrig = "abc-def";
@@ -869,6 +891,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testLanguage(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testLanguage(x, y, z);
         } else {
             ret = rpcClient.testLanguage(x, y, z);
         }
@@ -877,6 +901,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testLanguage(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testNMTOKEN() throws Exception {
         String x = "123:abc";
         String yOrig = "abc.-_:";
@@ -887,6 +912,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testNMTOKEN(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNMTOKEN(x, y, z);
         } else {
             ret = rpcClient.testNMTOKEN(x, y, z);
         }
@@ -895,6 +922,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testNMTOKEN(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testNMTOKENS() throws Exception {
         //
         // XXX - The jaxb ri code generation produces different method
@@ -904,11 +932,18 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         if (testDocLiteral) {
             List<String> x = Arrays.asList("123:abc");
             List<String> yOrig = Arrays.asList("abc.-_:", "a");
-
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-
             List<String> ret = docClient.testNMTOKENS(x, y, z);
+            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
+            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
+            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+        } else if (testXMLBinding) {
+            List<String> x = Arrays.asList("123:abc");
+            List<String> yOrig = Arrays.asList("abc.-_:", "a");
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
+            List<String> ret = xmlClient.testNMTOKENS(x, y, z);
             assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
             assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
             assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
@@ -928,7 +963,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertTrue("testNMTOKENS(): Incorrect return value", Arrays.equals(x, ret));
         }
     }
-    
+
+    @Test
     public void testName() throws Exception {
         String x = "abc:123";
         String yOrig = "abc.-_";
@@ -939,6 +975,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testName(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testName(x, y, z);
         } else {
             ret = rpcClient.testName(x, y, z);
         }
@@ -947,6 +985,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testName(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testNCName() throws Exception {
         String x = "abc-123";
         String yOrig = "abc.-";
@@ -957,6 +996,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testNCName(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNCName(x, y, z);
         } else {
             ret = rpcClient.testNCName(x, y, z);
         }
@@ -965,15 +1006,13 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertTrue("testNCName(): Incorrect return value", x.equals(ret));
     }
 
+    @Test
     public void testID() throws Exception {
         // n.b. to be valid, elements with an ID in the response message
         // must have a unique ID, so this test does not return x as the
         // return value (like the other tests).
-        String valueSets[][] = {
-            {"root.id-testartix.2", "L.-type_test"},
-            {"_iona.com", "zoo-5_wolf"},
-            {"x-_liberty", "_-.-_"}
-        };
+        String valueSets[][] = {{"root.id-testartix.2", "L.-type_test"}, {"_iona.com", "zoo-5_wolf"},
+                                {"x-_liberty", "_-.-_"}};
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = valueSets[i][0];
@@ -982,9 +1021,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             Holder<String> z = new Holder<String>();
 
             if (testDocLiteral) {
-                /*String ret =*/ docClient.testID(x, y, z);
+                /* String ret = */docClient.testID(x, y, z);
+            } else if (testXMLBinding) {
+                /* String ret = */xmlClient.testID(x, y, z);
             } else {
-                /*String ret =*/ rpcClient.testID(x, y, z);
+                /* String ret = */rpcClient.testID(x, y, z);
             }
             if (!perfTestOnly) {
                 assertEquals("testID(): Incorrect value for inout param", x, y.value);
@@ -992,13 +1033,15 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
         }
     }
-    
+
+    @Test
     public void testDecimal() throws Exception {
-        BigDecimal valueSets[][] = {
-            {new BigDecimal("-1234567890.000000"), new BigDecimal("1234567890.000000")},
-            {new BigDecimal("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE) + ".000000"),
-             new BigDecimal(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE) + ".000000")}
-        };
+        BigDecimal valueSets[][] = {{new BigDecimal("-1234567890.000000"),
+                                     new BigDecimal("1234567890.000000")},
+                                    {new BigDecimal("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE)
+                                                    + ".000000"),
+                                     new BigDecimal(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE)
+                                                    + ".000000")}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigDecimal x = valueSets[i][0];
@@ -1009,6 +1052,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigDecimal ret;
             if (testDocLiteral) {
                 ret = docClient.testDecimal(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testDecimal(x, y, z);
             } else {
                 ret = rpcClient.testDecimal(x, y, z);
             }
@@ -1020,12 +1065,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testInteger() throws Exception {
-        BigInteger valueSets[][] = {
-            {new BigInteger("-1234567890"), new BigInteger("1234567890")},
-            {new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE)),
-             new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}
-        };
+        BigInteger valueSets[][] = {{new BigInteger("-1234567890"), new BigInteger("1234567890")},
+                                    {new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE)),
+                                     new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigInteger x = valueSets[i][0];
@@ -1036,6 +1080,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testInteger(x, y, z);
             } else {
                 ret = rpcClient.testInteger(x, y, z);
             }
@@ -1047,12 +1093,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testPositiveInteger() throws Exception {
-        BigInteger valueSets[][] = {
-            {new BigInteger("1"), new BigInteger("1234567890")},
-            {new BigInteger(String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
-             new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}
-        };
+        BigInteger valueSets[][] = {{new BigInteger("1"), new BigInteger("1234567890")},
+                                    {new BigInteger(String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
+                                     new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigInteger x = valueSets[i][0];
@@ -1063,6 +1108,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testPositiveInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testPositiveInteger(x, y, z);
             } else {
                 ret = rpcClient.testPositiveInteger(x, y, z);
             }
@@ -1074,12 +1121,12 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testNonPositiveInteger() throws Exception {
-        BigInteger valueSets[][] = {
-            {new BigInteger("0"), new BigInteger("-1234567890")},
-            {new BigInteger("-" + String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
-             new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}
-        };
+        BigInteger valueSets[][] = {{new BigInteger("0"), new BigInteger("-1234567890")},
+                                    {new BigInteger("-"
+                                                    + String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
+                                     new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigInteger x = valueSets[i][0];
@@ -1090,6 +1137,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testNonPositiveInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNonPositiveInteger(x, y, z);
             } else {
                 ret = rpcClient.testNonPositiveInteger(x, y, z);
             }
@@ -1101,12 +1150,12 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testNegativeInteger() throws Exception {
-        BigInteger valueSets[][] = {
-            {new BigInteger("-1"), new BigInteger("-1234567890")},
-            {new BigInteger("-" + String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
-             new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}
-        };
+        BigInteger valueSets[][] = {{new BigInteger("-1"), new BigInteger("-1234567890")},
+                                    {new BigInteger("-"
+                                                    + String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
+                                     new BigInteger("-" + String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigInteger x = valueSets[i][0];
@@ -1117,6 +1166,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testNegativeInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNegativeInteger(x, y, z);
             } else {
                 ret = rpcClient.testNegativeInteger(x, y, z);
             }
@@ -1128,12 +1179,14 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testNonNegativeInteger() throws Exception {
-        BigInteger valueSets[][] = {
-            {new BigInteger("0"), new BigInteger("1234567890")},
-            {new BigInteger(String.valueOf(Integer.MAX_VALUE * Integer.MAX_VALUE)),
-             new BigInteger(String.valueOf(Long.MAX_VALUE * Long.MAX_VALUE))}
-        };
+        BigInteger valueSets[][] = {{new BigInteger("0"),
+                                        new BigInteger("1234567890")},
+                                    {new BigInteger(String.valueOf(Integer.MAX_VALUE
+                                                                   * Integer.MAX_VALUE)),
+                                     new BigInteger(String.valueOf(Long.MAX_VALUE
+                                                                   * Long.MAX_VALUE))}};
 
         for (int i = 0; i < valueSets.length; i++) {
             BigInteger x = valueSets[i][0];
@@ -1144,6 +1197,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testNonNegativeInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNonNegativeInteger(x, y, z);
             } else {
                 ret = rpcClient.testNonNegativeInteger(x, y, z);
             }
@@ -1155,6 +1210,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testHexBinary() throws Exception {
         byte[] x = "hello".getBytes();
         Holder<byte[]> y = new Holder<byte[]>("goodbye".getBytes());
@@ -1163,19 +1219,20 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testHexBinary(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testHexBinary(x, y, z);
         } else {
             ret = rpcClient.testHexBinary(x, y, z);
         }
         if (!perfTestOnly) {
-            assertTrue("testHexBinary(): Incorrect value for inout param",
-                       Arrays.equals(x, y.value));
-            assertTrue("testHexBinary(): Incorrect value for out param",
-                       Arrays.equals(yOriginal.value, z.value));
-            assertTrue("testHexBinary(): Incorrect return value",
-                       Arrays.equals(x, ret));
+            assertTrue("testHexBinary(): Incorrect value for inout param", Arrays.equals(x, y.value));
+            assertTrue("testHexBinary(): Incorrect value for out param", Arrays.equals(yOriginal.value,
+                                                                                       z.value));
+            assertTrue("testHexBinary(): Incorrect return value", Arrays.equals(x, ret));
         }
     }
 
+    @Test
     public void testBase64Binary() throws Exception {
         byte[] x = "hello".getBytes();
         Holder<byte[]> y = new Holder<byte[]>("goodbye".getBytes());
@@ -1184,16 +1241,16 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testBase64Binary(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testBase64Binary(x, y, z);
         } else {
             ret = rpcClient.testBase64Binary(x, y, z);
         }
         if (!perfTestOnly) {
-            assertTrue("testBase64Binary(): Incorrect value for inout param",
-                       Arrays.equals(x, y.value));
-            assertTrue("testBase64Binary(): Incorrect value for out param",
-                       Arrays.equals(yOriginal.value, z.value));
-            assertTrue("testBase64Binary(): Incorrect return value",
-                       Arrays.equals(x, ret));
+            assertTrue("testBase64Binary(): Incorrect value for inout param", Arrays.equals(x, y.value));
+            assertTrue("testBase64Binary(): Incorrect value for out param", Arrays.equals(yOriginal.value,
+                                                                                          z.value));
+            assertTrue("testBase64Binary(): Incorrect return value", Arrays.equals(x, ret));
         }
 
         // Test uninitialized holder value
@@ -1202,21 +1259,24 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<byte[]>();
             if (testDocLiteral) {
                 docClient.testBase64Binary(x, y, z);
+            } else if (testXMLBinding) {
+                xmlClient.testBase64Binary(x, y, z);
             } else {
                 rpcClient.testBase64Binary(x, y, z);
             }
-            //fail("Uninitialized Holder for inout parameter should have thrown an error.");
+            fail("Uninitialized Holder for inout parameter should have thrown an error.");
         } catch (Exception e) {
             // Ignore expected //failure.
         }
     }
 
+    @Test
     public void testAnyURI() throws Exception {
-        String valueSets[][] = {
-            {"file:///root%20%20/-;?&+", "file:///w:/test!artix~java*"},
-            {"http://iona.com/", "file:///z:/mail_iona=com,\'xmlbus\'"},
-            {"mailto:windows@systems", "file:///"}
-        };
+        String valueSets[][] = {{"file:///root%20%20/-;?&+",
+                                    "file:///w:/test!artix~java*"},
+                                {"http://iona.com/",
+                                    "file:///z:/mail_iona=com,\'xmlbus\'"},
+                                {"mailto:windows@systems", "file:///"}};
 
         for (int i = 0; i < valueSets.length; i++) {
             String x = new String(valueSets[i][0]);
@@ -1227,6 +1287,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             String ret;
             if (testDocLiteral) {
                 ret = docClient.testAnyURI(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testAnyURI(x, y, z);
             } else {
                 ret = rpcClient.testAnyURI(x, y, z);
             }
@@ -1237,13 +1299,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
         }
     }
-    
-    /**
-     * XXX - In the generated code for ColourEnum, the fromValue() method
-     * is not declared static - fixed in jaxb-ri-20060421 nightly build.
-     */
+
+    @Test
     public void testColourEnum() throws Exception {
-        /*
         String[] xx = {"RED", "GREEN", "BLUE"};
         String[] yy = {"GREEN", "BLUE", "RED"};
 
@@ -1257,21 +1315,21 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ColourEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testColourEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testColourEnum(x, y, z);
             } else {
                 ret = rpcClient.testColourEnum(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testColourEnum(): Incorrect value for inout param",
-                             x.value(), y.value.value());
-                assertEquals("testColourEnum(): Incorrect value for out param",
-                             yOrig.value(), z.value.value());
-                assertEquals("testColourEnum(): Incorrect return value",
-                             x.value(), ret.value());
+                assertEquals("testColourEnum(): Incorrect value for inout param", x.value(), y.value.value());
+                assertEquals("testColourEnum(): Incorrect value for out param", yOrig.value(), z.value
+                    .value());
+                assertEquals("testColourEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
-        */
     }
-    
+
+    @Test
     public void testNumberEnum() throws Exception {
         int[] xx = {1, 2, 3};
         int[] yy = {3, 1, 2};
@@ -1286,20 +1344,21 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             NumberEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testNumberEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNumberEnum(x, y, z);
             } else {
                 ret = rpcClient.testNumberEnum(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testNumberEnum(): Incorrect value for inout param",
-                             x.value(), y.value.value());
-                assertEquals("testNumberEnum(): Incorrect value for out param",
-                             yOrig.value(), z.value.value());
-                assertEquals("testNumberEnum(): Incorrect return value",
-                             x.value(), ret.value());
+                assertEquals("testNumberEnum(): Incorrect value for inout param", x.value(), y.value.value());
+                assertEquals("testNumberEnum(): Incorrect value for out param", yOrig.value(), z.value
+                    .value());
+                assertEquals("testNumberEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
     }
-    
+
+    @Test
     public void testStringEnum() throws Exception {
         String[] xx = {"a b c", "d e f", "g h i"};
         String[] yy = {"g h i", "a b c", "d e f"};
@@ -1313,27 +1372,24 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             StringEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testStringEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testStringEnum(x, y, z);
             } else {
                 ret = rpcClient.testStringEnum(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testStringEnum(): Incorrect value for inout param",
-                             x.value(), y.value.value());
-                assertEquals("testStringEnum(): Incorrect value for out param",
-                             yOrig.value(), z.value.value());
-                assertEquals("testStringEnum(): Incorrect return value",
-                             x.value(), ret.value());
+                assertEquals("testStringEnum(): Incorrect value for inout param", x.value(), y.value.value());
+                assertEquals("testStringEnum(): Incorrect value for out param", yOrig.value(), z.value
+                    .value());
+                assertEquals("testStringEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
     }
-    
+
+    @Test
     public void testDecimalEnum() throws Exception {
-        BigDecimal[] xx = {new BigDecimal("-10.34"),
-                           new BigDecimal("11.22"),
-                           new BigDecimal("14.55")};
-        BigDecimal[] yy = {new BigDecimal("14.55"),
-                           new BigDecimal("-10.34"),
-                           new BigDecimal("11.22")};
+        BigDecimal[] xx = {new BigDecimal("-10.34"), new BigDecimal("11.22"), new BigDecimal("14.55")};
+        BigDecimal[] yy = {new BigDecimal("14.55"), new BigDecimal("-10.34"), new BigDecimal("11.22")};
 
         Holder<DecimalEnum> z = new Holder<DecimalEnum>();
 
@@ -1345,20 +1401,22 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             DecimalEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testDecimalEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testDecimalEnum(x, y, z);
             } else {
                 ret = rpcClient.testDecimalEnum(x, y, z);
             }
             if (!perfTestOnly) {
                 assertEquals("testDecimalEnum(): Incorrect value for inout param",
                              x.value(), y.value.value());
-                assertEquals("testDecimalEnum(): Incorrect value for out param",
-                             yOrig.value(), z.value.value());
-                assertEquals("testDecimalEnum(): Incorrect return value",
-                             x.value(), ret.value());
+                assertEquals("testDecimalEnum(): Incorrect value for out param", yOrig.value(), z.value
+                    .value());
+                assertEquals("testDecimalEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
     }
-    
+
+    @Test
     public void testNMTokenEnum() throws Exception {
         String[] xx = {"hello", "there"};
         String[] yy = {"there", "hello"};
@@ -1373,46 +1431,50 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             NMTokenEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testNMTokenEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNMTokenEnum(x, y, z);
             } else {
                 ret = rpcClient.testNMTokenEnum(x, y, z);
             }
             if (!perfTestOnly) {
                 assertEquals("testNMTokenEnum(): Incorrect value for inout param",
                              x.value(), y.value.value());
-                assertEquals("testNMTokenEnum(): Incorrect value for out param",
-                             yOrig.value(), z.value.value());
-                assertEquals("testNMTokenEnum(): Incorrect return value",
-                             x.value(), ret.value());
+                assertEquals("testNMTokenEnum(): Incorrect value for out param", yOrig.value(), z.value
+                    .value());
+                assertEquals("testNMTokenEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
     }
 
+    @Test
     public void testAnyURIEnum() throws Exception {
         String[] xx = {"http://www.iona.com", "http://www.google.com"};
         String[] yy = {"http://www.google.com", "http://www.iona.com"};
-        
+
         Holder<AnyURIEnum> z = new Holder<AnyURIEnum>();
         for (int i = 0; i < 2; i++) {
             AnyURIEnum x = AnyURIEnum.fromValue(xx[i]);
             AnyURIEnum yOrig = AnyURIEnum.fromValue(yy[i]);
             Holder<AnyURIEnum> y = new Holder<AnyURIEnum>(yOrig);
-            
+
             AnyURIEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testAnyURIEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testAnyURIEnum(x, y, z);
             } else {
                 ret = rpcClient.testAnyURIEnum(x, y, z);
             }
             if (!perfTestOnly) {
-                assertEquals("testAnyURIEnum(): Incorrect value for inout param",
-                             x.value(), y.value.value());
-                assertEquals("testAnyURIEnum(): Incorrect value for out param",
-                             yOrig.value(), z.value.value());
+                assertEquals("testAnyURIEnum(): Incorrect value for inout param", x.value(), y.value.value());
+                assertEquals("testAnyURIEnum(): Incorrect value for out param", yOrig.value(), z.value
+                    .value());
                 assertEquals("testAnyURIEnum(): Incorrect return value", x.value(), ret.value());
             }
         }
     }
-    
+
+    @Test
     public void testSimpleRestriction() throws Exception {
         // normal case, maxLength=10
         String x = "string_x";
@@ -1422,6 +1484,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction(x, y, z);
         } else {
             ret = rpcClient.testSimpleRestriction(x, y, z);
         }
@@ -1430,18 +1494,18 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction(): Incorrect return value", x, ret);
         }
-        
+
         // Enabled schema validation for doc literal tests
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "string_xxxxx";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
                 ret = docClient.testSimpleRestriction(x, y, z);
-                //fail("x parameter maxLength=10 restriction is violated.");
+                fail("x parameter maxLength=10 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
 
             // abnormal case
@@ -1450,14 +1514,16 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction(x, y, z);
-                //fail("y parameter maxLength=10 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleRestriction(x, y, z) : xmlClient
+                    .testSimpleRestriction(x, y, z);
+                fail("y parameter maxLength=10 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
 
+    @Test
     public void testSimpleRestriction2() throws Exception {
         // normal case, minLength=5
         String x = "str_x";
@@ -1468,6 +1534,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction2(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction2(x, y, z);
         } else {
             ret = rpcClient.testSimpleRestriction2(x, y, z);
         }
@@ -1476,22 +1544,24 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction2(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction2(): Incorrect return value", x, ret);
         }
-        
+
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction2(x, y, z);
-                //fail("minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleRestriction2(x, y, z) : xmlClient
+                    .testSimpleRestriction2(x, y, z);
+                fail("minLength=5 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
 
+    @Test
     public void testSimpleRestriction3() throws Exception {
         // normal case, maxLength=10 && minLength=5
         String x = "str_x";
@@ -1502,6 +1572,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction3(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction3(x, y, z);
         } else {
             ret = rpcClient.testSimpleRestriction3(x, y, z);
         }
@@ -1510,18 +1582,18 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction3(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction3(): Incorrect return value", x, ret);
         }
-        
+
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
                 ret = docClient.testSimpleRestriction3(x, y, z);
-                //fail("x parameter maxLength=10 && minLength=5 restriction is violated.");
+                fail("x parameter maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
 
             // abnormal case
@@ -1530,14 +1602,16 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction3(x, y, z);
-                //fail("y parameter maxLength=10 && minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleRestriction3(x, y, z) : xmlClient
+                    .testSimpleRestriction3(x, y, z);
+                fail("y parameter maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
 
+    @Test
     public void testSimpleRestriction4() throws Exception {
         // normal case, length=1
         String x = "x";
@@ -1548,6 +1622,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction4(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction4(x, y, z);
         } else {
             ret = rpcClient.testSimpleRestriction4(x, y, z);
         }
@@ -1556,22 +1632,24 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction4(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction4(): Incorrect return value", x, ret);
         }
-        
+
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction4(x, y, z);
-                //fail("x parameter minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleRestriction4(x, y, z) : xmlClient
+                    .testSimpleRestriction4(x, y, z);
+                fail("x parameter minLength=5 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
 
+    @Test
     public void testSimpleRestriction5() throws Exception {
         // normal case, maxLength=10 for SimpleRestrction
         // && minLength=5 for SimpleRestriction5
@@ -1583,6 +1661,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction5(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction5(x, y, z);
         } else {
             ret = rpcClient.testSimpleRestriction5(x, y, z);
         }
@@ -1591,18 +1671,18 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction5(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction5(): Incorrect return value", x, ret);
         }
- 
+
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
                 ret = docClient.testSimpleRestriction5(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
-               //ex.printStackTrace();
+                // ex.printStackTrace();
             }
 
             // abnormal case
@@ -1611,14 +1691,16 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction5(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleRestriction5(x, y, z) : xmlClient
+                    .testSimpleRestriction5(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
 
+    @Test
     public void testSimpleRestriction6() throws Exception {
         String x = "str_x";
         String yOrig = "y";
@@ -1628,6 +1710,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction6(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction6(x, y, z);
         } else {
             ret = rpcClient.testSimpleRestriction6(x, y, z);
         }
@@ -1636,23 +1720,25 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertEquals("testSimpleRestriction6(): Incorrect value for out param", yOrig, z.value);
             assertEquals("testSimpleRestriction6(): Incorrect return value", x, ret);
         }
-        
+
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "string_x";
             yOrig = "string_y";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction6(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleRestriction6(x, y, z) : xmlClient
+                    .testSimpleRestriction6(x, y, z);
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
 
+    @Test
     public void testHexBinaryRestriction() throws Exception {
         // normal case, maxLength=10 && minLength=1
         byte[] x = "x".getBytes();
@@ -1663,28 +1749,28 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testHexBinaryRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testHexBinaryRestriction(x, y, z);
         } else {
             ret = rpcClient.testHexBinaryRestriction(x, y, z);
         }
         if (!perfTestOnly) {
-            assertTrue("testHexBinaryRestriction(): Incorrect value for inout param",
-                       equals(x, y.value));
-            assertTrue("testHexBinaryRestriction(): Incorrect value for out param",
-                       equals(yOrig, z.value));
+            assertTrue("testHexBinaryRestriction(): Incorrect value for inout param", equals(x, y.value));
+            assertTrue("testHexBinaryRestriction(): Incorrect value for out param", equals(yOrig, z.value));
             assertTrue("testHexBinaryRestriction(): Incorrect return value", equals(x, ret));
         }
 
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "".getBytes();
             y = new Holder<byte[]>(yOrig);
             z = new Holder<byte[]>();
             try {
                 ret = docClient.testHexBinaryRestriction(x, y, z);
-                //fail("maxLength=10 && minLength=1 restriction is violated.");
+                fail("maxLength=10 && minLength=1 restriction is violated.");
             } catch (Exception ex) {
-               //ex.printStackTrace();
+                // ex.printStackTrace();
             }
 
             // abnormal case
@@ -1693,20 +1779,22 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<byte[]>(yOrig);
             z = new Holder<byte[]>();
             try {
-                ret = docClient.testHexBinaryRestriction(x, y, z);
-                //fail("maxLength=10 && minLength=1 restriction is violated.");
+                ret = testDocLiteral ? docClient.testHexBinaryRestriction(x, y, z) : xmlClient
+                    .testHexBinaryRestriction(x, y, z);
+                fail("maxLength=10 && minLength=1 restriction is violated.");
             } catch (Exception ex) {
-                //ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
-    
+
     protected boolean equals(byte[] x, byte[] y) {
         String xx = new String(x);
         String yy = new String(y);
         return xx.equals(yy);
     }
-    
+
+    @Test
     public void testBase64BinaryRestriction() throws Exception {
         byte[] x = "string_xxx".getBytes();
         byte[] yOrig = "string_yyy".getBytes();
@@ -1716,12 +1804,13 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testBase64BinaryRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testBase64BinaryRestriction(x, y, z);
         } else {
             ret = rpcClient.testBase64BinaryRestriction(x, y, z);
         }
         if (!perfTestOnly) {
-            assertTrue("testBase64BinaryRestriction(): Incorrect value for inout param",
-                       equals(x, y.value));
+            assertTrue("testBase64BinaryRestriction(): Incorrect value for inout param", equals(x, y.value));
             assertTrue("testBase64BinaryRestriction(): Incorrect value for out param",
                        equals(yOrig, z.value));
             assertTrue("testBase64BinaryRestriction(): Incorrect return value", equals(x, ret));
@@ -1735,33 +1824,36 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<byte[]>();
             try {
                 ret = docClient.testBase64BinaryRestriction(x, y, z);
-                //fail("length=10 restriction is violated.");
+                fail("length=10 restriction is violated.");
             } catch (Exception ex) {
-                ex.printStackTrace();
+                // ex.printStackTrace();
             }
         }
     }
-    
+
+    @Test
     public void testSimpleListRestriction2() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("I", "am", "SimpleList");
             List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-            List<String> ret = docClient.testSimpleListRestriction2(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testSimpleListRestriction2(x, y, z) : xmlClient
+                .testSimpleListRestriction2(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testStringList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testStringList(): Incorrect value for out param", yOrig.equals(z.value));
                 assertTrue("testStringList(): Incorrect return value", x.equals(ret));
             }
             x = new ArrayList<String>();
-            y = new Holder< List<String> >(yOrig);
-            z = new Holder< List<String> >();
+            y = new Holder<List<String>>(yOrig);
+            z = new Holder<List<String>>();
             try {
-                ret = docClient.testSimpleListRestriction2(x, y, z);
-                //fail("length=10 restriction is violated.");
+                ret = testDocLiteral ? docClient.testSimpleListRestriction2(x, y, z) : xmlClient
+                    .testSimpleListRestriction2(x, y, z);
+                fail("length=10 restriction is violated.");
             } catch (Exception ex) {
-                ex.printStackTrace();
+                // ex.printStackTrace();
             }
         } else {
             String[] x = {"I", "am", "SimpleList"};
@@ -1784,15 +1876,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
         }
     }
-    
+
+    @Test
     public void testStringList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("I", "am", "SimpleList");
             List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
-            Holder< List<String> > y = new Holder< List<String> >(yOrig);
-            Holder< List<String> > z = new Holder< List<String> >();
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
 
-            List<String> ret = docClient.testStringList(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testStringList(x, y, z) : xmlClient
+                .testStringList(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testStringList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testStringList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1819,14 +1913,16 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testNumberList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<Integer> x = Arrays.asList(1, 2, 3);
             List<Integer> yOrig = Arrays.asList(10, 100, 1000);
-            Holder< List<Integer> > y = new Holder< List<Integer> >(yOrig);
-            Holder< List<Integer> > z = new Holder< List<Integer> >();
+            Holder<List<Integer>> y = new Holder<List<Integer>>(yOrig);
+            Holder<List<Integer>> z = new Holder<List<Integer>>();
 
-            List<Integer> ret = docClient.testNumberList(x, y, z);
+            List<Integer> ret = testDocLiteral ? docClient.testNumberList(x, y, z) : xmlClient
+                .testNumberList(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testNumberList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testNumberList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1852,39 +1948,34 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
         }
     }
-    
-    public void testQNameList() throws Exception {
-        if (testDocLiteral) {
-            List<QName> x = Arrays.asList(
-                                          new QName("http://schemas.iona.com/type_test", "testqname1"),
-                                          new QName("http://schemas.iona.com/type_test", "testqname2"),
-                                          new QName("http://schemas.iona.com/type_test", "testqname3")
-                                          );
-            List<QName> yOrig = Arrays.asList(
-                                              new QName("http://schemas.iona.com/type_test", "testqname4"),
-                                              new QName("http://schemas.iona.com/type_test", "testqname5"),
-                                              new QName("http://schemas.iona.com/type_test", "testqname6")
-                                              );
-            Holder< List<QName> > y = new Holder< List<QName> >(yOrig);
-            Holder< List<QName> > z = new Holder< List<QName> >();
 
-            List<QName> ret = docClient.testQNameList(x, y, z);
+    @Test
+    public void testQNameList() throws Exception {
+        if (testDocLiteral || testXMLBinding) {
+            List<QName> x = Arrays.asList(new QName("http://schemas.iona.com/type_test", "testqname1"),
+                                          new QName("http://schemas.iona.com/type_test", "testqname2"),
+                                          new QName("http://schemas.iona.com/type_test", "testqname3"));
+            List<QName> yOrig = Arrays.asList(new QName("http://schemas.iona.com/type_test", "testqname4"),
+                                              new QName("http://schemas.iona.com/type_test", "testqname5"),
+                                              new QName("http://schemas.iona.com/type_test", "testqname6"));
+            Holder<List<QName>> y = new Holder<List<QName>>(yOrig);
+            Holder<List<QName>> z = new Holder<List<QName>>();
+
+            List<QName> ret = testDocLiteral ? docClient.testQNameList(x, y, z) : xmlClient.testQNameList(x,
+                                                                                                          y,
+                                                                                                          z);
             if (!perfTestOnly) {
                 assertTrue("testQNameList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testQNameList(): Incorrect value for out param", yOrig.equals(z.value));
                 assertTrue("testQNameList(): Incorrect return value", x.equals(ret));
             }
         } else {
-            QName[] x = {
-                new QName("http://schemas.iona.com/type_test", "testqname1"),
-                new QName("http://schemas.iona.com/type_test", "testqname2"),
-                new QName("http://schemas.iona.com/type_test", "testqname3")
-            };
-            QName[] yOrig = {
-                new QName("http://schemas.iona.com/type_test", "testqname4"),
-                new QName("http://schemas.iona.com/type_test", "testqname5"),
-                new QName("http://schemas.iona.com/type_test", "testqname6")
-            };
+            QName[] x = {new QName("http://schemas.iona.com/type_test", "testqname1"),
+                         new QName("http://schemas.iona.com/type_test", "testqname2"),
+                         new QName("http://schemas.iona.com/type_test", "testqname3")};
+            QName[] yOrig = {new QName("http://schemas.iona.com/type_test", "testqname4"),
+                             new QName("http://schemas.iona.com/type_test", "testqname5"),
+                             new QName("http://schemas.iona.com/type_test", "testqname6")};
             Holder<QName[]> y = new Holder<QName[]>(yOrig);
             Holder<QName[]> z = new Holder<QName[]>();
 
@@ -1903,15 +1994,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
 
+    @Test
     public void testSimpleUnionList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5", "-7");
             List<String> yOrig = Arrays.asList("-9", "7");
 
-            Holder< List<String> > y = new Holder< List<String> >(yOrig);
-            Holder< List<String> > z = new Holder< List<String> >();
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
 
-            List<String> ret = docClient.testSimpleUnionList(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testSimpleUnionList(x, y, z) : xmlClient
+                .testSimpleUnionList(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testSimpleUnionList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testSimpleUnionList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1931,25 +2024,26 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertTrue(ret.length == 2);
             if (!perfTestOnly) {
                 for (int i = 0; i < 2; i++) {
-                    assertEquals("testSimpleUnionList(): Incorrect value for inout param",
-                                 x[i], y.value[i]);
+                    assertEquals("testSimpleUnionList(): Incorrect value for inout param", x[i], y.value[i]);
                     assertEquals("testSimpleUnionList(): Incorrect value for out param",
                                  yOrig[i], z.value[i]);
-                    assertEquals("testSimpleUnionList(): Incorrect return value",
-                                 x[i], ret[i]);
+                    assertEquals("testSimpleUnionList(): Incorrect return value", x[i], ret[i]);
                 }
             }
         }
     }
+
+    @Test
     public void testAnonEnumList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<Short> x = Arrays.asList((short)10, (short)100);
             List<Short> yOrig = Arrays.asList((short)1000, (short)10);
 
-            Holder< List<Short> > y = new Holder< List<Short> >(yOrig);
-            Holder< List<Short> > z = new Holder< List<Short> >();
+            Holder<List<Short>> y = new Holder<List<Short>>(yOrig);
+            Holder<List<Short>> z = new Holder<List<Short>>();
 
-            List<Short> ret = docClient.testAnonEnumList(x, y, z);
+            List<Short> ret = testDocLiteral ? docClient.testAnonEnumList(x, y, z) : xmlClient
+                .testAnonEnumList(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testAnonEnumList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testAnonEnumList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1969,16 +2063,18 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             assertTrue(ret.length == 2);
             if (!perfTestOnly) {
                 for (int i = 0; i < 2; i++) {
-                    assertEquals("testAnonEnumList(): Incorrect value for inout param",
-                                 x[i].shortValue(), y.value[i].shortValue());
-                    assertEquals("testAnonEnumList(): Incorrect value for out param",
-                                 yOrig[i].shortValue(), z.value[i].shortValue());
-                    assertEquals("testAnonEnumList(): Incorrect return value",
-                                 x[i].shortValue(), ret[i].shortValue());
+                    assertEquals("testAnonEnumList(): Incorrect value for inout param", x[i].shortValue(),
+                                 y.value[i].shortValue());
+                    assertEquals("testAnonEnumList(): Incorrect value for out param", yOrig[i].shortValue(),
+                                 z.value[i].shortValue());
+                    assertEquals("testAnonEnumList(): Incorrect return value", x[i].shortValue(), ret[i]
+                        .shortValue());
                 }
             }
         }
     }
+
+    @Test
     public void testUnionWithAnonEnum() throws Exception {
         String x = "5";
         String yOrig = "n/a";
@@ -1988,6 +2084,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testUnionWithAnonEnum(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnionWithAnonEnum(x, y, z);
         } else {
             ret = rpcClient.testUnionWithAnonEnum(x, y, z);
         }

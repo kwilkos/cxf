@@ -19,52 +19,63 @@
 
 package org.apache.cxf.jaxws.handler.soap;
 
-import java.io.IOException;
-import java.io.InputStream;
+
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.w3c.dom.Element;
-
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
-
-    SOAPMessageContextImpl(Message m) {
-        super(m);
+    private static final SAAJInInterceptor SAAJ_IN = new SAAJInInterceptor();
+    
+    private Set<String> roles = new HashSet<String>();
+    
+    public SOAPMessageContextImpl(Message m) {
+        super(m, Scope.HANDLER);
+        roles.add(getWrappedSoapMessage().getVersion().getNextRole());
     }
 
     public void setMessage(SOAPMessage message) {
-        getWrappedMessage().setContent(SOAPMessage.class, message);
+        if (getWrappedMessage().getContent(Object.class) instanceof SOAPMessage) {
+            getWrappedMessage().setContent(Object.class, message);
+        } else {
+            getWrappedMessage().setContent(SOAPMessage.class, message);
+        }
     }
 
     public SOAPMessage getMessage() {
-        SOAPMessage message = getWrappedMessage().getContent(SOAPMessage.class);
+        SOAPMessage message = null;
+        if (getWrappedMessage().getContent(Object.class) instanceof SOAPMessage) {
+            message = (SOAPMessage)getWrappedMessage().getContent(Object.class);
+        } else {
+            message = getWrappedMessage().getContent(SOAPMessage.class);
+        }
+        
+        //Only happens to non-Dispatch/Provider case.
         if (null == message) {
-
-            try {
-                MessageFactory factory = MessageFactory.newInstance();
-                // getMimeHeaders from message
-                MimeHeaders mhs = null;
-                InputStream is = getWrappedMessage().getContent(InputStream.class);
-                message = factory.createMessage(mhs, is);
-                getWrappedMessage().setContent(SOAPMessage.class, message);
-            } catch (SOAPException ex) {
-                // do something
-            } catch (IOException ex) {
-                // do something
+            Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+            if (!outboundProperty) {
+                //No SOAPMessage exists yet, so lets create one
+                SAAJ_IN.handleMessage(getWrappedSoapMessage());
+                message = getWrappedSoapMessage().getContent(SOAPMessage.class);           
             }
         }
         return message;
@@ -72,33 +83,39 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
 
     // TODO: handle the boolean parameter
     public Object[] getHeaders(QName name, JAXBContext context, boolean allRoles) {
-        Element headerElements = getWrappedSoapMessage().getHeaders(Element.class);
-        if (headerElements == null) {
-            return null;
-        }
-        Collection<Object> objects = new ArrayList<Object>();
-        for (int i = 0; i < headerElements.getChildNodes().getLength(); i++) {
-            if (headerElements.getChildNodes().item(i) instanceof Element) {
-                Element e = (Element)headerElements.getChildNodes().item(i);
-                if (name.equals(e.getNamespaceURI())) {
-                    try {
-                        objects.add(context.createUnmarshaller().unmarshal(e));
-                    } catch (JAXBException ex) {
-                        // do something
-                    }
+        SOAPMessage msg = getMessage();
+        SOAPHeader header;
+        try {
+            header = msg.getSOAPPart().getEnvelope().getHeader();
+            if (header == null || !header.hasChildNodes()) {
+                return new Object[0];
+            }
+            List<Object> ret = new ArrayList<Object>();
+            Iterator<SOAPHeaderElement> it = CastUtils.cast(header.examineAllHeaderElements());
+            while (it.hasNext()) {
+                SOAPHeaderElement she = it.next();
+                if ((allRoles
+                    || roles.contains(she.getActor())) 
+                    && name.equals(she.getElementQName())) {
+                    
+                    ret.add(context.createUnmarshaller().unmarshal(she));
+                    
                 }
             }
-        }
-        Object[] headerObjects = new Object[objects.size()];
-        return objects.toArray(headerObjects);
+            return ret.toArray(new SOAPHeaderElement[ret.size()]);
+        } catch (SOAPException e) {
+            throw new WebServiceException(e);
+        } catch (JAXBException e) {
+            throw new WebServiceException(e);
+        } 
     }
 
     public Set<String> getRoles() {
-        // TODO Auto-generated method stub
-        return null;
+        return roles;
     }
 
     private SoapMessage getWrappedSoapMessage() {
         return (SoapMessage)getWrappedMessage();
     }
+   
 }

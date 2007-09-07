@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import junit.framework.Assert;
 
 public abstract class AbstractTestServerBase extends Assert {
+    boolean inProcess;
     
     /** 
      * method implemented by test servers.  Initialise 
@@ -39,16 +40,19 @@ public abstract class AbstractTestServerBase extends Assert {
     
     
     public void startInProcess() throws Exception {
-        System.out.println("running server in-process");
+        inProcess = true;
+        //System.out.println("running server in-process");
         run();
-        System.out.println("signal ready");
+        //System.out.println("signal ready");
         ready();
     }
     
     public boolean stopInProcess() throws Exception {
         boolean ret = true;
         if (verify(getLog())) {
-            System.out.println("server passed");
+            if (!inProcess) {
+                System.out.println("server passed");
+            }
         } else {
             ret = false;
         }
@@ -91,7 +95,9 @@ public abstract class AbstractTestServerBase extends Assert {
     }
     
     protected void ready() {
-        System.out.println("server ready");
+        if (!inProcess) {
+            System.out.println("server ready");
+        }
     }
     
     protected void startFailed() {

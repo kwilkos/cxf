@@ -19,110 +19,95 @@
 
 package org.apache.cxf.jaxws;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.xml.ws.Holder;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
+import javax.xml.ws.soap.SOAPFaultException;
 
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxws.context.WebServiceContextImpl;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.MethodDispatcher;
-import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.invoker.ApplicationScopePolicy;
+import org.apache.cxf.service.invoker.FactoryInvoker;
+import org.apache.cxf.service.invoker.ScopePolicy;
 
-public class JAXWSMethodInvoker implements Invoker {
+public class JAXWSMethodInvoker extends FactoryInvoker {
 
-    private Object bean;
-
-    public JAXWSMethodInvoker(Object bean) {
-        super();
-        this.bean = bean;
+    public JAXWSMethodInvoker(final Object bean) {
+        super(
+            new Factory() {
+                public Object create() {
+                    return bean;
+                }
+            },
+            ApplicationScopePolicy.instance());
+        
+    }
+    
+    public JAXWSMethodInvoker(Factory factory) {
+        super(factory, ApplicationScopePolicy.instance());
+    }
+    
+    public JAXWSMethodInvoker(Factory factory, ScopePolicy scope) {
+        super(factory, scope);
     }
 
-    @SuppressWarnings("unchecked")
-    public Object invoke(Exchange exchange, Object o) {
-        BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
-        MethodDispatcher md = (MethodDispatcher) exchange.get(Service.class).get(
-                        MethodDispatcher.class.getName());
-        Method m = md.getMethod(bop);
+    protected Fault createFault(Throwable ex) {
+        //map the JAX-WS faults
+        if (ex instanceof SOAPFaultException) {
+            SOAPFaultException sfe = (SOAPFaultException)ex;
+            SoapFault fault = new SoapFault(sfe.getFault().getFaultString(),
+                                            sfe,
+                                            sfe.getFault().getFaultCodeAsQName());
+            fault.setRole(sfe.getFault().getFaultActor());
+            fault.setDetail(sfe.getFault().getDetail());
+            
+            return fault;
+        }
+        return super.createFault(ex);
+    }
+    
+    protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
+        // set up the webservice request context 
+        MessageContext ctx = 
+            ContextPropertiesMapping.createWebServiceContext(exchange);
         
-        List<Object> params = (List<Object>) o;
-
-        checkHolder(m, params, exchange);
-        Object res;
-        try {
-            Object[] paramArray = params.toArray();
-            res = m.invoke(bean, paramArray);
-            if (exchange.isOneWay()) {
-                return null;
-            }
-            List<Object> retList = new ArrayList<Object>();
-            if (!((Class) m.getReturnType()).getName().equals("void")) {
-                retList.add(res);
-            }
-            for (int i = 0; i < paramArray.length; i++) {
-                if (paramArray[i] instanceof Holder) {
-                    retList.add(((Holder) paramArray[i]).value);
+        Map<String, Scope> scopes = CastUtils.cast((Map<?, ?>)ctx.get(WrappedMessageContext.SCOPES));
+        Map<String, Object> handlerScopedStuff = new HashMap<String, Object>();
+        if (scopes != null) {
+            for (Map.Entry<String, Scope> scope : scopes.entrySet()) {
+                if (scope.getValue() == Scope.HANDLER) {
+                    handlerScopedStuff.put(scope.getKey(), ctx.get(scope.getKey()));
                 }
             }
-            return Arrays.asList(retList.toArray());
-        } catch (IllegalAccessException e) {
-            throw new Fault(e);
-        } catch (IllegalArgumentException e) {
-            throw new Fault(e);
-        } catch (InvocationTargetException e) {
-            Throwable target = e;
-            if (e.getCause() instanceof Exception) {
-                target = e.getCause();
+            for (String key : handlerScopedStuff.keySet()) {
+                ctx.remove(key);
             }
-            throw new Fault(target);
         }
-    }
 
-    @SuppressWarnings("unchecked")
-    private void checkHolder(Method method, List<Object> params, Exchange exchange) {
-        if (method != null) {
-
-            Type[] para = method.getGenericParameterTypes();
-            for (int i = 0; i < para.length; i++) {               
-                if (para[i] instanceof ParameterizedType) {
-                    ParameterizedType paramType = (ParameterizedType) para[i];
-                    if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
-                        
-                        Object rawType = paramType.getActualTypeArguments()[0];
-                        Class rawClass = null;
-                        if (rawType instanceof GenericArrayType) {
-                            rawClass = (Class) ((GenericArrayType) rawType).getGenericComponentType();
-                            rawClass = Array.newInstance(rawClass, 0).getClass();
-                        } else if (rawType instanceof Class) {     
-                            rawClass = (Class) rawType;
-                        } else if (rawType instanceof ParameterizedType) {
-                            rawClass = (Class)((ParameterizedType)rawType).getRawType();
-                        }
-                       // param = new Holder((Class) rawClass);
-                        
-                        
-                        if (i >= params.size()) {
-                            params.add(new Holder());
-                        } else {
-                            params.set(i, new Holder(params.get(i)));
-                        }
-                    }
-
-                } 
+        
+        WebServiceContextImpl.setMessageContext(ctx);
+        
+        List<Object> res = CastUtils.cast((List)super.invoke(exchange, serviceObject, m, params));
+        
+        for (Map.Entry<String, Object> key : handlerScopedStuff.entrySet()) {
+            ctx.put(key.getKey(), key.getValue());
+            ctx.setScope(key.getKey(), Scope.HANDLER);
+        }
                 
-            }
-
-        }
-
+        //update the webservice response context
+        ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);
+        //clear the WebServiceContextImpl's ThreadLocal variable
+        WebServiceContextImpl.clear();
+        return res;
     }
-
 }

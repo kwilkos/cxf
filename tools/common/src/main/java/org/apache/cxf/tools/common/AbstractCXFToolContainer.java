@@ -41,42 +41,39 @@ import org.apache.cxf.version.Version;
 
 public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     protected static final Logger LOG = LogUtils.getL7dLogger(AbstractCXFToolContainer.class);
-    private static AbstractCXFToolContainer instance;
     
     private final String name;
     private CommandDocument commandDocument;
     private boolean verbose;
     private String usage;
     private final ErrorVisitor errors = new ErrorVisitor();
-
-
+    
+    
     public AbstractCXFToolContainer(String nm, ToolSpec toolspec) throws Exception {
         super(toolspec);
         name = nm;
-        instance = this;
     }
 
-    public static AbstractCXFToolContainer getInstance() {
-        return instance;
-    }
     public boolean hasInfoOption() throws ToolException {
-        boolean result = false;
         commandDocument = getCommandDocument();
-        if ((commandDocument.hasParameter("help")) || (commandDocument.hasParameter("version"))) {
-            result = true;
+        if (commandDocument == null) {
+            return false;
         }
-        return result;
+        if ((commandDocument.hasParameter("help")) || (commandDocument.hasParameter("version"))) {
+            return true;
+        }
+        return false;
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {
+        super.execute(exitOnFinish);
         if (hasInfoOption()) {
             outputInfo();
         } else {
             if (commandDocument.hasParameter("verbose")) {
                 verbose = true;
                 outputFullCommandLine();
-                outputVersion();
-                
+                outputVersion();               
             }
             checkParams(errors);
         }             
@@ -89,7 +86,7 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
             try {
                 System.out.println(name + " " + getUsage());
                 System.out.println();
-                System.out.println("Options : ");
+                System.out.println("Options: ");
                 System.out.println();
                 System.out.println(parser.getDetailedUsage());
                 String toolUsage = parser.getToolUsage();
@@ -111,6 +108,9 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     public abstract void checkParams(ErrorVisitor err) throws ToolException;
 
     public boolean isVerboseOn() {
+        if (context != null && context.isVerbose()) {
+            return true;
+        }
         return verbose;
     }
 
@@ -160,13 +160,13 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     }
 
     public void printUsageException(String toolName, BadUsageException ex) {
-        if (getInstance().verbose) {
-            getInstance().outputFullCommandLine();
+        if (verbose) {
+            outputFullCommandLine();
         }
         System.err.println(ex.getMessage());
         System.err.println("Usage : " + toolName + " " + ex.getUsage());
-        if (getInstance().verbose) {
-            getInstance().outputVersion();
+        if (verbose) {
+            outputVersion();
         }
         System.err.println();
     }
@@ -257,6 +257,9 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     protected Map<String, Object> getParametersMap(Set stringArrayKeys) {
         Map<String, Object> map = new HashMap<String, Object>();
         CommandDocument doc = getCommandDocument();
+        if (doc == null) {
+            return map;
+        }
         String[] keys = doc.getParameterNames();
         if (keys == null) {
             return map;

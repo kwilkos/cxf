@@ -24,11 +24,14 @@ package org.apache.cxf.management.jmx;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 
-public class MBServerConnectorTest extends  TestCase {
+public class MBServerConnectorTest extends Assert {
+    
+    @Test
     public void testMBServerConnector() {
         MBServerConnectorFactory mcf;    
         MBeanServer mbs;        

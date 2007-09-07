@@ -25,28 +25,27 @@ import javax.resource.spi.ManagedConnection;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.connector.Connection;
 import org.apache.cxf.jca.cxf.CXFConnectionRequestInfo;
 import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class OutBoundConnectionTest extends ClientServerTestBase {
+public class OutBoundConnectionTest extends AbstractBusClientServerTestBase {
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");
     
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                                              "SoapPort");
 
-    public static class Server extends TestServerBase {        
+    public static class Server extends AbstractBusTestServerBase {        
         
         protected void run() {
             Object implementor = new GreeterImpl();
@@ -68,15 +67,12 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
         }
     }
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(OutBoundConnectionTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
     
+    @Test
     public void testBasicConnection() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -92,6 +88,14 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
         Subject subject = new Subject();
         ManagedConnection mc = managedFactory.createManagedConnection(subject, cri);        
         Object o = mc.getConnection(subject, cri);
+        
+        // test for the Object hash()
+        try {
+            o.hashCode();
+            o.toString();
+        } catch (WebServiceException ex) {
+            fail("The connection object should support Object method");
+        }
         
         assertTrue("returned connect does not implement Connection interface", o instanceof Connection);
         assertTrue("returned connect does not implement Connection interface", o instanceof Greeter);

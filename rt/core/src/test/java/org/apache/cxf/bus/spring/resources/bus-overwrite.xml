@@ -23,7 +23,7 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="cxf" class="org.apache.cxf.bus.spring.SpringBusImpl">
+    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
         <property name="inInterceptors">
            <list>
               <ref bean="in-a"/>

@@ -21,16 +21,20 @@ package org.apache.cxf.bus.spring;
 
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
+import org.springframework.core.Ordered;
 
-public class Jsr250BeanPostProcessor implements BeanPostProcessor {
+public class Jsr250BeanPostProcessor implements DestructionAwareBeanPostProcessor, Ordered {
 
     private ResourceInjector injector;
     
     Jsr250BeanPostProcessor() {
         injector = new ResourceInjector(null, null); 
     }
-    
+
+    public int getOrder() {
+        return 1002;
+    }
         
     public Object postProcessAfterInitialization(Object bean, String beanId) throws BeansException {
         return bean;
@@ -39,6 +43,10 @@ public class Jsr250BeanPostProcessor implements BeanPostProcessor {
     public Object postProcessBeforeInitialization(Object bean, String beanId) throws BeansException {
         injector.construct(bean);
         return bean;
+    }
+
+    public void postProcessBeforeDestruction(Object bean, String beanId) {
+        injector.destroy(bean);
     }
 
 }

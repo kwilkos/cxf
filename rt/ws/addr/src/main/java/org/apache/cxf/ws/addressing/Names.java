@@ -34,9 +34,7 @@ public final class Names {
     public static final String WSA_NAMESPACE_NAME = 
         "http://www.w3.org/2005/08/addressing";
     public static final String WSA_NAMESPACE_WSDL_NAME = 
-        WSA_NAMESPACE_NAME + "/wsdl";
-    public static final String WSA_NAMESPACE_PREFIX = "wsa";
-    public static final String WSA_NAMESPACE_WSDL_PREFIX = "wsaw";
+        "http://www.w3.org/2005/02/addressing/wsdl";
     public static final String WSA_NAMESPACE_PATTERN = "/addressing";
 
     public static final String WSA_REFERENCE_PARAMETERS_NAME = 

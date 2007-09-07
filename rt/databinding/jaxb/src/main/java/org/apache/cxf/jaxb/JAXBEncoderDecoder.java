@@ -19,27 +19,24 @@
 
 package org.apache.cxf.jaxb;
 
-import java.lang.annotation.Annotation;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.namespace.QName;
@@ -48,204 +45,27 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
-import javax.xml.ws.WebEndpoint;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.util.PackageUtils;
-import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
 
 /**
- * JAXBEncoderDecoder
- * 
- * @author apaibir
+ * Utility functions for JAXB.
  */
 public final class JAXBEncoderDecoder {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBEncoderDecoder.class);
-
-    private static Map<Class<?>, JAXBContext> contextMap = new ConcurrentHashMap<Class<?>, JAXBContext>();
-
+    
     private JAXBEncoderDecoder() {
-    }
-
-    public static JAXBContext createJAXBContextForClass(Class<?> cls) throws JAXBException {
-        JAXBContext context = contextMap.get(cls);
-        if (context == null) {
-            Set<Class<?>> classes = new HashSet<Class<?>>();
-            getClassesForContext(cls, classes, cls.getClassLoader());
-
-            try {
-                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
-                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
-                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
-            } catch (ClassNotFoundException e) {
-                // REVISIT - ignorable if WS-ADDRESSING not available?
-                // maybe add a way to allow interceptors to add stuff to the
-                // context?
-            }
-           
-            context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
-            contextMap.put(cls, context);
-        }
-        return context;
-    }
-
-    private static Class<?> getValidClass(Class<?> cls) {
-        if (cls.isEnum()) {
-            return cls;
-        }
-        if (cls.isArray()) {
-            return getValidClass(cls.getComponentType());
-        }
-
-        if (cls == Object.class || cls == String.class) {
-            cls = null;
-        } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
-            cls = null;
-        }
-        if (cls != null) {
-            try {
-                if (cls.getConstructor(new Class[0]) == null) {
-                    cls = null;
-                }
-            } catch (NoSuchMethodException ex) {
-                cls = null;
-            }
-        }
-        return cls;
-    }
-
-    private static void addClass(Class<?> cls, Set<Class<?>> classes) {
-        if (cls.isArray()) {
-            // REVISIT-- add java primitive type array will cause jaxb exception
-            //classes.add(cls);
-            return;
-        }
-        cls = getValidClass(cls);
-        if (null != cls) {
-            if (cls.isEnum()) {
-                // The object factory stuff doesn't work for enums
-                classes.add(cls);
-            }
-            String name = PackageUtils.getPackageName(cls) + ".ObjectFactory";
-            try {
-                cls = Class.forName(name, false, cls.getClassLoader());
-                if (cls != null) {
-                    classes.add(cls);
-                }
-            } catch (ClassNotFoundException ex) {
-                // cannot add factory, just add the class
-                classes.add(cls);
-            }
-        }
-    }
-
-    private static void addType(Type cls, Set<Class<?>> classes) {
-        if (cls instanceof Class) {
-            addClass((Class)cls, classes);
-        } else if (cls instanceof ParameterizedType) {
-            for (Type t2 : ((ParameterizedType)cls).getActualTypeArguments()) {
-                addType(t2, classes);
-            }
-        } else if (cls instanceof GenericArrayType) {
-            GenericArrayType gt = (GenericArrayType)cls;
-            Class ct = (Class) gt.getGenericComponentType();
-            ct = Array.newInstance(ct, 0).getClass();
-            addType(ct, classes);
-        }
-    }
-
-    // collect ALL the classes that are accessed by the class
-    private static void getClassesForContext(Class<?> theClass, Set<Class<?>> classes, ClassLoader loader) {
-        Method methods[] = theClass.getMethods();
-        for (Method meth : methods) {
-            WebEndpoint webEndpoint = meth.getAnnotation(WebEndpoint.class);
-            if (webEndpoint != null) {
-                getClassesForContext(meth.getReturnType(), classes, loader);
-            }
-
-            // only methods marked as WebMethods are interesting to us
-            WebMethod webMethod = meth.getAnnotation(WebMethod.class);
-            if (webMethod == null) {
-                continue;
-            }
-
-            for (Type t : meth.getGenericParameterTypes()) {
-                addType(t, classes);
-            }
-            addType(meth.getGenericReturnType(), classes);
-
-            if (meth.getReturnType().isArray()) {
-                addClass(meth.getReturnType(), classes);
-            }
-            for (Class<?> cls : meth.getParameterTypes()) {
-                addClass(cls, classes);
-            }
-
-            for (Class<?> cls : meth.getExceptionTypes()) {
-                // addClass(cls, classes);
-                try {
-                    Method fim = cls.getMethod("getFaultInfo", new Class[0]);
-                    addClass(fim.getReturnType(), classes);
-                } catch (NoSuchMethodException ex) {
-                    // ignore - not a valid JAXB fault thing
-                }
-            }
-            try {
-                // Get the RequestWrapper
-                RequestWrapper reqWrapper = meth.getAnnotation(RequestWrapper.class);
-                if (reqWrapper != null) {
-                    Class<?> cls = Class.forName(reqWrapper.className(), false, loader);
-                    addClass(cls, classes);
-
-                }
-                // Get the RequestWrapper
-
-                ResponseWrapper respWrapper = meth.getAnnotation(ResponseWrapper.class);
-                if (respWrapper != null) {
-                    Class<?> cls = Class.forName(respWrapper.className(), false, loader);
-                    addClass(cls, classes);
-                }
-            } catch (ClassNotFoundException ex) {
-                // ignore
-            }
-            // get ObjectFactory in case of bare
-
-            Annotation[][] parasAnnotation = meth.getParameterAnnotations();
-            String packageName = null;
-            for (int i = 0; i < parasAnnotation.length; i++) {
-                Annotation[] paraAnno = parasAnnotation[i];
-                for (int j = 0; j < paraAnno.length; j++) {
-                    if (paraAnno[j].annotationType() == WebParam.class) {
-                     
-                        packageName = ((WebParam)paraAnno[j]).targetNamespace();
-                        packageName = PackageUtils.parsePackageName(packageName, null);
-
-                        try {
-                            Class<?> cls = Class.forName(packageName + ".ObjectFactory", false, theClass
-                                .getClassLoader());
-                            if (cls != null) {
-                                classes.add(cls);
-                            }
-                        } catch (ClassNotFoundException ex) {
-                            // ignore
-                        }
-                    }
-                }
-            }
-        }
-
-        for (Class<?> intf : theClass.getInterfaces()) {
-            getClassesForContext(intf, classes, loader);
-        }
-        if (theClass.getSuperclass() != null) {
-            getClassesForContext(theClass.getSuperclass(), classes, loader);
-        }
     }
 
     private static Marshaller createMarshaller(JAXBContext context, Class<?> cls) throws JAXBException {
@@ -261,40 +81,119 @@ public final class JAXBEncoderDecoder {
         return jm;
     }
 
-    public static void marshall(JAXBContext context, Schema schema, Object elValue, QName elNname,
-                                Object source, AttachmentMarshaller am) {
+    @SuppressWarnings("unchecked")
+    public static void marshall(JAXBContext context, 
+                                Schema schema, 
+                                Object elValue, 
+                                MessagePartInfo part,
+                                Object source, 
+                                AttachmentMarshaller am) {
+        Class<?> cls = null;
+        if (part != null) {
+            cls = part.getTypeClass();
+        } 
 
-        Class<?> cls = null != elValue ? elValue.getClass() : null;
+        if (cls == null) {
+            cls = null != elValue ? elValue.getClass() : null;
+        }
+        
+        if (cls != null && cls.isArray() && elValue instanceof Collection) {
+            Collection<?> col = (Collection<?>) elValue;
+            elValue = col.toArray((Object[]) Array.newInstance(cls.getComponentType(), col.size()));
+        }
+        
         try {
             Marshaller u = createMarshaller(context, cls);
             try {
                 // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to
                 // generate the xml declaration.
                 u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+                u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
             } catch (javax.xml.bind.PropertyException e) {
                 // intentionally empty.
             }
             Object mObj = elValue;
-
-            if (null != elNname && null != cls && !cls.isAnnotationPresent(XmlRootElement.class)) {
-                mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
-                    .newInstance(elNname, cls, mObj);
+            QName elName = null;
+            if (part != null) {
+                elName = part.getConcreteName();
             }
             u.setSchema(schema);
             if (am != null) {
                 u.setAttachmentMarshaller(am);
             }
-            if (source instanceof Node) {
-                u.marshal(mObj, (Node)source);
-            } else if (source instanceof XMLEventWriter) {
-                u.marshal(mObj, (XMLEventWriter)source);
-            } else if (source instanceof XMLStreamWriter) {
-                u.marshal(mObj, (XMLStreamWriter)source);
+
+            if (null != elName) {
+                
+                if (part != null
+                    && part.getXmlSchema() instanceof XmlSchemaElement) {
+                
+                    XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
+                    
+                    if (mObj.getClass().isArray()
+                        && el.getSchemaType() instanceof XmlSchemaSimpleType
+                        && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
+                                instanceof XmlSchemaSimpleTypeList) {
+                        mObj = Arrays.asList((Object[])mObj);
+                        writeObject(u, source, new JAXBElement(elName, cls, mObj));
+                    } else if (part.getMessageInfo().getOperation().isUnwrapped()
+                        && (mObj.getClass().isArray() || mObj instanceof List)
+                        && el.getMaxOccurs() != 1) {
+                        //Have to handle this ourselves....  which really sucks.... but what can we do?
+                        Object objArray;
+                        if (mObj instanceof List) {
+                            List l = (List)mObj;
+                            objArray = l.toArray(new Object[l.size()]);
+                            cls = null;
+                        } else {
+                            objArray = mObj;
+                            cls = objArray.getClass().getComponentType();
+                        }
+                        int len = Array.getLength(objArray);
+                        for (int x = 0; x < len; x++) {
+                            Object o = Array.get(objArray, x);
+                            writeObject(u, source, 
+                                        new JAXBElement(elName, cls == null ? o.getClass() : cls , 
+                                            o));
+                        }
+                    } else {
+                        writeObject(u, source, new JAXBElement(elName, cls, mObj));
+                    }
+                } else if (byte[].class == cls
+                    && part.getTypeQName() != null
+                    && part.getTypeQName().getLocalPart().equals("hexBinary")) {
+                    mObj = new HexBinaryAdapter().marshal((byte[])mObj);
+                    writeObject(u, source, new JAXBElement(elName, String.class, mObj));
+                } else {
+                    writeObject(u, source, new JAXBElement(elName, cls, mObj));
+                }
             } else {
-                throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
+                writeObject(u, source, mObj);
             }
+        } catch (Fault ex) {
+            throw (Fault)ex.fillInStackTrace();
         } catch (Exception ex) {
-            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE), ex);
+            if (ex instanceof javax.xml.bind.MarshalException) {
+                javax.xml.bind.MarshalException marshalEx = (javax.xml.bind.MarshalException)ex;
+                Message faultMessage = new Message("MARSHAL_ERROR",
+                                                   BUNDLE, marshalEx.getLinkedException().getMessage());
+                throw new Fault(faultMessage, ex); 
+            } else {
+                throw new Fault(new Message("MARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
+            }                       
+        }
+    }
+    
+    private static void writeObject(Marshaller u, Object source, Object mObj) throws Fault, JAXBException { 
+        if (source instanceof XMLStreamWriter) {
+            u.marshal(mObj, (XMLStreamWriter)source);
+        } else if (source instanceof OutputStream) {
+            u.marshal(mObj, (OutputStream)source);
+        } else if (source instanceof Node) {
+            u.marshal(mObj, (Node)source);
+        } else if (source instanceof XMLEventWriter) {
+            u.marshal(mObj, (XMLEventWriter)source);
+        } else {
+            throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
         }
     }
 
@@ -302,14 +201,19 @@ public final class JAXBEncoderDecoder {
         marshall(context, schema, elValue, null, source, null);
     }
 
-    public static void marshall(JAXBContext context, Schema schema, Object elValue, QName elNname,
+    public static void marshall(JAXBContext context, Schema schema, 
+                                Object elValue, 
+                                MessagePartInfo part,
                                 Object source) {
-        marshall(context, schema, elValue, elNname, source, null);
+        marshall(context, schema, elValue, part, source, null);
     }
 
     private static Unmarshaller createUnmarshaller(JAXBContext context, Class<?> cls) throws JAXBException {
         Unmarshaller um = null;
         if (context == null) {
+            if (cls == null) {
+                throw new IllegalStateException("A JAXBContext or Class to unmarshal must be provided!");
+            }
             context = JAXBContext.newInstance(cls);
         }
 
@@ -319,68 +223,180 @@ public final class JAXBEncoderDecoder {
     }
 
     public static Object unmarshall(JAXBContext context, Schema schema, Object source) {
-        return unmarshall(context, schema, source, null, null, null);
+        return unmarshall(context, schema, source, null, null, true);
     }
 
-    public static Object unmarshall(JAXBContext context, Schema schema, Object source, QName elName) {
-        return unmarshall(context, schema, source, elName, null, null);
-    }
+    @SuppressWarnings("unchecked")
+    public static Object unmarshall(JAXBContext context, 
+                                    Schema schema, 
+                                    Object source,
+                                    MessagePartInfo part, 
+                                    AttachmentUnmarshaller au, 
+                                    boolean unwrap) {
+        Class<?> clazz = part != null ? (Class) part.getTypeClass() : null;
+        QName elName = part != null ? part.getConcreteName() : null;
+        if (clazz != null
+            && clazz.isArray()
+            && part != null 
+            && part.getXmlSchema() instanceof XmlSchemaElement) {
+            XmlSchemaElement el = (XmlSchemaElement)part.getXmlSchema();
+            
+            if (el.getSchemaType() instanceof XmlSchemaSimpleType
+                && ((XmlSchemaSimpleType)el.getSchemaType()).getContent()
+                instanceof XmlSchemaSimpleTypeList) {
+                
+                Object obj = unmarshall(context, schema, source, elName, null, au, unwrap);
+                if (clazz.isArray()
+                    && obj instanceof List) {
+                    return ((List)obj).toArray((Object[])Array.newInstance(clazz.getComponentType(),
+                                                                 ((List)obj).size()));
+                }
+                    
+                return obj;
+            } else if (part.getMessageInfo().getOperation().isUnwrapped()
+                        && el.getMaxOccurs() != 1) {
+                //must read ourselves....
+                List<Object> ret = unmarshallArray(context, schema, source,
+                                                   elName, clazz.getComponentType(),
+                                                   au, createList(part));
+                Object o = ret;
+                if (!isList(part)) {
+                    if (clazz.getComponentType().isPrimitive()) {
+                        o = java.lang.reflect.Array.newInstance(clazz.getComponentType(),
+                                                                     ret.size());
+                        for (int x = 0; x < ret.size(); x++) {
+                            Array.set(o, x, ret.get(x));
+                        }
+                    } else {
+                        o = ret.toArray((Object[])Array.newInstance(clazz.getComponentType(),
+                                                                       ret.size()));
+                    }
+                }
+                return o;
+            }
+        } else if (byte[].class == clazz
+            && part != null 
+            && part.getTypeQName() != null
+            && part.getTypeQName().getLocalPart().equals("hexBinary")) {
+            
+            String obj = (String)unmarshall(context, schema, source, elName, String.class, au, unwrap);
+            return new HexBinaryAdapter().unmarshal(obj);
+        }
 
-    public static Object unmarshall(JAXBContext context, Schema schema, Object source, QName elName,
-                                    Class<?> clazz) {
-        return unmarshall(context, schema, source, elName, clazz, null);
+        Object o = unmarshall(context, schema, source, elName, clazz, au, unwrap);
+        if (o != null
+            && o.getClass().isArray()
+            && isList(part)) {
+            List<Object> ret = createList(part);
+            ret.addAll(Arrays.asList((Object[])o));
+            o = ret;
+        }
+        return o;
     }
-
-    public static Object unmarshall(JAXBContext context, Schema schema, Object source, QName elName,
-                                    Class<?> clazz, AttachmentUnmarshaller au) {
+    
+    private static List<Object> createList(MessagePartInfo part) {
+        Type genericType = (Type)part.getProperty("generic.type");
+        if (genericType instanceof ParameterizedType) {
+            Type tp2 = ((ParameterizedType)genericType).getRawType();
+            if (tp2 instanceof Class) {
+                Class<?> cls = (Class)tp2;
+                if (!cls.isInterface()
+                    && List.class.isAssignableFrom((Class<?>)cls)) {
+                    try {
+                        return CastUtils.cast((List)cls.newInstance());
+                    } catch (Exception e) {
+                        //ignore, just return an ArrayList
+                    }
+                }
+            }
+        }
+        
+        return new ArrayList<Object>();
+    }
+    
+    private static boolean isList(MessagePartInfo part) {
+        if (part.getTypeClass().isArray()
+            && !part.getTypeClass().getComponentType().isPrimitive()) {
+            //&& Collection.class.isAssignableFrom(part.getTypeClass())) {
+            //it's List Para
+            //
+            Type genericType = (Type) part.getProperty("generic.type");
+            
+            if (genericType instanceof ParameterizedType) {
+                Type tp2 = ((ParameterizedType)genericType).getRawType();
+                if (tp2 instanceof Class) {
+                    return Collection.class.isAssignableFrom((Class<?>)tp2);
+                }
+            }
+        }
+        return false;
+    }
+    public static Object unmarshall(JAXBContext context, 
+                                    Schema schema, 
+                                    Object source,
+                                    QName elName,
+                                    Class<?> clazz,
+                                    AttachmentUnmarshaller au, 
+                                    boolean unwrap) {
         Object obj = null;
+        
         try {
             Unmarshaller u = createUnmarshaller(context, clazz);
             u.setSchema(schema);
             if (au != null) {
                 u.setAttachmentUnmarshaller(au);
             }
+            boolean unmarshalWithClass = true;
+            
+            if (clazz == null || (!clazz.isPrimitive() && !clazz.isArray() && !clazz.isEnum() 
+                && (Modifier.isAbstract(clazz.getModifiers()) 
+                || Modifier.isInterface(clazz.getModifiers())))) {
+                unmarshalWithClass = false;
+            } 
+            
+            if (clazz != null && (clazz.getName().equals("javax.xml.datatype.XMLGregorianCalendar")
+                    || clazz.getName().equals("javax.xml.datatype.Duration"))) {
+                //special treat two jaxb defined built-in abstract types
+                unmarshalWithClass = true;
+            }
             if (source instanceof Node) {
-                obj = (clazz != null) ? u.unmarshal((Node)source, clazz) : u.unmarshal((Node)source);
+                obj = unmarshalWithClass ? u.unmarshal((Node)source, clazz) : u.unmarshal((Node)source);
             } else if (source instanceof XMLStreamReader) {
-                obj = (clazz != null) ? u.unmarshal((XMLStreamReader)source, clazz) : u
+                
+                obj = unmarshalWithClass ? u.unmarshal((XMLStreamReader)source, clazz) : u
                     .unmarshal((XMLStreamReader)source);
             } else if (source instanceof XMLEventReader) {
-                obj = (clazz != null) ? u.unmarshal((XMLEventReader)source, clazz) : u
+                obj = unmarshalWithClass ? u.unmarshal((XMLEventReader)source, clazz) : u
                     .unmarshal((XMLEventReader)source);
             } else {
                 throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }
-        } catch (Exception ex) {
-            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE), ex);
+        } catch (Fault ex) {
+            ex.fillInStackTrace();
+            throw ex;
+        } catch (Exception ex) {                        
+            if (ex instanceof javax.xml.bind.UnmarshalException) {                
+                javax.xml.bind.UnmarshalException unmarshalEx = (javax.xml.bind.UnmarshalException)ex;
+                throw new Fault(new Message("UNMARSHAL_ERROR", 
+                                            BUNDLE, unmarshalEx.getLinkedException().getMessage()), ex); 
+            } else {
+                throw new Fault(new Message("UNMARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
+            }
         }
-        return (elName == null) ? obj : getElementValue(obj, elName);
+        return unwrap ? getElementValue(obj) : obj;
     }
 
-    public static Object getElementValue(Object obj, QName elName) {
+    public static Object getElementValue(Object obj) {
         if (null == obj) {
             return null;
         }
 
-        if (obj instanceof JAXBElement<?>) {
-            JAXBElement<?> el = (JAXBElement<?>)obj;
-            if (isSame(el.getName(), elName)) {
-                obj = el.getValue();
-            }
+        if (obj instanceof JAXBElement) {
+            return ((JAXBElement<?>)obj).getValue();
         }
         return obj;
     }
-
-    private static boolean isSame(QName messageQName, QName methodQName) {
-        boolean same = false;
-        if (StringUtils.isEmpty(messageQName.getNamespaceURI())) {
-            same = messageQName.getLocalPart().equals(methodQName.getLocalPart());
-        } else {
-            same = messageQName.equals(methodQName);
-        }
-        return same;
-    }
-
+    
     public static Class<?> getClassFromType(Type t) {
         if (t instanceof Class) {
             return (Class)t;
@@ -396,5 +412,48 @@ public final class JAXBEncoderDecoder {
         // JAXB Code Generated.
         assert false;
         throw new IllegalArgumentException("Cannot get Class object from unknown Type");
+    }
+    
+    public static List<Object> unmarshallArray(JAXBContext context, 
+                                    Schema schema, 
+                                    Object source,
+                                    QName elName,
+                                    Class<?> clazz,
+                                    AttachmentUnmarshaller au,
+                                    List<Object> ret) {
+        try {
+            Unmarshaller u = createUnmarshaller(context, clazz);
+            u.setSchema(schema);
+            if (au != null) {
+                u.setAttachmentUnmarshaller(au);
+            }
+            XMLStreamReader reader;
+            if (source instanceof XMLStreamReader) {
+                reader = (XMLStreamReader)source;
+            } else if (source instanceof Element) {
+                reader = StaxUtils.createXMLStreamReader((Element)source);
+            } else {
+                throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
+            }
+            while (reader.getName().equals(elName)) {
+                Object obj = u.unmarshal(reader, clazz);
+                if (obj instanceof JAXBElement) {
+                    obj = ((JAXBElement)obj).getValue();
+                }
+                ret.add(obj);
+            }
+            return ret;
+        } catch (Fault ex) {
+            ex.fillInStackTrace();
+            throw ex;
+        } catch (Exception ex) {                        
+            if (ex instanceof javax.xml.bind.UnmarshalException) {                
+                javax.xml.bind.UnmarshalException unmarshalEx = (javax.xml.bind.UnmarshalException)ex;
+                throw new Fault(new Message("UNMARSHAL_ERROR", 
+                                            BUNDLE, unmarshalEx.getLinkedException().getMessage()), ex); 
+            } else {
+                throw new Fault(new Message("UNMARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
+            }
+        } 
     }
 }

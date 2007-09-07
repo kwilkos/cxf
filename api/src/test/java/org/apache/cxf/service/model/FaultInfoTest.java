@@ -21,21 +21,21 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FaultInfoTest extends TestCase {
+public class FaultInfoTest extends Assert {
     
     private FaultInfo faultInfo;
     
+    @Before
     public void setUp() throws Exception {
         faultInfo = new FaultInfo(new QName("urn:test:ns", "fault"), new QName(
              "http://apache.org/hello_world_soap_http", "faultMessage"), null);
     }
     
-    public void tearDown() throws Exception {
-        
-    }
-    
+    @Test
     public void testName() throws Exception {
         assertEquals(faultInfo.getFaultName(), new QName("urn:test:ns", "fault"));
         assertEquals(faultInfo.getName().getLocalPart(), "faultMessage");

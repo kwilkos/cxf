@@ -137,7 +137,7 @@ public class XSDToJavaMojo extends AbstractMojo {
     }
     
     private String[] getArguments(XsdOption option, String outputDir) {
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         if (option.getPackagename() != null) {
             list.add("-p");
             list.add(option.getPackagename());
@@ -164,7 +164,7 @@ public class XSDToJavaMojo extends AbstractMojo {
         list.add(outputDir);
         list.add(option.getXsd());
        
-        return (String[])list.toArray(new String[list.size()]);
+        return list.toArray(new String[list.size()]);
         
     }
     

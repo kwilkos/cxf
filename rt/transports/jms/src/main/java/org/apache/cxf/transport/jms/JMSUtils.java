@@ -33,11 +33,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-import org.apache.cxf.transports.jms.JMSNamingPropertyType;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.context.JMSPropertyType;
-
 
 public final class JMSUtils {
 
@@ -47,7 +42,7 @@ public final class JMSUtils {
 
     }
 
-    public static Context getInitialContext(JMSAddressPolicyType addrType) throws NamingException {
+    public static Context getInitialContext(AddressType addrType) throws NamingException {
         Properties env = new Properties();
         populateContextEnvironment(addrType, env);
 
@@ -67,7 +62,7 @@ public final class JMSUtils {
     }
 
 
-    protected static void populateContextEnvironment(JMSAddressPolicyType addrType, Properties env) {
+    protected static void populateContextEnvironment(AddressType addrType, Properties env) {
         
         java.util.ListIterator listIter =  addrType.getJMSNamingProperty().listIterator();
 

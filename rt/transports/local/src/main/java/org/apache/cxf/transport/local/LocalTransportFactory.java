@@ -20,11 +20,21 @@
 package org.apache.cxf.transport.local;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
@@ -32,31 +42,60 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
-public class LocalTransportFactory implements DestinationFactory, ConduitInitiator {
+public class LocalTransportFactory extends AbstractTransportFactory
+    implements DestinationFactory, ConduitInitiator {
    
-    public static final String TRANSPORT_ID = "http://cxf.apache.org/local-transport";
-    
-    private static final Logger LOG = Logger.getLogger(LocalTransportFactory.class.getName());
+    public static final String TRANSPORT_ID = "http://cxf.apache.org/transports/local";
+
+    private static final Logger LOG = LogUtils.getL7dLogger(LocalTransportFactory.class);
+    private static final Set<String> URI_PREFIXES = new HashSet<String>();
+
+    static {
+        URI_PREFIXES.add("local://");
+    }
     
     private Map<String, Destination> destinations = new HashMap<String, Destination>();
+    private Bus bus;
 
+    private Set<String> messageFilterProperties;
     
-    public Destination getDestination(EndpointInfo ei) throws IOException {
-        return getDestination(createReference(ei));
+    public LocalTransportFactory() {
+        super();
+        List<String> ids = new ArrayList<String>();
+        ids.add(TRANSPORT_ID);
+        setTransportIds(ids);
+        
+        messageFilterProperties = new HashSet<String>();
+        messageFilterProperties.add(Message.REQUESTOR_ROLE);
+    }
+    
+    @Resource(name = "bus")
+    public void setBus(Bus b) {
+        bus = b;
     }
 
-    public Destination getDestination(EndpointReferenceType reference) throws IOException {
+    public Bus getBus() {
+        return bus;
+    }
+    
+    public Destination getDestination(EndpointInfo ei) throws IOException {
+        return getDestination(ei, createReference(ei));
+    }
+
+    protected Destination getDestination(EndpointInfo ei,
+                                         EndpointReferenceType reference)
+        throws IOException {
         Destination d = destinations.get(reference.getAddress().getValue());
         if (d == null) {
-            d = createDestination(reference);
+            d = createDestination(ei, reference);
             destinations.put(reference.getAddress().getValue(), d);
         }
         return d;
     }
 
-    private Destination createDestination(EndpointReferenceType reference) {
+    private Destination createDestination(EndpointInfo ei, EndpointReferenceType reference) {
         LOG.info("Creating destination for address " + reference.getAddress().getValue());
-        return new LocalDestination(this, reference);
+        return new LocalDestination(this, reference, ei);
     }
 
     void remove(LocalDestination destination) {
@@ -64,11 +103,11 @@ public class LocalTransportFactory implements DestinationFactory, ConduitInitiat
     }
 
     public Conduit getConduit(EndpointInfo ei) throws IOException {
-        return new LocalConduit((LocalDestination)getDestination(createReference(ei)));
+        return new LocalConduit(this, (LocalDestination)getDestination(ei));
     }
 
     public Conduit getConduit(EndpointInfo ei, EndpointReferenceType target) throws IOException {
-        return new LocalConduit((LocalDestination)getDestination(target));
+        return new LocalConduit(this, (LocalDestination)getDestination(ei, target));
     }
 
     EndpointReferenceType createReference(EndpointInfo ei) {
@@ -77,6 +116,18 @@ public class LocalTransportFactory implements DestinationFactory, ConduitInitiat
         address.setValue(ei.getAddress());
         epr.setAddress(address);
         return epr;
+    }
+
+    public Set<String> getUriPrefixes() {
+        return URI_PREFIXES;
+    }
+
+    public Set<String> getMessageFilterProperties() {
+        return messageFilterProperties;
+    }
+
+    public void setMessageFilterProperties(Set<String> messageFilterProperties) {
+        this.messageFilterProperties = messageFilterProperties;
     }
 
 }

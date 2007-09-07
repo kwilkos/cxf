@@ -22,13 +22,15 @@ package org.apache.cxf.service.invoker;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.FaultMode;
+import org.apache.cxf.message.MessageContentsList;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 /**
@@ -42,40 +44,102 @@ public abstract class AbstractInvoker implements Invoker {
     public Object invoke(Exchange exchange, Object o) {
 
         final Object serviceObject = getServiceObject(exchange);
+        try {
 
-        BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
+            BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
+            MethodDispatcher md = (MethodDispatcher) 
+                exchange.get(Service.class).get(MethodDispatcher.class.getName());
+            Method m = md.getMethod(bop);
+            //Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
+            m = matchMethod(m, serviceObject);
+            
+            List<Object> params = null;
+            if (o instanceof List) {
+                params = CastUtils.cast((List<?>)o);
+            } else if (o != null) {
+                params = new MessageContentsList(o);
+            }
+            
+            return invoke(exchange, serviceObject, m, params);
+        } finally {
+            releaseServiceObject(exchange, serviceObject);
+        }
+    }
 
-        Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
-        m = matchMethod(m, serviceObject);
-        List<Object> params = CastUtils.cast((List<?>)o);
-
+    protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
         Object res;
         try {
-            Object[] paramArray = params.toArray();
-            res = m.invoke(serviceObject, paramArray);
+            Object[] paramArray = new Object[]{};
+            if (params != null) {
+                paramArray = params.toArray();
+            }
+            
+            res = performInvocation(exchange, serviceObject, m, paramArray);
+            
             if (exchange.isOneWay()) {
                 return null;
             }
-            List<Object> retList = new ArrayList<Object>();
-            if (!((Class)m.getReturnType()).getName().equals("void")) {
-                retList.add(res);
-            }
-            return Arrays.asList(retList.toArray());
+            
+            return new MessageContentsList(res);
         } catch (InvocationTargetException e) {
             Throwable t = e.getCause();
             if (t == null) {
                 t = e;
             }
-            throw new Fault(t);
+            exchange.getInMessage().put(FaultMode.class, FaultMode.CHECKED_APPLICATION_FAULT);
+            throw createFault(t);
+        } catch (Fault f) {
+            exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
+            throw f;
         } catch (Exception e) {
-            throw new Fault(e);
+            exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
+            throw createFault(e);
         }
     }
+    
+    protected Fault createFault(Throwable ex) {
+        return new Fault(ex);        
+    }
+    
+    protected Object performInvocation(Exchange exchange, final Object serviceObject, Method m,
+                                       Object[] paramArray) throws Exception {
+        paramArray = insertExchange(m, paramArray, exchange);
+        return m.invoke(serviceObject, paramArray);
+    }
 
+    public Object[] insertExchange(Method method, Object[] params, Exchange context) {
+        Object[] newParams = params;
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            if (method.getParameterTypes()[i].equals(Exchange.class)) {
+                newParams = new Object[params.length + 1];
+
+                for (int j = 0; j < newParams.length; j++) {
+                    if (j == i) {
+                        newParams[j] = context;
+                    } else if (j > i) {
+                        newParams[j] = params[j - 1];
+                    } else {
+                        newParams[j] = params[j];
+                    }
+                }
+            }
+        }
+        return newParams;
+    }
+    
     /**
      * Creates and returns a service object depending on the scope.
      */
     public abstract Object getServiceObject(final Exchange context);
+
+    /**
+     * Called when the invoker is done with the object.   Default implementation
+     * does nothing.
+     * @param context
+     * @param obj
+     */
+    public void releaseServiceObject(final Exchange context, Object obj) {
+    }
 
     /**
      * Returns a Method that has the same declaring class as the class of
@@ -126,7 +190,7 @@ public abstract class AbstractInvoker implements Invoker {
      * @return the more specific method, or the original method if the
      *         targetClass doesn't specialize it or implement it or is null
      */
-    public static Method getMostSpecificMethod(Method method, Class targetClass) {
+    public static Method getMostSpecificMethod(Method method, Class<?> targetClass) {
         if (method != null && targetClass != null) {
             try {
                 method = targetClass.getMethod(method.getName(), method.getParameterTypes());

@@ -23,13 +23,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.wsdl.extensions.soap.SOAPHeader;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public final class HeaderUtil {
     private static final String HEADERS_PROPERTY = HeaderUtil.class.getName() + ".HEADERS";
@@ -40,25 +42,36 @@ public final class HeaderUtil {
     private static Set<QName> getHeaderParts(BindingMessageInfo bmi) {
         Object obj = bmi.getProperty(HEADERS_PROPERTY);
         if (obj == null) {
-            Set<QName> set = new HashSet<QName>();
-            List<MessagePartInfo> mps = bmi.getMessageInfo().getMessageParts();
-            for (SOAPHeader head : bmi.getExtensors(SOAPHeader.class)) {
-                String pn = head.getPart();
-                for (MessagePartInfo mpi : mps) {
-                    if (pn.equals(mpi.getName().getLocalPart())) {
-                        if (mpi.isElement()) {
-                            set.add(mpi.getElementQName());
-                        } else {
-                            set.add(mpi.getTypeQName());
-                        }
-                        break;
-                    }
-                }
-            }
+            Set<QName> set = getHeaderQNames(bmi);
             bmi.setProperty(HEADERS_PROPERTY, set);
             return set;
         }
         return CastUtils.cast((Set<?>)obj);
+    }
+
+    private static Set<QName> getHeaderQNames(BindingMessageInfo bmi) {
+        Set<QName> set = new HashSet<QName>();
+        List<MessagePartInfo> mps = bmi.getMessageInfo().getMessageParts();
+        List<ExtensibilityElement> extList = bmi.getExtensors(ExtensibilityElement.class);
+        if (extList != null) {
+            for (ExtensibilityElement ext : extList) {
+                if (SOAPBindingUtil.isSOAPHeader(ext)) {
+                    SoapHeader header = SOAPBindingUtil.getSoapHeader(ext);
+                    String pn = header.getPart();
+                    for (MessagePartInfo mpi : mps) {
+                        if (pn.equals(mpi.getName().getLocalPart())) {
+                            if (mpi.isElement()) {
+                                set.add(mpi.getElementQName());
+                            } else {
+                                set.add(mpi.getTypeQName());
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return set;
     }
 
     public static Set<QName> getHeaderQNameInOperationParam(SoapMessage soapMessage) {
@@ -66,8 +79,12 @@ public final class HeaderUtil {
         BindingOperationInfo bop = soapMessage.getExchange()
             .get(BindingOperationInfo.class);
         if (bop != null) {
-            headers.addAll(getHeaderParts(bop.getInput()));
-            headers.addAll(getHeaderParts(bop.getOutput()));
+            if (bop.getInput() != null) {
+                headers.addAll(getHeaderParts(bop.getInput()));
+            }
+            if (bop.getOutput() != null) {
+                headers.addAll(getHeaderParts(bop.getOutput()));
+            }
         }
         return headers;
     }

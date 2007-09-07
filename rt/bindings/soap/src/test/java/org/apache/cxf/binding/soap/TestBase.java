@@ -22,56 +22,59 @@ package org.apache.cxf.binding.soap;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
-import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-public class TestBase extends TestCase {
+public class TestBase extends Assert {
 
     protected PhaseInterceptorChain chain;
     protected SoapMessage soapMessage;
 
     
     
-    
+
+    @Before
     public void setUp() throws Exception {
-        List<Phase> phases = new ArrayList<Phase>();
+        SortedSet<Phase> phases = new TreeSet<Phase>();
         Phase phase1 = new Phase("phase1", 1);
         Phase phase2 = new Phase("phase2", 2);
         Phase phase3 = new Phase("phase3", 3);
+        Phase phase4 = new Phase(Phase.WRITE_ENDING, 4);
         phases.add(phase1);
         phases.add(phase2);
         phases.add(phase3);
+        phases.add(phase4);
         chain = new PhaseInterceptorChain(phases);
 
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap11(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap11.getInstance(), chain);
     }
 
+    @After
     public void tearDown() throws Exception {
     }
 
@@ -119,6 +122,7 @@ public class TestBase extends TestCase {
         IMocksControl control = EasyMock.createNiceControl();
         Bus bus = control.createMock(Bus.class);
         BindingFactoryManager bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
         WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         Service service = null;
@@ -131,25 +135,12 @@ public class TestBase extends TestCase {
         }
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
         control.replay();
 
-        ServiceInfo serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        ServiceInfo serviceInfo = wsdlServiceBuilder.buildServices(def, service).get(0);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         return serviceInfo;
-    }
-
-    protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
-        readerFacotry.setJAXBContext(ctx);
-        return readerFacotry;
-    }
-
-    protected JAXBDataWriterFactory getTestWriterFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFacotry = new JAXBDataWriterFactory();
-        writerFacotry.setJAXBContext(ctx);
-        return writerFacotry;
     }
 }

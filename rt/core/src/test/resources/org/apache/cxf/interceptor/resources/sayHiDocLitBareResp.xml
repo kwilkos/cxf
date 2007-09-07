@@ -21,9 +21,9 @@
 		   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <SOAP-ENV:Body>
-	<ns5:inout xmlns:ns4="http://www.w3.org/2005/08/addressing/wsdl" 
+	<ns5:inout xmlns:ns4="http://www.w3.org/2005/02/addressing/wsdl" 
 		   xmlns:ns5="http://apache.org/hello_world_doc_lit_bare/types">
-	    <ns5:tickerSymbol>OBJECTWEB</ns5:tickerSymbol>
+	    <ns5:tickerSymbol>APACHE</ns5:tickerSymbol>
 	    <ns5:tickerPrice>4.5</ns5:tickerPrice>
 	</ns5:inout>
     </SOAP-ENV:Body>

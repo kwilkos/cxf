@@ -27,12 +27,13 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
 
     protected void run()  {
+        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.CXFBusFactory");  
         Object implementor = new PutLastTradedPriceImpl();
         String address = "http://localhost:9107/SOAPDocLitBareService/SoapPort";      
         Endpoint ep = Endpoint.create(implementor);

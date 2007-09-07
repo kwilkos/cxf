@@ -21,21 +21,22 @@ package org.apache.cxf.common.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ResultBufferedCommandTest extends TestCase {
+public class ResultBufferedCommandTest extends Assert {
     
     private static final String OUT = "Hello World!";
     private static final String ERR = "Please contact your administrator.";
     
 
-    public void testStreamsEmpty() throws IOException {
+    @Test
+    public void testStreamsEmpty() throws Exception {
         URL url = TestCommand.class.getResource("TestCommand.class");
-        File file = new File(url.getFile());
+        File file = new File(url.toURI());
         file = file.getParentFile();
         file = new File(file, "../../../../..");
         String[] cmd = new String[] {
@@ -62,9 +63,10 @@ public class ResultBufferedCommandTest extends TestCase {
         is.close();
     }
     
-    public void testStreamsNotEmpty() throws IOException {
+    @Test
+    public void testStreamsNotEmpty() throws Exception {
         URL url = TestCommand.class.getResource("TestCommand.class");
-        File file = new File(url.getFile());
+        File file = new File(url.toURI());
         file = file.getParentFile();
         file = new File(file, "../../../../..");
         String[] cmd = new String[] {

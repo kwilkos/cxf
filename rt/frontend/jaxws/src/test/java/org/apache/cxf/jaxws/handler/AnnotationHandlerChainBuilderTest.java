@@ -24,27 +24,47 @@ import java.util.Map;
 
 import javax.jws.HandlerChain;
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.MessageContext;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class AnnotationHandlerChainBuilderTest extends TestCase {
 
+public class AnnotationHandlerChainBuilderTest extends Assert {
+
+    @Before
     public void setUp() {
     }
 
+    @Test
     public void testFindHandlerChainAnnotation() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
         assertNotNull(handlers);
-        assertEquals(2, handlers.size());
+        assertEquals(5, handlers.size());
         assertEquals(TestLogicalHandler.class, handlers.get(0).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(1).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(2).getClass());
+        assertEquals(TestLogicalHandler.class, handlers.get(3).getClass());
+        assertEquals(TestProtocolHandler.class, handlers.get(4).getClass());
+    }    
+    
+    @Test
+    public void testFindHandlerChainAnnotationPerPort() {
+        HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
+        AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
+        QName portName = new QName("namespacedoesntsupportyet", "SoapPort1");
+        List<Handler> handlers = chainBuilder
+            .buildHandlerChainFromClass(handlerTestImpl.getClass(), portName);
+        assertNotNull(handlers);
+        assertEquals(5, handlers.size());
     }
-
+    
     public static class TestLogicalHandler implements LogicalHandler {
         Map config;
         boolean initCalled;
@@ -63,6 +83,20 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
         public final void init(final Map map) {
             config = map;
             initCalled = true;
+        }
+    }
+
+    public static class TestProtocolHandler implements Handler {
+
+        public void close(MessageContext arg0) {
+        }
+
+        public boolean handleFault(MessageContext arg0) {
+            return false;
+        }
+
+        public boolean handleMessage(MessageContext arg0) {
+            return false;
         }
     }
 

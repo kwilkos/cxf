@@ -43,7 +43,7 @@ public class PartialXMLStreamReader extends DepthXMLStreamReader {
             if (currentEvent == START_ELEMENT && getName().equals(endTag)) {
                 foundEnd = true;
                 endDepth = getDepth();
-                return END_ELEMENT;
+                return START_ELEMENT;
             }
             
             return currentEvent;

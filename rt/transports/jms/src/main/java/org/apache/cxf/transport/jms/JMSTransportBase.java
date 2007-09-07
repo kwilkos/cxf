@@ -22,6 +22,7 @@ package org.apache.cxf.transport.jms;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -29,17 +30,11 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean;
-import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.context.JMSPropertyType;
-import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 
-public class JMSTransportBase extends JMSTransportBaseConfigBean {    
+public class JMSTransportBase {    
     
     protected Destination targetDestination;
     protected Destination replyDestination;
@@ -47,20 +42,21 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
     protected Bus bus;
     //protected EndpointReferenceType targetEndpoint;
     protected EndpointInfo endpointInfo;
-    
+    protected String beanNameSuffix;
+    private JMSTransport transport;
     
     //--Constructors------------------------------------------------------------
-    public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer) {
+    public JMSTransportBase(Bus b, 
+                            EndpointInfo endpoint, 
+                            boolean isServer, 
+                            String suffix,
+                            JMSTransport transport) {
         bus = b;
         endpointInfo = endpoint;
-        if (!isSetSessionPoolConfig()) {
-            setSessionPoolConfig(new JMSSessionPoolConfigPolicy());
-        }
-        if (!isSetAddressPolicy()) {
-            setAddressPolicy(new JMSAddressPolicyType());
-        }
+        beanNameSuffix = suffix;
+        this.transport = transport;
     }
-
+    
     /**
      * Callback from the JMSProviderHub indicating the ClientTransport has
      * been sucessfully connected.
@@ -90,6 +86,10 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
 
         if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
             message = session.createTextMessage((String)payload);
+        } else if (JMSConstants.BYTE_MESSAGE_TYPE.equals(messageType)) {
+            message = session.createBytesMessage();
+            ((BytesMessage)message).writeBytes((byte[])payload);
+            
         } else {
             message = session.createObjectMessage();
             ((ObjectMessage)message).setObject((byte[])payload);
@@ -110,11 +110,15 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
      * @return the unmarshalled message payload, either of type String or
      * byte[] depending on payload type
      */
-    protected Object unmarshal(Message message, String messageType) throws JMSException {
+    protected Object unmarshal(Message message) throws JMSException {
         Object ret = null;
 
-        if (JMSConstants.TEXT_MESSAGE_TYPE.equals(messageType)) {
+        if (message instanceof TextMessage) {
             ret = ((TextMessage)message).getText();
+        } else if (message instanceof BytesMessage) {
+            byte[] retBytes = new byte[(int) ((BytesMessage) message).getBodyLength()];
+            ((BytesMessage) message).readBytes(retBytes);
+            ret = retBytes;
         } else {
             ret = (byte[])((ObjectMessage)message).getObject();
         }
@@ -204,15 +208,14 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
     }
     
     protected String getAddrUriFromJMSAddrPolicy() {
-        JMSAddressPolicyType jmsAddressPolicy = getAddressPolicy();
-        return "jms:" 
-                        + jmsAddressPolicy.getJndiConnectionFactoryName() 
+        AddressType jmsAddressPolicy = transport.getJMSAddress();
+        return "jms:" + jmsAddressPolicy.getJndiConnectionFactoryName() 
                         + "#"
                         + jmsAddressPolicy.getJndiDestinationName();
     }
     
     protected String getReplyTotAddrUriFromJMSAddrPolicy() {
-        JMSAddressPolicyType jmsAddressPolicy = getAddressPolicy();
+        AddressType jmsAddressPolicy = transport.getJMSAddress();
         return "jms:" 
                         + jmsAddressPolicy.getJndiConnectionFactoryName() 
                         + "#"
@@ -221,6 +224,6 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
 
     protected boolean isDestinationStyleQueue() {
         return JMSConstants.JMS_QUEUE.equals(
-            getAddressPolicy().getDestinationStyle().value());
+            transport.getJMSAddress().getDestinationStyle().value());
     }
 }

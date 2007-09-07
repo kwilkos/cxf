@@ -20,11 +20,43 @@
 package org.apache.cxf.service.model;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
+
+import org.apache.cxf.common.util.StringUtils;
 
 public class MessageInfo extends AbstractMessageContainer {
     public MessageInfo(OperationInfo op, QName nm) {
         super(op, nm);
     }
     
+    public void setName(QName qn) {
+        mName = qn;
+    }
+    
+    public Map<QName, MessagePartInfo> getMessagePartsMap() {
+        Map<QName, MessagePartInfo> partsMap = new HashMap<QName, MessagePartInfo>();
+        for (MessagePartInfo part : getMessageParts()) {
+            partsMap.put(part.getName(), part);
+        }
+        return partsMap;
+    }
+
+    public List<MessagePartInfo> getOrderedParts(List<String> order) {  
+        if (StringUtils.isEmpty(order)) {
+            return getMessageParts();
+        }
+        
+        List<MessagePartInfo> orderedParts = new ArrayList<MessagePartInfo>();
+        Map<QName, MessagePartInfo> partsMap = getMessagePartsMap();
+        for (String part : order) {
+            QName qname = getMessagePartQName(part);
+            orderedParts.add(partsMap.get(qname));
+        }
+        return orderedParts;
+    }
 }

@@ -19,11 +19,19 @@
 
 package org.apache.cxf.service.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
+import org.apache.ws.commons.schema.XmlSchemaAnnotated;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
 
 public final class ServiceModelUtil {
 
@@ -35,11 +43,20 @@ public final class ServiceModelUtil {
     }
     
     public static String getTargetNamespace(Exchange exchange) {
-        return getService(exchange).getServiceInfo().getTargetNamespace();
+        //all ServiceInfo's will have the same target namespace
+        return getService(exchange).getServiceInfos().get(0).getTargetNamespace();
     }
     
     public static BindingOperationInfo getOperation(Exchange exchange, String opName) {
-        return getOperation(exchange, new QName(getTargetNamespace(exchange), opName));
+        Endpoint ep = exchange.get(Endpoint.class);
+        BindingInfo service = ep.getEndpointInfo().getBinding();
+        
+        for (BindingOperationInfo b : service.getOperations()) {
+            if (b.getName().getLocalPart().equals(opName)) {
+                return b;
+            }
+        }
+        return null;
     }
 
     public static BindingOperationInfo getOperation(Exchange exchange, QName opName) {
@@ -56,24 +73,66 @@ public final class ServiceModelUtil {
         } else {
             tns = messagePartInfo.getTypeQName().getNamespaceURI();
         }
-        for (SchemaInfo schema : serviceInfo.getTypeInfo().getSchemas()) {
+        for (SchemaInfo schema : serviceInfo.getSchemas()) {
             if (tns.equals(schema.getNamespaceURI())) {
                 schemaInfo = schema;
             }
         }
         return schemaInfo;
     }
-
-    public static QName getPartName(MessagePartInfo part) {
-        QName name = part.getElementQName();
-        if (name == null) {
-            name = part.getTypeQName();
+    
+    public static List<String> getOperationInputPartNames(OperationInfo operation) {
+        List<String> names = new ArrayList<String>();
+        List<MessagePartInfo> parts = operation.getInput().getMessageParts();
+        if (parts == null && parts.size() == 0) {
+            return names;
         }
-        return name;
-    }
 
-    public static QName getRPCPartName(MessagePartInfo part) {
-        QName name = getPartName(part);
-        return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
-    }
+        for (MessagePartInfo part : parts) {
+            XmlSchemaAnnotated schema = part.getXmlSchema();
+
+            if (schema instanceof XmlSchemaElement
+                && ((XmlSchemaElement)schema).getSchemaType() instanceof XmlSchemaComplexType) {
+                XmlSchemaElement element = (XmlSchemaElement)schema;    
+                XmlSchemaComplexType cplxType = (XmlSchemaComplexType)element.getSchemaType();
+                XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
+                if (seq == null || seq.getItems() == null) {
+                    return names;
+                }
+                for (int i = 0; i < seq.getItems().getCount(); i++) {
+                    XmlSchemaElement elChild = (XmlSchemaElement)seq.getItems().getItem(i);
+                    names.add(elChild.getName());
+                }
+            } else {
+                names.add(part.getConcreteName().getLocalPart());
+            }
+        }
+        return names;
+    }  
+    
+    public static EndpointInfo findBestEndpointInfo(QName qn, List<ServiceInfo> serviceInfos) {
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
+            for (EndpointInfo ep : eps) {
+                if (ep.getInterface().getName().equals(qn)) {
+                    return ep;
+                }
+            }
+        }        
+        
+        EndpointInfo best = null;
+        for (ServiceInfo serviceInfo : serviceInfos) {
+            Collection<EndpointInfo> eps = serviceInfo.getEndpoints();
+            for (EndpointInfo ep : eps) {
+                if (best == null) {
+                    best = ep;
+                }
+                if (ep.getTransportId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                    return ep;
+                }
+            }
+        }
+        
+        return best;
+    }    
 }

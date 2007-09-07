@@ -19,10 +19,14 @@
 
 package org.apache.cxf.ws.addressing;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class AddressingBuilderTest extends TestCase {
+
+public class AddressingBuilderTest extends Assert {
+    
+    @Test
     public void testGetAddressingBuilder() throws Exception {
         AddressingBuilder builder = AddressingBuilder.getAddressingBuilder();
         assertNotNull("expected AddressingBuilder", builder);

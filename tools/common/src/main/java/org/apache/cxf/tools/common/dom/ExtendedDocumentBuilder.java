@@ -68,7 +68,11 @@ public class ExtendedDocumentBuilder {
             } catch (org.xml.sax.SAXException e) {
                 LOG.log(Level.SEVERE, "SCHEMA_FACTORY_EXCEPTION_MSG");
             }
-            this.parserFactory.setSchema(this.schema);
+            try {
+                this.parserFactory.setSchema(this.schema);                
+            } catch (UnsupportedOperationException e) {
+                LOG.log(Level.WARNING, "DOC_PARSER_NOT_SUPPORTED", e);
+            }
         }
     }
 

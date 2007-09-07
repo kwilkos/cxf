@@ -22,6 +22,7 @@ package org.apache.cxf.systest.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -29,63 +30,42 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-//import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.Endpoint;
+
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.http.HTTPBinding;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.helpers.XMLUtils;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class RestClientServerTest extends ClientServerTestBase {
+public class RestClientServerTest extends AbstractBusClientServerTestBase {
     private final QName serviceName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                                 "XMLService");
 
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                              "RestProviderPort");
 
-    public static class Server extends TestServerBase {
-
-        protected void run() {
-            Object implementor = new RestSourcePayloadProvider();
-            String address = "http://localhost:9023/XMLService/RestProviderPort/Customer";
-            Endpoint.publish(address, implementor);
-        }
-
-        public static void main(String[] args) {
-            try {
-                Server s = new Server();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                System.out.println("done!");
-            }
-        }
+    private final String endpointAddress =
+        "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
+   
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
-
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(RestClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
-    }
-
-    public void testHttpPOSTDispatch() throws Exception {
+   
+    @Test
+    public void testHttpPOSTDispatchXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
         assertNotNull(wsdl);
 
@@ -105,53 +85,35 @@ public class RestClientServerTest extends ClientServerTestBase {
         assertEquals("Customer", respDoc.getFirstChild().getLocalName());
     }
 
+    @Test
     public void testHttpGET() throws Exception {
-        String endpointAddress = "http://localhost:9023/XMLService/RestProviderPort/Customer";
         URL url = new URL(endpointAddress + "?name=john&address=20");
         InputStream in = url.openStream();
-        assertNotNull(in);
-        //StreamSource source = new StreamSource(in);
-        //printSource(source);
-
-        /*
-         * url = new URL(endpointAddress + "/num1/10/num2/20");
-         * System.out.println("Invoking URL=" + url); process(url);
-         */
+        assertNotNull(in);       
     }
 
-    // Service.addPort() is not supported yet
-    /*
-     * public void testHttpGETDispatcher() throws Exception { String
-     * endpointAddress =
-     * "http://localhost:9023/XMLService/RestProviderPort/Customer"; Service
-     * service = Service.create(serviceName); URI endpointURI = new
-     * URI(endpointAddress.toString()); String path = null; String query = null;
-     * if (endpointURI != null){ path = endpointURI.getPath(); query =
-     * endpointURI.getQuery(); } service.addPort(portName,
-     * HTTPBinding.HTTP_BINDING, endpointAddress.toString()); Dispatch<Source>
-     * d = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
-     * Map<String, Object> requestContext = d.getRequestContext();
-     * requestContext.put(Message.HTTP_REQUEST_METHOD, new String("GET"));
-     * requestContext.put(Message.QUERY_STRING, "id=1"); //this is the original
-     * path part of uri requestContext.put(Message.PATH_INFO, path);
-     * System.out.println ("Invoking Restful GET Request with query string ");
-     * Source result = d.invoke(null); printSource(result); }
-     */
-
-    void printSource(Source source) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            StreamResult sr = new StreamResult(bos);
-            Transformer trans = TransformerFactory.newInstance().newTransformer();
-            Properties oprops = new Properties();
-            oprops.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            trans.setOutputProperties(oprops);
-            trans.transform(source, sr);
-            System.out.println("**** Response ******" + bos.toString());
-            bos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Test
+    public void testHttpPOSTDispatchHTTPBinding() throws Exception {
+        Service service = Service.create(serviceName);
+        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress);
+        Dispatch<Source> dispatcher = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
+        Map<String, Object> requestContext = dispatcher.getRequestContext();
+        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "POST");
+        InputStream is = getClass().getResourceAsStream("resources/CustomerJohnReq.xml");
+        Source result = dispatcher.invoke(new StreamSource(is));
+        String tempstring = source2String(result);
+        assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
+        assertTrue("Result should have CustomerID", tempstring.lastIndexOf(">123456<") > 0);
     }
-
+    
+    private String source2String(Source source) throws Exception {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        StreamResult sr = new StreamResult(bos);
+        Transformer trans = TransformerFactory.newInstance().newTransformer();
+        Properties oprops = new Properties();
+        oprops.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        trans.setOutputProperties(oprops);
+        trans.transform(source, sr);
+        return bos.toString();
+    }
 }

@@ -20,24 +20,27 @@
 
 package org.apache.cxf.js.rhino;
 
-import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mozilla.javascript.Scriptable;
 
 
-public class AbstractDOMProviderTest extends TestCase {
+public class AbstractDOMProviderTest extends Assert {
 
     private String epAddr = "http://cxf.apache.org/";
 
     private Scriptable scriptMock;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         scriptMock = EasyMock.createMock(Scriptable.class);
     }
 
+    @Test
     public void testNoWsdlLocation() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn(Scriptable.NOT_FOUND);
@@ -54,6 +57,7 @@ public class AbstractDOMProviderTest extends TestCase {
         EasyMock.verify(scriptMock);
     }
 
+    @Test
     public void testNoSvcName() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn("found");
@@ -72,6 +76,7 @@ public class AbstractDOMProviderTest extends TestCase {
         EasyMock.verify(scriptMock);
     }
 
+    @Test
     public void testNoPortName() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn("found");
@@ -92,6 +97,7 @@ public class AbstractDOMProviderTest extends TestCase {
         EasyMock.verify(scriptMock);
     }
 
+    @Test
     public void testNoTgtNamespace() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn("found");
@@ -114,6 +120,7 @@ public class AbstractDOMProviderTest extends TestCase {
         EasyMock.verify(scriptMock);
     }
 
+    @Test
     public void testNoAddr() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn("found");
@@ -138,6 +145,7 @@ public class AbstractDOMProviderTest extends TestCase {
         EasyMock.verify(scriptMock);
     }
 
+    @Test
     public void testNoInvoke() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn("found");
@@ -166,6 +174,7 @@ public class AbstractDOMProviderTest extends TestCase {
         EasyMock.verify(scriptMock);
     }
 
+    @Test
     public void testIllegalInvoke() throws Exception {
         EasyMock.expect(scriptMock.get("wsdlLocation", scriptMock))
             .andReturn("found");

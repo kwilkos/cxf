@@ -21,11 +21,12 @@ package org.apache.cxf.tools.common.model;
 
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
-import org.w3c.dom.Element;
-import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 
-public class JavaInterface {
+import org.w3c.dom.Element;
+
+import org.apache.cxf.tools.common.ToolException;
+
+public class JavaInterface implements JavaAnnotatable {
 
     private String name;
     private String packageName;
@@ -40,9 +41,6 @@ public class JavaInterface {
     private final List<String> annotations = new ArrayList<String>();
     private final Set<String> imports = new TreeSet<String>();
 
-    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
-    private JAXWSBinding bindingExt = new JAXWSBinding();
-    
     private String webserviceName;
     private Element handlerChains;
       
@@ -174,18 +172,8 @@ public class JavaInterface {
         this.annotations.add(annotation);
     }
 
-    public List getAnnotations() {
+    public List<String> getAnnotations() {
         return this.annotations;
-    }
-
-    public JAXWSBinding getJAXWSBinding() {
-        return this.jaxwsBinding;
-    }
-    
-    public void setJAXWSBinding(JAXWSBinding binding) {
-        if (binding != null) {
-            this.jaxwsBinding = binding;
-        }
     }
 
     public void addImport(String i) {
@@ -196,6 +184,14 @@ public class JavaInterface {
         return imports.iterator();
     }
 
+    public void setJavaModel(JavaModel jm) {
+        this.model = jm;
+    }
+
+    public void annotate(Annotator annotator) {
+        annotator.annotate(this);
+    }
+    
     public Element getHandlerChains() {
         return this.handlerChains;
     }
@@ -204,13 +200,27 @@ public class JavaInterface {
         this.handlerChains = elem;
     }
 
-    public JAXWSBinding getBindingExt() {
-        return bindingExt;
+    public void setFullClassName(String fullName) {
+        int index = fullName.lastIndexOf(".");
+        setPackageName(fullName.substring(0, index));
+        setName(fullName.substring(index + 1, fullName.length()));
     }
 
-    public void setBindingExt(JAXWSBinding pBindingExt) {
-        this.bindingExt = pBindingExt;
+    public String getFullClassName() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(getPackageName());
+        sb.append(".");
+        sb.append(getName());
+        return sb.toString();
     }
-    
-    
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (String anno : annotations) {
+            sb.append(anno);
+            sb.append("\n");
+        }
+        sb.append(getFullClassName());
+        return sb.toString();
+    }
 }

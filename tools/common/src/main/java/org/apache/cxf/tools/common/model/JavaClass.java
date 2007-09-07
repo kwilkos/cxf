@@ -19,7 +19,10 @@
 
 package org.apache.cxf.tools.common.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JavaClass extends JavaInterface {
     
@@ -38,6 +41,49 @@ public class JavaClass extends JavaInterface {
 
     public List<JavaField> getFields() {
         return this.jfield;
+    }
+
+    public JavaMethod appendGetter(JavaField field) {
+        String getterName = "get" + AnnotationUtil.capitalize(field.getName());
+        JavaMethod jMethod = new JavaMethod(this);
+        jMethod.setName(getterName);
+        jMethod.setReturn(new JavaReturn(field.getName(),
+                                         field.getType(),
+                                         field.getTargetNamespace()));
+
+        JavaCodeBlock block = new JavaCodeBlock();
+        JavaExpression exp = new JavaExpression();
+        exp.setValue("return this." + field.getName());
+        block.getExpressions().add(exp);
+
+        jMethod.setJavaCodeBlock(block);
+        
+        addMethod(jMethod);
+        return jMethod;
+    }
+
+    public JavaMethod appendSetter(JavaField field) {
+        String setterName = "set" + AnnotationUtil.capitalize(field.getName());
+        JavaMethod jMethod = new JavaMethod(this);
+        jMethod.setReturn(new JavaReturn("return", "void", null));
+        String paramName = getSetterParamName(field.getName());
+        jMethod.addParameter(new JavaParameter(paramName,
+                                               field.getType(),
+                                               field.getTargetNamespace()));
+        JavaCodeBlock block = new JavaCodeBlock();
+        JavaExpression exp = new JavaExpression();
+        exp.setValue("this." + field.getName() + " = " + paramName);
+        block.getExpressions().add(exp);
+
+        jMethod.setJavaCodeBlock(block);
+        
+        jMethod.setName(setterName);
+        addMethod(jMethod);
+        return jMethod;
+    }
+
+    private String getSetterParamName(String fieldName) {
+        return "new" + AnnotationUtil.capitalize(fieldName);
     }
     
 }

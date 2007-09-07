@@ -25,30 +25,38 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
+import org.junit.Before;
+import org.junit.Test;
 
 public class XMLMessageInInterceptorTest extends TestBase {
 
-    XMLMessageInInterceptor in = new XMLMessageInInterceptor();
+    XMLMessageInInterceptor in = new XMLMessageInInterceptor("phase1");
+    DocLiteralInInterceptor docLitIn = new DocLiteralInInterceptor();
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
-        in.setPhase("phase1");
         chain.add(in);
     }
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testHandleMessageOnBareMultiParam() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-multi-param.xml");
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"),
-                        org.apache.hello_world_xml_http.bare.Greeter.class);
+                        MyComplexStructType.class);
+        
+        OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "testMultiParamPart"));
+        op.getInput().getMessagePartByIndex(0).setTypeClass(MyComplexStructType.class);
+        op.getInput().getMessagePartByIndex(1).setTypeClass(String.class);
+        
         in.handleMessage(xmlMessage);
+        docLitIn.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 2 param", 2, list.size());
@@ -57,24 +65,35 @@ public class XMLMessageInInterceptorTest extends TestBase {
         assertEquals("method input in1 is String tli", true, ((String) list.get(1)).indexOf("tli") >= 0);
     }
 
+    @Test
     public void testHandleMessageOnBareSingleChild() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-single-param-element.xml");
-        common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"),
-                        org.apache.hello_world_xml_http.bare.Greeter.class);
+        common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"));
+        
+        OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "greetMe"));
+        op.getInput().getMessagePartByIndex(0).setTypeClass(String.class);
+        
         in.handleMessage(xmlMessage);
+        docLitIn.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 1 param", 1, list.size());
         assertEquals("method input me is String tli", true, ((String) list.get(0)).indexOf("tli") >= 0);
     }
 
+    @Test
     public void testHandleMessageWrapped() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/wrapped";
         prepareMessage("/message-wrap.xml");
         common("/wsdl/hello_world_xml_wrapped.wsdl", new QName(ns, "XMLPort"),
-                        org.apache.hello_world_xml_http.wrapped.Greeter.class);
+               GreetMe.class);
+        
+        OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "greetMe"));
+        op.getInput().getMessagePartByIndex(0).setTypeClass(GreetMe.class);
+        
         in.handleMessage(xmlMessage);
+        docLitIn.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 1 param", 1, list.size());

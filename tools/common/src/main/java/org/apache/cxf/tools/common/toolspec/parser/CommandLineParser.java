@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -43,7 +42,6 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.toolspec.Tool;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
-
 
 public class CommandLineParser {
 
@@ -93,17 +91,19 @@ public class CommandLineParser {
         Document resultDoc = null;
 
         try {
-            resultDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            resultDoc = factory.newDocumentBuilder().newDocument();
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "FAIL_CREATE_DOM_MSG");
         }
-        Element commandEl = resultDoc.createElementNS("http://www.xsume.com/Xutil/Command", "command");
+        Element commandEl = resultDoc.createElementNS("http://cxf.apache.org/Xutil/Command", "command");
 
         // resultDoc.createAttributeNS("http://www.w3.org/2001/XMLSchema-instance","schemaLocation");
         commandEl.setAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation",
-                                 "http://www.xsume.com/Xutil/Command http://www.xsume.com/schema/xutil/c"
+                                 "http://cxf.apache.org/Xutil/Command http://cxf.apache.org/schema/xutil/c"
                                      + "ommand.xsd");
-        commandEl.setAttribute("xmlns", "http://www.xsume.com/Xutil/Command");
+        commandEl.setAttribute("xmlns", "http://cxf.apache.org/Xutil/Command");
         commandEl.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         resultDoc.appendChild(commandEl);
 

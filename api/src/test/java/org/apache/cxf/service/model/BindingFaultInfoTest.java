@@ -21,18 +21,22 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class BindingFaultInfoTest extends TestCase {
+public class BindingFaultInfoTest extends Assert {
     
     private BindingFaultInfo bindingFaultInfo;
     
+    @Before
     public void setUp() throws Exception {
         FaultInfo faultInfo = new FaultInfo(new QName("http://faultns/", "fault"), new QName(
             "http://apache.org/hello_world_soap_http", "faultMessage"), null);
         bindingFaultInfo = new BindingFaultInfo(faultInfo, null);
     }
 
+    @Test
     public void testBindingFaultInfo() {
         assertNotNull(bindingFaultInfo.getFaultInfo());
         assertNull(bindingFaultInfo.getBindingOperation());

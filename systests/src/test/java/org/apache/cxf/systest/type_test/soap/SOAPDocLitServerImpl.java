@@ -23,15 +23,20 @@ import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.systest.type_test.TypeTestImpl;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.type_test.doc.TypeTestPortType;
 
-public class SOAPDocLitServerImpl extends TestServerBase {
+public class SOAPDocLitServerImpl extends AbstractBusTestServerBase {
     
 
     public void run()  {
-
+        SpringBusFactory sf = new SpringBusFactory();
+        BusFactory.setDefaultBus(null);
+        BusFactory.setDefaultBus(
+            sf.createBus("org/apache/cxf/systest/type_test/databinding-schema-validation.xml"));
         Object implementor = new SOAPTypeTestImpl();
         String address = "http://localhost:9007/SOAPService/SOAPPort/";
         Endpoint.publish(address, implementor);              
@@ -51,7 +56,8 @@ public class SOAPDocLitServerImpl extends TestServerBase {
     
     @WebService(serviceName = "SOAPService", portName = "SOAPPort",
                 endpointInterface = "org.apache.type_test.doc.TypeTestPortType",
-                targetNamespace = "http://apache.org/type_test/doc")
+                targetNamespace = "http://apache.org/type_test/doc",
+                wsdlLocation = "testutils/type_test/type_test_doclit_soap.wsdl")
     class SOAPTypeTestImpl extends TypeTestImpl implements TypeTestPortType {
     }
 }

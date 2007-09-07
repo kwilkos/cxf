@@ -27,17 +27,21 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 
-public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
 
+    private WrappedOutEndingInterceptor ending = new WrappedOutEndingInterceptor();
+    
     public WrappedOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        this(Phase.MARSHAL);
+    }
+    public WrappedOutInterceptor(String phase) {
+        super(phase);
         addBefore(BareOutInterceptor.class.getName());
     }
 
@@ -45,22 +49,51 @@ public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
 
         if (bop != null && bop.isUnwrapped()) {
-            XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
+            XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
 
-            MessageInfo messageInfo = message.get(MessageInfo.class);
-            QName name = messageInfo.getName();
+            MessageInfo messageInfo;
+            if (isRequestor(message)) {
+                messageInfo = bop.getWrappedOperation().getOperationInfo().getInput();
+            } else {
+                messageInfo = bop.getWrappedOperation().getOperationInfo().getOutput();
+            }
+
+            MessagePartInfo part = messageInfo.getMessageParts().get(0);
+            QName name = part.getConcreteName();
 
             try {
-                xmlWriter.writeStartElement(name.getLocalPart(), name.getNamespaceURI());
-                message.getInterceptorChain().doIntercept(message);
-                xmlWriter.writeEndElement();
+                
+                int x = 1;
+                while (xmlWriter.getNamespaceContext().getNamespaceURI("ns" + x) != null) {
+                    x++;
+                }
+                xmlWriter.setPrefix("ns" + x, name.getNamespaceURI());
+                xmlWriter.writeStartElement("ns" + x, name.getLocalPart(), name.getNamespaceURI());
+                xmlWriter.writeNamespace("ns" + x, name.getNamespaceURI());
+            } catch (XMLStreamException e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
+            }
+
+            // Add a final interceptor to write end element
+            message.getInterceptorChain().add(ending);
+        }
+    }
+    
+    public class WrappedOutEndingInterceptor extends AbstractOutDatabindingInterceptor {
+        public WrappedOutEndingInterceptor() {
+            super(Phase.MARSHAL_ENDING);
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            try {
+                XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
+                if (xtw != null) {
+                    xtw.writeEndElement();
+                }
             } catch (XMLStreamException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
             }
         }
-    }
 
-    protected XMLStreamWriter getXMLStreamWriter(Message message) {
-        return message.getContent(XMLStreamWriter.class);
-    }
+    }  
 }

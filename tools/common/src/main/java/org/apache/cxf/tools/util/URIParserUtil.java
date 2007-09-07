@@ -19,6 +19,10 @@
 
 package org.apache.cxf.tools.util;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,6 +42,40 @@ public final class URIParserUtil {
 
     private URIParserUtil() {
         // complete
+    }
+
+    public static URL[] pathToURLs(String path) {
+        StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
+        URL[] urls = new URL[st.countTokens()];
+        int count = 0;
+        while (st.hasMoreTokens()) {
+            File file = new File(st.nextToken());
+            URL url = null;
+            try {
+                url = file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            if (url != null) {
+                urls[count++] = url;
+            }
+        }
+        if (urls.length != count) {
+            URL[] tmp = new URL[count];
+            System.arraycopy(urls, 0, tmp, 0, count);
+            urls = tmp;
+        }
+        return urls;
+    }
+
+    public static String parsePackageName(String namespace, String defaultPackageName) {
+        String packageName = (defaultPackageName != null && defaultPackageName.trim().length() > 0)
+            ? defaultPackageName : null;
+
+        if (packageName == null) {
+            packageName = getPackageName(namespace);
+        }
+        return packageName;
     }
 
     public static String getPackageName(String nameSpaceURI) {
@@ -87,7 +125,7 @@ public final class URIParserUtil {
             token = removeIllegalIdentifierChars(token);
 
             // this will check for reserved keywords
-            if (contiansReservedKeywords(token)) {
+            if (containsReservedKeywords(token)) {
                 token = '_' + token;
             }
 
@@ -173,7 +211,49 @@ public final class URIParserUtil {
         return r;
     }
 
-    private static boolean contiansReservedKeywords(String token) {
+    public static boolean containsReservedKeywords(String token) {
         return KEYWORDS.contains(token);
+    }
+
+    public static String normalize(final String uri) {
+        URL url = null;
+        try {
+            url = new URL(uri);
+            return url.toString().replace("\\", "/");
+        } catch (MalformedURLException e1) {
+            try {
+                String f = null;
+                if (uri.indexOf(":") != -1 && !uri.startsWith("/")) {
+                    f = "file:/" + uri;
+                } else {
+                    f = "file:" + uri;
+                }
+
+                url = new URL(f);
+                return url.toString().replace("\\", "/");
+            } catch (MalformedURLException e2) {
+                return uri.replace("\\", "/");
+            }
+        }
+    }
+
+    public static String getAbsoluteURI(final String arg) {
+        if (arg == null) {
+            return null;
+        }
+
+        try {
+            URL url = new URL(normalize(arg));
+            if (url.toURI().isOpaque()
+                && "file".equalsIgnoreCase(url.getProtocol())) {
+                return new File("").toURI().resolve(url.getPath()).toString();
+            } else {
+                return normalize(arg);
+            }
+        } catch (MalformedURLException e1) {
+            return normalize(arg);
+        } catch (URISyntaxException e2) {
+            return normalize(arg);
+        }
     }
 }

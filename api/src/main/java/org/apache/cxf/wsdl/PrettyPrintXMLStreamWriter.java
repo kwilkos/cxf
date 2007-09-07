@@ -19,7 +19,6 @@
 
 package org.apache.cxf.wsdl;
 
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -46,7 +45,6 @@ public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
     static final int DEFAULT_INDENT_LEVEL = 2;
 
     XMLStreamWriter baseWriter;
-    PrintWriter pw;
 
     int indent;
     Stack<CurrentElement> elems = new Stack<CurrentElement>();
@@ -54,17 +52,23 @@ public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
     boolean nestedStartElement;   
 
     public PrettyPrintXMLStreamWriter(XMLStreamWriter writer,
-                                      PrintWriter printWriter,
                                       Class<?> parent) {
         baseWriter = writer;
-        pw = printWriter;
         indent = getIndentLevel(parent);
     }
 
-    public void indent() {
+    public void writeSpaces() throws XMLStreamException {
         for (int i = 0; i < indent; i++) {
-            pw.print(' ');
+            baseWriter.writeCharacters(" ");
         }
+    }
+
+    public void indentWithSpaces() throws XMLStreamException {
+        writeSpaces();
+        indent();
+    }
+
+    public void indent() {
         indent += DEFAULT_INDENT_LEVEL;
     }
     
@@ -168,15 +172,15 @@ public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
     }
 
     public void writeEndElement() throws XMLStreamException {
-        unindent();
         CurrentElement elem = (CurrentElement) elems.pop();
+        unindent();
         if (elem.hasChildElements()) {
-            pw.println();
-            indent();
+            baseWriter.writeCharacters("\n");
+            writeSpaces();
         }
         baseWriter.writeEndElement();
         if (elems.empty()) {
-            pw.println();
+            baseWriter.writeCharacters("\n");
         }
     }
 
@@ -226,11 +230,11 @@ public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
                            java.lang.String namespaceURI) throws XMLStreamException {
         QName currElemName = new QName(namespaceURI, localName);
         if (elems.empty()) {
-            indent();
+            indentWithSpaces();
         } else {
             baseWriter.writeCharacters("");
-            pw.println();
-            indent();
+            baseWriter.writeCharacters("\n");
+            indentWithSpaces();
             CurrentElement elem = (CurrentElement) elems.peek();
             elem.setChildElements(true);
         }

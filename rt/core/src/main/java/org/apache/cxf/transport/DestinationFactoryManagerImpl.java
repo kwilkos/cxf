@@ -30,29 +30,27 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.bus.extension.DeferredMap;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.extension.ExtensionManager;
 
 public final class DestinationFactoryManagerImpl implements DestinationFactoryManager {
-  
+
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DestinationFactoryManager.class);
-    
+
     final Map<String, DestinationFactory> destinationFactories;
     Properties factoryNamespaceMappings;
-    
-    private ExtensionManager extensionManager;
+
     private Bus bus;
 
-    public DestinationFactoryManagerImpl() throws BusException {
+    public DestinationFactoryManagerImpl() {
         destinationFactories = new ConcurrentHashMap<String, DestinationFactory>();
     }
-    
-    @Resource
-    public void setExtensionManager(ExtensionManager em) {
-        extensionManager = em;
+
+    public DestinationFactoryManagerImpl(Map<String, DestinationFactory> destinationFactories) {
+        this.destinationFactories = destinationFactories;
     }
-    
+
     @Resource
     public void setBus(Bus b) {
         bus = b;
@@ -64,6 +62,8 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
             bus.setExtension(this, DestinationFactoryManager.class);
         }
     }
+    
+
 
     /*
      * (non-Javadoc)
@@ -99,11 +99,7 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
     public DestinationFactory getDestinationFactory(String namespace) throws BusException {
         DestinationFactory factory = destinationFactories.get(namespace);
         if (null == factory) {
-            extensionManager.activateViaNS(namespace);
-            factory = destinationFactories.get(namespace);
-        }
-        if (null == factory) {
-            throw new BusException(new Message("NO_CONDUIT_INITIATOR_EXC", BUNDLE, namespace));
+            throw new BusException(new Message("NO_DEST_FACTORY", BUNDLE, namespace));
         }
         return factory;
     }
@@ -112,4 +108,29 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
     public void shutdown() {
         // nothing to do
     }
+
+    public DestinationFactory getDestinationFactoryForUri(String uri) {
+        //first attempt the ones already registered
+        for (DestinationFactory df : destinationFactories.values()) {
+            for (String prefix : df.getUriPrefixes()) {
+                if (uri.startsWith(prefix)) {
+                    return df;
+                }
+            }
+        }
+        //looks like we'll need to undefer everything so we can try again.
+        if (destinationFactories instanceof DeferredMap) {
+            ((DeferredMap)destinationFactories).undefer();
+            for (DestinationFactory df : destinationFactories.values()) {
+                for (String prefix : df.getUriPrefixes()) {
+                    if (uri.startsWith(prefix)) {
+                        return df;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+
 }

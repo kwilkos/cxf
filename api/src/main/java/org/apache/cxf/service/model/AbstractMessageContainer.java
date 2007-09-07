@@ -29,8 +29,8 @@ import javax.xml.namespace.QName;
 
 
 public abstract class AbstractMessageContainer extends AbstractPropertiesHolder {
+    protected QName mName;
     private OperationInfo operation;
-    private QName mName;
     private Map<QName, MessagePartInfo> messageParts 
         = new LinkedHashMap<QName, MessagePartInfo>(4);
     
@@ -59,10 +59,10 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     }
 
     /**
-     * Adds an message part to this conainer.
+     * Adds a message part to this container.
      *
-     * @param name  the qualified name of the message part.
-     * @param clazz the type of the message part.
+     * @param name  the qualified name of the message part
+     * @return name  the newly created <code>MessagePartInfo</code> object
      */
     public MessagePartInfo addMessagePart(QName name) {
         if (name == null) {
@@ -73,36 +73,40 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
         addMessagePart(part);
         return part;
     }
+    
+    public QName getMessagePartQName(String name) {
+        return new QName(this.getOperation().getInterface().getService().getTargetNamespace(), name);
+    }
+    
     public MessagePartInfo addMessagePart(String name) {
-        return addMessagePart(new QName(this.getOperation().getInterface().getService().getTargetNamespace(),
-                                        name));
+        return addMessagePart(getMessagePartQName(name));
     }    
     /**
-     * Adds an message part to this container.
+     * Adds a message part to this container.
      *
      * @param part the message part.
      */
     public void addMessagePart(MessagePartInfo part) {
+        part.setIndex(messageParts.size());
         messageParts.put(part.getName(), part);
     }
 
     public int getMessagePartIndex(MessagePartInfo part) {
-        int idx = 0;
+        int i = 0;
         for (MessagePartInfo p : messageParts.values()) {
             if (part == p) {
-                return idx;
+                return i;
             }
-            idx++;
+            i++;
         }
         return -1;
     }
+
     public MessagePartInfo getMessagePartByIndex(int i) {
-        int idx = 0;
         for (MessagePartInfo p : messageParts.values()) {
-            if (idx == i) {
+            if (p.getIndex() == i) {
                 return p;
             }
-            ++idx;
         }
         return null;
     }
@@ -126,8 +130,35 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
      * @return the message part; or <code>null</code> if not found.
      */
     public MessagePartInfo getMessagePart(QName name) {
-        return messageParts.get(name);
+        MessagePartInfo mpi = messageParts.get(name);
+        if (mpi == null) {
+            for (MessagePartInfo mpi2 : messageParts.values()) {
+                if (name.equals(mpi2.getConcreteName())) {
+                    return mpi2;
+                }
+            }
+        }
+        return mpi;
     }
+    
+    /**
+     * Returns the n'th message part.
+     *
+     * @param n the n'th part to retrieve.
+     * @return the message part; or <code>null</code> if not found.
+     */
+    public MessagePartInfo getMessagePart(int n) {
+        if (n == -1) {
+            return null;
+        }
+        for (MessagePartInfo mpi : messageParts.values()) {
+            if (n == 0) {
+                return mpi;
+            }
+            n--;
+        }
+        return null;
+    }    
     
     /**
      * Returns all message parts for this message.

@@ -173,7 +173,7 @@ public final class MBServerConnectorFactory {
     public void destroy() throws IOException {        
         connectorServer.stop();        
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("JMX connector server stoped: " + connectorServer);
+            LOG.info("JMX connector server stopped: " + connectorServer);
         } 
     }
 

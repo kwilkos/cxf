@@ -19,14 +19,16 @@
 
 package org.apache.cxf.jaxws.interceptors;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxb.WrapperHelper;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -34,46 +36,91 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
 public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message> {
-    public static final String WRAPPER_CLASS = "wrapper.class";
-
     public WrapperClassOutInterceptor() {
-        super();
-        setPhase(Phase.PRE_LOGICAL);
+        super(Phase.PRE_LOGICAL);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+        Exchange ex = message.getExchange();
+        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
+
         MessageInfo messageInfo = message.get(MessageInfo.class);
-        if (messageInfo == null) {
+        if (messageInfo == null || bop == null || !bop.isUnwrapped()) {
             return;
         }
-        Class<?> wrapped = (Class)messageInfo.getProperty(WRAPPER_CLASS);
+        
+        BindingOperationInfo newbop = bop.getWrappedOperation();
+        MessageInfo wrappedMsgInfo;
+        if (Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE))) {
+            wrappedMsgInfo = newbop.getInput().getMessageInfo();
+        } else {
+            wrappedMsgInfo = newbop.getOutput().getMessageInfo();
+        }
+             
+        Class<?> wrapped = null;
+        List<MessagePartInfo> parts = wrappedMsgInfo.getMessageParts();
+        if (parts.size() > 0) {
+            wrapped = parts.get(0).getTypeClass();
+        }
 
-        if (bop != null && wrapped != null) {
-            List<Object> objs = message.getContent(List.class);
-            
-            try {
-                Object wrapperType = wrapped.newInstance();
-                int i = 0;
-                for (MessagePartInfo p : messageInfo.getMessageParts()) {
-                    Object part = objs.get(i);
+        if (wrapped != null) {
+            MessageContentsList objs = MessageContentsList.getContentsList(message);
 
-                    WrapperHelper.setWrappedPart(p.getName().getLocalPart(), wrapperType, part);
-
-                    i++;
-                }
+            WrapperHelper helper = parts.get(0).getProperty("WRAPPER_CLASS", WrapperHelper.class);
+            if (helper == null) {
+                List<String> partNames = new ArrayList<String>();
+                List<String> elTypeNames = new ArrayList<String>();
+                List<Class<?>> partClasses = new ArrayList<Class<?>>();
                 
-                objs = Arrays.asList((Object)wrapperType);
-                message.setContent(List.class, objs);
-            } catch (Exception ex) {
-                throw new Fault(ex);
+                for (MessagePartInfo p : messageInfo.getMessageParts()) {
+                    ensureSize(partNames, p.getIndex());
+                    ensureSize(elTypeNames, p.getIndex());
+                    ensureSize(partClasses, p.getIndex());
+                    
+                    partNames.set(p.getIndex(), p.getName().getLocalPart());
+                    
+                    String elementType = null;
+                    if (p.isElement()) {
+                        elementType = p.getElementQName().getLocalPart();
+                    } else {
+                        if (p.getTypeQName() == null) {
+                            // handling anonymous complex type
+                            elementType = null;
+                        } else {
+                            elementType = p.getTypeQName().getLocalPart();
+                        }
+                    }
+                    
+                    elTypeNames.set(p.getIndex(), elementType);
+                    partClasses.set(p.getIndex(), p.getTypeClass());
+                }
+                helper = WrapperHelper.createWrapperHelper(wrapped,
+                                                           partNames,
+                                                           elTypeNames,
+                                                           partClasses);
+
+                parts.get(0).setProperty("WRAPPER_CLASS", helper);
+            }
+            try {
+                MessageContentsList newObjs = new MessageContentsList(); 
+                Object o2 = helper.createWrapperObject(objs);
+                newObjs.put(parts.get(0), o2);
+                
+                for (MessagePartInfo p : messageInfo.getMessageParts()) {
+                    if (Boolean.TRUE.equals(p.getProperty(ReflectionServiceFactoryBean.HEADER))) {
+                        MessagePartInfo mpi = wrappedMsgInfo.getMessagePart(p.getName());
+                        newObjs.put(mpi, objs.get(p));
+                    }
+                }
+
+                message.setContent(List.class, newObjs);
+            } catch (Exception e) {
+                throw new Fault(e);
             }
             
             // we've now wrapped the object, so use the wrapped binding op
-            BindingOperationInfo newbop = bop.getWrappedOperation();
-            message.getExchange().put(BindingOperationInfo.class, newbop);
-            message.getExchange().put(OperationInfo.class, newbop.getOperationInfo());
+            ex.put(BindingOperationInfo.class, newbop);
+            ex.put(OperationInfo.class, newbop.getOperationInfo());
             
             if (messageInfo == bop.getOperationInfo().getInput()) {
                 message.put(MessageInfo.class, newbop.getOperationInfo().getInput());
@@ -82,6 +129,13 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                 message.put(MessageInfo.class, newbop.getOperationInfo().getOutput());
                 message.put(BindingMessageInfo.class, newbop.getOutput());
             }
+        }
+    }
+
+
+    private void ensureSize(List<?> lst, int idx) {
+        while (idx >= lst.size()) {
+            lst.add(null);
         }
     }
 }

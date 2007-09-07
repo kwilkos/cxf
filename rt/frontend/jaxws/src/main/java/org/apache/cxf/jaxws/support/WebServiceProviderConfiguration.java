@@ -19,67 +19,75 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.lang.reflect.Method;
 
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceProvider;
+import javax.activation.DataSource;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
 
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.resource.URIResolver;
-import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.service.factory.ServiceConstructionException;
 
-public class WebServiceProviderConfiguration extends AbstractServiceConfiguration {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WebServiceProviderConfiguration.class);
+public class WebServiceProviderConfiguration extends JaxWsServiceConfiguration {
 
     private JaxWsImplementorInfo implInfo;
-    private WebServiceProvider wsProvider;
     
+    @Override
+    public Boolean isOperation(Method method) {
+        return method.getName().equals("invoke") 
+            && method.getParameterTypes().length == 1
+            && (Source.class.isAssignableFrom(method.getParameterTypes()[0])
+                || SOAPMessage.class.isAssignableFrom(method.getParameterTypes()[0])
+                || DataSource.class.isAssignableFrom(method.getParameterTypes()[0]));
+    }
+
+
     @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         super.setServiceFactory(serviceFactory);
-        implInfo = ((ProviderServiceFactoryBean) serviceFactory).getJaxWsImplmentorInfo();
-        wsProvider = implInfo.getWsProvider();
+        implInfo = ((JaxWsServiceFactoryBean) serviceFactory).getJaxWsImplementorInfo();
     }
+
 
     @Override
     public String getServiceName() {
-        if (wsProvider.serviceName().length() > 0) {
-            return wsProvider.serviceName();
+        QName service = implInfo.getServiceName();
+        if (service == null) {
+            return null;
+        } else {
+            return service.getLocalPart();
         }
-        return null;
     }
 
     @Override
     public String getServiceNamespace() {
-        if (wsProvider.targetNamespace().length() > 0) {
-            return wsProvider.targetNamespace();
+        QName service = implInfo.getServiceName();
+        if (service == null) {
+            return null;
+        } else {
+            return service.getNamespaceURI();
         }
-        return null;
     }
 
     @Override
-    public URL getWsdlURL() {
-        String loc = wsProvider.wsdlLocation();
-        if (loc.length() > 0) {
-            try {
-                URIResolver resolver = new URIResolver(null, loc, getClass());
-                if (resolver.isResolved()) {
-                    return resolver.getURI().toURL();
-                } else {
-                    throw new WebServiceException("Could not find WSDL with URL " + loc);
-                }
-            } catch (IOException e) {
-                throw new ServiceConstructionException(new Message("LOAD_WSDL_EXC", 
-                                                                   BUNDLE, 
-                                                                   loc),
-                                                       e);
-            }
+    public QName getEndpointName() {
+        return implInfo.getEndpointName();
+    }
+
+    @Override
+    public String getWsdlURL() {
+        String wsdlLocation = implInfo.getWsdlLocation();
+        if (wsdlLocation != null && wsdlLocation.length() > 0) {
+            return wsdlLocation;
         }
         return null;
     }
+    
+    @Override
+    public Boolean isWrapped(Method m) {
+        return true;
+    }
 }
+
+
+

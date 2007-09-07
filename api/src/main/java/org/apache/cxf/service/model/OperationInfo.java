@@ -21,6 +21,7 @@ package org.apache.cxf.service.model;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -30,9 +31,6 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-/**
- * 
- */
 public class OperationInfo extends AbstractPropertiesHolder {
     private static final Logger LOG = LogUtils.getL7dLogger(OperationInfo.class);
     InterfaceInfo intf;
@@ -42,9 +40,9 @@ public class OperationInfo extends AbstractPropertiesHolder {
     String outName;
     MessageInfo outputMessage;
     Map<QName, FaultInfo> faults;
-    
     OperationInfo unwrappedOperation;
-    
+    List<String> parameterOrdering;     
+
     public OperationInfo() {
     }
     
@@ -70,8 +68,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
      */
     public final void setName(QName name) {
         if (name == null) {
-            throw new NullPointerException(
-                new Message("OPERATION.NAME.NOT.NULL", LOG).toString());
+            throw new NullPointerException("Operation Name cannot be null.");                
         }        
         opName = name;
     }
@@ -119,6 +116,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
     public boolean isUnwrappedCapable() {
         return unwrappedOperation != null;
     }
+    
     public OperationInfo getUnwrappedOperation() {
         return unwrappedOperation;
     }
@@ -153,7 +151,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
      *
      * @param fault the fault.
      */
-    synchronized void addFault(FaultInfo fault) {
+    public synchronized void addFault(FaultInfo fault) {
         if (faults == null) { 
             faults = new ConcurrentHashMap<QName, FaultInfo>(4);
         }
@@ -196,4 +194,18 @@ public class OperationInfo extends AbstractPropertiesHolder {
         return Collections.unmodifiableCollection(faults.values());
     }
     
+    public void setParameterOrdering(List<String> o) {
+        this.parameterOrdering = o;
+    }
+    
+    public List<String> getParameterOrdering() {
+        return parameterOrdering;
+    }
+    
+    @Override
+    public String toString() {
+        return new StringBuilder().append("[OperationInfo: ")
+            .append(opName)
+            .append("]").toString();
+    }
 }

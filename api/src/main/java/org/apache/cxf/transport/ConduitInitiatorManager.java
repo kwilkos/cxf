@@ -52,4 +52,6 @@ public interface ConduitInitiatorManager {
      * @throws BusException
      */
     ConduitInitiator getConduitInitiator(String name) throws BusException;
+    
+    ConduitInitiator getConduitInitiatorForUri(String uri);
 }

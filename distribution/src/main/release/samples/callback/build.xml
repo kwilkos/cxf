@@ -36,7 +36,8 @@
         
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
-        <wsdl2java file="basic_callback.wsdl"/>
+        <wsdl2java file="basic_callback.wsdl" servicename.arg="-sn CallbackService"/>
+	<wsdl2java file="basic_callback.wsdl" servicename.arg="-sn SOAPService"/>
     </target>
     
 </project>

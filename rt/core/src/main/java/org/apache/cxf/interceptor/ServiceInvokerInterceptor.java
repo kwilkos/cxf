@@ -19,13 +19,13 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
@@ -40,8 +40,7 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
    
     
     public ServiceInvokerInterceptor() {
-        super();
-        setPhase(Phase.INVOKE);
+        super(Phase.INVOKE);
     }
 
     public void handleMessage(final Message message) {
@@ -50,25 +49,48 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
         final Service service = endpoint.getService();
         final Invoker invoker = service.getInvoker();        
 
-        getExecutor(endpoint).execute(new Runnable() {
+        Runnable invocation = new Runnable() {
 
             public void run() {
-
-                Object result = invoker.invoke(message.getExchange(), getInvokee(message));
-
-                if (result != null) {
-                    if (result instanceof List) {
-                        exchange.getOutMessage().setContent(List.class, result);
-                    } else if (result.getClass().isArray()) {
-                        result = Arrays.asList((Object[])result);
-                        exchange.getOutMessage().setContent(List.class, result);
-                    } else {
-                        exchange.getOutMessage().setContent(Object.class, result);
+                Exchange runableEx = message.getExchange();
+                Object result = invoker.invoke(runableEx, getInvokee(message));
+                if (!exchange.isOneWay()) {
+                    Endpoint ep = exchange.get(Endpoint.class);
+                    
+                    Message outMessage = runableEx.getOutMessage();
+                    if (outMessage == null) {
+                        outMessage = ep.getBinding().createMessage();
+                        exchange.setOutMessage(outMessage);
+                    }
+                    copyJaxwsProperties(message, outMessage);
+                    if (result != null) {
+                        MessageContentsList resList = null;
+                        if (result instanceof MessageContentsList) {
+                            resList = (MessageContentsList)result;
+                        } else if (result instanceof List) {
+                            resList = new MessageContentsList((List)result);
+                        } else if (result.getClass().isArray()) {
+                            resList = new MessageContentsList((Object[])result);
+                        } else {
+                            outMessage.setContent(Object.class, result);                            
+                        }
+                        if (resList != null) {
+                            outMessage.setContent(List.class, resList);
+                        }
                     }                    
                 }
             }
 
-        });
+        };
+        
+        Executor executor = getExecutor(endpoint);
+        if (exchange.get(Executor.class) == executor) {
+            // already executing on the appropriate executor
+            invocation.run();
+        } else {
+            exchange.put(Executor.class, executor);
+            executor.execute(invocation);
+        }
     }
     
     private Object getInvokee(Message message) {
@@ -87,4 +109,12 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
     private Executor getExecutor(final Endpoint endpoint) {
         return endpoint.getService().getExecutor();
     }
+    
+    private void copyJaxwsProperties(Message inMsg, Message outMsg) {       
+        outMsg.put(Message.WSDL_OPERATION, inMsg.get(Message.WSDL_OPERATION));
+        outMsg.put(Message.WSDL_SERVICE, inMsg.get(Message.WSDL_SERVICE));
+        outMsg.put(Message.WSDL_INTERFACE, inMsg.get(Message.WSDL_INTERFACE));
+        outMsg.put(Message.WSDL_PORT, inMsg.get(Message.WSDL_PORT));
+        outMsg.put(Message.WSDL_DESCRIPTION, inMsg.get(Message.WSDL_DESCRIPTION));
+    }    
 }

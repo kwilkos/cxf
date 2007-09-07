@@ -20,8 +20,10 @@
 package org.apache.cxf.common.logging;
 
 import java.text.MessageFormat;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -47,7 +49,11 @@ public final class LogUtils {
      * @return an appropriate Logger 
      */
     public static Logger getL7dLogger(Class<?> cls) {
-        return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
+        try {
+            return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
+        } catch (MissingResourceException rex) {
+            return Logger.getLogger(cls.getName());
+        }
     }
     
     /**
@@ -78,7 +84,7 @@ public final class LogUtils {
         if (logger.isLoggable(level)) {
             final String formattedMessage = 
                 MessageFormat.format(localize(logger, message), parameter);
-            logger.log(level, formattedMessage, throwable);
+            doLog(logger, level, formattedMessage, throwable);
         }
     }
 
@@ -99,7 +105,7 @@ public final class LogUtils {
         if (logger.isLoggable(level)) {
             final String formattedMessage = 
                 MessageFormat.format(localize(logger, message), parameters);
-            logger.log(level, formattedMessage, throwable);
+            doLog(logger, level, formattedMessage, throwable);
         }
     }
  
@@ -116,11 +122,41 @@ public final class LogUtils {
         if (logger.isLoggable(level)) {
             final String formattedMessage = 
                 MessageFormat.format(localize(logger, message), NO_PARAMETERS);
-            logger.log(level, formattedMessage);
+            doLog(logger, level, formattedMessage, null);
         }
         
-    }    
+    }  
+    
+    /**
+     * Checks log level and logs
+     *
+     * @param logger the Logger the log to
+     * @param level the severity level
+     * @param message the log message
+     * @param throwable the Throwable to log
+     */      
+    public static void log(Logger logger, 
+                           Level level, 
+                           String message, 
+                           Throwable throwable) {
+        log(logger, level, message, throwable, NO_PARAMETERS);
+    }
   
+    /**
+     * Checks log level and logs
+     *
+     * @param logger the Logger the log to
+     * @param level the severity level
+     * @param message the log message
+     * @param parameter the parameter to substitute into message
+     */      
+    public static void log(Logger logger, 
+                           Level level, 
+                           String message, 
+                           Object parameter) {
+        log(logger, level, message, new Object[] {parameter});
+    }
+    
     /**
      * Checks log level and logs
      *
@@ -136,11 +172,36 @@ public final class LogUtils {
         if (logger.isLoggable(level)) {
             final String formattedMessage = 
                 MessageFormat.format(localize(logger, message), parameters);
-            logger.log(level, formattedMessage);
+            doLog(logger, level, formattedMessage, null);
         }
         
     }
 
+    private static void doLog(Logger log, Level level, String msg, Throwable t) {
+        LogRecord record = new LogRecord(level, msg);
+    
+        record.setLoggerName(log.getName());
+        record.setResourceBundleName(log.getResourceBundleName());
+        record.setResourceBundle(log.getResourceBundle());
+            
+        if (t != null) {
+            record.setThrown(t);
+        }
+        
+        //try to get the right class name/method name - just trace
+        //back the stack till we get out of this class
+        StackTraceElement stack[] = (new Throwable()).getStackTrace();
+        String cname = LogUtils.class.getName();
+        for (int x = 0; x < stack.length; x++) {
+            StackTraceElement frame = stack[x];
+            if (!frame.getClassName().equals(cname)) {
+                record.setSourceClassName(frame.getClassName());
+                record.setSourceMethodName(frame.getMethodName());
+                break;
+            }
+        }
+        log.log(record);
+    }
 
     /**
      * Retreive localized message retreived from a logger's resource
@@ -153,8 +214,5 @@ public final class LogUtils {
         ResourceBundle bundle = logger.getResourceBundle();
         return bundle != null ? bundle.getString(message) : message;
     }
-
-
-
 
 }

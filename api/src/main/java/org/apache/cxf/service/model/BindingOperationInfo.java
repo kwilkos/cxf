@@ -77,6 +77,12 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         opHolder = wrapped;
     }
 
+    public void updateUnwrappedOperation() {
+        if (opInfo.isUnwrappedCapable()
+            && opHolder == null) {
+            opHolder = new BindingOperationInfo(bindingInfo, opInfo.getUnwrappedOperation(), this);
+        }        
+    }
     
     public BindingInfo getBinding() {
         return bindingInfo;
@@ -98,7 +104,7 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         return outputMessage;
     }
     
-    public BindingFaultInfo getFault(String name) {
+    public BindingFaultInfo getFault(QName name) {
         if (faults != null) {
             return faults.get(name);
         }
@@ -126,4 +132,12 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
     public BindingOperationInfo getWrappedOperation() {
         return opHolder;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("[BindingOperationInfo: ")
+            .append(getName())
+            .append("]").toString();
+    }
+    
 }

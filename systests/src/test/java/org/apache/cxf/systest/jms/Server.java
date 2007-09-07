@@ -20,9 +20,9 @@ package org.apache.cxf.systest.jms;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
 
     protected void run()  {
@@ -30,11 +30,13 @@ public class Server extends TestServerBase {
         Object impl2 =  new GreeterImplQueueOneWay();
         Object impl3  = new GreeterImplTopicOneWay();
         Object impleDoc = new GreeterImplDoc();
+        Object impl4 = new GreeterByteMessageImpl();
         Endpoint.publish(null, impleDoc);
         String address = "http://localhost:9000/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
         Endpoint.publish("http://testaddr.not.required/", impl2);
         Endpoint.publish("http://testaddr.not.required.topic/", impl3);
+        Endpoint.publish("http://testaddr.not.required.byte/", impl4);
     }
 
 

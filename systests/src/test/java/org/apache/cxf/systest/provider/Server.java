@@ -21,19 +21,23 @@ package org.apache.cxf.systest.provider;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
-        Object implementor = new HWSoapMessageProvider();
-        String address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1";
+        Object implementor = new HWSourcePayloadProvider();
+        String address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit8";
+        Endpoint.publish(address, implementor);        
+               
+        implementor = new HWSoapMessageProvider();
+        address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1";
         Endpoint.publish(address, implementor);
 
         implementor = new HWDOMSourceMessageProvider();
         address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit2";
         Endpoint.publish(address, implementor);
-
+        
         implementor = new HWDOMSourcePayloadProvider();
         address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit3";
         Endpoint.publish(address, implementor);
@@ -53,6 +57,7 @@ public class Server extends TestServerBase {
         implementor = new HWStreamSourcePayloadProvider();
         address = "http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit7";
         Endpoint.publish(address, implementor);
+    
     }
 
     public static void main(String[] args) {

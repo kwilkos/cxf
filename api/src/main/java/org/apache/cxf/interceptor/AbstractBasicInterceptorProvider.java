@@ -19,15 +19,16 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractBasicInterceptorProvider implements InterceptorProvider {
+import org.apache.cxf.common.util.ModCountCopyOnWriteArrayList;
 
-    private List<Interceptor> in = new ArrayList<Interceptor>();
-    private List<Interceptor> out = new ArrayList<Interceptor>();
-    private List<Interceptor> outFault  = new ArrayList<Interceptor>();
-    private List<Interceptor> inFault  = new ArrayList<Interceptor>();
+public abstract class AbstractBasicInterceptorProvider  implements InterceptorProvider {
+
+    private List<Interceptor> in = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> out = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> outFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
+    private List<Interceptor> inFault  = new ModCountCopyOnWriteArrayList<Interceptor>();
     
     public List<Interceptor> getOutFaultInterceptors() {
         return outFault;

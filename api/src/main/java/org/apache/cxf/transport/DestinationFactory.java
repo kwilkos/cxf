@@ -20,6 +20,8 @@
 package org.apache.cxf.transport;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.cxf.service.model.EndpointInfo;
 
@@ -35,4 +37,8 @@ public interface DestinationFactory {
      * @return the created Destination.
      */
     Destination getDestination(EndpointInfo ei) throws IOException;
+    
+    Set<String> getUriPrefixes();
+    
+    List<String> getTransportIds();
 }

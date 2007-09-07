@@ -18,61 +18,34 @@
  */
 package org.apache.cxf.binding.xml;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.cxf.binding.Binding;
-import org.apache.cxf.binding.xml.interceptor.XMLFaultInInterceptor;
-import org.apache.cxf.binding.xml.interceptor.XMLFaultOutInterceptor;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.message.XMLMessage;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class XMLBinding extends AbstractBasicInterceptorProvider implements Binding {
-
-    private List<Interceptor> in;
-    private List<Interceptor> out;
-    private List<Interceptor> fault;
-    private Interceptor outFaultInterceptor;
-    private Interceptor inFaultInterceptor;
     
-    public XMLBinding() {
-        in = new ArrayList<Interceptor>();
-        out = new ArrayList<Interceptor>();
-        fault = new ArrayList<Interceptor>();
-        
-        outFaultInterceptor = new XMLFaultOutInterceptor();
-        inFaultInterceptor = new XMLFaultInInterceptor();
+    private BindingInfo bindingInfo;
+    
+    public XMLBinding(BindingInfo bindingInfo) {
+        super();
+        this.bindingInfo = bindingInfo;
     }
-    
+
+    public BindingInfo getBindingInfo() {
+        return bindingInfo;
+    }
+
     public Message createMessage() {
         return createMessage(new MessageImpl());
     }
 
     public Message createMessage(Message m) {
+        if (!m.containsKey(Message.CONTENT_TYPE)) {
+            m.put(Message.CONTENT_TYPE, "text/xml");
+        }
         return new XMLMessage(m);
     }
-
-    public List<Interceptor> getFaultInterceptors() {
-        return fault;
-    }
-
-    public List<Interceptor> getInInterceptors() {
-        return in;
-    }
-
-    public List<Interceptor> getOutInterceptors() {
-        return out;
-    }
-
-    public Interceptor getInFaultInterceptor() {
-        return inFaultInterceptor;
-    }
-
-    public Interceptor getOutFaultInterceptor() {
-        return outFaultInterceptor;
-    }
-
 }

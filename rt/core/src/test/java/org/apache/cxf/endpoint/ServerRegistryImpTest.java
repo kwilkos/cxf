@@ -19,22 +19,23 @@
 
 package org.apache.cxf.endpoint;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-import org.easymock.classextension.EasyMock;
-
-public class ServerRegistryImpTest extends TestCase {
+public class ServerRegistryImpTest extends Assert {
     
+    @Test
     public void testServerRegistryPreShutdown() {
         ServerRegistryImpl serverRegistryImpl = new ServerRegistryImpl();        
-        Server server = EasyMock.createMock(Server.class);
-        EasyMock.reset(server);
-        server.stop();
-        EasyMock.expectLastCall();
-        EasyMock.replay(server);
-        serverRegistryImpl.register(server);
+        Server server = new DummyServer(serverRegistryImpl);
+        server.start();
+        assertEquals("The serverList should have one service", serverRegistryImpl.serversList.size(), 1);
         serverRegistryImpl.preShutdown();
-        EasyMock.verify(server);
-    }
+        assertEquals("The serverList should be clear ", serverRegistryImpl.serversList.size(), 0);
+        serverRegistryImpl.postShutdown();
+        assertEquals("The serverList should be clear ", serverRegistryImpl.serversList.size(), 0);
+    }    
+    
+    
 
 }

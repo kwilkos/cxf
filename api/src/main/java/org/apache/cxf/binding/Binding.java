@@ -21,10 +21,31 @@ package org.apache.cxf.binding;
 
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingInfo;
 
+/**
+ * A Binding provides interceptors and message creation logic for a 
+ * specific protocol binding.
+ */
 public interface Binding extends InterceptorProvider {
     
+    /**
+     * Create a Message for this Binding.
+     * @return the Binding message
+     */
     Message createMessage();
-
+    
+    /**
+     * Create a Message form the messge.
+     * 
+     * @param m the message used for creating a binding message
+     * @return the Binding message
+     */ 
     Message createMessage(Message m);
+    
+    /**
+     * Get the BindingInfor
+     * @return the BingdingInfo Object     
+     */
+    BindingInfo getBindingInfo();
 }

@@ -30,8 +30,8 @@ import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.xml.namespace.QName;
 
-public class UniqueBodyPartsValidator extends AbstractValidator {
-    private Map<QName, String> uniqueBodyPartsMap = new HashMap<QName, String>();
+public class UniqueBodyPartsValidator extends AbstractDefinitionValidator {
+    private Map<QName, String> uniqueBodyPartsMap;
 
     public UniqueBodyPartsValidator(Definition def) {
         super(def);
@@ -41,6 +41,11 @@ public class UniqueBodyPartsValidator extends AbstractValidator {
     public boolean isValid() {
         Iterator ite = def.getPortTypes().values().iterator();
         while (ite.hasNext()) {
+            //
+            // Only check for unique body parts per portType.
+            // (Create a new Map for each portType.)
+            //
+            uniqueBodyPartsMap = new HashMap<QName, String>();
             PortType portType = (PortType)ite.next();
             Iterator ite2 = portType.getOperations().iterator();
             while (ite2.hasNext()) {

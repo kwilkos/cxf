@@ -19,21 +19,44 @@
 
 package org.apache.cxf.service.model;
 
+import javax.xml.namespace.QName;
+
 import org.w3c.dom.Element;
+
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+
 
 public final class SchemaInfo extends AbstractPropertiesHolder {
   
-    TypeInfo typeInfo;
+    ServiceInfo serviceInfo;
     String namespaceUri;
     Element element;
+    boolean isElementQualified;
+    boolean isAttributeQualified;
+    XmlSchema schema;
+    String systemId;
     
-    public SchemaInfo(TypeInfo typeInfo, String namespaceUri) {
-        this.typeInfo = typeInfo;
+    public SchemaInfo(ServiceInfo serviceInfo, String namespaceUri) {
+        this.serviceInfo = serviceInfo;
         this.namespaceUri = namespaceUri;
+        this.isElementQualified = false;
+        this.isAttributeQualified = false;
     }
     
-    public TypeInfo getTypeInfo() {
-        return typeInfo;
+    public String toString() {
+        StringBuffer buffer = new StringBuffer(this.getClass().getName());
+        buffer.append(" [namespaceURI: ");
+        buffer.append(namespaceUri);
+        buffer.append("] [systemId: ");
+        buffer.append(systemId);
+        buffer.append("]");
+        
+        return buffer.toString();
+    }
+    
+    public ServiceInfo getServiceInfo() {
+        return serviceInfo;
     }
 
     public String getNamespaceURI() {
@@ -49,6 +72,59 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
     }
 
     public void setElement(Element element) {
-        this.element = element;
+        this.element = element;        
+        String form = element.getAttribute("elementFormDefault");
+        if ((form != null) && form.equals("qualified")) {
+            isElementQualified = true;
+        }
+        form = element.getAttribute("attributeFormDefault");
+        if ((form != null) && form.equals("qualified")) {
+            isAttributeQualified = true;
+        }
+    }
+
+    public boolean isElementFormQualified() {
+        return isElementQualified;
+    }
+
+    public boolean isAttributeFormQualified() {
+        return isAttributeQualified;
+    }
+
+    public XmlSchema getSchema() {
+        return schema;
+    }
+
+    public void setSchema(XmlSchema schema) {
+        this.schema = schema;
+    }
+
+    public String getSystemId() {
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
+    }    
+    
+    public XmlSchemaElement getElementByQName(QName qname) {
+/*        String uri = qname.getNamespaceURI();
+        if (namespaceUri.equals(uri)) {
+            NodeList nodes = element.getElementsByTagName(qname.getLocalPart());
+            for (int i = 0; i < nodes.getLength(); i++) {
+                if (nodes.item(i) instanceof Element) {
+                    return (Element)nodes.item(i);
+                }
+
+            }
+        }
+        return null;*/
+        String uri = qname.getNamespaceURI();
+        if (schema != null 
+            && schema.getTargetNamespace() != null
+            && schema.getTargetNamespace().equals(uri)) {
+            return schema.getElementByName(qname);
+        }
+        return null;
     }
 }

@@ -34,5 +34,10 @@ public class BindingImpl implements Binding {
 
     public void setHandlerChain(List<Handler> hc) {
         handlerChain = hc;
+    }
+
+    public String getBindingID() {
+        // TODO
+        throw new UnsupportedOperationException();
     }   
 }

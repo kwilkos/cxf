@@ -75,7 +75,7 @@ public class Argument implements TokenConsumer {
     }
 
     private void addElement(TokenInputStream args, Element result) {
-        Element argEl = result.getOwnerDocument().createElementNS("http://www.xsume.com/Xutil/Command",
+        Element argEl = result.getOwnerDocument().createElementNS("http://cxf.apache.org/Xutil/Command",
                                                                   "argument");
         argEl.setAttribute("name", getName());
         if (!args.isOutOfBound()) {
@@ -111,21 +111,19 @@ public class Argument implements TokenConsumer {
     }
 
     public boolean isSatisfied(ErrorVisitor errors) {
-        boolean result = true;
-
         if (errors.getErrors().size() > 0) {
-            result = false;
+            return false;
         }
-        if (result && !isAtleastMinimum()) {
+        if (!isAtleastMinimum()) {
             errors.add(new ErrorVisitor.MissingArgument(getName()));
-            result = false;
+            return false;
         }
-        if (result && !isNoGreaterThanMaximum()) {
+        if (!isNoGreaterThanMaximum()) {
             errors.add(new ErrorVisitor.DuplicateArgument(getName()));
-            result = false;
+            return false;
         }
 
-        return result;
+        return true;
     }
 
     public void setToolSpec(ToolSpec toolSpec) {

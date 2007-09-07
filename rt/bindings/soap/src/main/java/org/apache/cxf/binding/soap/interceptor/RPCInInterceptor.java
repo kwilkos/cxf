@@ -19,28 +19,43 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import java.util.ArrayList;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.URIMappingInterceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(RPCInInterceptor.class);
+    
     public RPCInInterceptor() {
-        super();
-        setPhase(Phase.UNMARSHAL);
+        super(Phase.UNMARSHAL);
+        addAfter(URIMappingInterceptor.class.getName());
     }
 
     private BindingOperationInfo getOperation(Message message, QName opName) {
@@ -48,6 +63,10 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     public void handleMessage(Message message) {
+        if (isGET(message)) {
+            LOG.info("RPCInInterceptor skipped in HTTP GET method");
+            return;
+        }
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
 
         BindingOperationInfo operation = null;
@@ -64,46 +83,94 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             if (operation == null) {
                 // it's doc-lit-bare
                 new BareInInterceptor().handleMessage(message);
+                return;
+            } else {
+                setMessage(message, operation);
             }
-            message.getExchange().put(BindingOperationInfo.class, operation);
         } else {
             operation = message.getExchange().get(BindingOperationInfo.class);
         }
         MessageInfo msg;
-        DataReader<Message> dr = getMessageDataReader(message);
+        DataReader<XMLStreamReader> dr = getDataReader(message, XMLStreamReader.class);
 
         if (!isRequestor(message)) {
             msg = operation.getOperationInfo().getInput();
         } else {
             msg = operation.getOperationInfo().getOutput();
         }
-
-        List<Object> parameters = new ArrayList<Object>();
+        message.put(MessageInfo.class, msg);
+        
+        MessageContentsList parameters = new MessageContentsList();
 
         StaxUtils.nextEvent(xmlReader);
-        while (StaxUtils.toNextElement(xmlReader)) {
-            int idx = parameters.size();
-            MessagePartInfo p = msg.getMessageParts().get(idx);
-            if (p == null) {
-                message.setContent(Exception.class, new RuntimeException("Parameter " + xmlReader.getName()
-                                                                         + " does not exist!"));
+        
+        boolean hasNext = true;
+        Iterator<MessagePartInfo> itr = msg.getMessageParts().iterator();
+        while (itr.hasNext()) {
+            MessagePartInfo part = itr.next();
+            if (hasNext) {
+                hasNext = StaxUtils.toNextElement(xmlReader);
             }
-            QName name = xmlReader.getName();
-            QName elName = ServiceModelUtil.getRPCPartName(p);
-
-            if (!elName.getLocalPart().equals(name.getLocalPart())) {
-                String expMessage = "Parameter " + name + " does not equal to the name ["
-                                    + elName.getLocalPart() + "] in the servicemodel!";
-                message.setContent(Exception.class, new RuntimeException(expMessage));
-            }
-            Object param = null;
-            param = dr.read(elName, message, (Class)p.getProperty(Class.class.getName()));
-            if (param != null) {
-                parameters.add(param);
-            } else {
-                throw new RuntimeException(p.getName() + " can not be unmarshalled");
+            if (hasNext) {
+                QName qn = xmlReader.getName();
+                // WSI-BP states that RPC/Lit part accessors should be completely unqualified
+                // However, older toolkits (Axis 1.x) are qualifying them.   We'll go
+                // ahead and just match on the localpart.   The RPCOutInterceptor
+                // will always generate WSI-BP compliant messages so it's unknown if
+                // the non-WSI-BP toolkits will be able to understand the CXF
+                // generated messages if they are expecting it to be qualified.
+                while (!qn.getLocalPart().equals(part.getConcreteName().getLocalPart())
+                    && itr.hasNext()) {
+                    part = itr.next();
+                }
+                if (!qn.equals(part.getConcreteName())) {
+                    throw new Fault(
+                                    new org.apache.cxf.common.i18n.Message(
+                                                                           "UNKNOWN_RPC_LIT_PART",
+                                                                           LOG,
+                                                                           qn));
+                }
+                parameters.put(part, dr.read(part, xmlReader));
             }
         }
+
         message.setContent(List.class, parameters);
     }
+
+    
+    
+    private void setMessage(Message message, 
+                             BindingOperationInfo operation) {
+        Exchange ex = message.getExchange();
+        ex.put(BindingOperationInfo.class, operation);
+        ex.put(OperationInfo.class, operation.getOperationInfo());
+        ex.setOneWay(operation.getOperationInfo().isOneWay());
+
+        //Set standard MessageContext properties required by JAX_WS, but not specific to JAX_WS.
+        message.put(Message.WSDL_OPERATION, operation.getName());
+
+        ServiceInfo si = operation.getBinding().getService();
+        QName serviceQName = si.getName();
+        message.put(Message.WSDL_SERVICE, serviceQName);
+
+        QName interfaceQName = si.getInterface().getName();
+        message.put(Message.WSDL_INTERFACE, interfaceQName);
+
+        EndpointInfo endpointInfo = ex.get(Endpoint.class).getEndpointInfo();
+        QName portQName = endpointInfo.getName();
+        message.put(Message.WSDL_PORT, portQName);
+
+        
+        URI wsdlDescription = endpointInfo.getProperty("URI", URI.class);
+        if (wsdlDescription == null) {
+            String address = endpointInfo.getAddress();
+            try {
+                wsdlDescription = new URI(address + "?wsdl");
+            } catch (URISyntaxException e) {
+                //do nothing
+            }
+            endpointInfo.setProperty("URI", wsdlDescription);
+        }
+        message.put(Message.WSDL_DESCRIPTION, wsdlDescription);
+    }    
 }

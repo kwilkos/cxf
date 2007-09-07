@@ -19,9 +19,11 @@
 
 package org.apache.cxf.interceptor;
 
+import java.util.Collection;
 import java.util.ListIterator;
 
 import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.MessageObserver;
 
 public interface InterceptorChain extends Iterable<Interceptor<? extends Message>> {
     
@@ -29,15 +31,24 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
         PAUSED,
         EXECUTING,
         COMPLETE,
-        ABORTED
+        ABORTED,
     };
     
+    String STARTING_AFTER_INTERCEPTOR_ID = "starting_after_interceptor_id";
+    String STARTING_AT_INTERCEPTOR_ID = "starting_at_interceptor_id";
+    
     void add(Interceptor i);
+    
+    void add(Collection<Interceptor> i);
     
     void remove(Interceptor i);
     
     boolean doIntercept(Message message);
     
+    boolean doInterceptStartingAfter(Message message, String startingAfterInterceptorID);
+
+    boolean doInterceptStartingAt(Message message, String startingAtInterceptorID);
+
     void pause();
     
     void resume();
@@ -46,7 +57,9 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     
     ListIterator<Interceptor<? extends Message>> getIterator();
 
-    Interceptor getFaultInterceptor();
+    MessageObserver getFaultObserver();
     
-    void setFaultInterceptor(Interceptor i);
+    void setFaultObserver(MessageObserver i);
+
+    void abort();
 }

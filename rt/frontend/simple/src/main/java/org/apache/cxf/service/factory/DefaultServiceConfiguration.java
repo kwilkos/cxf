@@ -21,12 +21,13 @@ package org.apache.cxf.service.factory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.ParamReader;
 import org.apache.cxf.helpers.ServiceUtils;
-import org.apache.cxf.service.Service;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
@@ -34,52 +35,81 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public QName getOperationName(InterfaceInfo service, Method method) {
-        return new QName(service.getName().getNamespaceURI(), method.getName());
+        String ns = service.getName().getNamespaceURI();
+        String local = method.getName();
+
+        QName name = new QName(ns, local);
+        if (service.getOperation(name) == null) {
+            return name;
+        }
+
+        int i = 1;
+        while (true) {
+            name = new QName(ns, local + i);
+            if (service.getOperation(name) == null) {
+                return name;
+            } else {
+                i++;
+            }
+        }
     }
 
     @Override
-    public String getAction(OperationInfo op) {
-        // TODO Auto-generated method stub
-        return super.getAction(op);
+    public QName getFaultName(InterfaceInfo service, OperationInfo o, Class<?> exClass, Class<?> beanClass) {
+        String name = ServiceUtils.makeServiceNameFromClassName(beanClass);
+        return new QName(service.getName().getNamespaceURI(), name);
     }
 
     @Override
-    public QName getFaultName(Service service, OperationInfo o, Class exClass, Class beanClass) {
-        // TODO Auto-generated method stub
-        return super.getFaultName(service, o, exClass, beanClass);
+    public QName getInPartName(OperationInfo op, Method method, int paramNumber) {
+        return getInParameterName(op, method, paramNumber);
+    }
+
+    @Override
+    public QName getOutPartName(OperationInfo op, Method method, int paramNumber) {
+        return getOutParameterName(op, method, paramNumber);
     }
 
     @Override
     public QName getInParameterName(OperationInfo op, Method method, int paramNumber) {
-        return new QName(op.getName().getNamespaceURI(), createName(method, paramNumber, op.getInput()
-            .getMessageParts().size(), false, "in"));
+        return new QName(op.getName().getNamespaceURI(), 
+                         getDefaultLocalName(op, method, paramNumber, "arg"));
     }
 
     @Override
-    public QName getInputMessageName(OperationInfo op) {
-        return new QName(op.getName().getNamespaceURI(), op.getName() + "Request");
-    }
-
-    @Override
-    public String getMEP(Method method) {
-        // TODO Auto-generated method stub
-        return super.getMEP(method);
+    public QName getInputMessageName(OperationInfo op, Method method) {
+        return new QName(op.getName().getNamespaceURI(), op.getName().getLocalPart());
     }
 
     @Override
     public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {
-        return new QName(op.getName().getNamespaceURI(), createName(method, paramNumber, op.getOutput()
-            .getMessageParts().size(), false, "out"));
+        return new QName(op.getName().getNamespaceURI(), 
+                         getDefaultLocalName(op, method, paramNumber, "return"));
     }
 
-    private String createName(final Method method, final int paramNumber, final int currentSize,
+    private String getDefaultLocalName(OperationInfo op, Method method, int paramNumber, String prefix) {
+        Class<?> impl = getServiceFactory().getServiceClass();
+        // try to grab the implementation class so we can read the debug symbols from it
+        if (impl == null) {
+            try {
+                method = impl.getMethod(method.getName(), method.getParameterTypes());
+            } catch (Exception e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        return DefaultServiceConfiguration.createName(method, paramNumber, op.getInput()
+            .getMessageParts().size(), false, prefix);
+    }
+
+    public static String createName(final Method method, final int paramNumber, final int currentSize,
                               boolean addMethodName, final String flow) {
         String paramName = "";
 
         if (paramNumber != -1) {
             String[] names = ParamReader.getParameterNamesFromDebugInfo(method);
 
-            // get the spcific parameter name from the parameter Number
+            // get the specific parameter name from the parameter Number
             if (names != null && names[paramNumber] != null) {
                 paramName = names[paramNumber];
                 addMethodName = false;
@@ -96,13 +126,18 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getOutputMessageName(OperationInfo op) {
-        return new QName(op.getName().getNamespaceURI(), op.getName() + "R");
+    public QName getOutputMessageName(OperationInfo op, Method method) {
+        return new QName(op.getName().getNamespaceURI(), op.getName().getLocalPart() + "Response");
     }
 
     @Override
     public QName getInterfaceName() {
-        return new QName(getServiceNamespace(), getServiceName() + "PortType");
+        return new QName(getServiceFactory().getServiceNamespace(), getServiceName() + "PortType");
+    }
+
+    @Override
+    public QName getEndpointName() {
+        return new QName(getServiceFactory().getServiceNamespace(), getServiceName() + "Port");
     }
 
     @Override
@@ -118,6 +153,9 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean hasOutMessage(Method m) {
+        if (m.getReturnType().getClass().equals(void.class) && m.getExceptionTypes().length == 0) {
+            return false;
+        }
         return true;
     }
 
@@ -133,7 +171,14 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean isInParam(Method method, int j) {
-        return j >= 0;
+        if (j >= 0) {
+            Class c = method.getParameterTypes()[j];
+            if (Exchange.class.equals(c)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -142,6 +187,15 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
             return Boolean.FALSE;
         }
 
+        // Don't do m.equals(method)
+        for (Method m : getServiceFactory().getIgnoredMethods()) {
+            if (m.getName().equals(method.getName()) 
+                && Arrays.equals(method.getParameterTypes(), m.getParameterTypes())
+                && m.getReturnType() == method.getReturnType()) {
+                return Boolean.FALSE;
+            }
+        }
+        
         final int modifiers = method.getModifiers();
 
         if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers)) {
@@ -155,4 +209,8 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
         return j < 0;
     }
 
+    @Override
+    public Boolean isWrapped(Method m) {
+        return getServiceFactory().isWrapped();
+    }
 }

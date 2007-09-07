@@ -18,74 +18,59 @@
  */
 package org.apache.cxf.binding.xml;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.namespace.QName;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
-import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultInInterceptor;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultOutInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageOutInterceptor;
+import org.apache.cxf.interceptor.AttachmentInInterceptor;
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
+import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
-
-    private Map cachedBinding = new HashMap<BindingInfo, Binding>();
-
-    private Bus bus;
-    private Collection<String> activationNamespaces;
     
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
-    @Resource
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
-    
-    @PostConstruct
-    void register() {
-        if (null == bus) {
-            return;
-        }
-        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
-        if (null != bfm) {
-            for (String ns : activationNamespaces) {
-                bfm.registerBindingFactory(ns, this);
-            }
-        }
-    }
-
     public Binding createBinding(BindingInfo binding) {
+        XMLBinding xb = new XMLBinding(binding);
+        
+        if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
+            xb.getInInterceptors().add(new AttachmentInInterceptor());    
+            xb.getInInterceptors().add(new StaxInInterceptor());
+            xb.getOutInterceptors().add(new StaxOutInterceptor());
+            
+            xb.getInInterceptors().add(new URIMappingInterceptor());
+            xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
+            xb.getInInterceptors().add(new DocLiteralInInterceptor());
+            xb.getInInterceptors().add(new XMLMessageInInterceptor());
+        }        
 
-        if (cachedBinding.get(binding) != null) {
-            return (Binding) cachedBinding.get(binding);
-        }
-
-        XMLBinding xb = new XMLBinding();
-        
-        xb.getInInterceptors().add(new StaxInInterceptor());
-        xb.getInInterceptors().add(new XMLMessageInInterceptor());
-        
-        xb.getInFaultInterceptors().add(new StaxInInterceptor());
-        xb.getInFaultInterceptors().add(xb.getInFaultInterceptor());
-        
-        xb.getOutInterceptors().add(new StaxOutInterceptor());
-        xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
-        
+        xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         xb.getOutFaultInterceptors().add(new StaxOutInterceptor());
-        xb.getOutFaultInterceptors().add(xb.getOutFaultInterceptor());
-
+        xb.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
+        
         return xb;
+    } 
+    
+    public BindingInfo createBindingInfo(ServiceInfo service, String namespace, Object config) {
+        BindingInfo info = new BindingInfo(service, "http://cxf.apache.org/bindings/xformat");        
+        info.setName(new QName(service.getName().getNamespaceURI(), 
+                               service.getName().getLocalPart() + "XMLBinding"));
+
+        for (OperationInfo op : service.getInterface().getOperations()) {                       
+            BindingOperationInfo bop = 
+                info.buildOperation(op.getName(), op.getInputName(), op.getOutputName());
+            info.addOperation(bop);
+        }
+        
+        return info;
     }
 
 }

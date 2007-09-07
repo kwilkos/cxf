@@ -19,65 +19,106 @@
 
 package org.apache.cxf.jaxws.binding.soap;
 
-
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.cxf.binding.soap.SoapBinding;
-import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
-import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.binding.BindingImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(SOAPBindingImpl.class);
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+    
+    private BindingInfo soapBinding;
+    private Set<String> roles;
 
-    private SoapBinding soapBinding;
-    // private SoapBinding soapBinding;
-
-    public SOAPBindingImpl(SoapBinding sb) {
-        soapBinding = sb;
+    public SOAPBindingImpl(BindingInfo sb) {
+        soapBinding = sb;  
+        addRequiredRoles();
     }
     
-    public Set<String> getRoles() {
-        return null;
-    }
-
-    public void setRoles(Set<String> set) {
-        // TODO
-    }
-
-    public boolean isMTOMEnabled() {
-        return soapBinding.isMtomEnabled();
-    }
-
-    public void setMTOMEnabled(boolean flag) {
-        if (flag != soapBinding.isMtomEnabled()) {
-            soapBinding.setMtomEnabled(flag);
-            if (flag) {
-                soapBinding.getOutInterceptors().add(new AttachmentOutInterceptor());
-            } else {
-                Iterator<Interceptor> it = soapBinding.getOutInterceptors().iterator();
-                while (it.hasNext()) {
-                    Interceptor intc = it.next();
-                    if (intc instanceof AttachmentOutInterceptor) {
-                        soapBinding.getOutInterceptors().remove(intc);
-                        return;
-                    }
-                }
+    private void addRequiredRoles() {
+        if (this.roles == null) {
+            this.roles = new HashSet<String>();
+        }
+        if (this.soapBinding instanceof SoapBindingInfo) {
+            SoapBindingInfo bindingInfo = (SoapBindingInfo) this.soapBinding;
+            if (bindingInfo.getSoapVersion() instanceof Soap11) {
+                this.roles.add(bindingInfo.getSoapVersion().getNextRole());
+            } else if (bindingInfo.getSoapVersion() instanceof Soap12) {
+                this.roles.add(bindingInfo.getSoapVersion().getNextRole());
+                this.roles.add(bindingInfo.getSoapVersion().getUltimateReceiverRole());
             }
         }
     }
 
-    public MessageFactory getMessageFactory() {
-        // TODO: get from wrapped SoapBinding
-        return null;
-    }  
+    public Set<String> getRoles() {
+        return this.roles;
+    }
 
-    public SOAPFactory getSOAPFactory() {
-        // TODO: get from wrapped SoapBinding
+    public void setRoles(Set<String> set) {
+        if (set != null 
+            && (set.contains(Soap11.getInstance().getNoneRole()) 
+                || set.contains(Soap12.getInstance().getNoneRole()))) {
+            throw new WebServiceException(BUNDLE.getString("NONE_ROLE_ERR"));
+        }
+        this.roles = set;
+        addRequiredRoles();
+    }
+
+    public boolean isMTOMEnabled() {
+        return Boolean.TRUE.equals(soapBinding.getProperty(Message.MTOM_ENABLED));
+    }
+
+    public void setMTOMEnabled(boolean flag) {        
+        soapBinding.setProperty(Message.MTOM_ENABLED, flag);
+    }
+
+    public MessageFactory getMessageFactory() {
+        if (this.soapBinding instanceof SoapBindingInfo) {
+            SoapBindingInfo bindingInfo = (SoapBindingInfo) this.soapBinding;
+            try {
+                if (bindingInfo.getSoapVersion() instanceof Soap11) {
+                    return MessageFactory.newInstance();
+                } else if (bindingInfo.getSoapVersion() instanceof Soap12) {
+                    return MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                }
+            } catch (SOAPException e) {
+                throw new WebServiceException(BUNDLE.getString("SAAJ_FACTORY_ERR"), e);
+            }
+        }
         return null;
     }
+
+    public SOAPFactory getSOAPFactory() {
+        if (this.soapBinding instanceof SoapBindingInfo) {
+            SoapBindingInfo bindingInfo = (SoapBindingInfo) this.soapBinding;
+            try {
+                if (bindingInfo.getSoapVersion() instanceof Soap11) {
+                    return SOAPFactory.newInstance();
+                } else if (bindingInfo.getSoapVersion() instanceof Soap12) {
+                    return SOAPFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                }
+            } catch (SOAPException e) {
+                throw new WebServiceException(BUNDLE.getString("SAAJ_FACTORY_ERR"), e);
+            }
+        }
+        return null;
+    }
+    
 }

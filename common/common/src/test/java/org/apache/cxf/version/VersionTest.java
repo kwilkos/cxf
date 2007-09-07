@@ -19,16 +19,19 @@
 
 package org.apache.cxf.version;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class VersionTest extends TestCase {
+public class VersionTest extends Assert {
 
+    @Test
     public void testLoadProperties() {
         String version = Version.getCurrentVersion();
         String token = "${product.version}";
         assertFalse(token.equals(version));
     }
 
+    @Test
     public void testGetVersion() {
         String completeVersion =  Version.getCompleteVersionString();
         String currentVersion = Version.getCurrentVersion();

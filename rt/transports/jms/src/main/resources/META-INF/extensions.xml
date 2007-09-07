@@ -19,7 +19,8 @@
 -->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-    <entry key="org.apache.cxf.transports.jms-1">javax.wsdl.Port=org.apache.cxf.transports.jms.JMSAddressPolicyType</entry>
-    <entry key="org.apache.cxf.transports.jms-2">javax.wsdl.Port=org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType</entry>
-    <entry key="org.apache.cxf.transports.jms-3">javax.wsdl.Port=org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType</entry>
+    <!-- JMS Transport -->    
+    <entry key="org.apache.cxf.transport.jms-1">javax.wsdl.Port=org.apache.cxf.transport.jms.AddressType</entry>
+    <entry key="org.apache.cxf.transport.jms-2">javax.wsdl.Port=org.apache.cxf.transport.jms.ClientBehaviorPolicyType</entry>
+    <entry key="org.apache.cxf.transport.jms-3">javax.wsdl.Port=org.apache.cxf.transport.jms.ServerBehaviorPolicyType</entry>
 </properties>

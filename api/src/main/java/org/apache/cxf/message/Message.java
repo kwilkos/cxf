@@ -20,22 +20,26 @@
 package org.apache.cxf.message;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
-public interface Message extends Map<String, Object> {
+public interface Message extends StringMap {
     
     String TRANSPORT = "org.apache.cxf.transport";    
     String REQUESTOR_ROLE = "org.apache.cxf.client";
 
     String INBOUND_MESSAGE = "org.apache.cxf.message.inbound";
-    String INVOCATION_OBJECTS = "org.apache.cxf.invocation.objects";
+    String INVOCATION_CONTEXT = "org.apache.cxf.invocation.context";
     
     String MIME_HEADERS = "org.apache.cxf.mime.headers";
+    
+    String ASYNC_POST_RESPONSE_DISPATCH =
+        "org.apache.cxf.async.post.response.dispatch";
+
+    String DECOUPLED_CHANNEL_MESSAGE = "decoupled.channel.message";
+    String PARTIAL_RESPONSE_MESSAGE = "org.apache.cxf.partial.response";
     
     String PROTOCOL_HEADERS = Message.class.getName() + ".PROTOCOL_HEADERS";
     String RESPONSE_CODE = Message.class.getName() + ".RESPONSE_CODE";
@@ -43,18 +47,27 @@ public interface Message extends Map<String, Object> {
     String HTTP_REQUEST_METHOD = Message.class.getName() + ".HTTP_REQUEST_METHOD";
     String PATH_INFO = Message.class.getName() + ".PATH_INFO";
     String QUERY_STRING = Message.class.getName() + ".QUERY_STRING";
-    String MTOM_ENABLED = Message.class.getName() + ".isMtomEnabled";
+    String MTOM_ENABLED = "mtom-enabled";
+    String SCHEMA_VALIDATION_ENABLED = "schema-validation-enabled";
+    String FAULT_STACKTRACE_ENABLED = "faultStackTraceEnabled";
+    String CONTENT_TYPE = "Content-Type";
+    String BASE_PATH = Message.class.getName() + ".BASE_PATH";
+    String ENCODING = Message.class.getName() + ".ENCODING";
+    String FIXED_PARAMETER_ORDER = Message.class.getName() + "FIXED_PARAMETER_ORDER";
+    String MAINTAIN_SESSION = Message.class.getName() + ".MAINTAIN_SESSION";
 
+    String WSDL_DESCRIPTION = "javax.xml.ws.wsdl.description";
+    String WSDL_SERVICE = "javax.xml.ws.wsdl.service";
+    String WSDL_PORT = "javax.xml.ws.wsdl.port";
+    String WSDL_INTERFACE = "javax.xml.ws.wsdl.interface";
+    String WSDL_OPERATION = "javax.xml.ws.wsdl.operation";
 
+    
     String getId();
+    void setId(String id);
     
     InterceptorChain getInterceptorChain();
     void setInterceptorChain(InterceptorChain chain);
-    
-    /**
-     * @return the associated Conduit if message is outbound, null otherwise
-     */
-    Conduit getConduit();
 
     /**
      * @return the associated Destination if message is inbound, null otherwise
@@ -67,13 +80,10 @@ public interface Message extends Map<String, Object> {
     
     Collection<Attachment> getAttachments();
 
+    void setAttachments(Collection<Attachment> attachments);
+    
     /**
-     * @return the mime type string  
-     */
-    String getAttachmentMimeType();
-
-    /**
-     * Retreive the encapsulated content as a particular type (a result type
+     * Retrieve the encapsulated content as a particular type (a result type
      * if message is outbound, a source type if message is inbound)
      * 
      * @param format the expected content format 
@@ -96,19 +106,12 @@ public interface Message extends Map<String, Object> {
     Set<Class<?>> getContentFormats();
     
     /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  (T)get(key.getName());
-     * @param <T> key
-     * @return
+     * Removes a content from a message.  If some contents are completely consumed,
+     * removing them is a good idea
+     * @param format the format to remove
      */
-    <T> T get(Class<T> key);
-    /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  put(key.getName(), value);
-     * @param <T> key
-     * @return
-     */
-    <T> void put(Class<T> key, T value);
+    <T> void removeContent(Class<T> format);
     
-    Object getContextualProperty(String key);
+    
+    Object getContextualProperty(String key);   
 }

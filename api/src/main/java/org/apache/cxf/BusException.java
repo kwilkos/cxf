@@ -22,7 +22,7 @@ package org.apache.cxf;
 import org.apache.cxf.common.i18n.Message;
 
 /**
- * The BusException class is used to indicate a bus exception has occured.
+ * The BusException class is used to indicate a bus exception has occurred.
  */
 public class BusException extends org.apache.cxf.common.i18n.Exception {
 

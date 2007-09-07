@@ -27,20 +27,22 @@ import java.io.InputStream;
 import java.net.URL;
 
 import javax.activation.DataHandler;
-import javax.activation.DataSource;
 import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.cxf.mime.Hello;
-import org.apache.cxf.mime.HelloService;
+import org.apache.cxf.mime.TestMtom;
+import org.apache.cxf.mime.TestMtomService;
 
 public final class Client {
 
-    private static final QName SERVICE_NAME = new QName("http://cxf.apache.org/mime", "HelloService");
+    private static final QName SERVICE_NAME = new QName("http://cxf.apache.org/mime", "TestMtomService");
 
-    private static final QName PORT_NAME = new QName("http://cxf.apache.org/mime", "HelloPort");
+    private static final QName PORT_NAME = new QName("http://cxf.apache.org/mime", "TestMtomPort");
 
     private Client() {
     }
@@ -63,23 +65,10 @@ public final class Client {
         }
         System.out.println(wsdlURL);
 
-        HelloService ss = new HelloService(wsdlURL, SERVICE_NAME);
-        Hello port = (Hello) ss.getPort(PORT_NAME, Hello.class);
-
-        ByteArrayDataSource bads = new ByteArrayDataSource(getResourceStream(wsdlFile),
-                "Application/octet-stream");
-        DataHandler dh = new DataHandler(bads);
-        System.out.println("Start test the Soap Message with Attachment!");
-        System.out.println("sending out the Client.java file content as attachment to server");
-        DataHandler dhResp = port.claimForm(dh);
-        DataSource ds = dhResp.getDataSource();
-        InputStream in = ds.getInputStream();
-        System.out.println("get back the mtom_xop.wsdl file content as attachment back from server");
-        System.out.println("start print the Client.java content:");
-        for (int i = in.read(); i != -1; i = in.read()) {
-            System.out.write(i);
-        }
-        System.out.println("finished print the mtom_xop.wsdl content.");
+        TestMtomService tms = new TestMtomService(wsdlURL, SERVICE_NAME);
+        TestMtom port = (TestMtom) tms.getPort(PORT_NAME, TestMtom.class);
+        Binding binding = ((BindingProvider)port).getBinding();
+        ((SOAPBinding)binding).setMTOMEnabled(true);
 
         InputStream pre = client.getClass().getResourceAsStream("me.bmp");
         long fileSize = 0;
@@ -88,19 +77,36 @@ public final class Client {
         }
         Holder<byte[]> param = new Holder<byte[]>();
         param.value = new byte[(int) fileSize];
-        System.out.println("Start test the XML-binary Optimized Packaging!");
+        System.out.println("Start test without Mtom enable!");
         System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
 
-        in = client.getClass().getResourceAsStream("me.bmp");
+        InputStream in = client.getClass().getResourceAsStream("me.bmp");
         in.read(param.value);
         Holder<String> name = new Holder<String>("call detail");
-        port.detail(name, param);
+        port.testXop(name, param);
         System.out.println("received byte[] back from server, the size is " + param.value.length);
 
         Image image = ImageIO.read(new ByteArrayInputStream(param.value));
         System.out.println("build image with the returned byte[] back from server successfully, hashCode="
                 + image.hashCode());
+        System.out.println("Successfully run demo without mtom enable");
 
+        System.out.println("Start test with Mtom enable!");        
+        System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
+        Holder<DataHandler> handler = new Holder<DataHandler>();
+        byte[] data = new byte[(int) fileSize];
+        client.getClass().getResourceAsStream("me.bmp").read(data);
+        handler.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
+        port.testMtom(name, handler);
+        InputStream mtomIn = handler.value.getInputStream();
+        fileSize = 0;
+        
+        for (int i = mtomIn.read(); i != -1; i = mtomIn.read()) {
+            fileSize++;
+        }
+
+        System.out.println("received DataHandler back from server, the size is " + fileSize);
+        System.out.println("Successfully run demo with mtom enable");
         System.exit(0);
     }
 

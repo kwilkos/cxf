@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb.attachment;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.UUID;
@@ -26,38 +27,40 @@ import java.util.UUID;
 import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
-import org.apache.cxf.binding.attachment.ByteDataSource;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
+import org.apache.cxf.attachment.ByteDataSource;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
-import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
-    private static final int THRESH_HOLD = 64 * 1024;
-    private Message message;
+    private static final int THRESHOLD = 5 * 1024;
     private Collection<Attachment> atts;
     private boolean isXop;
 
-    public JAXBAttachmentMarshaller(Message messageParam) {
+    public JAXBAttachmentMarshaller(Collection<Attachment> attachments) {
         super();
-        this.message = messageParam;
-        atts = message.getAttachments();
+
+        atts = attachments;
+        isXop = attachments != null;
     }
 
     public String addMtomAttachment(byte[] data, int offset, int length, String mimeType, String elementNS,
                                     String elementLocalName) {
         
-        if (!isXop && length < THRESH_HOLD) {
+        if (!isXop) {
             return null;
         }        
-        ByteDataSource source = new ByteDataSource(data, offset, length);
-        if (mimeType != null) {
-            source.setContentType(mimeType);
-        } else {
-            source.setContentType("application/octet-stream");
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
         }
+        if ("application/octet-stream".equals(mimeType)
+            && length < THRESHOLD) {
+            return null;
+        }
+        ByteDataSource source = new ByteDataSource(data, offset, length);
+        source.setContentType(mimeType);
         DataHandler handler = new DataHandler(source);
 
         String id;
@@ -78,6 +81,22 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         if (!isXop) {
             return null;
         }        
+
+        if ("application/octet-stream".equals(handler.getContentType())) {
+            try {
+                Object o = handler.getContent();
+                if (o instanceof String 
+                    && ((String)o).length() < THRESHOLD) {
+                    return null;
+                } else if (o instanceof byte[]
+                            && ((byte[])o).length < THRESHOLD) {
+                    return null;
+                }
+            } catch (IOException e1) {
+                //ignore, just do the normal attachment thing
+            }
+        }
+        
         String id;
         try {
             id = AttachmentUtil.createContentID(elementNS);
@@ -95,7 +114,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
     public String addSwaRefAttachment(DataHandler handler) {
         String id = UUID.randomUUID() + "@apache.org";
         AttachmentImpl att = new AttachmentImpl(id, handler);
-        att.setXOP(this.isXop);
+        att.setXOP(false);
         atts.add(att);
         return id;
     }

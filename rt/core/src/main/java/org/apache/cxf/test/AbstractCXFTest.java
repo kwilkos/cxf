@@ -30,58 +30,88 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.wsdl.Definition;
+import javax.wsdl.WSDLException;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLWriter;
+
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
+import org.xml.sax.SAXParseException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 /**
  * A basic test case meant for helping users unit test their services.
  */
-public class AbstractCXFTest extends TestCase {
+public class AbstractCXFTest extends Assert {
     
     private static String basedirPath;
     
+    protected Bus bus;
     /**
      * Namespaces for the XPath expressions.
      */
     private Map<String, String> namespaces = new HashMap<String, String>();
 
-    private Bus bus;
     
-    public void setUp() throws Exception {
-        bus = createBus();
-        
-        namespaces.put("s", "http://schemas.xmlsoap.org/soap/envelope/");
+    @Before
+    public void setUpBus() throws Exception {
+        if (bus == null) {
+            bus = createBus();
+            
+            addNamespace("s", "http://schemas.xmlsoap.org/soap/envelope/");
+            addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
+            addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
+            addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
+            addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
+            addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");        
+            addNamespace("xml", "http://www.w3.org/XML/1998/namespace");
+        }
     }
     
     public Bus getBus() {
         return bus;
     }
-
-    protected Bus createBus() {
-        return BusFactoryHelper.newInstance().createBus();
+    
+    @After
+    public void shutdownBus() {       
+        if (bus != null) {
+            bus.shutdown(false);
+            bus = null;
+        } 
+        BusFactory.setDefaultBus(null);
     }
 
-    protected Node invoke(String address, 
-                          String transport,
-                          String message) throws Exception {
+
+    protected Bus createBus() throws BusException {
+        return BusFactory.newInstance().createBus();
+    }
+
+    protected byte[] invokeBytes(String address, 
+                                 String transport,
+                                 String message) throws Exception {
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        AddressType a = new AddressType();
-        a.setLocation(address);
-        ei.addExtensor(a);
+        ei.setAddress(address);
 
         ConduitInitiatorManager conduitMgr = getBus().getExtension(ConduitInitiatorManager.class);
         ConduitInitiator conduitInit = conduitMgr.getConduitInitiator(transport);
@@ -91,7 +121,7 @@ public class AbstractCXFTest extends TestCase {
         conduit.setMessageObserver(obs);
         
         Message m = new MessageImpl();
-        conduit.send(m);
+        conduit.prepare(m);
 
         OutputStream os = m.getContent(OutputStream.class);
         InputStream is = getResourceAsStream(message);
@@ -99,30 +129,33 @@ public class AbstractCXFTest extends TestCase {
             throw new RuntimeException("Could not find resource " + message);
         }
         
-        copy(is, os, 8096);
+        IOUtils.copy(is, os);
 
+        // TODO: shouldn't have to do this. IO caching needs cleaning
+        // up or possibly removal...
+        os.flush();
+        is.close();
+        os.close();
+        
         byte[] bs = obs.getResponseStream().toByteArray();
         
-        ByteArrayInputStream input = new ByteArrayInputStream(bs);
-        return DOMUtils.readXml(input);
-    }
-
-    private void copy(final InputStream input, final OutputStream output, final int bufferSize)
-        throws IOException {
-        try {
-            final byte[] buffer = new byte[bufferSize];
-
-            int n = input.read(buffer);
-            while (-1 != n) {
-                output.write(buffer, 0, n);
-                n = input.read(buffer);
-            }
-        } finally {
-            input.close();
-            output.close();
-        }
+        return bs;
     }
     
+    protected Node invoke(String address, 
+                          String transport,
+                          String message) throws Exception {
+        byte[] bs = invokeBytes(address, transport, message);
+        
+        ByteArrayInputStream input = new ByteArrayInputStream(bs);
+        try {
+            return DOMUtils.readXml(input);
+        } catch (SAXParseException e) {
+            throw new IllegalStateException("Could not parse message:\n" 
+                                            + new String(bs));
+        }
+    }
+
     /**
      * Assert that the following XPath query selects one or more nodes.
      * 
@@ -168,6 +201,10 @@ public class AbstractCXFTest extends TestCase {
         namespaces.put(ns, uri);
     }
 
+    public Map<String, String> getNamespaces() {
+        return namespaces;
+    }
+
     protected InputStream getResourceAsStream(String resource) {
         return getClass().getResourceAsStream(resource);
     }
@@ -193,10 +230,23 @@ public class AbstractCXFTest extends TestCase {
 
         return basedirPath;
     }
+
+    protected Document getWSDLDocument(Server server) throws WSDLException {
+        Service service = server.getEndpoint().getService();
+        
+        ServiceWSDLBuilder wsdlBuilder = 
+            new ServiceWSDLBuilder(bus, service.getServiceInfos().get(0));
+        wsdlBuilder.setUseSchemaImports(false);
+        Definition definition = wsdlBuilder.build();
+        WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();
+        
+        return writer.getDocument(definition);
+    }
     
-    class TestMessageObserver implements MessageObserver {
+    public static class TestMessageObserver implements MessageObserver {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         boolean written;
+        String contentType;
         
         public ByteArrayOutputStream getResponseStream() throws Exception {
             synchronized (this) {
@@ -207,10 +257,18 @@ public class AbstractCXFTest extends TestCase {
             return response;
         }
         
+        public String getResponseContentType() {
+            return contentType;
+        }
 
         public void onMessage(Message message) {
             try {
-                copy(message.getContent(InputStream.class), response, 1024);
+                contentType = (String) message.get(Message.CONTENT_TYPE);
+                InputStream is = message.getContent(InputStream.class);
+                IOUtils.copy(is, response);
+                
+                is.close();
+                response.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 fail();

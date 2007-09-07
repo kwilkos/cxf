@@ -40,5 +40,5 @@ public interface Interceptor<T extends Message> {
      * @param message
      */
     void handleFault(T message);
-    
+
 }

@@ -22,32 +22,56 @@ package org.apache.cxf.binding.soap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Element;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
+import org.apache.cxf.headers.Header;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Attachment;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReadHeaderInterceptorTest extends TestBase {
 
     private ReadHeadersInterceptor rhi;
     private StaxInInterceptor staxIntc = new StaxInInterceptor();
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        rhi = new ReadHeadersInterceptor();
-        rhi.setPhase("phase1");
+        rhi = new ReadHeadersInterceptor(BusFactory.getDefaultBus(), "phase1");
         chain.add(rhi);
     }
 
+    @Test
+    public void testBadSOAPEnvelopeNamespace() throws Exception {
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
+        InputStream in = getClass().getResourceAsStream("test-bad-env.xml");
+        assertNotNull(in);
+        ByteArrayDataSource bads = new ByteArrayDataSource(in, "test/xml");
+        soapMessage.setContent(InputStream.class, bads.getInputStream());
+
+        ReadHeadersInterceptor r = new ReadHeadersInterceptor(BusFactory.getDefaultBus());
+        try {
+            r.handleMessage(soapMessage);
+            fail("Did not throw exception");
+        } catch (SoapFault f) {
+            assertEquals(Soap11.getInstance().getVersionMismatch(), f.getFaultCode());
+        }
+    }
+
+    @Test
     public void testHandleHeader() {
         try {
             prepareSoapMessage("test-soap-header.xml");
@@ -57,14 +81,27 @@ public class ReadHeaderInterceptorTest extends TestBase {
 
         staxIntc.handleMessage(soapMessage);
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        Element eleHeaders = soapMessage.getHeaders(Element.class);
+        // check the xmlReader should be placed on the first entry of the body element
+        XMLStreamReader xmlReader = soapMessage.getContent(XMLStreamReader.class);
+        assertEquals("check the first entry of body", "itinerary", xmlReader.getLocalName());
+        
+        List<Header> eleHeaders = soapMessage.getHeaders();
+        
         List<Element> headerChilds = new ArrayList<Element>();
-        for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
-            if (eleHeaders.getChildNodes().item(i) instanceof Element) {
-                Element element = (Element)eleHeaders.getChildNodes().item(i);
-                headerChilds.add(element);
+        Iterator<Header> iter = eleHeaders.iterator();
+        while (iter.hasNext()) {
+            Header hdr = iter.next();
+
+            if (hdr.getObject() instanceof Element) {
+                headerChilds.add((Element) hdr.getObject());
             }
         }
+//        for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
+//            if (eleHeaders.getChildNodes().item(i) instanceof Element) {
+//                Element element = (Element)eleHeaders.getChildNodes().item(i);
+//                headerChilds.add(element);
+//            }
+//        }
 
         assertEquals(2, headerChilds.size());
         for (int i = 0; i < headerChilds.size(); i++) {
@@ -106,7 +143,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
 
     private void prepareSoapMessage(String message) throws IOException {
 
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(message),
                                                            "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://cxf.apache.org");

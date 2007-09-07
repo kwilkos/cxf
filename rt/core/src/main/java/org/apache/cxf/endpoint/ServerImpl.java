@@ -20,36 +20,92 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.management.JMException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.binding.BindingFactory;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.MultipleEndpointObserver;
 
 public class ServerImpl implements Server {
-    
-    private static final Logger LOG = Logger.getLogger(ServerImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ServerImpl.class);    
     private Destination destination;
-    private MessageObserver messageObserver;
     private Endpoint endpoint;
     private ServerRegistry serverRegistry;
-    
-    public ServerImpl(Bus bus, Endpoint endpoint, MessageObserver observer) 
-        throws BusException, IOException {
-        this.endpoint = endpoint;
-        this.messageObserver = observer;       
+    private Bus bus;
+    private ServerLifeCycleManager mgr;
+    private BindingFactory bindingFactory;
+    private MessageObserver messageObserver;
 
-        EndpointInfo ei = endpoint.getEndpointInfo();
-        DestinationFactory destinationFactory = bus.getExtension(DestinationFactoryManager.class)
-            .getDestinationFactory(ei.getTransportId());
-        destination = destinationFactory.getDestination(ei);
-        serverRegistry = bus.getExtension(ServerRegistry.class);
+    public ServerImpl(Bus bus, 
+                      Endpoint endpoint, 
+                      DestinationFactory destinationFactory, 
+                      MessageObserver observer) throws BusException, IOException {
+        this.endpoint = endpoint;
+        this.bus = bus;
+        this.messageObserver = observer;
+        
+        initDestination(destinationFactory);
     }
     
+    public ServerImpl(Bus bus, 
+                      Endpoint endpoint, 
+                      DestinationFactory destinationFactory, 
+                      BindingFactory bindingFactory) throws BusException, IOException {
+        this.endpoint = endpoint;
+        this.bus = bus;
+        this.bindingFactory = bindingFactory;
+        
+        initDestination(destinationFactory);
+    }
+
+    private void initDestination(DestinationFactory destinationFactory) throws BusException, IOException {
+        EndpointInfo ei = endpoint.getEndpointInfo();
+        
+        //Treat local transport as a special case, transports loaded by transportId can be replaced
+        //by local transport when the publishing address is a local transport protocol. 
+        //Of course its not an ideal situation here to use a hard-coded prefix. To be refactored.
+        if (destinationFactory == null) {
+            if (ei.getAddress() != null && ei.getAddress().indexOf("local://") != -1) {
+                destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactoryForUri(ei.getAddress());
+            }
+
+            if (destinationFactory == null) {
+                destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                    .getDestinationFactory(ei.getTransportId());
+            }
+        }
+            
+        destination = destinationFactory.getDestination(ei);
+        serverRegistry = bus.getExtension(ServerRegistry.class);
+                 
+        ManagedEndpoint mep = new ManagedEndpoint(bus, endpoint, this);
+        mgr = bus.getExtension(ServerLifeCycleManager.class);
+        if (mgr != null) {
+            mgr.registerListener(mep);
+        }
+        
+        InstrumentationManager manager = bus.getExtension(InstrumentationManager.class);        
+        if (manager != null) {   
+            try {
+                manager.register(mep);
+            } catch (JMException jmex) {
+                LOG.log(Level.WARNING, "Registering ManagedEndpoint failed.", jmex);
+            }
+        }
+    }
+
     public Destination getDestination() {
         return destination;
     }
@@ -58,18 +114,46 @@ public class ServerImpl implements Server {
         this.destination = destination;
     }
 
-    public void start() {        
-        getDestination().setMessageObserver(messageObserver);
-        //regist the active server to run
+    public void start() {     
+        if (messageObserver != null) {
+            destination.setMessageObserver(messageObserver);
+        } else {
+            bindingFactory.addListener(destination, endpoint);
+        }
+        
+        // register the active server to run
         if (null != serverRegistry) {
             LOG.fine("register the server to serverRegistry ");
             serverRegistry.register(this);
+        }
+        mgr = bus.getExtension(ServerLifeCycleManager.class);
+        if (mgr != null) {
+            mgr.startServer(this);
         }
     }
 
     public void stop() {
         LOG.fine("Server is stopping.");
-        getDestination().setMessageObserver(null);        
+        if (mgr != null) {
+            mgr.stopServer(this);
+        }
+        
+        MessageObserver mo = getDestination().getMessageObserver();
+        if (mo instanceof MultipleEndpointObserver) {
+            ((MultipleEndpointObserver) mo).getEndpoints().remove(endpoint);
+        } else {
+            getDestination().setMessageObserver(null);
+            getDestination().shutdown();
+        }
+        
+        if (null != serverRegistry) {
+            LOG.fine("unregister the server to serverRegistry ");
+            serverRegistry.unregister(this);
+        }
+    }
+
+    public Endpoint getEndpoint() {
+        return endpoint;
     }
 
     public MessageObserver getMessageObserver() {
@@ -79,10 +163,5 @@ public class ServerImpl implements Server {
     public void setMessageObserver(MessageObserver messageObserver) {
         this.messageObserver = messageObserver;
     }
-
-    public Endpoint getEndpoint() {
-        return endpoint;
-    }
-    
     
 }

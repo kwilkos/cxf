@@ -22,19 +22,13 @@ package org.apache.cxf.binding.xml.interceptor;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import javax.wsdl.Definition;
-import javax.wsdl.Service;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
@@ -43,26 +37,26 @@ import org.apache.cxf.binding.xml.XMLBindingFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
-import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.service.ServiceImpl;
-import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
-import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
-public class TestBase extends TestCase {
+public class TestBase extends Assert {
 
     protected PhaseInterceptorChain chain;
 
@@ -74,8 +68,9 @@ public class TestBase extends TestCase {
     
     protected ServiceInfo serviceInfo;
     
+    @Before
     public void setUp() throws Exception {
-        List<Phase> phases = new ArrayList<Phase>();
+        SortedSet<Phase> phases = new TreeSet<Phase>();
         Phase phase1 = new Phase("phase1", 1);
         Phase phase2 = new Phase("phase2", 2);
         Phase phase3 = new Phase("phase3", 3);
@@ -91,6 +86,7 @@ public class TestBase extends TestCase {
         xmlMessage = messageImpl;
     }
 
+    @After
     public void tearDown() throws Exception {
     }
 
@@ -115,78 +111,43 @@ public class TestBase extends TestCase {
         }
         return null;
     }
-
-    public ServiceInfo getTestService(Class<?> clz) {
-        // FIXME?!?!?!?? There should NOT be JAX-WS stuff here
-        return null;
-    }
-
-    protected BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
-        ServiceInfo service = getMockedServiceModel(getClass().getResource(wsdlUrl));
-        assertNotNull(service);
-        BindingInfo binding = service.getEndpoint(new QName(service.getName().getNamespaceURI(), port))
-                        .getBinding();
-        assertNotNull(binding);
-        return binding;
-    }
-
-    protected ServiceInfo getMockedServiceModel(URL wsdlUrl) throws Exception {
-
-        WSDLManagerImpl wmi = new WSDLManagerImpl();
-        Definition def = wmi.getDefinition(wsdlUrl);        
-        
+    
+    protected void common(String wsdl, QName portName, Class... jaxbClasses) throws Exception {
         control = EasyMock.createNiceControl();
+        
         bus = control.createMock(Bus.class);
+        EasyMock.expect(bus.getExtension(WSDLManager.class)).andStubReturn(new WSDLManagerImpl());
         
         BindingFactoryManager bindingFactoryManager = control.createMock(BindingFactoryManager.class);
-        WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);        
+        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andStubReturn(bindingFactoryManager);
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
         
-        Service service = null;
-        for (Iterator<?> it = def.getServices().values().iterator(); it.hasNext();) {
-            Object obj = it.next();
-            if (obj instanceof Service) {
-                service = (Service) obj;
-                break;
-            }
-        }
-
-        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
         control.replay();        
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        return serviceInfo;
-    }
-
-    protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
-        readerFacotry.setJAXBContext(ctx);
-        return readerFacotry;
-    }
-
-    protected JAXBDataWriterFactory getTestWriterFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFacotry = new JAXBDataWriterFactory();
-        writerFacotry.setJAXBContext(ctx);
-        return writerFacotry;
-    }
-    
-    protected void common(String wsdl, QName portName, Class seiClazz) throws Exception {
         
-        URL wsdlUrl = this.getClass().getResource(wsdl);
-        ServiceInfo si = getMockedServiceModel(wsdlUrl);
+        assertNotNull(bus.getExtension(WSDLManager.class));
+        
+        WSDLServiceFactory factory = 
+            new WSDLServiceFactory(bus, getClass().getResource(wsdl),
+                                   new QName(portName.getNamespaceURI(), "XMLService"));
 
-        EndpointInfo epi = si.getEndpoint(portName);
+        org.apache.cxf.service.Service service = factory.create();
+
+        EndpointInfo epi = service.getEndpointInfo(portName);
+        serviceInfo = epi.getService();
+        assertNotNull(epi);
         Binding xmlBinding = new XMLBindingFactory().createBinding(epi.getBinding());
 
         control.reset();
-        org.apache.cxf.service.Service service = control.createMock(ServiceImpl.class);
-        EasyMock.expect(service.getDataBinding()).andStubReturn(new JAXBDataBinding(seiClazz));
+        JAXBDataBinding db = new JAXBDataBinding();
+        db.initialize(service);
+        db.setContext(JAXBContext.newInstance(jaxbClasses));
+        service.setDataBinding(db);
 
         Endpoint endpoint = control.createMock(EndpointImpl.class);
-        EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);
-        EasyMock.expect(endpoint.getBinding()).andReturn(xmlBinding);
+        EasyMock.expect(endpoint.getEndpointInfo()).andStubReturn(epi);
+        EasyMock.expect(endpoint.getBinding()).andStubReturn(xmlBinding);
+        EasyMock.expect(endpoint.getService()).andStubReturn(service);
 
         control.replay();
 

@@ -20,38 +20,34 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.List;
+import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
-
-    private NSStack nsStack;
+    private static final Logger LOG = LogUtils.getL7dLogger(RPCOutInterceptor.class);
 
     public RPCOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
-    private void init() {
-        nsStack = new NSStack();
-        nsStack.push();
-    }
 
     public void handleMessage(Message message) {
         try {
-            init();
+            NSStack nsStack = new NSStack();
+            nsStack.push();
 
             BindingOperationInfo operation = (BindingOperationInfo) message.getExchange().get(
                             BindingOperationInfo.class.getName());
@@ -59,73 +55,56 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             assert operation.getName() != null;
 
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-            DataWriter<Message> dataWriter = getMessageDataWriter(message);
 
-            addOperationNode(message, xmlWriter);
+            addOperationNode(nsStack, message, xmlWriter);
 
-            int countParts = 0;
             List<MessagePartInfo> parts = null;
 
             if (!isRequestor(message)) {
-                parts = operation.getOutput().getMessageInfo().getMessageParts();
+                parts = operation.getOutput().getMessageParts();
             } else {
-                parts = operation.getInput().getMessageInfo().getMessageParts();
+                parts = operation.getInput().getMessageParts();
             }
-            countParts = parts.size();
-
-            if (countParts > 0) {
-                List<?> objs = (List<?>) message.getContent(List.class);
-                Object[] args = objs.toArray();
-                Object[] els = parts.toArray();
-
-                if (args.length != els.length) {
-                    message.setContent(Exception.class, new RuntimeException(
-                                    "The number of arguments is not equal!"));
-                }
-
-                for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = args[idx];
-                    MessagePartInfo part = (MessagePartInfo) els[idx];
-                    QName elName = getPartName(part);
-                    dataWriter.write(arg, elName, message);
+            
+            MessageContentsList objs = MessageContentsList.getContentsList(message);
+            if (objs == null) {
+                return;
+            }
+            
+            
+            for (MessagePartInfo part : parts) {
+                if (objs.hasValue(part)) {
+                    Object o = objs.get(part);
+                    if (o == null) {
+                        //WSI-BP R2211 - RPC/Lit parts are not allowed to be xsi:nil
+                        throw new Fault(
+                            new org.apache.cxf.common.i18n.Message("BP_2211_RPCLIT_CANNOT_BE_NULL",
+                                                                   LOG, part.getConcreteName()));
+                    }
                 }
             }
+            writeParts(message, message.getExchange(), operation, objs, parts);
+            
             // Finishing the writing.
             xmlWriter.writeEndElement();            
-        } catch (Exception e) {
-            e.printStackTrace();
-            message.setContent(Exception.class, e);
+        } catch (XMLStreamException e) {
+            throw new Fault(e);
         }
     }
 
-    protected void addOperationNode(Message message, XMLStreamWriter xmlWriter) throws XMLStreamException {
+    protected String addOperationNode(NSStack nsStack, Message message, XMLStreamWriter xmlWriter) 
+        throws XMLStreamException {
         String responseSuffix = !isRequestor(message) ? "Response" : "";
-        String namespaceURI = ServiceModelUtil.getTargetNamespace(message.getExchange());
-        nsStack.add(namespaceURI);
-        String prefix = nsStack.getPrefix(namespaceURI);
-
-        String operationName = getOperationName(message) + responseSuffix;
-
-        StaxUtils.writeStartElement(xmlWriter, prefix, operationName, namespaceURI);
-        xmlWriter.flush();
+        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        String ns = boi.getName().getNamespaceURI();
+        nsStack.add(ns);
+        String prefix = nsStack.getPrefix(ns);
+        StaxUtils.writeStartElement(xmlWriter, prefix, boi.getName().getLocalPart() + responseSuffix, ns);
+        return ns;
     }
 
     protected XMLStreamWriter getXMLStreamWriter(Message message) {
         return message.getContent(XMLStreamWriter.class);
-    }
-
-    private String getOperationName(Message message) {
-        BindingOperationInfo boi = (BindingOperationInfo) message.getExchange().get(
-                        BindingOperationInfo.class);       
-        return boi.getOperationInfo().getName().getLocalPart();
-    }
-
-    private QName getPartName(MessagePartInfo part) {
-        QName name = part.getElementQName();
-        if (name == null) {
-            name = part.getTypeQName();
-        }
-        return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
     }
 
 }

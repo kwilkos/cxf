@@ -19,28 +19,26 @@
 
 package org.apache.cxf.tools.common.toolspec.parser;
 
-import junit.framework.TestCase;
+import java.util.StringTokenizer;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class CommandLineParserTest extends TestCase {
+public class CommandLineParserTest extends Assert {
     private CommandLineParser parser;
 
-    public CommandLineParserTest(String name) {
-        super(name);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CommandLineParserTest.class);
-    }
-
+    @Before
     public void setUp() throws Exception {
         String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool.xml";
         ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), true);
 
         parser = new CommandLineParser(toolspec);
     }
-    
+
+    @Test
     public void testValidArguments() throws Exception {
         String[] args = new String[] {"-r", "-n", "test", "arg1"};
         CommandDocument result = parser.parseArguments(args);
@@ -48,6 +46,7 @@ public class CommandLineParserTest extends TestCase {
         assertEquals("testValidArguments Failed", "test", result.getParameter("namespace"));
     }
 
+    @Test
     public void testInvalidArgumentValue() throws Exception {
         try {
             String[] args = new String[] {"-n", "test@", "arg1"};
@@ -64,12 +63,14 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
+    @Test
     public void testValidArgumentEnumValue() throws Exception {
         String[] args = new String[] {"-r", "-e", "true", "arg1"};        
         CommandDocument result = parser.parseArguments(args);
         assertEquals("testValidArguments Failed", "true", result.getParameter("enum"));
     }
 
+    @Test
     public void testInvalidArgumentEnumValue() throws Exception {
         try {
             String[] args = new String[] {"-e", "wrongvalue"};
@@ -87,6 +88,7 @@ public class CommandLineParserTest extends TestCase {
         }        
     }
 
+    @Test
     public void testValidMixedArguments() throws Exception {
         String[] args = new String[] {"-v", "-r", "-n", "test", "arg1"};
         CommandDocument result = parser.parseArguments(args);
@@ -94,6 +96,7 @@ public class CommandLineParserTest extends TestCase {
         assertEquals("testValidMissedArguments Failed", "test", result.getParameter("namespace"));
     }
 
+    @Test
     public void testInvalidOption() {
         try {
             String[] args = new String[] {"-n", "-r", "arg1"};
@@ -115,6 +118,7 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
+    @Test
     public void testMissingOption() {
         try {
             String[] args = new String[] {"-n", "test", "arg1"};
@@ -133,6 +137,7 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
+    @Test
     public void testMissingArgument() {
         try {
             String[] args = new String[] {"-n", "test", "-r"};
@@ -151,6 +156,7 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
+    @Test
     public void testDuplicateArgument() {
         try {
             String[] args = new String[] {"-n", "test", "-r", "arg1", "arg2"};
@@ -164,6 +170,7 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
+    @Test
     public void testUnexpectedOption() {
         try {
             String[] args = new String[] {"-n", "test", "-r", "-unknown"};
@@ -182,7 +189,8 @@ public class CommandLineParserTest extends TestCase {
         }
     }
 
-    
+
+    @Test
     public void testInvalidPackageName() {
 
         try {
@@ -203,6 +211,7 @@ public class CommandLineParserTest extends TestCase {
 
     }
 
+    @Test
     public void testvalidPackageName() throws Exception {
 
         String[] args = new String[]{
@@ -215,41 +224,72 @@ public class CommandLineParserTest extends TestCase {
 
     }
     
-    
+
+    @Test
     public void testUsage() throws Exception {
         String usage =
             "[ -n <C++ Namespace> ] [ -impl ] [ -e <Enum Value> ] -r "
             + "[ -p <[wsdl namespace =]Package Name> ]* [ -? ] [ -v ] <wsdlurl> ";
         String pUsage = parser.getUsage();
-        assertEquals("testUsage failed", usage, pUsage);
+
+        if (isQuolifiedVersion()) {
+            assertEquals("This test failed in the xerces version above 2.7.1 or the version with JDK ",
+                         usage, pUsage);
+        } else {
+            usage = "[ -n <C++ Namespace> ] [ -impl ] [ -e <Enum Value> ] -r "
+                + "-p <[wsdl namespace =]Package Name>* [ -? ] [ -v ] <wsdlurl>";
+            assertEquals("This test failed in the xerces version below 2.7.1", usage.trim(), pUsage.trim());
+        }
     }
 
+    private boolean isQuolifiedVersion() {
+        try {
+            Class<?> c = Class.forName("org.apache.xerces.impl.Version");
+            Object o = c.newInstance();
+            String v =  (String) c.getMethod("getVersion").invoke(o);
+            float vn = Float.parseFloat(StringUtils.getFirstFound(v, "(\\d+.\\d+)"));
+            return vn >= 2.7;
+        } catch (Exception e) {
+            // ignore
+        }
+        return true;
+    }
+
+    @Test
     public void testDetailedUsage() throws Exception {
+        String specialItem  = "[ -p <[wsdl namespace =]Package Name> ]*";
+        if (!isQuolifiedVersion()) {
+            specialItem = "-p <[wsdl namespace =]Package Name>*";
+        }
+            
+        String[] expected = new String[]{"[ -n <C++ Namespace> ]",
+                                         "Namespace",
+                                         "[ -impl ]",
+                                         "impl",
+                                         "[ -e <Enum Value> ]",
+                                         "enum",
+                                         "-r",
+                                         "required",
+                                         specialItem,
+                                         "The java package name to use for the generated code."
+                                         + "Also, optionally specify the wsdl namespace mapping to "
+                                         + "a particular java packagename.",
+                                         "[ -? ]",
+                                         "help",
+                                         "[ -v ]",
+                                         "version",
+                                         "<wsdlurl>",
+                                         "WSDL/SCHEMA URL"};
+        
+        int index = 0;
         String lineSeparator = System.getProperty("line.separator");
-        String usage = "[ -n <C++ Namespace> ]" + lineSeparator;
-        usage += "Namespace" + lineSeparator + lineSeparator;
-        usage += "[ -impl ]" + lineSeparator;
-        usage += "impl" + lineSeparator + lineSeparator;
-        usage += "[ -e <Enum Value> ]" + lineSeparator;
-        usage += "enum" + lineSeparator + lineSeparator;
-        usage += "-r" + lineSeparator;
-        usage += "required" + lineSeparator + lineSeparator;
-        usage += "[ -p <[wsdl namespace =]Package Name> ]*" + lineSeparator;
-        usage += "The java package name to use for the generated code."
-            + "Also, optionally specify the wsdl namespace mapping to a particular java packagename."
-            + lineSeparator + lineSeparator;
-        usage += "[ -? ]" + lineSeparator;
-        usage += "help" + lineSeparator + lineSeparator;
-        usage += "[ -v ]" + lineSeparator;
-        usage += "version" + lineSeparator + lineSeparator;
-        usage += "<wsdlurl>" + lineSeparator;
-        usage += "WSDL/SCHEMA URL" + lineSeparator + lineSeparator;        
-        assertEquals("testUsage failed", 
-                     usage.replaceAll(lineSeparator, "").replace(" ", ""), 
-                     parser.getDetailedUsage().replaceAll(lineSeparator, "")
-                     .replaceAll(" ", "").replaceAll("\\\t", ""));
+        StringTokenizer st1 = new StringTokenizer(parser.getDetailedUsage(), lineSeparator);
+        while (st1.hasMoreTokens()) {
+            assertEquals("Failed at line " + index, expected[index++], st1.nextToken().toString().trim());
+        }
     }
 
+    @Test
     public void testOtherMethods() throws Exception {
         String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool.xml";
         ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
@@ -259,6 +299,7 @@ public class CommandLineParserTest extends TestCase {
         assertTrue(commandDocument != null);
     }
 
+    @Test
     public void testGetDetailedUsage() {
         assertTrue("Namespace".equals(parser.getDetailedUsage("namespace")));
     }

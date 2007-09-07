@@ -21,10 +21,12 @@ package org.apache.cxf.common.i18n;
 
 import java.util.ResourceBundle;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class BundleUtilsTest extends TestCase {
+public class BundleUtilsTest extends Assert {
+    @Test
     public void testGetBundleName() throws Exception {
         assertEquals("unexpected resource bundle name",
                      "org.apache.cxf.common.i18n.Messages",
@@ -34,6 +36,7 @@ public class BundleUtilsTest extends TestCase {
                      BundleUtils.getBundleName(getClass(), "Messages"));
     }
 
+    @Test
     public void testGetBundle() throws Exception {
         ResourceBundle bundle = BundleUtils.getBundle(getClass());
         assertNotNull("expected resource bundle", bundle);

@@ -55,8 +55,8 @@ public final class WSAContextUtils {
     /**
      * Retrieve UsingAddressing override flag from the context
      *
-     * @param override true if UsingAddressing should be overridden
      * @param message the current message
+     * @return true if UsingAddressing should be overridden
      */   
     public static boolean retrieveUsingAddressing(Message message) {
         Boolean override = (Boolean)message.get(USING_PROPERTY);
@@ -79,7 +79,7 @@ public final class WSAContextUtils {
      *
      * @param conduit the Conduit if available
      * @param message the current message
-     * @returned the retrieved EPR
+     * @return the retrieved EPR
      */
     public static EndpointReferenceType retrieveTo(Conduit conduit,
                                                    Message message) {
@@ -108,7 +108,7 @@ public final class WSAContextUtils {
      *
      * @param conduit the Conduit if available
      * @param message the current message
-     * @returned the retrieved EPR
+     * @return the retrieved EPR
      */
     public static EndpointReferenceType retrieveReplyTo(Conduit conduit,
                                                         Message message) {

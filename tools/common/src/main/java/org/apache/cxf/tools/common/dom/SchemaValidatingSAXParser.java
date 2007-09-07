@@ -70,7 +70,11 @@ public final class SchemaValidatingSAXParser {
             } catch (org.xml.sax.SAXException e) {
                 LOG.log(Level.SEVERE, "SCHEMA_FACTORY_EXCEPTION_MSG");
             }
-            this.parserFactory.setSchema(this.schema);
+            try {
+                this.parserFactory.setSchema(this.schema);
+            } catch (UnsupportedOperationException e) {
+                LOG.log(Level.WARNING, "SAX_PARSER_NOT_SUPPORTED", e);
+            }
         }
     }
 

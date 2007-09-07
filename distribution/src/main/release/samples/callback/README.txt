@@ -1,10 +1,9 @@
-Callback demo
+Callback Demo
 =============================================
-
-This demo demonstrates a client creating a callback object, 
-passing an EndpointReferenceType over to the server.
-The EndpointRefrenceType is then used to allow the server 
-to call back on the callback object 
+This demo shows a client creating a callback object by 
+passing an EndpointReferenceType to the server. The 
+EndpointReferenceType is then used by the server to call 
+back on the callback object.
 
 Please review the README in the samples directory before
 continuing.
@@ -14,33 +13,30 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes cxf.jar on the
+If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/basic_callback directory, the ant build script
-can be used to build and run the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant build
-  ant server
-  ant client
-    
+  ant server  (from one command line window)
+  ant client  (from a second command line window)
+
 
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 
@@ -66,12 +62,12 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
   javac -d build/classes src/demo/callback/client/*.java
   javac -d build/classes src/demo/callback/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf.jar:.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-manifest-incubator.jar;.\build\classes
   javac -d build\classes src\demo\callback\client\*.java
   javac -d build\classes src\demo\callback\server\*.java
 
@@ -108,5 +104,3 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
-
-

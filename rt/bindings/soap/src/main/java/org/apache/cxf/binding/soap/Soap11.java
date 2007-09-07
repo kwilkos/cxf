@@ -24,11 +24,10 @@ import javax.xml.namespace.QName;
 /**
  * Represents the SOAP 1.1 version
  * 
- * @version $Revision$
  */
-public class Soap11 implements SoapVersion {
+public final class Soap11 implements SoapVersion {
     public static final String SOAP_NAMESPACE = "http://schemas.xmlsoap.org/soap/envelope/";
-    
+
     private static final Soap11 INSTANCE = new Soap11();
 
     private final double version = 1.1;
@@ -40,8 +39,8 @@ public class Soap11 implements SoapVersion {
     private final String noneRole = namespace + "/role/none";
 
     private final String ultimateReceiverRole = namespace + "/role/ultimateReceiver";
-
-    private final String nextRole = namespace + "/role/next";
+    
+    private final String nextRole = "http://schemas.xmlsoap.org/soap/actor/next";
 
     private final String soapEncodingStyle = "http://schemas.xmlsoap.org/soap/encoding/";
 
@@ -51,16 +50,16 @@ public class Soap11 implements SoapVersion {
 
     private final QName body = new QName(namespace, "Body", prefix);
 
-    private final QName fault = new QName(namespace, "Fault", prefix);
+    private final QName fault = new QName(namespace, "Fault", prefix);      
+
+    private Soap11() {
+        // Singleton 
+    }
 
     public static Soap11 getInstance() {
         return INSTANCE;
     }
-
-    public String getSoapMimeType() {
-        return "text/xml; charset=utf-8";
-    }
-
+    
     public double getVersion() {
         return version;
     }
@@ -106,7 +105,7 @@ public class Soap11 implements SoapVersion {
     public String getNextRole() {
         return nextRole;
     }
-    
+
     public String getAttrNameRole() {
         return "actor";
     }
@@ -115,4 +114,28 @@ public class Soap11 implements SoapVersion {
         return "mustUnderstand";
     }
 
+    public QName getReceiver() {
+        return new QName(SOAP_NAMESPACE, "Server");
+    }
+
+    public QName getSender() {
+        return new QName(SOAP_NAMESPACE, "Client");
+    }
+
+    public QName getMustUnderstand() {
+        return new QName(SOAP_NAMESPACE, "MustUnderstand");
+    }
+
+    public QName getVersionMismatch() {
+        return new QName(SOAP_NAMESPACE, "VersionMismatch");
+    }
+
+    public QName getDateEncodingUnknown() {
+        // There is no such fault code in soap11
+        return null;
+    }
+    
+    public String getContentType() {
+        return "text/xml";
+    }
 }

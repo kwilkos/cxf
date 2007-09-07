@@ -22,13 +22,16 @@ package org.apache.cxf.binding.soap.interceptor;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -41,15 +44,16 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Soap11FaultOutInterceptor.class);
 
     public Soap11FaultOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
-        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
-        Fault f = (Fault)message.getContent(Exception.class);
+        message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
 
-        SoapFault fault = SoapFault.createFault(f);
+        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
+        Fault f = (Fault) message.getContent(Exception.class);
+
+        SoapFault fault = SoapFault.createFault(f, message.getVersion());
 
         try {
             Map<String, String> namespaces = fault.getNamespaces();
@@ -57,34 +61,20 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
                 writer.writeNamespace(e.getKey(), e.getValue());
             }
 
-            String ns = message.getVersion().getNamespace();
-            String prefix = StaxUtils.getUniquePrefix(writer, ns, true);
-
-            writer.writeStartElement(prefix, "Fault", ns);
+            String ns = message.getVersion().getNamespace();            
+            String defaultPrefix = writer.getPrefix(ns);
+            if (defaultPrefix == null) {
+                defaultPrefix = StaxUtils.getUniquePrefix(writer, ns, false);
+                writer.writeStartElement(defaultPrefix, "Fault", ns);
+                writer.writeNamespace(defaultPrefix, ns);
+            } else {
+                writer.writeStartElement(defaultPrefix, "Fault", ns);
+            }
 
             writer.writeStartElement("faultcode");
 
-            QName faultCode = fault.getFaultCode();
-            String codeString;
-            if (faultCode.equals(SoapFault.RECEIVER)) {
-                codeString = prefix + ":Server";
-            } else if (faultCode.equals(SoapFault.SENDER)) {
-                codeString = prefix + ":Client";
-            } else if (faultCode.equals(SoapFault.VERSION_MISMATCH)) {
-                codeString = prefix + ":VersionMismatch";
-            } else if (faultCode.equals(SoapFault.MUST_UNDERSTAND)) {
-                codeString = prefix + ":MustUnderstand";
-            } else if (faultCode.equals(SoapFault.DATA_ENCODING_UNKNOWN)) {
-                codeString = prefix + ":Client";
-            } else {
-                String codeNs = faultCode.getNamespaceURI();
-                String codePrefix = faultCode.getPrefix();
-                if (codeNs.length() > 0) {
-                    codePrefix = StaxUtils.getUniquePrefix(writer, codeNs, true) + ":";
-                }
-
-                codeString = codePrefix + faultCode.getLocalPart();
-            }
+            String codeString = fault.getCodeString(getFaultCodePrefix(writer, fault.getFaultCode()),
+                    defaultPrefix);
 
             writer.writeCharacters(codeString);
             writer.writeEndElement();
@@ -96,6 +86,34 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
                 writer.writeCharacters("Fault occurred while processing.");
             }
             writer.writeEndElement();
+            String config = (String)message.getContextualProperty(
+                    org.apache.cxf.message.Message.FAULT_STACKTRACE_ENABLED);
+            if (config != null && Boolean.valueOf(config).booleanValue() && fault.getCause() != null) {
+                StringBuffer sb = new StringBuffer();
+                for (StackTraceElement ste : fault.getCause().getStackTrace()) {                    
+                    sb.append(ste.getClassName() + "!" + ste.getMethodName() + "!" + ste.getFileName()  
+                            + "!" + ste.getLineNumber() + "\n");
+                }
+                try {
+                    Element detail = fault.getDetail(); 
+                    if (detail == null) {
+                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                        factory.setNamespaceAware(true);
+                        Document doc = factory.newDocumentBuilder().newDocument();
+                        Element stackTrace = doc.createElementNS(Soap11.SOAP_NAMESPACE, Fault.STACKTRACE);
+                        stackTrace.setTextContent(sb.toString());
+                        detail = doc.createElementNS(Soap11.SOAP_NAMESPACE, "detail");
+                        fault.setDetail(detail);
+                        detail.appendChild(stackTrace);
+                    } else {
+                        Element stackTrace = detail.getOwnerDocument().createElementNS(
+                                Soap11.SOAP_NAMESPACE, Fault.STACKTRACE);
+                        detail.appendChild(stackTrace);
+                    }                    
+                } catch (ParserConfigurationException pe) {
+                    // move on...
+                }
+            }
 
             if (fault.hasDetails()) {
                 Element detail = fault.getDetail();
@@ -122,5 +140,4 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
             throw new Fault(new Message("XML_WRITE_EXC", BUNDLE), xe);
         }
     }
-
 }

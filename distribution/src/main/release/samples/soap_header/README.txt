@@ -1,10 +1,10 @@
 SOAP Headers
 ============
 
-This demo illustrates celtixfire's support for SOAP headers.  In the
-WSDL file, the SOAP header is included as an additiona part within
-message and binding definitions.  With this approach to defining a
-SOAP header, celtixfire treats the header content as another parameter
+This demo illustrates Apache CXF's support for SOAP headers.  In the
+WSDL file, the SOAP header is included as an additional part within
+the message and binding definitions.  Using this approach to defining a
+SOAP header, Apache CXF treats the header content as another parameter
 to the operation.  Consequently, the header content is simply
 manipulated within the method body.
 
@@ -18,40 +18,38 @@ continuing.
 
 
 
-Prerequisite
-------------
+Prerequisites
+-------------
 
 If your environment already includes cxf.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/soap_header directory, the ant build script
-can be used to build and run the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant build
-  ant server 
-  ant client
+  ant server  (from one command line window)
+  ant client  (from a second command line window)
     
-
 To remove the code generated from the WSDL file and the .class
-files, run:
+files, run "ant clean".
 
   ant clean
 
 
 
-Buildng the demo using wsdl2java and javac
+Building the demo using wsdl2java and javac
 ------------------------------------------
 
 From the samples/soap_header directory, first create the target
@@ -85,8 +83,8 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/soap_header directory run the commands, entered on a
-single command line:
+From the samples/soap_header directory run the following commands.
+They are entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -119,25 +117,7 @@ files, either delete the build directory and its contents or run:
 Building and running the demo in a servlet container
 ----------------------------------------------------
 
-From the samples/soap_header directory, the ant build script
-can be used to create the war file that is deployed into the
-servlet container.
-
-Build the war file with the command:
-
-  ant war
-    
-
-The war file will be included in the directory
-samples/soap_header/build/war.  Simply copy the war file into
-the servlet container's deployment directory.  For example,
-with Tomcat copy the war file into the directory
-<installationDirectory>/webapps.  The servlet container will
-extract the war and deploy the application.
-
-Make sure already copy all jars from CXF_HOME/lib to
-<TomcatInstallationDirectory>/shared/lib
-
+Please refer to samples directory README for building demo in a servlet container.
 
 Using ant, run the client application with the command:
 
@@ -146,17 +126,23 @@ Using ant, run the client application with the command:
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
 
+Or
+  ant client-servlet -Dhost=localhost -Dport=8080
+
+You can ignore the -Dhost and -Dport if your tomcat setup is same, i.e ant client-servlet
+
 Using java, run the client application with the command:
 
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client http://localhost:#/soapheader/cxf/soap_header
+         demo.soap_header.client.Client http://localhost:#/soapheader/services/soap_header?wsdl
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client http://localhost:#/soapheader/cxf/soap_header
+       demo.soap_header.client.Client http://localhost:#/soapheader/services/soap_header?wsdl
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
+

@@ -21,6 +21,8 @@ package org.apache.cxf.tools.common.model;
 
 import java.util.*;
 
+import org.apache.cxf.common.util.StringUtils;
+
 public class JavaAnnotation {
     private static final String DEFAULT_QUOTE  = "\"";
 
@@ -35,11 +37,23 @@ public class JavaAnnotation {
     }
 
     public void addArgument(String key, String value, String quote) {
-        arguments.put(key, quote + value + quote);
+        if (!StringUtils.isEmpty(value)) {
+            arguments.put(key, quote + value + quote);
+        }        
+    }
+    
+    public void addArgIgnoreEmpty(String key , String value, String quote) {
+        if (value != null) {
+            arguments.put(key, quote + value + quote);
+        }
     }
     
     public void addArgument(String key, String value) {
         addArgument(key, value, DEFAULT_QUOTE);
+    }
+    
+    public Map<String, String> getArguments() {
+        return arguments;
     }
 
     public String toString() {
@@ -51,8 +65,16 @@ public class JavaAnnotation {
             sb.append("(");
             for (int i = 0; i < keys.length; i++) {
                 sb.append((String)keys[i]);
+                String value = this.arguments.get((String)keys[i]);
+                if ("null".equals(value)) {
+                    continue;
+                }
                 sb.append(" = ");
-                sb.append(this.arguments.get((String)keys[i]));
+                if ("".equals(value)) {
+                    sb.append("\"\"");
+                } else {
+                    sb.append(value);
+                }
                 if (i != (keys.length - 1)) {
                     sb.append(", ");
                 }

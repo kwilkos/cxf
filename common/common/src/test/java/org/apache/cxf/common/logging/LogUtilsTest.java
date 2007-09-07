@@ -24,19 +24,20 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.common.i18n.BundleUtils;
 
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 
-public class LogUtilsTest extends TestCase {
+public class LogUtilsTest extends Assert {
     private static final Logger LOG = LogUtils.getL7dLogger(LogUtilsTest.class);
 
 
+    @Test
     public void testGetL7dLog() throws Exception {
         assertNotNull("expected non-null logger", LOG);
         assertEquals("unexpected resource bundle name",
@@ -48,6 +49,7 @@ public class LogUtilsTest extends TestCase {
                      otherLogger.getResourceBundleName());
     }
 
+    @Test
     public void testHandleL7dMessage() throws Exception {
         Handler handler = EasyMock.createNiceMock(Handler.class);
         LOG.addHandler(handler);
@@ -58,8 +60,40 @@ public class LogUtilsTest extends TestCase {
         EasyMock.replay(handler);
         LOG.log(Level.WARNING, "FOOBAR_MSG");
         EasyMock.verify(handler);
+        LOG.removeHandler(handler);
+    }
+    
+    @Test
+    public void testLogNoParamsOrThrowable() {
+        Handler handler = EasyMock.createNiceMock(Handler.class);
+        LOG.addHandler(handler);
+        // handler called *after* localization of message
+        LogRecord record = new LogRecord(Level.SEVERE, "subbed in {0} only");
+        EasyMock.reportMatcher(new LogRecordMatcher(record));
+        handler.publish(record);
+        EasyMock.replay(handler);
+        LogUtils.log(LOG, Level.SEVERE, "SUB1_MSG");
+        EasyMock.verify(handler);
+        LOG.removeHandler(handler);
+    }
+    
+    @Test
+    public void testLogNoParamsWithThrowable() {
+        Handler handler = EasyMock.createNiceMock(Handler.class);
+        LOG.addHandler(handler);
+        // handler called *after* localization of message
+        Exception ex = new Exception("x");
+        LogRecord record = new LogRecord(Level.SEVERE, "subbed in {0} only");
+        record.setThrown(ex);
+        EasyMock.reportMatcher(new LogRecordMatcher(record));
+        handler.publish(record);
+        EasyMock.replay(handler);
+        LogUtils.log(LOG, Level.SEVERE, "SUB1_MSG", ex);
+        EasyMock.verify(handler);
+        LOG.removeHandler(handler);
     }
 
+    @Test
     public void testLogParamSubstitutionWithThrowable() throws Exception {
         Handler handler = EasyMock.createNiceMock(Handler.class);
         LOG.addHandler(handler);
@@ -72,8 +106,10 @@ public class LogUtilsTest extends TestCase {
         EasyMock.replay(handler);
         LogUtils.log(LOG, Level.SEVERE, "SUB1_MSG", ex, 1);
         EasyMock.verify(handler);
+        LOG.removeHandler(handler);
     }
 
+    @Test
     public void testLogParamsSubstitutionWithThrowable() throws Exception {
         Handler handler = EasyMock.createNiceMock(Handler.class);
         LOG.addHandler(handler);
@@ -86,8 +122,42 @@ public class LogUtilsTest extends TestCase {
         EasyMock.replay(handler);
         LogUtils.log(LOG, Level.SEVERE, "SUB2_MSG", ex, new Object[] {3, 4});
         EasyMock.verify(handler);
+        LOG.removeHandler(handler);
     }
+    
+    @Test
+    public void testClassMethodNames() throws Exception {
+        TestLogHandler handler = new TestLogHandler();
+        LOG.addHandler(handler);
 
+        // logger called directly
+        LOG.warning("hello");
+        
+        String cname = handler.cname;
+        String mname = handler.mname;
+        
+        // logger called through LogUtils
+        LogUtils.log(LOG, Level.WARNING,  "FOOBAR_MSG");
+        
+        assertEquals(cname, handler.cname);
+        assertEquals(mname, handler.mname);
+    }
+    
+    private static final class TestLogHandler extends Handler {
+        String cname;
+        String mname;
+
+        public void close() throws SecurityException {
+        }
+        public void flush() {
+        }
+
+        public void publish(LogRecord record) {
+            cname = record.getSourceClassName();
+            mname = record.getSourceMethodName();
+        }       
+    }
+    
     private static final class LogRecordMatcher implements IArgumentMatcher {
         private final LogRecord record;
 

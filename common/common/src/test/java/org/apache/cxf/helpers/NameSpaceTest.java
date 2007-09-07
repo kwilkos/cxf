@@ -19,9 +19,10 @@
 
 package org.apache.cxf.helpers;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class NameSpaceTest extends TestCase {
+public class NameSpaceTest extends Assert {
     
     private final String myURL1 = "http://test.apache.org/testurl1";
     private final String myURL2 = "http://test.apache.org/testurl2";
@@ -29,17 +30,7 @@ public class NameSpaceTest extends TestCase {
     private final String myOwnPrefix = "myown-prefix";
     
 
-    public NameSpaceTest(String arg0) {
-        super(arg0);
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(NameSpaceTest.class);
-    }
-
+    @Test
     public void testNSStackOperations() throws Exception {
         NSStack  nsStackObj = new NSStack();
         
@@ -64,6 +55,7 @@ public class NameSpaceTest extends TestCase {
         assertNull(nsStackObj.getPrefix(myCustomURL));
     }
     
+    @Test
     public void testNSDeclOperaions() throws Exception {
         NSDecl nsDecl1 = new NSDecl(myOwnPrefix, myCustomURL);
         NSDecl nsDecl2 = new NSDecl("ns2", myURL2);

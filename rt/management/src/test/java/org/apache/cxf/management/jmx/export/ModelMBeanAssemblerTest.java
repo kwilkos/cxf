@@ -32,13 +32,16 @@ import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.management.jmx.export.runtime.ModelMBeanAssembler;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 
-public class ModelMBeanAssemblerTest extends  TestCase {
+public class ModelMBeanAssemblerTest extends  Assert {
     
     protected static final String AGE_ATTRIBUTE = "Age";
 
@@ -50,6 +53,7 @@ public class ModelMBeanAssemblerTest extends  TestCase {
     
     protected ObjectName ton;
 
+    @Before
     public final void setUp() throws Exception {
         this.server = MBeanServerFactory.createMBeanServer();
         try {
@@ -59,8 +63,9 @@ public class ModelMBeanAssemblerTest extends  TestCase {
             throw e;
         }
     }
-
-    protected void tearDown() throws Exception {
+    
+    @After
+    public void tearDown() throws Exception {
         releaseServer();
         onTearDown();
     }
@@ -105,18 +110,20 @@ public class ModelMBeanAssemblerTest extends  TestCase {
     }
     
     //the client get and set the ModelObject and setup the ManagerBean
-    
+    @Test
     public void testRegisterOperations() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
         assertEquals("Incorrect number of operations registered",
                       10, info.getOperations().length);
     }
-       
+    
+    @Test
     public void testGetMBeanInfo() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
         assertNotNull("MBeanInfo should not be null", info);
     }
 
+    @Test
     public void testGetMBeanAttributeInfo() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
         MBeanAttributeInfo[] inf = info.getAttributes();
@@ -130,6 +137,7 @@ public class ModelMBeanAssemblerTest extends  TestCase {
         }
     }
 
+    @Test
     public void testGetMBeanOperationInfo() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
         MBeanOperationInfo[] inf = info.getOperations();
@@ -143,13 +151,14 @@ public class ModelMBeanAssemblerTest extends  TestCase {
         }
     }
 
+    @Test
     public void testDescriptionNotNull() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
         assertNotNull("The MBean description should not be null",
                                 info.getDescription());
     }
 
-    
+    @Test
     public void testSetAttribute() throws Exception {        
         getServer().setAttribute(ton, new Attribute(AGE_ATTRIBUTE, 12));
         assertEquals("The Age should be ", 12, ati.getAge());
@@ -157,18 +166,21 @@ public class ModelMBeanAssemblerTest extends  TestCase {
         assertEquals("The name should be ", "Rob Harrop", ati.getName());
     }
 
+    @Test
     public void testGetAttribute() throws Exception {        
         ati.setName("John Smith");
         Object val = getServer().getAttribute(ton, NAME_ATTRIBUTE);        
         assertEquals("Incorrect result", "John Smith", val);
     } 
 
+    @Test
     public void testOperationInvocation() throws Exception {       
         Object result = getServer().invoke(ton, "add",
                                 new Object[] {new Integer(20), new Integer(30)}, new String[] {"int", "int"});
         assertEquals("Incorrect result", new Integer(50), result);
     }
     
+    @Test
     public void testAttributeHasCorrespondingOperations() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
 
@@ -182,6 +194,7 @@ public class ModelMBeanAssemblerTest extends  TestCase {
                 
     }
 
+    @Test
     public void testNotificationMetadata() throws Exception {
         ModelMBeanInfo info = getMBeanInfoFromAssembler();
         MBeanNotificationInfo[] notifications = info.getNotifications();
@@ -195,6 +208,7 @@ public class ModelMBeanAssemblerTest extends  TestCase {
         assertEquals("Notification type.bar not found", "type.bar", notifTypes[1]);
     }
 
+    
     protected ModelMBeanInfo getMBeanInfoFromAssembler() {
         ModelMBeanAssembler assembler = new ModelMBeanAssembler();
         return assembler.getModelMbeanInfo(AnnotationTestInstrumentation.class);        

@@ -36,23 +36,27 @@ import org.apache.cxf.message.Message;
 public interface PhaseInterceptor<T extends Message> extends Interceptor<T> {
 
     /**
-     * A Set of IDs that this interceptor needs to run after.
-     * @return
+     * Returns a set of IDs specifying the interceptors that should be run after this interceptor.
+     * @return the ids of the interceptors to be run after
      */
     Set<String> getAfter();
 
     /**
-     * A Set of IDs that this interceptor needs to run before.
-     * @return
+     * Returns a set of IDs specifying the interceptors that should be run before this interceptor.
+     * @return the ids of the interceptors to be run before
      */
     Set<String> getBefore();
 
     /**
-     * The ID of the interceptor.
-     * @return
+     * The ID of this interceptor.
+     * @return the id
      */
     String getId();
 
+    /**
+     * The phase of this interceptor.
+     * @return the phase
+     */
     String getPhase();
 
 }

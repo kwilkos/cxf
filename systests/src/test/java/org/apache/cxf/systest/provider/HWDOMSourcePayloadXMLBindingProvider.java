@@ -31,6 +31,8 @@ import javax.xml.ws.WebServiceProvider;
 
 import org.w3c.dom.Document;
 
+import org.apache.cxf.helpers.DOMUtils;
+
 //The following wsdl file is used.
 //wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
 @WebServiceProvider(portName = "XMLProviderPort",
@@ -53,13 +55,14 @@ public class HWDOMSourcePayloadXMLBindingProvider implements
 
         try {
             factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
+            factory.setNamespaceAware(true);
             builder = factory.newDocumentBuilder();
             InputStream greetMeResponse = getClass().getResourceAsStream(
                     "resources/XML_GreetMeDocLiteralResp.xml");
 
             document = builder.parse(greetMeResponse);
-            response = new DOMSource(document);
+            DOMUtils.writeXml(document, System.out);
+            response = new DOMSource(document.getDocumentElement());
         } catch (Exception e) {
             e.printStackTrace();
         }

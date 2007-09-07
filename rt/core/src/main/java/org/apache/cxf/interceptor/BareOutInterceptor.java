@@ -20,24 +20,21 @@
 package org.apache.cxf.interceptor;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public BareOutInterceptor() {
-        super();
-        setPhase(Phase.MARSHAL);
+        super(Phase.MARSHAL);
     }
 
-    public void handleMessage(Message message) {      
+    public void handleMessage(Message message) {
         Exchange exchange = message.getExchange();
         BindingOperationInfo operation = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
             .getName());
@@ -45,43 +42,30 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         if (operation == null) {
             return;
         }
+
+        MessageContentsList objs = MessageContentsList.getContentsList(message);
+        if (objs == null || objs.size() == 0) {
+            return;
+        }
         
-        DataWriter<Message> dataWriter = getMessageDataWriter(message);
-
-        int countParts = 0;
         List<MessagePartInfo> parts = null;
+        BindingMessageInfo bmsg = null;
+        boolean client = isRequestor(message);
 
-        if (!isRequestor(message)) {
+        if (!client) {
             if (operation.getOutput() != null) {
-                parts = operation.getOutput().getMessageInfo().getMessageParts();
+                bmsg = operation.getOutput();
+                parts = bmsg.getMessageParts();
             } else {
                 // partial response to oneway
                 return;
             }
         } else {
-            parts = operation.getInput().getMessageInfo().getMessageParts();
+            bmsg = operation.getInput();
+            parts = bmsg.getMessageParts();
         }
-        countParts = parts.size();
-
-        if (countParts > 0) {
-            List<?> objs = message.getContent(List.class);
-            if (objs != null) {
-                Object[] args = objs.toArray();
-                Object[] els = parts.toArray();
-                        
-                for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = args[idx];
-                    MessagePartInfo part = (MessagePartInfo)els[idx];
-                    if (part.isInSoapHeader()) {
-                        //this part should be in header, should donot write to soap body
-                        continue;
-                    }
-                    QName elName = ServiceModelUtil.getPartName(part);
-                    dataWriter.write(arg, elName, message);
-                }
-            }
-        }
+        
+        writeParts(message, exchange, operation, objs, parts);
     }
-    
-    
+
 }

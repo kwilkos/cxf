@@ -19,25 +19,44 @@
 
 package org.apache.cxf.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.workqueue.SynchronousExecutor;
 
 public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service, Configurable {
-
-    private ServiceInfo serviceInfo;
+    private List<ServiceInfo> serviceInfos;
     private DataBinding dataBinding;
     private Executor executor;
     private Invoker invoker;
+    private Map<QName, Endpoint> endpoints = new HashMap<QName, Endpoint>();
+    
+    public ServiceImpl() {
+        this((ServiceInfo)null);
+    }
     
     public ServiceImpl(ServiceInfo si) {
-        serviceInfo = si;
+        serviceInfos = new ArrayList<ServiceInfo>();
+        if (si != null) {
+            serviceInfos.add(si);
+        }
+        executor = SynchronousExecutor.getInstance();    
+    }
+    public ServiceImpl(List<ServiceInfo> si) {
+        serviceInfos = si;
+        executor = SynchronousExecutor.getInstance();    
     }
     
     public String getBeanName() {
@@ -45,12 +64,23 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     }
 
     public QName getName() {
-        return serviceInfo.getName();
+        return serviceInfos.get(0).getName();
     }
 
-    public ServiceInfo getServiceInfo() {
-        return serviceInfo;
+    public List<ServiceInfo> getServiceInfos() {
+        return serviceInfos;
     }
+    
+    public EndpointInfo getEndpointInfo(QName endpoint) {
+        for (ServiceInfo inf : serviceInfos) {
+            EndpointInfo ef = inf.getEndpoint(endpoint);
+            if (ef != null) {
+                return ef;
+            }
+        }
+        return null;
+    }
+    
 
     public Executor getExecutor() {
         return executor;
@@ -75,5 +105,16 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     public void setDataBinding(DataBinding dataBinding) {
         this.dataBinding = dataBinding;
     }
-    
+
+    public Map<QName, Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
+    public void setEndpoints(Map<QName, Endpoint> endpoints) {
+        this.endpoints = endpoints;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.putAll(properties);
+    }
 }

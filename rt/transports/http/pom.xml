@@ -16,25 +16,21 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-rt-transports-http</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-incubator-M1-SNAPSHOT</version>
-    <name>CXF Runtime HTTP transport</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <version>2.1-incubator-SNAPSHOT</version>
+    <name>Apache CXF Runtime HTTP Transport</name>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt</artifactId>
-        <version>2.0-incubator-M1-SNAPSHOT</version>
+        <artifactId>cxf-parent</artifactId>
+        <version>2.1-incubator-SNAPSHOT</version>
+        <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
-
-    <properties>
-        <topDirectoryLocation>../../..</topDirectoryLocation>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -58,24 +54,19 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>        
         <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_2.5_spec</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -95,44 +86,9 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</xsd>
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
+                                    <catalog>${basedir}/src/main/resources/catalog.cat</catalog>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/http-conduit.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/http-destination.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/http-listener.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
                                     </deleteDirs>
                                 </xsdOption>
                             </xsdOptions>
@@ -145,12 +101,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-cfg</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-dv</artifactId>
+                        <artifactId>cxf-xjc-dv</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
@@ -162,5 +113,13 @@
             </plugin>
         </plugins>
     </build>
+
+
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-transports-http</url>
+  </scm>
 
 </project>

@@ -23,72 +23,122 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
-import org.apache.cxf.binding.attachment.CachedOutputStream;
-import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.transport.AbstractConduit;
 
-public class LocalConduit implements Conduit {
+public class LocalConduit extends AbstractConduit {
 
     public static final String IN_CONDUIT = LocalConduit.class.getName() + ".inConduit";
+    public static final String RESPONSE_CONDUIT = LocalConduit.class.getName() + ".inConduit";
     public static final String IN_EXCHANGE = LocalConduit.class.getName() + ".inExchange";
+    public static final String DIRECT_DISPATCH = LocalConduit.class.getName() + ".directDispatch";
+    public static final String MESSAGE_FILTER_PROPERTIES = LocalConduit.class.getName() + ".filterProperties";
 
+    private static final Logger LOG = LogUtils.getL7dLogger(LocalConduit.class);
+    
     private LocalDestination destination;
-    private MessageObserver observer;
+    private LocalTransportFactory transportFactory;
 
-    public LocalConduit(LocalDestination destination) {
+    public LocalConduit(LocalTransportFactory transportFactory, LocalDestination destination) {
+        super(destination.getAddress());
         this.destination = destination;
+        this.transportFactory = transportFactory;
+    }
+    
+    public void prepare(final Message message) throws IOException {
+        if (!Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
+            dispatchViaPipe(message);
+        }
     }
 
-    public void close(Message msg) throws IOException {
-        msg.getContent(OutputStream.class).close();        
-    }
-    public void close() {
-    }
-
-    public Destination getBackChannel() {
-        return null;
-    }
-
-    public EndpointReferenceType getTarget() {
-        return destination.getAddress();
+    @Override
+    public void close(Message message) throws IOException {
+        if (Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))
+            && !Boolean.TRUE.equals(message.get(Message.INBOUND_MESSAGE))) {
+            dispatchDirect(message);
+        } 
+        
+        super.close(message);
     }
 
-    public void send(Message message) throws IOException {
+    private void dispatchDirect(Message message) {
+        if (destination.getMessageObserver() == null) {
+            throw new IllegalStateException("Local destination does not have a MessageObserver on address " 
+                                            + destination.getAddress().getAddress().getValue());
+        }
+
+        MessageImpl copy = new MessageImpl();
+        copy.put(IN_CONDUIT, this);
+        copy.setDestination(destination);
+        
+        copy(message, copy, transportFactory.getMessageFilterProperties());
+        
+        // Create a new incoming exchange and store the original exchange for the response
+        ExchangeImpl ex = new ExchangeImpl();
+        ex.setInMessage(copy);
+        ex.put(IN_EXCHANGE, message.getExchange());
+        ex.setDestination(destination);
+        
+        destination.getMessageObserver().onMessage(copy);
+    }
+
+    public static void copy(Message message, MessageImpl copy, Set<String> defaultFilter) {
+        Set<String> filter = CastUtils.cast((Set)message.get(MESSAGE_FILTER_PROPERTIES));
+        if (filter == null) {
+            filter = defaultFilter;
+        }
+        
+        // copy all the contents
+        for (Map.Entry<String, Object> e : message.entrySet()) {
+            if (!filter.contains(e.getKey())) {
+                copy.put(e.getKey(), e.getValue());
+            }
+        }
+        
+        MessageImpl.copyContent(message, copy);
+    }
+
+    private void dispatchViaPipe(final Message message) throws IOException {
         final PipedInputStream stream = new PipedInputStream();
         final LocalConduit conduit = this;
         final Exchange exchange = message.getExchange();
         
+        if (destination.getMessageObserver() == null) {
+            throw new IllegalStateException("Local destination does not have a MessageObserver on address " 
+                                            + destination.getAddress().getAddress().getValue());
+        }
+        
         final Runnable receiver = new Runnable() {
             public void run() {
-                MessageImpl m = new MessageImpl();
-                m.setContent(InputStream.class, stream);
-                m.setDestination(destination);
-                m.put(IN_CONDUIT, conduit);
-                m.put(IN_EXCHANGE, exchange);
-                destination.getMessageObserver().onMessage(m);
+                MessageImpl inMsg = new MessageImpl();
+                inMsg.setContent(InputStream.class, stream);
+                inMsg.setDestination(destination);
+                inMsg.put(IN_CONDUIT, conduit);
+                
+                ExchangeImpl ex = new ExchangeImpl();
+                ex.setInMessage(inMsg);
+                ex.put(IN_EXCHANGE, exchange);
+                destination.getMessageObserver().onMessage(inMsg);
             }
         };
 
-        final AbstractCachedOutputStream outStream = new CachedOutputStream(stream);
-
-        message.setContent(OutputStream.class, outStream);
+        message.setContent(OutputStream.class, new PipedOutputStream(stream));
 
         // TODO: put on executor
         new Thread(receiver).start();
     }
-
-    public void setMessageObserver(MessageObserver o) {
-        this.observer = o;
-    }
-
-    public MessageObserver getMessageObserver() {
-        return observer;
+    
+    protected Logger getLogger() {
+        return LOG;
     }
 }

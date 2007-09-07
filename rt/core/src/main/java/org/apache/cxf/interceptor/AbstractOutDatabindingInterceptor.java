@@ -19,85 +19,124 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ResourceBundle;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.validation.Schema;
 
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.databinding.DataWriterFactory;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageContentsList;
+import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final ResourceBundle BUNDLE = BundleUtils
-        .getBundle(AbstractOutDatabindingInterceptor.class);
 
+    public static final String DISABLE_OUTPUTSTREAM_OPTIMIZATION = "disable.outputstream.optimization";
+    
+    
+    public AbstractOutDatabindingInterceptor(String phase) {
+        super(phase);
+    }
+    public AbstractOutDatabindingInterceptor(String id, String phase) {
+        super(id, phase);
+    }
+    
     protected boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
-    protected DataWriter getDataWriter(Message message, Class<?> output) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
+    protected void writeParts(Message message, Exchange exchange, 
+                              BindingOperationInfo operation, MessageContentsList objs, 
+                              List<MessagePartInfo> parts) {
+        OutputStream out = message.getContent(OutputStream.class);
+        XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+        Service service = exchange.get(Service.class);
+        if (out != null 
+            && writeToOutputStream(message, operation.getBinding(), service)
+            && !MessageUtils.isTrue(message.getContextualProperty(DISABLE_OUTPUTSTREAM_OPTIMIZATION))) {
+            if (xmlWriter != null) {
+                try {
+                    xmlWriter.writeCharacters("");
+                    xmlWriter.flush();
+                } catch (XMLStreamException e) {
+                    throw new Fault(e);
+                }
+            }
+            
+            DataWriter<OutputStream> osWriter = getDataWriter(message, service, OutputStream.class);
 
-        DataWriter dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == output) {
-                dataWriter = factory.createWriter(output);
-                break;
+            for (MessagePartInfo part : parts) {
+                if (objs.hasValue(part)) {
+                    Object o = objs.get(part);
+                    osWriter.write(o, part, out);
+                }
+            }
+        } else {
+            DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service, XMLStreamWriter.class);
+            
+            for (MessagePartInfo part : parts) {
+                if (objs.hasValue(part)) {
+                    Object o = objs.get(part);
+                    dataWriter.write(o, part, xmlWriter);
+                }
             }
         }
-
-        if (dataWriter == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
-                .getName()));
-        }
-
-        return dataWriter;        
     }
-
-    protected DataWriter<Message> getMessageDataWriter(Message message) {
+    
+    protected boolean writeToOutputStream(Message m, BindingInfo info, Service s) {
+        /**
+         * Yes, all this code is EXTREMELY ugly. But it gives about a 60-70% performance
+         * boost with the JAXB RI, so its worth it. 
+         */
         
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-
-        DataWriter<Message> dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == Message.class) {
-                dataWriter = factory.createWriter(Message.class);
-                break;
-            }
+        if (s == null) {
+            return false;
         }
-
-        if (dataWriter == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
-                .getName()));
+        
+        String enc = (String)m.get(Message.ENCODING);
+        return info.getClass().getName().equals("org.apache.cxf.binding.soap.model.SoapBindingInfo") 
+            && s.getDataBinding().getClass().getName().equals("org.apache.cxf.jaxb.JAXBDataBinding")
+            && !MessageUtils.isDOMPresent(m)
+            && (enc == null || "UTF-8".equals(enc));
+    }
+    
+    protected <T> DataWriter<T> getDataWriter(Message message, Service service, Class<T> output) {
+        DataWriter<T> writer = service.getDataBinding().createWriter(output);
+        
+        Collection<Attachment> atts = message.getAttachments();
+        if (MessageUtils.isTrue(message.getContextualProperty(
+              org.apache.cxf.message.Message.MTOM_ENABLED))
+              && atts == null) {
+            atts = new ArrayList<Attachment>();
+            message.setAttachments(atts);
         }
-
-        return dataWriter;
+        
+        writer.setAttachments(atts);
+        writer.setProperty(DataWriter.ENDPOINT, message.getExchange().get(Endpoint.class));
+        
+        setSchemaOutMessage(service, message, writer);
+        return writer;
     }
 
-    protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-
-        DataWriter<XMLStreamWriter> dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == XMLStreamWriter.class) {
-                dataWriter = factory.createWriter(XMLStreamWriter.class);
-                break;
-            }
+    private void setSchemaOutMessage(Service service, Message message, DataWriter<?> writer) {
+        Object en = message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED);
+        if (Boolean.TRUE.equals(en) || "true".equals(en)) {
+            Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfos().get(0));
+            writer.setSchema(schema);
         }
-
-        if (dataWriter == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
-                .getName()));
-        }
-
-        return dataWriter;
     }
 
     protected XMLStreamWriter getXMLStreamWriter(Message message) {

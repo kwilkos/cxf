@@ -19,21 +19,22 @@
 
 package org.apache.cxf.message;
 
-import java.util.HashMap;
-
+import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.PreexistingConduitSelector;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.Session;
 
-public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
+public class ExchangeImpl extends StringMapImpl implements Exchange {
 
     private Destination destination;
-    private Conduit conduit;
     private boolean oneWay;
     
     private Message inMessage;
     private Message outMessage;
-    private Message faultMessage;
+    private Message inFaultMessage;
+    private Message outFaultMessage;
     
     private Session session;
     
@@ -45,20 +46,31 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
         return inMessage;
     }
 
-    public Conduit getConduit() {
-        return conduit;
+    public Conduit getConduit(Message message) {
+        return get(ConduitSelector.class) != null
+               ? get(ConduitSelector.class).selectConduit(message)
+               : null;
     }
 
     public Message getOutMessage() {
         return outMessage;
     }
 
-    public Message getFaultMessage() {
-        return faultMessage;
+    public Message getInFaultMessage() {
+        return inFaultMessage;
     }
 
-    public void setFaultMessage(Message m) {
-        this.faultMessage = m;
+    public void setInFaultMessage(Message m) {
+        inFaultMessage = m;
+        m.setExchange(this);
+    }
+
+    public Message getOutFaultMessage() {
+        return outFaultMessage;
+    }
+
+    public void setOutFaultMessage(Message m) {
+        outFaultMessage = m;
         m.setExchange(this);
     }
 
@@ -68,24 +80,21 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     public void setInMessage(Message m) {
         inMessage = m;
-        m.setExchange(this);
+        if (null != m) {
+            m.setExchange(this);
+        }
     }
 
     public void setConduit(Conduit c) {
-        conduit = c;
+        put(ConduitSelector.class,
+            new PreexistingConduitSelector(c, get(Endpoint.class)));
     }
 
     public void setOutMessage(Message m) {
         outMessage = m;
-        m.setExchange(this);
-    }
-    
-    public <T> T get(Class<T> key) {
-        return key.cast(get(key.getName()));
-    }
-
-    public <T> void put(Class<T> key, T value) {
-        put(key.getName(), value);
+        if (null != m) {
+            m.setExchange(this);
+        }
     }
 
     public boolean isOneWay() {
@@ -102,5 +111,16 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     public void setSession(Session session) {
         this.session = session;
+    }
+    
+    public void clear() {
+        super.clear();
+        destination = null;
+        oneWay = false;
+        inMessage = null;
+        outMessage = null;
+        inFaultMessage = null;
+        outFaultMessage = null;
+        session = null;
     }
 }

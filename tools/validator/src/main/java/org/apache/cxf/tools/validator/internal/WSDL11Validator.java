@@ -19,20 +19,40 @@
 
 package org.apache.cxf.tools.validator.internal;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
-
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.wsdl.Definition;
 
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.util.URIParserUtil;
+import org.apache.cxf.tools.validator.AbstractValidator;
 
-
-
-public class WSDL11Validator extends AbstractValidator {
-
+public class WSDL11Validator extends AbstractDefinitionValidator {
+    protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
     private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
 
     public WSDL11Validator(Definition definition) {
@@ -43,42 +63,60 @@ public class WSDL11Validator extends AbstractValidator {
         super(definition, pe);
     }
 
-    public boolean isValid() throws ToolException {
-        boolean isValid = true;
-        String schemaDir = getSchemaDir();
-        if (!StringUtils.isEmpty(schemaDir)) {
-
-            String[] schemas = (String[])env.get(ToolConstants.CFG_SCHEMA_URL);
-            
-            SchemaValidator schemaValidator = new SchemaValidator(schemaDir, (String)env
-                .get(ToolConstants.CFG_WSDLURL), schemas);
-
-            if (!schemaValidator.isValid()) {              
-                this.addErrorMessage(schemaValidator.getErrorMessage());
-                isValid = false;
-                throw new ToolException(this.getErrorMessage());
-               
-            } else {
-                this.def = schemaValidator.def;
-            }
-        } else {
-            throw new ToolException("Schema dir should be defined before validate wsdl");
+    private Document getWSDLDoc(String wsdl) {
+        LOG.log(Level.INFO, new Message("VALIDATE_WSDL", LOG, wsdl).toString());
+        try {
+            return XMLUtils.parse(new InputSource(URIParserUtil.getAbsoluteURI(wsdl)));
+        } catch (Exception e) {
+            throw new ToolException(e);
         }
+    }
+    
+    public boolean isValid() throws ToolException {
+        //boolean isValid = true;
+        String schemaDir = getSchemaDir();
+        SchemaValidator schemaValidator = null;
+        String[] schemas = (String[])env.get(ToolConstants.CFG_SCHEMA_URL);
+        // Tool will use the following sequence to find the schema files
+        // 1.ToolConstants.CFG_SCHEMA_DIR from ToolContext
+        // 2.ToolConstants.CXF_SCHEMA_DIR from System property
+        // 3.If 1 and 2 is null , then load these schema files from jar file
+        String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
 
+        WSDLRefValidator wsdlRefValidator = new WSDLRefValidator(wsdl, getWSDLDoc(wsdl));
+        wsdlRefValidator.setSuppressWarnings(env.optionSet(ToolConstants.CFG_SUPPRESS_WARNINGS));
+
+        this.def = wsdlRefValidator.getDefinition();
+
+        validators.add(wsdlRefValidator);
         validators.add(new UniqueBodyPartsValidator(this.def));
         validators.add(new WSIBPValidator(this.def));
         validators.add(new MIMEBindingValidator(this.def));
-        validators.add(new XMLFormatValidator(this.def));
-        
+
         for (AbstractValidator validator : validators) {
-            if (!validator.isValid()) {             
-                addErrorMessage(validator.getErrorMessage());
-                isValid = false;
+            if (!validator.isValid()) {
+                addErrorMessage(validator.getErrorMessage());                
                 throw new ToolException(this.getErrorMessage());
             }
         }
+
+        if (!StringUtils.isEmpty(schemaDir)) {
+            schemaValidator = new SchemaValidator(schemaDir, wsdl, schemas);
+        } else {
+            try {
+                schemaValidator = new SchemaValidator(getDefaultSchemas(), wsdl, schemas);
+            } catch (IOException e) {
+                throw new ToolException("Schemas can not be loaded before validating wsdl", e);
+            }
+
+        }
+        if (!schemaValidator.isValid()) {
+            this.addErrorMessage(schemaValidator.getErrorMessage());            
+            throw new ToolException(this.getErrorMessage());
+
+        }
         
-        return isValid;
+        return true;
     }
 
     public String getSchemaDir() {
@@ -89,5 +127,83 @@ public class WSDL11Validator extends AbstractValidator {
             dir = (String)env.get(ToolConstants.CFG_SCHEMA_DIR);
         }
         return dir;
+    }
+
+    protected List<InputSource> getDefaultSchemas() throws IOException {
+        List<InputSource> xsdList = new ArrayList<InputSource>();
+        ClassLoader clzLoader = Thread.currentThread().getContextClassLoader();
+        Enumeration<URL> urls = clzLoader.getResources(ToolConstants.CXF_SCHEMAS_DIR_INJAR);
+        while (urls.hasMoreElements()) {
+            URL url = urls.nextElement();
+            //from jar files 
+            if (url.toString().startsWith("jar")) {
+                
+                JarURLConnection jarConnection = (JarURLConnection)url.openConnection();
+                
+                JarFile jarFile = jarConnection.getJarFile();
+                
+                Enumeration<JarEntry> entry = jarFile.entries();
+                
+                while (entry.hasMoreElements()) {
+                    JarEntry ele = (JarEntry)entry.nextElement();
+                    if (ele.getName().endsWith(".xsd")
+                        && ele.getName().indexOf(ToolConstants.CXF_SCHEMAS_DIR_INJAR) > -1) {
+                        
+                        URIResolver resolver = new URIResolver(ele.getName());
+                        if (resolver.isResolved()) {
+                            InputSource is = new InputSource(resolver.getInputStream());
+                            // Use the resolved URI of the schema if available.
+                            // The ibm jdk won't resolve the schema if we set
+                            // the id to the relative path.
+                            if (resolver.getURI() != null) {
+                                is.setSystemId(resolver.getURI().toString());
+                            } else {
+                                is.setSystemId(ele.getName());
+                            }
+                            xsdList.add(is);
+                        }
+                    }
+                }
+                //from class path direcotry
+            } else if (url.toString().startsWith("file")) {
+                URI loc = null;
+                try {
+                    loc = url.toURI();
+                } catch (URISyntaxException e) {
+                    //
+                }
+                java.io.File file = new java.io.File(loc);
+                if (file.exists()) {
+                    File[] files = file.listFiles(new FileFilter() {
+                            public boolean accept(File pathname) {
+                                if (pathname.getAbsolutePath().endsWith(".xsd")) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+                    for (int i = 0; i < files.length; i++) {
+                        InputSource is = new InputSource(files[i].toURI().toURL().openStream());
+                        is.setSystemId(files[i].toURI().toURL().toString());
+                        xsdList.add(is);
+                    }
+                }
+                
+            }
+        }
+        
+        sort(xsdList);
+        return xsdList;
+    }
+
+    private void sort(List<InputSource> list) {
+        Collections.sort(list, new Comparator<InputSource>() {
+            public int compare(InputSource i1, InputSource i2) {
+                if (i1 == null && i2 == null) {
+                    return -1;
+                }
+                return i1.getSystemId().compareTo(i2.getSystemId());
+            }
+        });
     }
 }

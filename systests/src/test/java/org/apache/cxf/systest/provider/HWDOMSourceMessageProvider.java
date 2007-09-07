@@ -29,8 +29,8 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
-
 import org.w3c.dom.Node;
+
 
 //The following wsdl file is used.
 //wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
@@ -62,6 +62,7 @@ public class HWDOMSourceMessageProvider implements Provider<DOMSource> {
     }
 
     public DOMSource invoke(DOMSource request) {
+        //XMLUtils.writeTo(request, System.out);
         DOMSource response = new DOMSource();
         try {
             SOAPMessage msg = factory.createMessage();

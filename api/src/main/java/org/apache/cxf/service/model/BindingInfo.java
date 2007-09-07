@@ -30,7 +30,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-public class BindingInfo extends AbstractPropertiesHolder {
+public class BindingInfo extends AbstractDescriptionElement {
     
     private static final Logger LOG = LogUtils.getL7dLogger(BindingInfo.class);
     
@@ -105,7 +105,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
     /**
      * Returns the operation info with the given name, if found.
      *
-     * @param name the name.
+     * @param oname the name.
      * @return the operation; or <code>null</code> if not found.
      */
     public BindingOperationInfo getOperation(QName oname) {
@@ -123,8 +123,10 @@ public class BindingInfo extends AbstractPropertiesHolder {
 
     public BindingOperationInfo getOperation(OperationInfo oi) {
         for (BindingOperationInfo b : operations.values()) {
-            if (b.getOperationInfo() == oi || b.getUnwrappedOperation().getOperationInfo() == oi) {
+            if (b.getOperationInfo() == oi) {
                 return b;
+            } else if (b.isUnwrappedCapable() && b.getUnwrappedOperation().getOperationInfo() == oi) {
+                return b.getUnwrappedOperation();
             }
         }
         

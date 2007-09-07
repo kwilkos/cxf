@@ -19,10 +19,10 @@
 
 package org.apache.cxf.phase;
 
-import java.util.List;
+import java.util.SortedSet;
 
 public interface PhaseManager {
-    List<Phase> getInPhases();
+    SortedSet<Phase> getInPhases();
 
-    List<Phase> getOutPhases();
+    SortedSet<Phase> getOutPhases();
 }

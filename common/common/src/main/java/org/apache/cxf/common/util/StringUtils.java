@@ -19,8 +19,14 @@
 
 package org.apache.cxf.common.util;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class StringUtils {
 
@@ -58,7 +64,7 @@ public final class StringUtils {
         try {
             return new URL(spec);
         } catch (MalformedURLException e) {
-            return new File(spec).toURL();
+            return new File(spec).toURI().toURL();
         }
     }
 
@@ -67,6 +73,29 @@ public final class StringUtils {
             return false;
         }
         return true;
+    }
+    
+    public static boolean isEmpty(List<String> list) {
+        if (list == null || list.size() == 0) {
+            return true;
+        }
+        if (list.size() == 1 && isEmpty(list.get(0))) {
+            return true;
+        }
+        return false;
+    }
+    
+    public static String trim(String target, String token) {
+        int tokenLength = token.length();
+        int targetLength = target.length();
+        
+        if (target.startsWith(token)) {            
+            return trim(target.substring(tokenLength), token);
+        }
+        if (target.endsWith(token)) {            
+            return trim(target.substring(0, targetLength - tokenLength), token);
+        }
+        return target;
     }
 
     public static boolean isEqualUri(String uri1, String uri2) {
@@ -79,5 +108,104 @@ public final class StringUtils {
         } else {
             return uri1.equals(uri2);
         }
+    }
+    
+    public static String diff(String str1, String str2) {
+        int index = str1.lastIndexOf(str2);
+        if (index > -1) {
+            return str1.substring(str2.length());
+        }
+        return str1;
+    }
+    
+    public static List<String> getParts(String str, String sperator) {
+        List<String> ret = new ArrayList<String>();
+        List<String> parts = Arrays.asList(str.split("/"));
+        for (String part : parts) {
+            if (!isEmpty(part)) {
+                ret.add(part);
+            }
+        }
+        return ret;
+    }
+    
+    public static String getFirstNotEmpty(String str, String sperator) {
+        List<String> parts = Arrays.asList(str.split("/"));
+        for (String part : parts) {
+            if (!isEmpty(part)) {
+                return part;
+            }
+        }
+        return str;
+    }
+    
+    public static String getFirstNotEmpty(List<String> list) {
+        if (isEmpty(list)) {
+            return null;
+        }
+        for (String item : list) {
+            if (!isEmpty(item)) {
+                return item;
+            }       
+        }
+        return null;
+    }
+    
+    public static List<String> getFound(String contents, String regex) {
+        if (isEmpty(regex) || isEmpty(contents)) {
+            return null;
+        }
+        List<String> results = new ArrayList<String>();
+        Pattern pattern = Pattern.compile(regex, Pattern.UNICODE_CASE);
+        Matcher matcher = pattern.matcher(contents);
+        
+        while (matcher.find()) {
+            if (matcher.groupCount() > 0) {
+                results.add(matcher.group(1));
+            } else {
+                results.add(matcher.group());
+            }
+        }
+        return results;
+    } 
+    
+    public static String getFirstFound(String contents, String regex) {
+        List<String> founds = getFound(contents, regex);
+        if (isEmpty(founds)) {
+            return null;
+        }
+        return founds.get(0);
+    }
+    
+    public static String formatVersionNumber(String target) {
+        List<String> found = StringUtils.getFound(target, "\\d+\\.\\d+\\.?\\d*");
+        if (isEmpty(found)) {
+            return target;
+        }
+        return getFirstNotEmpty(found);
+    }
+    
+    public static String addDefaultPortIfMissing(String urlString) {
+        return addDefaultPortIfMissing(urlString, "80");
+    }
+    
+    public static String addDefaultPortIfMissing(String urlString, String defaultPort) {
+        URL url = null;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            return urlString;
+        }
+        if (url.getPort() != -1) {
+            return urlString;
+        }
+        String regex = "http://([^/]+)";        
+        String found = StringUtils.getFirstFound(urlString, regex);
+        String replacer = "http://" + found + ":" + defaultPort;
+        
+        if (!StringUtils.isEmpty(found)) {
+            urlString = urlString.replaceFirst(regex, replacer);
+        }                
+        return urlString;
     }
 }

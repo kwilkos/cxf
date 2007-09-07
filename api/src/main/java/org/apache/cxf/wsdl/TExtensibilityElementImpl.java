@@ -56,7 +56,7 @@ public class TExtensibilityElementImpl
      * @return Boolean
      */
     public Boolean getRequired() {
-        return isRequired();
+        return isSetRequired() ? isRequired() : null;
     }
     public void setRequired(Boolean value) {
         this.required = value;

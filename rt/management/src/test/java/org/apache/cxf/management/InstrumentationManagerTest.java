@@ -18,78 +18,71 @@
  */
 package org.apache.cxf.management;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
 
-import javax.xml.namespace.QName;
-
-import junit.framework.TestCase;
-
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.BusFactoryHelper;
-import org.apache.cxf.event.ComponentEventFilter;
-import org.apache.cxf.event.Event;
-import org.apache.cxf.event.EventProcessor;
-import org.apache.cxf.workqueue.WorkQueueInstrumentation;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.workqueue.WorkQueueManagerImpl;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class InstrumentationManagerTest extends TestCase {
+public class InstrumentationManagerTest extends Assert {
     InstrumentationManager im;
     Bus bus;
     
+    @Before
     public void setUp() throws Exception {
-        BusFactory bf = BusFactoryHelper.newInstance();
-        bus =  bf.createBus();
-        bf.setDefaultBus(bus);
-        im = bus.getExtension(InstrumentationManager.class);
+
     }
     
+    @After
     public void tearDown() throws Exception {
         //test case had done the bus.shutdown
         bus.shutdown(true);
     }
     
+    @Test
+    public void testInstrumentationNotEnabled() {
+        SpringBusFactory factory = new SpringBusFactory();
+        bus =  factory.createBus();
+        im = bus.getExtension(InstrumentationManager.class);
+        assertTrue("Instrumentation Manager should not be null", im != null);
+        MBeanServer mbs = im.getMBeanServer();
+        assertNull("MBeanServer should not be available.", mbs);
+    }
+    
+    @Test
     // try to get WorkQueue information
     public void testWorkQueueInstrumentation() throws Exception {
+        SpringBusFactory factory = new SpringBusFactory();
+        bus =  factory.createBus("managed-spring.xml", true);
+        im = bus.getExtension(InstrumentationManager.class);
         assertTrue("Instrumentation Manager should not be null", im != null);
-        //im.getAllInstrumentation();
         WorkQueueManagerImpl wqm = new WorkQueueManagerImpl();
         wqm.setBus(bus);
-        EventProcessor ep = bus.getExtension(EventProcessor.class);
-        QName eventID = new QName(ComponentEventFilter.COMPONENT_CREATED_EVENT);
-        if (null != ep) {         
-            ep.sendEvent(new Event(wqm, eventID));
-        }        
+        wqm.getAutomaticWorkQueue();
         
-        //NOTE: now the bus WorkQueueManager is lazy load , if WorkQueueManager
-        //create with bus , this test could be failed.
-        List<Instrumentation> list = im.getAllInstrumentation();
-        //NOTE: change for the BindingManager and TransportFactoryManager instrumentation
-        // create with the bus.
-        assertEquals("Too many instrumented items", 1, list.size());
-        Instrumentation it1 = list.get(0);
-        //Instrumentation it2 = list.get(3);
-        assertTrue("Item 1 not a WorkQueueInstrumentation",
-                   WorkQueueInstrumentation.class.isAssignableFrom(it1.getClass()));
-        
-        // not check for the instrumentation unique name
-        // sleep for the MBServer connector thread startup
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            // do nothing
+        MBeanServer mbs = im.getMBeanServer();
+        assertNotNull("MBeanServer should be available.", mbs);
+        ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+                                         + ":type=WorkQueueMBean,*");
+        Set s = mbs.queryNames(name, null);
+        assertTrue(s.size() == 1);
+        Iterator it = s.iterator();
+        while (it.hasNext()) {
+            ObjectName n = (ObjectName)it.next();            
+            Long result = 
+                (Long)mbs.invoke(n, "getWorkQueueMaxSize", new Object[0], new String[0]);            
+            assertEquals(result, Long.valueOf(250));
         }
-        eventID = new QName(ComponentEventFilter.COMPONENT_REMOVED_EVENT);
-        if (null != ep) {
-            ep.sendEvent(new Event(wqm, eventID));
-        }    
-        assertEquals("Instrumented stuff not removed from list", 0, list.size());
+
         bus.shutdown(true);
-        assertEquals("Instrumented stuff not removed from list", 0, list.size());
     }
-
-
-
 
 }

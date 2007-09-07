@@ -26,7 +26,7 @@ public class Server {
     protected Server() throws Exception {
         System.out.println("Starting Server");
         Object implementor = new GreeterJMSImpl();
-        String address = "http://celtix.objectweb.org/transports/jms";
+        String address = "http://cxf.apache.org/transports/jms";
         Endpoint.publish(address, implementor);
     }
 

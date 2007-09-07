@@ -22,36 +22,17 @@
     xmlns:tns="http://cxf.apache.org/management"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-    xmlns:cfg="http://cxf.apache.org/configuration/cfg"
     elementFormDefault="qualified" 
     attributeFormDefault="unqualified"
-    jaxb:extensionBindingPrefixes="cfg"
     jaxb:version="2.0">
-    
-    <xs:complexType name="InstrumentationType">
-        <xs:attribute name="Enabled" type="xs:boolean" default="true"/>
-        <xs:attribute name="JMXEnabled" type="xs:boolean" default="false"/>        
-    </xs:complexType>
-    
+        
     <xs:complexType name="JMXConnectorPolicyType">
-        <xs:attribute name="Threaded" type="xs:boolean" default="false"/>
-        <xs:attribute name="Daemon" type="xs:boolean" default="false"/>
+        <xs:attribute name="Enabled" type="xs:boolean" use="required" />        
+        <xs:attribute name="Threaded" type="xs:boolean" use="required" />        
+        <xs:attribute name="Daemon" type="xs:boolean" use="required" />        
         <xs:attribute name="JMXServiceURL" type="xs:string" default="service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi"/>        
     </xs:complexType>
     
-    <xs:element name="instrumentation" type="tns:InstrumentationType"/>
     <xs:element name="JMXConnectorPolicy" type="tns:JMXConnectorPolicyType"/>   
-
-     <xs:complexType name="InstrumentationManagerConfigBean">        
-        <xs:annotation>
-            <xs:appinfo>                
-                <cfg:configurable/>
-            </xs:appinfo>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element ref="tns:instrumentation" minOccurs="0"/>
-            <xs:element ref="tns:JMXConnectorPolicy" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
 
 </xs:schema>

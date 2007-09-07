@@ -19,19 +19,22 @@
 
 package org.apache.cxf.endpoint;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.apache.cxf.binding.Binding;
-import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.MessageObserver;
 
 /**
  * Represents an endpoint that receives messages. 
  *
  */
-public interface Endpoint extends InterceptorProvider {
+public interface Endpoint extends Map<String, Object>, InterceptorProvider {
 
     EndpointInfo getEndpointInfo();
     
@@ -43,6 +46,13 @@ public interface Endpoint extends InterceptorProvider {
     
     Executor getExecutor();
     
-    Interceptor getFaultInterceptor();
+    MessageObserver getInFaultObserver();
+    
+    MessageObserver getOutFaultObserver();
+    
+    void setInFaultObserver(MessageObserver observer);
+    
+    void setOutFaultObserver(MessageObserver observer);
 
+    List<AbstractFeature> getActiveFeatures();
 }

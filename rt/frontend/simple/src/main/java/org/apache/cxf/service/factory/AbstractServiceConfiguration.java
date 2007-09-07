@@ -20,11 +20,9 @@
 package org.apache.cxf.service.factory;
 
 import java.lang.reflect.Method;
-import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
@@ -39,7 +37,7 @@ public abstract class AbstractServiceConfiguration {
         this.serviceFactory = serviceFactory;
     }
 
-    public URL getWsdlURL() {
+    public String getWsdlURL() {
         return null;
     }
     
@@ -55,6 +53,18 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public String getStyle() {
+        return null;
+    }
+
+    public Boolean isWrapped() {
+        return null;
+    }
+    
+    public Boolean isWrapped(Method m) { 
+        return null;
+    }
+    
     public Boolean isOutParam(Method method, int j) {
         return null;
     }
@@ -63,11 +73,11 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public QName getInputMessageName(final OperationInfo op) {
+    public QName getInputMessageName(final OperationInfo op, Method method) {
         return null;
     }
 
-    public QName getOutputMessageName(final OperationInfo op) {
+    public QName getOutputMessageName(final OperationInfo op, Method method) {
         return null;
     }
 
@@ -75,11 +85,11 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public QName getFaultName(Service service, OperationInfo o, Class exClass, Class beanClass) {
+    public QName getFaultName(InterfaceInfo service, OperationInfo o, Class<?> exClass, Class<?> beanClass) {
         return null;
     }
 
-    public String getAction(OperationInfo op) {
+    public String getAction(OperationInfo op, Method method) {
         return null;
     }
 
@@ -119,15 +129,45 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public QName getInPartName(final OperationInfo op, final Method method, final int paramNumber) {
+        return null;
+    }
+
+    public QName getOutPartName(final OperationInfo op, final Method method, final int paramNumber) {
+        return null;
+    }
+    
     public QName getInterfaceName() {
         return null;
     }
 
+    public QName getEndpointName() {
+        return null;
+    }
+    
+    public QName getRequestWrapperName(OperationInfo op, Method method) {
+        return null;        
+    }  
+    
+    public QName getResponseWrapperName(OperationInfo op, Method method) {
+        return null;        
+    }  
+ 
     public Class getResponseWrapper(Method selected) {
         return null;
     }
     
     public Class getRequestWrapper(Method selected) {
+        return null;
+    }
+    public String getResponseWrapperClassName(Method selected) {
+        return null;
+    }
+    public String getRequestWrapperClassName(Method selected) {
+        return null;
+    }
+    
+    public Boolean isRPC(Method selected) {
         return null;
     }
 }

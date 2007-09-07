@@ -1,9 +1,8 @@
 MTOM Demo for SWA & XOP
 =============================================
 
-This is the demo for using attachment in soap. It illustrate
-the usage of Soap message with Attachment and XML-binary 
-Optimized Packaging.
+This demo illustrates the use of a SOAP message 
+with an attachment and XML-binary Optimized Packaging.
 
 Please review the README in the samples directory before
 continuing.
@@ -13,38 +12,34 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes cxf.jar on the
+If your environment already includes cxf-manifest-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
-Building and running the demo using ant
+Building and running the demo using Ant
 ---------------------------------------
-
-From the samples/mtom directory, the ant build script
-can be used to build and run the demo.
+From the base directory of this sample (i.e., where this README file is
+located), the Ant build.xml file can be used to build and run the demo. 
+The server and client targets automatically build the demo.
 
 Using either UNIX or Windows:
 
-  ant build
-  ant server
-  ant client
+  ant server  (from one command line window)
+  ant client  (from a second command line window)
     
-
 To remove the code generated from the WSDL file and the .class
-files, run:
-
-  ant clean
+files, run "ant clean".
 
 
 
-Buildng the demo using wsdl2java and javac
-------------------------------------------
+Building the demo using wsdl2java and javac
+-------------------------------------------
 
 From the samples/mtom directory, first create the target
 directory build/classes and then generate code from the WSDL file.
@@ -65,22 +60,23 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-manifest-incubator.jar:./build/classes
   javac -d build/classes src/demo/mtom/client/*.java
   javac -d build/classes src/demo/mtom/server/*.java
+  cp src/demo/mtom/client/me.bmp build/classes/demo/mtom/client/me.bmp
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-manifest-incubator.jar;.\build\classes
   javac -d build\classes src\demo\mtom\client\*.java
   javac -d build\classes src\demo\mtom\server\*.java
-
+  copy src\demo\mtom\client\me.bmp build\classes\demo\mtom\client\me.bmp
 
 
 Running the demo using java
 ---------------------------
 
-From the samples/mtom directory run the commands, entered on a
-single command line:
+From the samples/mtom directory run the following commands. 
+They are entered on a single command line.
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -144,12 +140,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.mtom.client.Client http://localhost:#/mtom/cxf/mime_test
+         demo.mtom.client.Client http://localhost:#/mtom/services/mtom?wsdl
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.mtom.client.Client http://localhost:#/mtom/cxf/mime_test
+       demo.mtom.client.Client http://localhost:#/mtom/services/mtom?wsdl
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.

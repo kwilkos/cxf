@@ -30,14 +30,13 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-public class InterfaceInfo extends AbstractPropertiesHolder {
+public class InterfaceInfo extends AbstractDescriptionElement {
     private static final Logger LOG = LogUtils.getL7dLogger(InterfaceInfo.class);
     
     QName name;
     ServiceInfo service;
     
     Map<QName, OperationInfo> operations = new ConcurrentHashMap<QName, OperationInfo>(4);
-    
     
     public InterfaceInfo(ServiceInfo info, QName q) {
         name = q;
@@ -60,7 +59,7 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
     /**
      * Adds an operation to this service.
      *
-     * @param name the qualified name of the operation.
+     * @param oname the qualified name of the operation.
      * @return the operation.
      */
     public OperationInfo addOperation(QName oname) {
@@ -90,7 +89,7 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
     /**
      * Returns the operation info with the given name, if found.
      *
-     * @param name the name.
+     * @param oname the name.
      * @return the operation; or <code>null</code> if not found.
      */
     public OperationInfo getOperation(QName oname) {
