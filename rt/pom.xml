@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-rt</artifactId>
     <packaging>pom</packaging>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.0.2-incubator</version>
     <name>Apache CXF Runtime</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.0.2-incubator</version>
     </parent>
 
     <modules>
@@ -52,9 +52,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-rt</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/rt</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/rt</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubatorcxf-rt</url>
   </scm>
 
 </project>
