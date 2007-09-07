@@ -421,21 +421,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.getUnwrappedOperation() != null) {
-                if (op.hasInput() 
-                    && op.getInput().getMessageParts().get(0).getTypeClass() == null) {
+                if (op.hasInput()) { 
+                    if (op.getInput().getMessageParts().get(0).getTypeClass() == null) {
                     
-                    QName wraperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
-                    XmlSchemaElement e = null;
-                    for (SchemaInfo s : serviceInfo.getSchemas()) {
-                        e = s.getElementByQName(wraperBeanName);
-                        if (e != null) {
-                            op.getInput().getMessageParts().get(0).setXmlSchema(e);
-                            break;
+                        QName wraperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
+                        XmlSchemaElement e = null;
+                        for (SchemaInfo s : serviceInfo.getSchemas()) {
+                            e = s.getElementByQName(wraperBeanName);
+                            if (e != null) {
+                                op.getInput().getMessageParts().get(0).setXmlSchema(e);
+                                break;
+                            }
                         }
-                    }
-                    if (e == null) {
-                        createWrappedSchema(serviceInfo, op.getInput(),
-                                            op.getUnwrappedOperation().getInput(), wraperBeanName);
+                        if (e == null) {
+                            createWrappedSchema(serviceInfo, op.getInput(),
+                                                op.getUnwrappedOperation().getInput(), wraperBeanName);
+                        }
                     }
 
                     for (MessagePartInfo mpi : op.getInput().getMessageParts()) {
@@ -451,22 +452,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
 
                 }
-                if (op.hasOutput()
-                    && op.getOutput().getMessageParts().get(0).getTypeClass() == null) {
+                if (op.hasOutput()) {
+                    if (op.getOutput().getMessageParts().get(0).getTypeClass() == null) {
                     
-                    QName wraperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
-                    XmlSchemaElement e = null;
-                    for (SchemaInfo s : serviceInfo.getSchemas()) {
-                        e = s.getElementByQName(wraperBeanName);
-                        if (e != null) {
-                            break;
+                        QName wraperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
+                        XmlSchemaElement e = null;
+                        for (SchemaInfo s : serviceInfo.getSchemas()) {
+                            e = s.getElementByQName(wraperBeanName);
+                            if (e != null) {
+                                break;
+                            }
+                        }
+                        if (e == null) {
+                            createWrappedSchema(serviceInfo, op.getOutput(), op.getUnwrappedOperation()
+                                .getOutput(), wraperBeanName);
                         }
                     }
-                    if (e == null) {
-                        createWrappedSchema(serviceInfo, op.getOutput(), op.getUnwrappedOperation()
-                            .getOutput(), wraperBeanName);
-                    }
-
                     for (MessagePartInfo mpi : op.getOutput().getMessageParts()) {
                         if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
                             QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
@@ -717,7 +718,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 seq.getItems().add(el);
             }
             if (Boolean.TRUE.equals(mpi.getProperty(HEADER))) {
-
                 QName qn = (QName)mpi.getProperty(ELEMENT_NAME);
 
                 el.setName(qn.getLocalPart());
