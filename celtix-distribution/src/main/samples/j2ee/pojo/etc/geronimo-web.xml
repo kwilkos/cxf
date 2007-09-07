@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
-    configId="celtix/wsj2ee">
-  <context-root>/celtix</context-root>
-</web-app>
