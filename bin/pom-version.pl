@@ -1,5 +1,25 @@
 #!/usr/bin/env perl
 
+
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements. See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership. The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License. You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied. See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+
+
+
 use strict;
 use File::Find;
 use XML::Parser;
@@ -42,12 +62,16 @@ my $parent_version;
 
 sub fixpomfiles {
     return unless (/^pom.xml$/);
-    print "processing $File::Find::name\n";
     my $pom = $_;
+    my $curdir = abs_path(getcwd());
+    return if ($curdir =~ m:/src/main/:);
+    return if ($curdir =~ m:/target/classes/:);
+
+    print "processing $File::Find::name\n";
+
     init_parse_state();
     $parser->parsefile($pom);
     return unless ($top_ver_start_line != 0 || $parent_ver_start_line != 0);
-    my $curdir = abs_path(getcwd());
     my $rel_mode = undef;
     my ($rel_add, $rel_remove) = ('add', 'remove');
     local *POM;

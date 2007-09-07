@@ -1,0 +1,6 @@
+cd ../
+
+if [ -e /usr/lib/libumem.so.1 ]; then
+    export LD_PRELOAD=/usr/lib/libumem.so.1
+fi
+ant server

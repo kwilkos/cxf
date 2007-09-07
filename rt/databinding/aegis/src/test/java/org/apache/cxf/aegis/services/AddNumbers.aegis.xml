@@ -1,0 +1,9 @@
+<mappings>
+    <mapping uri="urn:AddNumbers">
+        <method name="add">
+            <parameter index="0" mappedName="value1"/>
+            <parameter index="1" mappedName="value2"/>
+            <return-type mappedName="sum"/>
+        </method>
+    </mapping>
+</mappings>
