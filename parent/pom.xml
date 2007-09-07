@@ -354,9 +354,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.ws.commons.neethi</groupId>
+                <groupId>org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
-                <version>2.0</version>
+                <version>2.0.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>log4j</groupId>
@@ -932,5 +932,6 @@
     </scm>
 
 </project>
+
 
 
