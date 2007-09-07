@@ -37,6 +37,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,6 +62,7 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus();
+            
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             LoggingOutInterceptor out = new LoggingOutInterceptor();           
@@ -99,6 +101,10 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/http.xml");
         BusFactory.setDefaultBus(bus);
+        
+        PolicyTestUtils.setPolicyConstants(bus, 
+                                           PolicyConstants.NAMESPACE_W3_200607);
+        
         LoggingInInterceptor in = new LoggingInInterceptor();
         bus.getInInterceptors().add(in);
         bus.getInFaultInterceptors().add(in);

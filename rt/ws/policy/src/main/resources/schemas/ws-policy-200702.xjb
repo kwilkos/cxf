@@ -17,21 +17,13 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<attachments xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsa="http://www.w3.org/2005/08/addressing">
-    <wsp:PolicyAttachment>
-        <wsp:AppliesTo>
-            <wsa:EndpointReference>
-                <wsa:Address>http://localhost:9020/SoapContext/GreeterPort</wsa:Address>
-            </wsa:EndpointReference>
-        </wsp:AppliesTo>
-        <wsp:Policy>
-            <wsam:Addressing xmlns:wsam="http://www.w3.org/2007/02/addressing/metadata">
-                <wsp:Policy/>
-            </wsam:Addressing>
-            <wsrmp:RMAssertion xmlns:wsrmp="http://schemas.xmlsoap.org/ws/2005/02/rm/policy">
-                <wsrmp:BaseRetransmissionInterval Milliseconds="30000"/>
-            </wsrmp:RMAssertion>`
-        </wsp:Policy>
-    </wsp:PolicyAttachment>    
-</attachments>
-
+<jaxb:bindings version="1.0" 
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  jaxb:extensionBindingPrefixes="xjc">
+    <jaxb:bindings schemaLocation="ws-policy-200702.xsd" node="/xs:schema">
+        <jaxb:schemaBindings>
+            <jaxb:package name="org.apache.cxf.ws.policy.v200702"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+</jaxb:bindings>

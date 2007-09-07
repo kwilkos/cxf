@@ -37,6 +37,7 @@ import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.selector.MinimalAlternativeSelector;
 import org.apache.cxf.ws.rm.RMUtils;
@@ -57,6 +58,8 @@ public class AddressingOptionalPolicyTest extends AbstractBusClientServerTestBas
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-optional.xml");
+            PolicyTestUtils.setPolicyConstants(bus, 
+                                               PolicyConstants.NAMESPACE_W3_200607);
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             bus.getInInterceptors().add(in);
@@ -95,6 +98,9 @@ public class AddressingOptionalPolicyTest extends AbstractBusClientServerTestBas
     public void testUsingAddressing() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-optional.xml");
+        Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-optional.xml");
+        PolicyTestUtils.setPolicyConstants(bus, 
+                                           PolicyConstants.NAMESPACE_W3_200607);
         BusFactory.setDefaultBus(bus);
         InMessageRecorder in = new InMessageRecorder();
         bus.getInInterceptors().add(in);

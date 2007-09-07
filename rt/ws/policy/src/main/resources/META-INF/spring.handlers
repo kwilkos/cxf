@@ -19,5 +19,6 @@
 #
 #
 http\://cxf.apache.org/policy=org.apache.cxf.ws.policy.spring.NamespaceHandler
+http\://www.w3.org/ns/ws-policy=org.apache.cxf.ws.policy.spring.PolicyNamespaceHandler
 http\://www.w3.org/2006/07/ws-policy=org.apache.cxf.ws.policy.spring.PolicyNamespaceHandler
 http\://schemas.xmlsoap.org/ws/2004/09/policy=org.apache.cxf.ws.policy.spring.PolicyNamespaceHandler

@@ -37,6 +37,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.ServerPolicyInInterceptor;
 import org.apache.cxf.ws.policy.ServerPolicyOutInterceptor;
 import org.apache.neethi.Policy;
@@ -83,11 +84,16 @@ public class AddressingInlinePolicyTest extends AbstractBusClientServerTestBase 
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
-         
+    
     @Test
     public void testUsingAddressing() throws Exception {
+        
         SpringBusFactory bf = new SpringBusFactory();
-        bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-inline-policy.xml");
+        
+        bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-inline-policy-old.xml");
+        PolicyTestUtils.setPolicyConstants(bus, 
+                                           PolicyConstants.NAMESPACE_W3_200607);
+        
         BusFactory.setDefaultBus(bus);
         
         BasicGreeterService gs = new BasicGreeterService();

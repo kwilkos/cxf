@@ -39,6 +39,7 @@ import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.ws.addressing.Names;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.rm.RMConstants;
 
 import org.junit.BeforeClass;
@@ -65,6 +66,8 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
+            PolicyTestUtils.setPolicyConstants(bus, 
+                                               PolicyConstants.NAMESPACE_W3_200607);
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             bus.getInInterceptors().add(in);
@@ -78,7 +81,6 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
             LOG.info("Published greeter endpoint.");
         }
         
-
         public static void main(String[] args) {
             try { 
                 Server s = new Server(); 
@@ -91,7 +93,7 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
             }
         }
     }    
-
+    
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class));
@@ -101,6 +103,8 @@ public class RMPolicyWsdlTest extends AbstractBusClientServerTestBase {
     public void testUsingRM() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/rmwsdl.xml");
+        PolicyTestUtils.setPolicyConstants(bus, 
+                                           PolicyConstants.NAMESPACE_W3_200607);
         BusFactory.setDefaultBus(bus);
         OutMessageRecorder outRecorder = new OutMessageRecorder();
         bus.getOutInterceptors().add(outRecorder);

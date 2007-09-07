@@ -104,7 +104,7 @@
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
             <!-- causes a PolicyException as it is incompatible with policy attached to port element -->
-            <wsp:Policy xmlns:wsp="http://www.w3.org/2006/07/ws-policy">
+            <wsp:Policy xmlns:wsp="http://www.w3.org/ns/ws-policy">
                 <http-conf:server xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
                     ContentType="application/soap+xml"/>
             </wsp:Policy>
@@ -170,7 +170,7 @@
                 <!-- although incomaptible with the policy attached to the port this does not cause a 
                     policy exception as all server assertions are automatically asserted on the 
                     outbound path -->
-                <wsp:Policy xmlns:wsp="http://www.w3.org/2006/07/ws-policy">
+                <wsp:Policy xmlns:wsp="http://www.w3.org/ns/ws-policy">
                     <http-conf:server xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
                         ContentType="application/soap+xml"/>
                 </wsp:Policy>
@@ -184,7 +184,7 @@
         <wsdl:port binding="tns:GreeterSOAPBinding" name="GreeterPort">
             <soap:address location="http://localhost:9020/SoapContext/GreeterPort"/>
             <!-- policy to be used for all invocations on this endpoint -->
-            <wsp:Policy xmlns:wsp="http://www.w3.org/2006/07/ws-policy">
+            <wsp:Policy xmlns:wsp="http://www.w3.org/ns/ws-policy">
                 <http-conf:server xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
                     ContentType="application/detergent+xml"/>
             </wsp:Policy>
