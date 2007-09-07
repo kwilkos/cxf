@@ -39,7 +39,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
       </property>
   </bean>
   
-  <jaxws:server id="simple" serviceBean="#greeter"/>
+  <jaxws:server id="simple" serviceBean="#greeter" xmlns:test="urn:foo" xmlns="urn:foo"/>
 
   <bean id="greeter" class="org.apache.hello_world_soap_http.GreeterImpl"/>
 

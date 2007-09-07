@@ -144,7 +144,7 @@ public class EndpointDefinitionParser extends AbstractBeanDefinitionParser {
         throws BeanDefinitionStoreException {
         String id = super.resolveId(elem, definition, ctx);
         if (StringUtils.isEmpty(id)) {
-            id = getBeanClass().getName() + "--" + hashCode();
+            id = getBeanClass().getName() + "--" + definition.hashCode();
         }
         
         return id;
