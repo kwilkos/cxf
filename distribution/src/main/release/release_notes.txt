@@ -6,6 +6,7 @@ Apache CXF 2.0.2, under incubation,  delivers the second milestone of
 the Celtix project (http://celtix.objectweb.org) and the XFire project
 (http://xfire.codehaus.org) merge.  This release is mostly a patch release
 from 2.0.1.  However, there are some new features as well:
+    * Configuration support for the WS-Policy engine
     * WS-Addressing Feature (easier to configure WS-A)
     * WS-Reliable Messaging Feature (easier to configure WS-RM)
     * Lots of sample improvements
