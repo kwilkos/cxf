@@ -146,9 +146,9 @@ public class JavaToWSDLProcessor implements Processor {
         context.put(Class.class, clz);
         if (clz.isInterface()) {
             context.put(ToolConstants.GEN_FROM_SEI, Boolean.TRUE);
-            context.put(ToolConstants.SEI_CLASS, clz);
+            context.put(ToolConstants.SEI_CLASS, clz.getName());
         } else {
-            context.put(ToolConstants.IMPL_CLASS, clz);
+            context.put(ToolConstants.IMPL_CLASS, clz.getName());
             if (clz.getInterfaces().length == 1) {
                 context.put(ToolConstants.SEI_CLASS, clz.getInterfaces()[0].getName());
             }
