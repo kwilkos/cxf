@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-rt-transports-http</artifactId>
     <packaging>jar</packaging>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.0.2-incubator</version>
     <name>Apache CXF Runtime HTTP Transport</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.0.2-incubator</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
@@ -117,9 +117,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/transports/http</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-transports-http</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/rt/transports/http</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/rt/transports/http</developerConnection>
+      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubatorcxf-parent/cxf-rt-transports-http</url>
   </scm>
 
 </project>

@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-tools-java2wsdl</artifactId>
     <packaging>jar</packaging>
-    <version>2.1-incubator-SNAPSHOT</version>
+    <version>2.0.2-incubator</version>
     <name>Apache CXF Command Line Tools JavaTo Core</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.1-incubator-SNAPSHOT</version>
+        <version>2.0.2-incubator</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -101,9 +101,9 @@
     </dependencies>
 
     <scm>
-	<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/core</connection>
-	<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/core</developerConnection>
-	<url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-java2wsdl</url>
+	<connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/tools/javato/core</connection>
+	<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/tools/javato/core</developerConnection>
+	<url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubatorcxf-parent/cxf-tools-java2wsdl</url>
     </scm>
 
 </project>
