@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-xjc-dv-test</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.2-incubator</version>
+    <version>2.1-incubator-SNAPSHOT</version>
     <name>Apache CXF XJC Default Value Plugin Tests</name>
     <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-parent</artifactId>
-        <version>2.0.2-incubator</version>
+        <version>2.1-incubator-SNAPSHOT</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
@@ -98,9 +98,9 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/common/xjc/dv-test</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/common/xjc/dv-test</developerConnection>
-      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubatorcxf-parent/cxf-xjc-dv-test</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/common/xjc/dv-test</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/common/xjc/dv-test</developerConnection>
+      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-xjc-dv-test</url>
   </scm>
 
 </project>
