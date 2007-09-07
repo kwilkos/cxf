@@ -531,6 +531,7 @@ public class ParameterProcessor extends AbstractProcessor {
         // first for the ordered list
         int index = 0;
         int size = parameterList.size();
+
         while (index < size) {
             String partName = parameterList.get(index);
             MessagePartInfo part = inputPartsMap.get(inputMessage.getMessagePartQName(partName));

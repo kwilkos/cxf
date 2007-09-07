@@ -75,7 +75,7 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     }
     
     public QName getMessagePartQName(String name) {
-        return new QName(this.getOperation().getInterface().getService().getTargetNamespace(), name);
+        return new QName(this.getOperation().getInterface().getName().getNamespaceURI(), name);
     }
     
     public MessagePartInfo addMessagePart(String name) {

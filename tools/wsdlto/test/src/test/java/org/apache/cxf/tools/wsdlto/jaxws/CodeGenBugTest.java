@@ -677,4 +677,20 @@ public class CodeGenBugTest extends ProcessorTestBase {
             fail("The cxf967.wsdl is a valid wsdl, should pass the test, caused by: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testParameterOrderDifferentNS() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/bug978/bug.wsdl"));
+            processor.setContext(env);
+            processor.execute();
+
+            String results = getStringFromFile(new File(output.getCanonicalPath(), 
+                                                        "org/tempuri/GreeterRPCLit.java"));
+            assertTrue(results.indexOf("@WebParam(partName  =  \"inInt\",  name  =  \"inInt\")") != -1);
+        } catch (Exception e) {
+            fail("The cxf978.wsdl is a valid wsdl, should pass the test, caused by: " + e.getMessage());
+        }
+    }
 }
