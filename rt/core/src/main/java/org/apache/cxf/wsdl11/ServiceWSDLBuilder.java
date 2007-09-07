@@ -113,6 +113,7 @@ public final class ServiceWSDLBuilder {
         if (definition == null) {
             ServiceInfo si = services.get(0);
             definition = newDefinition(si.getName(), si.getTargetNamespace());
+            addNamespace(WSDLConstants.CONVENTIONAL_TNS_PREFIX, si.getTargetNamespace(), definition);
             addExtensibiltyElements(definition, getWSDL11Extensors(si));
 
             Collection<PortType> portTypes = new HashSet<PortType>();
@@ -127,7 +128,7 @@ public final class ServiceWSDLBuilder {
                     wsdlImport.setNamespaceURI(tns);
                     wsdlImport.setLocationURI(service.getInterface().getName().getLocalPart() + ".wsdl");
                     definition.addImport(wsdlImport);
-                    addNamespace(tns);
+                    addNamespace(getPrefix(tns), tns, definition);
                 }
                 portTypes.add(buildPortType(service.getInterface(), portTypeDef));
                 

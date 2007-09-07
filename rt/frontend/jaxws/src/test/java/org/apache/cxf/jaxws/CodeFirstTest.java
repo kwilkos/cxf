@@ -75,11 +75,11 @@ public class CodeFirstTest extends AbstractJaxWsTest {
                     + "/xsd:element[@type='ns0:stringArray']", wsdl);
         
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@element='ns1:sayHi'][@name='sayHi']",
+                    + "/wsdl:part[@element='tns:sayHi'][@name='sayHi']",
                     wsdl);
 
         assertValid("/wsdl:definitions/wsdl:message[@name='getGreetingsResponse']"
-                    + "/wsdl:part[@element='ns1:getGreetingsResponse'][@name='getGreetingsResponse']",
+                    + "/wsdl:part[@element='tns:getGreetingsResponse'][@name='getGreetingsResponse']",
                     wsdl);    
 
         assertValid("/wsdl:definitions/wsdl:binding/wsdl:operation[@name='getGreetings']"
@@ -101,10 +101,10 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
         assertValid("//wsdl:portType[@name='Hello']", wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@element='ns1:sayHi'][@name='parameters']",
+                    + "/wsdl:part[@element='tns:sayHi'][@name='parameters']",
                     wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHiResponse']"
-                    + "/wsdl:part[@element='ns1:sayHiResponse'][@name='result']",
+                    + "/wsdl:part[@element='tns:sayHiResponse'][@name='result']",
                     wsdl);
         assertValid("//xsd:complexType[@name='sayHi']"
                     + "/xsd:sequence/xsd:element[@name='arg0']",

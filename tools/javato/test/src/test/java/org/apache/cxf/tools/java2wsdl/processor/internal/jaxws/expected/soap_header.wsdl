@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<wsdl:definitions name="HeaderTesterService" targetNamespace="http://apache.org/samples/headers" xmlns:ns1="http://apache.org/samples/headers" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="HeaderTesterService" targetNamespace="http://apache.org/samples/headers" xmlns:tns="http://apache.org/samples/headers" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://apache.org/samples/headers" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/samples/headers">
 <xs:element name="SOAPHeaderInfo" nillable="true" type="tns:SOAPHeaderData"/>
@@ -72,58 +72,58 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="inHeaderResponse">
-    <wsdl:part name="the_response" element="ns1:inHeaderResponse">
+    <wsdl:part name="the_response" element="tns:inHeaderResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="outHeader">
-    <wsdl:part name="me" element="ns1:outHeader">
+    <wsdl:part name="me" element="tns:outHeader">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="outHeaderResponse">
-    <wsdl:part name="the_response" element="ns1:outHeaderResponse">
+    <wsdl:part name="the_response" element="tns:outHeaderResponse">
     </wsdl:part>
-    <wsdl:part name="header_info" element="ns1:SOAPHeaderInfo">
+    <wsdl:part name="header_info" element="tns:SOAPHeaderInfo">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="inoutHeader">
-    <wsdl:part name="me" element="ns1:inoutHeader">
+    <wsdl:part name="me" element="tns:inoutHeader">
     </wsdl:part>
-    <wsdl:part name="header_info" element="ns1:SOAPHeaderInfo">
+    <wsdl:part name="header_info" element="tns:SOAPHeaderInfo">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="inoutHeaderResponse">
-    <wsdl:part name="the_response" element="ns1:inoutHeaderResponse">
+    <wsdl:part name="the_response" element="tns:inoutHeaderResponse">
     </wsdl:part>
-    <wsdl:part name="header_info" element="ns1:SOAPHeaderInfo">
+    <wsdl:part name="header_info" element="tns:SOAPHeaderInfo">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="inHeader">
-    <wsdl:part name="me" element="ns1:inHeader">
+    <wsdl:part name="me" element="tns:inHeader">
     </wsdl:part>
-    <wsdl:part name="header_info" element="ns1:SOAPHeaderInfo">
+    <wsdl:part name="header_info" element="tns:SOAPHeaderInfo">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="headerTester">
     <wsdl:operation name="outHeader">
-      <wsdl:input name="outHeader" message="ns1:outHeader">
+      <wsdl:input name="outHeader" message="tns:outHeader">
     </wsdl:input>
-      <wsdl:output name="outHeaderResponse" message="ns1:outHeaderResponse">
+      <wsdl:output name="outHeaderResponse" message="tns:outHeaderResponse">
     </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="inHeader">
-      <wsdl:input name="inHeader" message="ns1:inHeader">
+      <wsdl:input name="inHeader" message="tns:inHeader">
     </wsdl:input>
-      <wsdl:output name="inHeaderResponse" message="ns1:inHeaderResponse">
+      <wsdl:output name="inHeaderResponse" message="tns:inHeaderResponse">
     </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="inoutHeader">
-      <wsdl:input name="inoutHeader" message="ns1:inoutHeader">
+      <wsdl:input name="inoutHeader" message="tns:inoutHeader">
     </wsdl:input>
-      <wsdl:output name="inoutHeaderResponse" message="ns1:inoutHeaderResponse">
+      <wsdl:output name="inoutHeaderResponse" message="tns:inoutHeaderResponse">
     </wsdl:output>
     </wsdl:operation>
   </wsdl:portType>
-  <wsdl:binding name="HeaderTesterServiceSoapBinding" type="ns1:headerTester">
+  <wsdl:binding name="HeaderTesterServiceSoapBinding" type="tns:headerTester">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <wsdl:operation name="outHeader">
       <soap:operation soapAction="" style="document"/>
@@ -131,7 +131,7 @@
         <soap:body use="literal"/>
       </wsdl:input>
       <wsdl:output name="outHeaderResponse">
-        <soap:header message="ns1:outHeaderResponse" part="header_info" use="literal">
+        <soap:header message="tns:outHeaderResponse" part="header_info" use="literal">
         </soap:header>
         <soap:body parts="the_response" use="literal"/>
       </wsdl:output>
@@ -139,7 +139,7 @@
     <wsdl:operation name="inHeader">
       <soap:operation soapAction="" style="document"/>
       <wsdl:input name="inHeader">
-        <soap:header message="ns1:inHeader" part="header_info" use="literal">
+        <soap:header message="tns:inHeader" part="header_info" use="literal">
         </soap:header>
         <soap:body parts="me" use="literal"/>
       </wsdl:input>
@@ -150,19 +150,19 @@
     <wsdl:operation name="inoutHeader">
       <soap:operation soapAction="" style="document"/>
       <wsdl:input name="inoutHeader">
-        <soap:header message="ns1:inoutHeader" part="header_info" use="literal">
+        <soap:header message="tns:inoutHeader" part="header_info" use="literal">
         </soap:header>
         <soap:body parts="me" use="literal"/>
       </wsdl:input>
       <wsdl:output name="inoutHeaderResponse">
-        <soap:header message="ns1:inoutHeaderResponse" part="header_info" use="literal">
+        <soap:header message="tns:inoutHeaderResponse" part="header_info" use="literal">
         </soap:header>
         <soap:body parts="the_response" use="literal"/>
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="HeaderTesterService">
-    <wsdl:port name="headerTesterPort" binding="ns1:HeaderTesterServiceSoapBinding">
+    <wsdl:port name="headerTesterPort" binding="tns:HeaderTesterServiceSoapBinding">
       <soap:address location="http://localhost:9090"/>
     </wsdl:port>
   </wsdl:service>

@@ -123,6 +123,8 @@ public final class WSDLConstants {
     public static final String ATTR_LOCATION = "location";
     public static final String ATTR_NAME = "name";
     public static final String ATTR_TNS = "targetNamespace";
+    // usual prefix for the targetNamespace.
+    public static final String CONVENTIONAL_TNS_PREFIX = "tns";
     
     public static final String WSDL11 = "1.1";
     public static final String WSDL20 = "2.0";

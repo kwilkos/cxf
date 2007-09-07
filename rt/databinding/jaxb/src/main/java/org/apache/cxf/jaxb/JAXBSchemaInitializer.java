@@ -171,6 +171,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         schema.getItems().add(el);
 
         NamespaceMap nsMap = new NamespaceMap();
+        nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, schema.getTargetNamespace());
         nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
         schema.setNamespaceContext(nsMap);
         
@@ -237,6 +238,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
 
             NamespaceMap nsMap = new NamespaceMap();
+            nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, schema.getTargetNamespace());
             nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
             schema.setNamespaceContext(nsMap);
 

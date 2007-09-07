@@ -424,10 +424,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (op.hasInput()) { 
                     if (op.getInput().getMessageParts().get(0).getTypeClass() == null) {
                     
-                        QName wraperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
+                        QName wrapperBeanName = op.getInput().getMessageParts().get(0).getElementQName();
                         XmlSchemaElement e = null;
                         for (SchemaInfo s : serviceInfo.getSchemas()) {
-                            e = s.getElementByQName(wraperBeanName);
+                            e = s.getElementByQName(wrapperBeanName);
                             if (e != null) {
                                 op.getInput().getMessageParts().get(0).setXmlSchema(e);
                                 break;
@@ -435,7 +435,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         }
                         if (e == null) {
                             createWrappedSchema(serviceInfo, op.getInput(),
-                                                op.getUnwrappedOperation().getInput(), wraperBeanName);
+                                                op.getUnwrappedOperation().getInput(), wrapperBeanName);
                         }
                     }
 
@@ -455,17 +455,17 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (op.hasOutput()) {
                     if (op.getOutput().getMessageParts().get(0).getTypeClass() == null) {
                     
-                        QName wraperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
+                        QName wrapperBeanName = op.getOutput().getMessageParts().get(0).getElementQName();
                         XmlSchemaElement e = null;
                         for (SchemaInfo s : serviceInfo.getSchemas()) {
-                            e = s.getElementByQName(wraperBeanName);
+                            e = s.getElementByQName(wrapperBeanName);
                             if (e != null) {
                                 break;
                             }
                         }
                         if (e == null) {
                             createWrappedSchema(serviceInfo, op.getOutput(), op.getUnwrappedOperation()
-                                .getOutput(), wraperBeanName);
+                                .getOutput(), wrapperBeanName);
                         }
                     }
                     for (MessagePartInfo mpi : op.getOutput().getMessageParts()) {
@@ -515,13 +515,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
-                                       AbstractMessageContainer unwrappedMessage, QName wraperBeanName) {
+                                       AbstractMessageContainer unwrappedMessage, QName wrapperBeanName) {
         SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo,
-                                                  wraperBeanName.getNamespaceURI(),
+                                                  wrapperBeanName.getNamespaceURI(),
                                                   qualifyWrapperSchema());
 
         createWrappedMessageSchema(serviceInfo, wrappedMessage, unwrappedMessage,
-                                   schemaInfo.getSchema(), wraperBeanName);
+                                   schemaInfo.getSchema(), wrapperBeanName);
     }
 
     protected void createBareMessage(ServiceInfo serviceInfo,
@@ -754,6 +754,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         NamespaceMap nsMap = new NamespaceMap();
         nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+        nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, serviceInfo.getTargetNamespace());
         schema.setNamespaceContext(nsMap);
         serviceInfo.addSchema(schemaInfo);
         return schemaInfo;

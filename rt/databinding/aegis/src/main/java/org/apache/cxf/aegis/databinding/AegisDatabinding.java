@@ -53,6 +53,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
@@ -64,9 +65,9 @@ import org.jdom.Namespace;
 import org.jdom.output.DOMOutputter;
 
 /**
- * Handles DataBidning functions for Aegis.
+ * Handles DataBinding functions for Aegis.
  * <p>
- * NOTE: There is an assumed 1:1 mapping between an AegisDatabidning and a Service!
+ * NOTE: There is an assumed 1:1 mapping between an AegisDatabinding and a Service!
  */
 public class AegisDatabinding implements DataBinding {
     
@@ -95,7 +96,7 @@ public class AegisDatabinding implements DataBinding {
     @SuppressWarnings("unchecked")
     public <T> DataReader<T> createReader(Class<T> cls) {
         if (cls.equals(XMLStreamReader.class)) {
-            return (DataReader<T>)new XMLStreamDataReader(this);
+            return (DataReader<T>) new XMLStreamDataReader(this);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -262,7 +263,12 @@ public class AegisDatabinding implements DataBinding {
         for (Map.Entry<String, Set<Type>> entry : tns2Type.entrySet()) {
             Element e = new Element("schema", "xsd", XmlConstants.XSD);
 
-            e.setAttribute(new Attribute("targetNamespace", entry.getKey()));
+            e.setAttribute(new Attribute(WSDLConstants.ATTR_TNS, entry.getKey()));
+            // Schemas are more readable if there is a specific prefix for the TNS.
+            // note: if aegis ever allows users to ask for a specific prefix in the 
+            // .aegis.xml file, this will need some adjustment in case of conflicts.
+            e.addNamespaceDeclaration(Namespace.getNamespace(WSDLConstants.CONVENTIONAL_TNS_PREFIX, 
+                                                             entry.getKey()));
             e.setAttribute(new Attribute("elementFormDefault", "qualified"));
             e.setAttribute(new Attribute("attributeFormDefault", "qualified"));
 
@@ -278,7 +284,7 @@ public class AegisDatabinding implements DataBinding {
                 XmlSchemaCollection col = new XmlSchemaCollection();
                 NamespaceMap nsMap = new NamespaceMap();
                 nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");
-
+                
                 for (Iterator itr = e.getAdditionalNamespaces().iterator(); itr.hasNext();) {
                     Namespace n = (Namespace) itr.next();
                     nsMap.add(n.getPrefix(), n.getURI());
@@ -294,6 +300,9 @@ public class AegisDatabinding implements DataBinding {
                     info.setElement(schema.getDocumentElement());
 
                     XmlSchema xmlSchema = col.read(schema.getDocumentElement());
+                    // Work around bug in JDOM DOMOutputter which fails to correctly
+                    // assign namespaces to attributes. If JDOM worked right, 
+                    // the collection object would get the prefixes for itself.
                     xmlSchema.setNamespaceContext(nsMap);
                     info.setSchema(xmlSchema);
 
