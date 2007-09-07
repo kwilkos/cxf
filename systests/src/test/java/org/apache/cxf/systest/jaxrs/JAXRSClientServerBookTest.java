@@ -21,7 +21,6 @@ package org.apache.cxf.systest.jaxrs;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.logging.Logger;
 
 
 import org.apache.cxf.helpers.IOUtils;
@@ -39,15 +38,30 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     }
    
     @Test
-    public void testGetBookWrapped() throws Exception {
+    public void testGetBooks() throws Exception {
         String endpointAddress =
-            "http://localhost:9080/xmlwrapped/books/123"; 
+            "http://localhost:9080/xml/bookstore"; 
         URL url = new URL(endpointAddress);
         InputStream in = url.openStream();
         assertNotNull(in);           
 
         InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_book123_xmlwrapped.txt");
+            .getResourceAsStream("resources/expected_get_books.txt");
+
+        //System.out.println("---" + getStringFromInputStream(in));
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
+    
+    @Test
+    public void testGetBook123() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xml/bookstore/123"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass()
+            .getResourceAsStream("resources/expected_get_book123.txt");
 
         //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
