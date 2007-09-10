@@ -28,7 +28,6 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolTestBase;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToWSTest extends ToolTestBase {
@@ -113,35 +112,32 @@ public class JavaToWSTest extends ToolTestBase {
     
     
     
-    @Ignore
-    
+    @Test
     public void testGenServerAndClient() throws Exception {
         String[] args = new String[] {"-d", output.getPath(), "-client", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         File client = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/Greeter_GreeterPort_Client.java");
+                               + "/org/apache/hello_world_soap12_http/GreeterClient.java");
 
         assertTrue("Client is not generated", client.exists());
 
-        File service = new File(output.getPath() + "/org/apache/hello_world_soap12_http/GreeterService.java");
-        assertTrue("GreeterService is not generated", service.exists());
         File server = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/Greeter_GreeterPort_Server.java");
+                               + "/org/apache/hello_world_soap12_http/GreeterServer.java");
         assertTrue("Greeter_GreeterPort_Server.java is not generated", server.exists());
     }
     
     
     
-    @Ignore
+    @Test
     public void testGenServerAndImpl() throws Exception {
         String[] args = new String[] {"-d", output.getPath(), "-impl", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
 
         File server = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/Greeter_GreeterPort_Server.java");
-        assertTrue("Greeter_GreeterPort_Server.java is not generated", server.exists());
+                               + "/org/apache/hello_world_soap12_http/GreeterServer.java");
+        assertTrue("GreeterServer.java is not generated", server.exists());
         
         
         File impl = new File(output.getPath()
