@@ -24,49 +24,96 @@ package org.apache.cxf.systest.jaxrs;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.HttpContext;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 
 @UriTemplate("/bookstore/")
 public class BookStore {
-
+    
+    private static List<Book> books = new ArrayList<Book>();
+    private static long bookId = 123;
+    
     @HttpContext UriInfo uriInfo;
 
+    static {
+        Book book = new Book();
+        book.setId(bookId);
+        book.setName("CXF in Action");
+        books.add(book);
+    }
+    
     public BookStore() {
     }
 
     @HttpMethod("GET")
-    public List<Book> getBooks() {
+    public List<Book> getAllItems() {
         System.out.println("----invoking getBooks");
-        List<Book> books = new ArrayList<Book>(1);
-        Book book = new Book();
-        book.setId(123);
-        book.setName("CXF in Action");
-        books.add(book);
-/*        
-        Book book1 = new Book();
-        book1.setId(124);
-        book1.setName("CXF in Action - 2");
-        books.add(book1);*/
-        
+       
         return books;
+    }    
+   
+    @HttpMethod("GET")
+    @UriTemplate("/books/{bookId}/")
+    public Book getBook(@UriParam("bookId") String id) {
+        System.out.println("----invoking getBook with cdId: " + id);
+        long idNumber = Long.parseLong(id);
+        for (Book b : books) {
+            if (idNumber == b.getId()) {
+                return b;
+            }
+        }
+        
+        return null;
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("/{bookId}/")
-    public Book getBook(@UriParam("bookId") String bookId) {
-        System.out.println("----invoking getBook with bookId: " + bookId);
-
-        Book book = new Book();
-        book.setId(123);
-        book.setName("CXF in Action");
+    @HttpMethod("POST")
+    @UriTemplate("/books")
+    public Book addBook(Book book) {
+        System.out.println("----invoking addBook, book name is: " + book.getName());
+        book.setId(++bookId);
         
+        books.add(book);
+
         return book;
     }
+    
+    @HttpMethod("PUT")
+    @UriTemplate("/books/")
+    public Response updateBook(Book book) {
+        System.out.println("----invoking updateBook, book name is: " + book.getName());
+        for (int i = 0; i < books.size(); i++) {
+            Book b = books.get(i);
+            if (b.getId() == book.getId()) {
+                books.set(i, book);
+                break;
+            }
+        }
+        
+        return null;        
+    }
+    
+    
+    @HttpMethod("DELETE")
+    @UriTemplate("/books/{bookId}/")
+    public Response deleteBook(@UriParam("bookId") String id) {
+        System.out.println("----invoking deleteBook with bookId: " + id);
+        long idNumber = Long.parseLong(id);
+        for (int i = 0; i < books.size(); i++) {
+            Book b = books.get(i);
+            if (idNumber == b.getId()) {
+                books.remove(i);
+                break;
+            }
+        }
+        
+        return null;        
+    }
+
     
     @UriTemplate("/cd/{CDId}/")
     public CD getCD(@UriParam("CDId") String cdId) {
@@ -77,5 +124,6 @@ public class BookStore {
         
         return cd;
     }
-
 }
+
+

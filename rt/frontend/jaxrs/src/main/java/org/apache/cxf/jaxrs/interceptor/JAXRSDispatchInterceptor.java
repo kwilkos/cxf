@@ -123,7 +123,8 @@ public class JAXRSDispatchInterceptor extends AbstractPhaseInterceptor<Message> 
                                                      String httpMethod, Map<String, String> values) {
         for (OperationResourceInfo ori : resource.getMethodDispatcher().getOperationResourceInfos()) {
             URITemplate uriTemplate = ori.getURITemplate();
-            if (uriTemplate != null && uriTemplate.match(path, values)) {
+            if (uriTemplate != null && uriTemplate.match(path, values)
+                && ori.getHttpMethod().equalsIgnoreCase(httpMethod)) {
                 return ori;
             } /*
                  * else { //URITemplate == null means match by default if

@@ -19,10 +19,16 @@
 
 package org.apache.cxf.systest.jaxrs;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.FileRequestEntity;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -55,7 +61,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     @Test
     public void testGetBook123() throws Exception {
         String endpointAddress =
-            "http://localhost:9080/xml/bookstore/123"; 
+            "http://localhost:9080/xml/bookstore/books/123"; 
         URL url = new URL(endpointAddress);
         InputStream in = url.openStream();
         assertNotNull(in);           
@@ -66,6 +72,82 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         //System.out.println("---" + getStringFromInputStream(in));
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
     }
+    
+    @Test
+    public void testAddBook() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xml/bookstore/books";
+
+        String inputFile = getClass().getResource("resources/add_book.txt").getFile();         
+        File input =  new File(inputFile);
+        PostMethod post = new PostMethod(endpointAddress);
+        RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
+        post.setRequestEntity(entity);
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(post);
+            assertEquals(200, result);
+            //System.out.println("Response status code: " + result);
+            //System.out.println("Response body: ");
+            //System.out.println(post.getResponseBodyAsString());
+            
+            InputStream expected = getClass().getResourceAsStream("resources/expected_add_book.txt");
+            
+            assertEquals(getStringFromInputStream(expected), post.getResponseBodyAsString());
+        } finally {
+            // Release current connection to the connection pool once you are done
+            post.releaseConnection();
+        }               
+    }  
+    
+    @Test
+    public void testUpdateBook() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xml/bookstore/books";
+
+        String inputFile = getClass().getResource("resources/update_book.txt").getFile();         
+        File input =  new File(inputFile);
+        PutMethod post = new PutMethod(endpointAddress);
+        RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
+        post.setRequestEntity(entity);
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(post);
+            assertEquals(200, result);
+            System.out.println("Response status code: " + result);
+            System.out.println("Response body: ");
+            System.out.println(post.getResponseBodyAsString());
+            
+            //Verify result
+            endpointAddress =
+                "http://localhost:9080/xml/bookstore/books/123"; 
+            URL url = new URL(endpointAddress);
+            InputStream in = url.openStream();
+            assertNotNull(in);           
+
+            InputStream expected = getClass()
+                .getResourceAsStream("resources/expected_update_book.txt");
+
+            //System.out.println("---" + getStringFromInputStream(in));
+            assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+            
+            //Roll back changes:
+            String inputFile1 = getClass().getResource(
+                                    "resources/expected_get_book123.txt").getFile();         
+            File input1 =  new File(inputFile1);
+            PutMethod post1 = new PutMethod(endpointAddress);
+            RequestEntity entity1 = new FileRequestEntity(input1, "text/xml; charset=ISO-8859-1");
+            post1.setRequestEntity(entity1);
+            HttpClient httpclient1 = new HttpClient();
+            httpclient1.executeMethod(post);
+            
+        } finally {
+            // Release current connection to the connection pool once you are done
+            post.releaseConnection();
+        }               
+    }  
     
     private String getStringFromInputStream(InputStream in) throws Exception {        
         CachedOutputStream bos = new CachedOutputStream();
