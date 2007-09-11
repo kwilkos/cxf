@@ -86,15 +86,24 @@ public class BookStore {
     @UriTemplate("/books/")
     public Response updateBook(Book book) {
         System.out.println("----invoking updateBook, book name is: " + book.getName());
+        boolean found = false;
         for (int i = 0; i < books.size(); i++) {
             Book b = books.get(i);
             if (b.getId() == book.getId()) {
                 books.set(i, book);
+                found = true;
                 break;
             }
         }
         
-        return null;        
+        Response r;
+        if (found) {
+            r = Response.Builder.ok().build();
+        } else {
+            r = Response.Builder.notModified().build();
+        }
+        
+        return r;       
     }
     
     
@@ -103,15 +112,24 @@ public class BookStore {
     public Response deleteBook(@UriParam("bookId") String id) {
         System.out.println("----invoking deleteBook with bookId: " + id);
         long idNumber = Long.parseLong(id);
+        boolean found = false;
         for (int i = 0; i < books.size(); i++) {
             Book b = books.get(i);
             if (idNumber == b.getId()) {
                 books.remove(i);
+                found = true;
                 break;
             }
         }
         
-        return null;        
+        Response r;
+        if (found) {
+            r = Response.Builder.ok().build();
+        } else {
+            r = Response.Builder.notModified().build();
+        }
+        
+        return r;        
     }
 
     

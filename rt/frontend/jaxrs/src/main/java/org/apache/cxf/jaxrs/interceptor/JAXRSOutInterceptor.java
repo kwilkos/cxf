@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
@@ -55,21 +57,35 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         OutputStream out = message.getContent(OutputStream.class);
         
-        if (objs.get(0) != null) {            
-            Class targetType = objs.get(0).getClass();
-            if (objs.get(0).getClass().isArray()) {
-                targetType = objs.get(0).getClass().getComponentType();
-            } else if (objs.get(0) instanceof List && ((List)objs.get(0)).get(0) != null) {
-                targetType = ((List)objs.get(0)).get(0).getClass();
+        if (objs.get(0) != null) {
+            Object responseObj = objs.get(0);
+            if (objs.get(0) instanceof Response) {
+                Response response = (Response)responseObj;
+                responseObj = response.getEntity();   
+                
+                HttpServletResponse hsr = (HttpServletResponse)message.get("HTTP.RESPONSE");
+                hsr.setStatus(response.getStatus());   
+                
+                if (responseObj == null) {
+                    return;
+                }
+            } 
+            
+            Class targetType = responseObj.getClass();
+            if (responseObj.getClass().isArray()) {
+                targetType = responseObj.getClass().getComponentType();
+            } else if (responseObj instanceof List && ((List)responseObj).get(0) != null) {
+                targetType = ((List)responseObj).get(0).getClass();
                 
             }
             EntityProvider provider = ProviderFactory.getInstance().createEntityProvider(targetType);
 
             try {
-                provider.writeTo(objs.get(0), null, out);
+                provider.writeTo(responseObj, null, out);
             } catch (IOException e) {
                 e.printStackTrace();
-            }         
+            }        
+            
         }
 
     }

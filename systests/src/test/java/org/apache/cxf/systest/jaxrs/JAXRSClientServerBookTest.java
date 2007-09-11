@@ -38,10 +38,10 @@ import org.junit.Test;
 
 public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
 
-    @BeforeClass
+/*    @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(BookServer.class));
-    }
+    }*/
    
     @Test
     public void testGetBooks() throws Exception {
@@ -148,6 +148,31 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             post.releaseConnection();
         }               
     }  
+    
+    @Test
+    public void testUpdateBookFailed() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xml/bookstore/books";
+
+        String inputFile = getClass().getResource("resources/update_book_not_exist.txt").getFile();         
+        File input =  new File(inputFile);
+        PutMethod post = new PutMethod(endpointAddress);
+        RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
+        post.setRequestEntity(entity);
+        HttpClient httpclient = new HttpClient();
+        
+        try {
+            int result = httpclient.executeMethod(post);
+            assertEquals(200, result);
+            System.out.println("Response status code: " + result);
+            System.out.println("Response body: ");
+            System.out.println(post.getResponseBodyAsString());
+           
+        } finally {
+            // Release current connection to the connection pool once you are done
+            post.releaseConnection();
+        }               
+    } 
     
     private String getStringFromInputStream(InputStream in) throws Exception {        
         CachedOutputStream bos = new CachedOutputStream();

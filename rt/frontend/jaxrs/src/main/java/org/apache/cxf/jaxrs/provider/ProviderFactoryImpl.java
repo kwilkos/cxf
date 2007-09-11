@@ -22,9 +22,11 @@ package org.apache.cxf.jaxrs.provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Response.Builder;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.HeaderProvider;
 import javax.ws.rs.ext.ProviderFactory;
+
 
 
 //NOTE: ProviderFactory should provide a method that can pass in media types
@@ -39,7 +41,9 @@ public class ProviderFactoryImpl extends ProviderFactory {
     }
     
     public <T> T createInstance(Class<T> type) {
-        //TODO:    
+        if (type.isAssignableFrom(Builder.class)) {
+            return type.cast(new BuilderImpl());
+        } 
         return null;
     }
    
