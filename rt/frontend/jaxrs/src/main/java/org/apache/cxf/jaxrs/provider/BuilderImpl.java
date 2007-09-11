@@ -45,8 +45,7 @@ public final class BuilderImpl extends Response.Builder {
     }
 
     public Response build() {
-        Response r = new ResponseImpl(status, entity);
-        return r;
+        return new ResponseImpl(status, entity);
     }
 
     public Response.Builder status(int s) {
