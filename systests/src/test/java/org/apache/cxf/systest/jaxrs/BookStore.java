@@ -73,13 +73,14 @@ public class BookStore {
     
     @HttpMethod("POST")
     @UriTemplate("/books")
-    public Book addBook(Book book) {
+    public Response addBook(Book book) {
         System.out.println("----invoking addBook, book name is: " + book.getName());
         book.setId(++bookId);
         
         books.add(book);
 
-        return book;
+        Response r = Response.Builder.ok(book).build();
+        return r;
     }
     
     @HttpMethod("PUT")

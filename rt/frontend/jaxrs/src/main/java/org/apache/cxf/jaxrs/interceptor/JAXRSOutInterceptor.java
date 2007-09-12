@@ -63,8 +63,9 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
                 Response response = (Response)responseObj;
                 responseObj = response.getEntity();   
                 
-                HttpServletResponse hsr = (HttpServletResponse)message.get("HTTP.RESPONSE");
-                hsr.setStatus(response.getStatus());   
+                //HttpServletResponse hsr = (HttpServletResponse)message.get("HTTP.RESPONSE");
+                //hsr.setStatus(response.getStatus());
+                message.put(Message.RESPONSE_CODE, response.getStatus());
                 
                 if (responseObj == null) {
                     return;

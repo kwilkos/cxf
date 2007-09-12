@@ -38,10 +38,10 @@ import org.junit.Test;
 
 public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
 
-/*    @BeforeClass
+    @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(BookServer.class));
-    }*/
+    }
    
     @Test
     public void testGetBooks() throws Exception {
@@ -152,7 +152,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     @Test
     public void testUpdateBookFailed() throws Exception {
         String endpointAddress =
-            "http://localhost:9080/xml/bookstore/books";
+            "http://localhost:9081/xml/bookstore/books";
 
         String inputFile = getClass().getResource("resources/update_book_not_exist.txt").getFile();         
         File input =  new File(inputFile);
@@ -163,7 +163,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
         
         try {
             int result = httpclient.executeMethod(post);
-            assertEquals(200, result);
+            assertEquals(304, result);
             System.out.println("Response status code: " + result);
             System.out.println("Response body: ");
             System.out.println(post.getResponseBodyAsString());
