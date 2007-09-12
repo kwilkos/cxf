@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;

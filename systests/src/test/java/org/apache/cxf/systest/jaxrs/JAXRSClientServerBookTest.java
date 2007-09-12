@@ -152,7 +152,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     @Test
     public void testUpdateBookFailed() throws Exception {
         String endpointAddress =
-            "http://localhost:9081/xml/bookstore/books";
+            "http://localhost:9080/xml/bookstore/books";
 
         String inputFile = getClass().getResource("resources/update_book_not_exist.txt").getFile();         
         File input =  new File(inputFile);
