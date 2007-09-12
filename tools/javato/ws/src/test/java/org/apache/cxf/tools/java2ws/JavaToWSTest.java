@@ -67,7 +67,7 @@ public class JavaToWSTest extends ToolTestBase {
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
     }
-    
+
     @Test
     public void testSimple() throws Exception {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
@@ -79,23 +79,22 @@ public class JavaToWSTest extends ToolTestBase {
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
     }
-    
-    //org.apache.cxf.tools.fortest
-    
+
+
     @Test
     public void testClassNoWebServiceAnno() throws Exception {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
                                       "-d", output.getPath(),
                                       "-frontend", "jaxws",
                                       "-client", "-server",
-                                      "org.apache.cxf.tools.fortest.Hello"};
+                                      "org.apache.cxf.tools.fortest.HelloWithNoAnno"};
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
         assertTrue("Class does not carry WebService error should be detected"
                    , getStdErr().indexOf("does not carry a WebService annotation") > -1);
     }
-    
+
     @Test
     public void testClassWithRMI() throws Exception {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
@@ -106,12 +105,10 @@ public class JavaToWSTest extends ToolTestBase {
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
-        assertTrue("Parameter or return type implemented java.rmi.Remote interface error should be detected", 
+        assertTrue("Parameter or return type implemented java.rmi.Remote interface error should be detected",
                    getStdErr().indexOf("implemented the java.rmi.Remote interface") > -1);
     }
-    
-    
-    
+
     @Test
     public void testGenServerAndClient() throws Exception {
         String[] args = new String[] {"-d", output.getPath(), "-client", "-server",
@@ -126,35 +123,35 @@ public class JavaToWSTest extends ToolTestBase {
                                + "/org/apache/hello_world_soap12_http/GreeterServer.java");
         assertTrue("Greeter_GreeterPort_Server.java is not generated", server.exists());
     }
-    
-    
-    
+
+
+
     @Test
     public void testGenServerAndImpl() throws Exception {
-        String[] args = new String[] {"-d", output.getPath(), "-impl", "-server",
+        String[] args = new String[] {"-d", output.getPath(), "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
 
         File server = new File(output.getPath()
                                + "/org/apache/hello_world_soap12_http/GreeterServer.java");
         assertTrue("GreeterServer.java is not generated", server.exists());
-        
-        
+
+
         File impl = new File(output.getPath()
                                + "/org/apache/hello_world_soap12_http/GreeterImpl.java");
         assertTrue("GreeterImpl.java is not generated", impl.exists());
     }
-    
+
     @Test
     public void testGenWrapperBean() throws Exception {
         String[] args = new String[] {"-d", output.getPath(),
                                       "-wrapperbean",
                                       "-impl", "-server",
                                       "org.apache.cxf.tools.java2ws.fortest.Calculator"};
-        JavaToWS.main(args);        
+        JavaToWS.main(args);
     }
-    
-    
+
+
     @Test
     public void testInvalidFlag() throws Exception {
         String[] args = new String[] {"-frontend", "tmp", "-wsdl", "-o", output.getPath() + "/tmp.wsdl",

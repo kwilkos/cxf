@@ -26,50 +26,53 @@
 	xmlns:ts="http://cxf.apache.org/Xutil/ToolSpecification">
 
 	<annotation>
-		Examples :
-
-		java2ws org.apache.hello_world_soap_http.Greeter java2ws -cp
-		./tmp org.apache.hello_world_soap_http.Greeter java2ws -o
-		hello.wsdl org.apache.hello_world_soap_http.Greeter java2ws -o
-		hello.wsdl -t http://cxf.apache.org
-		org.apache.hello_world_soap_http.Greeter
+ Examples :
+   java2ws -wsdl org.apache.hello_world_soap_http.Greeter 
+   java2ws -cp ./tmp org.apache.hello_world_soap_http.Greeter -wsdl 
+   java2ws -o hello.wsdl -wsdl org.apache.hello_world_soap_http.Greeter 
+   java2ws -client -server org.apache.hello_world_soap_http.Greeter
+   java2ws -wrapperbean org.apache.hello_world_soap_http.Greeter
 	</annotation>
 	<usage>
-
 		<optionGroup id="options">
 			<option id="frontend" maxOccurs="1">
-				<annotation>specify which frontend should be use, support jaxws and simple frontend.</annotation>
+				<annotation>
+					specify which frontend should be use, support jaxws and simple frontend.
+				</annotation>
 				<switch>frontend</switch>
 				<associatedArgument placement="afterSpace">
 					<annotation>jaxws-or-simple</annotation>
 				</associatedArgument>
 			</option>
+
+			<option id="wsdl" maxOccurs="1">
+				<annotation>
+					Specify generating wsdl
+				</annotation>
+				<switch>wsdl</switch>
+			</option>
 			
 			<option id="wrapperbean" maxOccurs="1">
-				<annotation>Specify to genearte wrapper and fault bean</annotation>
+				<annotation>
+					Specify to genearte wrapper and fault bean
+				</annotation>
 				<switch>wrapperbean</switch>
 			</option>
 			
 			<option id="client" maxOccurs="1">
-				<annotation>Specify to genearte client side code</annotation>
+				<annotation>
+					Specify to genearte client side code
+				</annotation>
 				<switch>client</switch>
 			</option>
 				
 			<option id="server" maxOccurs="1">
-				<annotation>Specify to genearte server side code</annotation>
+				<annotation>
+					Specify to genearte server side code
+				</annotation>
 				<switch>server</switch>
 			</option>
-			
-			<option id="impl" maxOccurs="1">
-				<annotation>Specify to generate impl class when "-server" flag is specified</annotation>
-				<switch>impl</switch>
-			</option>			
-						
-			<option id="wsdl" maxOccurs="1">
-				<annotation>Specify generating wsdl</annotation>
-				<switch>wsdl</switch>
-			</option>
-
+								
 			<option id="outputfile" maxOccurs="1">
 				<annotation>
 					Specify the output wsdl file name
@@ -189,22 +192,26 @@
 			</option>
 
 			<option id="verbose">
-				<annotation>Verbose mode</annotation>
+				<annotation>
+					Verbose mode
+				</annotation>
 				<switch>verbose</switch>
 				<switch>V</switch>
 			</option>
 
 			<option id="quiet">
-				<annotation>Quiet mode</annotation>
+				<annotation>
+					Quiet mode
+				</annotation>
 				<switch>quiet</switch>
 				<switch>q</switch>
 			</option>
-
-
 		</optionGroup>
 
-		<argument id="classname" minOccurs="1" maxOccurs="1">
-			<annotation>SEI class name</annotation>
-		</argument>
+		   <argument id="classname" minOccurs="1" maxOccurs="1">
+			   <annotation>
+			        SEI class name
+			   </annotation>
+		   </argument>
 	</usage>
 </toolspec>
