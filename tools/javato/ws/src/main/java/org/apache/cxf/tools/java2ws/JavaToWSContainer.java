@@ -78,7 +78,7 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
                     processor = new SimpleFrontEndProcessor();
                     processor.setEnvironment(env);
                     processor.process();
-                }       
+                }
             }
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
@@ -107,28 +107,27 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
     }
 
     public void checkParams(ErrorVisitor errs) throws ToolException {
-
+        super.checkParams(errs);
         CommandDocument doc = super.getCommandDocument();
 
-        if (doc.hasParameter("frontend")) {
-            String ft = doc.getParameter("frontend");           
+        if (doc.hasParameter(ToolConstants.CFG_FRONTEND)) {
+            String ft = doc.getParameter(ToolConstants.CFG_FRONTEND);
             if (!"simple".equalsIgnoreCase(ft) && !"jaxws".equalsIgnoreCase(ft)) {
-                Message msg = new Message("INVALID_FORNTEND", LOG, new Object[]{ft});               
+                Message msg = new Message("INVALID_FRONTEND", LOG, new Object[] {ft});
                 errs.add(new ErrorVisitor.UserError(msg.toString()));
             }
         }
-        
-        
-        if (doc.hasParameter("wrapperbean")) {
-            String ft = doc.getParameter("frontend");
-            if (ft != null &&  !"jaxws".equalsIgnoreCase(ft)) {
-                Message msg = new Message("CANT_GEN_WRAPPERBEAN", LOG);               
+
+        if (doc.hasParameter(ToolConstants.CFG_WRAPPERBEAN)) {
+            String ft = doc.getParameter(ToolConstants.CFG_FRONTEND);
+            if (ft != null && !"jaxws".equalsIgnoreCase(ft)) {
+                Message msg = new Message("WRAPPERBEAN_WITHOUT_JAXWS", LOG);
                 errs.add(new ErrorVisitor.UserError(msg.toString()));
             }
         }
-  
+
         if (errs.getErrors().size() > 0) {
-            Message msg = new Message("PARAMETER_MISSING", LOG);           
+            Message msg = new Message("PARAMETER_MISSING", LOG);
             throw new ToolException(msg, new BadUsageException(getUsage(), errs));
         }
 

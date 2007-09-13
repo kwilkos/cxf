@@ -35,9 +35,19 @@
 	</annotation>
 	<usage>
 		<optionGroup id="options">
+		
+			<option id="databinding" maxOccurs="1">
+				<annotation>
+				    Specify the data binding (aegis or jaxb). Default jaxb.
+				</annotation>
+				<switch>databinding</switch>
+				<associatedArgument placement="afterSpace">
+				  <annotation>jaxb or aegis</annotation>
+				</associatedArgument>
+			</option>
 			<option id="frontend" maxOccurs="1">
 				<annotation>
-					specify which frontend should be use, support jaxws and simple frontend.
+					Specify which frontend should be use, support jaxws and simple frontend.
 				</annotation>
 				<switch>frontend</switch>
 				<associatedArgument placement="afterSpace">

@@ -28,6 +28,11 @@ public final class ToolConstants {
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
     public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
     public static final String WSDL_NAMESPACE_URI = "http://schemas.xmlsoap.org/wsdl/";
+    
+    /**
+     * Tools permit caller to pass in additional bean definitions.
+     */
+    public static final String CFG_BEAN_CONFIG = "beans";
 
     public static final String DEFAULT_TEMP_DIR = "gen_tmp";
     public static final String CFG_OUTPUTDIR = "outputdir";
@@ -61,11 +66,12 @@ public final class ToolConstants {
 
     public static final String CFG_VALIDATE_WSDL = "validate";
     public static final String CFG_CREATE_XSD_IMPORTS = "createxsdimports";
-
+    /**
+     * Front-end selection command-line option to java2ws.
+     */
     public static final String CFG_FRONTEND = "frontend";
 
     public static final String CFG_DATABINDING = "db";
-
 
     // WSDL2Java Constants
 
@@ -218,4 +224,6 @@ public final class ToolConstants {
     public static final String IMPL_CLASS = "implClass";
     public static final String SERVICE_NAME = "serviceName";
     public static final String PORT_NAME = "portName";
+    public static final String DEFAULT_DATA_BINDING_NAME = "jaxb";
+    public static final String DATABIND_BEAN_NAME_SUFFIX = "DatabindingBean";
 }

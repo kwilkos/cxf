@@ -23,6 +23,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+
+import org.w3c.dom.Document;
+
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolTestBase;
@@ -77,7 +83,27 @@ public class JavaToWSTest extends ToolTestBase {
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
+        // TODO: validate the file.
         assertTrue("wsdl is not generated", wsdlFile.exists());
+    }
+    
+    @Test
+    public void testAegis() throws Exception {
+        final String sei = "org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI";
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/aegis.wsdl", "-verbose", "-d",
+                                      output.getPath(), "-frontend", "jaxws", "-databinding", "aegis",
+                                      "-client", "-server", sei};
+        JavaToWS.main(args);
+        File wsdlFile = new File(output.getPath() + "/aegis.wsdl");
+        assertTrue("wsdl is not generated", wsdlFile.exists());
+
+        WSDLReader reader =  WSDLFactory.newInstance().newWSDLReader();
+        reader.setFeature("javax.wsdl.verbose", false);
+        Definition def = reader.readWSDL(wsdlFile.toURL().toString());
+        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(def);
+        addNamespace("ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/");
+        assertValid("//xsd:element[@type='something']", wsdl);
+        assertXPathEquals("//namespace::ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/", wsdl);
     }
 
 
@@ -171,7 +197,7 @@ public class JavaToWSTest extends ToolTestBase {
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         assertTrue("wrapperbean flag error should be detected",
-                   getStdErr().indexOf("Wrapperbean only needs to be generated for jaxws front end") > -1);
+                   getStdErr().indexOf("-wrapperbean is only valid for the jaxws front end.") > -1);
         File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
     }

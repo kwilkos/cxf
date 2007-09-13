@@ -19,32 +19,42 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal;
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.JaxwsServiceBuilder;
 import org.apache.cxf.service.ServiceBuilder;
 import org.apache.cxf.simple.SimpleServiceBuilder;
 import org.apache.cxf.tools.fortest.classnoanno.docbare.Stock;
 import org.apache.cxf.tools.fortest.simple.Hello;
 import org.apache.cxf.tools.java2wsdl.processor.FrontendFactory;
+import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
 
 public class ServiceBuilderFactoryTest extends Assert {
     ServiceBuilderFactory factory = ServiceBuilderFactory.getInstance();
-
+    private ApplicationContext applicationContext;
+    
+    @Before
+    public void setUp() {
+        applicationContext = JavaToWSDLProcessor.getApplicationContext(BusFactory.getDefaultBus());
+    }
+    
     @Test
-    public void testGetBuilderClassName() {
+    public void testGetBuilderBeanName() {
         assertNotNull(factory);
-        assertEquals(JaxwsServiceBuilder.class.getName(),
-                     factory.getBuilderClassName(FrontendFactory.Style.Jaxws));
+        assertEquals("JaxwsServiceBuilderBean",
+                     factory.getBuilderBeanName(FrontendFactory.Style.Jaxws));
 
-        assertEquals(SimpleServiceBuilder.class.getName(),
-                     factory.getBuilderClassName(FrontendFactory.Style.Simple));
+        assertEquals("SimpleServiceBuilderBean",
+                     factory.getBuilderBeanName(FrontendFactory.Style.Simple));
     }
 
     @Test
     public void testGetJaxwsBuilder() {
         factory.setServiceClass(Stock.class);
-        ServiceBuilder builder = factory.newBuilder();
+        ServiceBuilder builder = factory.newBuilder(applicationContext);
         assertNotNull(builder);
         assertTrue(builder instanceof JaxwsServiceBuilder);
     }
@@ -52,7 +62,7 @@ public class ServiceBuilderFactoryTest extends Assert {
     @Test
     public void testGetSimpleBuilder() {
         factory.setServiceClass(Hello.class);
-        ServiceBuilder builder = factory.newBuilder();
+        ServiceBuilder builder = factory.newBuilder(applicationContext);
         assertNotNull(builder);
         assertTrue(builder instanceof SimpleServiceBuilder);
     }

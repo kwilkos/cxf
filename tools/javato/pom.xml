@@ -34,6 +34,7 @@
     <modules>
         <module>core</module>
         <module>test</module>
+        <module>ws</module>
     </modules>
 
     <scm>

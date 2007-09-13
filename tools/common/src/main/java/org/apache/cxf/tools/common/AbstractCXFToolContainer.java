@@ -39,6 +39,9 @@ import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.version.Version;
 
+/**
+ * Common processing for the CXF tools. Processes common options.
+ */
 public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     protected static final Logger LOG = LogUtils.getL7dLogger(AbstractCXFToolContainer.class);
     
@@ -47,6 +50,7 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     private boolean verbose;
     private String usage;
     private final ErrorVisitor errors = new ErrorVisitor();
+    private String beanConfigResource;
     
     
     public AbstractCXFToolContainer(String nm, ToolSpec toolspec) throws Exception {
@@ -70,7 +74,7 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
         if (hasInfoOption()) {
             outputInfo();
         } else {
-            if (commandDocument.hasParameter("verbose")) {
+            if (commandDocument.hasParameter(ToolConstants.CFG_VERBOSE)) {
                 verbose = true;
                 outputFullCommandLine();
                 outputVersion();               
@@ -105,7 +109,20 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
         }
     }
 
-    public abstract void checkParams(ErrorVisitor err) throws ToolException;
+    /**
+     * Check command-line parameters for validity. Since subclasses delegate down to here,
+     * this cannot complain about unwanted options.
+     * @param err place to report errors.
+     * @throws ToolException for impossible options.
+     */
+    public void checkParams(ErrorVisitor err) throws ToolException {
+        CommandDocument doc = getCommandDocument();
+
+        if (doc.hasParameter(ToolConstants.CFG_BEAN_CONFIG)) {
+            String beanPath = doc.getParameter(ToolConstants.CFG_BEAN_CONFIG);           
+            setBeanConfigResource(beanPath);
+        }
+    }
 
     public boolean isVerboseOn() {
         if (context != null && context.isVerbose()) {
@@ -272,5 +289,19 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
             }
         }
         return map;
+    }
+
+    /**
+     * @return Returns the beanConfigResource.
+     */
+    public String getBeanConfigResource() {
+        return beanConfigResource;
+    }
+
+    /**
+     * @param beanConfigResource The beanConfigResource to set.
+     */
+    public void setBeanConfigResource(String beanConfigResource) {
+        this.beanConfigResource = beanConfigResource;
     }
 }
