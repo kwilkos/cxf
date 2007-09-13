@@ -30,6 +30,6 @@ import testnotification.NotificationServicePort;
 
 public class Cxf993Impl implements NotificationServicePort {
     public String sendNotification(testnotification.SendNotification parameters) {
-        return "dumy";
+        return "dummy";
     }
 }

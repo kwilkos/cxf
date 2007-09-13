@@ -40,7 +40,7 @@ public class Cxf993Test extends AbstractBusClientServerTestBase {
 
     @Test
     public void testBasicConnection() throws Exception {
-        assertEquals("dumy", getPort().sendNotification(new SendNotification()));
+        assertEquals("dummy", getPort().sendNotification(new SendNotification()));
     }
 
     private NotificationServicePort getPort() {
@@ -48,7 +48,7 @@ public class Cxf993Test extends AbstractBusClientServerTestBase {
         assertNotNull("WSDL is null", wsdl);
 
         NotificationService service = new NotificationService(wsdl, serviceName);
-        assertNotNull("Service is ull ", service);
+        assertNotNull("Service is null ", service);
 
         return service.getNotificationServicePort();
     }
