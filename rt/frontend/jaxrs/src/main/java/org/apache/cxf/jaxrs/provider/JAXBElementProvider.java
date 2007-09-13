@@ -22,19 +22,15 @@ package org.apache.cxf.jaxrs.provider;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.EntityProvider;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.namespace.QName;
 
 public final class JAXBElementProvider implements EntityProvider<Object>  {
 
@@ -59,7 +55,9 @@ public final class JAXBElementProvider implements EntityProvider<Object>  {
 
     public void writeTo(Object obj, MultivaluedMap<String, Object> headers, OutputStream os) {
         try {
-            if (obj.getClass().isArray() || obj instanceof List) {
+            //Looks like we do not need to deal with Array and List as multiple root elements 
+            //is not allowed in a plain-old-xml binding anyway.
+/*            if (obj.getClass().isArray() || obj instanceof List) {
                 Class<?> cls = null;
                 Object objArray;
                 if (obj instanceof List) {
@@ -79,12 +77,14 @@ public final class JAXBElementProvider implements EntityProvider<Object>  {
                     marshaller.marshal(new JAXBElement(new QName(null, o.getClass().getSimpleName()),
                                                        cls == null ? o.getClass() : cls, o), os);
                 }
-            } else {
-                JAXBContext context = getJAXBContext(obj.getClass());
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-                marshaller.marshal(obj, os);
-            }
+            } else {*/
+            JAXBContext context = getJAXBContext(obj.getClass());
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            marshaller.marshal(obj, os);
+            
+            //TODO: support Calendar type
+            //}
         } catch (JAXBException e) {
             e.printStackTrace();
         }

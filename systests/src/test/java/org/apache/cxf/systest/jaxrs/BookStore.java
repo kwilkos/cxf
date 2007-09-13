@@ -36,7 +36,9 @@ import javax.ws.rs.core.UriInfo;
 public class BookStore {
     
     private static List<Book> books = new ArrayList<Book>();
+    private static List<CD> cds = new ArrayList<CD>();
     private static long bookId = 123;
+    private static long cdId = 123;
     
     @HttpContext UriInfo uriInfo;
 
@@ -45,17 +47,26 @@ public class BookStore {
         book.setId(bookId);
         book.setName("CXF in Action");
         books.add(book);
+        
+        CD cd = new CD();
+        cd.setId(cdId);
+        cd.setName("BOHEMIAN RHAYSODY");
+        cds.add(cd);
+        CD cd1 = new CD();
+        cd1.setId(++cdId);
+        cd1.setName("BICYCLE RACE");
+        cds.add(cd1);
     }
     
     public BookStore() {
     }
-
+/*
     @HttpMethod("GET")
     public List<Book> getAllItems() {
         System.out.println("----invoking getBooks");
        
         return books;
-    }    
+    }    */
    
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
@@ -79,8 +90,7 @@ public class BookStore {
         
         books.add(book);
 
-        Response r = Response.Builder.ok(book).build();
-        return r;
+        return Response.Builder.ok(book).build();
     }
     
     @HttpMethod("PUT")
@@ -132,16 +142,27 @@ public class BookStore {
         
         return r;        
     }
-
     
-    @UriTemplate("/cd/{CDId}/")
-    public CD getCD(@UriParam("CDId") String cdId) {
-        System.out.println("----invoking getCD with cdId: " + cdId);
-        CD cd = new CD();
-        cd.setId(223);
-        cd.setName("BOHEMIAN RHAYSODY");
+    @UriTemplate("/cds/{CDId}/")
+    public CD getCD(@UriParam("CDId") String id) {
+        System.out.println("----invoking getCD with cdId: " + id);
+        long idNumber = Long.parseLong(id);
+        for (CD b : cds) {
+            if (idNumber == b.getId()) {
+                return b;
+            }
+        }
         
-        return cd;
+        return null;
+    }
+    
+    @HttpMethod("GET")
+    @UriTemplate("/cds/")    
+    public CDs getCDs() {
+        System.out.println("----invoking getCDs");
+        CDs c = new CDs();       
+        c.setCD(cds);
+        return c;
     }
 }
 

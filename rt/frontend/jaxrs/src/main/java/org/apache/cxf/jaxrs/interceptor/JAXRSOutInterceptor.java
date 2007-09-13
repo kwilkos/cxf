@@ -21,7 +21,6 @@ package org.apache.cxf.jaxrs.interceptor;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.EntityProvider;
@@ -61,9 +60,7 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             if (objs.get(0) instanceof Response) {
                 Response response = (Response)responseObj;
                 responseObj = response.getEntity();   
-                
-                //HttpServletResponse hsr = (HttpServletResponse)message.get("HTTP.RESPONSE");
-                //hsr.setStatus(response.getStatus());
+
                 message.put(Message.RESPONSE_CODE, response.getStatus());
                 
                 if (responseObj == null) {
@@ -72,12 +69,15 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             } 
             
             Class targetType = responseObj.getClass();
-            if (responseObj.getClass().isArray()) {
+/*            if (responseObj.getClass().isArray()) {
                 targetType = responseObj.getClass().getComponentType();
             } else if (responseObj instanceof List && ((List)responseObj).get(0) != null) {
+                //NOTE: if its a List, the provider should try to determine if it can support
+                //every object inside the List instead of the first one only.
                 targetType = ((List)responseObj).get(0).getClass();
                 
-            }
+            }*/
+            
             EntityProvider provider = ProviderFactory.getInstance().createEntityProvider(targetType);
 
             try {

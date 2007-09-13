@@ -42,21 +42,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(BookServer.class));
     }
-   
-    @Test
-    public void testGetBooks() throws Exception {
-        String endpointAddress =
-            "http://localhost:9080/xml/bookstore"; 
-        URL url = new URL(endpointAddress);
-        InputStream in = url.openStream();
-        assertNotNull(in);           
-
-        InputStream expected = getClass()
-            .getResourceAsStream("resources/expected_get_books.txt");
-
-        //System.out.println("---" + getStringFromInputStream(in));
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
-    }
     
     @Test
     public void testGetBook123() throws Exception {
@@ -173,6 +158,22 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             post.releaseConnection();
         }               
     } 
+    
+    
+    @Test
+    public void testGetCDs() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xml/bookstore/cds"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass()
+            .getResourceAsStream("resources/expected_get_cds.txt");
+
+        //System.out.println("---" + getStringFromInputStream(in));
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
     
     private String getStringFromInputStream(InputStream in) throws Exception {        
         CachedOutputStream bos = new CachedOutputStream();
