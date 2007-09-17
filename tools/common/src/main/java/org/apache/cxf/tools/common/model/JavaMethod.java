@@ -50,6 +50,8 @@ public class JavaMethod implements JavaAnnotatable {
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
 
     private JavaCodeBlock block;
+
+    private boolean async;
     
     public JavaMethod() {
         this(new JavaInterface());
@@ -320,5 +322,13 @@ public class JavaMethod implements JavaAnnotatable {
 
     public JavaCodeBlock getJavaCodeBlock() {
         return this.block;
+    }
+
+    public final boolean isAsync() {
+        return async;
+    }
+
+    public final void setAsync(final boolean newAsync) {
+        this.async = newAsync;
     }
 }
