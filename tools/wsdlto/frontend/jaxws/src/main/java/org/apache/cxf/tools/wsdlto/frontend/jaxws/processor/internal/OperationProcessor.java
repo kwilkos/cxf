@@ -36,6 +36,7 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
+import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.SoapBindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebMethodAnnotator;
@@ -63,7 +64,7 @@ public class OperationProcessor  extends AbstractProcessor {
 
     void processMethod(JavaMethod method, OperationInfo operation,
                               JAXWSBinding globalBinding) throws ToolException {
-        if (isAsynCMethod(method)) {
+        if (isAsyncMethod(method)) {
             return;
         }
         MessageInfo inputMessage = operation.getInput();
@@ -146,7 +147,7 @@ public class OperationProcessor  extends AbstractProcessor {
         }
     }
 
-    private boolean isAsynCMethod(JavaMethod method) {
+    private boolean isAsyncMethod(JavaMethod method) {
         if (method.getName().toLowerCase()
             .equals((method.getOperationName() + ToolConstants.ASYNC_METHOD_SUFFIX).toLowerCase())) {
             return true;
@@ -162,64 +163,68 @@ public class OperationProcessor  extends AbstractProcessor {
         method.getInterface().addImport("javax.xml.ws.Response");
     }
 
-    private void addPollingMethod(JavaMethod method) throws ToolException {
-        JavaMethod pollingMethod = new JavaMethod(method.getInterface());
-        pollingMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
-        pollingMethod.setStyle(method.getStyle());
-        pollingMethod.setWrapperStyle(method.isWrapperStyle());
-        pollingMethod.setSoapAction(method.getSoapAction());
-        pollingMethod.setOperationName(method.getOperationName());
-
-        JavaReturn future = new JavaReturn();
-        future.setClassName("Future<?>");
-        pollingMethod.setReturn(future);
-
-        // REVISIT: test the operation name in the annotation
-        pollingMethod.annotate(new WebMethodAnnotator());
-        pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
-        pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
-        pollingMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
-
-        for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
-            pollingMethod.addParameter((JavaParameter)iter.next());
-        }
-
-        JavaParameter asyncHandler = new JavaParameter();
-        asyncHandler.setName("asyncHandler");
-        asyncHandler.setClassName(getAsyncClassName(method, "AsyncHandler"));
-        JavaAnnotation asyncHandlerAnnotation = new JavaAnnotation("WebParam");
-        asyncHandlerAnnotation.addArgument("name", "asyncHandler");
-        asyncHandlerAnnotation.addArgument("targetNamespace", "");
-        asyncHandler.setAnnotation(asyncHandlerAnnotation);
-
-        pollingMethod.addParameter(asyncHandler);
-
-        method.getInterface().addMethod(pollingMethod);
-    }
-
     private void addCallbackMethod(JavaMethod method) throws ToolException {
         JavaMethod callbackMethod = new JavaMethod(method.getInterface());
+        callbackMethod.setAsync(true);
         callbackMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
         callbackMethod.setStyle(method.getStyle());
         callbackMethod.setWrapperStyle(method.isWrapperStyle());
         callbackMethod.setSoapAction(method.getSoapAction());
         callbackMethod.setOperationName(method.getOperationName());
 
-        JavaReturn response = new JavaReturn();
-        response.setClassName(getAsyncClassName(method, "Response"));
-        callbackMethod.setReturn(response);
+        JavaReturn future = new JavaReturn();
+        future.setClassName("Future<?>");
+        callbackMethod.setReturn(future);
 
         // REVISIT: test the operation name in the annotation
         callbackMethod.annotate(new WebMethodAnnotator());
-        callbackMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         callbackMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
+        callbackMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         callbackMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
 
         for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
             callbackMethod.addParameter((JavaParameter)iter.next());
         }
 
+        JavaParameter asyncHandler = new JavaParameter();
+        asyncHandler.setName("asyncHandler");
+        asyncHandler.setCallback(true);
+        asyncHandler.setClassName(getAsyncClassName(method, "AsyncHandler"));
+        JavaAnnotation asyncHandlerAnnotation = new JavaAnnotation("WebParam");
+        asyncHandlerAnnotation.addArgument("name", "asyncHandler");
+        asyncHandlerAnnotation.addArgument("targetNamespace", "");
+        asyncHandler.setAnnotation(asyncHandlerAnnotation);
+        asyncHandler.setStyle(JavaType.Style.IN);
+
+        callbackMethod.addParameter(asyncHandler);
+
         method.getInterface().addMethod(callbackMethod);
+    }
+
+    private void addPollingMethod(JavaMethod method) throws ToolException {
+        JavaMethod pollingMethod = new JavaMethod(method.getInterface());
+        pollingMethod.setAsync(true);
+        pollingMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
+        pollingMethod.setStyle(method.getStyle());
+        pollingMethod.setWrapperStyle(method.isWrapperStyle());
+        pollingMethod.setSoapAction(method.getSoapAction());
+        pollingMethod.setOperationName(method.getOperationName());
+
+        JavaReturn response = new JavaReturn();
+        response.setClassName(getAsyncClassName(method, "Response"));
+        pollingMethod.setReturn(response);
+
+        // REVISIT: test the operation name in the annotation
+        pollingMethod.annotate(new WebMethodAnnotator());
+        pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
+        pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
+        pollingMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
+
+        for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
+            pollingMethod.addParameter((JavaParameter)iter.next());
+        }
+
+        method.getInterface().addMethod(pollingMethod);
     }
 
     private String getAsyncClassName(JavaMethod method, String clzName) {

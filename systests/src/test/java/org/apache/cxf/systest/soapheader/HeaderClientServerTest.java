@@ -72,7 +72,7 @@ public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
         assertNotNull("WSDL is null", wsdl);
 
         PizzaService service = new PizzaService(wsdl, serviceName);
-        assertNotNull("Service is ull ", service);
+        assertNotNull("Service is null ", service);
 
         return service.getPizzaPort();
     }
