@@ -693,4 +693,35 @@ public class CodeGenBugTest extends ProcessorTestBase {
             fail("The cxf978.wsdl is a valid wsdl, should pass the test, caused by: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testAsyncImplAndClient() throws Exception {
+        //CXF994
+        env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf994/hello_world_async.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf994/async.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+
+    @Test
+    public void testZeroInputOutOfBandHeader() throws Exception {
+        env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf1001.wsdl"));
+        env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "TRUE");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+
+        processor.setContext(env);
+        processor.execute();
+
+        String results = getStringFromFile(new File(output.getCanonicalPath(), 
+                                                    "soapinterface/ems/esendex/com/AccountServiceSoap.java"));
+        assertTrue(results.indexOf("public  int  getMessageLimit") != -1);
+        assertTrue(results.indexOf("header  =  true,  name  =  \"MessengerHeader") != -1);
+    }
 }

@@ -28,6 +28,11 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
     private String partName;
 
     private JavaMethod javaMethod;
+
+    /**
+     * Describe callback here.
+     */
+    private boolean callback;
     
     public JavaParameter() {
     }
@@ -96,5 +101,23 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     public void annotate(Annotator annotator) {
         annotator.annotate(this);
+    }
+
+    /**
+     * Get the <code>Callback</code> value.
+     *
+     * @return a <code>boolean</code> value
+     */
+    public final boolean isCallback() {
+        return callback;
+    }
+
+    /**
+     * Set the <code>Callback</code> value.
+     *
+     * @param newCallback The new Callback value.
+     */
+    public final void setCallback(final boolean newCallback) {
+        this.callback = newCallback;
     }
 }

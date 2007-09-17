@@ -247,10 +247,9 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                 BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
                 Binding binding = wsdlHelper.getBinding(bop, def);
                 String bindingStyle = binding != null ? SOAPBindingUtil.getBindingStyle(binding) : "";
-
                 String style = "".equals(SOAPBindingUtil.getSOAPOperationStyle(bop))
                     ? bindingStyle : SOAPBindingUtil.getSOAPOperationStyle(bop);
-                if ("DOCUMENT".equalsIgnoreCase(style)) {
+                if ("DOCUMENT".equalsIgnoreCase(style) || "".equals(style)) {
                     boolean passed = checkR2201Input(operation, bop)
                         && checkR2201Output(operation, bop)
                         && checkR2716(bop);
