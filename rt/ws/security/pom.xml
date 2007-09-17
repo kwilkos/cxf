@@ -83,7 +83,6 @@
         <dependency>
             <groupId>bouncycastle</groupId>
             <artifactId>bcprov-jdk14</artifactId>
-            <version>136</version>
             <scope>runtime</scope>
         </dependency>
 
