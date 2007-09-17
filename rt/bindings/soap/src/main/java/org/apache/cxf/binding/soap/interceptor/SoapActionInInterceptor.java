@@ -91,14 +91,22 @@ public class SoapActionInInterceptor extends AbstractSoapInterceptor {
         Exchange ex = message.getExchange();
         Endpoint ep = ex.get(Endpoint.class);
         
+        BindingOperationInfo bindingOp = null;
+        
         Collection<BindingOperationInfo> bops = ep.getBinding().getBindingInfo().getOperations();
         for (BindingOperationInfo boi : bops) {
             SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);
             if (soi != null && soi.getAction().equals(action)) {
-                ex.put(BindingOperationInfo.class, boi);
-                ex.put(OperationInfo.class, boi.getOperationInfo());
-                return;
+                if (bindingOp != null) {
+                    //more than one op with the same action, will need to parse normally
+                    return;
+                }
+                bindingOp = boi;
             }
+        }
+        if (bindingOp != null) {
+            ex.put(BindingOperationInfo.class, bindingOp);
+            ex.put(OperationInfo.class, bindingOp.getOperationInfo());
         }
     }
 
