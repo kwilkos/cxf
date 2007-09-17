@@ -29,6 +29,8 @@
             <element name="in" type="tns:TradePriceData"/>
             <element name="inout" type="tns:TradePriceData"/>
             <element name="stringRespType" type="xsd:string"/>
+            <element name="inDecimal" nillable="true" type="xsd:decimal" />
+            <element name="outString" nillable="true" type="xsd:string" />
         </schema>
     </wsdl:types>
     <message name="PutLastTradedPriceInput">
@@ -48,6 +50,14 @@
     <message name="bareNoParamResponse">
         <part element="x1:stringRespType" name="theResponse"/>
     </message>
+    
+    <message name="nillableRequest">
+    	<part name="theRequest" element="x1:inDecimal" />
+    </message>
+    
+    <message name="nillableResponse">
+    	<part name="theResponse" element="x1:outString" />
+    </message>
 
     <portType name="PutLastTradedPricePortType">
 
@@ -64,6 +74,11 @@
         <operation name="bareNoParam">
             <input message="tns:bareNoParamRequest"/>
             <output message="tns:bareNoParamResponse"/>
+        </operation>
+        
+        <operation name="nillableParameter">
+        	<input message="tns:nillableRequest" />
+        	<output message="tns:nillableResponse" />
         </operation>
         
     </portType>
@@ -96,7 +111,17 @@
             <output>
                 <soap:body use="literal"/>
             </output>
-        </operation>        
+        </operation>
+        
+        <operation name="nillableParameter">
+        	<input>
+        		<soap:body use="literal" />
+        	</input>
+        	<output>
+        		<soap:body use="literal" />
+        	</output>        
+        </operation>
+                
     </binding>
     <wsdl:service name="SOAPService">
         <wsdl:port name="SoapPort" binding="tns:PutLastTradedPriceSoapBinding">
