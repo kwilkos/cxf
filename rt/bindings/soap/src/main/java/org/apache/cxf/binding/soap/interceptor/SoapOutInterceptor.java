@@ -98,6 +98,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             
             boolean preexistingHeaders = message.hasHeaders();
+
             if (preexistingHeaders) {
                 xtw.writeStartElement(soapVersion.getPrefix(), 
                                       soapVersion.getHeader().getLocalPart(),
@@ -172,10 +173,13 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             if (headers == null) {
                 return endedHeader;
             }            
-            
+
             for (SoapHeaderInfo header : headers) {
                 MessagePartInfo part = header.getPart();
-
+                if (part.getIndex() >= objs.size()) {
+                    // The optional out of band header is not a part of parameters of the method
+                    continue;
+                }
                 Object arg = objs.get(part);
                 objs.remove(part);
                 if (!(startedHeader || preexistingHeaders)) {
