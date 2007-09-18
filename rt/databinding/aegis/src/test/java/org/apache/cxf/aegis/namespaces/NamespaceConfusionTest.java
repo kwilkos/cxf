@@ -18,12 +18,16 @@
  */
 package org.apache.cxf.aegis.namespaces;
 
-import javax.wsdl.WSDLException;
+import java.io.StringWriter;
+
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.namespaces.data.Name;
@@ -32,11 +36,6 @@ import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.service.Service;
-
-import org.jaxen.JaxenException;
-import org.jaxen.NamespaceContext;
-import org.jaxen.SimpleNamespaceContext;
-import org.jaxen.dom.DOMXPath;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +51,7 @@ public class NamespaceConfusionTest extends AbstractAegisTest {
     
     private TypeMapping tm;
     private Service service;
-        
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -64,12 +63,9 @@ public class NamespaceConfusionTest extends AbstractAegisTest {
     }
     
     private String getNamespaceForPrefix(Element rootElement, 
-                                         NamespaceContext namespaceContext, 
                                          Element typeElement, 
-                                         String prefix) throws JaxenException {
-        DOMXPath findSchema = new DOMXPath("ancestor::xsd:schema");
-        findSchema.setNamespaceContext(namespaceContext);
-        Element schemaElement = (Element)findSchema.selectSingleNode(typeElement);
+                                         String prefix) throws Exception {
+        Element schemaElement = (Element)assertValid("ancestor::xsd:schema", typeElement).item(0);
 
         NamedNodeMap attributes = schemaElement.getAttributes();
         for (int x = 0; x < attributes.getLength(); x++) {
@@ -95,31 +91,30 @@ public class NamespaceConfusionTest extends AbstractAegisTest {
 
         return null;
     }
-    
+
     
     @Test
-    public void testNameNamespace() throws WSDLException, JaxenException {
-        org.w3c.dom.Document wsdlDoc = getWSDLDocument("NameServiceImpl");
-        Element rootElement = wsdlDoc.getDocumentElement();
+    public void testNameNamespace() throws Exception {
         
-        SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
-        namespaceContext.addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
-        DOMXPath arrayOfNameFinder = 
-            new DOMXPath("//xsd:complexType[@name='ArrayOfName']/xsd:sequence/xsd:element");
-        arrayOfNameFinder.setNamespaceContext(namespaceContext);
-        
-        Element arrayOfNameElement = (Element)arrayOfNameFinder.selectSingleNode(rootElement);
-        assertNotNull(arrayOfNameElement);
+        org.w3c.dom.Document doc = getWSDLDocument("NameServiceImpl");
+        Element rootElement = doc.getDocumentElement();
 
+        Definition def = getWSDLDefinition("NameServiceImpl");
+        StringWriter sink = new StringWriter();
+        WSDLFactory.newInstance().newWSDLWriter().writeWSDL(def, sink);
+        NodeList aonNodes = 
+            assertValid("//xsd:complexType[@name='ArrayOfName']/xsd:sequence/xsd:element", doc);
+        Element arrayOfNameElement = (Element)aonNodes.item(0);
+        
         String typename = arrayOfNameElement.getAttribute("type");
         String prefix = typename.split(":")[0];
 
-        String uri = getNamespaceForPrefix(rootElement, namespaceContext, 
-                                           arrayOfNameElement, prefix);
+        String uri = getNamespaceForPrefix(rootElement, arrayOfNameElement, prefix);
         assertNotNull(uri);
         Type nameType = tm.getTypeCreator().createType(Name.class);
         QName tmQname = nameType.getSchemaType();
         assertEquals(tmQname.getNamespaceURI(), uri);
+        
     }
     
     

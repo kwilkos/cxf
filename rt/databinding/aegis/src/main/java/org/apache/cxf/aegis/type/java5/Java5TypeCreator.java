@@ -44,6 +44,7 @@ public class Java5TypeCreator extends AbstractTypeCreator {
                 info = nextCreator.createClassInfo(m, index);
             } else {
                 info = new TypeClassInfo();
+                info.setDescription("method " + m.getName() + " parameter " + index);
                 info.setGenericType(genericType);
             }
             info.setTypeClass(m.getParameterTypes()[index]);
@@ -66,6 +67,7 @@ public class Java5TypeCreator extends AbstractTypeCreator {
                 info = nextCreator.createClassInfo(m, index);
             } else {
                 info = new TypeClassInfo();
+                info.setDescription("method " + m.getName() + " parameter " + index);
                 info.setGenericType(genericReturnType);
             }
             info.setTypeClass(m.getReturnType());

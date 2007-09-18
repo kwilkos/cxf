@@ -55,7 +55,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="PingMeFault">
-    <wsdl:part name="fault" element="ns1:faultDetail">
+    <wsdl:part name="PingMeFault" element="ns1:faultDetail">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMeResponse">

@@ -16,13 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.services;
 
-public class AddNumbers {
-    public int add(int one, int two) {
-        return one + two;
+package org.apache.cxf.databinding;
+
+import java.util.Map;
+
+/**
+ * Supply default implementations, as appropriate, for DataBinding. 
+ */
+public abstract class AbstractDataBinding implements DataBinding {
+
+    /** {@inheritDoc}*/
+    public Map<String, String> getDeclaredNamespaceMappings() {
+        return null;
     }
-    public int unmappedAdd(int one, int two) {
-        return two + one;
-    }
+
+
 }

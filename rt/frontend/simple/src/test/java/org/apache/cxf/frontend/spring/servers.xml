@@ -73,6 +73,7 @@ http://cxf.apache.org/simple http://cxf.apache.org/schemas/simple.xsd">
   
   <simple:server id="inlineSoapBinding" 
     serviceClass="org.apache.cxf.service.factory.HelloService"
+    serviceBean="#greeter"
     address="http://localhost:8080/test"   
     serviceName="t:HelloService"
     xmlns:t="http://apache.org/hello_world_soap_http"

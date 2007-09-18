@@ -198,7 +198,7 @@ public class HandlerChainBuilder {
         try {
             m = handler.getClass().getMethod("init", Map.class);
         } catch (NoSuchMethodException ex) {
-            // emtpy
+            // empty
         }
         return m;
     }

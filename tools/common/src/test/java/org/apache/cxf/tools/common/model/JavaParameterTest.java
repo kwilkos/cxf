@@ -32,11 +32,12 @@ public class JavaParameterTest extends Assert {
         assertEquals("\"\"", 
                      holderParameter.getDefaultTypeValue());
         
-        holderParameter = new JavaParameter("org.apache.cxf.tools.common.model.JavaParamter",
-                                            "org.apache.cxf.tools.common.model.JavaParamter", null);
+        holderParameter = new JavaParameter("org.apache.cxf.tools.common.model.JavaParameter",
+                                            "org.apache.cxf.tools.common.model.JavaParameter", null);
         holderParameter.setHolder(true);
         holderParameter.setHolderName("javax.xml.ws.Holder");
-        assertEquals("null", 
-                     holderParameter.getDefaultTypeValue());
+        String defaultTypeValue = holderParameter.getDefaultTypeValue();
+        assertEquals("new org.apache.cxf.tools.common.model.JavaParameter()", 
+                     defaultTypeValue);
     }
 }
