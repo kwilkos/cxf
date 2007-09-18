@@ -19,6 +19,8 @@
 
 package org.apache.cxf.databinding;
 
+import java.util.Map;
+
 import org.apache.cxf.service.Service;
 
 public interface DataBinding {
@@ -37,5 +39,12 @@ public interface DataBinding {
      * @param service
      */
     void initialize(Service service);
+    
+    /**
+     * Return a set of mappings from namespace to prefix to allow bindings to control
+     * the prefixes.
+     * @return the map, or null if there are none.
+     */
+    Map<String, String> getDeclaredNamespaceMappings();
 
 }

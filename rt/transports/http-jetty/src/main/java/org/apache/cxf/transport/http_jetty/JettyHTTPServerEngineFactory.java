@@ -138,7 +138,7 @@ public class JettyHTTPServerEngineFactory {
         threadingParametersMap = threadingParamsMap;
     }
     
-    public Map<String, ThreadingParameters> getThreadingParamtersMap() {
+    public Map<String, ThreadingParameters> getThreadingParametersMap() {
         return threadingParametersMap;
     }
             

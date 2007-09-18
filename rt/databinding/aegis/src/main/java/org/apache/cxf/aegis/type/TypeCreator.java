@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.aegis.type.AbstractTypeCreator.TypeClassInfo;
+
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
@@ -50,4 +52,24 @@ public interface TypeCreator {
     void setParent(TypeCreator creator);
         
     void setTypeMapping(TypeMapping typeMapping);
+    /** Retrieve the classInfo for a method. Needed to get parameters right. 
+     * 
+     * @param m Method object
+     * @param index index in the parameter list
+     * @return info
+     */
+    TypeClassInfo createClassInfo(Method m, int index); 
+    /**
+     * Retrieve the class info for a class. Needed to get parameters right.
+     * @param itemClass
+     * @return info
+     */
+    TypeClassInfo createBasicClassInfo(Class<?> itemClass);
+    
+    /**
+     * Turn a TypeClassInfo into a type.
+     * @param info
+     * @return
+     */
+    Type createTypeForClass(TypeClassInfo info);
 }

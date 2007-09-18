@@ -96,7 +96,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         return info;
     }
 
-    protected Type createTypeForClass(TypeClassInfo info) {
+    public Type createTypeForClass(TypeClassInfo info) {
         Class javaType = info.getTypeClass();
         Type result = null;
         boolean newType = true;
@@ -306,6 +306,19 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         String first = type.getSchemaType().getLocalPart().substring(0, 1);
         String last = type.getSchemaType().getLocalPart().substring(1);
         String localName = "ArrayOf" + first.toUpperCase() + last;
+        if (info.nonDefaultAttributes()) {
+            localName += "-";
+            if (info.getMaxOccurs() >= 0) {
+                localName += info.maxOccurs;
+            }
+            localName += "-";
+            if (info.getMinOccurs() >= 0) {
+                localName += info.minOccurs;
+            }
+            if (info.isFlat()) {
+                localName += "Flat";
+            }
+        }
 
         return new QName(ns, localName);
     }
@@ -368,6 +381,9 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         this.typeConfiguration = tpConfiguration;
     }
 
+    /**
+     * Object to carry information for a type, such as that from an XML mapping file. 
+     */
     public static class TypeClassInfo {
         Class typeClass;
 
@@ -388,6 +404,10 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         long minOccurs = -1;
         long maxOccurs = -1;
         boolean flat;
+        
+        public boolean nonDefaultAttributes() {
+            return minOccurs != -1 || maxOccurs != -1 || flat;
+        }
 
         public String getDescription() {
             return description;
@@ -475,6 +495,11 @@ public abstract class AbstractTypeCreator implements TypeCreator {
 
         public void setFlat(boolean flat) {
             this.flat = flat;
+        }
+
+        @Override
+        public String toString() {
+            return "TypeClassInfo " + getDescription();
         }
     }
 }
