@@ -83,12 +83,7 @@ http://issues.apache.org/jira/browse/CXF
 Apache CXF 2.0.2 (incubating) release:
 
 
-
 Release Notes - CXF - Version 2.0.2
-
-** Sub-task
-    * [CXF-901] - Update "WAR" building for full war
-    * [CXF-902] - Add java_first_pojo sample
 
 ** Bug
     * [CXF-687] - SOAP over HTTP messages have two Content-Type headers and SOAP action as a separate header
@@ -98,6 +93,7 @@ Release Notes - CXF - Version 2.0.2
     * [CXF-874] - Problems with service beans that use AOP
     * [CXF-882] - @Features and @XXInterceptors doesn't work for client proxies
     * [CXF-886] - XSD2WSDL Tool seems to be unable to access remote xsdurls
+    * [CXF-896] - Aegis binding with @WebFault causes AegisDatabinding to throw UnsupportedOperationException
     * [CXF-897] - Default JAXB Data Binding does not unmarshal parameters correctly for a POJO service
     * [CXF-898] - Invalid links in Service Listing at root of CXF servlet if the context path does not end in '/'
     * [CXF-900] - Generated exception classes don't have serialVersionID
@@ -130,12 +126,16 @@ Release Notes - CXF - Version 2.0.2
     * [CXF-959] - Incorrect namespace configuration when generating wsdl from Aegis databinding
     * [CXF-960] - JAX-WS client interfaces that inherit from other interfaces don't map all the operations
     * [CXF-961] - In tomcat, AuthorizationPolicy object is not found in Message
+    * [CXF-962] - Aegis mappings not reflecting in wsdl method parameters
     * [CXF-966] - SESSION_MAINTAIN_PROPERTY doesn't track cookies other than JSESSIONID
     * [CXF-967] - WSDL2Java tool doesnt generate code for empty Input/Output (RPC/Literal)
+    * [CXF-970] - CXF doesnt handle the Doc/Literal (Bare) with Null parameter.
     * [CXF-971] - DefinitionParsers don't ignore namespace attributes
     * [CXF-974] - Jaxws and simple front ends do not support set serviceName and endpointName from spring configuration
     * [CXF-975] - WS-Policy distribution sample uses outdated cxf policy namespaces
     * [CXF-978] - WSDL2Java generated code will miss the parameter for wsdl operation has "parameterOrder" attribute.
+    * [CXF-993] - CXF doesn't always honor the use of optional soap headers
+    * [CXF-1001] - WSDL2Java header problem when using -exsh parameter
 
 ** Improvement
     * [CXF-232] - Unify dispatch/providers with JAX-WS
@@ -148,32 +148,22 @@ Release Notes - CXF - Version 2.0.2
     * [CXF-887] - messages.properties improvements in org.apache.cxf.jbi.se
     * [CXF-888] - Control directory for on-disk attachments
     * [CXF-899] - Missing getFaultInfo() fallback patch - use @WebFault bean as faultInfo if getFaultInfo() is not present
+    * [CXF-901] - Update "WAR" building for full war
+    * [CXF-902] - Add java_first_pojo sample
     * [CXF-928] - wsdl2java should not overwrite existing files
     * [CXF-930] - XercesImpl.jar needs to be added to CXF_HOME/lib directory
     * [CXF-931] - UNnecessary library dependency
     * [CXF-965] - add groovy and ruby script samples
     * [CXF-972] - Define a tns prefix
+    * [CXF-1002] - Message Part is not named correctly (always called "fault") - this breaks XFire backward compatibility - Patch attached
+    * [CXF-1025] - Streamline aegis configuration
 
 ** New Feature
     * [CXF-861] - WS-Reliable Messaging Feature
-
+    * [CXF-984] - Allow user control of namespace prefixes in Aegis
 
 ** Task
     * [CXF-771] - Upgrade to Neethi 2.0.2
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
