@@ -70,11 +70,19 @@ public class ExceptionInheritanceTest extends AbstractAegisTest {
 
     @Override
     protected ServerFactoryBean createServiceFactory(Class serviceClass, 
-                                                     Object serviceBean, String address, QName name) {
-        ServerFactoryBean sf = super.createServiceFactory(serviceClass, serviceBean, address, name);
+                                                     Object serviceBean, 
+                                                     String address, 
+                                                     QName name,
+                                                     AegisDatabinding b) {
+        ServerFactoryBean sf = super.createServiceFactory(serviceClass, 
+                                                          serviceBean, 
+                                                          address, 
+                                                          name,
+                                                          b);
         sf.getServiceFactory().setProperties(props);
         return sf;
     }
+    
 
     @Test
     public void testClient() throws Exception {

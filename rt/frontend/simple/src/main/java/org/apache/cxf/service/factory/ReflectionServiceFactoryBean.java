@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -752,9 +753,21 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         serviceInfo.setXmlSchemaCollection(col);
         schemaInfo.setSchema(schema);
 
+        Map<String, String> explicitNamespaceMappings = this.getDataBinding().getDeclaredNamespaceMappings();
+        if (explicitNamespaceMappings == null) {
+            explicitNamespaceMappings = Collections.emptyMap();
+        }
         NamespaceMap nsMap = new NamespaceMap();
-        nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
-        nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, serviceInfo.getTargetNamespace());
+        for (Map.Entry<String, String> mapping : explicitNamespaceMappings.entrySet()) {
+            nsMap.add(mapping.getValue(), mapping.getKey());
+        }
+        
+        if (!explicitNamespaceMappings.containsKey(WSDLConstants.NU_SCHEMA_XSD)) {
+            nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+        }
+        if (!explicitNamespaceMappings.containsKey(serviceInfo.getTargetNamespace())) {
+            nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, serviceInfo.getTargetNamespace());
+        }
         schema.setNamespaceContext(nsMap);
         serviceInfo.addSchema(schemaInfo);
         return schemaInfo;
@@ -1145,7 +1158,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                    new QName(op.getName().getNamespaceURI(), exClass.getSimpleName()));
         fi.setProperty(Class.class.getName(), exClass);
         fi.setProperty("elementName", faultName);
-        MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(), "fault"));
+        MessagePartInfo mpi = fi.addMessagePart(new QName(faultName.getNamespaceURI(),
+                                                          exClass.getSimpleName()));
         mpi.setElementQName(faultName);
         mpi.setTypeClass(beanClass);
         return fi;
