@@ -91,21 +91,7 @@
             <version>${project.version}</version>
         </dependency>
         
-        
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools-java2ws</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-	           <exclusion>
-	               <groupId>org.apache.cxf</groupId>
-	               <artifactId>cxf-rt-frontend-simple</artifactId>
-	               <version>${project.version}</version>
-	           </exclusion>
-            </exclusions>
-        </dependency>        
-        
-
+              
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
