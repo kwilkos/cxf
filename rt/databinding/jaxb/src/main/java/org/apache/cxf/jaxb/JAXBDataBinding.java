@@ -220,8 +220,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                     try {
                         DOMUtils.writeXml(r.getNode(), System.out);
                     } catch (TransformerException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
                     addSchemaDocument(serviceInfo, col, 
                                       (Document)r.getNode(), r.getSystemId());
@@ -400,8 +399,8 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     
     
     //Now we can not add all the classes that Jaxb needed into JaxbContext, especially when 
-    //an ObjectFactroy is pointed by an jaxb @XmlElementDecl annotation
-    //added this workaround method to load the jaxb needed OjbectFactory class
+    //an ObjectFactory is pointed to by an jaxb @XmlElementDecl annotation
+    //added this workaround method to load the jaxb needed ObjectFactory class
     public boolean addJaxbObjectFactory(JAXBException e1) {
         boolean added = false;
         java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
@@ -426,6 +425,14 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             
         }
         return added;
+    }
+
+    /**
+     * Jaxb has no declared namespace prefixes.
+     * {@inheritDoc}
+     */
+    public Map<String, String> getDeclaredNamespaceMappings() {
+        return null;
     }
     
     

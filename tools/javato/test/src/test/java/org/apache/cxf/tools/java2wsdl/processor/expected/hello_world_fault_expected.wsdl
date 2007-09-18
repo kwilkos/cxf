@@ -67,11 +67,11 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="BadRecordLitFault">
-    <wsdl:part name="fault" element="ns1:BadRecordLit">
+    <wsdl:part name="BadRecordLitFault" element="ns1:BadRecordLit">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="NoSuchCodeLitFault">
-    <wsdl:part name="fault" element="ns1:NoSuchCodeLit">
+    <wsdl:part name="NoSuchCodeLitFault" element="ns1:NoSuchCodeLit">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="testDocLitFault">

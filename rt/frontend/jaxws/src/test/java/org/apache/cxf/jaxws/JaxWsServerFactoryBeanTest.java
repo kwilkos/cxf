@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.calculator.CalculatorImpl;
 import org.apache.cxf.calculator.CalculatorPortType;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
@@ -129,6 +130,7 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
     public void testJaxwsServiceClass() throws Exception {
         JaxWsServerFactoryBean factory = new JaxWsServerFactoryBean();
         factory.setServiceClass(CalculatorPortType.class);
+        factory.setServiceBean(new CalculatorImpl());
         String address = "http://localhost:9001/jaxwstest";
         factory.setAddress(address);
         Server server = factory.create();

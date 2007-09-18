@@ -163,6 +163,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
 
         TypeClassInfo info = new TypeClassInfo();
         info.setTypeClass(pd.getReadMethod().getReturnType());
+        info.setDescription("property " + pd);
         readMetadata(info, mapping, propertyEl);
 
         return info;
@@ -293,6 +294,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
 
         // find the elements that apply to the specified method
         TypeClassInfo info = new TypeClassInfo();
+        info.setDescription("method " + m.getName() + " parameter " + index);
         if (index >= 0) {
             if (index >= m.getParameterTypes().length) {
                 throw new DatabindingException("Method " + m 
@@ -430,6 +432,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
             }
 
             TypeClassInfo componentInfo = new TypeClassInfo();
+            componentInfo.setDescription("generic component " + componentInfo.getDescription());
             readMetadata(componentInfo, mapping, propertyEl);
             String className = propertyEl.getAttributeValue("class");
             if (className == null) {

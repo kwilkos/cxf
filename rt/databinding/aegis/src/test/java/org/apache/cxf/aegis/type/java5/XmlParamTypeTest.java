@@ -64,7 +64,7 @@ public class XmlParamTypeTest extends AbstractAegisTest {
 
     @Test
     public void testMapServiceWSDL() throws Exception {
-        createService(CustomTypeService.class, null);
+        createService(CustomTypeService.class, new CustomTypeService(), null);
 
         Document wsdl = getWSDLDocument("CustomTypeService");
         assertValid("//xsd:element[@name='s'][@type='ns0:custom']", wsdl);

@@ -32,7 +32,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.databinding.AbstractDataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.interceptor.Fault;
@@ -45,7 +45,7 @@ import org.apache.cxf.staxutils.StaxUtils;
  * A simple databinding implementation which reads and writes Source objects.
  * This will not work with the standard databinding interceptors.
  */
-public class StaxDataBinding implements DataBinding {
+public class StaxDataBinding extends AbstractDataBinding {
 
     private XMLStreamDataReader xsrReader;
     private XMLStreamDataWriter xswWriter;

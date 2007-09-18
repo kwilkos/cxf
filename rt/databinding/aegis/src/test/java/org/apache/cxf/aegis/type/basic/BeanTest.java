@@ -375,7 +375,7 @@ public class BeanTest extends AbstractAegisTest {
         type.setSchemaType(new QName("urn:Bean", "bean"));
 
         PropertyDescriptor[] pds = info.getPropertyDescriptors();
-        assertEquals(2, pds.length);
+        assertEquals(3, pds.length);
 
         ExtendedBean bean = new ExtendedBean();
         bean.setHowdy("howdy");
