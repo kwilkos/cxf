@@ -185,7 +185,8 @@ public class ObjectType extends Type {
                 tm.register(type);
             }
 
-            String prefix = writer.getPrefixForNamespace(type.getSchemaType().getNamespaceURI());
+            String prefix = writer.getPrefixForNamespace(type.getSchemaType().getNamespaceURI(),
+                                                         type.getSchemaType().getPrefix());
 
             if (null == prefix || prefix.length() == 0) {
                 addXsiType(writer, type.getSchemaType().getLocalPart());

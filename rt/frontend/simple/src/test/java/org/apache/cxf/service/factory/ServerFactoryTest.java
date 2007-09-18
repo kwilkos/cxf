@@ -46,6 +46,7 @@ public class ServerFactoryTest extends AbstractSimpleFrontendTest {
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");
         svrBean.setServiceClass(HelloService.class);
+        svrBean.setServiceBean(new HelloServiceImpl());
         svrBean.setBus(getBus());
         svrBean.setDestinationFactory(new CustomDestinationFactory());
 
@@ -53,12 +54,13 @@ public class ServerFactoryTest extends AbstractSimpleFrontendTest {
         assertTrue(server.getDestination() instanceof CustomDestination);
     }
     
+        
     @SuppressWarnings("unchecked")
     @Test
     public void testJaxbExtraClass() throws Exception {
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");
-        svrBean.setServiceClass(HelloService.class);
+        svrBean.setServiceClass(HelloServiceImpl.class);
         svrBean.setBus(getBus());
 
         Map props = svrBean.getProperties();

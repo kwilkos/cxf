@@ -17,12 +17,8 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<mappings xmlns:anns="urn:AddNumbers">
-    <mapping name="anns:AddNumbers">
-        <method name="add">
-            <parameter index="0" mappedName="value1" />
-            <parameter index="1" mappedName="value2"/>
-            <return-type mappedName="sum"/>
-        </method>
+<mappings>
+    <mapping name="SimpleBean">
+    	<property name='numbers' nillable='false' minOccurs='2' maxOccurs='50' />
     </mapping>
 </mappings>

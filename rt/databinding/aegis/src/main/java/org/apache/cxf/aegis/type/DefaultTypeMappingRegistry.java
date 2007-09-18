@@ -78,7 +78,8 @@ import org.jdom.Element;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 22, 2004
  */
-public final class DefaultTypeMappingRegistry implements TypeMappingRegistry {
+public final class DefaultTypeMappingRegistry extends AbstractTypeMappingRegistry 
+    implements TypeMappingRegistry {
     static final QName XSD_STRING = new QName(XmlConstants.XSD, "string", XmlConstants.XSD_PREFIX);
     static final QName XSD_LONG = new QName(XmlConstants.XSD, "long", XmlConstants.XSD_PREFIX);
     static final QName XSD_FLOAT = new QName(XmlConstants.XSD, "float", XmlConstants.XSD_PREFIX);
@@ -133,8 +134,6 @@ public final class DefaultTypeMappingRegistry implements TypeMappingRegistry {
 
     private TypeCreator typeCreator;
 
-    private Configuration typeConfiguration;
-
     public DefaultTypeMappingRegistry() {
         this(false);
     }
@@ -147,7 +146,6 @@ public final class DefaultTypeMappingRegistry implements TypeMappingRegistry {
         registry = Collections.synchronizedMap(new HashMap<String, TypeMapping>());
 
         this.typeCreator = typeCreator;
-        this.typeConfiguration = new Configuration();
 
         if (createDefault) {
             createDefaultMappings();
@@ -435,13 +433,4 @@ public final class DefaultTypeMappingRegistry implements TypeMappingRegistry {
 
         tm.register(class1, name, type);
     }
-
-    public Configuration getConfiguration() {
-        return typeConfiguration;
-    }
-
-    public void setConfiguration(Configuration tpConfiguration) {
-        this.typeConfiguration = tpConfiguration;
-    }
-
 }

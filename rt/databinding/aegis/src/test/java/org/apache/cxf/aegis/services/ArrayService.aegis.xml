@@ -17,12 +17,10 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<mappings xmlns:anns="urn:AddNumbers">
-    <mapping name="anns:AddNumbers">
-        <method name="add">
-            <parameter index="0" mappedName="value1" />
-            <parameter index="1" mappedName="value2"/>
-            <return-type mappedName="sum"/>
+<mappings>
+    <mapping name="ArrayService">
+        <method name="submitStringArray">
+            <parameter index="0" minOccurs='2' maxOccurs='50' />
         </method>
     </mapping>
 </mappings>

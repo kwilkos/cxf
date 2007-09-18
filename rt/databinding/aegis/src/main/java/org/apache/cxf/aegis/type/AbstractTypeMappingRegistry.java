@@ -16,13 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.services;
 
-public class AddNumbers {
-    public int add(int one, int two) {
-        return one + two;
+package org.apache.cxf.aegis.type;
+
+/**
+ * 
+ */
+public abstract class AbstractTypeMappingRegistry implements TypeMappingRegistry {
+    private Configuration configuration = new Configuration();
+
+    /** 
+     * @return Returns the configuration.
+     */
+    public Configuration getConfiguration() {
+        return configuration;
     }
-    public int unmappedAdd(int one, int two) {
-        return two + one;
+
+    /**
+     * @param configuration The configuration to set.
+     */
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 }

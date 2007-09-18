@@ -37,6 +37,7 @@ public class DefaultTypeCreator extends AbstractTypeCreator {
     @Override
     public TypeClassInfo createClassInfo(Method m, int index) {
         TypeClassInfo info = new TypeClassInfo();
+        info.setDescription("method " + m.getName() + " parameter " + index);
 
         if (index >= 0) {
             info.setTypeClass(m.getParameterTypes()[index]);

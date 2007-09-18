@@ -114,4 +114,14 @@ public interface TypeMappingRegistry {
      * TypeMappingRegistry.
      */
     void clear();
+    
+    /**
+     * Set the type configuration for this type mapping registry.
+     * @param configuration
+     */
+    void setConfiguration(Configuration configuration);
+    /**
+     * @return the configuration.
+     */
+    Configuration getConfiguration();
 }

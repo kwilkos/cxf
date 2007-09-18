@@ -72,7 +72,7 @@ public abstract class JAXBDataBase {
         return new JAXBAttachmentUnmarshaller(attachments);
     }
 
-    protected AttachmentMarshaller getAttachmentMarrshaller() {
+    protected AttachmentMarshaller getAttachmentMarshaller() {
         return new JAXBAttachmentMarshaller(attachments);
     }
     
