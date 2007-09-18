@@ -23,4 +23,6 @@
              classname="org.apache.cxf.ant.extensions.WSDL2JavaTask"/>
     <taskdef name="java2wsdl"
              classname="org.apache.cxf.ant.extensions.Java2WSDLTask"/>
+    <taskdef name="java2wsd"
+             classname="org.apache.cxf.ant.extensions.Java2WSTask"/>             
 </antlib>

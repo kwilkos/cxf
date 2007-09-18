@@ -43,6 +43,14 @@
             <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+         <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-java2ws</artifactId>
+            <version>${project.version}</version>
+        </dependency>       
+        
+        
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
