@@ -31,7 +31,7 @@ public class MissingTypeWSDLTest extends AbstractAegisTest {
     
     @Test
     public void testMissingTransliteration() throws Exception {
-        Server server = createService(MissingType.class, null);
+        Server server = createService(MissingType.class, new MissingTypeImpl(), null);
         Service service = server.getEndpoint().getService();
         service.setInvoker(new BeanInvoker(new MissingTypeImpl()));
         ClientProxyFactoryBean proxyFac = new ClientProxyFactoryBean();

@@ -55,6 +55,7 @@ public class CodeFirstWSDLTest extends AbstractJaxWsTest {
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setServiceFactory(bean);
+        svrFactory.setServiceBean(clazz.newInstance());
         svrFactory.setAddress(address);
         svrFactory.create();
         

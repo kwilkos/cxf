@@ -56,7 +56,11 @@ public final class NamespaceHelper {
     public static String getUniquePrefix(Element element, String namespaceURI) {
         String prefix = getPrefix(element, namespaceURI);
 
+        // it is OK to have both namespace URI and prefix be empty. 
         if (prefix == null) {
+            if ("".equals(namespaceURI)) {
+                return "";
+            }
             prefix = getUniquePrefix(element);
             element.addNamespaceDeclaration(Namespace.getNamespace(prefix, namespaceURI));
         }

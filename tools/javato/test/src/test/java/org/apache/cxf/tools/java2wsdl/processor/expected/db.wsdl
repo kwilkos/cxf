@@ -53,7 +53,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="DBServiceFault">
-    <wsdl:part name="fault" element="tns:DBServiceFault">
+    <wsdl:part name="DBServiceFault" element="tns:DBServiceFault">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="operation0Response">

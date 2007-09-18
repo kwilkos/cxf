@@ -138,6 +138,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");
         svrBean.setServiceFactory(serviceFactory);
+        svrBean.setServiceBean(new HelloServiceImpl());
         svrBean.setBus(getBus());
         
         Map<String, Object> props = new HashMap<String, Object>();

@@ -50,7 +50,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="AddException">
-    <wsdl:part name="fault" element="tns:AddException">
+    <wsdl:part name="AddException" element="tns:AddException">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="CalculatorPortType">
