@@ -31,6 +31,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.w3c.dom.Node;
+
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
@@ -106,6 +108,8 @@ public class AegisDatabinding implements DataBinding {
     public <T> DataWriter<T> createWriter(Class<T> cls) {
         if (cls.equals(XMLStreamWriter.class)) {
             return (DataWriter<T>)new XMLStreamDataWriter(this);
+        } else if (cls.equals(Node.class)) {
+            return (DataWriter<T>) new ElementDataWriter(this);
         } else {
             throw new UnsupportedOperationException();
         }
