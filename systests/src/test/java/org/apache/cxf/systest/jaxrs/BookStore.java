@@ -51,7 +51,7 @@ public class BookStore {
         
         CD cd = new CD();
         cd.setId(cdId);
-        cd.setName("BOHEMIAN RHAYSODY");
+        cd.setName("BOHEMIAN RHAPSODY");
         cds.add(cd);
         CD cd1 = new CD();
         cd1.setId(++cdId);
