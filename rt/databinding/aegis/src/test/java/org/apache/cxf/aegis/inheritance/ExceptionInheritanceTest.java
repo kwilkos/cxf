@@ -63,14 +63,15 @@ public class ExceptionInheritanceTest extends AbstractAegisTest {
         
         client = (WS1) pf.create();
 
-        Server server = createService(WS1.class, "WS1", null);
+        Server server = createService(WS1.class, new WS1Impl(), "WS1", null);
         new LoggingFeature().initialize(server, null);
         server.getEndpoint().getService().setInvoker(new BeanInvoker(new WS1Impl()));
     }
 
     @Override
-    protected ServerFactoryBean createServiceFactory(Class serviceClass, String address, QName name) {
-        ServerFactoryBean sf = super.createServiceFactory(serviceClass, address, name);
+    protected ServerFactoryBean createServiceFactory(Class serviceClass, 
+                                                     Object serviceBean, String address, QName name) {
+        ServerFactoryBean sf = super.createServiceFactory(serviceClass, serviceBean, address, name);
         sf.getServiceFactory().setProperties(props);
         return sf;
     }

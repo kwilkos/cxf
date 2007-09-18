@@ -44,7 +44,7 @@ public class InheritancePOJOTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        ServerFactoryBean sf = createServiceFactory(InheritanceService.class, "InheritanceService",
+        ServerFactoryBean sf = createServiceFactory(InheritanceService.class, null, "InheritanceService",
                                                     new QName("urn:xfire:inheritance", "InheritanceService"));
 
         Map<String, Object> props = new HashMap<String, Object>();

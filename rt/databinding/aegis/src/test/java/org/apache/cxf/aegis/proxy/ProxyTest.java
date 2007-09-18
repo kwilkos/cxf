@@ -33,7 +33,7 @@ public class ProxyTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Server s = createService(HelloProxyService.class, null);
+        Server s = createService(HelloProxyService.class, new HelloProxyServiceImpl(), null);
         s.getEndpoint().getService().setInvoker(new BeanInvoker(new HelloProxyServiceImpl()));
     }
 

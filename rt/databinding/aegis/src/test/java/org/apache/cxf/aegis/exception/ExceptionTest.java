@@ -30,7 +30,7 @@ public class ExceptionTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Server s = createService(ExceptionService.class, null);
+        Server s = createService(ExceptionService.class, new ExceptionServiceImpl(), null);
         s.getEndpoint().getService().setInvoker(new BeanInvoker(new ExceptionServiceImpl()));
     }
 

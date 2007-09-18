@@ -110,18 +110,26 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
     }
     
     public Server createService(Class serviceClass, QName name) {
-        return createService(serviceClass, serviceClass.getSimpleName(), name);
+        return createService(serviceClass, null, name);
     }
     
-    public Server createService(Class serviceClass, 
+    public Server createService(Class serviceClass, Object serviceBean, QName name) {
+        return createService(serviceClass, serviceBean, serviceClass.getSimpleName(), name);
+    }
+    
+    public Server createService(Class serviceClass, Object serviceBean, 
                                 String address, QName name) {
-        ServerFactoryBean sf = createServiceFactory(serviceClass, address, name);
+        ServerFactoryBean sf = createServiceFactory(serviceClass, serviceBean, address, name);
         return sf.create();
     }
 
-    protected ServerFactoryBean createServiceFactory(Class serviceClass, String address, QName name) {
+    protected ServerFactoryBean createServiceFactory(Class serviceClass, 
+                                                     Object serviceBean, String address, QName name) {
         ServerFactoryBean sf = new ServerFactoryBean();
         sf.setServiceClass(serviceClass);
+        if (serviceBean != null) {
+            sf.setServiceBean(serviceBean);
+        }    
         sf.getServiceFactory().setServiceName(name);
         sf.setAddress("local://" + address);
         setupAegis(sf);
