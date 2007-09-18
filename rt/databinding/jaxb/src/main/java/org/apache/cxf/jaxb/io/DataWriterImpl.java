@@ -43,8 +43,6 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
                                         getAttachmentMarshaller());
         } else if (obj == null && needToRender(obj, part)) {
             JAXBEncoderDecoder.marshallNullElement(getJAXBContext(), getSchema(), output, part);
-        } else if (obj == null && needToRender(obj, part)) {
-            JAXBEncoderDecoder.marshallNullElement(getJAXBContext(), getSchema(), output, part);
         }
     }
 
