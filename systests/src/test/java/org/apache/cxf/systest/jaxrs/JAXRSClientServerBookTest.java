@@ -33,6 +33,7 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -158,10 +159,25 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             post.releaseConnection();
         }               
     } 
-    
-    
+        
     @Test
     public void testGetCDs() throws Exception {
+        String endpointAddress =
+            "http://localhost:9080/xml/bookstore/cds"; 
+        URL url = new URL(endpointAddress);
+        InputStream in = url.openStream();
+        assertNotNull(in);           
+
+        InputStream expected = getClass()
+            .getResourceAsStream("resources/expected_get_cds.txt");
+
+        //System.out.println("---" + getStringFromInputStream(in));
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+    }
+    
+    @Test
+    @Ignore
+    public void testGetCDsJSON() throws Exception {
         String endpointAddress =
             "http://localhost:9080/xml/bookstore/cds"; 
         URL url = new URL(endpointAddress);

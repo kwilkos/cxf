@@ -22,6 +22,7 @@ package org.apache.cxf.jaxrs.interceptor;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
@@ -81,7 +82,16 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             EntityProvider provider = ProviderFactory.getInstance().createEntityProvider(targetType);
 
             try {
+                //TODO: decide the output media type based on resource method/resource class/provider
+                ProduceMime c = provider.getClass().getAnnotation(ProduceMime.class);
+                String[] mineType = {"*/*"};
+                if (c != null) {
+                    mineType = c.value();               
+                }
+                message.put(Message.CONTENT_TYPE, mineType[0]);
+                
                 provider.writeTo(responseObj, null, out);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }        

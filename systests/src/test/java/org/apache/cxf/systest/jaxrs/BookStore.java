@@ -26,6 +26,7 @@ import java.util.List;
 
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.HttpContext;
@@ -72,6 +73,21 @@ public class BookStore {
     @UriTemplate("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) {
         System.out.println("----invoking getBook with cdId: " + id);
+        long idNumber = Long.parseLong(id);
+        for (Book b : books) {
+            if (idNumber == b.getId()) {
+                return b;
+            }
+        }
+        
+        return null;
+    }
+    
+    @HttpMethod("GET")
+    @UriTemplate("/books/{bookId}/")
+    @ProduceMime("application/json")
+    public Book getBookJSON(@UriParam("bookId") String id) {
+        System.out.println("----invoking getBookJSON with cdId: " + id);
         long idNumber = Long.parseLong(id);
         for (Book b : books) {
             if (idNumber == b.getId()) {

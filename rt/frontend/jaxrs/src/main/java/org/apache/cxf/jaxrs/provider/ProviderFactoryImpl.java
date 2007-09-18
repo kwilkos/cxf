@@ -20,8 +20,11 @@
 package org.apache.cxf.jaxrs.provider;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.core.Response.Builder;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.HeaderProvider;
@@ -37,7 +40,9 @@ public class ProviderFactoryImpl extends ProviderFactory {
     public ProviderFactoryImpl() {
         //TODO: search for EntityProviders from classpath or config file.
         entityProviders.add(new JAXBElementProvider());
-        //sort();
+        entityProviders.add(new JSONProvider());
+
+        sort();
     }
     
     public <T> T createInstance(Class<T> type) {
@@ -75,8 +80,33 @@ public class ProviderFactoryImpl extends ProviderFactory {
      * explicitly lists a media types is sorted before a provider that lists *. 
      * Quality parameter values are also used such that x/y;q=1.0 < x/y;q=0.7.
      */    
-    protected void sort() {
+    private void sort() {
+        Collections.sort(entityProviders, new EntityProviderComparator());
+    }
+    
+    
+    private static class EntityProviderComparator implements Comparator<EntityProvider> {
+        public int compare(EntityProvider e1, EntityProvider e2) {
+            ConsumeMime c = e1.getClass().getAnnotation(ConsumeMime.class);
+            String[] mineType1 = {"*/*"};
+            if (c != null) {
+                mineType1 = c.value();               
+            }
+            
+            ConsumeMime c2 = e2.getClass().getAnnotation(ConsumeMime.class);
+            String[] mineType2 = {"*/*"};
+            if (c2 != null) {
+                mineType2 = c2.value();               
+            }
+
+            return compareString(mineType1[0], mineType2[0]);
+            
+        }
         
+        private int compareString(String str1, String str2) {
+            //TODO:
+            return str2.compareTo(str1);
+        }
     }
 
 }
