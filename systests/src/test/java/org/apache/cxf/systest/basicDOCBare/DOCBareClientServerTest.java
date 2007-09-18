@@ -98,6 +98,20 @@ public class DOCBareClientServerTest extends AbstractBusClientServerTestBase {
             }
         }
     }
+    
+    @Test
+    public void testNillableParameter() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/doc_lit_bare.wsdl");
+        assertNotNull("WSDL is null", wsdl);
+
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull("Service is null", service);
+
+        PutLastTradedPricePortType port = service.getPort(portName,
+                                                          PutLastTradedPricePortType.class);
+        String result = port.nillableParameter(null);
+        assertNull(result);
+    } 
 
 
 }

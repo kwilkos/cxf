@@ -19,6 +19,7 @@
 
 package org.apache.cxf.systest.outofband.header;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+
 import org.w3c.dom.Node;
 
 import org.apache.cxf.headers.Header;
@@ -39,6 +41,7 @@ import org.apache.cxf.outofband.header.ObjectFactory;
 import org.apache.cxf.outofband.header.OutofBandHeader;
 import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
+
 
 
 
@@ -140,6 +143,10 @@ public class OOBHdrServiceImpl implements PutLastTradedPricePortType {
     
     public String bareNoParam() {
         return "testResponse";
+    }
+
+    public String nillableParameter(BigDecimal theRequest) {
+        return null;
     }
    
 
