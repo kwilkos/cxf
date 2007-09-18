@@ -23,5 +23,21 @@ are generated from schema available here:
 This Product also includes software developed by David Heinemeier Hansson.
    (http://dev.rubyonrails.org/browser/trunk/activesupport/lib/active_support/inflections.rb)
 
+
+Portions of the included XmlSchema library are Copyright 2006 International Business Machines Corp.
+
+
+Portions of the included xml-apis library were originally based on the following:
+   - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+   - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+   - software copyright (c) 2000 World Wide Web Consortium, http://www.w3.org
+
+
+Portions of the included xbean library were originally based on the following:
+   - software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
+
+
 Additional copyright notices and license terms applicable are
 present in the licenses directory of this distribution.
+
+

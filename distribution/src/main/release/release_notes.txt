@@ -49,6 +49,17 @@ After installing Apache Ant, add the <AntInstallDir>/bin directory to your PATH.
 
 For more details, see the Installation Guide.
 
+
+2.3 Bouncy Castle/JCE requirement for WS-Security
+
+To use the WS-Security features of CXF, you need to obtain a JCE crypto provider
+that implements the algorithms that you plan to use. One option is to download 
+the Bouncy Castle jar from:
+http://bouncycastle.org/download/bcprov-jdk14-136.jar 
+and add that to the lib directory or classpath.   
+
+
+
 3. Building the Samples
 
 Building the samples included in the binary distribution is easy. Change to
