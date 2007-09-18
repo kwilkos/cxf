@@ -64,8 +64,13 @@ JDOM Licensed:  (NOTICE included in jar as well as in distro)
  !????? ./rt/databinding/aegis/src/main/generated/org/apache/cxf/aegis/util/jdom/StaxBuilder.java
 
 
+Generated:
+ !????? ./integration/jbi/src/test/resources/service-assemblies/cxf-demo-service-assembly/version_1/sus/CXFServiceEngine/JBIDemoSE_AProvider/META-INF/MANIFEST.MF
+
+
 "Binary" files (may be text files, but they are uses as sample "wire dumps" to 
-test various things and/or as direct string compares of generated data.
+test various things and/or as direct string compares of generated data.  Some may be changed as
+part of the work around CXF-1000:
  !????? ./common/common/src/test/java/org/apache/cxf/helpers/resources/test.xml
  !????? ./tools/jdee/src/main/java/org/apache/cxf/maven_plugin/jdee/prj.vm
  !????? ./tools/wsdlto/core/src/main/java/org/apache/cxf/tools/wsdlto/namespace2package.cfg
@@ -192,7 +197,35 @@ test various things and/or as direct string compares of generated data.
  !????? ./rt/ws/security/src/test/java/org/apache/cxf/ws/security/wss4j/signed_invalid.xml
  !????? ./rt/ws/security/src/test/java/org/apache/cxf/ws/security/wss4j/wsse-request-clean.xml
  !????? ./rt/bindings/http/src/test/java/org/apache/cxf/binding/http/mtom/addPerson
-
+ !????? ./rt/databinding/jaxb/src/test/java/org/apache/cxf/jaxb/resources/emptyReq.xml
+ !????? ./rt/frontend/simple/src/test/java/org/apache/cxf/frontend/soap/soap11.xml
+ !????? ./rt/frontend/simple/src/test/java/org/apache/cxf/frontend/soap/soap12.xml
+ !????? ./rt/frontend/simple/src/test/java/org/apache/cxf/service/stax/req.xml
+ !????? ./rt/frontend/jaxws/src/test/java/org/apache/cxf/jaxws/service/echoFoo.xsd
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/client/Echo.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/inheritance/GetEmployee.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/inheritance/ReceiveEmployee.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/integration/bean11.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/array/DuplicateArrayReturnItem.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/BadBeanDescriptor.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/EchoData.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/GetData.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/MyInterface.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/MyInterface2.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/AnnotatedBean3.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/CollectionTest$CollectionService.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/DualOutService.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/echo11.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/missing/Inner.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/missing/Outer.aegis.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/missing/package.html
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/xml/stax/bean11.xml
+ !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/xml/stax/read1.xml
+ !????? ./distribution/src/main/release/samples/restful_http_binding/add.json
+ !????? ./distribution/src/main/release/samples/restful_http_binding/add.xml
+ !????? ./distribution/src/main/release/samples/restful_http_binding/index.html
+ !????? ./distribution/src/main/release/samples/restful_http_binding/update.xml
 
 MTOSI stuff:  (see NOTICE file)
  !????? ./distribution/src/main/release/samples/mtosi_1.1/wsdl/binding/soap_http/DiscoveryServiceSOAP.wsdl
@@ -284,44 +317,4 @@ MTOSI stuff:  (see NOTICE file)
  !????? ./distribution/src/main/release/samples/mtosi_1.1/xsd/networkResources/VendorExtensions.xsd
  !????? ./distribution/src/main/release/samples/mtosi_1.1/xsd/networkResources/VendorObject.xsd
 
-
-
-
-Still Looking:
- !????? ./distribution/src/main/release/samples/restful_http_binding/add.json
- !????? ./distribution/src/main/release/samples/restful_http_binding/add.xml
- !????? ./distribution/src/main/release/samples/restful_http_binding/index.html
- !????? ./distribution/src/main/release/samples/restful_http_binding/src/com/acme/customer/index.jaxb
- !????? ./distribution/src/main/release/samples/restful_http_binding/update.xml
- !????? ./integration/jbi/src/test/resources/service-assemblies/cxf-demo-service-assembly/version_1/sus/CXFServiceEngine/JBIDemoSE_AProvider/META-INF/MANIFEST.MF
- !????? ./rt/bindings/http/src/test/java/org/apache/cxf/binding/http/bare/index.jaxb
- !????? ./rt/bindings/http/src/test/java/org/apache/cxf/binding/http/wrapped/index.jaxb
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/client/Echo.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/inheritance/GetEmployee.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/inheritance/ReceiveEmployee.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/integration/bean11.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/array/DuplicateArrayReturnItem.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/BadBeanDescriptor.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/EchoData.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/GetData.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/MyInterface.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/basic/MyInterface2.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/AnnotatedBean3.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/CollectionTest$CollectionService.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/DualOutService.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/java5/echo11.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/missing/Inner.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/missing/Outer.aegis.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/type/missing/package.html
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/xml/stax/bean11.xml
- !????? ./rt/databinding/aegis/src/test/java/org/apache/cxf/aegis/xml/stax/read1.xml
- !????? ./rt/databinding/jaxb/src/test/java/org/apache/cxf/jaxb/resources/emptyReq.xml
- !????? ./rt/frontend/simple/src/test/java/org/apache/cxf/frontend/soap/soap11.xml
- !????? ./rt/frontend/simple/src/test/java/org/apache/cxf/frontend/soap/soap12.xml
- !????? ./rt/frontend/simple/src/test/java/org/apache/cxf/service/stax/req.xml
- !????? ./rt/frontend/jaxws/src/test/java/org/apache/cxf/jaxws/service/jaxb.index
- !????? ./rt/frontend/jaxws/src/test/java/org/apache/cxf/jaxws/service/echoFoo.xsd
- !????? ./systests/src/test/java/org/apache/cxf/systest/dispatch/client-config.xml
- !????? ./systests/src/test/java/org/apache/cxf/systest/jaxb/model/jaxb.index
 
