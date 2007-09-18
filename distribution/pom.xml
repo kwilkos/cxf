@@ -88,6 +88,13 @@
             <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-java2ws</artifactId>
+            <version>${pom.version}</version>
+        </dependency>        
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-xjc-dv</artifactId>

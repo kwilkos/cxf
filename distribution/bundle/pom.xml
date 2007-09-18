@@ -93,6 +93,14 @@
             <version>${pom.version}</version>
             <optional>true</optional>
         </dependency>
+        
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-tools-java2ws</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>        
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-xjc-ts</artifactId>
