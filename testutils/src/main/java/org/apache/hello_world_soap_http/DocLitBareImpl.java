@@ -19,6 +19,8 @@
 
 package org.apache.hello_world_soap_http;
 
+import java.math.BigDecimal;
+
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
@@ -55,5 +57,9 @@ public class DocLitBareImpl implements PutLastTradedPricePortType {
     
     public int getBareNoParamCount() {
         return bareNoParamCallCount;
+    }
+
+    public String nillableParameter(BigDecimal theRequest) {
+        return null;
     }
 }
