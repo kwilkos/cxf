@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal;
 
+import java.util.ArrayList;
+
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.JaxwsServiceBuilder;
 import org.apache.cxf.service.ServiceBuilder;
@@ -38,7 +40,8 @@ public class ServiceBuilderFactoryTest extends Assert {
     
     @Before
     public void setUp() {
-        applicationContext = JavaToWSDLProcessor.getApplicationContext(BusFactory.getDefaultBus());
+        applicationContext = JavaToWSDLProcessor.getApplicationContext(BusFactory.getDefaultBus(), 
+                                                                       new ArrayList<String>());
     }
     
     @Test

@@ -23,17 +23,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 
-import org.w3c.dom.Document;
 
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolTestBase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JavaToWSTest extends ToolTestBase {
@@ -50,11 +47,17 @@ public class JavaToWSTest extends ToolTestBase {
         output = new File(output, "/generated/");
         FileUtils.mkDir(output);
     }
-
+    
     @After
     public void tearDown() {
         super.tearDown();
         System.setProperty("java.class.path", cp);
+    }
+    
+    private File outputFile(String name) {
+        File f = new File(output.getPath() + File.separator + name);
+        f.delete();
+        return f;
     }
 
     @Test
@@ -66,143 +69,122 @@ public class JavaToWSTest extends ToolTestBase {
 
     @Test
     public void testFlagWSDL() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl",
-                                      "-d", output.getPath(), "-client", "-server",
-                                      "org.apache.hello_world_soap12_http.Greeter"};
+        File wsdlFile = outputFile("tmp.wsdl");
+        String[] args = new String[] {"-wsdl", "-o", wsdlFile.getAbsolutePath(), "-d", output.getPath(),
+                                      "-client", "-server", "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
-        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
+        checkStdErr();
         assertTrue("wsdl is not generated", wsdlFile.exists());
+    }
+
+    private void checkStdErr() {
+        String err = getStdErr();
+        if (err != null) {
+            assertEquals("errors: ", "", err);
+        }
     }
 
     @Test
     public void testSimple() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
-                                      "-d", output.getPath(),
-                                      "-frontend", "jaxws",
-                                      "-client", "-server",
+        File wsdlFile = outputFile("tmp.wsdl");
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+                                      output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
-        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
-        // TODO: validate the file.
+        checkStdErr();
         assertTrue("wsdl is not generated", wsdlFile.exists());
     }
     
     @Test
-    public void testAegis() throws Exception {
-        final String sei = "org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI";
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/aegis.wsdl", "-verbose", "-d",
-                                      output.getPath(), "-frontend", "jaxws", "-databinding", "aegis",
-                                      "-client", "-server", sei};
+    public void testMissingBeans() {
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+                                      output.getPath(), "-frontend", "jaxws", "-client", "-server",
+                                      "-beans", "nobodyHome.xml",
+                                      "-beans", "nothing.xml",
+                                      "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
-        File wsdlFile = new File(output.getPath() + "/aegis.wsdl");
-        assertTrue("wsdl is not generated", wsdlFile.exists());
-
-        WSDLReader reader =  WSDLFactory.newInstance().newWSDLReader();
-        reader.setFeature("javax.wsdl.verbose", false);
-        Definition def = reader.readWSDL(wsdlFile.toURL().toString());
-        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(def);
-        addNamespace("ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/");
-        assertValid("//xsd:element[@type='something']", wsdl);
-        assertXPathEquals("//namespace::ns0", "http://aegis2ws.fortest.tools.cxf.apache.org/", wsdl);
+        String err = getStdErr();
+        assertTrue("Missing file error message", 
+                   err.indexOf("Unable to open bean definition file nobodyHome.xml") >= 0);
     }
-
 
     @Test
     public void testClassNoWebServiceAnno() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
-                                      "-d", output.getPath(),
-                                      "-frontend", "jaxws",
-                                      "-client", "-server",
+        File wsdlFile = outputFile("tmp.wsdl");
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+                                      output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.HelloWithNoAnno"};
         JavaToWS.main(args);
-        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
-        assertTrue("Class does not carry WebService error should be detected"
-                   , getStdErr().indexOf("does not carry a WebService annotation") > -1);
+        assertTrue("Class does not carry WebService error should be detected", getStdErr()
+            .indexOf("does not carry a WebService annotation") > -1);
     }
 
     @Test
     public void testClassWithRMI() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose",
-                                      "-d", output.getPath(),
-                                      "-frontend", "jaxws",
-                                      "-client", "-server",
+        File wsdlFile = outputFile("tmp.wsdl");
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+                                      output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.HelloRMI"};
         JavaToWS.main(args);
-        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
         assertTrue("wsdl is not generated", wsdlFile.exists());
         assertTrue("Parameter or return type implemented java.rmi.Remote interface error should be detected",
                    getStdErr().indexOf("implemented the java.rmi.Remote interface") > -1);
     }
 
     @Test
+    @Ignore // CXF-1024
     public void testGenServerAndClient() throws Exception {
+        File client = outputFile("org/apache/hello_world_soap12_http/GreeterClient.java");
+        File server = outputFile("org/apache/hello_world_soap12_http/GreeterServer.java");
+
         String[] args = new String[] {"-d", output.getPath(), "-client", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
-        File client = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/GreeterClient.java");
-
+        checkStdErr();
         assertTrue("Client is not generated", client.exists());
-
-        File server = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/GreeterServer.java");
         assertTrue("Greeter_GreeterPort_Server.java is not generated", server.exists());
     }
 
-
-
     @Test
     public void testGenServerAndImpl() throws Exception {
+        File server = outputFile("org/apache/hello_world_soap12_http/GreeterServer.java");
+        File impl = outputFile("org/apache/hello_world_soap12_http/GreeterImpl.java");
+
         String[] args = new String[] {"-d", output.getPath(), "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
-
-        File server = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/GreeterServer.java");
+        checkStdErr();
         assertTrue("GreeterServer.java is not generated", server.exists());
-
-
-        File impl = new File(output.getPath()
-                               + "/org/apache/hello_world_soap12_http/GreeterImpl.java");
         assertTrue("GreeterImpl.java is not generated", impl.exists());
     }
 
     @Test
     public void testGenWrapperBean() throws Exception {
-        String[] args = new String[] {"-d", output.getPath(),
-                                      "-wrapperbean",
-                                      "-impl", "-server",
+        String[] args = new String[] {"-d", output.getPath(), "-wrapperbean", "-server",
                                       "org.apache.cxf.tools.java2ws.fortest.Calculator"};
         JavaToWS.main(args);
+        checkStdErr();
     }
-
 
     @Test
     public void testInvalidFlag() throws Exception {
         String[] args = new String[] {"-frontend", "tmp", "-wsdl", "-o", output.getPath() + "/tmp.wsdl",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
-        assertTrue("invalid frontend flag should be detected",
-                   getStdErr().indexOf("is not a valid frontend,") > -1);
-
-        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
-        assertTrue("wsdl is not generated", wsdlFile.exists());
+        assertTrue("invalid frontend flag should be detected", getStdErr()
+            .indexOf("is not a valid frontend,") > -1);
     }
 
     @Test
     public void testInvalidFlag2() throws Exception {
-        String[] args = new String[] {"-frontend", "simple", "-wrapperbean", "-wsdl",
-                                      "-o", output.getPath() + "/tmp.wsdl",
+        String[] args = new String[] {"-frontend", "simple", "-wrapperbean", "-wsdl", "-o",
+                                      output.getPath() + "/tmp.wsdl",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
-        assertTrue("wrapperbean flag error should be detected",
-                   getStdErr().indexOf("-wrapperbean is only valid for the jaxws front end.") > -1);
-        File wsdlFile = new File(output.getPath() + "/tmp.wsdl");
-        assertTrue("wsdl is not generated", wsdlFile.exists());
+        assertTrue("wrapperbean flag error should be detected", getStdErr()
+            .indexOf("-wrapperbean is only valid for the jaxws front end.") > -1);
     }
-
-
 
     protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();

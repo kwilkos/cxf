@@ -152,6 +152,15 @@
 					<annotation>target-namespace</annotation>
 				</associatedArgument>
 			</option>
+			
+			<option id="beans" maxOccurs="unbounded">
+				<annotation>Specify the pathname of a file defining additional Spring beans to customize databinding
+				configuration.</annotation>
+				<switch>beans</switch>
+				<associatedArgument placement="afterSpace">
+					<annotation>pathname of the bean definition file.</annotation>
+				</associatedArgument>
+			</option>
 
 			<option id="servicename" maxOccurs="1">
 				<annotation>

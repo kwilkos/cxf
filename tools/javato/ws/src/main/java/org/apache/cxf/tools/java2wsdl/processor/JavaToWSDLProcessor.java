@@ -49,10 +49,12 @@ import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WrapperBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilderFactory;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 public class JavaToWSDLProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
@@ -86,16 +88,23 @@ public class JavaToWSDLProcessor implements Processor {
      * @param bus
      * @return
      */
-    public static ApplicationContext getApplicationContext(Bus bus) {
+    public static ApplicationContext getApplicationContext(Bus bus, List<String> additionalFilePathnames) {
         BusApplicationContext busApplicationContext = bus.getExtension(BusApplicationContext.class);
         GenericApplicationContext appContext = new GenericApplicationContext(busApplicationContext);
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(appContext);
         reader.loadBeanDefinitions(new ClassPathResource("META-INF/cxf/java2wsbeans.xml"));
+        for (String pathname : additionalFilePathnames) {
+            try {
+                reader.loadBeanDefinitions(new FileSystemResource(pathname));
+            } catch (BeanDefinitionStoreException bdse) {
+                throw new ToolException("Unable to open bean definition file " + pathname, bdse.getCause());
+            }
+        }
+            
         return appContext;
     }
     
     public void process() throws ToolException {
-        applicationContext = getApplicationContext(getBus());
         String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
         LOG.log(Level.INFO, "OLD_CP", oldClassPath);
         if (context.get(ToolConstants.CFG_CLASSPATH) != null) {
@@ -163,8 +172,19 @@ public class JavaToWSDLProcessor implements Processor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public ServiceBuilder getServiceBuilder() throws ToolException {
-        applicationContext = getApplicationContext(getBus());
+        Object beanFilesParameter = context.get(ToolConstants.CFG_BEAN_CONFIG);
+        List<String> beanDefinitions = new ArrayList<String>();
+        if (beanFilesParameter != null) {
+            if (beanFilesParameter instanceof String) {
+                beanDefinitions.add((String)beanFilesParameter);
+            } else if (beanFilesParameter instanceof List) {
+                // is there a better way to avoid the warning?
+                beanDefinitions.addAll((List<String>)beanFilesParameter);
+            }
+        }
+        applicationContext = getApplicationContext(getBus(), beanDefinitions);
         ServiceBuilderFactory builderFactory = ServiceBuilderFactory.getInstance();
         Class<?> clz = getServiceClass();
         context.put(Class.class, clz);

@@ -71,7 +71,7 @@ public final class ToolConstants {
      */
     public static final String CFG_FRONTEND = "frontend";
 
-    public static final String CFG_DATABINDING = "db";
+    public static final String CFG_DATABINDING = "databinding";
 
     // WSDL2Java Constants
 

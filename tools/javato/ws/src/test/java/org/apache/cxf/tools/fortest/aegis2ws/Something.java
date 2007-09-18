@@ -22,7 +22,9 @@ package org.apache.cxf.tools.fortest.aegis2ws;
  * Test data type for Aegis in java2ws
  */
 public class Something {
+    // the .aegis.xml file sets no special properties on the following.
     private String multiple;
+    // the .aegis.xml file sets the following to minOccurs=1.
     private String singular;
     
     /**
