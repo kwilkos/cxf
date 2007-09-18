@@ -200,6 +200,27 @@ public final class JAXBEncoderDecoder {
     public static void marshall(JAXBContext context, Schema schema, Object elValue, Object source) {
         marshall(context, schema, elValue, null, source, null);
     }
+    
+    @SuppressWarnings("unchecked")
+    public static void marshallNullElement(JAXBContext context, Schema schema, 
+                                               Object source, MessagePartInfo part) {
+        Class<?> clazz = part != null ? (Class) part.getTypeClass() : null;
+        try {
+            Marshaller u = createMarshaller(context, clazz);
+            u.setSchema(schema);
+            try {
+                // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to
+                // generate the xml declaration.
+                u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+                u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+            } catch (javax.xml.bind.PropertyException e) {
+                // intentionally empty.
+            }
+            writeObject(u, source, new JAXBElement(part.getElementQName(), clazz, null));
+        } catch (JAXBException e) {
+            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE, e.getMessage()), e);
+        } 
+    }
 
     public static void marshall(JAXBContext context, Schema schema, 
                                 Object elValue, 

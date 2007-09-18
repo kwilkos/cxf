@@ -18,6 +18,8 @@
  */
 
 package org.apache.cxf.systest.basicDOCBare;
+import java.math.BigDecimal;
+
 import javax.xml.ws.Holder;
 
 import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
@@ -43,6 +45,9 @@ public class PutLastTradedPriceImpl implements PutLastTradedPricePortType {
     
     public String bareNoParam() {
         return "testResponse";
+    }
+    public String nillableParameter(BigDecimal theRequest) {
+        return null;
     }
    
 
