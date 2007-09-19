@@ -205,7 +205,7 @@ public class JavaToWSTest extends ToolTestBase {
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         assertTrue("jaxb databinding warning should be detected", getStdErr()
-                   .indexOf("simple front end only supports aegis databinding") > -1);
+                   .indexOf("Simple front end only supports aegis databinding") > -1);
     }
     
 
