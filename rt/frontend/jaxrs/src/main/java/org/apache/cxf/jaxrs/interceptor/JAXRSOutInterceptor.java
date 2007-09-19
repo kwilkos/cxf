@@ -22,13 +22,13 @@ package org.apache.cxf.jaxrs.interceptor;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.ProviderFactory;
 
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
+import org.apache.cxf.jaxrs.provider.ProviderFactoryImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -78,17 +78,17 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
                 targetType = ((List)responseObj).get(0).getClass();
                 
             }*/
+ 
+            //TODO: decide the output media type based on resource method/resource class/provider
+            String[] methodMineTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
             
-            EntityProvider provider = ProviderFactory.getInstance().createEntityProvider(targetType);
+            EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
+                .createEntityProvider(targetType, methodMineTypes, false);
 
             try {
-                //TODO: decide the output media type based on resource method/resource class/provider
-                ProduceMime c = provider.getClass().getAnnotation(ProduceMime.class);
-                String[] mineType = {"*/*"};
-                if (c != null) {
-                    mineType = c.value();               
+                if (!"*/*".equals(methodMineTypes[0])) {
+                    message.put(Message.CONTENT_TYPE, methodMineTypes[0]);
                 }
-                message.put(Message.CONTENT_TYPE, mineType[0]);
                 
                 provider.writeTo(responseObj, null, out);
 

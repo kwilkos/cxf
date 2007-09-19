@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.ws.rs.ConsumeMime;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.core.Response.Builder;
 import javax.ws.rs.ext.EntityProvider;
 import javax.ws.rs.ext.HeaderProvider;
@@ -64,6 +65,32 @@ public class ProviderFactoryImpl extends ProviderFactory {
     }
 
     @SuppressWarnings("unchecked")
+    public <T> EntityProvider<T> createEntityProvider(Class<T> type, String[] requestedMineTypes,
+                                                      boolean isConsumeMime) {
+
+        for (EntityProvider<T> ep : entityProviders) {
+            String[] supportedMimeTypes = {"*/*"};            
+            if (isConsumeMime) {
+                ConsumeMime c = ep.getClass().getAnnotation(ConsumeMime.class);
+                if (c != null) {
+                    supportedMimeTypes = c.value();               
+                }           
+            } else {
+                ProduceMime c = ep.getClass().getAnnotation(ProduceMime.class);
+                if (c != null) {
+                    supportedMimeTypes = c.value();               
+                }                  
+            }
+            
+            if (matchMineTypes(supportedMimeTypes, requestedMineTypes) && ep.supports(type)) {
+                return ep;
+            }
+        }     
+        
+        return null;
+    }
+    
+    @SuppressWarnings("unchecked")
     public <T> HeaderProvider<T> createHeaderProvider(Class<T> type) {
         for (HeaderProvider<T> hp : headerProviders) {
             if (hp.supports(type)) {
@@ -72,6 +99,19 @@ public class ProviderFactoryImpl extends ProviderFactory {
         }     
         
         return null;
+    }
+    
+    private boolean matchMineTypes(String[] supportedMimeTypes, String[] requestedMimeTypes) {
+        //TODO:
+        for (String supportedMimeType : supportedMimeTypes) {
+            for (String requestedMimeType : requestedMimeTypes) {
+                if (supportedMimeType.equals(requestedMimeType)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /*

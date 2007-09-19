@@ -83,21 +83,6 @@ public class BookStore {
         return null;
     }
     
-    @HttpMethod("GET")
-    @UriTemplate("/books/{bookId}/")
-    @ProduceMime("application/json")
-    public Book getBookJSON(@UriParam("bookId") String id) {
-        System.out.println("----invoking getBookJSON with cdId: " + id);
-        long idNumber = Long.parseLong(id);
-        for (Book b : books) {
-            if (idNumber == b.getId()) {
-                return b;
-            }
-        }
-        
-        return null;
-    }
-    
     @HttpMethod("POST")
     @UriTemplate("/books")
     public Response addBook(Book book) {
@@ -159,9 +144,14 @@ public class BookStore {
         return r;        
     }
     
-    @UriTemplate("/cds/{CDId}/")
-    public CD getCD(@UriParam("CDId") String id) {
-        System.out.println("----invoking getCD with cdId: " + id);
+    @HttpMethod("GET")
+    @UriTemplate("/cd/{CDId}/")
+    @ProduceMime("application/json")
+    //FIXME: getCDJSON and getCDs dont have to use different URLs, but we seems have problem 
+    //to match "/cds/" and "/cds/123" correctly using ".*?" as suggested by spec. The former
+    //one's pattern is "/cds/(/)?" the later one is "/cds/(.*?)(/)?
+    public CD getCDJSON(@UriParam("CDId") String id) {
+        System.out.println("----invoking getCDJSON with cdId: " + id);
         long idNumber = Long.parseLong(id);
         for (CD b : cds) {
             if (idNumber == b.getId()) {
@@ -179,6 +169,18 @@ public class BookStore {
         CDs c = new CDs();       
         c.setCD(cds);
         return c;
+    }
+
+    //FIXME: wont work if remove this method, has to set hasSubResource to true
+    @UriTemplate("/cds")
+    public Response addCD(CD cd) {
+/*        System.out.println("----invoking addCD, cd name is: " + cd.getName());
+        cd.setId(++cd);
+        
+        cds.add(cd);
+
+        return Response.Builder.ok(book).build();*/
+        return null;
     }
 }
 

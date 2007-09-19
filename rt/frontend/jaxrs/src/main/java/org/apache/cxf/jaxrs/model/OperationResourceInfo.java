@@ -22,9 +22,8 @@ package org.apache.cxf.jaxrs.model;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.ext.EntityProvider;
-
-import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 
 public class OperationResourceInfo {
     private URITemplate uriTemplate;
@@ -84,8 +83,23 @@ public class OperationResourceInfo {
         return entityProviderList;
     }
 
-    protected EntityProvider findEntityProvider() {
-        return new JAXBElementProvider();
-
+    public String[] getProduceMimeTypes() {
+        //TODO: 
+        /*
+         * These annotations MAY be applied to a resource class method, a
+         * resource class, or to an EntityProvider. Declarations on a resource
+         * class method override any on the resource class; declarations on an
+         * EntityProvider for a method argument or return type override those on
+         * a resource class or resource method. In the absence of either of
+         * these annotations, support for any media type (¡°*¡±) is assumed.
+         */   
+        
+        String[] mineTypes = {"*/*"};
+        ProduceMime c = method.getAnnotation(ProduceMime.class);
+        if (c != null) {
+            mineTypes = c.value();               
+        }
+        
+        return mineTypes;
     }
 }
