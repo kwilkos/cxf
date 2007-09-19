@@ -38,7 +38,8 @@
 		
 			<option id="databinding" maxOccurs="1">
 				<annotation>
-				    Specify the data binding (aegis or jaxb). Default jaxb.
+				    Specify the data binding (aegis or jaxb). Default is jaxb for jaxws 
+				    frontend, and aegis for simple frontend.
 				</annotation>
 				<switch>databinding</switch>
 				<associatedArgument placement="afterSpace">
@@ -47,24 +48,24 @@
 			</option>
 			<option id="frontend" maxOccurs="1">
 				<annotation>
-					Specify which frontend should be use, support jaxws and simple frontend.
+					Specify the frontend to use.  jaxws and the simple frontend are supported.
 				</annotation>
 				<switch>frontend</switch>
 				<associatedArgument placement="afterSpace">
-					<annotation>jaxws-or-simple</annotation>
+					<annotation>jaxws or simple</annotation>
 				</associatedArgument>
 			</option>
 
 			<option id="wsdl" maxOccurs="1">
 				<annotation>
-					Specify generating wsdl
+					Specify to generate the WSDL file
 				</annotation>
 				<switch>wsdl</switch>
 			</option>
 			
 			<option id="wrapperbean" maxOccurs="1">
 				<annotation>
-					Specify to genearte wrapper and fault bean
+					Specify to generate the wrapper and fault bean
 				</annotation>
 				<switch>wrapperbean</switch>
 			</option>

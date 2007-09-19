@@ -131,6 +131,7 @@ public class JavaToWSDLProcessor implements Processor {
         if (context.containsKey(ToolConstants.CFG_WRAPPERBEAN)) {
             generators.add(getWrapperBeanGenerator());
             generators.add(getFaultBeanGenerator());
+            
         }
         generate(service, outputDir);
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();

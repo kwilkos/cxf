@@ -23,11 +23,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-
-
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolTestBase;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -55,9 +54,7 @@ public class JavaToWSTest extends ToolTestBase {
     }
     
     private File outputFile(String name) {
-        File f = new File(output.getPath() + File.separator + name);
-        f.delete();
-        return f;
+        return new File(output.getPath() + File.separator + name);
     }
 
     @Test
@@ -74,7 +71,7 @@ public class JavaToWSTest extends ToolTestBase {
                                       "-client", "-server", "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
-        assertTrue("wsdl is not generated", wsdlFile.exists());
+        assertTrue("Failed to generate WSDL file", wsdlFile.exists());
     }
 
     private void checkStdErr() {
@@ -92,9 +89,23 @@ public class JavaToWSTest extends ToolTestBase {
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
-        assertTrue("wsdl is not generated", wsdlFile.exists());
+        assertTrue("Failed to generate WSDL file", wsdlFile.exists());
     }
     
+    @Test
+    public void testSimpleFrontend() throws Exception {
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+                                      output.getPath(), "-frontend", "simple", "-client", "-server",
+                                      "org.apache.cxf.tools.fortest.simple.Hello"};
+        JavaToWS.main(args);
+        File client = outputFile("org/apache/cxf/tools/fortest/simple/HelloPortTypeClient.java");
+        File server = outputFile("org/apache/cxf/tools/fortest/simple/HelloPortTypeServer.java");
+        File impl = outputFile("org/apache/cxf/tools/fortest/simple/HelloPortTypeImpl.java");
+        assertTrue("Failed to generate client file for simple front end ", client.exists());
+        assertTrue("Failed to generate server file for simple front end ", server.exists());
+        assertTrue("Failed to generate impl file for simple front end ", impl.exists());
+    }
+        
     @Test
     public void testMissingBeans() {
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
@@ -115,7 +126,7 @@ public class JavaToWSTest extends ToolTestBase {
                                       output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.HelloWithNoAnno"};
         JavaToWS.main(args);
-        assertTrue("wsdl is not generated", wsdlFile.exists());
+        assertTrue("Failed to generate WSDL file", wsdlFile.exists());
         assertTrue("Class does not carry WebService error should be detected", getStdErr()
             .indexOf("does not carry a WebService annotation") > -1);
     }
@@ -127,7 +138,7 @@ public class JavaToWSTest extends ToolTestBase {
                                       output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.HelloRMI"};
         JavaToWS.main(args);
-        assertTrue("wsdl is not generated", wsdlFile.exists());
+        assertTrue("Failed to generate WSDL file", wsdlFile.exists());
         assertTrue("Parameter or return type implemented java.rmi.Remote interface error should be detected",
                    getStdErr().indexOf("implemented the java.rmi.Remote interface") > -1);
     }
@@ -142,8 +153,8 @@ public class JavaToWSTest extends ToolTestBase {
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
-        assertTrue("Client is not generated", client.exists());
-        assertTrue("Greeter_GreeterPort_Server.java is not generated", server.exists());
+        assertTrue("Client was not generated", client.exists());
+        assertTrue("Greeter_GreeterPort_Server.java was not generated", server.exists());
     }
 
     @Test
@@ -155,8 +166,8 @@ public class JavaToWSTest extends ToolTestBase {
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
-        assertTrue("GreeterServer.java is not generated", server.exists());
-        assertTrue("GreeterImpl.java is not generated", impl.exists());
+        assertTrue("GreeterServer.java was not generated", server.exists());
+        assertTrue("GreeterImpl.java was not generated", impl.exists());
     }
 
     @Test
@@ -185,6 +196,18 @@ public class JavaToWSTest extends ToolTestBase {
         assertTrue("wrapperbean flag error should be detected", getStdErr()
             .indexOf("-wrapperbean is only valid for the jaxws front end.") > -1);
     }
+    
+    @Test
+    public void testInvalidFlag3() throws Exception {
+        String[] args = new String[] {"-databinding", "jaxb", "-frontend", "simple",
+                                      "-wsdl", "-o",
+                                      output.getPath() + "/tmp.wsdl",
+                                      "org.apache.hello_world_soap12_http.Greeter"};
+        JavaToWS.main(args);
+        assertTrue("jaxb databinding warning should be detected", getStdErr()
+                   .indexOf("simple front end only supports aegis databinding") > -1);
+    }
+    
 
     protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
