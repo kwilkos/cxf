@@ -30,6 +30,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.buslifecycle.BusLifeCycleListener;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.jsse.TLSServerParameters;
 
@@ -42,31 +44,19 @@ import org.apache.cxf.configuration.jsse.TLSServerParameters;
  * caches the JettyHTTPServerEngines so that they may be 
  * retrieved if already previously configured.
  */
-public class JettyHTTPServerEngineFactory {
+public class JettyHTTPServerEngineFactory implements BusLifeCycleListener {
     private static final Logger LOG =
         LogUtils.getL7dLogger(JettyHTTPServerEngineFactory.class);    
     
     /**
      * This map holds references for allocated ports.
      */
-    // All system tests do not shut down bus correctly,
-    // or the bus does not shutdown all endpoints correctly,
-    // so that these server endings are actuall shared amongst busses
-    // within the same JVM.
-    
-    // We will keep it static until we can resolve the problems 
-    // in the System tests.
-    // TODO: Fix the System Tests so that they shutdown the 
-    // buses that they are using and that the buses actually
-    // shutdown the destinations and their server engines
-    // properly. This will require a bit of lifecyle and reference
-    // counting on Destinations to server engines, if they are 
-    // going to be shared, but they should by no means be 
-    // shared accross buses, right?
+    // Still use the static map to hold the port information
+    // in the same JVM
     private static Map<Integer, JettyHTTPServerEngine> portMap =
         new HashMap<Integer, JettyHTTPServerEngine>();
    
-    
+    private BusLifeCycleManager lifeCycleManager;
     /**
      * This map holds the threading parameters that are to be applied
      * to new Engines when bound to the reference id.
@@ -89,7 +79,8 @@ public class JettyHTTPServerEngineFactory {
     
     public JettyHTTPServerEngineFactory() {
         // Empty
-    }
+    }    
+    
     
     /**
      * This call is used to set the bus. It should only be called once.
@@ -104,7 +95,13 @@ public class JettyHTTPServerEngineFactory {
     
     @PostConstruct
     public void registerWithBus() {
-        bus.setExtension(this, JettyHTTPServerEngineFactory.class);
+        if (bus != null) {
+            bus.setExtension(this, JettyHTTPServerEngineFactory.class);
+        }
+        lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
+        if (null != lifeCycleManager) {
+            lifeCycleManager.registerLifeCycleListener(this);
+        }        
     }
     
     
@@ -200,6 +197,29 @@ public class JettyHTTPServerEngineFactory {
     @PostConstruct
     public void finalizeConfig() {
         registerWithBus();
+    }
+
+    public void initComplete() {
+        // do nothing here
+        
+    }
+
+    public void postShutdown() {
+        // clean up the collections       
+        portMap.clear();
+        threadingParametersMap.clear();
+        tlsParametersMap.clear();
+    }
+
+    public void preShutdown() {
+        // shut down the jetty server in the portMap
+        // To avoid the CurrentModificationException, 
+        // do not use portMap.vaules directly
+       
+        JettyHTTPServerEngine[] engines = portMap.values().toArray(new JettyHTTPServerEngine[0]);
+        for (JettyHTTPServerEngine engine : engines) {
+            engine.shutdown();
+        }
     }
     
 }
