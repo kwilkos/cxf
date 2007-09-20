@@ -49,9 +49,6 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Server;
@@ -63,12 +60,6 @@ import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.core.resourceadapter.UriHandlerInit;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.transport.ConduitInitiatorManager;
-import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
-import org.apache.cxf.transport.http_jetty.JettyHTTPTransportFactory;
-import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 
 public class JCABusFactory {
@@ -90,7 +81,7 @@ public class JCABusFactory {
     protected String[] getBusArgs() throws ResourceException {
         //There is only setting up the BUSID        
         String busId = mcf.getConfigurationScope();
-        LOG.config("BUSid=" + busId);
+        LOG.fine("BUSid=" + busId);
 
         String busArgs[] = new String[2];
         busArgs[0] = "-BUSid";
@@ -98,56 +89,20 @@ public class JCABusFactory {
         return busArgs;
     }
 
-    protected Bus createBus(ClassLoader loader) throws ResourceException {
+    protected Bus createCXFBus() throws ResourceException {
         try {
-            //REVISIT we need to use the CXF defualt BusFactory
-            bf = org.apache.cxf.BusFactory.newInstance(getBusClassName());
+            bf = BusFactory.newInstance();
             bus = bf.createBus();
         } catch (Exception ex) {
             throw new ResourceAdapterInternalException("Failed to initialize cxf runtime", ex);
         }
-
         return bus;
-    }
-    
-    protected void initBus() throws ResourceException {
-        //REVISIT The Bus need to be init with context for better configuration
-        try {
-            SoapBindingFactory bindingFactory = new SoapBindingFactory();
-            bus.getExtension(BindingFactoryManager.class)
-                .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
-
-            DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-
-            SoapTransportFactory soapDF = new SoapTransportFactory();
-            soapDF.setBus(bus);
-            dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
-            dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
-            
-            AbstractHTTPTransportFactory httpTransport = new JettyHTTPTransportFactory();
-            dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/http", httpTransport);
-            //dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", httpTransport);
-            //dfm.registerDestinationFactory("http://cxf.apache.org/bindings/xformat", httpTransport);
-
-            ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
-            //extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, httpTransport);
-            extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", httpTransport);
-            extension.registerConduitInitiator("http://schemas.xmlsoap.org/http/http", httpTransport);
-            //extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/", httpTransport);
-            
-            bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
-
-        } catch (Exception ex) {
-            throw new ResourceAdapterInternalException("Failed to initialize cxf runtime", ex);
-        }
-    }
-    
-
+    }    
     
     protected synchronized void init() throws ResourceException {
-        LOG.config("initialising... the bus");
+        LOG.info("Initializing the CXF BUS....");
+        
         new UriHandlerInit();
-
         ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader cl = this.getClass().getClassLoader();
@@ -158,10 +113,8 @@ public class JCABusFactory {
             //TODO Check for the managed connection factory properties
             //TODO We may need get the configuration file from properties 
             //mcf.validateProperties();     
-            bus = createBus(cl);
-            initBus();
-            
-            initialiseServants();
+            bus = createCXFBus();
+            initializeServants();
         } catch (Exception ex) {
             if (ex instanceof ResourceAdapterInternalException) {
                 throw (ResourceException)ex;
@@ -175,7 +128,7 @@ public class JCABusFactory {
     }
 
     
-    void initialiseServants() throws ResourceException {
+    void initializeServants() throws ResourceException {
         if (isMonitorEJBServicePropertiesEnabled()) {            
             LOG.info("ejb service properties update enabled. ");
             startPropertiesMonitorThread();
@@ -203,14 +156,14 @@ public class JCABusFactory {
 
         deregisterServants(bus);
 
-        LOG.config("Initialising EJB endpoints...");
+        LOG.info("Initialising EJB endpoints...");
        
         Enumeration keys = ejbServants.keys();
 
         while (keys.hasMoreElements()) {
             String jndiName = (String)keys.nextElement();
             String serviceName = (String)ejbServants.getProperty(jndiName);
-            LOG.config("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
+            LOG.fine("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
             
             try {
                 initialiseServant(jndiName, serviceName);      
@@ -514,10 +467,6 @@ public class JCABusFactory {
         return wloc;
     }
     
-    
-    private String getBusClassName() {
-        return System.getProperty("test.bus.class", "org.apache.cxf.bus.spring.SpringBusFactory");
-    }
 
     protected List getRegisteredServants() {
         return servantsCache;
