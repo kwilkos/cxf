@@ -94,12 +94,12 @@ public class OperationResourceInfo {
          * these annotations, support for any media type (¡°*¡±) is assumed.
          */   
         
-        String[] mineTypes = {"*/*"};
+        String[] mimeTypes = {"*/*"};
         ProduceMime c = method.getAnnotation(ProduceMime.class);
         if (c != null) {
-            mineTypes = c.value();               
+            mimeTypes = c.value();               
         }
         
-        return mineTypes;
+        return mimeTypes;
     }
 }

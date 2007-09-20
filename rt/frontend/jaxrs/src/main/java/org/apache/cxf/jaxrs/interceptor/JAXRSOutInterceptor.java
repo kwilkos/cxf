@@ -80,14 +80,14 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
             }*/
  
             //TODO: decide the output media type based on resource method/resource class/provider
-            String[] methodMineTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
+            String[] methodMimeTypes = exchange.get(OperationResourceInfo.class).getProduceMimeTypes();
             
             EntityProvider provider = ((ProviderFactoryImpl)ProviderFactory.getInstance())
-                .createEntityProvider(targetType, methodMineTypes, false);
+                .createEntityProvider(targetType, methodMimeTypes, false);
 
             try {
-                if (!"*/*".equals(methodMineTypes[0])) {
-                    message.put(Message.CONTENT_TYPE, methodMineTypes[0]);
+                if (!"*/*".equals(methodMimeTypes[0])) {
+                    message.put(Message.CONTENT_TYPE, methodMimeTypes[0]);
                 }
                 
                 provider.writeTo(responseObj, null, out);
