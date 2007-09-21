@@ -44,6 +44,13 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
         String resolvedSchemaLocation = null;
         try {
             resolvedSchemaLocation = this.catalogResolver.resolveSystem(schemaLocation);
+            
+            if (resolvedSchemaLocation == null) {
+                resolvedSchemaLocation = catalogResolver.resolveURI(schemaLocation);
+            }
+            if (resolvedSchemaLocation == null) {
+                resolvedSchemaLocation = catalogResolver.resolvePublic(schemaLocation, baseUri);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Catalog resolution failed", e);
         }
