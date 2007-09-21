@@ -46,14 +46,11 @@ public abstract class ManagedConnectionTestBase extends Assert {
 
     protected ManagedConnectionImpl mci;
 
-    protected ManagedConnectionFactoryImpl factory = 
-        EasyMock.createMock(ManagedConnectionFactoryImpl.class);
+    protected ManagedConnectionFactoryImpl factory = EasyMock.createMock(ManagedConnectionFactoryImpl.class);
 
     protected Bus bus;
     
-
-    protected ConnectionEventListener mockListener = 
-        EasyMock.createMock(ConnectionEventListener.class);
+    protected ConnectionEventListener mockListener = EasyMock.createMock(ConnectionEventListener.class);
     
     public ManagedConnectionTestBase() {
         
@@ -89,11 +86,9 @@ public abstract class ManagedConnectionTestBase extends Assert {
         
         EasyMock.expectLastCall().andReturn(bus).anyTimes();
         EasyMock.replay(factory);
-        
-        
+                
         mci = new ManagedConnectionImpl(factory, cri, subj);        
-      
-        
+              
         mci.addConnectionEventListener(mockListener);
     }
     
