@@ -89,7 +89,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         processor.process();
 
         String expectedFile = getClass().getResource("expected/calculator.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "calculator.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "calculator.wsdl"));
 
     }
 
@@ -118,7 +118,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         processor.process();
 
         String expectedFile = getClass().getResource("expected/hello_soap12.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "hello_soap12.wsdl"));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         processor.process();
 
         String expectedFile = getClass().getResource("expected/db.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "db.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "db.wsdl"));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         processor.process();
 
         String expectedFile = getClass().getResource("expected/my_hello_soap12.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "my_hello_soap12.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "my_hello_soap12.wsdl"));
     }
     @Test
     public void testGenWrapperBeanClasses() throws Exception {
@@ -304,13 +304,13 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "rpc-hello.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
         String expectedFile = getClass().getResource("expected/rpc-hello-expected.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "rpc-hello.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "rpc-hello.wsdl"));
 
     }
 
 
     @Test
-    public void testXMlBare() {
+    public void testXMlBare() throws Exception {
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/xml-bare.wsdl");
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.xml_bare.Greeter");
         processor.setEnvironment(env);
@@ -319,7 +319,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "xml-bare.wsdl");
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
         String expectedFile = getClass().getResource("expected/xml-bare-expected.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "/xml-bare.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "/xml-bare.wsdl"));
 
     }
 
@@ -335,11 +335,8 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
 
         String expectedFile = getClass().getResource("expected/hello_world_fault_expected.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "/fault.wsdl"));
-
+        assertWsdlEquals(new File(expectedFile), new File(output, "/fault.wsdl"));
     }
-
-
 
     @Test
     public void testResumeClasspath() throws Exception {
@@ -381,7 +378,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(bindingFile.exists());
 
         String expectedFile = getClass().getResource("expected/echo_date.xjb").getFile();
-        assertFileEquals(new File(expectedFile), bindingFile);
+        assertWsdlEquals(new File(expectedFile), bindingFile);
     }
 
     @Test
@@ -397,7 +394,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue(bindingFile.exists());
 
         String expectedFile = getClass().getResource("expected/echo_calendar.xjb").getFile();
-        assertFileEquals(new File(expectedFile), bindingFile);
+        assertWsdlEquals(new File(expectedFile), bindingFile);
     }
 
     @Test
@@ -416,6 +413,6 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         assertTrue("Generate Wsdl Fail", wsdlFile.exists());
 
         String expectedFile = getClass().getResource("expected/list_expected.wsdl").getFile();
-        assertFileEquals(new File(expectedFile), new File(output, "/list_test.wsdl"));
+        assertWsdlEquals(new File(expectedFile), new File(output, "/list_test.wsdl"));
     }
 }
