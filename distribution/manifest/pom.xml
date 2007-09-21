@@ -74,14 +74,10 @@
             <artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${pom.version}</version>
         </dependency>
         
