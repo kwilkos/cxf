@@ -74,7 +74,7 @@ public class ResourceAdapterImpl extends ResourceBean implements ResourceAdapter
     }
 
     public void stop() {
-        LOG.fine("Resource Adapter is stopping by appserver...");
+        LOG.fine("Resource Adapter is being stopped by appserver...");
         if (!busCache.isEmpty()) {
             Iterator busIterator = busCache.iterator();
             Bus bus = null;
