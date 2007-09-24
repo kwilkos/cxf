@@ -81,7 +81,7 @@ public class Tag {
         return attributes;
     }
     
-    private String getIndent(int size) {
+    private String createIndent(int size) {
         String indent = "    ";
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < size; i++) {
@@ -105,7 +105,7 @@ public class Tag {
 
     private String formatTag(Tag tag, int indent) {
         StringBuffer sb = new StringBuffer();
-        sb.append(getIndent(indent));
+        sb.append(createIndent(indent));
         sb.append(indent);
         sb.append("<");
         sb.append(formatAttribute(tag));

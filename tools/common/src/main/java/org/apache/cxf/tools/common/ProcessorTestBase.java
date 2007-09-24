@@ -226,20 +226,20 @@ public class ProcessorTestBase extends Assert {
                         if (attr2.getLocalPart().equals(attr.getLocalPart())) {
                             found = true;
                         } else {
-                            throw new ComparisonFailure("Attribute not equal: ", 
+                            throw new ComparisonFailure("Attributes not equal: ", 
                                                         attr.toString(), 
                                                         attr2.toString());
                         }
                     }
                 }
                 if (!found) {
-                    throw new AssertionError("Attribute: " + attr + " is missing is the source file.");
+                    throw new AssertionError("Attribute: " + attr + " is missing in the source file.");
                 }
             }
 
             if (!StringUtils.isEmpty(expectedTag.getText())
                 && !expectedTag.getText().equals(sourceTag.getText())) {
-                throw new ComparisonFailure("Text not equal ", 
+                throw new ComparisonFailure("Text not equal: ", 
                                             expectedTag.getText().toString(), 
                                             sourceTag.getText().toString());
             }
@@ -277,12 +277,12 @@ public class ProcessorTestBase extends Assert {
                 }
             }
             if (!found) {
-                throw new AssertionError("Attribute: " + attr + " is missing is the source file.");
+                throw new AssertionError("Attribute: " + attr + " is missing in the source file.");
             }
         }
         if (!StringUtils.isEmpty(expected.getText())
                 && !expected.getText().equals(source.getText())) {
-            throw new ComparisonFailure("Text not equal ", 
+            throw new ComparisonFailure("Text not equal: ", 
                                         expected.getText().toString(), 
                                         source.getText().toString());
         }
