@@ -248,7 +248,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSNAME,
                 "org.apache.cxf.tools.fortest.classnoanno.docwrapped.Calculator");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/my_stock.wsdl");
-        env.put(ToolConstants.CFG_SOURCEDIR, output.getPath() + "/beans");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getPath() + "/beans");
         env.put(ToolConstants.CFG_WRAPPERBEAN, ToolConstants.CFG_WRAPPERBEAN);
 
         processor.setEnvironment(env);

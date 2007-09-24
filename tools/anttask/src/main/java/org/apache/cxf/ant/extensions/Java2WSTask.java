@@ -48,27 +48,27 @@ public class Java2WSTask extends CxfAntTask {
     public void setGenwsdl(boolean gw) {
         genWsdl = gw;
     }
-    
+
     public void setGenWrapperBean(boolean gwp) {
         genWrapperbean = gwp;
     }
-    
+
     public void setGenClient(boolean gc) {
         genClient = gc;
     }
-    
+
     public void setGenServer(boolean gs) {
         genServer = gs;
     }
-    
+
     public void setFrontend(String ft) {
         frontend = ft;
     }
-    
+
     public void setDatabinding(String db) {
         databinding = db;
     }
-     
+
     public Path createClasspath() {
         if (classpath == null) {
             classpath = new Path(getProject());
@@ -127,34 +127,34 @@ public class Java2WSTask extends CxfAntTask {
         cmd.createVmArgument().setLine("-Djava.util.logging.config.file=");
 
         cmd.setClassname(JavaToWS.class.getName());
-        
+
         if (!StringUtils.isEmpty(frontend)) {
             cmd.createArgument().setValue("-frontend");
             cmd.createArgument().setValue(frontend);
         }
-        
-              
+
+
         if (!StringUtils.isEmpty(databinding)) {
             cmd.createArgument().setValue("-databinding");
             cmd.createArgument().setValue(databinding);
         }
-        
+
         if (genWsdl) {
             cmd.createArgument().setValue("-wsdl");
         }
-        
+
         if (genWrapperbean) {
             cmd.createArgument().setValue("-wrapperbean");
         }
-        
+
         if (genClient) {
             cmd.createArgument().setValue("-client");
         }
-        
+
         if (genServer) {
             cmd.createArgument().setValue("-server");
         }
- 
+
         if (classpath != null && !classpath.toString().equals("")) {
             cmd.createArgument().setValue("-cp");
             cmd.createArgument().setPath(classpath);
@@ -166,11 +166,7 @@ public class Java2WSTask extends CxfAntTask {
             cmd.createArgument().setValue("-classdir");
             cmd.createArgument().setFile(classesDir);
         }
-        if (null != sourcesDir
-            && !StringUtils.isEmpty(sourcesDir.getName())) {
-            cmd.createArgument().setValue("-s");
-            cmd.createArgument().setFile(sourcesDir);
-        }
+
 
         // verbose option
         if (verbose) {
