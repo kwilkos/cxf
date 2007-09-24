@@ -287,7 +287,7 @@ public class JavaToWSDLProcessor implements Processor {
 
     public Class<?> getServiceClass() {
         return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME),
-                                        getClass().getClassLoader());
+                                        Thread.currentThread().getContextClassLoader());
     }
 
     public WSDLConstants.WSDLVersion getWSDLVersion() {

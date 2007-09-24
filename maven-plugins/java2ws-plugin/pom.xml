@@ -23,7 +23,7 @@
     <artifactId>cxf-java2ws-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <version>2.1-incubator-SNAPSHOT</version>
-    <name>Apache CXF Code Generation Maven2 Plugins</name>
+    <name>Apache CXF Java2WS Maven2 Plugin</name>
     <url>http://cwiki.apache.org/CXF</url>
 
 
@@ -107,9 +107,9 @@
     </repositories>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/codegen-plugin</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/codegen-plugin</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-codegen-plugin</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/java2ws-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/maven-plugins/java2ws-plugin</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-java2ws-plugin</url>
   </scm>
 
 </project>

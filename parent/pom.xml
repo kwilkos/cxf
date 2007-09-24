@@ -50,7 +50,7 @@
         <jetty.version>6.1.5</jetty.version>
         <saaj.version>1.3</saaj.version>
         <saaj.impl.version>1.3</saaj.impl.version>
-        <spring.version>2.0.4</spring.version>
+        <spring.version>2.0.6</spring.version>
         <wsdl4j.version>1.6.1</wsdl4j.version>
         <derby.version>10.2.2.0</derby.version>
         <activemq.version>4.1.1</activemq.version>
