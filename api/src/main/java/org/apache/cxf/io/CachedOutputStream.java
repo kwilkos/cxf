@@ -105,6 +105,13 @@ public class CachedOutputStream extends OutputStream {
     protected void doClose() throws IOException {
         
     }
+    
+    /**
+     * Perform any actions required after stream closure (close the other related stream etc.)
+     */
+    protected void postClose() throws IOException {
+        
+    }
 
     public void close() throws IOException {
         currentStream.flush();
@@ -114,9 +121,11 @@ public class CachedOutputStream extends OutputStream {
             }
         }
         
+        doClose();
         currentStream.close();
         dispose();
-        doClose();
+        postClose();
+        
     }
 
     public boolean equals(Object obj) {

@@ -37,12 +37,13 @@ public class CacheAndWriteOutputStream extends CachedOutputStream {
         flowThroughStream = stream;
     }
 
-    @Override
-    protected void doClose() throws IOException {
+   
+    protected void postClose() throws IOException {
         flowThroughStream.flush();
         flowThroughStream.close();
     }
-
+    
+    
     @Override
     protected void onWrite() throws IOException {
         // does nothing
