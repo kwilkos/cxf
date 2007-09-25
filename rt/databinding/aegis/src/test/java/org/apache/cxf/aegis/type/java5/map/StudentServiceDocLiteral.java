@@ -18,38 +18,21 @@
  */
 package org.apache.cxf.aegis.type.java5.map;
 
-/**
- * Data object used to test Aegis mapping of maps.
- */
-public class Student {
-    private String name;
-    private long id;
-    
-    public Student() {
-        name = "";
-        id = Long.valueOf(0);
-    }
-    
-    public Student(String name, long id) {
-        this.name = name;
-        this.id = id;
-    }
+import java.util.List;
+import java.util.Map;
 
-    public long getId() {
-        return id;
-    }
+import javax.jws.WebService;
 
-    public void setId(long id) {
-        this.id = id;
-    }
+@WebService(targetNamespace = "uri:org.apache.cxf.aegis.test.map", 
+    name = "StudentService")
+public interface StudentServiceDocLiteral {
 
+    Student findStudent(Long id);
 
-    public String getName() {
-        return name;
-    }
+    Map<Long, Student> getStudentsMap();
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    List<Student> getStudents(Map<String, String> filters);
+
+    List<Student> getStudentsByIds(List<String> ids);
 
 }

@@ -18,8 +18,8 @@
    under the License.
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://xfire.codehaus.org/aegis/1.0"
-  xmlns:tns="http://xfire.codehaus.org/aegis/1.0"
+  targetNamespace="http://cxf.apache.org/aegis/1.1"
+  xmlns:tns="http://cxf.apache.org/aegis/1.1"
   elementFormDefault="unqualified" 
   attributeFormDefault="unqualified" >
 
@@ -76,10 +76,13 @@
     <attribute name="typeName" type="string" />
     <attribute name="mappedName" type="string" />
     <attribute name="nillable" type="boolean" />
+    <attribute name="flag" type="boolean" />
     <attribute name="ignore" type="boolean" />
     <attribute name="componentType" type="string" />
     <attribute name="keyType" type="string" />
+    <attribute name="valueType" type="string" />
     <attribute name="minOccurs" type="int"/>
+    <attribute name="maxOccurs" type="string"/> <!--  takes * -->
     <attribute name="style">
       <simpleType>
         <restriction base="string">

@@ -203,6 +203,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public void stop() {
         if (null != server) {
             server.stop();
+            server = null;
         }
     }    
    
