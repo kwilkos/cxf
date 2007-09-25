@@ -33,8 +33,7 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
-//TODO JAX-WS 2.1
-//import javax.xml.ws.EndpointReference;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext.Scope;
@@ -250,16 +249,12 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
         return binding;
     }
 
-    /*
     //  TODO JAX-WS 2.1
     public EndpointReference getEndpointReference() {
-        // TODO
         throw new UnsupportedOperationException();
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
-        // TODO
         throw new UnsupportedOperationException();
     }    
-    */
 }

@@ -31,10 +31,4 @@ public class PizzaImpl implements Pizza {
         resp.setMinutesUntilReady(100 + Integer.parseInt(callerID.getPhoneNumber()));
         return resp;
     }
-
-    public OrderPizzaResponseType orderPizza(OrderPizzaType body) {
-        OrderPizzaResponseType resp = new OrderPizzaResponseType();
-        resp.setMinutesUntilReady(108);
-        return resp;
-    }
 }

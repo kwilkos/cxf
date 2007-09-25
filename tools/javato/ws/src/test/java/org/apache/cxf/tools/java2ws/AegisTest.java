@@ -91,6 +91,7 @@ public class AegisTest extends ToolTestBase {
     }
     
     @Test 
+    @org.junit.Ignore
     public void testAegisReconfigureDatabinding() throws Exception {
         final String sei = "org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI";
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/aegis.wsdl", 

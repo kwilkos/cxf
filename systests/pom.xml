@@ -53,7 +53,6 @@
                                     <extraargs>
                                       <extraarg>-exsh</extraarg>
                                       <extraarg>true</extraarg>
-                                      <extraarg>-V</extraarg>
                                     </extraargs>
                                 </wsdlOption>
 

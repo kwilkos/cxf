@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServicePermission;
+
+import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -46,6 +48,7 @@ import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.Invoker;
+
 
 public class EndpointImpl extends javax.xml.ws.Endpoint 
     implements InterceptorProvider, Configurable {
@@ -450,17 +453,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.schemaLocations = schemaLocations;
     }
     
-    /*
     //TODO JAX-WS 2.1
     public EndpointReference getEndpointReference(Element... referenceParameters) {
-        // TODO
         throw new UnsupportedOperationException();
     }
 
     public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
                                                                 Element... referenceParameters) {
-        // TODO
         throw new UnsupportedOperationException();
     }
-    */
 }
