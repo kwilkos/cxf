@@ -304,7 +304,7 @@ public class JavaToWSDLProcessor implements Processor {
     }
 
     File getSourceDir() {
-        String dir = (String) this.context.get(ToolConstants.CFG_OUTPUTDIR);
+        String dir = (String) this.context.get(ToolConstants.CFG_SOURCEDIR);
         if (StringUtils.isEmpty(dir)) {
             return null;
         }
