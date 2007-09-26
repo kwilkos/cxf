@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.connector.CXFConnectionFactory;
 import org.apache.cxf.connector.Connection;
+import org.apache.cxf.jca.cxf.CXFConnectionRequestInfo;
 import org.apache.hello_world_soap_http.Greeter;
 
 public class HelloWorldServlet extends DemoServletBase {
@@ -80,7 +81,8 @@ public class HelloWorldServlet extends DemoServletBase {
 
         // create the connection 
         //
-        return (Connection)factory.getConnection(Greeter.class, wsdlLocation, serviceName, portName);
+        CXFConnectionRequestInfo requestInfo = new CXFConnectionRequestInfo(Greeter.class, wsdlLocation, serviceName, portName);
+        return (Connection)factory.getConnection(requestInfo);
     }
 
 
