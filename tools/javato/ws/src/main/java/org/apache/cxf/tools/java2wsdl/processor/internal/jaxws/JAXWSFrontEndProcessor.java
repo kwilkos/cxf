@@ -56,6 +56,7 @@ import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.JaxwsSE
 import org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator.JaxwsServerGenerator;
 
 public class JAXWSFrontEndProcessor implements Processor {
+    private static final String SEI_SUFFIX = "_PortType";
     private static final Logger LOG = LogUtils.getL7dLogger(JAXWSFrontEndProcessor.class);
     private ToolContext context;
     private List<AbstractJaxwsGenerator> generators = new ArrayList<AbstractJaxwsGenerator>();
@@ -67,6 +68,10 @@ public class JAXWSFrontEndProcessor implements Processor {
         List<ServiceInfo> services = (List<ServiceInfo>)context.get(ToolConstants.SERVICE_LIST);
         ServiceInfo serviceInfo = services.get(0);
         JavaInterface jinf = JavaFirstUtil.serviceInfo2JavaInf(serviceInfo);
+        String className = (String)context.get(ToolConstants.IMPL_CLASS);
+        if (className != null && className.equals(jinf.getFullClassName())) {
+            jinf.setName(jinf.getName() + SEI_SUFFIX);
+        }
         JavaModel jm = new JavaModel();
         jm.addInterface("inf", jinf);
         jinf.setJavaModel(jm);

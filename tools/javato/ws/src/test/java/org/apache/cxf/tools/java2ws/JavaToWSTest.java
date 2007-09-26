@@ -67,7 +67,7 @@ public class JavaToWSTest extends ToolTestBase {
     @Test
     public void testFlagWSDL() throws Exception {
         File wsdlFile = outputFile("tmp.wsdl");
-        String[] args = new String[] {"-wsdl", "-o", wsdlFile.getAbsolutePath(), "-d", output.getPath(),
+        String[] args = new String[] {"-wsdl", "-o", wsdlFile.getAbsolutePath(), "-s", output.getPath(),
                                       "-client", "-server", "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
@@ -84,7 +84,7 @@ public class JavaToWSTest extends ToolTestBase {
     @Test
     public void testSimple() throws Exception {
         File wsdlFile = outputFile("tmp.wsdl");
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
                                       output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.hello_world_doc_lit.Greeter"};
         JavaToWS.main(args);
@@ -94,7 +94,7 @@ public class JavaToWSTest extends ToolTestBase {
     
     @Test
     public void testSimpleFrontend() throws Exception {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
                                       output.getPath(), "-frontend", "simple", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.simple.Hello"};
         JavaToWS.main(args);
@@ -108,7 +108,7 @@ public class JavaToWSTest extends ToolTestBase {
         
     @Test
     public void testMissingBeans() {
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
                                       output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "-beans", "nobodyHome.xml",
                                       "-beans", "nothing.xml",
@@ -122,7 +122,7 @@ public class JavaToWSTest extends ToolTestBase {
     @Test
     public void testClassNoWebServiceAnno() throws Exception {
         File wsdlFile = outputFile("tmp.wsdl");
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
                                       output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.HelloWithNoAnno"};
         JavaToWS.main(args);
@@ -134,8 +134,8 @@ public class JavaToWSTest extends ToolTestBase {
     @Test
     public void testClassWithRMI() throws Exception {
         File wsdlFile = outputFile("tmp.wsdl");
-        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-d",
-                                      output.getPath(), "-frontend", "jaxws", "-client", "-server",
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", 
+                                      "-s", output.getPath(), "-frontend", "jaxws", "-client", "-server",
                                       "org.apache.cxf.tools.fortest.HelloRMI"};
         JavaToWS.main(args);
         assertTrue("Failed to generate WSDL file", wsdlFile.exists());
@@ -149,7 +149,7 @@ public class JavaToWSTest extends ToolTestBase {
         File client = outputFile("org/apache/hello_world_soap12_http/GreeterClient.java");
         File server = outputFile("org/apache/hello_world_soap12_http/GreeterServer.java");
 
-        String[] args = new String[] {"-d", output.getPath(), "-client", "-server",
+        String[] args = new String[] {"-s", output.getPath(), "-client", "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
@@ -162,7 +162,7 @@ public class JavaToWSTest extends ToolTestBase {
         File server = outputFile("org/apache/hello_world_soap12_http/GreeterServer.java");
         File impl = outputFile("org/apache/hello_world_soap12_http/GreeterImpl.java");
 
-        String[] args = new String[] {"-d", output.getPath(), "-server",
+        String[] args = new String[] {"-s", output.getPath(), "-server",
                                       "org.apache.hello_world_soap12_http.Greeter"};
         JavaToWS.main(args);
         checkStdErr();
@@ -172,7 +172,7 @@ public class JavaToWSTest extends ToolTestBase {
 
     @Test
     public void testGenWrapperBean() throws Exception {
-        String[] args = new String[] {"-d", output.getPath(), "-wrapperbean", "-server",
+        String[] args = new String[] {"-s", output.getPath(), "-wrapperbean", "-server",
                                       "org.apache.cxf.tools.java2ws.fortest.Calculator"};
         JavaToWS.main(args);
         checkStdErr();
@@ -207,6 +207,24 @@ public class JavaToWSTest extends ToolTestBase {
         assertTrue("jaxb databinding warning should be detected", getStdErr()
                    .indexOf("Simple front end only supports aegis databinding") > -1);
     }
+    
+    @Test
+    public void testImplClassWithoutSei() throws Exception {
+        File wsdlFile = outputFile("tmp.wsdl");
+        String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/tmp.wsdl", "-verbose", "-s",
+                                      output.getPath(), "-frontend", "jaxws", "-client", "-server",
+                                      "org.apache.cxf.tools.fortest.GreeterImpl"};
+        JavaToWS.main(args);
+        assertTrue("Failed to generate WSDL file", wsdlFile.exists());
+        
+        File sei = outputFile("org/apache/cxf/tools/fortest/GreeterImpl_PortType.java");
+        assertTrue("Failed to generate SEI file : GreeterImpl_PortType.java", sei.exists());
+        File client = outputFile("org/apache/cxf/tools/fortest/GreeterImpl_PortTypeClient.java");
+        assertTrue("Failed to generate client file : GreeterImpl_PortTypeClient.java", client.exists());
+        File server = outputFile("org/apache/cxf/tools/fortest/GreeterImpl_PortTypeServer.java");
+        assertTrue("Failed to generate SEI file : GreeterImpl_PortTypeServer.java", server.exists());
+    }
+    
     
 
     protected String getClassPath() throws URISyntaxException {

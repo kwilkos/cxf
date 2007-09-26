@@ -96,17 +96,18 @@
 
 			<option id="outputdir" maxOccurs="1">
 				<annotation>
-					The directory in which the output files are placed
+					The directory in which the output wsdl and other 
+					resource files are placed
 				</annotation>
 				<switch>d</switch>
 				<associatedArgument placement="afterSpace">
-					<annotation>output-directory</annotation>
+					<annotation>resource-directory</annotation>
 				</associatedArgument>
 			</option>
 
 			<option id="sourcedir" maxOccurs="1">
 				<annotation>
-					The directory in which the generated source files
+					The directory in which the generated java source files
 					are placed
 				</annotation>
 				<switch>s</switch>
@@ -116,7 +117,7 @@
 			</option>
 			<option id="classdir" maxOccurs="1">
 				<annotation>
-					The directory in which the generated sources are
+					The directory in which the generated wrapper sources are
 					compiled into. If not specified, the files are not
 					compiled.
 				</annotation>
