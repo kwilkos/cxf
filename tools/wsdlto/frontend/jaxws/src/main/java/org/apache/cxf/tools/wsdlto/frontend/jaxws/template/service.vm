@@ -59,6 +59,10 @@ public class ${service.Name} extends Service {
         WSDL_LOCATION = url;
     }
 
+    public ${service.Name}(URL wsdlLocation) {
+        super(wsdlLocation, SERVICE);
+    }
+
     public ${service.Name}(URL wsdlLocation, QName serviceName) {
         super(wsdlLocation, serviceName);
     }
