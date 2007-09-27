@@ -178,16 +178,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
 
-
-
-
     @Test
     public void testBug305772() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_ANT, ToolConstants.CFG_ANT);
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        // env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305772/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();

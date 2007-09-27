@@ -1119,4 +1119,17 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(contents.indexOf("SOAPBinding.ParameterStyle.BARE") != -1);
         assertTrue(contents.indexOf("@ResponseWrapper") == -1);
     }
+
+    @Test
+    public void testXmlSeeAlso() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cardealer.wsdl"));
+
+        processor.setContext(env);
+        processor.execute();
+
+        File sei = new File(output, "type_substitution/server/CarDealer.java");
+        assertTrue(output.exists());
+        String contents = getStringFromFile(sei);
+        assertTrue(contents.indexOf("@XmlSeeAlso({ObjectFactory.class})") != -1);
+    }
 }

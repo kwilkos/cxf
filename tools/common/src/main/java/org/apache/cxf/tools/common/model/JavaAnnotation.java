@@ -19,7 +19,10 @@
 
 package org.apache.cxf.tools.common.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.cxf.common.util.StringUtils;
 
@@ -29,11 +32,17 @@ public class JavaAnnotation {
     private String tagName;
     private final Map<String, String>  arguments = new HashMap<String, String>();
 
+    private final List<String> classList = new ArrayList<String>();
+
     public JavaAnnotation() {
     }
 
     public JavaAnnotation(String tn) {
         this.tagName = tn;
+    }
+
+    public List<String> getClassList() {
+        return classList;
     }
 
     public void addArgument(String key, String value, String quote) {
@@ -56,10 +65,7 @@ public class JavaAnnotation {
         return arguments;
     }
 
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("@");
-        sb.append(this.tagName);
+    private void nameValueStyle(final StringBuffer sb) {
         Object[] keys = arguments.keySet().toArray();
         if (keys.length > 0) {
             sb.append("(");
@@ -81,6 +87,31 @@ public class JavaAnnotation {
             }
             sb.append(")");
         }
+    }
+
+    private void enumStyle(final StringBuffer sb) {
+        sb.append("({");
+        for (int i = 0; i < classList.size(); i++) {
+            String cls = classList.get(i);
+            sb.append(cls);
+            sb.append(".class");
+            if (i < classList.size() - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append("})");
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("@");
+        sb.append(this.tagName);
+        if (arguments.size() > 0) {
+            nameValueStyle(sb);
+        } else if (classList.size() > 0) {
+            enumStyle(sb);
+        }
+
         return sb.toString();
     }
 }

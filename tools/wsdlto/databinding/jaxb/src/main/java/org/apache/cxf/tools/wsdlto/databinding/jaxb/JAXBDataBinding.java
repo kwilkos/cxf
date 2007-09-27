@@ -297,6 +297,14 @@ public class JAXBDataBinding implements DataBindingProfile {
 
             if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
+
+                ClassCollector classCollector = context.get(ClassCollector.class);
+                for (String cls : schem2JavaJaxbModel.getClassList()) {
+                    if (cls.endsWith("ObjectFactory")) {
+                        classCollector.getTypesFactory().add(cls);
+                    }
+                }
+
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
 
                 if (!isSuppressCodeGen()) {
@@ -304,6 +312,7 @@ public class JAXBDataBinding implements DataBindingProfile {
                 }
 
                 context.put(JCodeModel.class, jcodeModel);
+
                 for (String str : fileCodeWriter.getExcludeFileList()) {
                     context.getExcludeFileList().add(str);
                 }

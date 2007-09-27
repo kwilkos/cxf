@@ -81,7 +81,10 @@ public class HelloWorldServlet extends DemoServletBase {
 
         // create the connection 
         //
-        CXFConnectionRequestInfo requestInfo = new CXFConnectionRequestInfo(Greeter.class, wsdlLocation, serviceName, portName);
+        CXFConnectionRequestInfo requestInfo = new CXFConnectionRequestInfo(Greeter.class, 
+                                                                            wsdlLocation, 
+                                                                            serviceName, 
+                                                                            portName);
         return (Connection)factory.getConnection(requestInfo);
     }
 

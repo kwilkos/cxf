@@ -703,6 +703,9 @@ public class WSDLServiceBuilder {
 
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
+                if (xsct.isAbstract()) {
+                    passedRule = false;
+                }
                 if (hasAttributes(xsct)
                     || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(), unwrappedOutput,
                                             allowRefs)) {

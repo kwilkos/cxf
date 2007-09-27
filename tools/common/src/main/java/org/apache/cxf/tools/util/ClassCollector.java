@@ -21,8 +21,10 @@ package org.apache.cxf.tools.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ClassCollector {
 
@@ -33,7 +35,8 @@ public class ClassCollector {
     private final Map<String, String> implClassNames = new HashMap<String, String>();
     private final Map<String, String> clientClassNames = new HashMap<String, String>();
     private final Map<String, String> serverClassNames = new HashMap<String, String>();
-    
+
+    private final Set<String> typesFactory = new HashSet<String>();
 
     public boolean containSeiClass(String packagename, String type) {
         return seiClassNames.containsKey(key(packagename, type));
@@ -81,6 +84,10 @@ public class ClassCollector {
 
     private String key(String packagename, String type) {
         return packagename + "#" + type;
+    }
+
+    public Set<String> getTypesFactory() {
+        return typesFactory;
     }
 
     public List<String> getGeneratedFileInfo() {
