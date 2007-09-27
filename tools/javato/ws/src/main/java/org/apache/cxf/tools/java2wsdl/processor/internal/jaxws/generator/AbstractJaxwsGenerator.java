@@ -18,54 +18,30 @@
  */
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws.generator;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.cxf.tools.wsdlto.core.AbstractGenerator;
 
 public abstract class AbstractJaxwsGenerator extends AbstractGenerator {
     protected static final Logger LOG = LogUtils.getL7dLogger(AbstractJaxwsGenerator.class);
-    protected static final String TEMPLATE_BASE = "org/apache/cxf/tools" 
-        + "/java2wsdl/processor/internal/jaxws/generator/template";
+    protected static final String TEMPLATE_BASE = "org/apache/cxf/tools"
+                                                  + "/java2wsdl/processor/internal/jaxws/generator/template";
 
     public abstract boolean passthrough();
 
     public abstract void generate(ToolContext penv) throws ToolException;
-    
-    @Override
-    protected Writer parseOutputName(String packageName, String filename, String ext) throws ToolException {
-        FileWriterUtil fw = null;
-        Writer writer = null;
 
-        if (wantToKeep() && isCollision(packageName, filename, ext)) {
-            Message msg = new Message("SKIP_GEN", LOG, packageName + "." + filename + ext);
-            LOG.log(Level.INFO, msg.toString());
-            return null;
-        }
-
-        fw = new FileWriterUtil((String)env.get(ToolConstants.CFG_SOURCEDIR));
-        try {
-            writer = fw.getWriter(packageName, filename + ext);
-        } catch (IOException ioe) {
-            Message msg = new Message("FAIL_TO_WRITE_FILE", LOG, packageName + "." + filename + ext);
-            throw new ToolException(msg, ioe);
-        }
-
-        return writer;
-    }
-    
     public void register(final ClassCollector collector, String packageName, String fileName) {
-        
+
+    }
+
+    public String getOutputDir() {
+        return (String)env.get(ToolConstants.CFG_SOURCEDIR);
     }
 
 }
-

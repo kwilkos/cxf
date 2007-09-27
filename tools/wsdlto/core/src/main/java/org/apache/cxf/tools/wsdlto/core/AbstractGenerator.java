@@ -52,7 +52,7 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
         }
     }
 
-    protected boolean isCollision(String packageName, String filename) throws ToolException {        
+    protected boolean isCollision(String packageName, String filename) throws ToolException {
         return isCollision(packageName, filename, ".java");
     }
 
@@ -78,7 +78,7 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
             return null;
         }
 
-        fw = new FileWriterUtil((String)env.get(ToolConstants.CFG_OUTPUTDIR));
+        fw = new FileWriterUtil(getOutputDir());
         try {
             writer = fw.getWriter(packageName, filename + ext);
         } catch (IOException ioe) {
@@ -111,11 +111,14 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
 
     public void setEnvironment(ToolContext penv) {
         this.env = penv;
-
     }
 
     public ToolContext getEnvironment() {
         return this.env;
+    }
+
+    public String getOutputDir() {
+        return (String)env.get(ToolConstants.CFG_OUTPUTDIR);           
     }
 
     public String getName() {

@@ -33,9 +33,7 @@ public class JaxwsClientGenerator extends AbstractJaxwsGenerator {
 
     private static final String CLIENT_TEMPLATE = TEMPLATE_BASE + "/javafirst-client.vm";
 
-    public JaxwsClientGenerator() {
-        this.name = ToolConstants.CLT_GENERATOR;
-    }
+
 
     public boolean passthrough() {
         if (env.optionSet(ToolConstants.CFG_CLIENT)) {
