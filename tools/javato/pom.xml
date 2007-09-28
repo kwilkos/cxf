@@ -32,7 +32,6 @@
     </parent>
 
     <modules>
-        <module>core</module>
         <module>ws</module>
     </modules>
 

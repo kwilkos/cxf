@@ -92,7 +92,7 @@
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <artifactId>cxf-tools-java2ws</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
