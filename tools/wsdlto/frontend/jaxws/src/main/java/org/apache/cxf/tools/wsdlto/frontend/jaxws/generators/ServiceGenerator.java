@@ -27,11 +27,11 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.util.ClassCollector;
 
 public class ServiceGenerator extends AbstractJAXWSGenerator {
-    //private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     private static final String SERVICE_TEMPLATE = TEMPLATE_BASE + "/service.vm";
 
     public ServiceGenerator() {
@@ -89,7 +89,12 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
                 }
             }
 
-            
+            for (JavaPort port : js.getPorts()) {
+                if (!port.getPackageName().equals(js.getPackageName())) {
+                    js.addImport(port.getFullClassName());
+                }
+            }
+
             String url = (String)env.get(ToolConstants.CFG_WSDLURL);
             String location = (String)env.get(ToolConstants.CFG_WSDLLOCATION);
             if (location == null 

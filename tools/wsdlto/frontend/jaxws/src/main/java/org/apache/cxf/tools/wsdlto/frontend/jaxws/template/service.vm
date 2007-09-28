@@ -23,9 +23,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
-#foreach ($port in ${service.Ports})    
-import ${port.PackageName}.${port.InterfaceClass};
-#end
+import javax.xml.ws.WebServiceFeature;
 #foreach ($import in ${service.Imports}) 
 import ${import};
 #end
@@ -75,11 +73,23 @@ public class ${service.Name} extends Service {
     /**
      * 
      * @return
-     *     returns ${port.Name}
+     *     returns ${port.InterfaceClass}
      */
     @WebEndpoint(name = "${port.PortName}")
     public ${port.InterfaceClass} get${port.Name}() {
         return (${port.InterfaceClass})super.getPort($port.Name, ${port.InterfaceClass}.class);
+    }
+
+    /**
+     * 
+     * @param features
+     *     A list of {@link javax.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
+     * @return
+     *     returns ${port.InterfaceClass}
+     */
+    @WebEndpoint(name = "${port.PortName}")
+    public ${port.InterfaceClass} get${port.Name}(WebServiceFeature... features) {
+        return (${port.InterfaceClass})super.getPort($port.Name, ${port.InterfaceClass}.class, features);
     }
 #end
 

@@ -109,6 +109,11 @@ public class JavaMethod implements JavaAnnotatable {
         return javaReturn;
     }
 
+    public String getReturnValue() {
+        String value = getClassName(javaReturn);
+        return value == null ? "void" : value;
+    }
+
     public void setReturn(JavaReturn rt) {
         if (rt != null && rt.getType() == null && rt.getClassName() == null) {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_OUTPUT_PARAMETER", LOG, rt.name, this.getName());
@@ -263,6 +268,16 @@ public class JavaMethod implements JavaAnnotatable {
         return getParameterList(false);
     }
 
+    private String getClassName(JavaType type) {
+        if (getInterface() == null || getInterface().getPackageName() == null) {
+            return type.getClassName();
+        }
+        if (getInterface().getPackageName().equals(type.getPackageName())) {
+            return type.getSimpleName();
+        }
+        return type.getClassName();
+    }
+
     public List<String> getParameterList(boolean includeAnnotation) {
         List<String> list = new ArrayList<String>();
         StringBuffer sb = new StringBuffer();
@@ -275,10 +290,10 @@ public class JavaMethod implements JavaAnnotatable {
             if (parameter.isHolder()) {
                 sb.append(parameter.getHolderName());
                 sb.append("<");
-                sb.append(parameter.getClassName());
+                sb.append(getClassName(parameter));
                 sb.append(">");
             } else {
-                sb.append(parameter.getClassName());
+                sb.append(getClassName(parameter));
             }
             sb.append(" ");
             sb.append(parameter.getName());

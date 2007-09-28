@@ -48,14 +48,14 @@ public class JavaType {
         typeMapping.put("java.math.BigInteger", "new java.math.BigInteger(\"0\")");
         typeMapping.put("java.math.BigDecimal", "new java.math.BigDecimal(\"0\")");
         typeMapping.put("javax.xml.datatype.XMLGregorianCalendar", "null");
-        // javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar()
         typeMapping.put("javax.xml.datatype.Duration", "null");
-        // javax.xml.datatype.DatatypeFactory.newInstance().newDuration(\"P1Y35DT60M60.500S\")
     }
 
     protected String name;
     protected String type;
+    protected String packageName;
     protected String className;
+    protected String simpleName;
     protected String targetNamespace;
     protected Style style;
     protected boolean isHeader;
@@ -90,6 +90,18 @@ public class JavaType {
 
     public void setClassName(String clzName) {
         this.className = clzName;
+        resolvePackage(clzName);
+    }
+
+    private void resolvePackage(String clzName) {
+        if (clzName == null || clzName.lastIndexOf(".") == -1) {
+            this.packageName = "";
+            this.simpleName = clzName;
+        } else {
+            int index = clzName.lastIndexOf(".");
+            this.packageName = clzName.substring(0, index);
+            this.simpleName = clzName.substring(index + 1);
+        }
     }
 
     public String getClassName() {
@@ -223,5 +235,13 @@ public class JavaType {
 
     public void setOwner(JavaInterface intf) {
         this.owner = intf;
+    }
+
+    public String getPackageName() {
+        return this.packageName;
+    }
+
+    public String getSimpleName() {
+        return this.simpleName;
     }
 }
