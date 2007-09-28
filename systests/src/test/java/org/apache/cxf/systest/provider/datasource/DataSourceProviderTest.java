@@ -39,6 +39,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.Before;
@@ -47,7 +48,7 @@ import org.junit.Test;
 
 public class DataSourceProviderTest extends AbstractBusClientServerTestBase {
 
-    static final Logger LOG = Logger.getLogger(DataSourceProviderTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(DataSourceProviderTest.class);
     private static final String BOUNDARY = "----=_Part_4_701508.1145579811786";
     private HttpURLConnection conn;
     private URL url;

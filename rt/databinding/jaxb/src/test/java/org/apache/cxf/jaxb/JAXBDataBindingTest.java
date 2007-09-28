@@ -43,6 +43,7 @@ import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
@@ -63,7 +64,7 @@ import org.junit.Test;
 
 public class JAXBDataBindingTest extends Assert {
 
-    private static final Logger LOG = Logger.getLogger(JAXBDataBindingTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(JAXBDataBindingTest.class);
     private static final String WSDL_PATH = "/wsdl/hello_world.wsdl";
     private Definition def;
     private Service service;

@@ -23,6 +23,9 @@ import java.util.logging.Logger;
 
 import junit.framework.Assert;
 
+import org.apache.cxf.common.logging.LogUtils;
+
+
 public abstract class AbstractTestServerBase extends Assert {
     boolean inProcess;
     
@@ -34,8 +37,7 @@ public abstract class AbstractTestServerBase extends Assert {
     protected abstract void run();
 
     protected Logger getLog() {
-        String loggerName = this.getClass().getName();
-        return Logger.getLogger(loggerName);
+        return LogUtils.getLogger(this.getClass());
     }
     
     

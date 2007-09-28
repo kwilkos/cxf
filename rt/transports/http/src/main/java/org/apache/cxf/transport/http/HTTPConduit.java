@@ -1757,7 +1757,7 @@ public class HTTPConduit
             
             // If this is a GET method we must not touch the output
             // stream as this automagically turns the reqest into a POST.
-            if (connection.getRequestMethod().equals("GET")) {
+            if ("GET".equals(connection.getRequestMethod())) {
                 return;
             }
             

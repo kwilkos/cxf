@@ -26,6 +26,7 @@ import java.util.ListIterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
@@ -43,7 +44,7 @@ import org.apache.cxf.ws.rm.RMContextUtils;
  */
 public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOG = Logger.getLogger(MessageLossSimulator.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(MessageLossSimulator.class);
     private int appMessageCount; 
     
     public MessageLossSimulator() {

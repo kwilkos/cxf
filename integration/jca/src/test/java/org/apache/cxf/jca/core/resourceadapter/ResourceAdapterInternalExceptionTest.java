@@ -21,6 +21,7 @@ package org.apache.cxf.jca.core.resourceadapter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +30,7 @@ import org.junit.Test;
 
 public class ResourceAdapterInternalExceptionTest extends Assert {
     private static final Logger EXCEPTION_LOGGER = 
-        Logger.getLogger(ResourceAdapterInternalException.class.getName());
+        LogUtils.getLogger(ResourceAdapterInternalException.class);
     private Level logLevel;  
 
     @Before    

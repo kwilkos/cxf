@@ -37,7 +37,8 @@ public final class ReflectionUtil {
                 continue;
             }
             String packageName = getPackageName(item);
-            if (!packageNames.contains(packageName)) {
+            if (!StringUtils.isEmpty(packageName)
+                && !packageNames.contains(packageName)) {
                 packageNames.add(packageName);
             }
         }
@@ -45,6 +46,9 @@ public final class ReflectionUtil {
     }
 
     private static String getPackageName(String clzName) {
+        if (clzName.indexOf("/") == -1) {
+            return null;
+        }
         String packageName = clzName.substring(0, clzName.lastIndexOf("/"));
         return packageName.replace("/", ".");
     }

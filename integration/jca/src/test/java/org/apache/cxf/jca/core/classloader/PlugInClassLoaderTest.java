@@ -25,6 +25,7 @@ import java.security.ProtectionDomain;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ import org.junit.Test;
 
 
 public class PlugInClassLoaderTest extends Assert {
-    private static final Logger LOG = Logger.getLogger(PlugInClassLoaderTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(PlugInClassLoaderTest.class);
     private static boolean debug;
     PlugInClassLoader plugInClassLoader;
    
