@@ -33,7 +33,7 @@ public final class XmlSeeAlsoAnnotator implements Annotator {
     }
     
     public void annotate(JavaAnnotatable  ja) {
-        if (collector == null || collector.getTypesFactory().isEmpty()) {
+        if (collector == null || collector.getTypesPackages().isEmpty()) {
             return;
         }
 
@@ -47,11 +47,11 @@ public final class XmlSeeAlsoAnnotator implements Annotator {
         JavaAnnotation jaxbAnnotation = new JavaAnnotation("XmlSeeAlso");
         intf.addImport("javax.xml.bind.annotation.XmlSeeAlso");
         
-        for (String factory : collector.getTypesFactory()) {
-            if ((intf.getPackageName() + ".ObjectFactory").equals(factory)) {
+        for (String pkg : collector.getTypesPackages()) {
+            if (pkg.equals(intf.getPackageName())) {
                 jaxbAnnotation.getClassList().add("ObjectFactory");
             } else {
-                jaxbAnnotation.getClassList().add(factory);
+                jaxbAnnotation.getClassList().add(pkg + ".ObjectFactory");
             }
         }
         intf.addAnnotation(jaxbAnnotation.toString());

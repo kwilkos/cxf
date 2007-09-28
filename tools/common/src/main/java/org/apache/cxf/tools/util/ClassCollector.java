@@ -36,7 +36,7 @@ public class ClassCollector {
     private final Map<String, String> clientClassNames = new HashMap<String, String>();
     private final Map<String, String> serverClassNames = new HashMap<String, String>();
 
-    private final Set<String> typesFactory = new HashSet<String>();
+    private final Set<String> typesPackages = new HashSet<String>();
 
     public boolean containSeiClass(String packagename, String type) {
         return seiClassNames.containsKey(key(packagename, type));
@@ -86,8 +86,8 @@ public class ClassCollector {
         return packagename + "#" + type;
     }
 
-    public Set<String> getTypesFactory() {
-        return typesFactory;
+    public Set<String> getTypesPackages() {
+        return typesPackages;
     }
 
     public List<String> getGeneratedFileInfo() {

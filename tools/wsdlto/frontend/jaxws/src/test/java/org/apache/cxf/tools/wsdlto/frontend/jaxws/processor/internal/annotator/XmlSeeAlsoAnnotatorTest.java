@@ -35,7 +35,7 @@ public class XmlSeeAlsoAnnotatorTest extends Assert {
         assertFalse(intf.getImports().hasNext());
 
         ClassCollector collector = new ClassCollector();
-        collector.getTypesFactory().add(ObjectFactory.class.getName());
+        collector.getTypesPackages().add(ObjectFactory.class.getPackage().getName());
         intf.annotate(new XmlSeeAlsoAnnotator(collector));
 
         Iterator iter = intf.getImports();

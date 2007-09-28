@@ -299,10 +299,8 @@ public class JAXBDataBinding implements DataBindingProfile {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
 
                 ClassCollector classCollector = context.get(ClassCollector.class);
-                for (String cls : schem2JavaJaxbModel.getClassList()) {
-                    if (cls.endsWith("ObjectFactory")) {
-                        classCollector.getTypesFactory().add(cls);
-                    }
+                for (JClass cls : schem2JavaJaxbModel.getAllObjectFactories()) {
+                    classCollector.getTypesPackages().add(cls._package().name());
                 }
 
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
