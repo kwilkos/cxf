@@ -73,7 +73,8 @@ public class AegisTest extends ToolTestBase {
     public void testAegisBasic() throws Exception {
         final String sei = "org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI";
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/aegis.wsdl", "-verbose", "-d",
-                                      output.getPath(), "-frontend", "jaxws", "-databinding", "aegis",
+                                      output.getPath(), "-s", output.getPath(),
+                                      "-frontend", "jaxws", "-databinding", "aegis",
                                       "-client", "-server", sei};
         File wsdlFile = null;
         wsdlFile = outputFile("aegis.wsdl");
@@ -91,14 +92,13 @@ public class AegisTest extends ToolTestBase {
     }
     
     @Test 
-    @org.junit.Ignore
     public void testAegisReconfigureDatabinding() throws Exception {
         final String sei = "org.apache.cxf.tools.fortest.aegis2ws.TestAegisSEI";
         String[] args = new String[] {"-wsdl", "-o", output.getPath() + "/aegis.wsdl", 
                                       "-beans",
                                       new File(inputData, "revisedAegisDefaultBeans.xml").
                                           getAbsolutePath(),
-                                      "-verbose", "-d",
+                                      "-verbose", "-s",
                                       output.getPath(), "-frontend", "jaxws", "-databinding", "aegis",
                                       "-client", "-server", sei};
         File wsdlFile = null;
