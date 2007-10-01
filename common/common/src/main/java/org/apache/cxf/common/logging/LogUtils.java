@@ -175,7 +175,15 @@ public final class LogUtils {
                         }
                     } 
                 } else {
-                    return (Logger) cns.newInstance(loggerName, BundleUtils.getBundleName(cls, name));
+                    try {
+                        return (Logger) cns.newInstance(loggerName, BundleUtils.getBundleName(cls, name));
+                    } catch (InvocationTargetException ite) {
+                        if (ite.getTargetException() instanceof MissingResourceException) {
+                            throw (MissingResourceException)ite.getTargetException();
+                        } else {
+                            throw ite;
+                        }
+                    } 
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
