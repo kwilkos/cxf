@@ -18,12 +18,15 @@
  */
 package org.apache.cxf.jca.core.logging;
 
-import java.io.*;
+import java.io.Writer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import org.apache.cxf.common.logging.Log4jLogger;
+import org.apache.cxf.common.logging.LogUtils;
+
 
 public final class LoggerHelper {
     public static final Level DEFAULT_LOG_LEVEL = Level.WARNING;    
@@ -43,9 +46,10 @@ public final class LoggerHelper {
                 // jboss writer will redirect to log4j which will cause an
                 // infinite loop if we install an appender over this writer.
                 // Continue logging via log4j and ignore this writer.
-                //
+                LogUtils.setLoggerClass(Log4jLogger.class);
                 return;
             }
+
             Logger cxfLogger = getRootCXFLogger();
 
             // test if the stream handler were setted
@@ -70,7 +74,7 @@ public final class LoggerHelper {
 
     // true if log output is already going somewhere
     public static boolean loggerInitialisedOutsideConnector() {       
-        final Handler[] handlers = Logger.getLogger("").getHandlers(); //NOPMD        
+        final Handler[] handlers = getConsoleLogger().getHandlers(); //NOPMD        
         return handlers != null && handlers.length > 0;
     }
 
@@ -86,14 +90,14 @@ public final class LoggerHelper {
     }
 
     public static void disableConsoleLogging() {        
-        final Handler handler = getHandler(Logger.getLogger(""), CONSOLE_HANDLER);  //NOPMD
-        Logger.getLogger("").removeHandler(handler);  //NOPMD
+        final Handler handler = getHandler(getConsoleLogger(), CONSOLE_HANDLER);  //NOPMD
+        getConsoleLogger().removeHandler(handler);  //NOPMD
     }
 
     public static void enableConsoleLogging() {        
-        if (getHandler(Logger.getLogger(""), CONSOLE_HANDLER) == null) {  //NOPMD
-            final ConsoleHandler console = new ConsoleHandler();
-            Logger.getLogger("").addHandler(console);  //NOPMD
+        if (getHandler(getConsoleLogger(), CONSOLE_HANDLER) == null) {  //NOPMD
+            final Handler console = new ConsoleHandler();
+            getConsoleLogger().addHandler(console);  //NOPMD
         }
     }
 
@@ -112,13 +116,11 @@ public final class LoggerHelper {
     }
 
     public static Logger getRootCXFLogger() {
-        Logger rootCXFLogger = null;
-        rootCXFLogger = LogManager.getLogManager().getLogger(getRootLoggerName());
-        if (rootCXFLogger == null) {
-            rootCXFLogger = Logger.getLogger(getRootLoggerName()); //NOPMD
-        }
-
-        return rootCXFLogger;
+        return LogUtils.getLogger(LoggerHelper.class, null, getRootLoggerName());
+    }
+    
+    public static Logger getConsoleLogger() {
+        return LogUtils.getLogger(LoggerHelper.class, null, "");
     }
 
     public static void init() {
