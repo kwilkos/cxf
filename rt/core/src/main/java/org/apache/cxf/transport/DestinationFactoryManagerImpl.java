@@ -33,6 +33,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.bus.extension.DeferredMap;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.configuration.spring.MapProvider;
 
 public final class DestinationFactoryManagerImpl implements DestinationFactoryManager {
 
@@ -49,6 +50,9 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
 
     public DestinationFactoryManagerImpl(Map<String, DestinationFactory> destinationFactories) {
         this.destinationFactories = destinationFactories;
+    }
+    public DestinationFactoryManagerImpl(MapProvider<String, DestinationFactory> destinationFactories) {
+        this.destinationFactories = destinationFactories.createMap();
     }
 
     @Resource
@@ -111,10 +115,10 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
 
     public DestinationFactory getDestinationFactoryForUri(String uri) {
         //first attempt the ones already registered
-        for (DestinationFactory df : destinationFactories.values()) {
-            for (String prefix : df.getUriPrefixes()) {
+        for (Map.Entry<String, DestinationFactory> df : destinationFactories.entrySet()) {
+            for (String prefix : df.getValue().getUriPrefixes()) {
                 if (uri.startsWith(prefix)) {
-                    return df;
+                    return df.getValue();
                 }
             }
         }

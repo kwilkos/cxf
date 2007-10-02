@@ -31,6 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.configuration.spring.MapProvider;
 
 public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManager {
 
@@ -41,6 +42,11 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     private Bus bus;
     public ConduitInitiatorManagerImpl() {
         conduitInitiators = new ConcurrentHashMap<String, ConduitInitiator>();
+    }
+    
+
+    public ConduitInitiatorManagerImpl(MapProvider<String, ConduitInitiator> conduitInitiators) {
+        this.conduitInitiators = conduitInitiators.createMap();
     }
     
     public ConduitInitiatorManagerImpl(Map<String, ConduitInitiator> conduitInitiators) {

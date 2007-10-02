@@ -29,12 +29,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 
 public class ServletTransportFactory extends AbstractHTTPTransportFactory
@@ -63,6 +65,19 @@ public class ServletTransportFactory extends AbstractHTTPTransportFactory
     @Resource(name = "bus")
     public void setBus(Bus b) {
         super.setBus(b);
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null == bus) {
+            return;
+        }
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        if (null != dfm && null != activationNamespaces) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
+        }
     }
     
     public void removeDestination(String path) {

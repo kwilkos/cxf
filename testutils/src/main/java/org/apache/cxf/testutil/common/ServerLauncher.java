@@ -324,6 +324,17 @@ public class ServerLauncher {
         }
 
         cmd.add("-ea");
+        
+        cmd.add("-Djavax.xml.ws.spi.Provider=org.apache.cxf.bus.jaxws.spi.ProviderImpl");
+        String portClose = System.getProperty("org.apache.cxf.transports.http_jetty.DontClosePort");
+        if (portClose != null) {
+            cmd.add("-Dorg.apache.cxf.transports.http_jetty.DontClosePort=" + portClose);
+        }
+        String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
+        if (null != loggingPropertiesFile) {
+            cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
+        } 
+        
         cmd.add("-classpath");
         
         ClassLoader loader = this.getClass().getClassLoader();
@@ -337,12 +348,6 @@ public class ServerLauncher {
         }
         cmd.add(classpath.toString());
         
-        cmd.add("-Djavax.xml.ws.spi.Provider=org.apache.cxf.bus.jaxws.spi.ProviderImpl");
-        
-        String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
-        if (null != loggingPropertiesFile) {
-            cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
-        } 
 
         // If the client set the transformer factory property,
         // we want the server to also set that property.
