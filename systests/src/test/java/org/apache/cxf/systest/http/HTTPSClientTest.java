@@ -106,4 +106,10 @@ public class HTTPSClientTest extends AbstractBusClientServerTestBase {
         testSuccessfulCall("resources/jaxws-publish.xml",
                            "https://localhost:9001/SoapContext/HttpsPort");
     }
+    
+    @Test
+    public final void testPKCS12Endpoint() throws Exception {
+        testSuccessfulCall("resources/pkcs12.xml",
+                           "https://localhost:9003/SoapContext/HttpsPort");
+    }
 }
