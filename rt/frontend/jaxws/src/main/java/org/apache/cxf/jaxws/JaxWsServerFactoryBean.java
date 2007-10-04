@@ -45,6 +45,8 @@ import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingInfo;
 
+import org.springframework.aop.support.AopUtils;
+
 /**
  * Bean to help easily create Server endpoints for JAX-WS. Example:
  * <pre>
@@ -196,7 +198,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
             resourceManager = new DefaultResourceManager(resolvers); 
             resourceManager.addResourceResolver(new WebServiceContextResourceResolver());
             ResourceInjector injector = new ResourceInjector(resourceManager);
-            injector.inject(instance);
+            injector.inject(instance, AopUtils.getTargetClass(instance));
         }
     }  
 }
