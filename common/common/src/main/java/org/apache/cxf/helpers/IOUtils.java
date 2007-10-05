@@ -88,6 +88,7 @@ public final class IOUtils {
             buf.append(new String(buffer, 0, n));
             n = input.read(buffer);
         }
+        input.close();
         return buf.toString();
     }
     public static String toString(final Reader input) 
