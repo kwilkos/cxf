@@ -19,9 +19,10 @@
 
 package org.apache.cxf.systest.jca;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
+
 import javax.resource.spi.ManagedConnection;
+import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
@@ -84,7 +85,7 @@ public class OutBoundConnectionTest extends AbstractBusClientServerTestBase {
                                            wsdl,
                                            service.getServiceName(),
                                            portName);
-        ManagedConnectionFactoryImpl managedFactory = new ManagedConnectionFactoryImpl();
+        ManagedConnectionFactory managedFactory = new ManagedConnectionFactoryImpl();
         Subject subject = new Subject();
         ManagedConnection mc = managedFactory.createManagedConnection(subject, cri);        
         Object o = mc.getConnection(subject, cri);
@@ -97,20 +98,35 @@ public class OutBoundConnectionTest extends AbstractBusClientServerTestBase {
             fail("The connection object should support Object method");
         }
         
+        verifyResult(o);
+    }
+    
+    
+    @Test
+    public void testGetConnectionFromSEI() throws Exception {
+        CXFConnectionRequestInfo requestInfo = new CXFConnectionRequestInfo();
+        requestInfo.setInterface(Greeter.class);
+        requestInfo.setAddress("http://localhost:9000/SoapContext/SoapPort");
+        
+        ManagedConnectionFactory factory = new ManagedConnectionFactoryImpl();
+        ManagedConnection mc = factory.createManagedConnection(null, requestInfo);
+        Object client = mc.getConnection(null, requestInfo);
+        
+        verifyResult(client);
+    }
+    
+    
+    private void verifyResult(Object o) throws Exception {
+        
         assertTrue("returned connect does not implement Connection interface", o instanceof Connection);
         assertTrue("returned connect does not implement Connection interface", o instanceof Greeter);
    
-        Greeter greeter = (Greeter) o;
-        
-        String response = new String("Bonjour");
-        try {       
-            for (int idx = 0; idx < 5; idx++) {
-                String reply = greeter.sayHi();
-                assertNotNull("no response received from service", reply);
-                assertEquals(response, reply);
-            }            
-        } catch (UndeclaredThrowableException ex) {
-            throw (Exception)ex.getCause();
+        Greeter greeter = (Greeter) o;   
+        String response = new String("Bonjour");      
+        for (int idx = 0; idx < 5; idx++) {
+            String reply = greeter.sayHi();
+            assertNotNull("no response received from service", reply);
+            assertEquals(response, reply);
         }
-    } 
+    }
 }
