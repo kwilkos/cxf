@@ -20,10 +20,9 @@ package org.apache.cxf.jca.cxf;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.net.URL;
-//import java.util.Iterator;
-import java.util.logging.Logger;
+import java.util.ResourceBundle;
 
+import javax.jws.WebService;
 import javax.resource.NotSupportedException;
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionRequestInfo;
@@ -31,14 +30,14 @@ import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
-//import javax.wsdl.Port;
-import javax.xml.namespace.QName;
-import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.connector.Connection;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jca.core.resourceadapter.AbstractManagedConnectionImpl;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.cxf.handlers.InvocationHandlerFactory;
@@ -47,40 +46,38 @@ public class ManagedConnectionImpl
     extends AbstractManagedConnectionImpl 
     implements CXFManagedConnection, Connection {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(ManagedConnectionImpl.class);    
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConnectionFactoryImpl.class);   
 
-    private InvocationHandlerFactory handlerFactory;
-    
+    private InvocationHandlerFactory handlerFactory;    
     private Object cxfService;
     private boolean connectionHandleActive;
 
     public ManagedConnectionImpl(ManagedConnectionFactoryImpl managedFactory, ConnectionRequestInfo crInfo,
                                  Subject subject) throws ResourceException {
         super(managedFactory, crInfo, subject);
-        LOG.fine("ManagedConnection created with hash: " + hashCode() + "." + toString());
     }
 
-    public void associateConnection(Object arg0) throws ResourceException {
+    public void associateConnection(Object connection) throws ResourceException {
         try {           
-            CXFInvocationHandler handler = (CXFInvocationHandler)Proxy.getInvocationHandler((Proxy)arg0);
+            CXFInvocationHandler handler = 
+                    (CXFInvocationHandler)Proxy.getInvocationHandler((Proxy)connection);
             Object managedConnection = handler.getData().getManagedConnection();
 
             if (managedConnection != this) {
                 handler.getData().setManagedConnection(this);
-                ((ManagedConnectionImpl)managedConnection).disassociateConnectionHandle(arg0);
+                ((ManagedConnectionImpl)managedConnection).disassociateConnectionHandle(connection);
 
                 if (getCXFService() == null) { 
                     // Very unlikely as THIS
                     // managed connection is
                     // already involved in a transaction.
-                    cxfService = arg0;
+                    cxfService = connection;
                     connectionHandleActive = true;
                 }
-
             }
         } catch (Exception ex) {         
-            throw new ResourceAdapterInternalException("Error associating handle " + arg0
-                                                       + " with managed connection " + this, ex);
+            throw new ResourceAdapterInternalException(
+                              new Message("ASSOCIATED_ERROR", BUNDLE).toString(), ex);
         }
     }
 
@@ -88,79 +85,90 @@ public class ManagedConnectionImpl
         return (ManagedConnectionFactoryImpl)theManagedConnectionFactory();
     }
 
-    final Object getCXFService() {
+    public Object getCXFService() {
         return cxfService;
     }
 
-    final void initialiseCXFService(ConnectionRequestInfo crInfo, Subject subject)
+    private void initializeCXFConnection(ConnectionRequestInfo crInfo, Subject subject)
         throws ResourceException {
         this.crinfo = crInfo;
         this.subject = subject;
-
-        cxfService = getCXFServiceFromBus(subject, crInfo);
+        cxfService = getCXFConnection(subject, crInfo);
     }
 
     public Object getConnection(Subject subject, ConnectionRequestInfo crInfo) throws ResourceException {
 
         Object connection = null;
-
+        
         if (getCXFService() == null) {
-            initialiseCXFService(crInfo, subject);
-            connection = getCXFService();
-            
+            initializeCXFConnection(crInfo, subject);
+            connection = getCXFService();            
         } else {
             if (!connectionHandleActive && this.crinfo.equals(crInfo)) {
                 connection = getCXFService();
             } else {
-                connection = getCXFServiceFromBus(subject, crInfo);
+                connection = getCXFConnection(subject, crInfo);
             }
         }
         connectionHandleActive = true;
         return connection;
     }
 
-    public synchronized Object getCXFServiceFromBus(Subject subject, ConnectionRequestInfo crInfo)
+    public synchronized Object getCXFConnection(Subject subject, ConnectionRequestInfo crInfo)
         throws ResourceException {
 
-        CXFConnectionRequestInfo arReqInfo = (CXFConnectionRequestInfo)crInfo;
-        
+        CXFConnectionRequestInfo requestInfo = (CXFConnectionRequestInfo)crInfo;
+        Class<?> serviceInterface = requestInfo.getInterface();
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
-        QName serviceName = arReqInfo.getServiceQName();
-        URL wsdlLocationUrl = arReqInfo.getWsdlLocationUrl();
-        
         try {
-            Object obj = null;
-            Service service = null;
-            if (wsdlLocationUrl == null) {    
-                service = Service.create(serviceName);
+            ClientProxyFactoryBean factoryBean = null;
+            if (isJaxWsServiceInterface(serviceInterface)) {
+                factoryBean = new JaxWsProxyFactoryBean();
             } else {
-                service = Service.create(wsdlLocationUrl, serviceName);
+                factoryBean = new ClientProxyFactoryBean();
             }
-        
-            QName port = arReqInfo.getPortQName();
-            if (port == null) {
-                obj = service.getPort(arReqInfo.getInterface());
-            } else {
-                obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
+            factoryBean.setServiceClass(serviceInterface);
+            if (requestInfo.getServiceName() != null) {
+                factoryBean.getServiceFactory().setServiceName(requestInfo.getServiceName());
             }
+            if (requestInfo.getPortName() != null) {
+                factoryBean.getServiceFactory().setEndpointName(requestInfo.getPortName());
+            }
+            if (requestInfo.getWsdlLocation() != null) {
+                factoryBean.getServiceFactory().setWsdlURL(requestInfo.getWsdlLocation());
+            }
+            if (requestInfo.getAddress() != null) {
+                factoryBean.setAddress(requestInfo.getAddress());
+            }
+            
+            Object obj = factoryBean.create();
             
             setSubject(subject);
             
-            return createConnectionProxy(obj, arReqInfo, subject);
+            return createConnectionProxy(obj, requestInfo, subject);
         } catch (WebServiceException wse) {
-            throw new ResourceAdapterInternalException("Failed to create proxy client for service " 
-                                                       + arReqInfo, wse);
+            throw new ResourceAdapterInternalException(new Message("FAIL_TO_GET_CXF_CONNECTION", 
+                                                                   BUNDLE, requestInfo).toString() , wse);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }
-
- 
     }
 
     public ManagedConnectionMetaData getMetaData() throws ResourceException {
-        throw new NotSupportedException("Not Supported");
+        return new CXFManagedConnectionMetaData();
     }
-
+    
+    
+    private boolean isJaxWsServiceInterface(Class<?> cls) {
+        if (cls == null) {
+            return false;
+        }
+        if (null != cls.getAnnotation(WebService.class)) {
+            return true;
+        }
+        return false;
+    }
+    
     public boolean isBound() {
         return getCXFService() != null;
     }
