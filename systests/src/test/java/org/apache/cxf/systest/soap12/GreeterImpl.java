@@ -20,6 +20,8 @@
 package org.apache.cxf.systest.soap12;
 
 import java.util.logging.Logger;
+
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.hello_world_soap12_http.Greeter;
 import org.apache.hello_world_soap12_http.PingMeFault;
 import org.apache.hello_world_soap12_http.types.FaultDetail;
@@ -31,8 +33,7 @@ import org.apache.hello_world_soap12_http.types.FaultDetail;
                   
 public class GreeterImpl implements Greeter {
 
-    private static final Logger LOG = 
-        Logger.getLogger(GreeterImpl.class.getPackage().getName());
+    private static final Logger LOG = LogUtils.getLogger(GreeterImpl.class);
     
     /* (non-Javadoc)
      * @see org.apache.hello_world_soap12_http.Greeter#sayHi()

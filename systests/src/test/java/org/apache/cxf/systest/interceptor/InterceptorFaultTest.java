@@ -33,6 +33,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.Control;
@@ -60,7 +61,7 @@ import org.junit.Test;
  * 
  */
 public class InterceptorFaultTest extends AbstractBusClientServerTestBase {
-    private static final Logger LOG = Logger.getLogger(InterceptorFaultTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(InterceptorFaultTest.class);
 
     private static final QName SOAP_FAULT_CODE = new QName("http://schemas.xmlsoap.org/soap/envelope/",
                                                            "Server");

@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -50,7 +51,7 @@ import org.junit.Test;
 
 public class ClientServerTest extends AbstractBusClientServerTestBase {
     
-    static final Logger LOG = Logger.getLogger(ClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(ClientServerTest.class);
     private final QName serviceName = new QName(
                                       "http://apache.org/hello_world/jbi",
                                                 "HelloWorldService");

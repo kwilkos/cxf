@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
+
 public class ServerLauncher {
 
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
@@ -43,7 +45,7 @@ public class ServerLauncher {
 
     private static final boolean DEFAULT_IN_PROCESS = false;
     
-    private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(ServerLauncher.class);
 
     boolean serverPassed;
     final String className;

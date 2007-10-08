@@ -42,6 +42,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactory;
@@ -57,7 +58,7 @@ import org.junit.Test;
 
 public class ServiceWSDLBuilderTest extends Assert {
 
-    private static final Logger LOG = Logger.getLogger(ServiceWSDLBuilderTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(ServiceWSDLBuilderTest.class);
     private static final String WSDL_PATH = "hello_world.wsdl";
     
     private Definition def;

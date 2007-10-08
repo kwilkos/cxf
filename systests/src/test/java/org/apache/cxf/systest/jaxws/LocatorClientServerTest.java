@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
@@ -38,7 +39,7 @@ import org.junit.Test;
 
 public class LocatorClientServerTest extends AbstractBusClientServerTestBase {
 
-    static final Logger LOG = Logger.getLogger(LocatorClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(LocatorClientServerTest.class);
     private final QName serviceName = new QName("http://apache.org/locator", "LocatorService");
 
     public static class MyServer extends AbstractBusTestServerBase {

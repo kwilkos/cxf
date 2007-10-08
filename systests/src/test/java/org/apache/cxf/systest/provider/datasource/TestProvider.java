@@ -35,6 +35,7 @@ import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.IOUtils;
 
 
@@ -45,7 +46,7 @@ import org.apache.cxf.helpers.IOUtils;
 @ServiceMode(value = Service.Mode.MESSAGE)
 public class TestProvider extends AbstractProvider<DataSource> implements Provider<DataSource> {
 
-    static final Logger LOG = Logger.getLogger(TestProvider.class.getName());
+    static final Logger LOG = LogUtils.getLogger(TestProvider.class);
     
     @javax.annotation.Resource
     public void setWebServiceContext(WebServiceContext wsc) {

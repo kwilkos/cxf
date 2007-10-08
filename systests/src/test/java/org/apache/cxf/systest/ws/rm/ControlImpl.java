@@ -27,6 +27,7 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -37,7 +38,7 @@ import org.apache.cxf.interceptor.LoggingOutInterceptor;
             targetNamespace = "http://cxf.apache.org/greeter_control")
 public class ControlImpl  extends org.apache.cxf.greeter_control.ControlImpl {
     
-    private static final Logger LOG = Logger.getLogger(ControlImpl.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(ControlImpl.class);
 
     @Override
     public boolean startGreeter(String cfgResource) {
