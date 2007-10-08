@@ -20,6 +20,7 @@
 package org.apache.cxf.common.logging;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -83,9 +84,13 @@ public final class LogUtils {
                 if (name == null) {
                     try {
                         return (Logger) cns.newInstance(cls.getName(), BundleUtils.getBundleName(cls));
-                    } catch (MissingResourceException rex) {
-                        return (Logger) cns.newInstance(cls.getName(), null);
-                    }
+                    } catch (InvocationTargetException ite) {
+                        if (ite.getTargetException() instanceof MissingResourceException) {
+                            return (Logger) cns.newInstance(cls.getName(), null);
+                        } else {
+                            throw ite;
+                        }
+                    } 
                 } else {
                     return (Logger) cns.newInstance(cls.getName(), BundleUtils.getBundleName(cls, name));
                 }
