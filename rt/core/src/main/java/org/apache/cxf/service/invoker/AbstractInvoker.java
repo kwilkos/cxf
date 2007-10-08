@@ -22,8 +22,13 @@ package org.apache.cxf.service.invoker;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -36,11 +41,11 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 /**
  * Abstract implementation of Invoker.
  * <p>
- * 
- * @author Ben Yu Feb 10, 2006 10:57:23 PM
  */
 public abstract class AbstractInvoker implements Invoker {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractInvoker.class);
+    
+    
     public Object invoke(Exchange exchange, Object o) {
 
         final Object serviceObject = getServiceObject(exchange);
@@ -73,7 +78,7 @@ public abstract class AbstractInvoker implements Invoker {
             if (params != null) {
                 paramArray = params.toArray();
             }
-            
+
             res = performInvocation(exchange, serviceObject, m, paramArray);
             
             if (exchange.isOneWay()) {
@@ -87,23 +92,35 @@ public abstract class AbstractInvoker implements Invoker {
                 t = e;
             }
             exchange.getInMessage().put(FaultMode.class, FaultMode.CHECKED_APPLICATION_FAULT);
-            throw createFault(t);
+            throw createFault(t, m, params, true);
         } catch (Fault f) {
             exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
             throw f;
         } catch (Exception e) {
             exchange.getInMessage().put(FaultMode.class, FaultMode.UNCHECKED_APPLICATION_FAULT);
-            throw createFault(e);
+            throw createFault(e, m, params, false);
         }
     }
     
-    protected Fault createFault(Throwable ex) {
-        return new Fault(ex);        
+    protected Fault createFault(Throwable ex, Method m, List<Object> params, boolean checked) {
+        if (checked) {
+            return new Fault(ex);
+        } else {
+            return new Fault(new Message("EXCEPTION_INVOKING_OBJECT",
+                                         LOG,
+                                         ex.getMessage(), m.toString(), params),
+                                         ex);
+        }
     }
     
     protected Object performInvocation(Exchange exchange, final Object serviceObject, Method m,
                                        Object[] paramArray) throws Exception {
         paramArray = insertExchange(m, paramArray, exchange);
+        if (LOG.isLoggable(Level.FINER)) {
+            LOG.log(Level.FINER, "INVOKING_METHOD", new Object[] {serviceObject, 
+                                                                  m,
+                                                                  Arrays.asList(paramArray)});
+        }
         return m.invoke(serviceObject, paramArray);
     }
 
