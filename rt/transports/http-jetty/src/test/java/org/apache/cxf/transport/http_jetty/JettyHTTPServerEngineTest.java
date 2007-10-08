@@ -148,6 +148,7 @@ public class JettyHTTPServerEngineTest extends Assert {
     @Test 
     public void testaddServants() throws Exception {
         String urlStr = "http://localhost:1234/hello/test";
+        String urlStr2 = "http://localhost:1234/hello233/test";
         JettyHTTPServerEngine engine = 
             factory.createJettyHTTPServerEngine(1234, "http");
         JettyHTTPTestHandler handler1 = new JettyHTTPTestHandler("string1");
@@ -168,8 +169,15 @@ public class JettyHTTPServerEngineTest extends Assert {
             fail("Can't get the reponse from the server " + ex);
         }
         assertEquals("the jetty http handler did not take effect", response, "string1string2");
-        
-        
+        engine.addServant(new URL(urlStr2), handler2);
+        engine.removeServant(new URL(urlStr));
+        engine.shutdown();
+        try {
+            response = getResponse(urlStr2);
+        } catch (Exception ex) {
+            fail("Server should work, even we call the shutdown" + ex);
+        }
+        assertEquals("the jetty http handler did not take effect", response, "string2");
         // set the get request
         factory.destroyForPort(1234);       
         

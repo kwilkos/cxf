@@ -205,21 +205,21 @@ public class JettyHTTPServerEngineFactory implements BusLifeCycleListener {
     }
 
     public void postShutdown() {
-        // clean up the collections       
-        portMap.clear();
+        //shut down the jetty server in the portMap
+        // To avoid the CurrentModificationException, 
+        // do not use portMap.vaules directly       
+        JettyHTTPServerEngine[] engines = portMap.values().toArray(new JettyHTTPServerEngine[0]);
+        for (JettyHTTPServerEngine engine : engines) {
+            engine.shutdown();
+        }
+        // clean up the collections
         threadingParametersMap.clear();
         tlsParametersMap.clear();
     }
 
     public void preShutdown() {
-        // shut down the jetty server in the portMap
-        // To avoid the CurrentModificationException, 
-        // do not use portMap.vaules directly
-       
-        JettyHTTPServerEngine[] engines = portMap.values().toArray(new JettyHTTPServerEngine[0]);
-        for (JettyHTTPServerEngine engine : engines) {
-            engine.shutdown();
-        }
+        // do nothing here 
+        // just let server registry to call the server stop first
     }
     
 }
