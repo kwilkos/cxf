@@ -62,14 +62,10 @@ public class ManagedConnectionImpl
 
     public void associateConnection(Object arg0) throws ResourceException {
         try {           
-            CXFInvocationHandler handler = (CXFInvocationHandler)Proxy
-                .getInvocationHandler((Proxy)arg0);
+            CXFInvocationHandler handler = (CXFInvocationHandler)Proxy.getInvocationHandler((Proxy)arg0);
             Object managedConnection = handler.getData().getManagedConnection();
-            LOG.fine("previously associated managed connection: " + managedConnection.hashCode());
 
             if (managedConnection != this) {
-                LOG.fine("associate handle " + arg0 + " with  managed connection " + this
-                            + " with hashcode: " + hashCode());
                 handler.getData().setManagedConnection(this);
                 ((ManagedConnectionImpl)managedConnection).disassociateConnectionHandle(arg0);
 
@@ -98,8 +94,6 @@ public class ManagedConnectionImpl
 
     final void initialiseCXFService(ConnectionRequestInfo crInfo, Subject subject)
         throws ResourceException {
-        LOG.fine("initialiseCXFService, this=" + this + ", info=" + crInfo + ", subject=" + subject);
-
         this.crinfo = crInfo;
         this.subject = subject;
 
@@ -108,7 +102,6 @@ public class ManagedConnectionImpl
 
     public Object getConnection(Subject subject, ConnectionRequestInfo crInfo) throws ResourceException {
 
-        LOG.fine("getConnection: this=" + this + ", info=" + crInfo + ", subject=" + subject);
         Object connection = null;
 
         if (getCXFService() == null) {
@@ -130,55 +123,38 @@ public class ManagedConnectionImpl
         throws ResourceException {
 
         CXFConnectionRequestInfo arReqInfo = (CXFConnectionRequestInfo)crInfo;
+        
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
-
-//         Bus bus = getBus();
-
-        //Thread.currentThread().setContextClassLoader(bus.getClass().getClassLoader());
-
         QName serviceName = arReqInfo.getServiceQName();
         URL wsdlLocationUrl = arReqInfo.getWsdlLocationUrl();
-        if (wsdlLocationUrl == null) { 
-            // if the wsdlLocationUrl is null, set the default wsdl
-            try {
-                Object obj = null;
-                Service service = Service.create(serviceName);
-            
-                QName port = arReqInfo.getPortQName();
-                if (port == null) {
-                    obj = service.getPort(arReqInfo.getInterface());
-                } else {
-                    obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
-                }
-                setSubject(subject);
-                return createConnectionProxy(obj, arReqInfo, subject);
-            } catch (WebServiceException wse) {
-                throw new ResourceAdapterInternalException("Failed to create proxy client for service "
-                                                           + crInfo, wse);
-            } finally {
-//                Thread.currentThread().setContextClassLoader(orig);
-            }
-
-        }
-
+        
         try {
             Object obj = null;
-            Service service = Service.create(wsdlLocationUrl, serviceName);
-            if (arReqInfo.getPortQName() != null) {                
-                obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
+            Service service = null;
+            if (wsdlLocationUrl == null) {    
+                service = Service.create(serviceName);
             } else {
-                obj = service.getPort(arReqInfo.getInterface());
-                
+                service = Service.create(wsdlLocationUrl, serviceName);
             }
-
+        
+            QName port = arReqInfo.getPortQName();
+            if (port == null) {
+                obj = service.getPort(arReqInfo.getInterface());
+            } else {
+                obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
+            }
+            
             setSubject(subject);
+            
             return createConnectionProxy(obj, arReqInfo, subject);
-
         } catch (WebServiceException wse) {
-            throw new ResourceAdapterInternalException("Failed to getPort for " + crInfo, wse);
+            throw new ResourceAdapterInternalException("Failed to create proxy client for service " 
+                                                       + arReqInfo, wse);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }
+
+ 
     }
 
     public ManagedConnectionMetaData getMetaData() throws ResourceException {
@@ -209,7 +185,7 @@ public class ManagedConnectionImpl
 
         Class classes[] = {Connection.class, cri.getInterface()};
 
-        return Proxy.newProxyInstance(cri.getInterface().getClassLoader(), classes,
+        return Proxy.newProxyInstance(cri.getInterface().getClassLoader(), classes, 
                                       createInvocationHandler(obj, subject));
     }
 

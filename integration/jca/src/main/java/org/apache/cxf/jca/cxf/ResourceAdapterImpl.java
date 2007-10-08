@@ -35,7 +35,6 @@ import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 
 import org.apache.cxf.Bus;
-//import org.apache.cxf.BusException;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.resourceadapter.ResourceBean;
 
@@ -47,12 +46,10 @@ public class ResourceAdapterImpl extends ResourceBean implements ResourceAdapter
    
     public ResourceAdapterImpl() {
         super();
-        LOG.fine("Resource Adapter is constructed without props");
     }
 
     public ResourceAdapterImpl(Properties props) {
         super(props);
-        LOG.fine("Resource Adapter is constructed with props");
     }
     
     public void registerBus(Bus bus) {
@@ -79,26 +76,11 @@ public class ResourceAdapterImpl extends ResourceBean implements ResourceAdapter
     public void stop() {
         LOG.fine("Resource Adapter is stopping by appserver...");
         if (!busCache.isEmpty()) {
-
             Iterator busIterator = busCache.iterator();
             Bus bus = null;
-//             int busCounter = 0;
-
             while (busIterator.hasNext()) {
-
-//                 busCounter++;
                 bus = (Bus)busIterator.next();
-
-//                 try {
-//                     if (bus != null) {
                 bus.shutdown(true);
-//                         LOG.fine("Number " + busCounter + " Bus: " + bus + " has been shut down");
-//                     } else {
-//                         LOG.fine("Number " + busCounter + " Bus is null");
-//                     }
-//                 } catch (BusException be) {
-//                     LOG.fine("Failed to shutdown bus when stop ResourceAdapter, reason: " + be);
-//                 }
             }
         }   
     }
@@ -120,6 +102,7 @@ public class ResourceAdapterImpl extends ResourceBean implements ResourceAdapter
         return ctx;
     }
 }
+
 
 
 

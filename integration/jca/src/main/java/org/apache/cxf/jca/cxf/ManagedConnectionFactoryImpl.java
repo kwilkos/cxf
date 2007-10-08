@@ -125,7 +125,6 @@ public class ManagedConnectionFactoryImpl
                         + "the ConnectionManager argument can not be null");
         }
         init(connMgr.getClass().getClassLoader());
-        //jcaBusFactory.setAppserverClassLoader(connMgr.getClass().getClassLoader());
         LOG.fine("Setting AppServer classloader in jcaBusFactory. " + connMgr.getClass().getClassLoader());
         return new ConnectionFactoryImpl(this, connMgr);
     }
@@ -138,7 +137,6 @@ public class ManagedConnectionFactoryImpl
     }
 
     public void close() throws javax.resource.spi.ResourceAdapterInternalException {
-        LOG.info("close, this=" + this);
     }
 
     protected synchronized void init(ClassLoader appserverClassLoader) throws ResourceException {
