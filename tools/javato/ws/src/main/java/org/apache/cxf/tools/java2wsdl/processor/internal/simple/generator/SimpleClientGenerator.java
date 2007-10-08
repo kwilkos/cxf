@@ -55,7 +55,7 @@ public class SimpleClientGenerator extends AbstractSimpleGenerator {
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
-            setAttributes("seiClass", ((Class)env.get(ToolConstants.SEI_CLASS)).getName());
+            setAttributes("seiClass", env.get(ToolConstants.SEI_CLASS));
             setCommonAttributes();
             doWrite(CLIENT_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Client"));
 
