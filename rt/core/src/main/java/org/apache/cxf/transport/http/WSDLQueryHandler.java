@@ -24,8 +24,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +52,7 @@ import org.xml.sax.SAXException;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
@@ -80,13 +83,20 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     public boolean isRecognizedQuery(String baseUri, String ctx, 
                                      EndpointInfo endpointInfo, boolean contextMatchExact) {
         if (baseUri != null 
-            && (baseUri.toLowerCase().contains("?wsdl")
-                || baseUri.toLowerCase().contains("?xsd="))) {
-            if (contextMatchExact) {
-                return endpointInfo.getAddress().contains(ctx);
-            } else {
-                // contextMatchStrategy will be "stem"
-                return endpointInfo.getAddress().contains(getStem(baseUri));
+            && (baseUri.contains("?") 
+                && (baseUri.toLowerCase().contains("wsdl")
+                || baseUri.toLowerCase().contains("xsd=")))) {
+            
+            int idx = baseUri.indexOf("?");
+            Map<String, String> map = parseQueryString(baseUri.substring(idx + 1));
+            if (map.containsKey("wsdl")
+                || map.containsKey("xsd")) {
+                if (contextMatchExact) {
+                    return endpointInfo.getAddress().contains(ctx);
+                } else {
+                    // contextMatchStrategy will be "stem"
+                    return endpointInfo.getAddress().contains(getStem(baseUri.substring(0, idx)));
+                }
             }
         }
         return false;
@@ -95,20 +105,11 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     public void writeResponse(String baseUri, String ctxUri,
                               EndpointInfo endpointInfo, OutputStream os) {
         try {
-            int idx = baseUri.toLowerCase().indexOf("?wsdl");
-            String base = null;
-            String wsdl = "";
-            String xsd =  null;
-            if (idx != -1) {
-                base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?wsdl"));
-                wsdl = baseUri.substring(baseUri.toLowerCase().indexOf("?wsdl") + 5);
-                if (wsdl.length() > 0) {
-                    wsdl = wsdl.substring(1);
-                }
-            } else {
-                base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?xsd="));
-                xsd = baseUri.substring(baseUri.toLowerCase().indexOf("?xsd=") + 5);
-            }
+            int idx = baseUri.toLowerCase().indexOf("?");
+            Map<String, String> params = parseQueryString(baseUri.substring(idx + 1));
+            String base = baseUri.substring(0, baseUri.toLowerCase().indexOf("?"));
+            String wsdl = params.get("wsdl");
+            String xsd =  params.get("xsd");
             
             Map<String, Definition> mp = CastUtils.cast((Map)endpointInfo.getService()
                                                         .getProperty(WSDLQueryHandler.class.getName()));
@@ -131,7 +132,7 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                                                  + ".Schemas"));
             }
             
-            if (!mp.containsKey(wsdl)) {
+            if (!mp.containsKey("")) {
                 Definition def = new ServiceWSDLBuilder(bus, endpointInfo.getService()).build();
                 mp.put("", def);
                 updateDefinition(def, mp, smp, base, endpointInfo);
@@ -141,6 +142,12 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
             Document doc;
             if (xsd == null) {
                 Definition def = mp.get(wsdl);
+                if (def == null) {
+                    String wsdl2 = resolveWithCatalogs(OASISCatalogManager.getCatalogManager(bus),
+                                                       wsdl,
+                                                       base);
+                    def = mp.get(wsdl2);
+                }
     
                 WSDLWriter wsdlWriter = bus.getExtension(WSDLManager.class)
                     .getWSDLFactory().newWSDLWriter();
@@ -148,8 +155,21 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
                 doc = wsdlWriter.getDocument(def);
             } else {
                 SchemaReference si = smp.get(xsd);
-                ResourceManagerWSDLLocator rml = new ResourceManagerWSDLLocator(si.getReferencedSchema()
-                                                                                .getDocumentBaseURI(),
+                if (si == null) {
+                    String xsd2 = resolveWithCatalogs(OASISCatalogManager.getCatalogManager(bus),
+                                                       xsd,
+                                                       base);
+                    si = smp.get(xsd2);
+                }
+                
+                String uri = si.getReferencedSchema().getDocumentBaseURI();
+                uri = resolveWithCatalogs(OASISCatalogManager.getCatalogManager(bus),
+                                          uri,
+                                          si.getReferencedSchema().getDocumentBaseURI());
+                if (uri == null) {
+                    uri = si.getReferencedSchema().getDocumentBaseURI();
+                }
+                ResourceManagerWSDLLocator rml = new ResourceManagerWSDLLocator(uri,
                                                                                 bus);
                 
                 InputSource src = rml.getBaseInputSource();
@@ -207,20 +227,46 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
         }
     }
     
+
+    static String resolveWithCatalogs(OASISCatalogManager catalogs, String start, String base) {
+        String resolvedSchemaLocation = null;
+        try {
+            resolvedSchemaLocation = catalogs.getCatalog().resolveSystem(start);
+            if (resolvedSchemaLocation == null) {
+                resolvedSchemaLocation = catalogs.getCatalog().resolveURI(start);
+            }
+            if (resolvedSchemaLocation == null) {
+                resolvedSchemaLocation = catalogs.getCatalog().resolvePublic(start, base);
+            }
+        } catch (Exception ex) {
+            //ignore
+        }
+        return resolvedSchemaLocation;
+    }
     
     protected void updateDefinition(Definition def, Map<String, Definition> done,
                                   Map<String, SchemaReference> doneSchemas,
                                   String base, EndpointInfo ei) {
+        OASISCatalogManager catalogs = OASISCatalogManager.getCatalogManager(bus);    
+        
         Collection<List> imports = CastUtils.cast((Collection<?>)def.getImports().values());
         for (List lst : imports) {
             List<Import> impLst = CastUtils.cast(lst);
             for (Import imp : impLst) {
                 String start = imp.getLocationURI();
-                try {
-                    //check to see if it's aleady in a URL format.  If so, leave it.
-                    new URL(start);
-                } catch (MalformedURLException e) {
+                String resolvedSchemaLocation = resolveWithCatalogs(catalogs, start, base);
+                
+                if (resolvedSchemaLocation == null) {
+                    try {
+                        //check to see if it's aleady in a URL format.  If so, leave it.
+                        new URL(start);
+                    } catch (MalformedURLException e) {
+                        done.put(start, imp.getDefinition());
+                        updateDefinition(imp.getDefinition(), done, doneSchemas, base, ei);
+                    }
+                } else {
                     done.put(start, imp.getDefinition());
+                    done.put(resolvedSchemaLocation, imp.getDefinition());
                     updateDefinition(imp.getDefinition(), done, doneSchemas, base, ei);
                 }
             }
@@ -245,17 +291,25 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
     protected void updateSchemaImports(Schema schema,
                                            Map<String, SchemaReference> doneSchemas,
                                            String base) {
+        OASISCatalogManager catalogs = OASISCatalogManager.getCatalogManager(bus);    
         Collection<List>  imports = CastUtils.cast((Collection<?>)schema.getImports().values());
         for (List lst : imports) {
             List<SchemaImport> impLst = CastUtils.cast(lst);
             for (SchemaImport imp : impLst) {
                 String start = imp.getSchemaLocationURI();
                 if (start != null && !doneSchemas.containsKey(start)) {
-                    try {
-                        //check to see if it's aleady in a URL format.  If so, leave it.
-                        new URL(start);
-                    } catch (MalformedURLException e) {
+                    String resolvedSchemaLocation = resolveWithCatalogs(catalogs, start, base);
+                    if (resolvedSchemaLocation == null) {
+                        try {
+                            //check to see if it's aleady in a URL format.  If so, leave it.
+                            new URL(start);
+                        } catch (MalformedURLException e) {
+                            doneSchemas.put(start, imp);
+                            updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
+                        }
+                    } else {
                         doneSchemas.put(start, imp);
+                        doneSchemas.put(resolvedSchemaLocation, imp);
                         updateSchemaImports(imp.getReferencedSchema(), doneSchemas, base);
                     }
                 }
@@ -264,12 +318,23 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
         List<SchemaReference> includes = CastUtils.cast(schema.getIncludes());
         for (SchemaReference included : includes) {
             String start = included.getSchemaLocationURI();
-            if (start != null && !doneSchemas.containsKey(start)) {
-                try {
-                    //check to see if it's aleady in a URL format.  If so, leave it.
-                    new URL(start);
-                } catch (MalformedURLException e) {
+
+            if (start != null) {
+                String resolvedSchemaLocation = resolveWithCatalogs(catalogs, start, base);
+                if (resolvedSchemaLocation == null) {
+                    if (!doneSchemas.containsKey(start)) {
+                        try {
+                            //check to see if it's aleady in a URL format.  If so, leave it.
+                            new URL(start);
+                        } catch (MalformedURLException e) {
+                            doneSchemas.put(start, included);
+                            updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
+                        }
+                    }
+                } else if (!doneSchemas.containsKey(start) 
+                    || !doneSchemas.containsKey(resolvedSchemaLocation)) {
                     doneSchemas.put(start, included);
+                    doneSchemas.put(resolvedSchemaLocation, included);
                     updateSchemaImports(included.getReferencedSchema(), doneSchemas, base);
                 }
             }
@@ -289,10 +354,30 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
         } catch (MalformedURLException e) {
             LOG.log(Level.WARNING, "URL creation failed: ", e);
         }
-        String port = String.valueOf(url.getPort());
-        baseURI = baseURI.substring(baseURI.indexOf(port) + port.length(), baseURI.lastIndexOf("/"));
-        
+        if (url != null) {
+            baseURI = url.getPath();
+            int idx = baseURI.lastIndexOf('/');
+            if (idx != -1) {
+                baseURI = baseURI.substring(0, idx + 1);
+            }
+        }        
         return baseURI;
+    }
+    
+    static Map<String, String> parseQueryString(String s) {
+        Map<String, String> ht = new HashMap<String, String>();
+        StringTokenizer st = new StringTokenizer(s, "&");
+        while (st.hasMoreTokens()) {
+            String pair = (String)st.nextToken();
+            int pos = pair.indexOf('=');
+            if (pos == -1) {
+                ht.put(pair.toLowerCase(), "");
+            } else {
+                ht.put(pair.substring(0, pos).toLowerCase(),
+                       pair.substring(pos + 1));
+            }
+        }
+        return ht;
     }
      
 }

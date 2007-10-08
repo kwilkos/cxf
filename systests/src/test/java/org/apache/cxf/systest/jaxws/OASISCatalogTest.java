@@ -19,20 +19,24 @@
 
 package org.apache.cxf.systest.jaxws;
 
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.catalog.CatalogWSDLLocator;
 import org.apache.cxf.catalog.OASISCatalogManager;
+import org.apache.cxf.helpers.IOUtils;
 
 import org.apache.hello_world.Greeter;
+import org.apache.hello_world.GreeterImpl;
 import org.apache.hello_world.services.SOAPService;
 
 import org.junit.Assert;
@@ -48,6 +52,30 @@ public class OASISCatalogTest extends Assert {
         new QName("http://apache.org/hello_world/services",
                   "SoapPort");
 
+    @Test
+    public void testWSDLPublishWithCatalogs() throws Exception {
+        Endpoint ep = Endpoint.publish(null, new GreeterImpl());
+        try {
+            URL url = new URL("http://localhost:9000/SoapContext/SoapPort?"
+                              + "xsd=testutils/hello_world_schema2.xsd");
+            assertNotNull(url.getContent());
+            
+            
+            url = new URL("http://localhost:9000/SoapContext/SoapPort"
+                          + "?xsd=testutils/hello_world_schema.xsd");
+            String result = IOUtils.toString((InputStream)url.getContent());
+            assertTrue(result.contains("xsd=testutils/hello_world_schema2.xsd"));
+
+            url = new URL("http://localhost:9000/SoapContext/SoapPort"
+                          + "?wsdl=testutils/hello_world_messages_catalog.wsdl");
+            result = IOUtils.toString((InputStream)url.getContent());
+            assertTrue(result.contains("xsd=testutils/hello_world_schema.xsd"));
+
+        } finally {
+            ep.stop();
+        }
+    }
+    
     @Test
     public void testClientWithDefaultCatalog() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/catalog/hello_world_services.wsdl");
