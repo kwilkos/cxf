@@ -23,7 +23,11 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <bean class="org.apache.cxf.transport.http_jetty.JettyHTTPTransportFactory" lazy-init="true">
+	<import resource="classpath:META-INF/cxf/cxf-extension-http.xml" />
+        
+    <bean class="org.apache.cxf.transport.http_jetty.JettyHTTPTransportFactory"
+    	lazy-init="false" 
+    	depends-on="org.apache.cxf.transport.http.ClientOnlyHTTPTransportFactory">
         <property name="bus" ref="cxf"/>
         <property name="transportIds">
             <list>
@@ -36,4 +40,5 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </list>
         </property>
     </bean>
+
 </beans>

@@ -47,7 +47,7 @@ public class ClientTest extends AbstractRestTest {
         sf.setBus(getBus());
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
-        sf.setAddress("http://localhost:9001/foo/");
+        sf.setAddress("http://localhost:9002/foo/");
         sf.setServiceBean(new CustomerService());
         //sf.setBindingId(HttpBindingFactory.HTTP_BINDING_ID);
         

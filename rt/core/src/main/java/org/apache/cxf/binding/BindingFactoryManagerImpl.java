@@ -30,6 +30,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.configuration.spring.MapProvider;
 
 public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     
@@ -49,7 +50,10 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
         }
         this.bindingFactories = bindingFactories;
     }
-
+    public BindingFactoryManagerImpl(MapProvider<String, BindingFactory> bindingFactories) {
+        super();
+        this.bindingFactories = bindingFactories.createMap();
+    }
 
     @Resource
     public void setBus(Bus b) {

@@ -165,11 +165,28 @@ public class JettyHTTPServerEngine
      * remove it from the factory's cache. 
      */
     public void shutdown() {
-        if (servantCount == 0) {
-            factory.destroyForPort(port);
-        } else {
-            LOG.log(Level.WARNING, "FAILED_TO_SHOWDOWN_ENGINE_MSG", port);
+        if (shouldDestroyPort()) {
+            if (servantCount == 0) {
+                factory.destroyForPort(port);
+            } else {
+                LOG.log(Level.WARNING, "FAILED_TO_SHOWDOWN_ENGINE_MSG", port);
+            }
         }
+    }
+    
+    private boolean shouldDestroyPort() {
+        //if we shutdown the port, on SOME OS's/JVM's, if a client
+        //in the same jvm had been talking to it at some point and keep alives
+        //are on, then the port is held open for about 60 seconds
+        //afterword and if we restart, connections will then 
+        //get sent into the old stuff where there are 
+        //no longer any servant registered.   They pretty much just hang.
+        
+        //this is most often seen in our unit/system tests that 
+        //test things in the same VM.
+        
+        String s = System.getProperty("org.apache.cxf.transports.http_jetty.DontClosePort");
+        return !Boolean.valueOf(s);
     }
     
     /**
@@ -475,6 +492,8 @@ public class JettyHTTPServerEngine
         }
     }
     
+
+    
     /**
      * This method is called by the ServerEngine Factory to destroy the 
      * listener.
@@ -482,10 +501,11 @@ public class JettyHTTPServerEngine
      */
     protected void stop() throws Exception {
         if (server != null) {
+            
             connector.close();
             server.stop();
             server.destroy();
-            server   = null;
+            server = null;
         }
     }
     
