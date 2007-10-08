@@ -75,7 +75,6 @@ abstract class CXFInvocationHandlerBase<T> implements CXFInvocationHandler {
             //get the exception when call the method
             RuntimeException re = new RuntimeException("Unexpected exception from method " + targetMethod,
                                                       targetException);
-            LOG.info(re.toString());
             ret = re;
         }
         return ret;

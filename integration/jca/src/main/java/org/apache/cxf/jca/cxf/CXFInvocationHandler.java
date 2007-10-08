@@ -22,7 +22,8 @@ import java.lang.reflect.InvocationHandler;
 
 public interface CXFInvocationHandler extends InvocationHandler {
 
-    void setNext(CXFInvocationHandler next); 
+    void setNext(CXFInvocationHandler next);
+    
     CXFInvocationHandler getNext(); 
 
     CXFInvocationHandlerData getData(); 

@@ -295,7 +295,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         try {
             Bus mockBus = EasyMock.createMock(Bus.class);
             jcaBusFactory.setBus(mockBus);
-            jcaBusFactory.initialiseServants();
+            jcaBusFactory.initializeServants();
             fail("exception expected");
         } catch (ResourceAdapterInternalException re) {
             assertTrue("EJBServiceProperties is not set.", re.getMessage()
@@ -314,7 +314,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         Bus mockBus = EasyMock.createMock(Bus.class);
 
         jcaBusFactory.setBus((Bus)mockBus);
-        jcaBusFactory.initialiseServants();
+        jcaBusFactory.initializeServants();
         
     }
     
@@ -324,7 +324,6 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         
         JCABusFactory jcaBusFactory = new JCABusFactory(null);
         jcaBusFactory.setBus(springBus);
-        jcaBusFactory.initBus();
         
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         Service service = jcaBusFactory.createService(HelloInterface.class, bean);
@@ -363,7 +362,6 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         
         JCABusFactory jcaBusFactory = new JCABusFactory(null);
         jcaBusFactory.setBus(bus);
-        jcaBusFactory.initBus();
         
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         Service service = jcaBusFactory.createService(HelloInterface.class, bean);
