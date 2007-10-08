@@ -104,8 +104,7 @@ Before building this demo, build common dir first.
   (Windows) > cd common
             > ant
 
-The demo may be built from the directory 
-hello_world_soap_http.
+The demo needs be built from the directory outbound.
 
 Issue the command:
 
@@ -121,7 +120,7 @@ demo.
 
 To launch the service:
 
-1.  Move into the sample/hello_world/ directory.
+1.  Move into the sample/wsdl_first/ directory.
 2.  launch server
     Issue the command: 
   (Unix)    % ant server
