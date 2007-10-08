@@ -83,10 +83,9 @@ public class ManagedConnectionImplTest extends Assert {
     @Test
     public void testGetMetaData() throws Exception {
         try {
-            mc.getMetaData();
-            fail("expect exception");
+            mc.getMetaData();            
         } catch (NotSupportedException expected) {
-            // do nothing here
+            fail("Got the Exception here");
         }
     }
 
@@ -94,7 +93,7 @@ public class ManagedConnectionImplTest extends Assert {
     public void testGetSetSubject() {
         Subject s = new Subject();
         mc.setSubject(s);
-        assertEquals("got back what we set", s, mc.getSubject());
+        assertEquals("Got back what we set", s, mc.getSubject());
     }
 
     @Test
@@ -103,7 +102,7 @@ public class ManagedConnectionImplTest extends Assert {
         };
 
         mc.setConnectionRequestInfo(ri);
-        assertEquals("got back what we set", ri, mc.getConnectionRequestInfo());
+        assertEquals("Got back what we set", ri, mc.getConnectionRequestInfo());
     }
 
     @Test
