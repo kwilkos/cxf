@@ -70,7 +70,7 @@ public class WSDLLocatorImpl implements WSDLLocator {
     }
 
     public InputSource getBaseInputSource() {
-        InputSource result =  resolve(baseUri, null);
+        InputSource result = resolve(baseUri, null);
         baseUri = resolver.getURI();
         return result;
     }
