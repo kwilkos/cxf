@@ -1,4 +1,4 @@
-HELLO WORLD (SOAP OVER HTTP) CXF J2EE DEMO
+HELLO WORLD (SOAP OVER HTTP) CXF J2EE OUTBOUND DEMO
 ============================================
 ============================================
 
