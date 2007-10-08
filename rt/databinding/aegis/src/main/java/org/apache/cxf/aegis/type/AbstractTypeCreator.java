@@ -249,7 +249,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
     }
 
     protected Type getOrCreateMapValueType(TypeClassInfo info) {
-        return nextCreator.getOrCreateMapKeyType(info);
+        return nextCreator.getOrCreateMapValueType(info);
     }
 
     protected Type createMapType(TypeClassInfo info, Type keyType, Type valueType) {
@@ -392,7 +392,8 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         Object genericType;
 
         Object keyType;
-
+        Object valueType;
+        
         QName mappedName;
 
         QName typeName;
@@ -500,6 +501,14 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         @Override
         public String toString() {
             return "TypeClassInfo " + getDescription();
+        }
+
+        public Object getValueType() {
+            return valueType;
+        }
+
+        public void setValueType(Object valueType) {
+            this.valueType = valueType;
         }
     }
 }

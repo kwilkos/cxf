@@ -16,40 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.type.java5.map;
 
-/**
- * Data object used to test Aegis mapping of maps.
- */
-public class Student {
-    private String name;
-    private long id;
-    
-    public Student() {
-        name = "";
-        id = Long.valueOf(0);
-    }
-    
-    public Student(String name, long id) {
-        this.name = name;
-        this.id = id;
+package org.apache.cxf.aegis.type.map.fortest;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class MapTestImpl implements MapTest {
+
+    public Map<String, Long> getMapStringToLong() {
+        Map<String, Long> map = new HashMap<String, Long>();
+        map.put("one", Long.valueOf(1));
+        map.put("twenty-seven", Long.valueOf(27));
+        return map;
     }
 
-    public long getId() {
-        return id;
+    public void takeMap(ObjectWithAMap map) {
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public ObjectWithAMap returnObjectWithAMap() {
+        return new ObjectWithAMap();
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public Map<Long, String> getMapLongToString() {
+        Map<Long, String> map = new HashMap<Long, String>();
+        map.put(Long.valueOf(1), "one");
+        map.put(Long.valueOf(27), "twenty-seven");
+        return map;
     }
 
 }

@@ -68,6 +68,31 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         
     }
     
+    @Test
+    public void testEndpointStop() throws Exception {   
+        GreeterImpl greeter = new GreeterImpl();
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, (String)null);
+ 
+        WebServiceContext ctx = greeter.getContext();
+        assertNull(ctx);
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+        ctx = greeter.getContext();
+        
+        assertNotNull(ctx);
+        
+        // Test that calling stop on the Endpoint works
+        assertTrue(endpoint.isPublished());
+        endpoint.stop();
+        assertFalse(endpoint.isPublished());
+        
+    }
+    
 
     @Test
     public void testEndpointServiceConstructor() throws Exception {   

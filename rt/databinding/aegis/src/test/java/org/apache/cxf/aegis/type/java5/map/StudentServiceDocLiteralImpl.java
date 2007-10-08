@@ -23,11 +23,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class StudentServiceImpl implements StudentService {
+public class StudentServiceDocLiteralImpl implements StudentServiceDocLiteral {
     
     private Map<Long, Student> studentMap;
     
-    public StudentServiceImpl() {
+    public StudentServiceDocLiteralImpl() {
         studentMap = new HashMap<Long, Student>();
         studentMap.put(Long.valueOf(1), new Student("Student1", 1));
         studentMap.put(Long.valueOf(100), new Student("Student100", 100));
