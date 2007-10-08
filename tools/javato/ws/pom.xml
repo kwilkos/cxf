@@ -238,9 +238,8 @@
         </plugins>
     </build>
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/core</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/javato/ws</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-tools-java2wsdl</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato/ws</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/tools/javato/ws</developerConnection>
     </scm>
 
 </project>
