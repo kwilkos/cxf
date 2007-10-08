@@ -61,7 +61,7 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
         super(factory, scope);
     }
 
-    protected Fault createFault(Throwable ex) {
+    protected Fault createFault(Throwable ex, Method m, List<Object> params, boolean checked) {
         //map the JAX-WS faults
         if (ex instanceof SOAPFaultException) {
             SOAPFaultException sfe = (SOAPFaultException)ex;
@@ -73,7 +73,7 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
             
             return fault;
         }
-        return super.createFault(ex);
+        return super.createFault(ex, m, params, checked);
     }
     
     protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
