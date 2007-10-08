@@ -19,16 +19,29 @@
 package org.apache.cxf.aegis.type;
 
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,12 +49,12 @@ import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.XMLBeanTypeInfo;
 import org.apache.cxf.aegis.util.NamespaceHelper;
-import org.apache.cxf.aegis.util.jdom.StaxBuilder;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
+import org.jdom.input.DOMBuilder;
 import org.jdom.xpath.XPath;
 
 /**
@@ -79,7 +92,6 @@ import org.jdom.xpath.XPath;
  * uniquely identify it. So in the example above, the mapping specifies will
  * apply to both method 1 and method 2, since the parameter at index 0 is not
  * specified.
- * 
  */
 public class XMLTypeCreator extends AbstractTypeCreator {
     private static final Log LOG = LogFactory.getLog(XMLTypeCreator.class);
@@ -91,9 +103,84 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         stopClasses.add(Throwable.class);
     }
 
+    private static DocumentBuilderFactory aegisDocumentBuilderFactory;
+    private static Schema aegisSchema;
     // cache of classes to documents
     private Map<String, Document> documents = new HashMap<String, Document>();
+    static {
+        String path = "/META-INF/cxf/aegis.xsd";
+        InputStream is = XMLTypeCreator.class.getResourceAsStream(path);
+        if (is != null) {
+            try {
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                aegisSchema = schemaFactory.newSchema(new StreamSource(is));
+                is.close();
 
+                aegisDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+                aegisDocumentBuilderFactory.setSchema(aegisSchema);
+            } catch (IOException ie) {
+                LOG.error("Error reading Aegis schema", ie);
+            } catch (FactoryConfigurationError e) {
+                LOG.error("Error reading Aegis schema", e);
+            } catch (SAXException e) {
+                LOG.error("Error reading Aegis schema", e);
+            }
+        }
+    }
+
+    private Document readAegisFile(InputStream is, final String path) throws IOException {
+        DocumentBuilder documentBuilder;
+        try {
+            documentBuilder = aegisDocumentBuilderFactory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            LOG.error("Unable to create a document builder, e");
+            throw new RuntimeException("Unable to create a document builder, e");
+        }
+        org.w3c.dom.Document doc;
+        documentBuilder.setErrorHandler(new ErrorHandler() {
+
+            private String errorMessage(SAXParseException exception) {
+                return MessageFormat.format("{0} at {1} line {2} column {3}.",
+                                            new Object[] {exception.getMessage(), path,
+                                                          Integer.valueOf(exception.getLineNumber()),
+                                                          Integer.valueOf(exception.getColumnNumber())});
+            }
+            
+            private void throwDatabindingException(String message) {
+                //DatabindingException is quirky. This dance is required to get the full message
+                //to where it belongs.
+                DatabindingException e = new DatabindingException(message);
+                e.setMessage(message);
+                throw e;
+            }
+
+            public void error(SAXParseException exception) throws SAXException {
+                String message = errorMessage(exception);
+                LOG.error(message, exception);
+                throwDatabindingException(message);
+
+            }
+
+            public void fatalError(SAXParseException exception) throws SAXException {
+                String message = errorMessage(exception);
+                LOG.error(message, exception);
+                throwDatabindingException(message);
+            }
+
+            public void warning(SAXParseException exception) throws SAXException {
+                LOG.info(errorMessage(exception), exception);
+            }
+        });
+
+        try {
+            doc = documentBuilder.parse(is);
+        } catch (SAXException e) {
+            LOG.error("Error parsing Aegis file.", e); // can't happen due to
+                                                        // above.
+            return null;
+        }
+        return new DOMBuilder().build(doc);
+    }
 
     protected Document getDocument(Class clazz) {
         if (clazz == null) {
@@ -111,13 +198,13 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         }
         LOG.debug("Found mapping file : " + path);
         try {
-            doc = new StaxBuilder().build(is);
+            doc = readAegisFile(is, path);
             documents.put(clazz.getName(), doc);
             return doc;
-        } catch (XMLStreamException e) {
+        } catch (IOException e) {
             LOG.error("Error loading file " + path, e);
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -293,11 +380,19 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         }
 
         // find the elements that apply to the specified method
-        TypeClassInfo info = new TypeClassInfo();
+        TypeClassInfo info = nextCreator.createClassInfo(m, index); // start
+        // with the
+        // java5
+        // (or whatever) version.
+        if (info == null) {
+            info = new TypeClassInfo();
+        }
+
         info.setDescription("method " + m.getName() + " parameter " + index);
         if (index >= 0) {
             if (index >= m.getParameterTypes().length) {
-                throw new DatabindingException("Method " + m 
+                throw new DatabindingException("Method " 
+                                               + m 
                                                + " does not have a parameter at index " 
                                                + index);
             }
@@ -307,14 +402,14 @@ public class XMLTypeCreator extends AbstractTypeCreator {
                                                       + "']/parameter[@index='" + index + "']/parent::*");
             if (nodes.size() == 0) {
                 // no mapping for this method
-                return nextCreator.createClassInfo(m, index);
+                return info;
             }
             // pick the best matching node
             Element bestMatch = getBestMatch(mapping, m, nodes);
 
             if (bestMatch == null) {
                 // no mapping for this method
-                return nextCreator.createClassInfo(m, index);
+                return info;
             }
             info.setTypeClass(m.getParameterTypes()[index]);
             // info.setAnnotations(m.getParameterAnnotations()[index]);
@@ -324,12 +419,12 @@ public class XMLTypeCreator extends AbstractTypeCreator {
             List<Element> nodes = getMatches(mapping, "./method[@name='" + m.getName()
                                                       + "']/return-type/parent::*");
             if (nodes.size() == 0) {
-                return nextCreator.createClassInfo(m, index);
+                return info;
             }
             Element bestMatch = getBestMatch(mapping, m, nodes);
             if (bestMatch == null) {
                 // no mapping for this method
-                return nextCreator.createClassInfo(m, index);
+                return info;
             }
             info.setTypeClass(m.getReturnType());
             // info.setAnnotations(m.getAnnotations());
@@ -345,6 +440,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         info.setMappedName(createQName(parameter, parameter.getAttributeValue("mappedName")));
         setComponentType(info, mapping, parameter);
         setKeyType(info, mapping, parameter);
+        setValueType(info, mapping, parameter);
         setType(info, parameter);
 
         String min = parameter.getAttributeValue("minOccurs");
@@ -405,7 +501,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
     protected Type getOrCreateMapValueType(TypeClassInfo info) {
         Type type = null;
         if (info.getGenericType() != null) {
-            type = createTypeFromGeneric(info.getGenericType());
+            type = createTypeFromGeneric(info.getValueType());
         }
 
         if (type == null) {
@@ -474,6 +570,13 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         }
     }
 
+    private void setValueType(TypeClassInfo info, Element mapping, Element parameter) {
+        String componentType = parameter.getAttributeValue("valueType");
+        if (componentType != null) {
+            info.setValueType(loadGeneric(info, mapping, componentType));
+        }
+    }
+
     private Element getBestMatch(Element mapping, Method method, List<Element> availableNodes) {
         // first find all the matching method names
         List<Element> nodes = getMatches(mapping, "./method[@name='" + method.getName() + "']");
@@ -500,13 +603,13 @@ public class XMLTypeCreator extends AbstractTypeCreator {
                 // first we check if the parameter index is specified
                 Element match = getMatch(element, "parameter[@index='" + i + "']");
                 if (match != null
-                    // we check if the type is specified and matches
+                // we check if the type is specified and matches
                     && match.getAttributeValue("class") != null
                     // if it doesn't match, then we can definitely rule out
                     // this result
                     && !match.getAttributeValue("class").equals(parameterType.getName())) {
-                    
-                    iterator.remove();                    
+
+                    iterator.remove();
                 }
             }
         }
