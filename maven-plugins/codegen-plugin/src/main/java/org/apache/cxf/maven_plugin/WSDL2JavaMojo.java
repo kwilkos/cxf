@@ -20,11 +20,18 @@
 package org.apache.cxf.maven_plugin;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.tools.wsdlto.WSDLToJava;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -33,7 +40,8 @@ import org.apache.tools.ant.util.optional.NoExitSecurityManager;
 /**
  * @goal wsdl2java
  * @description CXF WSDL To Java Tool
- */
+ * @requiresDependencyResolution test
+*/
 public class WSDL2JavaMojo extends AbstractMojo {
     /**
      * @parameter
@@ -51,12 +59,6 @@ public class WSDL2JavaMojo extends AbstractMojo {
      * @required
      */
     String classesDirectory;
-
-    /**
-     * @parameter  expression="${project.compileClasspathElements}"
-     * @required
-     */
-    List classpathElements;
 
     /**
      * @parameter expression="${project}"
@@ -83,19 +85,44 @@ public class WSDL2JavaMojo extends AbstractMojo {
             throw new MojoExecutionException("Must specify wsdlOptions");
         }
 
+        List<URL> urlList = new ArrayList<URL>();
         StringBuffer buf = new StringBuffer();
-        Iterator it = classpathElements.iterator();
-        while (it.hasNext()) {
-            buf.append(it.next().toString());
-            buf.append(File.pathSeparatorChar);
+
+        try {
+            urlList.add(classesDir.toURL());
+        } catch (MalformedURLException e) {
+            //ignore
         }
+
+        buf.append(classesDir.getAbsolutePath());
+        buf.append(File.pathSeparatorChar);
+
+        for (Artifact a : CastUtils.cast(project.getTestArtifacts(), Artifact.class)) {
+            try {
+                if (a.getFile() != null
+                    && a.getFile().exists()) {
+                    urlList.add(a.getFile().toURL());
+                    buf.append(a.getFile().getAbsolutePath());
+                    buf.append(File.pathSeparatorChar);
+                    //System.out.println("     " + a.getFile().getAbsolutePath());
+                }
+            } catch (MalformedURLException e) {
+                //ignore
+            }
+        }
+        
+        ClassLoader origContext = Thread.currentThread().getContextClassLoader();
+        URLClassLoader loader = new URLClassLoader(urlList.toArray(new URL[urlList.size()]),
+                                                   origContext);
         String newCp = buf.toString();
 
         String cp = System.getProperty("java.class.path");
         SecurityManager oldSm = System.getSecurityManager();
         long timestamp = CodegenUtils.getCodegenTimestamp();
         boolean result = true;
+        
         try {
+            Thread.currentThread().setContextClassLoader(loader);
             System.setProperty("java.class.path", newCp);
             System.setSecurityManager(new NoExitSecurityManager());
             for (int x = 0; x < wsdlOptions.length; x++) {
@@ -109,6 +136,12 @@ public class WSDL2JavaMojo extends AbstractMojo {
                 }
             }
         } finally {
+            //cleanup as much as we can.
+            Bus bus = BusFactory.getDefaultBus(false);
+            if (bus != null) {
+                bus.shutdown(true);
+            }
+            Thread.currentThread().setContextClassLoader(origContext);
             System.setSecurityManager(oldSm);
             System.setProperty("java.class.path", cp);
         }
@@ -150,6 +183,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
 
 
         if (doWork) {
+            doneFile.delete();
 
             List<String> list = new ArrayList<String>();
             if (wsdlOption.getPackagenames() != null) {
@@ -184,11 +218,9 @@ public class WSDL2JavaMojo extends AbstractMojo {
                     }
                     System.setProperty("exitOnFinish", "YES");
                     WSDLToJava.main((String[])list.toArray(new String[list.size()]));
-                    doneFile.delete();
                     doneFile.createNewFile();
                 } catch (ExitException e) {
                     if (e.getStatus() == 0) {
-                        doneFile.delete();
                         doneFile.createNewFile();
                     } else {
                         throw e;

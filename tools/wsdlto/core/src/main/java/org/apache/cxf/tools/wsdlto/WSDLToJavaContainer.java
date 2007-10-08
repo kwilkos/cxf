@@ -564,7 +564,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Found service validator : " + validatorClass);
                 }
-                ServiceValidator validator = (ServiceValidator)Class.forName(validatorClass).newInstance();
+                ServiceValidator validator = 
+                    (ServiceValidator)Class.forName(validatorClass,
+                                                    true,
+                                                    Thread.currentThread()
+                                                        .getContextClassLoader()).newInstance();
                 validators.add(validator);
             } catch (Exception ex) {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
