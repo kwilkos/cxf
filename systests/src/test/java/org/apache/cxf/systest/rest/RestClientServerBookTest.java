@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.cxf.binding.http.HttpBindingFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.customer.book.Book;
 import org.apache.cxf.customer.book.BookService;
 import org.apache.cxf.customer.book.BookServiceWrapped;
@@ -43,7 +44,7 @@ import org.junit.Test;
 
 
 public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
-    static final Logger LOG = Logger.getLogger(RestClientServerBookTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(RestClientServerBookTest.class);
 
     @BeforeClass
     public static void startServers() throws Exception {

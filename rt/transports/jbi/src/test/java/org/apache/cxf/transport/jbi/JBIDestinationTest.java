@@ -21,10 +21,11 @@ package org.apache.cxf.transport.jbi;
 
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.junit.Test;
 
 public class JBIDestinationTest extends AbstractJBITest {
-    static final Logger LOG = Logger.getLogger(JBIDestinationTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(JBIDestinationTest.class);
     @Test
     public void testDestination() throws Exception {
         LOG.info("JBI destination test");

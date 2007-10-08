@@ -28,6 +28,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.Greeter;
@@ -61,7 +62,7 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
 
     public static final String GREETMEONEWAY_ACTION = null;
     public static final String GREETME_ACTION = null;
-    private static final Logger LOG = Logger.getLogger(ClientPersistenceTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(ClientPersistenceTest.class);
     
     private Greeter greeter;
     private OutMessageRecorder out;

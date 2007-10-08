@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import org.junit.Test;
 
 
 public class JarLoaderTest extends Assert {
-    private static final Logger LOG = Logger.getLogger(JarLoaderTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(JarLoaderTest.class);
     private URL exampleRarURL;
 
 

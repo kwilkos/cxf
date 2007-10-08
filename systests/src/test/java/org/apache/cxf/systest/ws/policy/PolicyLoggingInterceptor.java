@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -41,7 +42,7 @@ import org.apache.neethi.Assertion;
 
 public class PolicyLoggingInterceptor extends AbstractPhaseInterceptor {
 
-    private static final Logger LOG = Logger.getLogger(PolicyLoggingInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(PolicyLoggingInterceptor.class);
     
     private Bus bus;
     

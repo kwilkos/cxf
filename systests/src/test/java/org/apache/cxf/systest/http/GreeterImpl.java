@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import javax.jws.WebService;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.hello_world.Greeter;
 
 
@@ -32,7 +33,9 @@ import org.apache.hello_world.Greeter;
 public class GreeterImpl implements Greeter {
 
     private static final Logger LOG = 
-        Logger.getLogger(GreeterImpl.class.getPackage().getName());
+        LogUtils.getLogger(GreeterImpl.class,
+                           null,
+                           GreeterImpl.class.getPackage().getName());
     private String myName;
     
     public GreeterImpl() {

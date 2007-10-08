@@ -31,13 +31,15 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.cxf.common.logging.LogUtils;
+
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
                       targetNamespace = "http://apache.org/hello_world_soap_http")
 @HandlerChain(name = "TestHandlerChain", file = "handlers.xml")
 public class AnnotatedGreeterImpl {
 
     private static final Logger LOG = 
-        Logger.getLogger(AnnotatedGreeterImpl.class.getName());
+        LogUtils.getL7dLogger(AnnotatedGreeterImpl.class);
 
     @Resource
     private int foo; 

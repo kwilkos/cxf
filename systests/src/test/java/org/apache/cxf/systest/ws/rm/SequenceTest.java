@@ -33,6 +33,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.Control;
@@ -70,7 +71,7 @@ import org.junit.Test;
  */
 public class SequenceTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(SequenceTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(SequenceTest.class);
     // private static final String APP_NAMESPACE ="http://celtix.objectweb.org/greeter_control";
     // private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE +
     //     "/types/Greeter/greetMeOneWay";

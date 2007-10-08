@@ -55,6 +55,7 @@ public class LogUtilsTest extends Assert {
         LOG.addHandler(handler);
         // handler called *before* localization of message
         LogRecord record = new LogRecord(Level.WARNING, "FOOBAR_MSG");
+        record.setResourceBundle(LOG.getResourceBundle());
         EasyMock.reportMatcher(new LogRecordMatcher(record));
         handler.publish(record);
         EasyMock.replay(handler);
@@ -168,7 +169,12 @@ public class LogUtilsTest extends Assert {
         public boolean matches(Object obj) {
             if (obj instanceof LogRecord) {
                 LogRecord other = (LogRecord)obj;
-                return record.getMessage().equals(other.getMessage())
+                String l7dString = "NOT-L7D";
+                if (record.getResourceBundle() != null) {
+                    l7dString = record.getResourceBundle().getString(record.getMessage());
+                }
+                return (record.getMessage().equals(other.getMessage()) 
+                            || l7dString.equals(other.getMessage()))
                        && record.getLevel().equals(other.getLevel())
                        && record.getThrown() == other.getThrown();
             }

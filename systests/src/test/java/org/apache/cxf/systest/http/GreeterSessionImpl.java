@@ -31,6 +31,7 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.types.GreetMeResponse;
 import org.apache.cxf.greeter_control.types.PingMeResponse;
@@ -42,7 +43,9 @@ import org.apache.cxf.greeter_control.types.SayHiResponse;
             targetNamespace = "http://cxf.apache.org/greeter_control")
 public class GreeterSessionImpl implements Greeter {
     private static final Logger LOG = 
-        Logger.getLogger(GreeterSessionImpl.class.getPackage().getName());
+        LogUtils.getLogger(GreeterSessionImpl.class,
+                           null,
+                           GreeterSessionImpl.class.getPackage().getName());
     
     @Resource
     private WebServiceContext context;
