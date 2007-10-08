@@ -60,7 +60,7 @@ public class ConnectionFactoryImplTest extends Assert {
 
     @Test
     public void testInstanceOfReferencable() throws Exception {
-        assertTrue("Instance of Referencable", cf instanceof Referenceable);
+        assertTrue("Instance of Referenceable", cf instanceof Referenceable);
 
         assertNull("No ref set", cf.getReference());
         Reference ref = EasyMock.createMock(Reference.class);
@@ -179,7 +179,7 @@ public class ConnectionFactoryImplTest extends Assert {
             param.setServiceName(new QName(""));
             param.setPortName(new QName(""));
             cf.getConnection(param);
-            fail("Expect exception on use of non interface class");
+            fail("Expect exception on using of none interface class");
         } catch (ResourceException re) {
             assertTrue(true);
         }
@@ -190,7 +190,7 @@ public class ConnectionFactoryImplTest extends Assert {
         try {
             param.setInterface(null);
             cf.getConnection(param);
-            fail("Should get an exception");
+            fail("Expect exception of no interface here");
         } catch (ResourceException re) {
             assertTrue(true);
         }

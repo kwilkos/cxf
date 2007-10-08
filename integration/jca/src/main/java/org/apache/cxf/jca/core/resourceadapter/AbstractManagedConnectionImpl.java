@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.resource.NotSupportedException;
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionEvent;
 import javax.resource.spi.ConnectionEventListener;
@@ -33,6 +32,7 @@ import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.logging.LoggerHelper;
+import org.apache.cxf.jca.cxf.CXFManagedConnectionMetaData;
 
 public abstract class AbstractManagedConnectionImpl implements ManagedConnection {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractManagedConnectionImpl.class);
@@ -101,7 +101,7 @@ public abstract class AbstractManagedConnectionImpl implements ManagedConnection
     }
 
     public ManagedConnectionMetaData getMetaData() throws ResourceException {
-        throw new NotSupportedException("NOT_YET_IMPLEMENTED getMetaData");
+        return new CXFManagedConnectionMetaData();
     }
 
     public void setLogWriter(PrintWriter aPrintWriter) throws ResourceException {
