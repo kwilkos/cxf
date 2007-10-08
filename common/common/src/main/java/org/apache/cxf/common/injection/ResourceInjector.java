@@ -52,6 +52,7 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     private static final List<Class<? extends Annotation>> ANNOTATIONS = 
         new ArrayList<Class<? extends Annotation>>();
     
+        
     static {
         ANNOTATIONS.add(Resource.class);
         ANNOTATIONS.add(Resources.class);
@@ -71,11 +72,13 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     }
     
     
-    public void inject(Object o) {
-
+    public void inject(Object o) {        
+        inject(o, o.getClass());
+    }
+    
+    public void inject(Object o, Class claz) {
         AnnotationProcessor processor = new AnnotationProcessor(o); 
-        processor.accept(this); 
-
+        processor.accept(this, claz); 
         invokePostConstruct();
     }
     
@@ -377,4 +380,5 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     private Object resolveResource(String resourceName, Class<?> type) {
         return resourceManager.resolveResource(resourceName, type, resourceResolvers);
     }
+        
 }
