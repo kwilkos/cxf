@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<schema
+            xmlns="http://www.w3.org/2001/XMLSchema"
+            xmlns:x1="http://apache.org/hello_world/types"
+            targetNamespace="http://apache.org/hello_world/types"
+            elementFormDefault="qualified">
+
+    <import namespace="http://apache.org/hello_world/types2" 
+        schemaLocation="testutils/hello_world_schema2.xsd"/>
+
+
+    <element name="sayHi">
+        <complexType/>
+    </element>
+    <element name="sayHiResponse">
+        <complexType>
+            <sequence>
+                <element name="responseType" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+    <element name="greetMe">
+        <complexType>
+            <sequence>
+                <element name="requestType" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+    <element name="greetMeResponse">
+        <complexType>
+            <sequence>
+                <element name="responseType" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+    <element name="pingMe">
+        <complexType/>
+    </element>
+    <element name="pingMeResponse">
+        <complexType/>
+    </element>
+    <element name="faultDetail">
+        <complexType>
+            <sequence>
+                <element name="minor" type="short" form="qualified" minOccurs="0"/>
+                <element name="major" type="short" form="qualified" minOccurs="0"/>
+            </sequence>
+        </complexType>
+    </element>
+</schema>
+

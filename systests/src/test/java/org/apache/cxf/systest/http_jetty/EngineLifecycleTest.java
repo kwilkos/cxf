@@ -22,7 +22,6 @@ package org.apache.cxf.systest.http_jetty;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -118,8 +117,9 @@ public class EngineLifecycleTest extends Assert {
         
     }
     
-    public String getStaticResourceURL() throws IOException {
-        File staticFile = new File("target/test-classes/org/apache/cxf/systest/http_jetty/");
+    public String getStaticResourceURL() throws Exception {
+        File staticFile = new File(this.getClass().getResource("test.html").toURI());
+        staticFile = staticFile.getParentFile();
         staticFile = staticFile.getAbsoluteFile();
         URL furl = staticFile.toURL();
         return furl.toString();
@@ -135,13 +135,11 @@ public class EngineLifecycleTest extends Assert {
         setUpBus();
         launchService();
         shutdownService();
-        try {
-            launchService();
-            invokeService();            
-            getTestHtml();
-        } catch (java.net.BindException be) {
-            fail("bind exception");
-        }
+
+        launchService();
+        invokeService();            
+        getTestHtml();
+        
         shutdownService();
     }
 
