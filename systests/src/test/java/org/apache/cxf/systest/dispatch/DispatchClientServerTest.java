@@ -566,7 +566,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
                 SOAPMessage reply = response.get();
                 replyBuffer = reply.getSOAPBody().getTextContent();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
@@ -575,6 +575,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
         }
     }
 
+    // REVISIT: Exception handling?
     class TestDOMSourceHandler implements AsyncHandler<DOMSource> {
 
         String replyBuffer;
@@ -584,7 +585,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
                 DOMSource reply = response.get();
                 replyBuffer = DOMUtils.getChild(reply.getNode(), Node.ELEMENT_NODE).getTextContent();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
@@ -593,6 +594,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
         }
     }
 
+    // REVISIT: Exception handling?
     class TestJAXBHandler implements AsyncHandler<Object> {
 
         Object reply;
@@ -601,7 +603,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
             try {
                 reply = response.get();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
@@ -610,6 +612,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
         }
     }
 
+    // REVISIT: Exception handling?
     class TestSAXSourceHandler implements AsyncHandler<SAXSource> {
 
         SAXSource reply;
@@ -628,6 +631,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
         }
     }
 
+    // REVISIT: Exception handling?
     class TestStreamSourceHandler implements AsyncHandler<StreamSource> {
 
         StreamSource reply;
@@ -637,7 +641,7 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
                 reply = response.get();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
