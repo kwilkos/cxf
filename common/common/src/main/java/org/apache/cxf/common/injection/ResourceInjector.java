@@ -237,10 +237,14 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
 
     private void invokeSetter(Method method, Object resource) { 
         try {
-            method.setAccessible(true);            
-            Method targetMethod = getTarget().getClass().
+            method.setAccessible(true);
+            if (method.getDeclaringClass().isAssignableFrom(getTarget().getClass())) {
+                method.invoke(getTarget(), resource);
+            } else { // deal with the proxy setter method
+                Method targetMethod = getTarget().getClass().
                 getMethod(method.getName(), new Class[]{resource.getClass()});
-            targetMethod.invoke(getTarget(), resource);
+                targetMethod.invoke(getTarget(), resource);
+            }
         } catch (IllegalAccessException e) { 
             LOG.log(Level.SEVERE, "INJECTION_SETTER_NOT_VISIBLE", method);
         } catch (InvocationTargetException e) { 
@@ -248,7 +252,7 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
         } catch (SecurityException e) {
             LogUtils.log(LOG, Level.SEVERE, "INJECTION_SETTER_RAISED_EXCEPTION", e, method);
         } catch (NoSuchMethodException e) {
-            LOG.log(Level.SEVERE, "INJECTION_SETTER_METHOD_NOT_FOUND", method);
+            LOG.log(Level.SEVERE, "INJECTION_SETTER_METHOD_NOT_FOUND", new Object[] {method.getName()});
         } 
     } 
 
