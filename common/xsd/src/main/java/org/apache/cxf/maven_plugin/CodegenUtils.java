@@ -19,9 +19,11 @@
 
 package org.apache.cxf.maven_plugin;
 
+import java.io.File;
 import java.io.IOException;
 
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -60,20 +62,27 @@ public final class CodegenUtils {
                     return;
                 }
             }
-            JarFile jar;
+            
             try {
-                jar = new JarFile(url.getPath());
-                Enumeration entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = (JarEntry)entries.nextElement();
-                    if (!entry.isDirectory()
-                        && !entry.getName().startsWith("META")
-                        && entry.getTime() > timestamp) {
-                        
-                        timestamp = entry.getTime();
-                    }                    
+                if (url.getPath().endsWith(".class")) {
+                    timestamp = new File(url.toURI()).lastModified();
+                } else {
+                    JarFile jar = new JarFile(url.getPath());
+                    Enumeration entries = jar.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entry = (JarEntry)entries.nextElement();
+                        if (!entry.isDirectory()
+                            && !entry.getName().startsWith("META")
+                            && entry.getTime() > timestamp) {
+                            
+                            timestamp = entry.getTime();
+                        }                    
+                    }
                 }
             } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
