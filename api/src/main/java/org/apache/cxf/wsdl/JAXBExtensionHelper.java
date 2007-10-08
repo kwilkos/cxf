@@ -73,7 +73,8 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
         JAXBExtensionHelper helper = new JAXBExtensionHelper(cls);
         
         try {
-            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(cls) + ".ObjectFactory");
+            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(cls) + ".ObjectFactory",
+                                                   true, cls.getClassLoader());
             Method methods[] = objectFactory.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.getParameterTypes().length == 1
@@ -136,7 +137,9 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
             
             Object mObj = obj;
             
-            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(typeClass) + ".ObjectFactory");
+            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(typeClass) + ".ObjectFactory",
+                                                   true,
+                                                   obj.getClass().getClassLoader());
             Method methods[] = objectFactory.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.getParameterTypes().length == 1

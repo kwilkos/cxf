@@ -19,6 +19,8 @@
 
 package org.apache.cxf.common.i18n;
 
+import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.apache.cxf.common.util.PackageUtils;
@@ -72,7 +74,17 @@ public final class BundleUtils {
      * @return an appropriate ResourceBundle
      */
     public static ResourceBundle getBundle(Class<?> cls) {
-        return ResourceBundle.getBundle(getBundleName(cls));
+        
+        try {
+            return ResourceBundle.getBundle(getBundleName(cls),
+                                        Locale.getDefault(),
+                                        cls.getClassLoader());
+        } catch (MissingResourceException ex) {
+            return ResourceBundle.getBundle(getBundleName(cls),
+                                            Locale.getDefault(),
+                                            Thread.currentThread().getContextClassLoader());
+            
+        }
     }
     
     /**
@@ -84,6 +96,15 @@ public final class BundleUtils {
      * @return an appropriate ResourceBundle
      */
     public static ResourceBundle getBundle(Class<?> cls, String name) {
-        return ResourceBundle.getBundle(getBundleName(cls, name));
+        try {
+            return ResourceBundle.getBundle(getBundleName(cls, name),
+                                            Locale.getDefault(),
+                                            cls.getClassLoader());
+        } catch (MissingResourceException ex) {
+            return ResourceBundle.getBundle(getBundleName(cls, name),
+                                            Locale.getDefault(),
+                                            Thread.currentThread().getContextClassLoader());
+            
+        }
     }
 }
