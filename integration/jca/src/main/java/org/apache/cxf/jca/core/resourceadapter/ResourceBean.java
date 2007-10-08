@@ -42,8 +42,9 @@ public class ResourceBean implements Serializable {
     public static final String DEFAULT_MONITOR_POLL_INTERVAL = "120";    
     public static final String EJB_SERVICE_PROPERTIES_URL = "ejb.service.properties.url";
     public static final String MONITOR_EJB_SERVICE_PROPERTIES = "monitor.ejb.service.properties";
-    public static final String MONITOR_POLL_INTERVAL = "monitor.poll.interval";   
-    private static final long serialVersionUID = -9186743162164946039L;
+    public static final String MONITOR_POLL_INTERVAL = "monitor.poll.interval"; 
+    public static final String EJB_SERVANT_BASE_URL = "ejb.servant.base.url";
+    
 
     static {
         // first use of log, default init if necessary
@@ -74,7 +75,7 @@ public class ResourceBean implements Serializable {
 
     public void setProperty(String propName, String propValue) {
         if (!DEFAULT_VALUE_STRING.equals(propValue)) {
-            LOG.log(Level.CONFIG, "SETTING_PROPERTY", new Object[] {propName, propValue});
+            LOG.log(Level.FINE, "SETTING_PROPERTY", new Object[] {propName, propValue});
             getPluginProps().setProperty(propName, propValue);
         }
         if (LOG_LEVEL.equals(propName)) {
@@ -104,7 +105,7 @@ public class ResourceBean implements Serializable {
         try {
             url = createURL(spec, msg);
             url.openStream();
-            LOG.config("Validated url=" + url);
+            LOG.fine("Validated url=" + url);
         } catch (IOException ioe) {
             throw new ResourceAdapterInternalException(msg, ioe);
         }
