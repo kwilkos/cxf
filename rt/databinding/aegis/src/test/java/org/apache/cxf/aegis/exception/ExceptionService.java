@@ -18,6 +18,11 @@
  */
 package org.apache.cxf.aegis.exception;
 
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+
+@WebService(name = "ExceptionService", serviceName = "ExceptionService")
 public interface ExceptionService {
+    @WebMethod
     String sayHiWithException() throws HelloException;
 }
