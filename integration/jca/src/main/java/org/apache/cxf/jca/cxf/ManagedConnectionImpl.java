@@ -147,7 +147,7 @@ public class ManagedConnectionImpl
             
             return createConnectionProxy(obj, requestInfo, subject);
         } catch (WebServiceException wse) {
-            throw new ResourceAdapterInternalException(new Message("FAIL_TO_GET_CXF_CONNECTION", 
+            throw new ResourceAdapterInternalException(new Message("FAILED_TO_GET_CXF_CONNECTION", 
                                                                    BUNDLE, requestInfo).toString() , wse);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
