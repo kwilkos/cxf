@@ -116,18 +116,16 @@ public class OASISCatalogManager {
             if ("file".equals(catalogURL.getProtocol())) {
                 try {
                     File file = new File(catalogURL.toURI());
-                    if (file.exists()) {
-                        this.resolver.parseCatalog(file.getAbsolutePath());
-                    } else {
+                    if (!file.exists()) {
                         throw new FileNotFoundException(file.getAbsolutePath());
                     }
                 } catch (URISyntaxException e) {
                     //just process as is
-                    this.resolver.parseCatalog(catalogURL);
                 }
-            } else {
-                this.resolver.parseCatalog(catalogURL);
             }
+
+            this.resolver.parseCatalog(catalogURL);
+
             loadedCatalogs.add(catalogURL);
         }
     }
