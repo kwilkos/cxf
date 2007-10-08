@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.common.logging;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -45,19 +46,30 @@ import org.apache.log4j.spi.LoggingEvent;
 public class Log4jLogger extends AbstractDelegatingLogger {
     private static final Map<Level, org.apache.log4j.Level> TO_LOG4J = 
                                                 new HashMap<Level, org.apache.log4j.Level>();
+    private static final org.apache.log4j.Level TRACE;
+
 
     private final org.apache.log4j.Logger log;
 
-
     static {
+        //older versions of log4j don't have TRACE, use debug
+        org.apache.log4j.Level t = org.apache.log4j.Level.DEBUG;
+        try {
+            Field f = org.apache.log4j.Level.class.getField("TRACE");
+            t = (org.apache.log4j.Level)f.get(null);
+        } catch (Exception ex) {
+            //ignore, assume old version of log4j
+        }
+        TRACE = t;
+        
         TO_LOG4J.put(Level.ALL,     org.apache.log4j.Level.ALL);
         TO_LOG4J.put(Level.SEVERE,  org.apache.log4j.Level.ERROR);
         TO_LOG4J.put(Level.WARNING, org.apache.log4j.Level.WARN);
         TO_LOG4J.put(Level.INFO,    org.apache.log4j.Level.INFO);
         TO_LOG4J.put(Level.CONFIG,  org.apache.log4j.Level.DEBUG);
         TO_LOG4J.put(Level.FINE,    org.apache.log4j.Level.DEBUG);
-        TO_LOG4J.put(Level.FINER,   org.apache.log4j.Level.TRACE);
-        TO_LOG4J.put(Level.FINEST,  org.apache.log4j.Level.TRACE);
+        TO_LOG4J.put(Level.FINER,   TRACE);
+        TO_LOG4J.put(Level.FINEST,  TRACE);
         TO_LOG4J.put(Level.OFF,     org.apache.log4j.Level.OFF);
     }
 
@@ -125,14 +137,15 @@ public class Log4jLogger extends AbstractDelegatingLogger {
         case org.apache.log4j.Level.DEBUG_INT:
             l2 = Level.FINE;
             break;
-        case org.apache.log4j.Level.TRACE_INT:
-            l2 = Level.FINEST;
-            break;
         case org.apache.log4j.Level.OFF_INT:
             l2 = Level.OFF;
             break;
         default:
-            l2 = null;
+            if (l.toInt() == TRACE.toInt()) {
+                l2 = Level.FINEST;
+            } else {
+                l2 = null;
+            }
         } 
         return l2;
     } 
@@ -166,12 +179,12 @@ public class Log4jLogger extends AbstractDelegatingLogger {
             getFullInfoForLogUtils(lr, event.fqnOfCategoryClass);
             handler.publish(lr);
         }
-        @Override
+
         public void close() {
             handler.close();
             closed = true;
         }
-        @Override
+
         public boolean requiresLayout() {
             return false;
         }    
