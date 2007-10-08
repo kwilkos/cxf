@@ -100,7 +100,7 @@ public class JCABusFactory {
     }    
     
     protected synchronized void init() throws ResourceException {
-        LOG.info("Initializing the CXF BUS....");
+        LOG.info("Initializing the CXF Bus ...");
         
         new UriHandlerInit();
         ClassLoader original = Thread.currentThread().getContextClassLoader();
@@ -156,7 +156,7 @@ public class JCABusFactory {
 
         deregisterServants(bus);
 
-        LOG.info("Initialising EJB endpoints...");
+        LOG.info("Initializing EJB endpoints...");
        
         Enumeration keys = ejbServants.keys();
 
@@ -166,9 +166,9 @@ public class JCABusFactory {
             LOG.fine("Found ejb endpoint: jndi name=" + jndiName + ", wsdl service=" + serviceName);
             
             try {
-                initialiseServant(jndiName, serviceName);      
+                initializeServant(jndiName, serviceName);      
             } catch (ResourceException re) {
-                LOG.warning("Error initialising servant with jndi name " 
+                LOG.warning("Error initializing servant with jndi name " 
                             + jndiName + " and service name "
                             + serviceName + " Exception:"
                             + re.getMessage());
@@ -179,7 +179,7 @@ public class JCABusFactory {
         }
     }
     
-    void initialiseServant(String jndiName, String serviceName) throws ResourceException {
+    void initializeServant(String jndiName, String serviceName) throws ResourceException {
 
         Server servant = null;
         EJBObject ejb = null;
