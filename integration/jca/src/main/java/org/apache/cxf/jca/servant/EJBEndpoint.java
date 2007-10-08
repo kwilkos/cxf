@@ -95,7 +95,7 @@ public class EJBEndpoint {
         return "http://" + hostName + ":9999";
     }
     
-    private boolean isJaxWsServiceInterface(Class<?> cls) {
+    private static boolean isJaxWsServiceInterface(Class<?> cls) {
         if (cls == null) {
             return false;
         }
@@ -113,7 +113,7 @@ public class EJBEndpoint {
         this.ejbServantBaseURL = ejbServantBaseURL;
     }
     
-    private boolean isNotNull(String value) {
+    private static boolean isNotNull(String value) {
         if (value != null && !"".equals(value.trim())) {
             return true;
         }
