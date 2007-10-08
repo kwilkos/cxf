@@ -165,7 +165,11 @@ public class JettyHTTPServerEngine
      * remove it from the factory's cache. 
      */
     public void shutdown() {
-        factory.destroyForPort(port);
+        if (servantCount == 0) {
+            factory.destroyForPort(port);
+        } else {
+            LOG.log(Level.WARNING, "FAILED_TO_SHOWDOWN_ENGINE_MSG", port);
+        }
     }
     
     /**
