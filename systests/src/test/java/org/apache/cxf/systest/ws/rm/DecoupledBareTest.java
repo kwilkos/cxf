@@ -27,6 +27,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.systest.ws.util.ConnectionHelper;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -44,7 +45,7 @@ import org.junit.Test;
  */
 public class DecoupledBareTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(DecoupledBareTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(DecoupledBareTest.class);
 
     public static class Server extends AbstractBusTestServerBase {
         

@@ -27,6 +27,7 @@ import javax.xml.ws.WebServiceException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
@@ -50,7 +51,7 @@ import org.junit.Test;
  */
 public class HTTPServerPolicyTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(HTTPServerPolicyTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(HTTPServerPolicyTest.class);
 
     public static class Server extends AbstractBusTestServerBase {
    

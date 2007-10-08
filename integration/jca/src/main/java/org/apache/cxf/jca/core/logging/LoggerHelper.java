@@ -70,8 +70,8 @@ public final class LoggerHelper {
 
     // true if log output is already going somewhere
     public static boolean loggerInitialisedOutsideConnector() {       
-        final Handler[] handlers = Logger.getLogger("").getHandlers();        
-        return handlers.length > 0;
+        final Handler[] handlers = Logger.getLogger("").getHandlers(); //NOPMD        
+        return handlers != null && handlers.length > 0;
     }
 
     static Handler getHandler(Logger log, String handlerName) {
@@ -86,14 +86,14 @@ public final class LoggerHelper {
     }
 
     public static void disableConsoleLogging() {        
-        final Handler handler = getHandler(Logger.getLogger(""), CONSOLE_HANDLER);
-        Logger.getLogger("").removeHandler(handler);
+        final Handler handler = getHandler(Logger.getLogger(""), CONSOLE_HANDLER);  //NOPMD
+        Logger.getLogger("").removeHandler(handler);  //NOPMD
     }
 
     public static void enableConsoleLogging() {        
-        if (getHandler(Logger.getLogger(""), CONSOLE_HANDLER) == null) {
+        if (getHandler(Logger.getLogger(""), CONSOLE_HANDLER) == null) {  //NOPMD
             final ConsoleHandler console = new ConsoleHandler();
-            Logger.getLogger("").addHandler(console);
+            Logger.getLogger("").addHandler(console);  //NOPMD
         }
     }
 
@@ -115,7 +115,7 @@ public final class LoggerHelper {
         Logger rootCXFLogger = null;
         rootCXFLogger = LogManager.getLogManager().getLogger(getRootLoggerName());
         if (rootCXFLogger == null) {
-            rootCXFLogger = Logger.getLogger(getRootLoggerName());
+            rootCXFLogger = Logger.getLogger(getRootLoggerName()); //NOPMD
         }
 
         return rootCXFLogger;

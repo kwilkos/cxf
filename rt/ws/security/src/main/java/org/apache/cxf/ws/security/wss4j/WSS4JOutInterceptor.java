@@ -31,6 +31,7 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.ws.security.WSConstants;
@@ -40,11 +41,13 @@ import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.util.WSSecurityUtil;
 
 public class WSS4JOutInterceptor extends AbstractWSS4JInterceptor {
-    private static final Logger LOG = Logger
-            .getLogger(WSS4JOutInterceptor.class.getName());
+    private static final Logger LOG = LogUtils
+            .getL7dLogger(WSS4JOutInterceptor.class);
 
-    private static final Logger TIME_LOG = Logger
-            .getLogger(WSS4JOutInterceptor.class.getName() + "-Time");
+    private static final Logger TIME_LOG = LogUtils
+            .getL7dLogger(WSS4JOutInterceptor.class,
+                          null,
+                          WSS4JOutInterceptor.class.getName() + "-Time");
 
     public WSS4JOutInterceptor() {
         super();

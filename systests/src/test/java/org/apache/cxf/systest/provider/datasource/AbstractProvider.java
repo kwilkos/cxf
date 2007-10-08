@@ -26,8 +26,10 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.http.HTTPBinding;
 
+import org.apache.cxf.common.logging.LogUtils;
+
 public abstract class AbstractProvider<T> implements WebProvider {
-    static final Logger LOG = Logger.getLogger(AbstractProvider.class.getName());
+    static final Logger LOG = LogUtils.getLogger(AbstractProvider.class);
     protected WebServiceContext wsContext;
 
     public T invoke(T req) {

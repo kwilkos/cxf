@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.types.FaultDetail;
 import org.apache.cxf.greeter_control.types.GreetMeResponse;
 import org.apache.cxf.greeter_control.types.PingMeResponse;
@@ -36,7 +37,7 @@ import org.apache.cxf.greeter_control.types.SayHiResponse;
 
 public class AbstractGreeterImpl implements Greeter {
 
-    private static final Logger LOG = Logger.getLogger(AbstractGreeterImpl.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(AbstractGreeterImpl.class);
     private long delay;
     private String lastOnewayArg;
     private boolean throwAlways;

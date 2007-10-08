@@ -22,6 +22,7 @@ package org.apache.cxf.greeter_control;
 import java.text.MessageFormat;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageUtils;
@@ -35,7 +36,7 @@ public class FaultThrowingInterceptor extends AbstractPhaseInterceptor {
 
     public static final MessageFormat MESSAGE_FORMAT
         = new MessageFormat("Interceptor fault in phase {0}.");
-    private static final Logger LOG = Logger.getLogger(FaultThrowingInterceptor.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(FaultThrowingInterceptor.class);
     
     public FaultThrowingInterceptor() {
         super(Phase.USER_LOGICAL);

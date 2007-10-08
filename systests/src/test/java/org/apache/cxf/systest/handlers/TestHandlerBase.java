@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.handler_test.PingException;
 
@@ -41,7 +42,7 @@ import org.apache.handler_test.PingException;
  */
 public abstract class TestHandlerBase {
    
-    private static final Logger LOG = Logger.getLogger(TestHandlerBase.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(TestHandlerBase.class);
 
     private static int sid;
     private static int sinvokedOrder;
