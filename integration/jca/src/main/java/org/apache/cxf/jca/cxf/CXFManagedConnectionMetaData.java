@@ -16,26 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.cxf.jca.cxf;
 
-
-import java.net.URL;
-
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.connector.CXFConnectionParam;
+import javax.resource.ResourceException;
+import javax.resource.spi.ManagedConnectionMetaData;
 
 
-public class CXFConnectionRequestInfo extends CXFConnectionParam implements ConnectionRequestInfo {
-   
-    public CXFConnectionRequestInfo() {
-        super();
-    }
+public class CXFManagedConnectionMetaData implements ManagedConnectionMetaData {
+
     
-    public CXFConnectionRequestInfo(Class aIface, URL aWsdlLocation, 
-                                       QName aServiceName, QName aPortName) {
-        super(aIface, aWsdlLocation, aServiceName, aPortName);
+    public String getEISProductName() throws ResourceException {
+        return "WS-based-EIS";
     }
-    
+
+    public String getEISProductVersion() throws ResourceException {
+        return "1.1";
+    }
+
+    public int getMaxConnections() throws ResourceException {
+        return 20;
+    }
+
+    public String getUserName() throws ResourceException {
+        return "CXF";
+    }
+
 }
