@@ -41,15 +41,6 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
-                <!-- this dependency seems only work in the systest module, not work in the top level-->
-                <dependencies>
-                  <dependency>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-rt-bindings-soap</artifactId>
-                    <version>${project.version}</version>
-                  </dependency>
-                </dependencies>
-
                 <executions>
                     <execution>
                         <id>generate-test-sources</id>
@@ -59,11 +50,11 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/test/resources/wsdl/pizza_service.wsdl</wsdl>
-                                    <!--extraargs>
+                                    <extraargs>
                                       <extraarg>-exsh</extraarg>
                                       <extraarg>true</extraarg>
                                       <extraarg>-V</extraarg>
-                                    </extraargs-->
+                                    </extraargs>
                                 </wsdlOption>
 
                                 <wsdlOption>

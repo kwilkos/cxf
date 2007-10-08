@@ -186,8 +186,8 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Registering extension: " + elementType + " for parent: " + parentType);
                 }
-                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
-                                .getClassLoader());
+                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, 
+                                                  Thread.currentThread().getContextClassLoader());
             } catch (ClassNotFoundException ex) {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
             } catch (JAXBException ex) {
