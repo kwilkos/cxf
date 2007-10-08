@@ -144,7 +144,7 @@ public class JCABusFactory {
         Integer pollIntervalInteger = mcf.getEJBServicePropertiesPollInterval();
         int pollInterval = pollIntervalInteger.intValue();
         
-        LOG.info("Ejb service properties poll interval is : [" + pollInterval + " seconds]");
+        LOG.info("Ejb service properties poll interval is: [" + pollInterval + " seconds]");
         
         EJBServicePropertiesMonitorRunnable r = new EJBServicePropertiesMonitorRunnable(pollInterval);
         Thread t = new Thread(r);
