@@ -78,7 +78,7 @@ public class AssociatedManagedConnectionFactoryImpl
             if (!props.containsKey(key)) {
                 setProperty(key, raProps.getProperty(key));
             } else {
-                LOG.fine("ManagedConnectionFactory's props already contains [" + key + "]. No need to merge");
+                LOG.fine("ManagedConnectionFactory's props already contain [" + key + "]. No need to merge");
             }
         }
     }

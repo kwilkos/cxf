@@ -73,7 +73,7 @@ public abstract class AbstractManagedConnectionImpl implements ManagedConnection
     public abstract boolean isBound();
 
     public void close(Object closingHandle) throws ResourceException {
-        LOG.fine("closing handle: " + closingHandle);
+        LOG.fine("Closing handle: " + closingHandle);
 
         ConnectionEvent coEvent = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
         coEvent.setConnectionHandle(closingHandle);
