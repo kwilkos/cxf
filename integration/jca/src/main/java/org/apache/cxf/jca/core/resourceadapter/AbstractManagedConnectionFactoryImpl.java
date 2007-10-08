@@ -80,11 +80,11 @@ public abstract class AbstractManagedConnectionFactoryImpl extends ResourceBean
                                      crInfo});
 
             if (!((AbstractManagedConnectionImpl)conn).isBound()) {
-                LOG.fine("match against unbounded, con= " + conn + ", info=" + crInfo);
+                LOG.fine("Match against unbounded, con= " + conn + ", info=" + crInfo);
                 return conn;
             } else {
                 if (isMatch(conn, crInfo, subject)) {
-                    LOG.fine("match against bounded, con= " + conn + ", info=" + crInfo);
+                    LOG.fine("Match against bounded, con= " + conn + ", info=" + crInfo);
 
                     return conn;
                 }
@@ -94,15 +94,15 @@ public abstract class AbstractManagedConnectionFactoryImpl extends ResourceBean
         return null;
     }
 
-    private boolean isMatch(final AbstractManagedConnectionImpl canditateConn,
+    private boolean isMatch(final AbstractManagedConnectionImpl candidateConn,
                             final ConnectionRequestInfo crInfo, final Subject subject)
         throws ResourceAdapterInternalException {
         boolean result = false;
-        final ConnectionRequestInfo canditate = canditateConn.getConnectionRequestInfo();
+        final ConnectionRequestInfo candidate = candidateConn.getConnectionRequestInfo();
 
-        if (canditate.equals(crInfo) && (subject == null || subject.equals(canditateConn.getSubject()))) {
+        if (candidate.equals(crInfo) && (subject == null || subject.equals(candidateConn.getSubject()))) {
             try {
-                validateReference(canditateConn, subject);
+                validateReference(candidateConn, subject);
                 result = true; 
             } catch (Exception thrown) {
                 result = false;

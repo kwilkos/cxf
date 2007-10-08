@@ -139,7 +139,7 @@ public class JettyHTTPServerEngineTest extends Assert {
         try {
             engine.finalizeConfig();
         } catch (Exception ex) {
-            fail("we should not throw exception here");
+            fail("We should not throw exception here");
         }
     }
     
@@ -158,26 +158,26 @@ public class JettyHTTPServerEngineTest extends Assert {
         try {
             response = getResponse(urlStr);
         } catch (Exception ex) {
-            fail("Can't get the reponse from the server " + ex);
+            fail("Can't get the response from the server " + ex);
         }
-        assertEquals("the jetty http handler did not take effect", response, "string1");
+        assertEquals("The jetty http handler did not take effect", response, "string1");
         
         engine.addServant(new URL(urlStr), handler2);
         try {
             response = getResponse(urlStr);
         } catch (Exception ex) {
-            fail("Can't get the reponse from the server " + ex);
+            fail("Can't get the response from the server " + ex);
         }
-        assertEquals("the jetty http handler did not take effect", response, "string1string2");
+        assertEquals("The jetty http handler did not take effect", response, "string1string2");
         engine.addServant(new URL(urlStr2), handler2);
         engine.removeServant(new URL(urlStr));
         engine.shutdown();
         try {
             response = getResponse(urlStr2);
         } catch (Exception ex) {
-            fail("Server should work, even we call the shutdown" + ex);
+            fail("Server should still work, even if we call the shutdown" + ex);
         }
-        assertEquals("the jetty http handler did not take effect", response, "string2");
+        assertEquals("The jetty http handler did not take effect", response, "string2");
         // set the get request
         factory.destroyForPort(1234);       
         
