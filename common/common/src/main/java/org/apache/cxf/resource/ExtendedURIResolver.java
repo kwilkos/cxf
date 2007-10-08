@@ -66,13 +66,13 @@ public class ExtendedURIResolver {
     }
     
     public void close() {
-        try {
-            while (!resourceOpened.isEmpty()) {
+        while (!resourceOpened.isEmpty()) {
+            try {
                 InputStream in = resourceOpened.pop();
                 in.close();
+            } catch (IOException ioe) {
+                // move on...
             }
-        } catch (IOException ioe) {
-            // move on...
         }
     }
     
