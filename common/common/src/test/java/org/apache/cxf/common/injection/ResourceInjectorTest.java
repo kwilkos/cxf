@@ -19,7 +19,8 @@
 
 package org.apache.cxf.common.injection;
 
-
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
@@ -64,6 +69,7 @@ public class ResourceInjectorTest extends Assert {
         doInjectTest(new FieldTarget()); 
     }
     
+        
     @Test
     public void testFieldInSuperClassInjection() { 
         setUpResourceManager("org.apache.cxf.common.injection.FieldTarget/");
@@ -80,6 +86,12 @@ public class ResourceInjectorTest extends Assert {
     public void testSetterInjection() {
         setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
         doInjectTest(new SetterTarget()); 
+    }
+    
+    @Test
+    public void testProxyInjection() {
+        setUpResourceManager(FieldTarget.class.getCanonicalName() + "/");               
+        doInjectTest(getProxyObject());
     }
 
     @Test
@@ -111,15 +123,23 @@ public class ResourceInjectorTest extends Assert {
         assertTrue(target.preDestroyCalled()); 
     }
 
-    protected void doInjectTest(Target target) { 
+    protected void doInjectTest(Target target) {
 
-        injector.inject(target); 
-
+        injector.inject(target);
         assertNotNull(target.getResource1()); 
         assertEquals(RESOURCE_ONE, target.getResource1()); 
 
         assertNotNull(target.getResource2()); 
-        assertEquals(RESOURCE_TWO, target.getResource2()); 
+        assertEquals(RESOURCE_TWO, target.getResource2());
+         
+    }
+    
+        
+    private FieldTarget getProxyObject() {
+        Enhancer e = new Enhancer();
+        e.setSuperclass(FieldTarget.class);        
+        e.setCallback(new CallInterceptor());
+        return (FieldTarget)e.create();        
     }
 
 }
@@ -128,6 +148,17 @@ public class ResourceInjectorTest extends Assert {
 interface Target {
     String getResource1(); 
     String getResource2(); 
+}
+
+class CallInterceptor implements MethodInterceptor {
+    
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        Object retValFromSuper = null;
+        if (!Modifier.isAbstract(method.getModifiers())) {
+            retValFromSuper = proxy.invokeSuper(obj, args);
+        }        
+        return retValFromSuper;            
+    }
 }
 
 
@@ -228,7 +259,8 @@ class SetterTarget implements Target {
 @Resource(name = "resource1")
 class ClassTarget implements Target {
 
-    @Resource(name = "resource2") public String resource2foo; 
+    @Resource(name = "resource2") 
+    public String resource2foo; 
     private String res1; 
 
     public final void setResource1(String res) { 
