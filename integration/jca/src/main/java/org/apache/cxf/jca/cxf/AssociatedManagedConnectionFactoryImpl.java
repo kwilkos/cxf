@@ -94,6 +94,16 @@ public class AssociatedManagedConnectionFactoryImpl
     protected Object getBootstrapContext() {
         return ((ResourceAdapterImpl)ra).getBootstrapContext();
     }
+    
+    //Explicit override these two methods, 
+    //otherwise when deploy rar to weblogic9.1, it would complaint about this.
+    public int hashCode() {
+        return super.hashCode();
+    }
+    
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }
 
 
