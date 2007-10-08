@@ -68,7 +68,7 @@ public class CXFServletTest extends AbstractServletTest {
         client.setExceptionsThrownOnErrorStatus(false);
 
         assertEquals("text/xml", response.getContentType());
-        assertEquals(encoding, response.getCharacterSet());
+        assertTrue(encoding.equalsIgnoreCase(response.getCharacterSet()));
 
         Document doc = DOMUtils.readXml(response.getInputStream());
         assertNotNull(doc);

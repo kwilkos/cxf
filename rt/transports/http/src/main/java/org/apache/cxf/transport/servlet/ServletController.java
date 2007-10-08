@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -225,7 +226,7 @@ public class ServletController {
                 enc = enc.substring(0, enc.length() - 1);
             }
             
-            inMessage.put(Message.ENCODING, enc);
+            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(enc));
             SSLUtils.propogateSecureSession(request, inMessage);
             
             ExchangeImpl exchange = new ExchangeImpl();

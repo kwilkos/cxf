@@ -61,7 +61,7 @@ public class SpringServletTest extends AbstractServletTest {
         
         WebResponse response = newClient().getResponse(req);
         assertEquals("text/xml", response.getContentType());
-        assertEquals("utf-8", response.getCharacterSet());
+        assertTrue("utf-8".equalsIgnoreCase(response.getCharacterSet()));
 
         Document doc = DOMUtils.readXml(response.getInputStream());
         assertNotNull(doc);
