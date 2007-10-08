@@ -19,6 +19,7 @@
 
 package org.apache.cxf.helpers;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -115,17 +116,48 @@ public final class IOUtils {
 
         return sb.toString();
     }
+    
+    /**
+     * Load the InputStream into memory and return a ByteArrayInputStream that 
+     * represents it.  Closes the in stream.
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    public static ByteArrayInputStream loadIntoBAIS(InputStream in) throws IOException {
+        int i = in.available();
+        if (i < DEFAULT_BUFFER_SIZE) {
+            i = DEFAULT_BUFFER_SIZE;
+        }
+        LoadingByteArrayOutputStream bout = new LoadingByteArrayOutputStream(i);
+        copy(in, bout);
+        in.close();
+        return bout.createInputStream();
+    }
 
     public static byte[] readBytesFromStream(InputStream in) throws IOException {
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-
-        for (int i = in.read(); i != -1; i = in.read()) {
-            bos.write(i);
+        int i = in.available();
+        if (i < DEFAULT_BUFFER_SIZE) {
+            i = DEFAULT_BUFFER_SIZE;
         }
-
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(i);
+        copy(in, bos);
         in.close();
-
         return bos.toByteArray();
+    }
+    
+    //class to create a BAIS from a BAOS but without the copies of the byte[] into
+    //one of the exact size.
+    static class LoadingByteArrayOutputStream extends ByteArrayOutputStream {
+        public LoadingByteArrayOutputStream() {
+            super(1024);
+        }
+        public LoadingByteArrayOutputStream(int i) {
+            super(i);
+        }
+        
+        public ByteArrayInputStream createInputStream() {
+            return new ByteArrayInputStream(buf, 0, count);
+        }
     }
 }

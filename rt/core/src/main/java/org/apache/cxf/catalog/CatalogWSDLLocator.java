@@ -39,14 +39,13 @@ public class CatalogWSDLLocator implements WSDLLocator {
     private String baseUri;
     
     public CatalogWSDLLocator(String wsdlUrl, OASISCatalogManager catalogManager) {
-        this.wsdlUrl = wsdlUrl;
-        this.baseUri = this.wsdlUrl;
+        this.baseUri = wsdlUrl;
         this.catalogResolver = catalogManager.getCatalog();
         this.resolver = new ExtendedURIResolver();
     }
 
     public InputSource getBaseInputSource() {
-        InputSource result =  resolver.resolve(baseUri, null);
+        InputSource result = resolver.resolve(baseUri, null);
         if (result == null) {
             try {
                 String s = catalogResolver.resolveSystem(baseUri);
@@ -59,12 +58,26 @@ public class CatalogWSDLLocator implements WSDLLocator {
                 //ignore
             }
         }
+        if (wsdlUrl == null
+            && result != null) {
+            wsdlUrl = result.getSystemId();
+        }
         baseUri = resolver.getURI();
         return result;
     }
 
     public String getBaseURI() {
-        return getBaseInputSource().getSystemId();
+        if (wsdlUrl == null) {
+            InputSource is = getBaseInputSource();
+            if (is.getByteStream() != null) {
+                try {
+                    is.getByteStream().close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+        }
+        return wsdlUrl;
     }
 
     public String getLatestImportURI() {
@@ -92,7 +105,7 @@ public class CatalogWSDLLocator implements WSDLLocator {
         if (resolvedImportLocation == null) {
             in = this.resolver.resolve(importLocation, this.baseUri);
         } else {
-            in =  this.resolver.resolve(resolvedImportLocation, null);
+            in = this.resolver.resolve(resolvedImportLocation, null);
         }
 
         // XXX: If we return null (as per javadoc), a NPE is raised in WSDL4J code.

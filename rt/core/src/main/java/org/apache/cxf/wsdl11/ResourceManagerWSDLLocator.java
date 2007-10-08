@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.wsdl11;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -35,6 +36,8 @@ public class ResourceManagerWSDLLocator implements WSDLLocator {
     Bus bus;
     String wsdlUrl;
     InputSource last;
+    String baseUri;
+    boolean fromParent;
     
     public ResourceManagerWSDLLocator(String wsdlUrl,
                                       WSDLLocator parent,
@@ -53,13 +56,21 @@ public class ResourceManagerWSDLLocator implements WSDLLocator {
 
 
     public void close() {
-        if (last != null) {
-            parent.close();
+        if (!fromParent) {
+            try {
+                if (last.getByteStream() != null) {
+                    last.getByteStream().close();
+                }
+            } catch (IOException e) {
+                //ignore
+            }
         }
+        parent.close();
     }
 
     public InputSource getBaseInputSource() {
         InputSource is = parent.getBaseInputSource();
+        fromParent = true;
         if (is == null) {
             InputStream ins = bus.getExtension(ResourceManager.class).getResourceAsStream(wsdlUrl);
             is = new InputSource(ins);
@@ -71,29 +82,35 @@ public class ResourceManagerWSDLLocator implements WSDLLocator {
                 is.setSystemId(url.toString());
                 is.setPublicId(url.toString());
             }
-            last = is;
+            fromParent = false;
+            baseUri = is.getPublicId();
         } else {
-            last = null;
+            baseUri = is.getSystemId();
         }
+        last = is;
         
         return is;
     }
 
     public String getBaseURI() {
-        getBaseInputSource();
         if (last == null) {
-            return parent.getBaseURI();
+            getBaseInputSource();
+            try {
+                if (last.getByteStream() != null) {
+                    last.getByteStream().close();
+                }
+            } catch (IOException e) {
+                //ignore
+            }
         }
-        return last.getPublicId();
+        return baseUri;
     }
 
     public InputSource getImportInputSource(String parentLocation, String importLocation) {
-        // TODO Auto-generated method stub
         return parent.getImportInputSource(parentLocation, importLocation);
     }
 
     public String getLatestImportURI() {
-        // TODO Auto-generated method stub
         return parent.getLatestImportURI();
     }
 
