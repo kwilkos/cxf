@@ -77,6 +77,13 @@ public class CatalogWSDLLocator implements WSDLLocator {
         String resolvedImportLocation = null;
         try {
             resolvedImportLocation = this.catalogResolver.resolveSystem(importLocation);
+            if (resolvedImportLocation == null) {
+                resolvedImportLocation = catalogResolver.resolveURI(importLocation);
+            }
+            if (resolvedImportLocation == null) {
+                resolvedImportLocation = catalogResolver.resolvePublic(importLocation, parent);
+            }
+        
         } catch (IOException e) {
             throw new RuntimeException("Catalog resolution failed", e);
         }
