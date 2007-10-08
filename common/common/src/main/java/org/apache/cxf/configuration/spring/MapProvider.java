@@ -16,29 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.transport;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+package org.apache.cxf.configuration.spring;
 
-import org.apache.cxf.helpers.CastUtils;
+import java.util.Map;
 
 /**
- * Helper methods for {@link DestinationFactory}s and {@link ConduitInitiator}s.
+ * This is to workaround an issue with Spring.
+ * 
+ * In spring, if you inject a Map<X, V> into a contructor, it 
+ * ALWAYS will call entrySet and copy the entries into a new
+ * map (HashMap).    Thus, any "deferred" processing will happen
+ * immediately.  Also, things like the Bus may not be completely
+ * initialized.  
+ * 
+ * We'll mark some of our Spring things with this interface and 
+ * allow the MapProvider to be injected.   
  */
-public abstract class AbstractTransportFactory {
-    private List<String> transportIds;
-
-    public List<String> getTransportIds() {
-        return transportIds;
-    }
-
-    public void setTransportIds(List<String> transportIds) {
-        this.transportIds = transportIds;
-    }
-
-    public Set<String> getUriPrefixes() {
-        return CastUtils.cast(Collections.EMPTY_SET);
-    }
+public interface MapProvider<X, V> {
+    Map<X, V> createMap();
 }
