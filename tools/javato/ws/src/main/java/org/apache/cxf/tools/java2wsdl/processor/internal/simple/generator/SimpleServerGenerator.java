@@ -59,7 +59,7 @@ public class SimpleServerGenerator extends AbstractSimpleGenerator {
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
-            setAttributes("implClass", ((Class)env.get(ToolConstants.IMPL_CLASS)).getName());
+            setAttributes("implClass", env.get(ToolConstants.IMPL_CLASS));
             setCommonAttributes();
             doWrite(SERVER_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Server"));
         }
