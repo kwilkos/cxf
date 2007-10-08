@@ -34,6 +34,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -45,7 +46,7 @@ import org.easymock.classextension.EasyMock;
 import org.junit.Test;
 
 public class JBIConduitTest extends AbstractJBITest {
-    static final Logger LOG = Logger.getLogger(JBIDestinationTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(JBIDestinationTest.class);
 
     
     @Test

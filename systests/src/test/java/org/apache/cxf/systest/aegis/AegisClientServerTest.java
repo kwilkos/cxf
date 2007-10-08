@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.authservice.AuthService;
 import org.apache.cxf.authservice.Authenticate;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -33,7 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AegisClientServerTest extends AbstractBusClientServerTestBase {
-    static final Logger LOG = Logger.getLogger(AegisClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(AegisClientServerTest.class);
     
     @BeforeClass
     public static void startServers() throws Exception {
