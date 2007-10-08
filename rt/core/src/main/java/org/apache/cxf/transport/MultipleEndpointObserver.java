@@ -18,10 +18,10 @@
  */
 package org.apache.cxf.transport;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
@@ -44,9 +44,9 @@ public class MultipleEndpointObserver implements MessageObserver {
     public static final String ENDPOINTS = "multipleEndpointObserver.endpoints";
     
     protected Bus bus;
-    protected List<Interceptor> bindingInterceptors = new ArrayList<Interceptor>();
-    protected List<Interceptor> routingInterceptors = new ArrayList<Interceptor>();
-    private Set<Endpoint> endpoints = new HashSet<Endpoint>();
+    protected List<Interceptor> bindingInterceptors = new CopyOnWriteArrayList<Interceptor>();
+    protected List<Interceptor> routingInterceptors = new CopyOnWriteArrayList<Interceptor>();
+    private Set<Endpoint> endpoints = new CopyOnWriteArraySet<Endpoint>();
     
     public MultipleEndpointObserver(Bus bus) {
         super();
@@ -106,24 +106,12 @@ public class MultipleEndpointObserver implements MessageObserver {
         return bindingInterceptors;
     }
 
-    public void setBindingInterceptors(List<Interceptor> bindingInterceptors) {
-        this.bindingInterceptors = bindingInterceptors;
-    }
-
     public List<Interceptor> getRoutingInterceptors() {
         return routingInterceptors;
-    }
-
-    public void setRoutingInterceptors(List<Interceptor> routingInterceptors) {
-        this.routingInterceptors = routingInterceptors;
     }
 
     public Set<Endpoint> getEndpoints() {
         return endpoints;
     }
 
-    public void setEndpoints(Set<Endpoint> endpoints) {
-        this.endpoints = endpoints;
-    }
-    
 }
