@@ -20,7 +20,7 @@ package org.apache.cxf.jca.cxf;
 
 
 import java.io.Serializable;
-import java.net.URL;
+import java.util.ResourceBundle;
 
 import javax.naming.NamingException;
 import javax.naming.Reference;
@@ -29,15 +29,17 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
-import javax.xml.namespace.QName;
 
-
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.connector.CXFConnectionFactory;
+import org.apache.cxf.connector.CXFConnectionParam;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 
 public class ConnectionFactoryImpl implements CXFConnectionFactory, 
                                               Referenceable, 
                                               Serializable {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConnectionFactoryImpl.class);
     private ManagedConnectionFactory managedConnectionFactory;
     private ConnectionManager connectionManager;
     private Reference reference;
@@ -55,35 +57,25 @@ public class ConnectionFactoryImpl implements CXFConnectionFactory,
         return reference;
     }
     
-    public Object getConnection(Class iface, URL wsdlLocation, QName serviceName) throws ResourceException {
-        return getConnection(iface, wsdlLocation, serviceName, null);
-    }
-
-    public Object getConnection(Class iface, QName serviceName, QName portName) throws ResourceException {
-        return getConnection(iface, null, serviceName, portName);
-    }
-
-    public Object getConnection(Class iface, QName serviceName) throws ResourceException {
-        return getConnection(iface, null, serviceName, null);
-    }
   
 
     public Object getBus() { 
         return ((ManagedConnectionFactoryImpl)managedConnectionFactory).getBus();
     }
 
-    public Object getConnection(Class iface, URL wsdlLocation, QName serviceName, QName portName)
-        throws ResourceException {
+    public Object getConnection(CXFConnectionParam param) throws ResourceException {
         
-        if (!iface.isInterface()) {
-            throw new ResourceAdapterInternalException(
-                    "The first argument to getConnection must be an Interface",
-                    new IllegalArgumentException(iface.toString() + " is not an Interface."));
+        if (param.getInterface() == null) {
+            throw new ResourceAdapterInternalException(new Message("INTERFACE_IS_NULL", BUNDLE).toString());
         }
         
-        CXFConnectionRequestInfo reqInfo = 
-            new CXFConnectionRequestInfo(iface, wsdlLocation, serviceName, portName);
-
+        if (!param.getInterface().isInterface()) {
+            throw new ResourceAdapterInternalException(new Message("IS_NOT_AN_INTERFACE", 
+                                                                   BUNDLE, param.getInterface()).toString());
+        }
+        
+        CXFConnectionRequestInfo reqInfo = (CXFConnectionRequestInfo) param;
+        
         if (connectionManager == null) {
             // non-managed, null Subject
             ManagedConnection connection = managedConnectionFactory.createManagedConnection(null, reqInfo);
@@ -92,22 +84,7 @@ public class ConnectionFactoryImpl implements CXFConnectionFactory,
             return connectionManager.allocateConnection(managedConnectionFactory, reqInfo);
         }
     }
+
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
