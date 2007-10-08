@@ -70,7 +70,7 @@
             <fileset dir="${cxf.home}/lib">
                 <include name="*annotation*" />
                 <include name="*ws-metadata*" />
-                <include name="activation*" />
+                <include name="*activation*" />
                 <include name="jaxb*" />
                 <include name="stax*" />
                 <include name="jsr181*" />
@@ -155,7 +155,7 @@
     -->
     <target name="activate" description="updates ejb_servants.properties for demo " unless="GreeterBean">
         <property name="servant.definition"
-          value="GreeterBean={http://apache.org/hello_world_soap_http}Greeter@file:"/>
+          value="GreeterBean={http://apache.org/hello_world_soap_http}Greeter@"/>
         <echo message="updating ${servants.props.file}" />
 
         <echo file="${servants.props.file}" append="true">
