@@ -74,9 +74,9 @@ public  class AnnotationProcessor {
      * Visits each of the annotated elements of the object.
      * 
      * @param visitor a visitor 
-     *
+     * @param claz the Class of the targe object
      */
-    public void accept(AnnotationVisitor visitor) { 
+    public void accept(AnnotationVisitor visitor, Class<?> claz) { 
         
         if (visitor == null) {
             throw new IllegalArgumentException();
@@ -85,10 +85,14 @@ public  class AnnotationProcessor {
         annotationTypes = visitor.getTargetAnnotations();
         visitor.setTarget(target);
         //recursively check annotation in super class
-        processClass(visitor, target.getClass());
-        processFields(visitor, target.getClass()); 
-        processMethods(visitor, target.getClass());
+        processClass(visitor, claz);
+        processFields(visitor, claz); 
+        processMethods(visitor, claz);
     } 
+    
+    public void accept(AnnotationVisitor visitor) {
+        accept(visitor, target.getClass());
+    }
     
     
     private void processMethods(AnnotationVisitor visitor, Class<? extends Object> targetClass) {
