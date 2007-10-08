@@ -100,18 +100,12 @@ public abstract class AbstractManagedConnectionFactoryImpl extends ResourceBean
         boolean result = false;
         final ConnectionRequestInfo canditate = canditateConn.getConnectionRequestInfo();
 
-        if (canditate.equals(crInfo)) {
-            LOG.fine("found match canditate=" + canditate + ", info=" + crInfo);
-            LOG.fine("Checking Subjects Match " + subject + " " + canditateConn.getSubject());
-
-            if ((subject == null) 
-                || (subject.equals(((AbstractManagedConnectionImpl)canditateConn).getSubject()))) {
-                try {
-                    validateReference(canditateConn, subject);
-                    result = true; 
-                } catch (Exception thrown) {
-                    result = false;
-                }
+        if (canditate.equals(crInfo) && (subject == null || subject.equals(canditateConn.getSubject()))) {
+            try {
+                validateReference(canditateConn, subject);
+                result = true; 
+            } catch (Exception thrown) {
+                result = false;
             }
         }
 

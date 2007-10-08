@@ -76,7 +76,6 @@ public abstract class AbstractManagedConnectionImpl implements ManagedConnection
         LOG.fine("closing handle: " + closingHandle);
 
         ConnectionEvent coEvent = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
-
         coEvent.setConnectionHandle(closingHandle);
         sendEvent(coEvent);
     }
