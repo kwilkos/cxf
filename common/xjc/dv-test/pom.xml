@@ -98,9 +98,8 @@
 
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/common/xjc/dv-test</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/common/xjc/dv-test</developerConnection>
-      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubatorcxf-parent/cxf-xjc-dv-test</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/common/xjc/dv-test</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/common/xjc/dv-test</developerConnection>
   </scm>
 
 </project>

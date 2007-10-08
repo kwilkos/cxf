@@ -144,9 +144,8 @@
     </dependencies>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/common/common</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator/common/common</developerConnection>
-      <url>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubatorcxf-parent/cxf-common-utilities</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/common/common</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes/common/common</developerConnection>
   </scm>
 
     <!-- will remove this after it is got sync to central repository -->

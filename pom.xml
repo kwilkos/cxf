@@ -28,9 +28,9 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/cxf-2.0.2-incubator</developerConnection>
-        <url>http://svn.apache.org/viewvc/incubator/cxf/tags/cxf-2.0.2-incubator</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/branches/2.0.x-fixes</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/branches/2.0.x-fixes</url>
     </scm>
     <issueManagement>
         <system>jira</system>
