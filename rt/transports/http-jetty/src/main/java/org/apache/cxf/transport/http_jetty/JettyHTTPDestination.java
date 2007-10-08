@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -239,7 +240,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(HTTP_RESPONSE, resp);
             inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
             inMessage.put(Message.PATH_INFO, req.getContextPath() + req.getPathInfo());
-            inMessage.put(Message.ENCODING, req.getCharacterEncoding());
+            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(req.getCharacterEncoding()));
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
             if (!StringUtils.isEmpty(endpointInfo.getAddress())) {
