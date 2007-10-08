@@ -19,6 +19,7 @@
 package org.apache.cxf.databinding.source;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -63,11 +64,12 @@ public class NodeDataReader implements DataReader<Node> {
             }
         } else if (StreamSource.class.isAssignableFrom(type)) {
             try {
-                CachedOutputStream out = new CachedOutputStream();
+                CachedOutputStream out = new CachedOutputStream();                
                 DOMUtils.writeXml(input, out);
+                InputStream is = out.getInputStream();
                 out.close();
                 
-                return new StreamSource(out.getInputStream());
+                return new StreamSource(is);
             } catch (IOException e) {
                 throw new Fault(new Message("COULD_NOT_READ_XML_STREAM", LOG), e);
             } catch (TransformerException e) {
