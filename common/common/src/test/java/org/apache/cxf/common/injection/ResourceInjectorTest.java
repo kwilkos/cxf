@@ -19,8 +19,11 @@
 
 package org.apache.cxf.common.injection;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,8 +93,14 @@ public class ResourceInjectorTest extends Assert {
     
     @Test
     public void testProxyInjection() {
+        setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
+        doInjectTest(getProxyObject(), SetterTarget.class);
+    }
+    
+    @Test
+    public void testEnhancedInjection() {
         setUpResourceManager(FieldTarget.class.getCanonicalName() + "/");               
-        doInjectTest(getProxyObject());
+        doInjectTest(getEnhancedObject());
     }
 
     @Test
@@ -123,9 +132,13 @@ public class ResourceInjectorTest extends Assert {
         assertTrue(target.preDestroyCalled()); 
     }
 
-    protected void doInjectTest(Target target) {
+    private void doInjectTest(Target target) {
+        doInjectTest(target, target.getClass());
+    }
+    
+    private void doInjectTest(Target target, Class<?> clazz) {
 
-        injector.inject(target);
+        injector.inject(target, clazz);
         assertNotNull(target.getResource1()); 
         assertEquals(RESOURCE_ONE, target.getResource1()); 
 
@@ -134,8 +147,14 @@ public class ResourceInjectorTest extends Assert {
          
     }
     
+    private Target getProxyObject() {
+        Target t = (Target)Proxy.newProxyInstance(ISetterTarget.class.getClassLoader(),
+                                                  new Class[] {ISetterTarget.class},
+                                                  new ProxyClass(new SetterTarget()));
+        return t;
+    }
         
-    private FieldTarget getProxyObject() {
+    private FieldTarget getEnhancedObject() {
         Enhancer e = new Enhancer();
         e.setSuperclass(FieldTarget.class);        
         e.setCallback(new CallInterceptor());
@@ -191,6 +210,40 @@ class SubSetterTarget extends SetterTarget {
     
 }
 
+interface ISetterTarget extends Target {    
+    void setResource1(final String argResource1);    
+    void setResource2(final String argResource2);
+}
+
+class ProxyClass implements InvocationHandler {
+    Object obj;
+
+    public ProxyClass(Object o) {
+        obj = o;
+    }
+
+    public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
+        Object result = null;
+        try {
+            Class[] types = new Class[0];
+            if (args != null) {
+                types = new Class[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    types[i] = args[i].getClass();
+                }
+            }    
+            Method target = obj.getClass().getMethod(m.getName(), types);
+            result = target.invoke(obj, args);
+        } catch (InvocationTargetException e) {
+            // Do nothing here
+        } catch (Exception eBj) {
+            eBj.printStackTrace();
+        } finally {
+            // Do something after the method is called ...
+        }
+        return result;
+    }
+}
 class SetterTarget implements Target { 
 
     private String resource1;
@@ -214,7 +267,7 @@ class SetterTarget implements Target {
     }
     
     @Resource(name = "resource2")
-    private void setResource2(final String argResource2) {
+    public void setResource2(final String argResource2) {
         this.resource2 = argResource2;
     }
 
