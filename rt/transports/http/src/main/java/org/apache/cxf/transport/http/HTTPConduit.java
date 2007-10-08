@@ -1908,10 +1908,21 @@ public class HTTPConduit
                 headers.put(HttpHeaderHelper.getHeaderKey(key), 
                         connection.getHeaderFields().get(key));
             }
+            
             inMessage.put(Message.PROTOCOL_HEADERS, headers);
             inMessage.put(Message.RESPONSE_CODE, responseCode);
-            inMessage.put(Message.CONTENT_TYPE, connection.getContentType());
-            inMessage.put(Message.ENCODING, connection.getContentEncoding());
+            String ct = connection.getContentType();
+            inMessage.put(Message.CONTENT_TYPE, ct);
+            String enc = connection.getContentEncoding();
+            if (enc == null 
+                && ct != null 
+                && ct.indexOf("charset") != -1) {
+                enc = ct.substring(ct.indexOf("charset") + 8);
+                if (enc.indexOf(";") != -1) {
+                    enc = enc.substring(0, enc.indexOf(";"));
+                }
+            }
+            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(enc));
             
             if (maintainSession) {
                 String cookieStr = connection.getHeaderField("Set-Cookie");
