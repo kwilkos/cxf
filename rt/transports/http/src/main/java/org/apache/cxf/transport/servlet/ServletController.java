@@ -132,7 +132,10 @@ public class ServletController {
                                 out.flush();
                                 return;
                             } catch (Exception e) {
-                                throw new ServletException(e);
+                                //throw new ServletException(e);
+                                LOG.warning(qh.getClass().getName() 
+                                    + " Exception caught writing response: " 
+                                    + e.getMessage());
                             }
                         }   
                     }
