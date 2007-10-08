@@ -23,13 +23,21 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.cxf.configuration.security.CertStoreType;
 import org.apache.cxf.configuration.security.KeyManagersType;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.SecureRandomParameters;
@@ -108,6 +116,65 @@ public final class TLSParameterJaxBUtils {
         }
         return keyStore;
     }
+    
+    /**
+     * This method converts a JAXB generated CertStoreType into a KeyStore.
+     */
+    public static KeyStore getKeyStore(final CertStoreType pst)
+        throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
+        
+        if (pst == null) {
+            return null;
+        }
+
+        if (pst.isSetFile()) {
+            return createTrustStore(new FileInputStream(pst.getFile()));
+        }
+        if (pst.isSetResource()) {
+            return createTrustStore(
+                pst.getClass().getClassLoader().getResourceAsStream(
+                    pst.getResource()
+                )
+            );
+        }
+        if (pst.isSetUrl()) {
+            return createTrustStore(new URL(pst.getUrl()).openStream());
+        }
+        // TODO error?
+        return null;
+    }
+    
+    /**
+     * Create a KeyStore containing the trusted CA certificates contained
+     * in the supplied input stream.
+     */
+    private static KeyStore createTrustStore(final java.io.InputStream is)
+        throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
+        
+        final Collection<? extends Certificate> certs = loadCertificates(is);
+        final KeyStore keyStore = 
+            KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);
+        for (Certificate cert : certs) {
+            final X509Certificate xcert = (X509Certificate) cert;
+            keyStore.setCertificateEntry(
+                xcert.getSubjectX500Principal().getName(), 
+                cert
+            );
+        }
+        return keyStore;
+    }
+    
+    /**
+     * load the certificates as X.509 certificates
+     */
+    private static Collection<? extends Certificate> 
+    loadCertificates(final java.io.InputStream is)
+        throws IOException, CertificateException {
+        
+        final CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        return factory.generateCertificates(is);
+    }
 
     /**
      * This method converts the JAXB KeyManagersType into a list of 
@@ -145,23 +212,27 @@ public final class TLSParameterJaxBUtils {
      * This method converts the JAXB KeyManagersType into a list of 
      * JSSE TrustManagers.
      */
-    public static TrustManager[] getTrustManagers(TrustManagersType kmc) 
+    public static TrustManager[] getTrustManagers(TrustManagersType tmc) 
         throws GeneralSecurityException,
                IOException {
         
-        KeyStore keyStore = getKeyStore(kmc.getKeyStore());
-        
+        final KeyStore keyStore = 
+            tmc.isSetKeyStore()
+                ? getKeyStore(tmc.getKeyStore())
+                : (tmc.isSetCertStore()
+                    ? getKeyStore(tmc.getCertStore())
+                    : (KeyStore) null);
         if (keyStore == null) {
             return null;
         }
         
-        String alg = kmc.isSetFactoryAlgorithm()
-                     ? kmc.getFactoryAlgorithm()
+        String alg = tmc.isSetFactoryAlgorithm()
+                     ? tmc.getFactoryAlgorithm()
                      : KeyManagerFactory.getDefaultAlgorithm();
         
         TrustManagerFactory fac = 
-                     kmc.isSetProvider()
-                     ? TrustManagerFactory.getInstance(alg, kmc.getProvider())
+                     tmc.isSetProvider()
+                     ? TrustManagerFactory.getInstance(alg, tmc.getProvider())
                      : TrustManagerFactory.getInstance(alg);
                      
         fac.init(keyStore);

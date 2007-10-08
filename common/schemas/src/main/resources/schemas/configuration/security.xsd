@@ -25,10 +25,10 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            xmlns:tns="http://cxf.apache.org/configuration/security"
            xmlns:beans="http://www.springframework.org/schema/beans"
-  		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  		   xsi:schemaLocation="
-  		       http://www.springframework.org/schema/beans
-  		       http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="
+               http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
            jaxb:version="2.0">
 
     <xs:import namespace="http://www.springframework.org/schema/beans"/>
@@ -116,6 +116,16 @@
     </xs:complexType>
     
     <xs:complexType name="KeyStoreType">
+      <xs:annotation>
+        <xs:documentation>
+        A KeyStoreType represents the information needed to load a collection
+        of key and certificate material from a desired location.
+        The "url", "file", and "resource" attributes are intended to be
+        mutually exclusive, though this assumption is not encoded in schema.
+        The precedence order observed by the runtime is 
+        1) "file", 2) "resource", and 3) "url".
+        </xs:documentation>
+      </xs:annotation>
         <xs:attribute name="type"     type="xs:string">
           <xs:annotation>
             <xs:documentation>
@@ -173,6 +183,49 @@
         </xs:attribute>
     </xs:complexType>
     
+    <xs:complexType name="CertStoreType">
+      <xs:annotation>
+        <xs:documentation>
+        A CertStoreType represents a catenated sequence of X.509 certificates, 
+        in PEM or DER format.
+        The "url", "file", and "resource" attributes are intended to be
+        mutually exclusive, though this assumption is not encoded in schema.
+        The precedence order observed by the runtime is 
+        1) "file", 2) "resource", and 3) "url".
+        </xs:documentation>
+      </xs:annotation>
+        <xs:attribute name="file"     type="xs:string">
+          <xs:annotation>
+            <xs:documentation>
+            This attribute specifies the File location of the certificate store.
+            This element should be a properly accessible file from the
+            working directory. Only one attribute of
+            "url", "file", or "resource" is allowed.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="resource" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>
+            This attribute specifies the Resource location of the certificate store.
+            This element should be a properly accessible on the classpath.
+            Only one attribute of
+            "url", "file", or "resource" is allowed.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="url"      type="xs:string">
+          <xs:annotation>
+            <xs:documentation>
+            This attribute specifies the URL location of the certificate store.
+            This element should be a properly accessible URL, such as
+            "http://..." "file:///...", etc. Only one attribute of
+            "url", "file", or "resource" is allowed.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
     <xs:complexType name="KeyManagersType">
       <xs:annotation>
         <xs:documentation>
@@ -183,37 +236,37 @@
       
          <xs:sequence>
             <xs:element name="keyStore" type="tns:KeyStoreType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element specified the Keystore for these JSSE KeyManagers.
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element specified the Keystore for these JSSE KeyManagers.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
          </xs:sequence>
             <xs:attribute name="keyPassword" type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the password that unlocks the keys
-	            within the keystore.
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the password that unlocks the keys
+                within the keystore.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
             <xs:attribute name="provider" type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the KeyManagers provider name.
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the KeyManagers provider name.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
             <xs:attribute name="factoryAlgorithm"  type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the algorithm the KeyManagers Factory
-	            will use in creating the KeyManagers from the KeyStore. Most
-	            common examples are "PKIX".
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the algorithm the KeyManagers Factory
+                will use in creating the KeyManagers from the KeyStore. Most
+                common examples are "PKIX".
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
     </xs:complexType>
     
     <xs:complexType name="TrustManagersType">
@@ -223,31 +276,40 @@
         a single Keystore used for trusted certificates.
         </xs:documentation>
       </xs:annotation>
-         <xs:sequence>
-            <xs:element name="keyStore" type="tns:KeyStoreType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the KeyStore used as a trust store.
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:element>
-         </xs:sequence>
-            <xs:attribute name="provider" type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the KeyManagers provider name.
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:attribute>
+      <xs:choice>
+          <xs:element name="keyStore" type="tns:KeyStoreType"
+              minOccurs="0">
+              <xs:annotation>
+                  <xs:documentation>
+                    This element contains the KeyStore used as a trust
+                    store.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:element>
+          <xs:element name="certStore" type="tns:CertStoreType" minOccurs="0">
+              <xs:annotation>
+                  <xs:documentation>
+                    This element contains the CertStore used as a trust store.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:element>
+        </xs:choice>
+      <xs:attribute name="provider" type="xs:string">
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the KeyManagers provider name.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
             <xs:attribute name="factoryAlgorithm"  type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the algorithm the KeyManagers Factory
-	            will use in creating the KeyManagers from the KeyStore. Most
-	            common examples are "PKIX".
-	            </xs:documentation>
-	          </xs:annotation>
-	        </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the algorithm the KeyManagers Factory
+                will use in creating the KeyManagers from the KeyStore. Most
+                common examples are "PKIX".
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
     </xs:complexType>
     
     <xs:complexType name="CipherSuites">
@@ -281,122 +343,122 @@
     <xs:complexType name="TLSClientParametersType">
         <xs:all>
            <xs:element name="keyManagers" type="tns:KeyManagersType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the KeyManagers specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the KeyManagers specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="trustManagers" type="tns:TrustManagersType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the TrustManagers specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the TrustManagers specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="cipherSuites" type="tns:CipherSuites" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the the CipherSuites that will be supported.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the the CipherSuites that will be supported.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="cipherSuitesFilter" type="tns:FiltersType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the filters of the supported CipherSuites
-	            that will be supported and used if available.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the filters of the supported CipherSuites
+                that will be supported and used if available.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="secureRandomParameters" 
                        type="tns:SecureRandomParameters" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains SecureRandom specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains SecureRandom specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
         </xs:all>
            <xs:attribute name="jsseProvider"          type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the JSSE provider name.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the JSSE provider name.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:attribute>
            <xs:attribute name="secureSocketProtocol"  type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the Protocol Name. Most common
-	            example is "SSL", "TLS" or "TLSv1".
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the Protocol Name. Most common
+                example is "SSL", "TLS" or "TLSv1".
+                </xs:documentation>
+              </xs:annotation>
+           </xs:attribute>
     </xs:complexType>
     
     <xs:complexType name="TLSServerParametersType">
         <xs:all>
            <xs:element name="keyManagers" type="tns:KeyManagersType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the KeyManagers specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the KeyManagers specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="trustManagers" type="tns:TrustManagersType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the TrustManagers specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the TrustManagers specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="cipherSuites" type="tns:CipherSuites" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the the CipherSuites that will be supported.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the the CipherSuites that will be supported.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="cipherSuitesFilter" type="tns:FiltersType" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains the filters of the supported CipherSuites
-	            that will be supported and used if available.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains the filters of the supported CipherSuites
+                that will be supported and used if available.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="secureRandomParameters" 
                        type="tns:SecureRandomParameters" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains SecureRandom specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains SecureRandom specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
            <xs:element name="clientAuthentication" 
                        type="tns:ClientAuthentication" minOccurs="0">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This element contains Client Authentication specification.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:element>
+              <xs:annotation>
+                <xs:documentation>
+                This element contains Client Authentication specification.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:element>
         </xs:all>
            <xs:attribute name="jsseProvider"          type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the JSSE provider name.
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the JSSE provider name.
+                </xs:documentation>
+              </xs:annotation>
+           </xs:attribute>
            <xs:attribute name="secureSocketProtocol"  type="xs:string">
-	          <xs:annotation>
-	            <xs:documentation>
-	            This attribute contains the Protocol Name. Most common
-	            example is "SSL", "TLS" or "TLSv1".
-	            </xs:documentation>
-	          </xs:annotation>
-	       </xs:attribute>
+              <xs:annotation>
+                <xs:documentation>
+                This attribute contains the Protocol Name. Most common
+                example is "SSL", "TLS" or "TLSv1".
+                </xs:documentation>
+              </xs:annotation>
+           </xs:attribute>
     </xs:complexType>
 </xs:schema>
