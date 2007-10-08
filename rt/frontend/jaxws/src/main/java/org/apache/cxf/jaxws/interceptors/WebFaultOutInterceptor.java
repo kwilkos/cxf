@@ -34,23 +34,23 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.FaultOutInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsServiceConfiguration;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
-public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class WebFaultOutInterceptor extends FaultOutInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(WebFaultOutInterceptor.class);
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
     public WebFaultOutInterceptor() {
-        super(Phase.PRE_PROTOCOL);
+        super();
     }
     
     private QName getFaultName(WebFault wf, Class<?> cls, OperationInfo op) {
@@ -112,6 +112,13 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
             writer.write(faultInfo, part, f.getOrCreateDetail());
 
             f.setMessage(ex.getMessage());
+        } else {
+            FaultMode mode = message.get(FaultMode.class);
+            if (mode == FaultMode.CHECKED_APPLICATION_FAULT) {
+                //only convert checked exceptions with this
+                //otherwise delegate down to the normal protocol specific stuff
+                super.handleMessage(message);
+            }
         }
     }
 
