@@ -68,6 +68,11 @@ http://java/sun.com/xml/ns/j2ee/connector_1_5.xsd" version="1.5">
           <config-property-type>java.lang.Integer</config-property-type>
           <config-property-value>30</config-property-value>
         </config-property>
+        <config-property>
+          <config-property-name>EJBServantBaseURL</config-property-name>
+          <config-property-type>java.lang.String</config-property-type>
+          <config-property-value>http://localhost:9999</config-property-value>
+        </config-property>
         <connectionfactory-interface>org.apache.cxf.connector.CXFConnectionFactory</connectionfactory-interface>
         <connectionfactory-impl-class>org.apache.cxf.jca.cxf.ConnectionFactoryImpl</connectionfactory-impl-class>
         <connection-interface>org.apache.cxf.connector.Connection</connection-interface>

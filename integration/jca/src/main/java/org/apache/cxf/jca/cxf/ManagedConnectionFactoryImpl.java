@@ -20,6 +20,7 @@ package org.apache.cxf.jca.cxf;
 
 import java.net.URL;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.resource.ResourceException;
@@ -30,6 +31,8 @@ import javax.security.auth.Subject;
 
 import org.apache.cxf.Bus;
 //import org.apache.cxf.BusFactory;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jca.core.resourceadapter.AbstractManagedConnectionFactoryImpl;
 import org.apache.cxf.jca.core.resourceadapter.AbstractManagedConnectionImpl;
@@ -40,6 +43,8 @@ public class ManagedConnectionFactoryImpl
     implements CXFManagedConnectionFactory {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ManagedConnectionFactoryImpl.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ManagedConnectionFactoryImpl.class);
+    
     protected JCABusFactory jcaBusFactory;
 
     public ManagedConnectionFactoryImpl() {
@@ -104,6 +109,14 @@ public class ManagedConnectionFactoryImpl
     public URL getEJBServicePropertiesURLInstance() throws ResourceException {
         return getPropsURL(getEJBServicePropertiesURL());
     }
+    
+    public String getEJBServantBaseURL() throws ResourceException {
+        return getPluginProps().getProperty(EJB_SERVANT_BASE_URL);
+    }
+    
+    public void setEJBServantBaseURL(String url) throws ResourceException {
+        setProperty(EJB_SERVANT_BASE_URL, url);
+    }
 
     // compliance: WL9 checks
     // need to ensure multiple instances with same config properties are equal
@@ -114,15 +127,15 @@ public class ManagedConnectionFactoryImpl
     }
 
     public Object createConnectionFactory() throws ResourceException {
-        throw new ResourceAdapterInternalException("Non-Managed usage is not supported, "
-                        + "use createConnectionFactory with a ConnectionManager argument");
+        throw new ResourceAdapterInternalException(
+                           new Message("NON_MANAGED_CONNECTION_IS_NOT_SUPPORTED", BUNDLE).toString());
     }
 
     public Object createConnectionFactory(ConnectionManager connMgr) throws ResourceException {
         LOG.info("connManager=" + connMgr);
         if (connMgr == null) {
-            throw new ResourceAdapterInternalException("Non-Managed usage is not supported, " 
-                        + "the ConnectionManager argument can not be null");
+            throw new ResourceAdapterInternalException(
+                            new Message("NON_MANAGED_CONNECTION_IS_NOT_SUPPORTED", BUNDLE).toString());
         }
         init(connMgr.getClass().getClassLoader());
         LOG.fine("Setting AppServer classloader in jcaBusFactory. " + connMgr.getClass().getClassLoader());
