@@ -36,10 +36,11 @@ public class WriteOnCloseOutputStream extends CachedOutputStream {
         flowThroughStream = stream;
     }
 
-    @Override
-    protected void doClose() throws IOException {
+    
+    protected void postClose() throws IOException {
         resetOut(flowThroughStream, true);
         flowThroughStream.flush();
         flowThroughStream.close();
-    }
+    }    
+    
 }
