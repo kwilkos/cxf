@@ -21,7 +21,6 @@ package org.apache.cxf.jca.cxf;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.util.logging.Logger;
 
 import javax.naming.NamingException;
 import javax.naming.Reference;
@@ -33,14 +32,12 @@ import javax.resource.spi.ManagedConnectionFactory;
 import javax.xml.namespace.QName;
 
 
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.connector.CXFConnectionFactory;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 
 public class ConnectionFactoryImpl implements CXFConnectionFactory, 
                                               Referenceable, 
                                               Serializable {
-    private static final Logger LOG = LogUtils.getL7dLogger(ConnectionFactoryImpl.class);
     private ManagedConnectionFactory managedConnectionFactory;
     private ConnectionManager connectionManager;
     private Reference reference;
@@ -48,16 +45,13 @@ public class ConnectionFactoryImpl implements CXFConnectionFactory,
     public ConnectionFactoryImpl(ManagedConnectionFactory aMCF, ConnectionManager aCM) {
         managedConnectionFactory = aMCF;
         connectionManager = aCM;
-        LOG.info("this=" + this);
     }
 
     public void setReference(Reference ref) {
-        LOG.info("Reference : " + ref + " is set");
         reference = ref;
     }
 
     public Reference getReference() throws NamingException {
-        LOG.info("Reference : " + reference + " is returned");
         return reference;
     }
     
@@ -86,9 +80,7 @@ public class ConnectionFactoryImpl implements CXFConnectionFactory,
                     "The first argument to getConnection must be an Interface",
                     new IllegalArgumentException(iface.toString() + " is not an Interface."));
         }
-
-        LOG.info("connecting to: " + iface);
-
+        
         CXFConnectionRequestInfo reqInfo = 
             new CXFConnectionRequestInfo(iface, wsdlLocation, serviceName, portName);
 
@@ -101,6 +93,7 @@ public class ConnectionFactoryImpl implements CXFConnectionFactory,
         }
     }
 }
+
 
 
 

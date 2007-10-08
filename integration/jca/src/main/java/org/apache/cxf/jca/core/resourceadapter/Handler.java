@@ -33,7 +33,6 @@ public class Handler extends URLStreamHandler {
     private static final Logger LOG = LogUtils.getL7dLogger(Handler.class);
 
     public URLConnection openConnection(URL someUrl) {
-        LOG.fine("URL=" + someUrl);
 
         return new URLConnection(someUrl) {
             public void connect() {
