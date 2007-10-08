@@ -236,6 +236,13 @@
                                 <name>spring.validation.mode</name>
                                 <value>${spring.validation.mode}</value>
                             </property>
+                            <property>
+                                <!-- If we close the port after a client in the same JVM has oppened a keep-alive
+                                connection, on some Linux's, the socket remains consumed until
+                                some timeout occurs.   That may cause some tests to timeout/hang. -->
+                                <name>org.apache.cxf.transports.http_jetty.DontClosePort</name>
+                                <value>true</value>
+                            </property>
                         </systemProperties>
                     </configuration>
                 </plugin>
@@ -921,6 +928,13 @@
                                 <property>
                                     <name>spring.validation.mode</name>
                                     <value>${spring.validation.mode}</value>
+                                </property>
+                                <property>
+                                    <!-- If we close the port after a client in the same JVM has oppened a keep-alive
+                                    connection, on some Linux's, the socket remains consumed until
+                                    some timeout occurs.   That may cause some tests to timeout/hang. -->
+                                    <name>org.apache.cxf.transports.http_jetty.DontClosePort</name>
+                                    <value>true</value>
                                 </property>
                             </systemProperties>
                         </configuration>

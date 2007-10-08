@@ -171,7 +171,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
         }
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        if (null != dfm) {
+        if (null != dfm && activationNamespaces != null) {
             for (String ns : activationNamespaces) {
                 dfm.registerDestinationFactory(ns, this);
             }

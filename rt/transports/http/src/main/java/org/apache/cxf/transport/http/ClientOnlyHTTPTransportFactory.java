@@ -16,29 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.transport;
+package org.apache.cxf.transport.http;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+public class ClientOnlyHTTPTransportFactory extends AbstractHTTPTransportFactory {
 
-import org.apache.cxf.helpers.CastUtils;
-
-/**
- * Helper methods for {@link DestinationFactory}s and {@link ConduitInitiator}s.
- */
-public abstract class AbstractTransportFactory {
-    private List<String> transportIds;
-
-    public List<String> getTransportIds() {
-        return transportIds;
+    public ClientOnlyHTTPTransportFactory() {
     }
 
-    public void setTransportIds(List<String> transportIds) {
-        this.transportIds = transportIds;
-    }
-
-    public Set<String> getUriPrefixes() {
-        return CastUtils.cast(Collections.EMPTY_SET);
-    }
 }

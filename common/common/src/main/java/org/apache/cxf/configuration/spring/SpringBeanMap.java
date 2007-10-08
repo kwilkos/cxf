@@ -18,50 +18,26 @@
  */
 package org.apache.cxf.configuration.spring;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.cxf.helpers.CastUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.Mergeable;
 import org.springframework.beans.PropertyValue;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.BeanIsAbstractException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedSet;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBean, Map<String, V> {
-    private ApplicationContext context;
-    private Class<?> type;
-    private String idsProperty;
-    private Map<String, String> idToBeanName = new ConcurrentHashMap<String, String>();
-    private Map<String, V> putStore = new ConcurrentHashMap<String, V>();
+public class SpringBeanMap<V> 
+    extends AbstractSpringBeanMap<String, V> {
 
-    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
-        this.context = ctx;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        processBeans(context);
-    }
-
-    private void processBeans(ApplicationContext beanFactory) {
+    
+    protected void processBeans(ApplicationContext beanFactory) {
         if (beanFactory == null) {
             return;
         }
@@ -117,7 +93,7 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
                     ids = newIds;
                 }
                 for (Object id : ids) {
-                    idToBeanName.put(id.toString(), beanNames[i]);
+                    getBeanListForId(id.toString()).add(beanNames[i]);
                 }
             } catch (BeanIsAbstractException e) {
                 // The bean is abstract, we won't be doing anything with it.
@@ -126,140 +102,5 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
         }
 
         processBeans(ctxt.getParent());
-    }
-
-    private Collection<String> getIds(Object bean) {
-        try {
-            PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(bean.getClass(), idsProperty);
-            Method method = pd.getReadMethod();
-            Collection<String> c = CastUtils.cast((Collection<?>)method.invoke(bean, new Object[0]));
-
-            return c;
-        } catch (IllegalArgumentException e) {
-            throw new BeanInitializationException("Could not retrieve ids.", e);
-        } catch (IllegalAccessException e) {
-            throw new BeanInitializationException("Could not access id getter.", e);
-        } catch (InvocationTargetException e) {
-            throw new BeanInitializationException("Could not invoke id getter.", e);
-        } catch (SecurityException e) {
-            throw new BeanInitializationException("Could not invoke id getter.", e);
-        }
-    }
-
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-
-    public Class<?> getType() {
-        return type;
-    }
-
-    public void setType(Class<?> type) {
-        this.type = type;
-    }
-
-    public String getIdsProperty() {
-        return idsProperty;
-    }
-
-    public void setIdsProperty(String idsProperty) {
-        this.idsProperty = idsProperty;
-    }
-
-    public void clear() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean containsKey(Object key) {
-        return idToBeanName.containsKey(key) || putStore.containsKey(key);
-    }
-
-    public boolean containsValue(Object arg0) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Set<java.util.Map.Entry<String, V>> entrySet() {
-        Set<Map.Entry<String, V>> entries = new HashSet<Map.Entry<String, V>>();
-        for (String k : keySet()) {
-            entries.add(new Entry<V>(this, k));
-        }
-        return entries;
-    }
-
-    @SuppressWarnings("unchecked")
-    public V get(Object key) {
-        String name = idToBeanName.get(key);
-        if (name != null) {
-            return (V)context.getBean(name);
-        } else {
-            return putStore.get(key);
-        }
-    }
-
-    public boolean isEmpty() {
-        return idToBeanName.isEmpty() && putStore.isEmpty();
-    }
-
-    public Set<String> keySet() {
-        Set<String> keys = new HashSet<String>();
-        keys.addAll(idToBeanName.keySet());
-        keys.addAll(putStore.keySet());
-        return keys;
-    }
-
-    public V put(String key, V value) {
-        // Make sure we don't take the key from Spring any more
-        idToBeanName.remove(key);
-        return putStore.put(key, value);
-    }
-
-    public void putAll(Map<? extends String, ? extends V> m) {
-        putStore.putAll(m);
-    }
-
-    public V remove(Object key) {
-        V v = get(key);
-        if (v != null) {
-            idToBeanName.remove(key);
-        } else {
-            v = putStore.get(key);
-        }
-
-        return v;
-    }
-
-    public int size() {
-        return idToBeanName.size() + putStore.size();
-    }
-
-    public Collection<V> values() {
-        List<V> values = new ArrayList<V>();
-        values.addAll(putStore.values());
-        for (String id : idToBeanName.keySet()) {
-            values.add(get(id));
-        }
-        return values;
-    }
-    
-    public static class Entry<V> implements Map.Entry<String, V> {
-        private SpringBeanMap<V> map;
-        private String key;
-
-        public Entry(SpringBeanMap<V> map, String key) {
-            this.map = map;
-            this.key = key;
-        }
-        
-        public String getKey() {
-            return key;
-        }
-
-        public V getValue() {
-            return map.get(key);
-        }
-
-        public V setValue(V value) {
-            return map.put(key, value);
-        }
     }
 }

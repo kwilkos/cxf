@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.spring.MapProvider;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.extension.RegistryImpl;
 import org.apache.neethi.Assertion;
@@ -50,11 +51,14 @@ public class AssertionBuilderRegistryImpl extends RegistryImpl<QName, AssertionB
     private List<QName> ignored = new ArrayList<QName>(IGNORED_CACHE_SIZE);
     
     public AssertionBuilderRegistryImpl() {
-        this(null);
+        super(null);
     }
 
     public AssertionBuilderRegistryImpl(Map<QName, AssertionBuilder> builders) {
         super(builders);
+    }
+    public AssertionBuilderRegistryImpl(MapProvider<QName, AssertionBuilder> builders) {
+        super(builders.createMap());
     }
 
     public Class<?> getRegistrationType() {

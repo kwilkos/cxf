@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.configuration.spring.MapProvider;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.extension.RegistryImpl;
 import org.apache.cxf.interceptor.Interceptor;
@@ -39,11 +40,14 @@ public class PolicyInterceptorProviderRegistryImpl
     implements PolicyInterceptorProviderRegistry, BusExtension {
 
     public PolicyInterceptorProviderRegistryImpl() {
-        this(null);
+        super(null);
     }
 
     public PolicyInterceptorProviderRegistryImpl(Map<QName, PolicyInterceptorProvider> interceptors) {
         super(interceptors);
+    }    
+    public PolicyInterceptorProviderRegistryImpl(MapProvider<QName, PolicyInterceptorProvider> interceptors) {
+        super(interceptors.createMap());
     }    
 
     public Class<?> getRegistrationType() {

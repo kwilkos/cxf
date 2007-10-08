@@ -44,9 +44,6 @@ import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
@@ -57,13 +54,12 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
  * As a ConduitInitiator, this class sets up new HTTPConduits for particular
  * endpoints.
  *
- * TODO: Document DestinationFactory
  * TODO: Document WSDLEndpointFactory
  *
  */
 public abstract class AbstractHTTPTransportFactory 
     extends AbstractTransportFactory 
-    implements ConduitInitiator, DestinationFactory, WSDLEndpointFactory {
+    implements ConduitInitiator, WSDLEndpointFactory {
 
     /**
      * This constant holds the prefixes served by this factory.
@@ -78,7 +74,7 @@ public abstract class AbstractHTTPTransportFactory
      * The CXF Bus which this HTTPTransportFactory
      * is governed.
      */
-    private Bus bus;
+    protected Bus bus;
   
     /**
      * This collection contains "activationNamespaces" which is synominous
@@ -86,7 +82,7 @@ public abstract class AbstractHTTPTransportFactory
      * AbstractTransportFactory.
      * TODO: Change these to "transportIds"?
      */
-    private Collection<String> activationNamespaces;
+    protected Collection<String> activationNamespaces;
 
     /**
      * This method is used by Spring to inject the bus.
@@ -129,20 +125,15 @@ public abstract class AbstractHTTPTransportFactory
         
         if (getTransportIds() == null) {
             setTransportIds(new ArrayList<String>(activationNamespaces));
+        } else if (activationNamespaces == null) {
+            activationNamespaces = getTransportIds();
         }
         
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
-
         //Note, activationNamespaces can be null
         if (null != cim && null != activationNamespaces) {
             for (String ns : activationNamespaces) {
                 cim.registerConduitInitiator(ns, this);
-            }
-        }
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        if (null != dfm && null != activationNamespaces) {
-            for (String ns : activationNamespaces) {
-                dfm.registerDestinationFactory(ns, this);
             }
         }
     }
@@ -174,9 +165,6 @@ public abstract class AbstractHTTPTransportFactory
         conduit.finalizeConfig();
         return conduit;
     }
-
-    public abstract Destination getDestination(EndpointInfo endpointInfo) throws IOException;
-
 
     public EndpointInfo createEndpointInfo(
         ServiceInfo serviceInfo, 
