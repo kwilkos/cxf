@@ -55,26 +55,24 @@
     </wsdl:message>
     
     <wsdl:portType name="Greeter">
-	<wsdl:operation name="sayHi">
-	    <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
-	    <wsdl:output message="tns:sayHiResponse" name="sayHiResponse"/>
-	</wsdl:operation>
-	
-	<wsdl:operation name="greetMe">
-	    <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
-	    <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
-	</wsdl:operation>
-	
-	<wsdl:operation name="greetMeOneWay">
-	    <wsdl:input message="tns:greetMeOneWayRequest" name="greetMeOneWayRequest"/>
-	</wsdl:operation>
-
-	<wsdl:operation name="pingMe">
-	    <wsdl:input name="pingMeRequest" message="tns:pingMeRequest"/>
-	    <wsdl:output name="pingMeResponse" message="tns:pingMeResponse"/>
-	    <wsdl:fault name="pingMeFault" message="tns:pingMeFault"/>
-	</wsdl:operation> 
+        <wsdl:operation name="sayHi">
+            <wsdl:input message="tns:sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greetMe">
+            <wsdl:input message="tns:greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greetMeOneWay">
+            <wsdl:input message="tns:greetMeOneWayRequest"/>
+        </wsdl:operation>
+        <wsdl:operation name="pingMe">
+            <wsdl:input message="tns:pingMeRequest"/>
+            <wsdl:output message="tns:pingMeResponse"/>
+            <wsdl:fault name="pingMeFault" message="tns:pingMeFault"/>
+        </wsdl:operation>
     </wsdl:portType>
+
     <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
 	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
 	
