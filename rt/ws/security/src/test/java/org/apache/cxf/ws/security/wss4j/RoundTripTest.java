@@ -100,7 +100,6 @@ public class RoundTripTest extends AbstractSecurityTest {
         assertEquals("test", echo.echo("test"));
     }
     @Test
-    @Ignore("Seems to randomly hang on Linux")
     public void testUsernameToken() throws Exception {
         String actions = WSHandlerConstants.ENCRYPT + " " + WSHandlerConstants.SIGNATURE + " "
                          + WSHandlerConstants.TIMESTAMP + " " + WSHandlerConstants.USERNAME_TOKEN;
