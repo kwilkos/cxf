@@ -166,7 +166,7 @@ public class JettyHTTPServerEngine
      */
     public void shutdown() {
         if (shouldDestroyPort()) {
-            if (servantCount == 0) {
+            if (factory != null && servantCount == 0) {
                 factory.destroyForPort(port);
             } else {
                 LOG.log(Level.WARNING, "FAILED_TO_SHOWDOWN_ENGINE_MSG", port);
