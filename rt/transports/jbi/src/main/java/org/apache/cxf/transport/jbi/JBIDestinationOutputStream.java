@@ -19,9 +19,8 @@
 
 package org.apache.cxf.transport.jbi;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,8 +72,7 @@ public class JBIDestinationOutputStream extends CachedOutputStream {
                 return;
             } else {
                 
-                ByteArrayOutputStream baos = (ByteArrayOutputStream)getOut();
-                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+                InputStream bais = getInputStream();
                 LOG.finest(new org.apache.cxf.common.i18n.Message(
                     "BUILDING.DOCUMENT", LOG).toString());
                 DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
