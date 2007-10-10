@@ -111,7 +111,7 @@ public class EngineLifecycleTest extends Assert {
         htmlFile.close();
         html.close();
         
-        assertEquals("Can't get the right test html", html.getOut().toString(), response.getOut().toString());
+        assertEquals("Can't get the right test html", html.toString(), response.toString());
         
         
         

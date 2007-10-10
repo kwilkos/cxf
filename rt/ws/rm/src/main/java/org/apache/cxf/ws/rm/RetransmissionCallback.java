@@ -48,7 +48,7 @@ public class RetransmissionCallback implements CachedOutputStreamCallback {
     }
     public void onClose(CachedOutputStream cos) {
    
-        message.put(RMMessageConstants.SAVED_OUTPUT_STREAM, cos.getOut());
+        //REVISIT - would be nice to keep the cache on disk intead of in-memory 
         byte bytes[] = null;
         try {
             bytes = cos.getBytes();
@@ -57,6 +57,8 @@ public class RetransmissionCallback implements CachedOutputStreamCallback {
                                                                    LOG, 
                                                                    cos.getOut().getClass()));
         }
+        
+        message.put(RMMessageConstants.SAVED_CONTENT, bytes);            
         manager.getRetransmissionQueue().addUnacknowledged(message);
         
         RMStore store = manager.getStore();
