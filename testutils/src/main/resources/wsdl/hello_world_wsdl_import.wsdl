@@ -32,18 +32,18 @@
 
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
-            <wsdl:input message="x1:sayHiRequest" name="sayHiRequest"/>
-            <wsdl:output message="x1:sayHiResponse" name="sayHiResponse"/>
+            <wsdl:input message="x1:sayHiRequest" />
+            <wsdl:output message="x1:sayHiResponse" />
         </wsdl:operation>
 
         <wsdl:operation name="greetMe">
-            <wsdl:input message="x1:greetMeRequest" name="greetMeRequest"/>
-            <wsdl:output message="x1:greetMeResponse" name="greetMeResponse"/>
+            <wsdl:input message="x1:greetMeRequest" />
+            <wsdl:output message="x1:greetMeResponse" />
         </wsdl:operation>
 
         <wsdl:operation name="pingMe">
-            <wsdl:input name="pingMeRequest" message="x1:pingMeRequest"/>
-            <wsdl:output name="pingMeResponse" message="x1:pingMeResponse"/>
+            <wsdl:input message="x1:pingMeRequest"/>
+            <wsdl:output message="x1:pingMeResponse"/>
             <wsdl:fault name="pingMeFault" message="x1:pingMeFault"/>
         </wsdl:operation>
     </wsdl:portType>
