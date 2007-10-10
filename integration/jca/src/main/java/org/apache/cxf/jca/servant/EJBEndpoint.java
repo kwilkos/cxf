@@ -21,19 +21,28 @@ package org.apache.cxf.jca.servant;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ejb.EJBHome;
 import javax.jws.WebService;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.resource.spi.work.WorkManager;
 import javax.rmi.PortableRemoteObject;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.jca.cxf.WorkManagerThreadPool;
+import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
+import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngineFactory;
+import org.mortbay.jetty.AbstractConnector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 
 
 public class EJBEndpoint {
@@ -47,6 +56,8 @@ public class EJBEndpoint {
     private EJBHome ejbHome;
     
     private String ejbServantBaseURL;
+    
+    private WorkManager workManager;
     
     public EJBEndpoint(EJBServantConfig ejbConfig) {
         this.config = ejbConfig;
@@ -72,9 +83,33 @@ public class EJBEndpoint {
                                                                : getDefaultEJBServantBaseURL();
         String address = baseAddress + "/" + config.getJNDIName();
         factory.setAddress(address);
+        if (getWorkManager() != null) {
+            setWorkManagerThreadPoolToJetty(factory.getBus(), baseAddress);
+        }
         
+        Server server = factory.create();
         LOG.info("Published EJB Endpoint of [" + config.getJNDIName() + "] at [" + address + "]");
-        return factory.create();
+        
+        return server;
+    }
+    
+    
+    protected void setWorkManagerThreadPoolToJetty(Bus bus, String baseAddress) {
+        JettyHTTPServerEngineFactory engineFactory = bus.getExtension(JettyHTTPServerEngineFactory.class);
+        int port = getAddressPort(baseAddress);
+        if (engineFactory.retrieveJettyHTTPServerEngine(port) != null) {
+            return;
+        }
+        JettyHTTPServerEngine engine = new JettyHTTPServerEngine();
+        AbstractConnector connector = new SelectChannelConnector();
+        connector.setPort(port);
+        connector.setThreadPool(new WorkManagerThreadPool(getWorkManager()));
+        engine.setConnector(connector);
+        engine.setPort(port);
+        
+        List<JettyHTTPServerEngine> engineList = new ArrayList<JettyHTTPServerEngine>();
+        engineList.add(engine);
+        engineFactory.setEnginesList(engineList);
     }
     
     public String getServiceClassName() throws Exception {
@@ -93,6 +128,18 @@ public class EJBEndpoint {
             hostName = "localhost";
         }
         return "http://" + hostName + ":9999";
+    }
+    
+    public int getAddressPort(String address) {
+        int index = address.lastIndexOf(":");
+        int end = address.lastIndexOf("/");
+        if (index == 4) {
+            return 80;
+        }
+        if (end < index) {
+            return new Integer(address.substring(index + 1)).intValue();
+        } 
+        return new Integer(address.substring(index + 1, end)).intValue();
     }
     
     private static boolean isJaxWsServiceInterface(Class<?> cls) {
@@ -119,5 +166,15 @@ public class EJBEndpoint {
         }
         return false;
     }
+
+    public WorkManager getWorkManager() {
+        return workManager;
+    }
+
+    public void setWorkManager(WorkManager workManager) {
+        this.workManager = workManager;
+    }
+    
+    
     
 }

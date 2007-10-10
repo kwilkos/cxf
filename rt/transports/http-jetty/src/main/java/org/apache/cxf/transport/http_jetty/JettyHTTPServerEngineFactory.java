@@ -144,7 +144,7 @@ public class JettyHTTPServerEngineFactory implements BusLifeCycleListener {
      * This call retrieves a previously configured JettyHTTPServerEngine for the
      * given port. If none exists, this call returns null.
      */
-    protected synchronized JettyHTTPServerEngine retrieveJettyHTTPServerEngine(int port) {
+    public synchronized JettyHTTPServerEngine retrieveJettyHTTPServerEngine(int port) {
         return portMap.get(port);
     }
 

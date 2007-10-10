@@ -85,7 +85,7 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
                                              "SoapPort");
     
     private final QName fakePortName = new QName("http://apache.org/hello_world_soap_http",
-                                                 "FackPort");
+                                                 "FakePort");
     
     
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
