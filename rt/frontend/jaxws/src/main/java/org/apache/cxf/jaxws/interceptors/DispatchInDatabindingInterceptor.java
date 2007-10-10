@@ -230,7 +230,10 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                         CachedOutputStream cos = new CachedOutputStream();
                         Transformer transformer = XMLUtils.newTransformer();
                         transformer.transform(source, new StreamResult(cos));
-                        obj = newSOAPMessage(cos.getInputStream(), ((SoapMessage)message).getVersion());
+                        InputStream in = cos.getInputStream();
+                        obj = newSOAPMessage(in, ((SoapMessage)message).getVersion());
+                        in.close();
+                        cos.close();
                     } catch (Exception e) {
                         throw new Fault(e);
                     } 
@@ -286,6 +289,8 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
         dataReader.setProperty(JAXBDataBinding.UNWRAP_JAXB_ELEMENT, Boolean.FALSE);
 
         Object obj = dataReader.read(null, reader, null);
+        reader.close();
+        cos.close();
         
         return obj;
         

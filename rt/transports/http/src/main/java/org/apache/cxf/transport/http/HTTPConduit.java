@@ -334,7 +334,7 @@ public class HTTPConduit
      * causes an injection of the Spring configuration properties
      * of this Conduit.
      */
-    void finalizeConfig() {
+    protected void finalizeConfig() {
         // See if not set by configuration, if there are defaults
         // in order from the Endpoint, Service, or Bus.
         
