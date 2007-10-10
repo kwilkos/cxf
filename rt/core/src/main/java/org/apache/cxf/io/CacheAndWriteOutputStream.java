@@ -37,6 +37,10 @@ public class CacheAndWriteOutputStream extends CachedOutputStream {
         flowThroughStream = stream;
     }
 
+    public void closeFlowthroughStream() throws IOException {
+        flowThroughStream.flush();
+        flowThroughStream.close();
+    }
    
     protected void postClose() throws IOException {
         flowThroughStream.flush();

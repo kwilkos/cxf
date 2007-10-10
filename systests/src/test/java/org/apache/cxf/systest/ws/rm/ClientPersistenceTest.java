@@ -108,10 +108,18 @@ public class ClientPersistenceTest extends AbstractBusClientServerTestBase {
     public static void startServers() throws Exception {        
         String derbyHome = System.getProperty("derby.system.home");
         try {
-            System.setProperty("derby.system.home", derbyHome + "-server");
+            if (derbyHome == null) {
+                System.setProperty("derby.system.home", "derby-server");
+            } else {
+                System.setProperty("derby.system.home", derbyHome + "-server");                
+            }
             assertTrue("server did not launch correctly", launchServer(Server.class));
         } finally {
-            System.setProperty("derby.system.home", derbyHome);
+            if (derbyHome == null) {
+                System.clearProperty("derby.system.home");
+            } else {
+                System.setProperty("derby.system.home", derbyHome);
+            }
         }
         RMTxStore.deleteDatabaseFiles();
     }
