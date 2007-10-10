@@ -39,8 +39,8 @@ public final class RMMessageConstants {
     public static final String ORIGINAL_REQUESTOR_ROLE =
         "org.apache.cxf.client.original";
     
-    public static final String SAVED_OUTPUT_STREAM =
-        "org.apache.cxf.ws.rm.outputstream";
+    public static final String SAVED_CONTENT =
+        "org.apache.cxf.ws.rm.content";
     
     /**
      * Prevents instantiation. 

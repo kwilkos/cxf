@@ -164,19 +164,4 @@ public final class IOUtils {
         in.close();
         return bos.toByteArray();
     }
-    
-    //class to create a BAIS from a BAOS but without the copies of the byte[] into
-    //one of the exact size.
-    static class LoadingByteArrayOutputStream extends ByteArrayOutputStream {
-        public LoadingByteArrayOutputStream() {
-            super(1024);
-        }
-        public LoadingByteArrayOutputStream(int i) {
-            super(i);
-        }
-        
-        public ByteArrayInputStream createInputStream() {
-            return new ByteArrayInputStream(buf, 0, count);
-        }
-    }
 }

@@ -237,7 +237,10 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                         CachedOutputStream cos = new CachedOutputStream();
                         Transformer transformer = XMLUtils.newTransformer();
                         transformer.transform(source, new StreamResult(cos));
-                        obj = newSOAPMessage(cos.getInputStream(), ((SoapMessage)message).getVersion());
+                        InputStream in = cos.getInputStream();
+                        obj = newSOAPMessage(in, ((SoapMessage)message).getVersion());
+                        in.close();
+                        cos.close();
                     } catch (Exception e) {
                         throw new Fault(e);
                     }
@@ -278,7 +281,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
         }
         if (obj instanceof DataSource) {
             InputStream is = ((DataSource)obj).getInputStream();
-            IOUtils.copy(((DataSource)obj).getInputStream(), os);
+            IOUtils.copy(is, os);
             is.close();
         }
     }

@@ -100,7 +100,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
                 Boolean outboundProperty = (Boolean)smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
                 if (outboundProperty.booleanValue()) {
                     try {
-                        smc.setMessage(preparemSOAPMessage("resources/greetMeRpcLitRespChanged.xml"));
+                        smc.setMessage(prepareSOAPMessage("resources/greetMeRpcLitRespChanged.xml"));
                     } catch (Exception e) {
                         throw new Fault(e);
                     }
@@ -232,7 +232,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         message.setExchange(exchange);
         XMLStreamReader reader = preparemXMLStreamReader("resources/greetMeRpcLitReq.xml");
         message.setContent(XMLStreamReader.class, reader);
-        Object[] headerInfo = preparemSOAPHeader();
+        Object[] headerInfo = prepareSOAPHeader();
         
         message.setContent(Node.class, headerInfo[0]);
         
@@ -343,7 +343,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
                                           soapVersion.getNamespace());
                     writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
                     
-                    Object[] headerInfo = preparemSOAPHeader();
+                    Object[] headerInfo = prepareSOAPHeader();
                     StaxUtils.writeElement((Element) headerInfo[1], writer, true, false);
                     
                     writer.writeEndElement();
@@ -372,6 +372,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         SOAPHeaderElement headerElementNew = (SOAPHeaderElement)itNew.next();
         SoapVersion soapVersion = Soap11.getInstance();
         assertEquals("false", headerElementNew.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
+        originalEmptyOs.close();
     }
 
     @Test
@@ -512,7 +513,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         return xmlReader;
     }
 
-    private Object[] preparemSOAPHeader() throws Exception {
+    private Object[] prepareSOAPHeader() throws Exception {
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         SoapVersion soapVersion = Soap11.getInstance();
         Element envElement = doc.createElementNS(soapVersion.getEnvelope().getNamespaceURI(),
@@ -536,7 +537,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
         return new Object[] {doc, headerElement};
     }
 
-    private SOAPMessage preparemSOAPMessage(String resouceName) throws Exception {
+    private SOAPMessage prepareSOAPMessage(String resouceName) throws Exception {
         InputStream is = this.getClass().getResourceAsStream(resouceName);
         SOAPMessage soapMessage = null;
         MessageFactory factory = MessageFactory.newInstance();
@@ -546,7 +547,7 @@ public class SOAPHandlerInterceptorTest extends Assert {
     }
 
     private CachedStream prepareOutputStreamFromResource(String resouceName) throws Exception {
-        SOAPMessage soapMessage = preparemSOAPMessage(resouceName);
+        SOAPMessage soapMessage = prepareSOAPMessage(resouceName);
         CachedStream os = new CachedStream();
         soapMessage.writeTo(os);
         return os;

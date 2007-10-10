@@ -38,9 +38,22 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingInInterceptor.class);
 
+    private int limit = 100 * 1024;
+    
     public LoggingInInterceptor() {
         super(Phase.RECEIVE);
     }
+    public LoggingInInterceptor(int lim) {
+        super(Phase.RECEIVE);
+        limit = lim;
+    }
+    public void setLoggingLimit(int lim) {
+        limit = lim;
+    }
+    
+    public int getLoggingLimit() {
+        return limit;
+    }    
 
     public void handleMessage(Message message) throws Fault {
 
@@ -76,7 +89,11 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
                     } else {            
                         buffer.append("\nMessage:\n");
                     }
-                    bos.writeCacheTo(buffer);
+                    if (bos.size() > limit) {
+                        buffer.append("(message truncated to " + limit + " bytes)\n");
+                    }
+                    bos.writeCacheTo(buffer, limit);
+                    
                     bos.close();
                 } catch (IOException e) {
                     throw new Fault(e);

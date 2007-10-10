@@ -26,24 +26,47 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
 
 public class CachedOutputStream extends OutputStream {
+    private static final File DEFAULT_TEMP_DIR;
+    private static final int DEFAULT_THRESHOLD;
+    static {
+        String s = System.getProperty("org.apache.cxf.io.CachedOutputStream.Threshold",
+                                      "-1");
+        int i = Integer.parseInt(s);
+        if (i <= 0) {
+            i = 64 * 1024;
+        }
+        DEFAULT_THRESHOLD = i;
+        
+        s = System.getProperty("org.apache.cxf.io.CachedOutputStream.OutputDirectory");
+        if (s != null) {
+            File f = new File(s);
+            if (f.exists() && f.isDirectory()) {
+                DEFAULT_TEMP_DIR = f;
+            } else {
+                DEFAULT_TEMP_DIR = null;
+            }
+        } else {
+            DEFAULT_TEMP_DIR = null;
+        }
+    }
 
     protected OutputStream currentStream;
 
-    private long threshold = 64 * 1024;
+    private long threshold = DEFAULT_THRESHOLD;
 
     private int totalLength;
 
@@ -51,7 +74,7 @@ public class CachedOutputStream extends OutputStream {
 
     private File tempFile;
 
-    private File outputDir;
+    private File outputDir = DEFAULT_TEMP_DIR;
 
     private List<CachedOutputStreamCallback> callbacks;
 
@@ -61,13 +84,13 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public CachedOutputStream() {
-        currentStream = new ByteArrayOutputStream(2048);
+        currentStream = new LoadingByteArrayOutputStream(2048);
         inmem = true;
     }
 
     public CachedOutputStream(long threshold) {
         this.threshold = threshold; 
-        currentStream = new ByteArrayOutputStream(2048);
+        currentStream = new LoadingByteArrayOutputStream(2048);
         inmem = true;
     }
 
@@ -175,6 +198,9 @@ public class CachedOutputStream extends OutputStream {
                 if (copyOldContent) {
                     IOUtils.copyAndCloseInput(fin, out);
                 }
+                tempFile.delete();
+                tempFile = null;
+                inmem = true;
             }
         }
         currentStream = out;
@@ -184,6 +210,9 @@ public class CachedOutputStream extends OutputStream {
         IOUtils.copyAndCloseInput(in, out, bufferSize);
     }
 
+    public int size() {
+        return totalLength;
+    }
     
     public byte[] getBytes() throws IOException {
         flush();
@@ -212,6 +241,43 @@ public class CachedOutputStream extends OutputStream {
             // read the file
             FileInputStream fin = new FileInputStream(tempFile);
             IOUtils.copyAndCloseInput(fin, out);
+        }
+    }
+    public void writeCacheTo(StringBuilder out, int limit) throws IOException {
+        flush();
+        if (totalLength < limit
+            || limit == -1) {
+            writeCacheTo(out);
+            return;
+        }
+        
+        int count = 0;
+        if (inmem) {
+            if (currentStream instanceof ByteArrayOutputStream) {
+                byte bytes[] = ((ByteArrayOutputStream)currentStream).toByteArray();
+                out.append(new String(bytes, 0, limit));
+            } else {
+                throw new IOException("Unknown format of currentStream");
+            }
+        } else {
+            // read the file
+            FileInputStream fin = new FileInputStream(tempFile);
+            byte bytes[] = new byte[1024];
+            int x = fin.read(bytes);
+            while (x != -1) {
+                if ((count + x) > limit) {
+                    x = count - limit;
+                }
+                out.append(new String(bytes, 0, x));
+                count += x;
+                
+                if (count >= limit) {
+                    x = -1;
+                } else {
+                    x = fin.read(bytes);
+                }
+            }
+            fin.close();
         }
     }
     public void writeCacheTo(StringBuilder out) throws IOException {
@@ -249,24 +315,12 @@ public class CachedOutputStream extends OutputStream {
 
     public String toString() {
         StringBuilder builder = new StringBuilder().append("[")
-            .append(super.toString())
+            .append(CachedOutputStream.class.getName())
             .append(" Content: ");
-        
-        if (inmem) {
-            builder.append(currentStream.toString());
-        } else {
-            try {
-                Reader fin = new FileReader(tempFile);
-                char buf[] = new char[1024];
-                int x = fin.read(buf);
-                while (x > -1) {
-                    builder.append(buf, 0, x);
-                    x = fin.read(buf);
-                }
-                fin.close();
-            } catch (IOException e) {
-                //ignore
-            }
+        try {
+            writeCacheTo(builder);
+        } catch (IOException e) {
+            //ignore
         }
         return builder.append("]").toString();
     }
@@ -303,15 +357,15 @@ public class CachedOutputStream extends OutputStream {
     }
 
     private void createFileOutputStream() throws IOException {
-        byte[] bytes = ((ByteArrayOutputStream) currentStream).toByteArray();
+        ByteArrayOutputStream bout = (ByteArrayOutputStream)currentStream;
         if (outputDir == null) {
-            tempFile = File.createTempFile("att", "tmp");
+            tempFile = FileUtils.createTempFile("cos", "tmp");
         } else {
-            tempFile = File.createTempFile("att", "tmp", outputDir);
+            tempFile = FileUtils.createTempFile("cos", "tmp", outputDir, false);
         }
-        tempFile.deleteOnExit();
+        
         currentStream = new BufferedOutputStream(new FileOutputStream(tempFile));
-        currentStream.write(bytes);
+        bout.writeTo(currentStream);
         inmem = false;
     }
 
@@ -322,7 +376,9 @@ public class CachedOutputStream extends OutputStream {
     public InputStream getInputStream() throws IOException {
         flush();
         if (inmem) {
-            if (currentStream instanceof ByteArrayOutputStream) {
+            if (currentStream instanceof LoadingByteArrayOutputStream) {
+                return ((LoadingByteArrayOutputStream) currentStream).createInputStream();
+            } else if (currentStream instanceof ByteArrayOutputStream) {
                 return new ByteArrayInputStream(((ByteArrayOutputStream) currentStream).toByteArray());
             } else if (currentStream instanceof PipedOutputStream) {
                 return new PipedInputStream((PipedOutputStream) currentStream);
