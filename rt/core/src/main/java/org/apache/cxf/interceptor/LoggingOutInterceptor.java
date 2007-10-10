@@ -50,11 +50,11 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         limit = lim;
     }
     
-    public void setLoggingLimit(int lim) {
+    public void setLimit(int lim) {
         limit = lim;
     }
     
-    public int getLoggingLimit() {
+    public int getLimit() {
         return limit;
     }    
 
