@@ -169,7 +169,7 @@ public class JettyHTTPServerEngine
             if (factory != null && servantCount == 0) {
                 factory.destroyForPort(port);
             } else {
-                LOG.log(Level.WARNING, "FAILED_TO_SHOWDOWN_ENGINE_MSG", port);
+                LOG.log(Level.WARNING, "FAILED_TO_SHUTDOWN_ENGINE_MSG", port);
             }
         }
     }
