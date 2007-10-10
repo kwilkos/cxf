@@ -20,17 +20,46 @@
 package org.apache.cxf.helpers;
 
 import java.io.File;
-import java.text.DecimalFormat;
+import java.io.IOException;
 import java.util.Locale;
-import java.util.Random;
 
 public final class FileUtils {
     private static final int RETRY_SLEEP_MILLIS = 10;
-    private static Random rand = new Random(System.currentTimeMillis()
-                                            + Runtime.getRuntime().freeMemory());
-
+    private static File defaultTempDir;
+    
+    
     private FileUtils() {
         
+    }
+    
+    private static synchronized File getDefaultTempDir() {
+        if (defaultTempDir != null) {
+            return defaultTempDir;
+        }
+        String s = System.getProperty(FileUtils.class.getName() + ".TempDirectory");
+        if (s == null) {
+            int x = (int)(Math.random() * 1000000);
+            s = System.getProperty("java.io.tmpdir");
+            File f = new File(s, "cxf-tmp-" + x);
+            while (!f.mkdir()) {
+                x = (int)(Math.random() * 1000000);
+                f = new File(s, "cxf-tmp-" + x);
+            }
+            defaultTempDir = f;
+            Thread hook = new Thread() {
+                @Override
+                public void run() {
+                    removeDir(defaultTempDir);
+                }
+            };
+            Runtime.getRuntime().addShutdownHook(hook);            
+        } else {
+            //assume someone outside of us will manage the directory
+            File f = new File(s);
+            f.mkdirs();
+            defaultTempDir = f;
+        }
+        return defaultTempDir;
     }
 
     public static void mkDir(File dir) {
@@ -108,26 +137,31 @@ public final class FileUtils {
         return osName.indexOf("windows") > -1;
     }
 
-    public static File createTempFile(String prefix, String suffix) {
-        return createTempFile(prefix, suffix, null, true);
+    public static File createTempFile(String prefix, String suffix) throws IOException {
+        return createTempFile(prefix, suffix, null, false);
     }
-
+    
     public static File createTempFile(String prefix, String suffix, File parentDir,
-                               boolean deleteOnExit) {
+                               boolean deleteOnExit) throws IOException {
         File result = null;
-        String parent = (parentDir == null)
-            ? System.getProperty("java.io.tmpdir")
-            : parentDir.getPath();
-
-        DecimalFormat fmt = new DecimalFormat("#####");
-        synchronized (rand) {
-            do {
-                result = new File(parent,
-                                  prefix + fmt.format(Math.abs(rand.nextInt()))
-                                  + suffix);
-            } while (result.exists());
+        File parent = (parentDir == null)
+            ? getDefaultTempDir()
+            : parentDir;
+            
+        if (suffix == null) {
+            suffix = ".tmp";
         }
-        if (deleteOnExit) {
+        if (prefix == null) {
+            prefix = "cxf";
+        } else if (prefix.length() < 3) {
+            prefix = prefix + "cxf";
+        }
+        result = File.createTempFile(prefix, suffix, parent);
+
+        //if parentDir is null, we're in our default dir
+        //which will get completely wiped on exit from our exit
+        //hook.  No need to set deleteOnExit() which leaks memory.
+        if (deleteOnExit && parentDir != null) {
             result.deleteOnExit();
         }
         return result;

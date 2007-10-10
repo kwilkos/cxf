@@ -176,7 +176,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     }
 
     private Definition buildCustomizedDefinition() throws Exception {
-        File tmpFile = File.createTempFile("customzied", ".wsdl");
+        File tmpFile = FileUtils.createTempFile("customzied", ".wsdl");
         OutputStream outs = new FileOutputStream(tmpFile);
         DOMUtils.writeXml(getCustomizationParser().getCustomizedWSDLElement(), outs);
         InputStream ins = new FileInputStream(new File(tmpFile.toURI()));
