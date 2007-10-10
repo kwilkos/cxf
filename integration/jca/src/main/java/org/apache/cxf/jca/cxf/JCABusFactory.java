@@ -30,6 +30,9 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.resource.ResourceException;
+import javax.resource.spi.BootstrapContext;
+import javax.resource.spi.work.Work;
+import javax.resource.spi.work.WorkManager;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -54,6 +57,7 @@ public class JCABusFactory {
     private ClassLoader appserverClassLoader;
     private ManagedConnectionFactoryImpl mcf;
     private Object raBootstrapContext;
+    
 
     public JCABusFactory(ManagedConnectionFactoryImpl aMcf) {
         this.mcf = aMcf;
@@ -102,7 +106,7 @@ public class JCABusFactory {
     protected void initializeServants() throws ResourceException {
         if (isMonitorEJBServicePropertiesEnabled()) {            
             LOG.info("Ejb service properties auto-detect enabled. ");
-            startPropertiesMonitorThread();
+            startPropertiesMonitorWorker();
         } else {            
             URL propsUrl = mcf.getEJBServicePropertiesURLInstance();
             if (propsUrl != null) {
@@ -124,6 +128,7 @@ public class JCABusFactory {
                 EJBServantConfig config = new EJBServantConfig(theJNDIName, value);
                 EJBEndpoint ejbEndpoint = new EJBEndpoint(config);
                 ejbEndpoint.setEjbServantBaseURL(mcf.getEJBServantBaseURL());
+                ejbEndpoint.setWorkManager(getWorkManager());
                 Server servant = ejbEndpoint.publish();
                 
                 synchronized (servantsCache) {
@@ -140,16 +145,20 @@ public class JCABusFactory {
     }
     
 
-    private void startPropertiesMonitorThread() throws ResourceException {
+    private void startPropertiesMonitorWorker() throws ResourceException {
         Integer pollIntervalInteger = mcf.getEJBServicePropertiesPollInterval();
         int pollInterval = pollIntervalInteger.intValue();
         
         LOG.info("Ejb service properties poll interval is: [" + pollInterval + " seconds]");
         
-        EJBServicePropertiesMonitorRunnable r = new EJBServicePropertiesMonitorRunnable(pollInterval);
-        Thread t = new Thread(r);
-        t.setDaemon(true);
-        t.start();
+        EJBServicePropertiesMonitorWorker worker = new EJBServicePropertiesMonitorWorker(pollInterval);
+        if (getWorkManager() != null) {
+            getWorkManager().startWork(worker, CXFWorkAdapter.DEFAULT_START_TIME_OUT, null, worker);
+        } else {
+            Thread t = new Thread(worker);
+            t.setDaemon(true);
+            t.start();
+        }
     }
 
     private boolean isMonitorEJBServicePropertiesEnabled() throws ResourceException {
@@ -239,13 +248,15 @@ public class JCABusFactory {
         init();
     }
     
-    private class EJBServicePropertiesMonitorRunnable implements Runnable {
+    private class EJBServicePropertiesMonitorWorker extends CXFWorkAdapter implements Work {
         private long previousModificationTime;
         private final int pollIntervalSeconds;
         private final File propsFile;
-        private boolean continuing = true;
+        
+        //The release() method will be called on separate thread while the run() is processing.
+        private volatile boolean continuing = true;
 
-        EJBServicePropertiesMonitorRunnable(int pollInterval) throws ResourceException {
+        EJBServicePropertiesMonitorWorker(int pollInterval) throws ResourceException {
             pollIntervalSeconds = pollInterval;
             propsFile = new File(mcf.getEJBServicePropertiesURLInstance().getPath());
         }
@@ -268,6 +279,10 @@ public class JCABusFactory {
                 }
             } while (continuing);
         }
+        
+        public void release() {
+            this.continuing = false;
+        }
 
         protected boolean isPropertiesFileModified() {
             boolean fileModified = false;
@@ -285,6 +300,14 @@ public class JCABusFactory {
     // for unit test
     protected void setBootstrapContext(Object ctx) {
         raBootstrapContext = ctx;
+    }
+
+    public WorkManager getWorkManager() {
+        if (getBootstrapContext() instanceof BootstrapContext) {
+            BootstrapContext context = (BootstrapContext)getBootstrapContext();
+            return context.getWorkManager();
+        }
+        return null;
     }
     
     
