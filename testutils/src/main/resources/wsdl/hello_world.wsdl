@@ -217,31 +217,31 @@
     </wsdl:message> 
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
-            <wsdl:input name="sayHiRequest" message="tns:sayHiRequest"/>
-            <wsdl:output name="sayHiResponse" message="tns:sayHiResponse"/>
+            <wsdl:input message="tns:sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
-            <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
-            <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
+            <wsdl:input message="tns:greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse"/>
         </wsdl:operation>
         <wsdl:operation name="testNillable">
-            <wsdl:input name="testNillableRequest" message="tns:testNillableRequest"/>
-            <wsdl:output name="testNillableResponse" message="tns:testNillableResponse"/>
+            <wsdl:input  message="tns:testNillableRequest"/>
+            <wsdl:output  message="tns:testNillableResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMeLater">
-            <wsdl:input name="greetMeLaterRequest" message="tns:greetMeLaterRequest"/>
-            <wsdl:output name="greetMeLaterResponse" message="tns:greetMeLaterResponse"/>
+            <wsdl:input  message="tns:greetMeLaterRequest"/>
+            <wsdl:output  message="tns:greetMeLaterResponse"/>
         </wsdl:operation>
        <wsdl:operation name="greetMeSometime">
-            <wsdl:input name="greetMeSometimeRequest" message="tns:greetMeSometimeRequest"/>
-            <wsdl:output name="greetMeSometimeResponse" message="tns:greetMeSometimeResponse"/>
+            <wsdl:input  message="tns:greetMeSometimeRequest"/>
+            <wsdl:output  message="tns:greetMeSometimeResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMeOneWay">
-            <wsdl:input name="greetMeOneWayRequest" message="tns:greetMeOneWayRequest"/>
+            <wsdl:input  message="tns:greetMeOneWayRequest"/>
         </wsdl:operation>
         <wsdl:operation name="testDocLitFault">
-            <wsdl:input name="testDocLitFaultRequest" message="tns:testDocLitFaultRequest"/>
-            <wsdl:output name="testDocLitFaultResponse" message="tns:testDocLitFaultResponse"/>
+            <wsdl:input  message="tns:testDocLitFaultRequest"/>
+            <wsdl:output  message="tns:testDocLitFaultResponse"/>
             <wsdl:fault name="NoSuchCodeLitFault" message="tns:NoSuchCodeLitFault"/>
             <wsdl:fault name="BadRecordLitFault" message="tns:BadRecordLitFault"/>
         </wsdl:operation>
