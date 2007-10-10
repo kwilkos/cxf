@@ -85,6 +85,7 @@ public class LogicalMessageImpl implements LogicalMessage {
 
                         obj = new StreamSource(cos.getInputStream());
                         message.setContent(Source.class, new StreamSource(cos.getInputStream()));
+                        cos.close();
                     } catch (Exception e) {
                         throw new Fault(e);
                     }
@@ -98,8 +99,11 @@ public class LogicalMessageImpl implements LogicalMessage {
                         Transformer transformer = XMLUtils.newTransformer();
 
                         transformer.transform(obj, new StreamResult(cos));
-                        SOAPMessage msg = initSOAPMessage(cos.getInputStream());
+                        InputStream in = cos.getInputStream();
+                        SOAPMessage msg = initSOAPMessage(in);
                         source = new DOMSource(((SOAPMessage)msg).getSOAPBody().getFirstChild());
+                        in.close();
+                        cos.close();
                     } catch (Exception e) {
                         throw new Fault(e);
                     }

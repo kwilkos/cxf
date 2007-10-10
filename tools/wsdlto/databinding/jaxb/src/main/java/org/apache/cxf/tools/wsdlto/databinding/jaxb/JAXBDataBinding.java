@@ -163,9 +163,12 @@ public class JAXBDataBinding implements DataBindingProfile {
         Map<String, String> nsPkgMap = context.getNamespacePackageMap();
         for (String ns : nsPkgMap.keySet()) {
             File file = JAXBUtils.getPackageMappingSchemaBindingFile(ns, context.mapPackageName(ns));
-            InputSource ins = new InputSource(file.toURI().toString());
-            schemaCompiler.parseSchema(ins);
-            FileUtils.delete(file);
+            try {
+                InputSource ins = new InputSource(file.toURI().toString());
+                schemaCompiler.parseSchema(ins);
+            } finally {
+                FileUtils.delete(file);                
+            }
         }
         
         if (context.getPackageName() != null) {

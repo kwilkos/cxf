@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.cxf.helpers.FileUtils;
+
 public class Compiler {
     public boolean compileFiles(String[] files, File outputDir) {
         List<String> list = new ArrayList<String>();
@@ -56,12 +58,11 @@ public class Compiler {
     public boolean internalCompile(String[] args, int sourceFileIndex) {
         Process p = null;
         String cmdArray[] = null;
-      
+        File tmpFile = null;
         try {
             if (isLongCommandLines(args) && sourceFileIndex >= 0) {
                 PrintWriter out = null;
-                File tmpFile = File.createTempFile("cxf-compiler", null);
-                tmpFile.deleteOnExit();
+                tmpFile = FileUtils.createTempFile("cxf-compiler", null);
                 out = new PrintWriter(new FileWriter(tmpFile));
                 for (int i = sourceFileIndex; i < args.length; i++) {
                     if (args[i].indexOf(" ") > -1) {
@@ -122,6 +123,11 @@ public class Compiler {
         } catch (IOException e) {
             System.err.print("[ERROR] IOException during exec() of compiler \"" + args[0] + "\"");
             System.err.println(". Check your path environment variable.");
+        } finally {
+            if (tmpFile != null
+                && tmpFile.exists()) {
+                FileUtils.delete(tmpFile);
+            }
         }
 
         return false;
