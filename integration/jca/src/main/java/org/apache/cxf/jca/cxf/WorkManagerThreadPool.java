@@ -69,7 +69,7 @@ public class WorkManagerThreadPool extends CXFWorkAdapter implements ThreadPool 
     }
     
     
-    public void setIsLowOnThreads(boolean isLow) {
+    void setIsLowOnThreads(boolean isLow) {
         this.isLowOnThreads = isLow;
     }
     

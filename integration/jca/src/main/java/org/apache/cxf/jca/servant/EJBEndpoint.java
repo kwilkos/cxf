@@ -49,6 +49,10 @@ public class EJBEndpoint {
     
     private static final Logger LOG = LogUtils.getL7dLogger(EJBEndpoint.class);
     
+    private static final int DEFAULT_HTTP_PORT = 80;
+    
+    private static final String HTTPS_PREFIX = "https";
+    
     private EJBServantConfig config;
     
     private Context jndiContext;
@@ -81,8 +85,13 @@ public class EJBEndpoint {
         
         String baseAddress = isNotNull(getEjbServantBaseURL()) ? getEjbServantBaseURL() 
                                                                : getDefaultEJBServantBaseURL();
-        String address = baseAddress + "/" + config.getJNDIName();
+        String address = (baseAddress + "/" + config.getJNDIName()).trim();
         factory.setAddress(address);
+        
+        if (address.length() >= 5 && HTTPS_PREFIX.equalsIgnoreCase(address.substring(0, 5))) {
+            throw new UnsupportedOperationException("Do not support creating EJBEndpoint by https protocol");
+        }
+        
         if (getWorkManager() != null) {
             setWorkManagerThreadPoolToJetty(factory.getBus(), baseAddress);
         }
@@ -134,7 +143,7 @@ public class EJBEndpoint {
         int index = address.lastIndexOf(":");
         int end = address.lastIndexOf("/");
         if (index == 4) {
-            return 80;
+            return DEFAULT_HTTP_PORT;
         }
         if (end < index) {
             return new Integer(address.substring(index + 1)).intValue();
