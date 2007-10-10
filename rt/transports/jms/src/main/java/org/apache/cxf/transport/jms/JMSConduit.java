@@ -21,7 +21,6 @@ package org.apache.cxf.transport.jms;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -267,17 +266,7 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
         }
         
         private void commitOutputMessage() throws JMSException {
-            Object request = null;            
-            
-            if (isTextPayload()) {
-                request = currentStream.toString();
-            } else {
-                request = ((ByteArrayOutputStream)currentStream).toByteArray();
-            }
-            
-            getLogger().log(Level.FINE, "Conduit Request is :[" + request + "]");
             javax.jms.Destination replyTo = pooledSession.destination();
-            
             //TODO setting up the responseExpected
             
             
@@ -288,6 +277,25 @@ public class JMSConduit extends AbstractConduit implements Configurable, JMSTran
                 replyTo = null;
             }
 
+            Object request = null;            
+            try {
+                if (isTextPayload()) {
+                    StringBuilder builder = new StringBuilder(2048);
+                    this.writeCacheTo(builder);
+                    request = builder.toString();
+                } else {
+                    request = getBytes();
+                }
+            } catch (IOException ex) {
+                JMSException ex2 = new JMSException("Error creating request");
+                ex2.setLinkedException(ex);
+                throw ex2;
+            }
+            if (getLogger().isLoggable(Level.FINE)) {
+                getLogger().log(Level.FINE, "Conduit Request is :[" + request + "]");
+            }
+            
+            
             jmsMessage = base.marshal(request, pooledSession.session(), replyTo,
                 getRuntimePolicy().getMessageType().value());
             

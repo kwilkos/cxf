@@ -40,7 +40,24 @@ public final class IOUtils {
         return copy(input, output, DEFAULT_BUFFER_SIZE);
     }
 
-    
+    public static int copyAndCloseInput(final InputStream input, final OutputStream output)
+        throws IOException {
+        try {
+            return copy(input, output, DEFAULT_BUFFER_SIZE);
+        } finally {
+            input.close();
+        }
+    }
+    public static int copyAndCloseInput(final InputStream input,
+                                        final OutputStream output,
+                                        int bufferSize)
+        throws IOException {
+        try {
+            return copy(input, output, bufferSize);
+        } finally {
+            input.close();
+        }
+    }
     public static int copy(final InputStream input,
                             final OutputStream output,
                             int bufferSize)
@@ -80,7 +97,7 @@ public final class IOUtils {
     public static String toString(final InputStream input) 
         throws IOException {
         
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         int n = 0;
         n = input.read(buffer);
@@ -94,7 +111,7 @@ public final class IOUtils {
     public static String toString(final Reader input) 
         throws IOException {
         
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         final char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         int n = 0;
         n = input.read(buffer);
@@ -102,6 +119,7 @@ public final class IOUtils {
             buf.append(new String(buffer, 0, n));
             n = input.read(buffer);
         }
+        input.close();
         return buf.toString();
     }
     

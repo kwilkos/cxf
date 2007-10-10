@@ -19,8 +19,6 @@
 
 package org.apache.cxf.transport.jbi;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Member;
@@ -157,15 +155,16 @@ public class JBIConduitOutputStream extends CachedOutputStream {
 
             
 
+        } catch (IOException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new IOException(e.toString());
+            new IOException(e.toString());
         }
     }
 
-    private Source getMessageContent(Message message2) {
-        ByteArrayOutputStream bos = (ByteArrayOutputStream)getOut();
-        return new StreamSource(new ByteArrayInputStream(bos.toByteArray()));
+    private Source getMessageContent(Message message2) throws IOException {
+        return new StreamSource(this.getInputStream());
         
     }
 

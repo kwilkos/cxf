@@ -89,7 +89,6 @@ public class JMSTransportBase {
         } else if (JMSConstants.BYTE_MESSAGE_TYPE.equals(messageType)) {
             message = session.createBytesMessage();
             ((BytesMessage)message).writeBytes((byte[])payload);
-            
         } else {
             message = session.createObjectMessage();
             ((ObjectMessage)message).setObject((byte[])payload);

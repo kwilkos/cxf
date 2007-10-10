@@ -19,7 +19,6 @@
 package org.apache.cxf.transport.http;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +50,6 @@ import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.io.CacheAndWriteOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -1580,21 +1578,15 @@ public class HTTPConduit
         
         // Trust is okay, write the cached request.
         OutputStream out = connection.getOutputStream();
-        
-        CacheAndWriteOutputStream.copyStream(stream.getInputStream(), out, 2048);
-        out.close();
+        stream.writeCacheTo(out);
         
         if (LOG.isLoggable(Level.FINE)) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-            CacheAndWriteOutputStream.copyStream(stream.getInputStream(), 
-                    baos, 2048);
-
             LOG.fine("Conduit \""
                      + getConduitName() 
                      + "\" Retransmit message to: " 
                      + connection.getURL()
                      + ": "
-                     + baos.toString());
+                     + new String(stream.getBytes()));
         }
         return connection;
     }
@@ -1786,8 +1778,19 @@ public class HTTPConduit
                 handleHeadersTrustCaching();
             }
             super.flush();
-            super.close();
-            handleResponse();
+            if (!cachingForRetransmision) {
+                super.close();
+            } else {
+                cachedStream.getOut().close();
+                cachedStream.closeFlowthroughStream();
+            }
+            try {
+                handleResponse();
+            } finally {
+                if (cachingForRetransmision) {
+                    cachedStream.close();
+                }
+            }
         }
         
         
@@ -1801,15 +1804,12 @@ public class HTTPConduit
             if (cachedStream != null) {
 
                 if (LOG.isLoggable(Level.FINE)) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                    IOUtils.copy(cachedStream.getInputStream(), baos, 2048);
-
                     LOG.fine("Conduit \""
                              + getConduitName() 
                              + "\" Transmit cached message to: " 
                              + connection.getURL()
                              + ": "
-                             + baos.toString());
+                             + new String(cachedStream.getBytes()));
                 }
 
                 HttpURLConnection oldcon = connection;
