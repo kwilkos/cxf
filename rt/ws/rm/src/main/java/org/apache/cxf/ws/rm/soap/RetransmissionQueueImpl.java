@@ -40,6 +40,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
@@ -340,7 +341,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             ByteArrayInputStream bis = new ByteArrayInputStream(content);
 
             // copy saved output stream to new output stream in chunks of 1024
-            CachedOutputStream.copyStream(bis, os, 1024);
+            IOUtils.copyAndCloseInput(bis, os);
             os.flush();
             os.close();
         } catch (IOException ex) {

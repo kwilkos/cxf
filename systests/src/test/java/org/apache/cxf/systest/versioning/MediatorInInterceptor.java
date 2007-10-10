@@ -52,11 +52,10 @@ public class MediatorInInterceptor extends AbstractEndpointSelectionInterceptor 
             return null;
         }
         //cache the input stream
-        CachedOutputStream bos = new CachedOutputStream();
+        CachedOutputStream bos = new CachedOutputStream(4096);
         try {
             IOUtils.copy(is, bos);
             is.close();
-            bos.close();
             
             message.setContent(InputStream.class, bos.getInputStream());
         
@@ -65,6 +64,7 @@ public class MediatorInInterceptor extends AbstractEndpointSelectionInterceptor 
             XMLStreamReader xsr;
             xsr = StaxInInterceptor.getXMLInputFactory(message).
                 createXMLStreamReader(bos.getInputStream(), encoding);
+            
             // move to the soap body            
             while (true) {                
                 xsr.nextTag();              
@@ -91,6 +91,7 @@ public class MediatorInInterceptor extends AbstractEndpointSelectionInterceptor 
                     return ep;
                 }
             }
+            bos.close();            
         } catch (Exception e) {
             throw new Fault(e);
         }    

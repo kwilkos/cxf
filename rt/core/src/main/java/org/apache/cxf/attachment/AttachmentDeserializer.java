@@ -60,7 +60,7 @@ public class AttachmentDeserializer {
 
     private PushbackInputStream stream;
 
-    private String boundary;
+    private byte boundary[];
 
     private String contentType;
 
@@ -95,19 +95,20 @@ public class AttachmentDeserializer {
         }
 
         if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-            boundary = findBoundaryFromContentType(contentType);
-            if (null == boundary) {                
-                boundary = findBoundaryFromInputStream();
+            String boundaryString = findBoundaryFromContentType(contentType);
+            if (null == boundaryString) {                
+                boundaryString = findBoundaryFromInputStream();
             }
             // If a boundary still wasn't found, throw an exception
-            if (null == boundary) {
+            if (null == boundaryString) {
                 throw new IOException("Couldn't determine the boundary from the message!");
             }
+            boundary = boundaryString.getBytes();
 
             stream = new PushbackInputStream(message.getContent(InputStream.class),
-                    boundary.getBytes().length * 2);
-            if (!readTillFirstBoundary(stream, boundary.getBytes())) {
-                throw new IOException("Couldn't find MIME boundary: " + boundary);
+                    boundary.length * 2);
+            if (!readTillFirstBoundary(stream, boundary)) {
+                throw new IOException("Couldn't find MIME boundary: " + new String(boundary));
             }
 
             try {
@@ -117,7 +118,7 @@ public class AttachmentDeserializer {
                 throw new RuntimeException(e);
             }
 
-            body = new DelegatingInputStream(new MimeBodyPartInputStream(stream, boundary.getBytes()));
+            body = new DelegatingInputStream(new MimeBodyPartInputStream(stream, boundary));
             message.setContent(InputStream.class, body);
         }
     }
@@ -129,17 +130,16 @@ public class AttachmentDeserializer {
     }
 
     private String findBoundaryFromInputStream() throws IOException {
-        CachedOutputStream bos = new CachedOutputStream();
-        
         InputStream is = message.getContent(InputStream.class);
-        IOUtils.copy(is, bos);
-
-        is.close();
-        bos.close();
-        String msg = bos.toString();
-
+        //boundary should definitely be in the first 2K;
+        PushbackInputStream in = new PushbackInputStream(is, 4096);
+        byte buf[] = new byte[2048];
+        int i = in.read(buf);
+        String msg = new String(buf, 0, i);
+        in.unread(buf, 0, i);
+        
         // Reset the input stream since we'll need it again later
-        message.setContent(InputStream.class, bos.getInputStream());
+        message.setContent(InputStream.class, in);
 
         // Use regex to get the boundary and return null if it's not found
         Matcher m = INPUT_STREAM_BOUNDARY_PATTERN.matcher(msg);
@@ -281,7 +281,7 @@ public class AttachmentDeserializer {
      * @throws IOException
      */
     private void setupAttachment(AttachmentImpl att, InternetHeaders headers) throws IOException {
-        MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary.getBytes());
+        MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary);
 
         final String ct = headers.getHeader("Content-Type", null);
         DataSource source = new AttachmentDataSource(ct, new DelegatingInputStream(partStream));

@@ -19,6 +19,7 @@
 package org.apache.cxf.transport;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.cxf.io.CachedOutputStream;
@@ -45,10 +46,12 @@ public class CachedOutputStreamTest extends Assert {
         String result = initTestData(65);
         cos.write(result.getBytes());
         //assert tmp file is generated
-        assertTrue(cos.getTempFile().exists());
+        File tempFile = cos.getTempFile();
+        assertNotNull(tempFile);
+        assertTrue(tempFile.exists());
         cos.close();
         //assert tmp file is deleted after close the CachedOutputStream
-        assertFalse(cos.getTempFile().exists());
+        assertFalse(tempFile.exists());
     }
     
     String initTestData(int packetSize) {

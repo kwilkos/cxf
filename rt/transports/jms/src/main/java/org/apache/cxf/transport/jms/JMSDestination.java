@@ -21,7 +21,6 @@ package org.apache.cxf.transport.jms;
 
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -406,34 +405,34 @@ public class JMSDestination extends AbstractMultiplexDestination implements Conf
                     replySession = base.sessionFactory.get(false);
                     sender = (QueueSender)replySession.producer();
                     
+                    String msgType = JMSConstants.TEXT_MESSAGE_TYPE;
+                    Object replyObj = null;
+                    
                     if (request instanceof TextMessage) {
-                        reply = base.marshal(currentStream.toString(), 
-                                             replySession.session(), 
-                                             null, 
-                                             JMSConstants.TEXT_MESSAGE_TYPE);
-                        getLogger().log(Level.FINE,
-                                         "The response message is ["
-                                         + currentStream.toString() + "]");
+                        StringBuilder builder = new StringBuilder();
+                        this.writeCacheTo(builder);
+                        replyObj = builder.toString();
+                        msgType = JMSConstants.TEXT_MESSAGE_TYPE;
                     } else if (request instanceof BytesMessage) {
-                        reply = base.marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
-                                             replySession.session(),
-                                             null, 
-                                             JMSConstants.BYTE_MESSAGE_TYPE);
-                        getLogger().log(Level.FINE, "The response message is [" 
-                                             + new String((
-                                                 (ByteArrayOutputStream)currentStream).toByteArray()) 
-                                             + "]");
+                        replyObj = getBytes();
+                        msgType = JMSConstants.BYTE_MESSAGE_TYPE;
                     } else {
-                        reply = base.marshal(((ByteArrayOutputStream)currentStream).toByteArray(),
-                                             replySession.session(),
-                                             null, 
-                                            JMSConstants.BINARY_MESSAGE_TYPE);
-                        getLogger().log(Level.FINE, "The response message is [" 
-                                             + new String((
-                                                 (ByteArrayOutputStream)currentStream).toByteArray()) 
-                                             + "]");
+                        replyObj = getBytes();
+                        msgType = JMSConstants.BINARY_MESSAGE_TYPE;
                     }
-                   
+                    
+                    if (getLogger().isLoggable(Level.FINE)) {
+                        getLogger().log(Level.FINE, "The response message is ["
+                                        + (replyObj instanceof String 
+                                           ? (String)replyObj : new String((byte[])replyObj))
+                                    + "]");
+                    }
+
+                    reply = base.marshal(replyObj, 
+                                         replySession.session(), 
+                                         null, 
+                                         msgType);
+
                     setReplyCorrelationID(request, reply);
                     
                     base.setMessageProperties(headers, reply);
