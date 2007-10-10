@@ -103,19 +103,19 @@ targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
     </wsdl:message>
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
-            <wsdl:input name="sayHiRequest" message="tns:sayHiRequest"/>
-            <wsdl:output name="sayHiResponse" message="tns:sayHiResponse"/>
+            <wsdl:input message="tns:sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
-            <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
-            <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
+            <wsdl:input message="tns:greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMeOneWay">
-            <wsdl:input name="greetMeOneWayRequest" message="tns:greetMeOneWayRequest"/>
+            <wsdl:input message="tns:greetMeOneWayRequest"/>
         </wsdl:operation>
         <wsdl:operation name="pingMe">
-            <wsdl:input name="pingMeRequest" message="tns:pingMeRequest"/>
-            <wsdl:output name="pingMeResponse" message="tns:pingMeResponse"/>
+            <wsdl:input message="tns:pingMeRequest"/>
+            <wsdl:output message="tns:pingMeResponse"/>
             <wsdl:fault name="pingMeFault" message="tns:pingMeFault"/>
         </wsdl:operation>
     </wsdl:portType>
