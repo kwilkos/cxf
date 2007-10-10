@@ -45,7 +45,7 @@
     </xsd:annotation>
     <xsd:complexType>
       <xsd:sequence />
-      <xs:attribute name="limit" type="xsd:int" use="optional" default="102400"/>
+      <xsd:attribute name="limit" type="xsd:int" use="optional" default="102400"/>
     </xsd:complexType>
   </xsd:element>
   
