@@ -45,8 +45,10 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
     public void handleMessage(Message message) throws Fault {
 
         if (LOG.isLoggable(Level.INFO)) {
-            StringBuffer buffer = new StringBuffer("Inbound Message\n" 
-                                                   + "--------------------------------------");
+            StringBuilder buffer = new StringBuilder(2048);
+            
+            buffer.append("Inbound Message\n")
+                .append("--------------------------------------");
             
             String encoding = (String)message.get(Message.ENCODING);
             if (encoding != null) {
@@ -63,13 +65,19 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
                 try {
                     IOUtils.copy(is, bos);
 
+                    bos.flush();
                     is.close();
-                    bos.close();
 
-                    buffer.append("\nMessage:\n");
-                    buffer.append(bos.getOut().toString());
-                    
                     message.setContent(InputStream.class, bos.getInputStream());
+                    if (bos.getTempFile() != null) {
+                        //large thing on disk...
+                        buffer.append("\nMessage (saved to tmp file):\n");
+                        buffer.append("Filename: " + bos.getTempFile().getAbsolutePath() + "\n");
+                    } else {            
+                        buffer.append("\nMessage:\n");
+                    }
+                    bos.writeCacheTo(buffer);
+                    bos.close();
                 } catch (IOException e) {
                     throw new Fault(e);
                 }

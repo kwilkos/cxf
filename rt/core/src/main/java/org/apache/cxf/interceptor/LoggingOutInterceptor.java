@@ -19,7 +19,6 @@
 
 package org.apache.cxf.interceptor;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,6 +48,9 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         if (os == null) {
             return;
         }
+        if (!LOG.isLoggable(Level.INFO)) {
+            return;
+        }
         
         // Write the output while caching it for the log message
         final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
@@ -63,14 +65,24 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         }
         
         public void onClose(CachedOutputStream cos) {
-            OutputStream os = cos.getOut();
-            if (os instanceof ByteArrayOutputStream && LOG.isLoggable(Level.INFO)) {
-                // TODO - make this work with large messages
-                LOG.info("Outbound Message \n"
-                         + "--------------------------------------\n"
-                         + os.toString()
-                         + "\n--------------------------------------");
+            
+            StringBuilder buffer = new StringBuilder(2048);
+            
+            if (cos.getTempFile() == null) {
+                buffer.append("Outbound Message:\n");
+                buffer.append("--------------------------------------\n");
+            } else {
+                buffer.append("Outbound Message (saved to tmp file):\n");
+                buffer.append("Filename: " + cos.getTempFile().getAbsolutePath() + "\n");
+                buffer.append("--------------------------------------\n");
             }
+            try {
+                cos.writeCacheTo(buffer);
+            } catch (Exception ex) {
+                //ignore
+            }
+            buffer.append("--------------------------------------\n");
+            LOG.info(buffer.toString());
         }
         
     } 

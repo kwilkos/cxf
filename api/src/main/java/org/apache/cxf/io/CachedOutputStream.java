@@ -26,17 +26,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.helpers.IOUtils;
 
 public class CachedOutputStream extends OutputStream {
 
@@ -60,6 +61,12 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public CachedOutputStream() {
+        currentStream = new ByteArrayOutputStream(2048);
+        inmem = true;
+    }
+
+    public CachedOutputStream(long threshold) {
+        this.threshold = threshold; 
         currentStream = new ByteArrayOutputStream(2048);
         inmem = true;
     }
@@ -147,7 +154,7 @@ public class CachedOutputStream extends OutputStream {
         if (currentStream instanceof CachedOutputStream) {
             CachedOutputStream ac = (CachedOutputStream) currentStream;
             InputStream in = ac.getInputStream();
-            copyStream(in, out, (int) threshold);
+            IOUtils.copyAndCloseInput(in, out);
         } else {
             if (inmem) {
                 if (currentStream instanceof ByteArrayOutputStream) {
@@ -157,7 +164,7 @@ public class CachedOutputStream extends OutputStream {
                     }
                 } else if (currentStream instanceof PipedOutputStream) {
                     PipedOutputStream pipeOut = (PipedOutputStream) currentStream;
-                    copyStream(new PipedInputStream(pipeOut), out, (int) threshold);
+                    IOUtils.copyAndCloseInput(new PipedInputStream(pipeOut), out);
                 } else {
                     throw new IOException("Unknown format of currentStream");
                 }
@@ -166,7 +173,7 @@ public class CachedOutputStream extends OutputStream {
                 currentStream.close();
                 FileInputStream fin = new FileInputStream(tempFile);
                 if (copyOldContent) {
-                    copyStream(fin, out, (int) threshold);
+                    IOUtils.copyAndCloseInput(fin, out);
                 }
             }
         }
@@ -174,32 +181,60 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public static void copyStream(InputStream in, OutputStream out, int bufferSize) throws IOException {
-        byte[] buffer = new byte[bufferSize];
-        try {
-            int n = in.read(buffer);
-            while (n > 0) {
-                out.write(buffer, 0, n);
-                n = in.read(buffer);
-            }
-        } finally {
-            in.close();
-        }
+        IOUtils.copyAndCloseInput(in, out, bufferSize);
     }
 
-    public static void copyStreamWithBase64Encoding(InputStream in, OutputStream out, int bufferSize)
-        throws Exception {
-        OutputStreamWriter osw = new OutputStreamWriter(out);
-        byte[] buffer = new byte[bufferSize];
-        try {
-            int n = in.read(buffer, 0, bufferSize);
-            while (n > 0) {
-                Base64Utility.encode(buffer, 0, n, osw);
-                n = in.read(buffer, 0, bufferSize);
+    
+    public byte[] getBytes() throws IOException {
+        flush();
+        if (inmem) {
+            if (currentStream instanceof ByteArrayOutputStream) {
+                return ((ByteArrayOutputStream)currentStream).toByteArray();
+            } else {
+                throw new IOException("Unknown format of currentStream");
             }
-        } finally {
-            in.close();
+        } else {
+            // read the file
+            FileInputStream fin = new FileInputStream(tempFile);
+            return IOUtils.readBytesFromStream(fin);
         }
     }
+    
+    public void writeCacheTo(OutputStream out) throws IOException {
+        flush();
+        if (inmem) {
+            if (currentStream instanceof ByteArrayOutputStream) {
+                ((ByteArrayOutputStream)currentStream).writeTo(out);
+            } else {
+                throw new IOException("Unknown format of currentStream");
+            }
+        } else {
+            // read the file
+            FileInputStream fin = new FileInputStream(tempFile);
+            IOUtils.copyAndCloseInput(fin, out);
+        }
+    }
+    public void writeCacheTo(StringBuilder out) throws IOException {
+        flush();
+        if (inmem) {
+            if (currentStream instanceof ByteArrayOutputStream) {
+                out.append(((ByteArrayOutputStream)currentStream).toString());
+            } else {
+                throw new IOException("Unknown format of currentStream");
+            }
+        } else {
+            // read the file
+            FileInputStream fin = new FileInputStream(tempFile);
+            byte bytes[] = new byte[1024];
+            int x = fin.read(bytes);
+            while (x != -1) {
+                out.append(new String(bytes, 0, x));
+                x = fin.read(bytes);
+            }
+            fin.close();
+        }
+    }    
+    
 
     /**
      * @return the underlying output stream
@@ -213,11 +248,27 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public String toString() {
-        return new StringBuilder().append("[")
+        StringBuilder builder = new StringBuilder().append("[")
             .append(super.toString())
-            .append(" Content: ")
-            .append(currentStream.toString())
-            .append("]").toString();
+            .append(" Content: ");
+        
+        if (inmem) {
+            builder.append(currentStream.toString());
+        } else {
+            try {
+                Reader fin = new FileReader(tempFile);
+                char buf[] = new char[1024];
+                int x = fin.read(buf);
+                while (x > -1) {
+                    builder.append(buf, 0, x);
+                    x = fin.read(buf);
+                }
+                fin.close();
+            } catch (IOException e) {
+                //ignore
+            }
+        }
+        return builder.append("]").toString();
     }
 
     protected void onWrite() throws IOException {
@@ -265,7 +316,7 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public File getTempFile() {
-        return tempFile;
+        return tempFile != null && tempFile.exists() ? tempFile : null;
     }
 
     public InputStream getInputStream() throws IOException {
@@ -283,7 +334,10 @@ public class CachedOutputStream extends OutputStream {
                 return new FileInputStream(tempFile) {
                     public void close() throws IOException {
                         super.close();
-                        tempFile.delete();
+                        if (tempFile != null) {
+                            tempFile.delete();
+                            //tempFile = null;
+                        }
                         currentStream = new ByteArrayOutputStream();
                         inmem = true;
                     }
@@ -295,8 +349,9 @@ public class CachedOutputStream extends OutputStream {
     }
 
     public void dispose() {
-        if (!inmem) {
+        if (!inmem && tempFile != null) {
             tempFile.delete();
+            //tempFile = null;
         }
     }
 
