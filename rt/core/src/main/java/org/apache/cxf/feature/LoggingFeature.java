@@ -47,11 +47,11 @@ public class LoggingFeature extends AbstractFeature {
         }
     }
 
-    public void setLoggingLimit(int lim) {
+    public void setLimit(int lim) {
         limit = lim;
     }
     
-    public int getLoggingLimit() {
+    public int getLimit() {
         return limit;
     }    
 }
