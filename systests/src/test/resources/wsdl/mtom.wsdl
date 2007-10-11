@@ -32,11 +32,11 @@
 	<wsdl:part name="data" element="types:data"></wsdl:part>
     </wsdl:message>
 
-    <wsdl:message name="HelloIn">
+    <wsdl:message name="DetailIn">
 	<wsdl:part name="data" element="types:Detail"></wsdl:part>
     </wsdl:message>
 
-    <wsdl:message name="HelloOut">
+    <wsdl:message name="DetailOut">
 	<wsdl:part name="data" element="types:DetailResponse"></wsdl:part>
     </wsdl:message>
 
@@ -46,10 +46,9 @@
 	    <wsdl:output message="tns:echoDataOut"></wsdl:output>
 	</wsdl:operation>
 
-	<!-- mtom test -->
 	<wsdl:operation name="Detail">
-	    <wsdl:input message="tns:HelloIn"></wsdl:input>
-	    <wsdl:output message="tns:HelloOut"></wsdl:output>
+	    <wsdl:input message="tns:DetailIn"></wsdl:input>
+	    <wsdl:output message="tns:DetailOut"></wsdl:output>
 	</wsdl:operation>
 
     </wsdl:portType>
