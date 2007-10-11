@@ -118,7 +118,7 @@ public class ProcessorTestBase extends Assert {
 
         assertTrue(!st1.hasMoreTokens());
         assertTrue(!st2.hasMoreTokens());
-        assertTrue("Files did not match", unmatched.isEmpty());
+        assertTrue("Files did not match: " + unmatched, unmatched.isEmpty());
     }
 
     public String getStringFromFile(File location) {

@@ -46,7 +46,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="addResponse">
-    <wsdl:part name="result" element="tns:addResponse">
+    <wsdl:part name="parameters" element="tns:addResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="AddException">

@@ -57,7 +57,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="operation0Response">
-    <wsdl:part name="result" element="tns:operation0Response">
+    <wsdl:part name="parameters" element="tns:operation0Response">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="DatabasePortType">

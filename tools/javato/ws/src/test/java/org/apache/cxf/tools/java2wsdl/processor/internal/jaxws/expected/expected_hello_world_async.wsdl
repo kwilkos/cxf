@@ -41,7 +41,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMeSometimeResponse">
-    <wsdl:part name="result" element="ns1:greetMeSometimeResponse">
+    <wsdl:part name="parameters" element="ns1:greetMeSometimeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="GreeterAsync">
