@@ -76,6 +76,15 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private ConduitSelector conduitSelector;
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {
+        
+        if (serviceName != null) {
+            serviceFactory.setServiceName(serviceName);
+        }
+        
+        if (endpointName != null) {
+            serviceFactory.setEndpointName(endpointName);    
+        }
+        
         Service service = serviceFactory.getService();
         
         if (service == null) {
@@ -83,9 +92,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             service = serviceFactory.create();
         }
         
-        if (serviceName != null) {
-            serviceFactory.setServiceName(serviceName);
-        }
         
         if (endpointName == null) {
             endpointName = serviceFactory.getEndpointName();
