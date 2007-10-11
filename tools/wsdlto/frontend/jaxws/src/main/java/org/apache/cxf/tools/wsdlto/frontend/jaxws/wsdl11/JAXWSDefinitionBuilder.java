@@ -20,13 +20,9 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
@@ -40,18 +36,18 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.xml.WSDLReader;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.helpers.FileUtils;
+
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customization.CustomizationParser;
@@ -126,7 +122,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         } catch (Exception e) {
             Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION",
                                       LOG,
-                                      cusParser.getCustomizedWSDLElement().getBaseURI());
+                                     (String)context.get(ToolConstants.CFG_WSDLURL));
             throw new RuntimeException(msg.toString(), e);
         }
     }
@@ -166,25 +162,17 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
                     return true;
                 }
             }
-
         }
         return false;
     }
 
-    private CustomizationParser getCustomizationParser() {
-        return cusParser;
-    }
+    private Definition buildCustomizedDefinition() throws Exception {      
+        Map<String, Element> eleMap = cusParser.getCustomizedWSDLElements();
+        String wsdlUrl = URIParserUtil.getAbsoluteURI((String)context.get(ToolConstants.CFG_WSDLURL));
+        CustomizedWSDLLocator wsdlLocator = new CustomizedWSDLLocator(wsdlUrl, eleMap);
+        wsdlLocator.setCatalogResolver(OASISCatalogManager.getCatalogManager(bus).getCatalog());
+        return wsdlReader.readWSDL(wsdlLocator);
 
-    private Definition buildCustomizedDefinition() throws Exception {
-        File tmpFile = FileUtils.createTempFile("customzied", ".wsdl");
-        OutputStream outs = new FileOutputStream(tmpFile);
-        DOMUtils.writeXml(getCustomizationParser().getCustomizedWSDLElement(), outs);
-        InputStream ins = new FileInputStream(new File(tmpFile.toURI()));
-        Document wsdlDoc = DOMUtils.readXml(ins);
-        Definition def =  wsdlReader.readWSDL(this.wsdlDefinition.getDocumentBaseURI(),
-                                              wsdlDoc);
-        FileUtils.delete(tmpFile);
-        return def;
     }
 
     public Definition getWSDLModel() {
