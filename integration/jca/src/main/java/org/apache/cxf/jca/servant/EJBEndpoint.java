@@ -85,11 +85,11 @@ public class EJBEndpoint {
         
         String baseAddress = isNotNull(getEjbServantBaseURL()) ? getEjbServantBaseURL() 
                                                                : getDefaultEJBServantBaseURL();
-        String address = (baseAddress + "/" + config.getJNDIName()).trim();
+        String address = (baseAddress + "/" + config.getJNDIName());
         factory.setAddress(address);
         
         if (address.length() >= 5 && HTTPS_PREFIX.equalsIgnoreCase(address.substring(0, 5))) {
-            throw new UnsupportedOperationException("Do not support creating EJBEndpoint by https protocol");
+            throw new UnsupportedOperationException("EJBEndpoint creation by https protocol is unsupported");
         }
         
         if (getWorkManager() != null) {
