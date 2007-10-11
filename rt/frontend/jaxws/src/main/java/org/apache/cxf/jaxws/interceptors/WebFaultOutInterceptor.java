@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -104,14 +105,20 @@ public class WebFaultOutInterceptor extends FaultOutInterceptor {
             }
             Service service = message.getExchange().get(Service.class);
 
-            DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
-
-            OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
-            QName faultName = getFaultName(fault, cause.getClass(), op);
-            MessagePartInfo part = getFaultMessagePart(faultName, op);
-            writer.write(faultInfo, part, f.getOrCreateDetail());
-
-            f.setMessage(ex.getMessage());
+            try {
+                DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
+    
+                OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
+                QName faultName = getFaultName(fault, cause.getClass(), op);
+                MessagePartInfo part = getFaultMessagePart(faultName, op);
+                writer.write(faultInfo, part, f.getOrCreateDetail());
+    
+                f.setMessage(ex.getMessage());
+            } catch (Exception nex) {
+                //if exception occurs while writing a fault, we'll just let things continue
+                //and let the rest of the chain try handling it as is.
+                LOG.log(Level.WARNING, "EXCEPTION_WHILE_WRITING_FAULT", nex);
+            }
         } else {
             FaultMode mode = message.get(FaultMode.class);
             if (mode == FaultMode.CHECKED_APPLICATION_FAULT) {

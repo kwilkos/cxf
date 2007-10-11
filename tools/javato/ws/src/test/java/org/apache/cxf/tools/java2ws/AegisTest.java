@@ -61,8 +61,9 @@ public class AegisTest extends ToolTestBase {
     public void tearDown() {
         super.tearDown();
         System.setProperty("java.class.path", cp);
+        FileUtils.removeDir(output);
+        output = null;
     }
-    
     private File outputFile(String name) {
         File f = new File(output.getPath() + File.separator + name);
         f.delete();

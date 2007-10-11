@@ -1693,7 +1693,7 @@ public class HTTPConduit
         /**
          * This boolean is true if the request must be cached.
          */
-        private boolean cachingForRetransmision;
+        private boolean cachingForRetransmission;
         
         /**
          * If we are going to be chunking, we won't flush till close which causes
@@ -1718,7 +1718,7 @@ public class HTTPConduit
             super();
             this.outMessage = m;
             connection = c;
-            cachingForRetransmision = possibleRetransmit;
+            cachingForRetransmission = possibleRetransmit;
             chunking = isChunking;
         }
 
@@ -1755,7 +1755,7 @@ public class HTTPConduit
             
             // If we need to cache for retransmission, store data in a
             // CacheAndWriteOutputStream. Otherwise write directly to the output stream.
-            if (cachingForRetransmision) {
+            if (cachingForRetransmission) {
                 cachedStream =
                     new CacheAndWriteOutputStream(connection.getOutputStream());
                 wrappedStream = cachedStream;
@@ -1778,7 +1778,7 @@ public class HTTPConduit
                 handleHeadersTrustCaching();
             }
             super.flush();
-            if (!cachingForRetransmision) {
+            if (!cachingForRetransmission) {
                 super.close();
             } else {
                 cachedStream.getOut().close();
@@ -1787,7 +1787,7 @@ public class HTTPConduit
             try {
                 handleResponse();
             } finally {
-                if (cachingForRetransmision) {
+                if (cachingForRetransmission) {
                     cachedStream.close();
                 }
             }

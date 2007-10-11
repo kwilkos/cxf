@@ -51,6 +51,8 @@ public class JavaToWSTest extends ToolTestBase {
     public void tearDown() {
         super.tearDown();
         System.setProperty("java.class.path", cp);
+        FileUtils.removeDir(output);
+        output = null;
     }
     
     private File outputFile(String name) {
