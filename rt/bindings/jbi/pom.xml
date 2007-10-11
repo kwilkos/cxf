@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.apache.servicemix</groupId>
             <artifactId>servicemix-jbi</artifactId>
-            <version>${servicemix.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -118,10 +118,4 @@
       <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-rt-bindings-jbi</url>
   </scm>
 
-    <repositories>
-        <repository>
-            <id>apache-incubator</id>
-            <url>http://people.apache.org/repo/m2-incubating-repository</url>
-        </repository>
-    </repositories>
 </project>
