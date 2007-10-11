@@ -262,8 +262,8 @@ public class DispatchHandlerInvocationTest extends AbstractBusClientServerTestBa
         try {
             disp.invoke(ds);
             fail("Did not get expected exception");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (HTTPException e) {
+            //expected
         }
     }
 

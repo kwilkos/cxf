@@ -152,6 +152,9 @@ public abstract class AbstractServiceConfiguration {
     public QName getResponseWrapperName(OperationInfo op, Method method) {
         return null;        
     }  
+    public String getResponseWrapperPartName(OperationInfo op, Method method) {
+        return null;        
+    }  
  
     public Class getResponseWrapper(Method selected) {
         return null;
