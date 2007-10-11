@@ -74,7 +74,7 @@ public class DirectDispatchClientTest extends AbstractBusClientServerTestBase {
         soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
-        dfm.registerDestinationFactory("http://cxf.apache.org/transports/local", soapDF);
+        
 
         LocalTransportFactory localTransport = new LocalTransportFactory();
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
@@ -83,10 +83,10 @@ public class DirectDispatchClientTest extends AbstractBusClientServerTestBase {
         dfm.registerDestinationFactory("http://cxf.apache.org/transports/local", localTransport);
 
         ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
-        extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/", localTransport);
+        extension.registerConduitInitiator("http://cxf.apache.org/transports/local", localTransport);
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/", localTransport);
+        extension.registerConduitInitiator("http://cxf.apache.org/bindings/xformat", localTransport);
     }
 
     private void invokeService(boolean isDirectDispatch) {
