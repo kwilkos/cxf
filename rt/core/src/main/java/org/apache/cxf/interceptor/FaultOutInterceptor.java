@@ -21,13 +21,14 @@ package org.apache.cxf.interceptor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Node;
 
-import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.frontend.FaultInfoException;
@@ -42,7 +43,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class FaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(FaultOutInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(FaultOutInterceptor.class); 
 
     public FaultOutInterceptor() {
         super(Phase.PRE_PROTOCOL);
@@ -67,19 +68,26 @@ public class FaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
             MessagePartInfo part = fi.getMessageParts().iterator().next();
             DataBinding db = service.getDataBinding();
 
-            if (isDOMSupported(db)) {
-                DataWriter<Node> writer = db.createWriter(Node.class);
-
-                writer.write(bean, part, f.getOrCreateDetail());
-            } else {
-                XMLStreamWriter xsw = new W3CDOMStreamWriter(f.getOrCreateDetail());
-
-                DataWriter<XMLStreamWriter> writer = db.createWriter(XMLStreamWriter.class);
-
-                writer.write(bean, part, xsw);
+            try {
+                if (isDOMSupported(db)) {
+                    DataWriter<Node> writer = db.createWriter(Node.class);
+    
+                    writer.write(bean, part, f.getOrCreateDetail());
+                } else {
+                    XMLStreamWriter xsw = new W3CDOMStreamWriter(f.getOrCreateDetail());
+    
+                    DataWriter<XMLStreamWriter> writer = db.createWriter(XMLStreamWriter.class);
+    
+                    writer.write(bean, part, xsw);
+                }
+    
+                f.setMessage(ex.getMessage());
+            } catch (Exception fex) {
+                //ignore - if any exceptions occur here, we'll ignore them
+                //and let the default fault handling of the binding convert 
+                //the fault like it was an unchecked exception.
+                LOG.log(Level.WARNING, "EXCEPTION_WHILE_WRITING_FAULT", fex);
             }
-
-            f.setMessage(ex.getMessage());
         }
     }
 
@@ -99,11 +107,11 @@ public class FaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 Method method = cause.getClass().getMethod("getFaultInfo", new Class[0]);
                 return method.invoke(cause, new Object[0]);
             } catch (InvocationTargetException e) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("INVOKE_FAULT_INFO", BUNDLE), e);
+                throw new Fault(new org.apache.cxf.common.i18n.Message("INVOKE_FAULT_INFO", LOG), e);
             } catch (NoSuchMethodException e) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_FAULT_INFO_METHOD", BUNDLE), e);
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_FAULT_INFO_METHOD", LOG), e);
             } catch (Exception e) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_ACCCESS_FAULT_INFO", BUNDLE), e);
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_ACCCESS_FAULT_INFO", LOG), e);
             }
         }
         return cause;

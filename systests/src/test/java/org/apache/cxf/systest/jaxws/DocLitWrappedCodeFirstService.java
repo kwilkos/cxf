@@ -51,6 +51,7 @@ public interface DocLitWrappedCodeFirstService {
     int[] echoIntArray(int[] ar);
     
     @WebMethod
+    @WebResult(partName = "parameters")
     String listInput(List<String> inputs);
 
     @WebMethod

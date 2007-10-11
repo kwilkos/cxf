@@ -79,11 +79,11 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMeResponse">
-    <wsdl:part name="result" element="ns1:greetMeResponse">
+    <wsdl:part name="parameters" element="ns1:greetMeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="testDocLitFaultResponse">
-    <wsdl:part name="result" element="ns1:testDocLitFaultResponse">
+    <wsdl:part name="parameters" element="ns1:testDocLitFaultResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="greetMe">
