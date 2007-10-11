@@ -22,6 +22,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
@@ -308,6 +309,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                           output.getCanonicalPath() + "/classes", "-d",
                                           output.getCanonicalPath(), "-b",
                                           getLocation("/wsdl2java_wsdl/bug305924/binding2.xml"),
+                                          "-verbose",
                                           getLocation("/wsdl2java_wsdl/bug305924/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
@@ -724,4 +726,72 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue(results.indexOf("public  int  getMessageLimit") != -1);
         assertTrue(results.indexOf("header  =  true,  name  =  \"MessengerHeader") != -1);
     }
+    
+    @Test
+    public void testBindingForImportWSDL() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1095/hello_world_services.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, 
+                new String[] {getLocation("/wsdl2java_wsdl/cxf1095/binding.xml")
+                              , getLocation("/wsdl2java_wsdl/cxf1095/binding1.xml")});
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader
+        .loadClass("org.apache.hello_world.messages.CustomizedFault");
+        assertNotNull("Customization Fault Class is not generated", clz);
+        Class serviceClz = classLoader
+        .loadClass("org.apache.hello_world.services.CustomizedService");
+        assertNotNull("Customization Fault Class is not generated", serviceClz);
+
+    }
+    @Test
+    public void testReuseJaxwsBindingFile() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/async_binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        
+        Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
+                                                                            javax.xml.ws.AsyncHandler.class});
+ 
+        assertNotNull("jaxws binding file does not take effect for hello_world.wsdl", method1);
+
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/echo_date.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/async_binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        clz = classLoader.loadClass("org.apache.cxf.tools.fortest.date.EchoDate");
+        
+        Method method2 = clz.getMethod("echoDateAsync",
+                                       new Class[] {javax.xml.datatype.XMLGregorianCalendar.class,
+                                                    javax.xml.ws.AsyncHandler.class});       
+        assertNotNull("jaxws binding file does not take effect for echo_date.wsdl", method2);
+
+    }
+    
+    
+    @Test
+    public void testReuseJabBindingFile1() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/jaxbbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
+        assertNotNull("Failed to generate customized class for hello_world.wsdl" , clz);
+       
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/hello_world_oneway.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/jaxbbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        Class customizedClz = classLoader.loadClass("org.apache.oneway.types.CreateProcess$MyProcess");
+        assertNotNull("Failed to generate customized class for hello_world_oneway.wsdl", customizedClz);    
+    
+    }    
+    
 }
