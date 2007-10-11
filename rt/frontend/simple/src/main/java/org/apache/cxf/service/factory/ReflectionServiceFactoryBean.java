@@ -903,7 +903,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void createOutputWrappedMessageParts(OperationInfo op, Method method, MessageInfo outMsg) {
-        MessagePartInfo part = outMsg.addMessagePart("result");
+        String partName = null;
+        for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
+            AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
+            partName = c.getResponseWrapperPartName(op, method);
+            if (partName != null) {
+                break;
+            }
+        }
+        if (partName == null) {
+            partName = "parameters";
+        }
+        
+        MessagePartInfo part = outMsg.addMessagePart(partName);
         part.setElement(true);
         part.setIndex(0);
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
@@ -911,6 +923,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             QName q = c.getResponseWrapperName(op, method);
             if (q != null) {
                 part.setElementQName(q);
+                break;
             }
         }
 

@@ -308,6 +308,27 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
+    public String getResponseWrapperPartName(OperationInfo op, Method method) {
+        method = getDeclaredMethod(method);
+        WebResult webResult = getWebResult(method);
+        if (webResult != null
+            && webResult.header()) {
+            for (int x = 0; x < method.getParameterTypes().length; x++) {
+                WebParam parm = getWebParam(method, x);
+                if (parm != null
+                    && !parm.header()
+                    && parm.mode() != WebParam.Mode.IN) {
+                    return null;
+                }
+            }
+            //all outs are headers, thus it's an empty body part
+            //thus return the default for an empty part of "result"
+            return "result";
+        }
+        return null;
+    }  
+
+    @Override
     public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {       
         method = getDeclaredMethod(method);
         
