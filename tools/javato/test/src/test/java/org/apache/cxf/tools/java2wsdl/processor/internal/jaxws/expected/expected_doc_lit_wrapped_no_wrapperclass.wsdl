@@ -19,7 +19,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiWithoutWrapperClassResponse">
-    <wsdl:part name="result" element="tns:sayHiWithoutWrapperClassResponse">
+    <wsdl:part name="parameters" element="tns:sayHiWithoutWrapperClassResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Hello">
