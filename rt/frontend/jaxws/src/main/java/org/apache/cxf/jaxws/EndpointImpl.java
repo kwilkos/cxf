@@ -28,7 +28,10 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.EndpointReference;
+import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.WebServicePermission;
+import javax.xml.ws.soap.MTOM;
+import javax.xml.ws.soap.MTOMFeature;
 
 import org.w3c.dom.Element;
 
@@ -112,9 +115,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
         this.bindingUri = bindingUri;
         wsdlLocation = wsdl == null ? null : new String(wsdl);
         serverFactory = new JaxWsServerFactoryBean();
+        loadWSFeatureAnnotation();
     }
-    
-    
+        
     public EndpointImpl(Bus b, Object i, String bindingUri) {
         this(b, i, bindingUri, (String)null);
     }
@@ -122,6 +125,15 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
     public EndpointImpl(Bus bus, Object implementor) {
         this(bus, implementor, (String) null);
     }
+    
+    private void loadWSFeatureAnnotation() {
+        List<WebServiceFeature> wsFeatures = new ArrayList<WebServiceFeature>();
+        MTOM mtom = implementor.getClass().getAnnotation(MTOM.class);        
+        if (mtom != null) {            
+            wsFeatures.add(new MTOMFeature(mtom.enabled(), mtom.threshold()));
+        }
+        ((JaxWsServiceFactoryBean) serverFactory.getServiceFactory()).setWsFeatures(wsFeatures);        
+    }    
 
     public Binding getBinding() {
         return ((JaxWsEndpointImpl) getEndpoint()).getJaxwsBinding();

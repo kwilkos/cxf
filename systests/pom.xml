@@ -60,6 +60,10 @@
                                     <wsdl>${basedir}/src/test/resources/wsdl/cxf-993.wsdl</wsdl>
                                 </wsdlOption>
 
+			<wsdlOption>
+			    <wsdl>${basedir}/src/test/resources/wsdl/mtom.wsdl</wsdl>
+			</wsdlOption>
+
                             </wsdlOptions>
                         </configuration>
                         <goals>

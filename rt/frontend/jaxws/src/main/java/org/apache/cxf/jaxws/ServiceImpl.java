@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -241,15 +242,23 @@ public class ServiceImpl extends ServiceDelegate {
         return handlerResolver;
     }
 
-    public <T> T getPort(Class<T> type) {
-        try {
-            return createPort(null, null, type);
-        } catch (ServiceConstructionException e) {
-            throw new WebServiceException(e);
-        }  
+    public <T> T getPort(Class<T> serviceEndpointInterface) {
+        return getPort(serviceEndpointInterface, new WebServiceFeature[]{});
     }
 
-    public <T> T getPort(QName portName, Class<T> type) {
+    public <T> T getPort(Class<T> serviceEndpointInterface, WebServiceFeature... features) {
+        try {
+            return createPort(null, null, serviceEndpointInterface, features);
+        } catch (ServiceConstructionException e) {
+            throw new WebServiceException(e);
+        }
+    }
+
+    public <T> T getPort(QName portName, Class<T> serviceEndpointInterface) {
+        return getPort(portName, serviceEndpointInterface, new WebServiceFeature[]{});
+    }
+
+    public <T> T getPort(QName portName, Class<T> serviceEndpointInterface, WebServiceFeature... features) {
         if (portName == null) {
             throw new WebServiceException(BUNDLE.getString("PORT_NAME_NULL_EXC"));
         }
@@ -259,12 +268,12 @@ public class ServiceImpl extends ServiceDelegate {
         }
         
         try {
-            return createPort(portName, null, type);
+            return createPort(portName, null, serviceEndpointInterface, features);
         } catch (ServiceConstructionException e) {
             throw new WebServiceException(e);
-        }  
+        }
     }
-    
+
     public <T> T getPort(EndpointReferenceType endpointReference,
                             Class<T> type) {
         endpointReference = EndpointReferenceUtils.resolve(endpointReference, bus);
@@ -308,13 +317,19 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     protected <T> T createPort(QName portName, EndpointReferenceType epr, Class<T> serviceEndpointInterface) {
+        return createPort(portName, epr, serviceEndpointInterface, new WebServiceFeature[]{});
+    }
+
+    protected <T> T createPort(QName portName, EndpointReferenceType epr, Class<T> serviceEndpointInterface, 
+                               WebServiceFeature... features) {
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint reference:", epr);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
 
         JaxWsProxyFactoryBean proxyFac = new JaxWsProxyFactoryBean();
         JaxWsClientFactoryBean clientFac = (JaxWsClientFactoryBean) proxyFac.getClientFactoryBean();
-        ReflectionServiceFactoryBean serviceFactory = proxyFac.getServiceFactory();
+        JaxWsServiceFactoryBean serviceFactory = (JaxWsServiceFactoryBean) proxyFac.getServiceFactory();
+        serviceFactory.setWsFeatures(Arrays.asList(features));
         
         proxyFac.setBus(bus);
         proxyFac.setServiceClass(serviceEndpointInterface);
@@ -330,7 +345,7 @@ public class ServiceImpl extends ServiceDelegate {
             Service service = serviceFactory.getService();
             if (service == null) {
                 serviceFactory.setServiceClass(serviceEndpointInterface);
-                serviceFactory.setBus(getBus());
+                serviceFactory.setBus(getBus());                
                 service = serviceFactory.create();
             }
             
@@ -511,17 +526,6 @@ public class ServiceImpl extends ServiceDelegate {
                                            JAXBContext context,
                                            Mode mode,
                                            WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
-    }
-
-    public <T> T getPort(Class<T> serviceEndpointInterface,
-                         WebServiceFeature... features) {
-        throw new UnsupportedOperationException();
-    }
-
-    public <T> T getPort(QName portName,
-                         Class<T> serviceEndpointInterface,
-                         WebServiceFeature... features) {
         throw new UnsupportedOperationException();
     }
 

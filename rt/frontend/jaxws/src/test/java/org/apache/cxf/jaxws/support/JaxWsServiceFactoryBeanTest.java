@@ -20,18 +20,23 @@
 package org.apache.cxf.jaxws.support;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
+import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.soap.MTOMFeature;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
@@ -235,8 +240,18 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         
     }
     
-    
-    
-    
-
+    @Test
+    public void testMtomFeature() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        bean.setBus(getBus());
+        bean.setServiceClass(GreeterImpl.class);
+        bean.setWsdlURL(getClass().getResource("/wsdl/hello_world.wsdl"));
+        bean.setWsFeatures(Arrays.asList(new WebServiceFeature[]{new MTOMFeature()}));
+        Service service = bean.create();
+        Endpoint endpoint = service.getEndpoints().values().iterator().next();
+        assertTrue(endpoint instanceof JaxWsEndpointImpl);
+        Binding binding = ((JaxWsEndpointImpl)endpoint).getJaxwsBinding();
+        assertTrue(binding instanceof SOAPBinding);
+        assertTrue(((SOAPBinding)binding).isMTOMEnabled());
+    }   
 }

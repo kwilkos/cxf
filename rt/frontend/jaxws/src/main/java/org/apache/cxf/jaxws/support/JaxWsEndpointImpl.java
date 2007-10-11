@@ -22,6 +22,9 @@ package org.apache.cxf.jaxws.support;
 import java.util.List;
 
 import javax.xml.ws.Binding;
+import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.soap.MTOMFeature;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBinding;
@@ -63,15 +66,18 @@ public class JaxWsEndpointImpl extends EndpointImpl {
 
     private Binding jaxwsBinding;
     private JaxWsImplementorInfo implInfo; 
+    private List<WebServiceFeature> wsFeatures;
     
     public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
-        this(bus, s, ei, null);
+        this(bus, s, ei, null, null);
     }
 
-    public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo)
+    public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei, JaxWsImplementorInfo implementorInfo, 
+                             List<WebServiceFeature> features)
         throws EndpointException {
         super(bus, s, ei);
         this.implInfo = implementorInfo;
+        this.wsFeatures = features;
         
         createJaxwsBinding();
         
@@ -130,9 +136,25 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         return jaxwsBinding;
     }
     
+    private MTOMFeature getMTOMFeature() {
+        if (wsFeatures == null) {
+            return null;
+        }
+        for (WebServiceFeature feature : wsFeatures) {
+            if (feature instanceof MTOMFeature) {
+                return (MTOMFeature)feature;                
+            }
+        }
+        return null;
+    }
+    
     final void createJaxwsBinding() {
         if (getBinding() instanceof SoapBinding) {
             jaxwsBinding = new SOAPBindingImpl(getEndpointInfo().getBinding());
+            MTOMFeature mtomFeature = getMTOMFeature();
+            if (mtomFeature != null && mtomFeature.isEnabled()) {
+                ((SOAPBinding)jaxwsBinding).setMTOMEnabled(true);
+            }
         } else if (getBinding() instanceof XMLBinding) {
             jaxwsBinding = new HTTPBindingImpl(getEndpointInfo().getBinding());
         } else {
