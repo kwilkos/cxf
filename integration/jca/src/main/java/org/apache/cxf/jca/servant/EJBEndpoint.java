@@ -85,7 +85,7 @@ public class EJBEndpoint {
         
         String baseAddress = isNotNull(getEjbServantBaseURL()) ? getEjbServantBaseURL() 
                                                                : getDefaultEJBServantBaseURL();
-        String address = (baseAddress + "/" + config.getJNDIName());
+        String address = baseAddress + "/" + config.getJNDIName();
         factory.setAddress(address);
         
         if (address.length() >= 5 && HTTPS_PREFIX.equalsIgnoreCase(address.substring(0, 5))) {
