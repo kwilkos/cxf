@@ -73,8 +73,8 @@ public class LocalDestination extends AbstractDestination {
             this.conduit = conduit;
         }
 
-        public void prepare(final Message message) throws IOException {
-            if (!Boolean.TRUE.equals(message.get(LocalConduit.DIRECT_DISPATCH))) {
+        public void prepare(final Message message) throws IOException {            
+            if (!Boolean.TRUE.equals(message.getExchange().get(LocalConduit.DIRECT_DISPATCH))) {
                 final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
                 
                 final PipedInputStream stream = new PipedInputStream();
@@ -90,24 +90,27 @@ public class LocalDestination extends AbstractDestination {
                 };
     
                 PipedOutputStream outStream = new PipedOutputStream(stream);
-                message.setContent(OutputStream.class, outStream);
-    
+                message.setContent(OutputStream.class, outStream);    
                 new Thread(receiver).start();
+                
+            } else {
+                PipedInputStream stream = new PipedInputStream();
+                message.setContent(InputStream.class, stream);
+                message.setContent(OutputStream.class, new PipedOutputStream(stream));
             }
         }
 
         @Override
         public void close(Message message) throws IOException {
-            if (Boolean.TRUE.equals(message.get(LocalConduit.DIRECT_DISPATCH))) {
+            if (Boolean.TRUE.equals(message.getExchange().get(LocalConduit.DIRECT_DISPATCH))) {
                 final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
                 MessageImpl copy = new MessageImpl();
                 copy.putAll(message);
                 MessageImpl.copyContent(message, copy);
                 
-                if (exchange.getInMessage() == null) {
+                if (exchange != null && exchange.getInMessage() == null) {
                     exchange.setInMessage(copy);
-                }
-                
+                }                
                 conduit.getMessageObserver().onMessage(copy);
                 return;
             }
