@@ -76,7 +76,7 @@ public class CustomizationParserTest extends ProcessorTestBase {
         Element jaxwsBinding = getDocumentElement("resources/external_jaxws.xml");
 
         parser.setWSDLNode(wsdlDoc);
-        parser.internalizeBinding(jaxwsBinding, "");
+        parser.internalizeBinding(jaxwsBinding, wsdlDoc, "");
 
         File file = new File(output, "custom_test.wsdl");
         XMLUtils.writeTo(wsdlDoc, new FileOutputStream(file));
@@ -94,7 +94,7 @@ public class CustomizationParserTest extends ProcessorTestBase {
         Element jaxwsBinding = getDocumentElement("resources/external_jaxws_embed_jaxb.xml");
 
         parser.setWSDLNode(wsdlDoc);
-        parser.internalizeBinding(jaxwsBinding, "");
+        parser.internalizeBinding(jaxwsBinding, wsdlDoc, "");
 
         String base = "wsdl:definitions/wsdl:types/xsd:schema/xsd:annotation/xsd:appinfo/";
         String[] checkingPoints =
@@ -112,7 +112,7 @@ public class CustomizationParserTest extends ProcessorTestBase {
         Element wsdlDoc = getDocumentElement("resources/test.wsdl");
         Element jaxwsBinding = getDocumentElement("resources/external_jaxws_embed_jaxb_date.xml");
         parser.setWSDLNode(wsdlDoc);
-        parser.internalizeBinding(jaxwsBinding, "");
+        parser.internalizeBinding(jaxwsBinding, wsdlDoc, "");
 
         String base = "wsdl:definitions/wsdl:types/xsd:schema/xsd:annotation/xsd:appinfo/";
         String[] checkingPoints =
@@ -130,7 +130,7 @@ public class CustomizationParserTest extends ProcessorTestBase {
         Element wsdlDoc = getDocumentElement("resources/hello_world.wsdl");
         Element jaxwsBinding = getDocumentElement("resources/binding2.xml");
         parser.setWSDLNode(wsdlDoc);
-        parser.internalizeBinding(jaxwsBinding, "");
+        parser.internalizeBinding(jaxwsBinding, wsdlDoc, "");
 
         String checkingPoint = "wsdl:definitions/wsdl:types/xsd:schema";
         checkingPoint += "/xsd:element[@name='CreateProcess']/xsd:complexType/xsd:sequence";
