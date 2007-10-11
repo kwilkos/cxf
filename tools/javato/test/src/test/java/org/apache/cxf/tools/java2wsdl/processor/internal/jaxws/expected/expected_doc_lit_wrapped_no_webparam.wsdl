@@ -17,7 +17,7 @@
 </xsd:schema>
   </wsdl:types>
   <wsdl:message name="sayHiResponse">
-    <wsdl:part name="result" element="tns:sayHiResponse">
+    <wsdl:part name="parameters" element="tns:sayHiResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHi">
