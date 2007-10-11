@@ -58,6 +58,11 @@ public class LocalConduit extends AbstractConduit {
     public void prepare(final Message message) throws IOException {
         if (!Boolean.TRUE.equals(message.get(DIRECT_DISPATCH))) {
             dispatchViaPipe(message);
+        } else {
+            // prepare the stream here
+            PipedInputStream stream = new PipedInputStream();
+            message.setContent(InputStream.class, stream);
+            message.setContent(OutputStream.class, new PipedOutputStream(stream));
         }
     }
 
@@ -87,6 +92,7 @@ public class LocalConduit extends AbstractConduit {
         ExchangeImpl ex = new ExchangeImpl();
         ex.setInMessage(copy);
         ex.put(IN_EXCHANGE, message.getExchange());
+        ex.put(LocalConduit.DIRECT_DISPATCH, true);
         ex.setDestination(destination);
         
         destination.getMessageObserver().onMessage(copy);

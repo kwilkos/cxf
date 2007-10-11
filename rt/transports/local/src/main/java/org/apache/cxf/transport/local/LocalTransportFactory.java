@@ -66,7 +66,7 @@ public class LocalTransportFactory extends AbstractTransportFactory
         setTransportIds(ids);
         
         messageFilterProperties = new HashSet<String>();
-        messageFilterProperties.add(Message.REQUESTOR_ROLE);
+        messageFilterProperties.add(Message.REQUESTOR_ROLE);        
     }
     
     @Resource(name = "bus")
