@@ -40,6 +40,7 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.validator.UniqueBodyValidator;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ResourceHandler;
@@ -179,16 +180,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
 
-
-
-
     @Test
     public void testBug305772() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_ANT, ToolConstants.CFG_ANT);
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        // env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305772/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
@@ -775,6 +773,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     
     
     @Test
+    @Ignore("not working with jaxb 2.0")
     public void testReuseJabBindingFile1() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, 
                 getLocation("/wsdl2java_wsdl/cxf1094/hello_world.wsdl"));

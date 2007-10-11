@@ -23,7 +23,7 @@
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getPriceResponse">
-    <wsdl:part name="result" element="tns:getPriceResponse">
+    <wsdl:part name="parameters" element="tns:getPriceResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="StockWrapped">
