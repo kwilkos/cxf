@@ -103,6 +103,8 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
     protected void setCommonAttributes() {
         setAttributes("currentdate", Calendar.getInstance().getTime());
         setAttributes("version", Version.getCurrentVersion());
+        setAttributes("fullversion", Version.getCompleteVersionString());
+        setAttributes("name", Version.getName());
     }
 
     protected void clearAttributes() {

@@ -127,6 +127,8 @@ public final class VelocityGenerator {
     public void setCommonAttributes() {
         attributes.put("currentdate", Calendar.getInstance().getTime());
         attributes.put("version", Version.getCurrentVersion());
+        attributes.put("name", Version.getName());
+        attributes.put("fullversion", Version.getCompleteVersionString());
     }
 
     public void clearAttributes() {

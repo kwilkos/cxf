@@ -35,6 +35,6 @@ public class VersionTest extends Assert {
     public void testGetVersion() {
         String completeVersion =  Version.getCompleteVersionString();
         String currentVersion = Version.getCurrentVersion();
-        assertEquals(completeVersion, currentVersion);
+        assertTrue(completeVersion.contains(currentVersion));
     }
 }
