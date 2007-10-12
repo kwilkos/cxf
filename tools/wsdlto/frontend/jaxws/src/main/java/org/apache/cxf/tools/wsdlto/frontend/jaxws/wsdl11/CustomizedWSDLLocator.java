@@ -41,8 +41,8 @@ public class CustomizedWSDLLocator implements javax.wsdl.xml.WSDLLocator {
     private Catalog catalogResolver;
    
     private Map<String, Element> elementMap;
-    private String lastestImportURI;
-    private boolean resolveFormMap;
+    private String latestImportURI;
+    private boolean resolveFromMap;
     
     public CustomizedWSDLLocator(String wsdlUrl, Map<String, Element> map) {
         this.wsdlUrl = wsdlUrl;
@@ -95,8 +95,8 @@ public class CustomizedWSDLLocator implements javax.wsdl.xml.WSDLLocator {
         return baseUri;
     }
     public String getLatestImportURI() {
-        if (this.resolveFormMap) {
-            return this.lastestImportURI;
+        if (this.resolveFromMap) {
+            return this.latestImportURI;
             
         }
         return resolver.getLatestImportURI();
@@ -117,15 +117,15 @@ public class CustomizedWSDLLocator implements javax.wsdl.xml.WSDLLocator {
 
                 InputSource ins = new InputSource(new StringReader(content));
                 ins.setSystemId(importURI.toString());
-                this.resolveFormMap = true;
-                this.lastestImportURI = importURI.toString();
+                this.resolveFromMap = true;
+                this.latestImportURI = importURI.toString();
                 return ins;    
             }
             
         } catch (URISyntaxException e) {
-            throw new RuntimeException("Resolve " + importLocation + "Failed: ", e);        
+            throw new RuntimeException("Failed to Resolve " + importLocation, e);        
         } 
-        resolveFormMap = false;
+        resolveFromMap = false;
         return resolve(importedUri, baseUri);
     }
     public void close() {

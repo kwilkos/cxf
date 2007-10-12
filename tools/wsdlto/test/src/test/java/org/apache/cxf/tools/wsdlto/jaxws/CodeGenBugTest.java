@@ -741,6 +741,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull("Customization Fault Class is not generated", serviceClz);
 
     }
+    
     @Test
     public void testReuseJaxwsBindingFile() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, 
@@ -787,8 +788,31 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
         Class customizedClz = classLoader.loadClass("org.apache.oneway.types.CreateProcess$MyProcess");
-        assertNotNull("Failed to generate customized class for hello_world_oneway.wsdl", customizedClz);    
-    
+        assertNotNull("Failed to generate customized class for hello_world_oneway.wsdl", 
+                      customizedClz);        
     }    
+    
+    @Test
+    public void testBindingXPath() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1106/binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader
+        .loadClass("org.apache.hello_world_soap_http.Greeter");
+        assertNotNull("Failed to generate SEI class", clz);
+        Method[] methods = clz.getMethods();
+        assertEquals("jaxws binding file parse error, number of generated method is not expected"
+                     , 14, methods.length);
+        
+        boolean existSayHiAsyn = false;
+        for (Method m : methods) {
+            if (m.getName().equals("sayHiAsyn")) {
+                existSayHiAsyn = true;
+            }             
+        }
+        assertFalse("sayHiAsyn method should not be generated", existSayHiAsyn);
+    }
     
 }
