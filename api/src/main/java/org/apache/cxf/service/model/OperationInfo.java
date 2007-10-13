@@ -181,6 +181,10 @@ public class OperationInfo extends AbstractPropertiesHolder {
         }
         return null;
     }
+    
+    public boolean hasFaults() {
+        return faults != null && faults.size() > 0;
+    }
 
     /**
      * Returns all faults for this operation.

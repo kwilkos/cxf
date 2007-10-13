@@ -132,7 +132,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
 
     private boolean isDOMSupported(DataBinding db) {
         boolean supportsDOM = false;
-        for (Class c : db.getSupportedWriterFormats()) {
+        for (Class c : db.getSupportedReaderFormats()) {
             if (c.equals(Node.class)) {
                 supportsDOM = true;
             }
