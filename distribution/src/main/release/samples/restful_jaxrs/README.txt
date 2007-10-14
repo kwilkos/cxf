@@ -6,28 +6,36 @@ The demo shows REST based Web Services using JAX-RS (JSR-311). The REST server p
 A RESTful customer service is provided on URL http://localhost:9000/customers. 
 Users access this URI to operate on customer.
 
-A HTTP GET request to URL http://localhost:9000/customers/1234 
-returns a customer instance whose id is 1234. The XML document returned:
+A HTTP GET request to URL http://localhost:9000/customerservice/customers/123
+returns a customer instance whose id is 123. The XML document returned:
 
 <Customer>
-  <id>1234</id>
+  <id>123</id>
   <name>John</name>
-  <phoneNumber>123456</phoneNumber>
 </Customer>
 
-A HTTP POST request to URL http://localhost:9000/customers 
+A HTTP POST request to URL http://localhost:9000/customerservice/customers
 with the data:
 
 <Customer>
-  <id>1234</id>
-  <name>John</name>
-  <phoneNumber>123456</phoneNumber>
+  <name>Jack</name>
 </Customer>
 
-updates customer 1234 with the data provided. 
+adds a customer whose name is Jack 
 
-The client code demonstrates how to send HTTP POST with XML data using 
-JAX-WS Dispatch and how to send HTTP GET using URL.openStream(). The 
+
+A HTTP PUT request to URL http://localhost:9000/customerservice/customers
+with the data:
+
+<Customer>
+  <id>123</id>
+  <name>John</name>
+</Customer>
+
+updates the customer instance whose id is 123
+
+
+The client code demonstrates how to send HTTP GET/POST/PUT/DELETE request. The 
 server code demonstrates how to build a RESTful endpoints through 
 JAX-RS (JSR-311) APIs.
 

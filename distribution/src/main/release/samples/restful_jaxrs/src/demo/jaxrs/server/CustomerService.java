@@ -22,14 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
-// import javax.ws.rs.ProduceMime;
+import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.HttpContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@UriTemplate("/customers/")
+@UriTemplate("/customerservice/")
 public class CustomerService {
     @HttpContext UriInfo uriInfo;
 
@@ -43,9 +43,10 @@ public class CustomerService {
 
     @HttpMethod("GET")
     @UriTemplate("/customers/{id}/")
-    Customer getCustomer(@UriParam("id") String id) {
+    public Customer getCustomer(@UriParam("id") String id) {
         System.out.println("----invoking getCustomer, Customer id is: " + id);
-        Customer c = customers.get(id);
+        long idNumber = Long.parseLong(id);
+        Customer c = customers.get(idNumber);
         return c;
     }
 
@@ -66,9 +67,9 @@ public class CustomerService {
     }
 
     @HttpMethod("POST")
-    @UriTemplate("/customers")
+    @UriTemplate("/customers/")
     public Response addCustomer(Customer customer) {
-        System.out.println("----invoking addCustomer, customer name is: " + customer.getName());
+        System.out.println("----invoking addCustomer, Customer name is: " + customer.getName());
         customer.setId(++currentId);
 
         customers.put(customer.getId(), customer);
@@ -79,9 +80,8 @@ public class CustomerService {
     @HttpMethod("DELETE")
     @UriTemplate("/customers/{id}/")
     public Response deleteCustomer(@UriParam("id") String id) {
-        System.out.println("----invoking deleteCustomer with id: " + id);
+        System.out.println("----invoking deleteCustomer, Customer id is: " + id);
         long idNumber = Long.parseLong(id);
-        boolean found = false;
         Customer c = customers.get(idNumber);
 
         Response r;
@@ -93,6 +93,22 @@ public class CustomerService {
         }
 
         return r;
+    }
+
+    @HttpMethod("GET")
+    @UriTemplate("/customersjson/{id}/")
+    @ProduceMime("application/json")
+    public Customer getCustomerJSON(@UriParam("id") String id) {
+        System.out.println("----invoking getCustomerJSON, Customer id is: " + id);
+        long idNumber = Long.parseLong(id);
+        Customer c = customers.get(idNumber);
+        return c;
+    }
+
+    //FIXME: wont work if remove this method, has to set hasSubResource to true
+    @UriTemplate("/items")
+    public Response getItem(@UriParam("id") String id) {
+        return null;
     }
 
     final Customer createCustomer() {

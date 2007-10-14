@@ -47,16 +47,17 @@ public final class Client {
          */
 
         // Sent HTTP GET request to query customer info
-        URL url = new URL("http://localhost:9000/customers/123");
-        System.out.println("Invoking server through HTTP GET to query customer info");
+        System.out.println("Sent HTTP GET request to query customer info");
+        URL url = new URL("http://localhost:9000/customerservice/customers/123");
         InputStream in = url.openStream();
         System.out.println(getStringFromInputStream(in));
 
         // Sent HTTP PUT request to update customer info
+        System.out.println("Sent HTTP PUT request to update customer info");
         Client client = new Client();
         String inputFile = client.getClass().getResource("update_customer.txt").getFile();
         File input = new File(inputFile);
-        PutMethod put = new PutMethod("http://localhost:9000/customers");
+        PutMethod put = new PutMethod("http://localhost:9000/customerservice/customers");
         RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
         put.setRequestEntity(entity);
         HttpClient httpclient = new HttpClient();
@@ -73,9 +74,10 @@ public final class Client {
         }
 
         // Sent HTTP POST request to add customer
+        System.out.println("Sent HTTP POST request to add customer");
         inputFile = client.getClass().getResource("add_customer.txt").getFile();
         input = new File(inputFile);
-        PostMethod post = new PostMethod("http://localhost:9000/customers");
+        PostMethod post = new PostMethod("http://localhost:9000/customerservice/customers");
         entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
         post.setRequestEntity(entity);
         httpclient = new HttpClient();
@@ -90,6 +92,13 @@ public final class Client {
             // done
             post.releaseConnection();
         }
+
+        // Sent HTTP GET request to query customer info, expect JSON.
+        System.out.println("Sent HTTP GET request to query customer info");
+        url = new URL("http://localhost:9000/customerservice/customersjson/123");
+        in = url.openStream();
+        System.out.println(getStringFromInputStream(in));
+
 
         System.out.println("Client Invoking is succeeded!");
         System.exit(0);
