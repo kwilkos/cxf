@@ -18,8 +18,8 @@
  */
 package demo.jaxrs.server;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 // import javax.ws.rs.ProduceMime;
@@ -33,7 +33,7 @@ import javax.ws.rs.core.UriInfo;
 public class CustomerService {
     @HttpContext UriInfo uriInfo;
 
-    long currentId = 1;
+    long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
 
     public CustomerService() {

@@ -1,4 +1,4 @@
 <Customer>
-  <name>John</name>
-  <id>123456</id>
+  <name>Mary</name>
+  <id>123</id>
 </Customer> 

@@ -19,18 +19,18 @@
 
 package demo.jaxrs.client;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.io.CachedOutputStream;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 
 public final class Client {
 
@@ -47,7 +47,7 @@ public final class Client {
          */
 
         // Sent HTTP GET request to query customer info
-        URL url = new URL("http://localhost:9000/customers/1234");
+        URL url = new URL("http://localhost:9000/customers/123");
         System.out.println("Invoking server through HTTP GET to query customer info");
         InputStream in = url.openStream();
         System.out.println(getStringFromInputStream(in));
@@ -94,14 +94,14 @@ public final class Client {
         System.out.println("Client Invoking is succeeded!");
         System.exit(0);
     }
-    
-    private static String getStringFromInputStream(InputStream in) throws Exception {        
+
+    private static String getStringFromInputStream(InputStream in) throws Exception {
         CachedOutputStream bos = new CachedOutputStream();
         IOUtils.copy(in, bos);
         in.close();
         bos.close();
-        //System.out.println(bos.getOut().toString());        
-        return bos.getOut().toString();        
+        //System.out.println(bos.getOut().toString());
+        return bos.getOut().toString();
     }
 
 }

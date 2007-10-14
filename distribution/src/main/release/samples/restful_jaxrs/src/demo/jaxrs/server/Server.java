@@ -28,7 +28,7 @@ public class Server {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
         sf.setResourceClasses(CustomerService.class);
         sf.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
-        sf.setAddress("http://localhost:9080/xml/");
+        sf.setAddress("http://localhost:9000/");
 
         sf.create();
     }
