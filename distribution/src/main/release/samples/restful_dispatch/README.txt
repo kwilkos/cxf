@@ -49,8 +49,7 @@ server code demonstrates how to build a RESTful endpoints through
 JAX-WS Provider interface.
 
 
-Please review the README in the samples directory before
-continuing.
+Please review the README in the samples directory before continuing.
 
 
 Prerequisites
@@ -86,7 +85,7 @@ files, run "ant clean".
 Building the demo using wsdl2java and javac
 -------------------------------------------
 
-From the samples/restful directory, first create the target
+From the samples/restful_dispatch directory, first create the target
 directory build/classes and then compile the provided client 
 and server applications with the commands:
 
@@ -120,7 +119,7 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/restful directory run the following commands. They 
+From the samples/restful_dispatch directory run the following commands. They 
 are entered on a single command line.
 
 For UNIX (must use forward slashes):
