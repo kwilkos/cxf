@@ -26,7 +26,7 @@ public class Server {
 
     protected Server() throws Exception {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setResourceClasses(BookStore.class);
+        sf.setResourceClasses(CustomerService.class);
         sf.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
         sf.setAddress("http://localhost:9080/xml/");
 

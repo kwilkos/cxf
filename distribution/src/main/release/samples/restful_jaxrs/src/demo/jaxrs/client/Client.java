@@ -19,9 +19,13 @@
 
 package demo.jaxrs.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.io.CachedOutputStream;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -43,14 +47,14 @@ public final class Client {
          */
 
         // Sent HTTP GET request to query customer info
-        url = new URL("http://localhost:9000/customers/1234");
+        URL url = new URL("http://localhost:9000/customers/1234");
         System.out.println("Invoking server through HTTP GET to query customer info");
-        in = url.openStream();
-        source = new StreamSource(in);
-        printSource(source);
+        InputStream in = url.openStream();
+        System.out.println(getStringFromInputStream(in));
 
         // Sent HTTP PUT request to update customer info
-        String inputFile = getClass().getResource("update_customer.txt").getFile();
+        Client client = new Client();
+        String inputFile = client.getClass().getResource("update_customer.txt").getFile();
         File input = new File(inputFile);
         PutMethod put = new PutMethod("http://localhost:9000/customers");
         RequestEntity entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
@@ -58,11 +62,10 @@ public final class Client {
         HttpClient httpclient = new HttpClient();
 
         try {
-            int result = httpclient.executeMethod(post);
-            assertEquals(200, result);
+            int result = httpclient.executeMethod(put);
             System.out.println("Response status code: " + result);
             System.out.println("Response body: ");
-            System.out.println(post.getResponseBodyAsString());
+            System.out.println(put.getResponseBodyAsString());
         } finally {
             // Release current connection to the connection pool once you are
             // done
@@ -70,7 +73,7 @@ public final class Client {
         }
 
         // Sent HTTP POST request to add customer
-        inputFile = getClass().getResource("add_customer.txt").getFile();
+        inputFile = client.getClass().getResource("add_customer.txt").getFile();
         input = new File(inputFile);
         PostMethod post = new PostMethod("http://localhost:9000/customers");
         entity = new FileRequestEntity(input, "text/xml; charset=ISO-8859-1");
@@ -79,7 +82,6 @@ public final class Client {
 
         try {
             int result = httpclient.executeMethod(post);
-            assertEquals(200, result);
             System.out.println("Response status code: " + result);
             System.out.println("Response body: ");
             System.out.println(post.getResponseBodyAsString());
@@ -92,23 +94,14 @@ public final class Client {
         System.out.println("Client Invoking is succeeded!");
         System.exit(0);
     }
-
-    private static void printSource(Source source) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            StreamResult sr = new StreamResult(bos);
-            Transformer trans = TransformerFactory.newInstance().newTransformer();
-            Properties oprops = new Properties();
-            oprops.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            trans.setOutputProperties(oprops);
-            trans.transform(source, sr);
-            System.out.println("**** Response ******");
-            System.out.println(bos.toString());
-            bos.close();
-            System.out.println();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    
+    private static String getStringFromInputStream(InputStream in) throws Exception {        
+        CachedOutputStream bos = new CachedOutputStream();
+        IOUtils.copy(in, bos);
+        in.close();
+        bos.close();
+        //System.out.println(bos.getOut().toString());        
+        return bos.getOut().toString();        
     }
 
 }

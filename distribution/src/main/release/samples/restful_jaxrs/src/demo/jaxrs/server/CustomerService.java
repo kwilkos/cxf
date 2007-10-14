@@ -18,24 +18,25 @@
  */
 package demo.jaxrs.server;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import javax.ws.rs.HttpMethod;
 // import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
 import javax.ws.rs.core.HttpContext;
 import javax.ws.rs.core.Response;
-
-// import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.UriInfo;
 
 @UriTemplate("/customers/")
 public class CustomerService {
-    @HttpContext
-    UriInfo uriInfo;
+    @HttpContext UriInfo uriInfo;
 
     long currentId = 1;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
 
-    public CustomerServiceImpl() {
+    public CustomerService() {
         Customer customer = createCustomer();
         customers.put(customer.getId(), customer);
     }
@@ -50,7 +51,7 @@ public class CustomerService {
 
     @HttpMethod("PUT")
     @UriTemplate("/customers/")
-    void updateCustomer(Customer customer) {
+    public Response updateCustomer(Customer customer) {
         System.out.println("----invoking updateCustomer, Customer name is: " + customer.getName());
         Customer c = customers.get(customer.getId());
         Response r;
@@ -70,7 +71,7 @@ public class CustomerService {
         System.out.println("----invoking addCustomer, customer name is: " + customer.getName());
         customer.setId(++currentId);
 
-        customers.add(customer);
+        customers.put(customer.getId(), customer);
 
         return Response.Builder.ok(customer).build();
     }
@@ -86,7 +87,7 @@ public class CustomerService {
         Response r;
         if (c != null) {
             r = Response.Builder.ok().build();
-            customers.remove(i);
+            customers.remove(idNumber);
         } else {
             r = Response.Builder.notModified().build();
         }
