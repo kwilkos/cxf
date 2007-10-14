@@ -147,9 +147,10 @@ public class BookStore {
     @HttpMethod("GET")
     @UriTemplate("/cd/{CDId}/")
     @ProduceMime("application/json")
-    //FIXME: getCDJSON and getCDs dont have to use different URLs, but we seems have problem 
-    //to match "/cds/" and "/cds/123" correctly using ".*?" as suggested by spec. The former
-    //one's pattern is "/cds/(/)?" the later one is "/cds/(.*?)(/)?
+    // FIXME: getCDJSON and getCDs dont have to use different URLs, but it looks
+    // like we are having problem
+    // to match "/cds/" and "/cds/123" correctly using ".*?" as suggested by
+    // spec. The former one's pattern is "/cds/(/)?" the later one is "/cds/(.*?)(/)?
     public CD getCDJSON(@UriParam("CDId") String id) {
         System.out.println("----invoking getCDJSON with cdId: " + id);
         long idNumber = Long.parseLong(id);
