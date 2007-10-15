@@ -41,6 +41,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
@@ -311,7 +313,13 @@ public class DispatchClientServerTest extends AbstractBusClientServerTestBase {
 
     @Test
     public void testJAXBObjectPAYLOADWithFeature() throws Exception {
-        createBus("org/apache/cxf/systest/dispatch/client-config.xml");
+        bus = BusFactory.getDefaultBus(false);
+        bus.shutdown(true);
+        
+        this.configFileName = "org/apache/cxf/systest/dispatch/client-config.xml";
+        SpringBusFactory bf = (SpringBusFactory)SpringBusFactory.newInstance();
+        bus = bf.createBus(configFileName, false);
+        
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
