@@ -253,7 +253,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             if (!isWrapped(m) && !isRPC(m) && opInfo.getInput() != null) {
                 createBareMessage(serviceInfo, opInfo, false);
-
             }
 
             if (!isWrapped(m) && !isRPC(m) && opInfo.getOutput() != null) {
@@ -447,7 +446,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             mpi.setElementQName(qn);
 
 
-                            checkForHeaderElement(serviceInfo, mpi);
+                            checkForElement(serviceInfo, mpi);
                         }
                     }
 
@@ -475,7 +474,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             mpi.setElement(true);
                             mpi.setElementQName(qn);
 
-                            checkForHeaderElement(serviceInfo, mpi);
+                            checkForElement(serviceInfo, mpi);
+                        }
+                    }
+                }
+                if (op.hasFaults()) {
+                    //check to make sure the faults are elements
+                    for (FaultInfo fault : op.getFaults()) {
+                        QName qn = (QName)fault.getProperty("elementName");
+                        MessagePartInfo part = fault.getMessagePart(0);
+                        if (!part.isElement()) {
+                            part.setElement(true);
+                            part.setElementQName(qn);
+                            checkForElement(serviceInfo, part);
                         }
                     }
                 }
@@ -484,7 +495,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     }
 
-    protected void checkForHeaderElement(ServiceInfo serviceInfo, MessagePartInfo mpi) {
+    protected void checkForElement(ServiceInfo serviceInfo, MessagePartInfo mpi) {
         for (SchemaInfo s : serviceInfo.getSchemas()) {
             XmlSchemaElement e = s.getElementByQName(mpi.getElementQName());
             if (e != null) {
@@ -1484,7 +1495,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 return b.booleanValue();
             }
         }
-        return true;
+        return "rpc".equals(getStyle());
     }
 
     public void setWrapped(boolean style) {
