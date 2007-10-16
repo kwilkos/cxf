@@ -37,12 +37,12 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class LocalTransportFactoryTest extends Assert {
     @Test
-    public void testLocalTransportWithSeperateThread() throws Exception {
+    public void testLocalTransportWithSeparateThread() throws Exception {
         testInvocation(false);
     }
 
     @Test
-    public void testLocalTranpsortWithDirectDispatch() throws Exception {
+    public void testLocalTransportWithDirectDispatch() throws Exception {
         testInvocation(true);
     }
     
