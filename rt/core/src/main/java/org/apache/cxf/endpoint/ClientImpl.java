@@ -253,16 +253,22 @@ public class ClientImpl
         // execute chain        
         chain.doIntercept(message);
 
-        getConduitSelector().complete(exchange);
         
         // Check to see if there is a Fault from the outgoing chain
         Exception ex = message.getContent(Exception.class);
-        
+        boolean mepCompleteCalled = false;
         if (ex != null) {
-            throw ex;
+            getConduitSelector().complete(exchange);
+            mepCompleteCalled = true;
+            if (message.getContent(Exception.class) != null) {
+                throw ex;
+            }
         }
         ex = message.getExchange().get(Exception.class);
         if (ex != null) {
+            if (!mepCompleteCalled) {
+                getConduitSelector().complete(exchange);
+            }
             throw ex;
         }
         
@@ -272,6 +278,7 @@ public class ClientImpl
                 waitResponse(exchange);
             }
         }
+        getConduitSelector().complete(exchange);
 
         // Grab the response objects if there are any
         List resList = null;

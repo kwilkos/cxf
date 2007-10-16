@@ -36,6 +36,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.xml.namespace.QName;
 
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.BusApplicationContext;
@@ -63,6 +64,8 @@ import org.apache.hello_world.services.SOAPService;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.springframework.context.ApplicationContext;
 
 /**
  * This class tests several issues and Conduit policies based 
@@ -413,17 +416,14 @@ public class HTTPConduitTest extends AbstractBusClientServerTestBase {
     @Test
     public void testGetClientFromSpringContext() throws Exception {
         startServer("Bethal");        
-        // The http conduit configuration file , it supports wildcard 
-        URL config = getClass().getResource("resources/BethalClientConfig.cxf");
+        
+        BusFactory.setDefaultBus(null);
         // The client bean configuration file
         URL beans = getClass().getResource("resources/BethalClientBeans.xml");
         // We go through the back door, setting the default bus.
-        new DefaultBusFactory().createBus(config);
-        // Init the context which contains the client bean, 
-        // and we use the already loaded bus to set the configuration
-        // The false parameter means we just use the default bus 
-        // which just set by the DefaultBusFactory
-        BusApplicationContext context = new BusApplicationContext(beans, false);
+        Bus bus = new DefaultBusFactory().createBus(beans);
+        
+        ApplicationContext context = bus.getExtension(BusApplicationContext.class);
         Greeter bethal = (Greeter)context.getBean("Bethal");        
         // verify the client side's setting
         verifyBethalClient(bethal);         
