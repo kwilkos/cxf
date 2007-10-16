@@ -136,7 +136,7 @@ public class RMManagerTest extends Assert {
         Server s = control.createMock(Server.class);
         Endpoint e = control.createMock(Endpoint.class);
         EasyMock.expect(s.getEndpoint()).andReturn(e);
-        manager.recoverReliableEndpoint(e, null);
+        manager.recoverReliableEndpoint(e, (Conduit)null);
         EasyMock.expectLastCall();
         control.replay();
         manager.startServer(s);
@@ -164,12 +164,15 @@ public class RMManagerTest extends Assert {
             .getDeclaredMethod("recoverReliableEndpoint", new Class[] {Endpoint.class, Conduit.class});
         manager = control.createMock(RMManager.class, new Method[] {m});
         Client client = control.createMock(Client.class);
-        Endpoint endpoint = control.createMock(Endpoint.class);
-        EasyMock.expect(client.getEndpoint()).andReturn(endpoint);
-        Conduit conduit = control.createMock(Conduit.class);
-        EasyMock.expect(client.getConduit()).andReturn(conduit);
-        manager.recoverReliableEndpoint(endpoint, conduit);
-        EasyMock.expectLastCall();
+        
+        //none of this is called if no store
+        
+        //Endpoint endpoint = control.createMock(Endpoint.class);
+        //EasyMock.expect(client.getEndpoint()).andReturn(endpoint);
+        //Conduit conduit = control.createMock(Conduit.class);
+        //EasyMock.expect(client.getConduit()).andReturn(conduit).anyTimes();
+        //manager.recoverReliableEndpoint(endpoint, conduit);
+        //EasyMock.expectLastCall();
         control.replay();
         manager.clientCreated(client);
         control.verify();

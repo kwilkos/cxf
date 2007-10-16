@@ -42,6 +42,7 @@ public class MessageReplayObserver implements MessageObserver {
             while (in.read() != -1) {
                 // do nothing
             }
+            in.close();
             
             Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
 
@@ -53,7 +54,6 @@ public class MessageReplayObserver implements MessageObserver {
             IOUtils.copy(res, out, 2045);
 
             res.close();
-            in.close();
             out.close();
             backChannel.close(message);
         } catch (Exception e) {

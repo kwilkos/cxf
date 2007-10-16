@@ -29,6 +29,7 @@ import org.apache.cxf.bus.spring.BusApplicationContext;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.extension.BusExtension;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -38,9 +39,11 @@ import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfo;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 
-public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer {
+public class ConfigurerImpl extends BeanConfigurerSupport 
+    implements Configurer, ApplicationContextAware, BusExtension {
     
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurerImpl.class);
     private static final String DEFAULT_USER_CFG_FILE = "cxf.xml";
@@ -198,9 +201,13 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         return beanName;
     }
     
-    private void setApplicationContext(ApplicationContext ac) {
+    public final void setApplicationContext(ApplicationContext ac) {
         appContext = ac;
         setBeanFactory(appContext.getAutowireCapableBeanFactory());
         initWildcardDefinitionMap();
+    }
+
+    public Class<?> getRegistrationType() {
+        return Configurer.class;
     }
 }

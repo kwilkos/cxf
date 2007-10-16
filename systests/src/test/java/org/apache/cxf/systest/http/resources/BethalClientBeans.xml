@@ -34,6 +34,9 @@
               http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
            http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
  
+
+	<import resource="classpath:org/apache/cxf/systest/http/resources/BethalClientConfig.cxf" />
+    
     <jaxws:client id="Bethal" 
     serviceClass="org.apache.hello_world.Greeter"
     serviceName="s:SOAPService"

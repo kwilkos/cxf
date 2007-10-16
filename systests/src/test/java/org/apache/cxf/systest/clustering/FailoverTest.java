@@ -139,7 +139,8 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
             // java.net.ConnectionException on the unavailable 
             // replica A
             //
-            assertTrue("should revert to original exception when no failover",
+            assertTrue("should revert to original exception when no failover: " 
+                       + cause,
                        cause instanceof ConnectException);
             
             // similarly the current endpoint referenced by the client 
