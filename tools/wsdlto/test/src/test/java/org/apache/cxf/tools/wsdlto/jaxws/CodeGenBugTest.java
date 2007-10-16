@@ -773,7 +773,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
     
     
     @Test
-    @Ignore("not working with jaxb 2.0")
     public void testReuseJabBindingFile1() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, 
                 getLocation("/wsdl2java_wsdl/cxf1094/hello_world.wsdl"));
