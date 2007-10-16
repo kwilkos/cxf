@@ -45,9 +45,10 @@ import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
-import org.apache.cxf.databinding.AbstractDataBinding;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.databinding.source.AbstractDataBinding;
 import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.service.Service;
@@ -56,10 +57,11 @@ import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.utils.NamespaceMap;
 import org.jdom.Attribute;
@@ -74,7 +76,7 @@ import org.jdom.output.DOMOutputter;
  * <p>
  * NOTE: There is an assumed 1:1 mapping between an AegisDatabinding and a Service!
  */
-public class AegisDatabinding extends AbstractDataBinding {
+public class AegisDatabinding extends AbstractDataBinding implements DataBinding {
     
     public static final String CURRENT_MESSAGE_PART = "currentMessagePart";
     public static final String TYPE_MAPPING_KEY = "type.mapping";
@@ -125,7 +127,7 @@ public class AegisDatabinding extends AbstractDataBinding {
     }
 
     public Class<?>[] getSupportedWriterFormats() {
-        return new Class[] {XMLStreamWriter.class};
+        return new Class[] {XMLStreamWriter.class, Node.class};
     }
 
     public TypeMappingRegistry getTypeMappingRegistry() {
@@ -168,6 +170,15 @@ public class AegisDatabinding extends AbstractDataBinding {
         }
 
         createSchemas(s, deps);
+        for (ServiceInfo info : s.getServiceInfos()) {
+            for (OperationInfo opInfo : info.getInterface().getOperations()) {
+                if (opInfo.isUnwrappedCapable()) {
+                    initializeOperationTypes(info, opInfo.getUnwrappedOperation());
+                } else {
+                    initializeOperationTypes(info, opInfo);
+                }
+            }
+        }
     }
 
     List<Type> getAdditionalTypes(Service s, TypeMapping tm) {
@@ -220,6 +231,23 @@ public class AegisDatabinding extends AbstractDataBinding {
             throw e;
         }
     }
+    private void initializeOperationTypes(ServiceInfo s, OperationInfo opInfo) {
+        try {
+            initializeMessageTypes(s, opInfo.getInput(), IN_PARAM);
+
+            if (opInfo.hasOutput()) {
+                initializeMessageTypes(s, opInfo.getOutput(), OUT_PARAM);
+            }
+
+            for (FaultInfo info : opInfo.getFaults()) {
+                initializeMessageTypes(s, info, FAULT_PARAM);
+            }
+
+        } catch (DatabindingException e) {
+            e.prepend("Error initializing parameters for operation " + opInfo.getName());
+            throw e;
+        }
+    }
 
     protected void initializeMessage(Service s, TypeMapping serviceTM,
                                      AbstractMessageContainer container, 
@@ -244,6 +272,21 @@ public class AegisDatabinding extends AbstractDataBinding {
         }
     }
 
+    protected void initializeMessageTypes(ServiceInfo s,
+                                     AbstractMessageContainer container, 
+                                     int partType) {
+        XmlSchemaCollection col = s.getXmlSchemaCollection();
+        for (Iterator itr = container.getMessageParts().iterator(); itr.hasNext();) {
+            MessagePartInfo part = (MessagePartInfo)itr.next();
+            if (part.isElement()) {
+                XmlSchemaAnnotated tp = col.getElementByQName(part.getElementQName());
+                part.setXmlSchema(tp);
+            } else {
+                XmlSchemaAnnotated tp = col.getTypeByQName(part.getTypeQName());
+                part.setXmlSchema(tp);
+            }
+        }
+    }
     private void addDependencies(Set<Type> deps, Type type) {
         Set<Type> typeDeps = type.getDependencies();
         if (typeDeps != null) {
@@ -267,6 +310,19 @@ public class AegisDatabinding extends AbstractDataBinding {
                 tns2Type.put(ns, types);
             }
             types.add(t);
+        }
+        for (ServiceInfo si : s.getServiceInfos()) {
+            XmlSchemaCollection col = (XmlSchemaCollection)si
+                .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+
+            if (col != null) {
+                // someone has already filled in the types
+                continue;
+            }
+    
+            col = new XmlSchemaCollection();
+            si.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
+            si.setXmlSchemaCollection(col);
         }
 
         for (Map.Entry<String, Set<Type>> entry : tns2Type.entrySet()) {
@@ -305,7 +361,6 @@ public class AegisDatabinding extends AbstractDataBinding {
             }
 
             try {
-                XmlSchemaCollection col = new XmlSchemaCollection();
                 NamespaceMap nsMap = new NamespaceMap();
                 
                 nsMap.add(xsdPrefix, XmlConstants.XSD);
@@ -319,26 +374,18 @@ public class AegisDatabinding extends AbstractDataBinding {
                         nsMap.add(n.getPrefix(), n.getURI());
                     }
                 }
-                
-                col.setNamespaceContext(nsMap);
 
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));
 
                 for (ServiceInfo si : s.getServiceInfos()) {
-                    SchemaInfo info = new SchemaInfo(si, entry.getKey());
-
-                    info.setElement(schema.getDocumentElement());
-
-                    XmlSchema xmlSchema = col.read(schema.getDocumentElement());
+                    XmlSchemaCollection col = (XmlSchemaCollection)si
+                        .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+                    col.setNamespaceContext(nsMap);
+                    XmlSchema xmlSchema = addSchemaDocument(si, col, schema, entry.getKey());
                     // Work around bug in JDOM DOMOutputter which fails to correctly
                     // assign namespaces to attributes. If JDOM worked right, 
                     // the collection object would get the prefixes for itself.
                     xmlSchema.setNamespaceContext(nsMap);
-                    info.setSchema(xmlSchema);
-
-                    info.setSystemId(entry.getKey());
-
-                    si.addSchema(info);
                 }
             } catch (JDOMException e1) {
                 throw new ServiceConstructionException(e1);
@@ -455,7 +502,6 @@ public class AegisDatabinding extends AbstractDataBinding {
      * Provide explicit mappings to ReflectionServiceFactory.
      * {@inheritDoc}
      * */
-    @Override
     public Map<String, String> getDeclaredNamespaceMappings() {
         return this.namespaceMap;
     }

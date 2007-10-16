@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.aegis.exception;
 
+import org.w3c.dom.Document;
+
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
@@ -55,6 +57,13 @@ public class ExceptionTest extends AbstractAegisTest {
         } catch (HelloException e) {
             // nothing
         }
+
+        //check to make sure the fault is an element
+        Document wsdl = getWSDLDocument("ExceptionService");
+        addNamespace("tns", "http://exception.aegis.cxf.apache.org");
+        assertValid("//wsdl:message[@name='HelloException']/wsdl:part[@name='HelloException']"
+                    + "[@element='tns:String']",
+                     wsdl);
     }
     
     @Test(expected = HelloException.class)
