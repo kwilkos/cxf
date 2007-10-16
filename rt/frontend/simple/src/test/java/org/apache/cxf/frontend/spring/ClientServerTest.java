@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.frontend.spring;
 import junit.framework.Assert;
+
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.service.factory.HelloService;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -28,6 +30,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class ClientServerTest extends Assert {
     @Test
     public void testClientServer() {
+        BusFactory.setDefaultBus(null);
         ClassPathXmlApplicationContext ctx = 
             new ClassPathXmlApplicationContext(new String[] {"/org/apache/cxf/frontend/spring/rountrip.xml"});
         
