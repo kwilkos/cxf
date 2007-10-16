@@ -20,10 +20,10 @@
 <jaxb:bindings version="2.0"
       xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-      node="//xsd:element[@name='CreateProcess']/xsd:complexType/xsd:sequence/xsd:element[@name='MyProcess']/xsd:simpleType">
-		<jaxb:typesafeEnumClass name="MyProcess">
-			<jaxb:typesafeEnumMember name="BLUE" value="BLUE" />
-			<jaxb:typesafeEnumMember name="RED" value="RED" />
-			<jaxb:typesafeEnumMember name="GREEN" value="GREEN" />
-		</jaxb:typesafeEnumClass>
+      schemaLocation="http://www.company.com/extra.xsd"
+      node="/xsd:schema">
+    <jaxb:schemaBindings>
+      <jaxb:package name="org.mytest">
+      </jaxb:package>
+    </jaxb:schemaBindings>
 </jaxb:bindings>
