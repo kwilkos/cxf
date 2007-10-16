@@ -1684,32 +1684,32 @@ public class HTTPConduit
      * Wrapper output stream responsible for flushing headers and handling
      * the incoming HTTP-level response (not necessarily the MEP response).
      */
-    private class WrappedOutputStream extends AbstractWrappedOutputStream {
+    protected class WrappedOutputStream extends AbstractWrappedOutputStream {
         /**
          * This field contains the currently active connection.
          */
-        private HttpURLConnection connection;
+        protected HttpURLConnection connection;
         
         /**
          * This boolean is true if the request must be cached.
          */
-        private boolean cachingForRetransmission;
+        protected boolean cachingForRetransmission;
         
         /**
          * If we are going to be chunking, we won't flush till close which causes
          * new chunks, small network packets, etc..
          */
-        private final boolean chunking;
+        protected final boolean chunking;
         
         /**
          * This field contains the output stream with which we cache
          * the request. It maybe null if we are not caching.
          */
-        private CacheAndWriteOutputStream cachedStream;
+        protected CacheAndWriteOutputStream cachedStream;
 
-        private Message outMessage;
+        protected Message outMessage;
         
-        WrappedOutputStream(
+        protected WrappedOutputStream(
                 Message m, 
                 HttpURLConnection c, 
                 boolean possibleRetransmit,
@@ -1799,7 +1799,7 @@ public class HTTPConduit
          *
          * @throws IOException
          */
-        private void handleRetransmits() throws IOException {
+        protected void handleRetransmits() throws IOException {
             // If we have a cachedStream, we are caching the request.
             if (cachedStream != null) {
 
@@ -1852,7 +1852,7 @@ public class HTTPConduit
          * 
          * @throws IOException
          */
-        private void handleResponse() throws IOException {
+        protected void handleResponse() throws IOException {
             
             // Process retransmits until we fall out.
             handleRetransmits();
