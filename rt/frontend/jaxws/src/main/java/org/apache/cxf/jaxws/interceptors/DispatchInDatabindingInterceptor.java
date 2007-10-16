@@ -21,12 +21,17 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
@@ -40,6 +45,7 @@ import javax.xml.ws.Service.Mode;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -49,6 +55,7 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.source.NodeDataReader;
 import org.apache.cxf.databinding.source.XMLStreamDataReader;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
@@ -58,6 +65,7 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.DispatchSOAPHandlerInterceptor;
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -111,11 +119,10 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             ex.put(Service.Mode.class, mode);            
             
             if (message instanceof SoapMessage) {
-                SOAPMessage soapMessage = newSOAPMessage(is, ((SoapMessage)message).getVersion());
+                SOAPMessage soapMessage = newSOAPMessage(is, (SoapMessage)message);
                 PostDispatchSOAPHandlerInterceptor postSoap = new PostDispatchSOAPHandlerInterceptor();
                 message.getInterceptorChain().add(postSoap);
                 
-                //soapMessage.writeTo(System.out);
                 message.setContent(SOAPMessage.class, soapMessage);               
             } else if (message instanceof XMLMessage) {
                 if (type.equals(DataSource.class)) {
@@ -144,16 +151,25 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
             message.getInterceptorChain().add(postLogical);      
             
             is.close();
+            message.removeContent(InputStream.class);
         } catch (Exception e) {
             throw new Fault(e);
         }
     }
 
-    private SOAPMessage newSOAPMessage(InputStream is, SoapVersion version) throws Exception {
-        // TODO: Get header from message, this interceptor should after
-        // readHeadersInterceptor
+    private SOAPMessage newSOAPMessage(InputStream is, SoapMessage msg) throws Exception {
+        SoapVersion version = msg.getVersion();
 
         MimeHeaders headers = new MimeHeaders();
+        if (msg.containsKey(Message.PROTOCOL_HEADERS)) {
+            Map<String, List<String>> heads = CastUtils.cast((Map<?, ?>)msg.get(Message.PROTOCOL_HEADERS));
+            for (Map.Entry<String, List<String>> entry : heads.entrySet()) {
+                for (String val : entry.getValue()) {
+                    headers.addHeader(entry.getKey(), val);
+                }
+            }
+        }
+        
         MessageFactory msgFactory = null;
         if (version == null || version instanceof Soap11) {
             msgFactory = MessageFactory.newInstance();
@@ -187,6 +203,24 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
                         //This seems to be a problem in SAAJ. Envelope might not be initialized properly 
                         //without calling getEnvelope()
                         soapMessage.getSOAPPart().getEnvelope();
+                        if (soapMessage.countAttachments() > 0) {
+                            if (message.getAttachments() == null) {
+                                message.setAttachments(new ArrayList<Attachment>(soapMessage
+                                        .countAttachments()));
+                            }
+                            Iterator<AttachmentPart> it = CastUtils.cast(soapMessage.getAttachments());
+                            while (it.hasNext()) {
+                                AttachmentPart part = it.next();
+                                AttachmentImpl att = new AttachmentImpl(part.getContentId());
+                                att.setDataHandler(part.getDataHandler());
+                                Iterator<MimeHeader> it2 = CastUtils.cast(part.getAllMimeHeaders());
+                                while (it2.hasNext()) {
+                                    MimeHeader header = it2.next();
+                                    att.setHeader(header.getName(), header.getValue());
+                                }
+                                message.getAttachments().add(att);
+                            }
+                        }
                     } catch (SOAPException e) {
                         throw new Fault(e);
                     } 
@@ -227,13 +261,30 @@ public class DispatchInDatabindingInterceptor extends AbstractInDatabindingInter
 
                 if (SOAPMessage.class.isAssignableFrom(type)) {
                     try {
-                        CachedOutputStream cos = new CachedOutputStream();
-                        Transformer transformer = XMLUtils.newTransformer();
-                        transformer.transform(source, new StreamResult(cos));
-                        InputStream in = cos.getInputStream();
-                        obj = newSOAPMessage(in, ((SoapMessage)message).getVersion());
-                        in.close();
-                        cos.close();
+                        SoapVersion version = ((SoapMessage)message).getVersion();
+                        MessageFactory msgFactory = null;
+                        if (version == null || version instanceof Soap11) {
+                            msgFactory = MessageFactory.newInstance();
+                        } else if (version instanceof Soap12) {
+                            msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                        }
+                        SOAPMessage msg = msgFactory.createMessage();
+                        msg.getSOAPPart().setContent(source);
+                        
+                        if (message.getAttachments() != null) {
+                            for (Attachment att : message.getAttachments()) {
+                                AttachmentPart part = msg.createAttachmentPart(att.getDataHandler());
+                                if (att.getId() != null) {
+                                    part.setContentId(att.getId());
+                                }
+                                for (Iterator<String> it = att.getHeaderNames(); it.hasNext();) {
+                                    String s = it.next();
+                                    part.setMimeHeader(s, att.getHeader(s));
+                                }
+                                msg.addAttachmentPart(part);
+                            }
+                        }
+                        obj = msg;
                     } catch (Exception e) {
                         throw new Fault(e);
                     } 
