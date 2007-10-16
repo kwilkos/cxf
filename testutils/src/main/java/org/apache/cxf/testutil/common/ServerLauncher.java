@@ -37,7 +37,6 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.logging.LogUtils;
 
 public class ServerLauncher {
-
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
 
     protected static final String SERVER_FAILED = 
@@ -188,8 +187,9 @@ public class ServerLauncher {
                 throw ex;
             }
 
+            LOG.fine("CMD: " + cmd);
             if (debug) {
-                System.err.print("CMD: ");
+                System.err.print("CMD: " + cmd);
             }
             
             
@@ -339,6 +339,15 @@ public class ServerLauncher {
         
         ClassLoader loader = this.getClass().getClassLoader();
         StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
+        if (classpath.indexOf("/.compatibility/") != -1) {
+            classpath.append(":");
+            //on OSX, the compatibility lib brclasspath.indexOf("/.compatibility/")
+            int idx = classpath.indexOf("/.compatibility/");
+            int idx1 = classpath.lastIndexOf(":", idx);
+            int idx2 = classpath.indexOf(":", idx);
+            classpath.replace(idx1, idx2, ":");
+        }
+        
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlloader = (URLClassLoader)loader; 
             for (URL url : urlloader.getURLs()) {
