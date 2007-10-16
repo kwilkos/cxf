@@ -61,7 +61,7 @@
         <spring.validation.mode>VALIDATION_AUTO</spring.validation.mode>
 
         <downloadSources>true</downloadSources>
-        <servicemix.version>3.1-incubating</servicemix.version>
+        <servicemix.version>3.1.2</servicemix.version>
     </properties>
 
 
@@ -128,7 +128,7 @@
                     <version>1.1</version>
                     <dependencies>
                         <dependency>
-		             <groupId>org.apache.cxf</groupId>
+                            <groupId>org.apache.cxf</groupId>
                              <artifactId>cxf-xjc-dv</artifactId>
                              <version>${project.version}</version>
                         </dependency>
@@ -358,6 +358,23 @@
                 <groupId>ant</groupId>
                 <artifactId>ant-nodeps</artifactId>
                 <version>1.6.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.servicemix</groupId>
+                <artifactId>servicemix-jbi</artifactId>
+                <version>${servicemix.version}</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>servicemix</groupId>
+                        <artifactId>jaxp</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>mx4j</groupId>
+                        <artifactId>mx4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
