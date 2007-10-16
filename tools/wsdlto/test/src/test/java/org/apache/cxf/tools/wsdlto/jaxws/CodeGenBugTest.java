@@ -40,7 +40,6 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.validator.UniqueBodyValidator;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ResourceHandler;
