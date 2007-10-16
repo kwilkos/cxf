@@ -68,11 +68,11 @@ public class JettyHTTPServerEngineTest extends Assert {
     @Test
     public void testEngineRetrieval() throws Exception {
         JettyHTTPServerEngine engine = 
-            factory.createJettyHTTPServerEngine(1234, "http");
+            factory.createJettyHTTPServerEngine(9234, "http");
         
         assertTrue(
             "Engine references for the same port should point to the same instance",
-            engine == factory.retrieveJettyHTTPServerEngine(1234));
+            engine == factory.retrieveJettyHTTPServerEngine(9234));
         
         factory.destroyForPort(1234);
     }
@@ -80,13 +80,13 @@ public class JettyHTTPServerEngineTest extends Assert {
     @Test
     public void testHttpAndHttps() throws Exception {
         JettyHTTPServerEngine engine = 
-            factory.createJettyHTTPServerEngine(1234, "http");
+            factory.createJettyHTTPServerEngine(9234, "http");
         
         assertTrue("Protocol must be http", 
                 "http".equals(engine.getProtocol()));
         
         engine = new JettyHTTPServerEngine();
-        engine.setPort(1235);
+        engine.setPort(9235);
         engine.setTlsServerParameters(new TLSServerParameters());
         engine.finalizeConfig();
         
@@ -94,14 +94,14 @@ public class JettyHTTPServerEngineTest extends Assert {
         list.add(engine);
         factory.setEnginesList(list);
         
-        engine = factory.createJettyHTTPServerEngine(1235, "https");
+        engine = factory.createJettyHTTPServerEngine(9235, "https");
         
         assertTrue("Protocol must be https", 
                 "https".equals(engine.getProtocol()));
         
         
-        factory.destroyForPort(1234);
-        factory.destroyForPort(1235);
+        factory.destroyForPort(9234);
+        factory.destroyForPort(9235);
     }
     
     
@@ -147,10 +147,10 @@ public class JettyHTTPServerEngineTest extends Assert {
     
     @Test 
     public void testaddServants() throws Exception {
-        String urlStr = "http://localhost:1234/hello/test";
-        String urlStr2 = "http://localhost:1234/hello233/test";
+        String urlStr = "http://localhost:9234/hello/test";
+        String urlStr2 = "http://localhost:9234/hello233/test";
         JettyHTTPServerEngine engine = 
-            factory.createJettyHTTPServerEngine(1234, "http");
+            factory.createJettyHTTPServerEngine(9234, "http");
         JettyHTTPTestHandler handler1 = new JettyHTTPTestHandler("string1");
         JettyHTTPTestHandler handler2 = new JettyHTTPTestHandler("string2");        
         engine.addServant(new URL(urlStr), handler1);
@@ -179,18 +179,18 @@ public class JettyHTTPServerEngineTest extends Assert {
         }
         assertEquals("The jetty http handler did not take effect", response, "string2");
         // set the get request
-        factory.destroyForPort(1234);       
+        factory.destroyForPort(9234);       
         
     }
     
     @Test 
     public void testSetHandlers() throws Exception {
-        URL url = new URL("http://localhost:1245/hello/test");
+        URL url = new URL("http://localhost:9235/hello/test");
         JettyHTTPTestHandler handler1 = new JettyHTTPTestHandler("string1");
         JettyHTTPTestHandler handler2 = new JettyHTTPTestHandler("string2");
         
         JettyHTTPServerEngine engine = new JettyHTTPServerEngine();
-        engine.setPort(1245);
+        engine.setPort(9235);
         
         List<Handler> handlers = new ArrayList<Handler>();
         handlers.add(handler1);
@@ -210,9 +210,9 @@ public class JettyHTTPServerEngineTest extends Assert {
     
     @Test 
     public void testGetContextHandler() throws Exception {
-        String urlStr = "http://localhost:1234/hello/test";
+        String urlStr = "http://localhost:9234/hello/test";
         JettyHTTPServerEngine engine = 
-            factory.createJettyHTTPServerEngine(1234, "http");
+            factory.createJettyHTTPServerEngine(9234, "http");
         ContextHandler contextHandler = engine.getContextHandler(new URL(urlStr));
         // can't find the context handler here
         assertNull(contextHandler);
@@ -231,7 +231,7 @@ public class JettyHTTPServerEngineTest extends Assert {
             fail("Can't get the reponse from the server " + ex);
         }
         assertEquals("the jetty http handler did not take effect", response, "string2");
-        factory.destroyForPort(1234);
+        factory.destroyForPort(9234);
     }
     
     private String getResponse(String target) throws Exception {
