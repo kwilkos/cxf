@@ -46,7 +46,7 @@ public class AbstractDataBinding {
     }
     
 
-    protected void addSchemaDocument(ServiceInfo serviceInfo, 
+    protected XmlSchema addSchemaDocument(ServiceInfo serviceInfo, 
                                    XmlSchemaCollection col,
                                    Document d,
                                    String systemId) {
@@ -73,5 +73,6 @@ public class AbstractDataBinding {
         XmlSchema xmlSchema = col.read(d.getDocumentElement());
         schema.setSchema(xmlSchema);
         serviceInfo.addSchema(schema);
+        return xmlSchema;
     }
 }
