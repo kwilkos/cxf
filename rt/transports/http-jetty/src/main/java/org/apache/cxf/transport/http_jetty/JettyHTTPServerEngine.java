@@ -40,6 +40,7 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
@@ -246,6 +247,7 @@ public class JettyHTTPServerEngine
      */
     public synchronized void addServant(URL url, JettyHTTPHandler handler) {
         if (server == null) {
+            DefaultHandler defaultHandler = null;
             // create a new jetty server instance if there is no server there            
             server = new Server();
             if (connector == null) {
@@ -255,12 +257,21 @@ public class JettyHTTPServerEngine
             if (handlers != null && handlers.size() > 0) {
                 HandlerList handlerList = new HandlerList();
                 for (Handler h : handlers) {
-                    handlerList.addHandler(h);
+                    // filting the jetty default handler 
+                    // which should not be added at this point
+                    if (h instanceof DefaultHandler) {
+                        defaultHandler = (DefaultHandler) h;
+                    } else {
+                        handlerList.addHandler(h);
+                    }
                 }
                 server.addHandler(handlerList);
             }
             contexts = new ContextHandlerCollection();
-            server.addHandler(contexts);            
+            server.addHandler(contexts);
+            if (defaultHandler != null) {
+                server.addHandler(defaultHandler);
+            }
             try {
                 server.start();
                 AbstractConnector aconn = (AbstractConnector) connector;

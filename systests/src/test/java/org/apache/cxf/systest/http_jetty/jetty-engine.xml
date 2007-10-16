@@ -42,6 +42,7 @@
       </bean>
      </property>
     </bean>
+     <bean class="org.mortbay.jetty.handler.DefaultHandler"/>
    </httpj:handlers>
   </httpj:engine>
  </httpj:engine-factory>
