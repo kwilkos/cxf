@@ -328,7 +328,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                           output.getCanonicalPath() + "/classes", "-d",
                                           output.getCanonicalPath(), "-b",
                                           getLocation("/wsdl2java_wsdl/bug305924/binding1.xml"),
-                                          "-verbose",
                                           getLocation("/wsdl2java_wsdl/bug305924/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
