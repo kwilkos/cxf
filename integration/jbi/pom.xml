@@ -56,55 +56,33 @@
             <version>${project.version}</version>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-jbi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-jbi</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
- 
-        
-
-
         <dependency>
             <groupId>org.apache.servicemix</groupId>
             <artifactId>servicemix-jbi</artifactId>
-            <version>${servicemix.version}</version>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>servicemix</groupId>
-                    <artifactId>jaxp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>mx4j</groupId>
-                    <artifactId>mx4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
-
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
-
     </dependencies>
 
     <scm>
