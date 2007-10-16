@@ -133,7 +133,9 @@ public class EngineLifecycleTest extends Assert {
     @Test
     public void testServerUpDownUp() throws Exception {        
         setUpBus();
-        launchService();
+        launchService();           
+        getTestHtml();
+        invokeService();        
         shutdownService();
 
         launchService();
