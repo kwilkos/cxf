@@ -45,7 +45,6 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
@@ -64,7 +63,6 @@ import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.source.AbstractDataBinding;
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxb.io.DataReaderImpl;
 import org.apache.cxf.jaxb.io.DataWriterImpl;
 import org.apache.cxf.service.Service;
@@ -221,11 +219,6 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             Collection<DOMSource> schemas = getSchemas();
             if (schemas != null) {
                 for (DOMSource r : schemas) {
-                    try {
-                        DOMUtils.writeXml(r.getNode(), System.out);
-                    } catch (TransformerException e) {
-                        throw new RuntimeException(e);
-                    }
                     addSchemaDocument(serviceInfo, col, 
                                       (Document)r.getNode(), r.getSystemId());
                 }

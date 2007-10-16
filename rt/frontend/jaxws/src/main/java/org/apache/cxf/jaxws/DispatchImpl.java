@@ -81,6 +81,7 @@ import org.apache.cxf.transport.MessageObserver;
 
 public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>, MessageObserver {
     private static final Logger LOG = LogUtils.getL7dLogger(DispatchImpl.class);
+    private static final String FINISHED = "exchange.finished";
 
     private Bus bus;
     private InterceptorProvider iProvider;
@@ -171,9 +172,9 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         // execute chain
         chain.doIntercept(message);
         
-        getConduitSelector().complete(exchange);
                 
         if (message.getContent(Exception.class) != null) {
+            getConduitSelector().complete(exchange);
             if (getBinding() instanceof SOAPBinding) {
                 try {
                     SOAPFault soapFault = SOAPFactory.newInstance().createFault();
@@ -206,6 +207,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             synchronized (exchange) {
                 Message inMsg = waitResponse(exchange);
                 respContext.putAll(inMsg);
+                getConduitSelector().complete(exchange);
                 //need to do context mapping from cxf message to jax-ws 
                 ContextPropertiesMapping.mapResponsefromCxf2Jaxws(respContext);
                 return cl.cast(inMsg.getContent(Object.class));
@@ -216,6 +218,13 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     }
 
     private Message waitResponse(Exchange exchange) {
+        while (!Boolean.TRUE.equals(exchange.get(FINISHED))) {
+            try {
+                exchange.wait();
+            } catch (InterruptedException e) {
+                //TODO - timeout
+            }
+        }
         Message inMsg = exchange.getInMessage();
         if (inMsg == null) {
             try {
@@ -303,6 +312,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             chain.doIntercept(message);
         } finally {
             synchronized (message.getExchange()) {
+                message.getExchange().put(FINISHED, Boolean.TRUE);
                 message.getExchange().setInMessage(message);
                 message.getExchange().notifyAll();
             }
