@@ -40,6 +40,7 @@ import org.w3c.dom.Element;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -84,6 +85,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     public Definition build(String wsdlURL) {
         this.builder.setBus(this.bus);
         wsdlDefinition = builder.build(wsdlURL);
+        context.put(Bus.class, bus);
         context.put(ToolConstants.IMPORTED_DEFINITION, builder.getImportedDefinitions());
         checkSupported(wsdlDefinition);
         return wsdlDefinition;
