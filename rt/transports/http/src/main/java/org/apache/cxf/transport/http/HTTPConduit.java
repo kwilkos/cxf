@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1059,7 +1060,7 @@ public class HTTPConduit
             type += " ";
             type += authPolicy.getAuthorization();
             headers.put("Authorization",
-                        Arrays.asList(new String[] {type}));
+                        createMutableList(type));
         }
         AuthorizationPolicy proxyAuthPolicy = getProxyAuthorization();
         if (proxyAuthPolicy != null && proxyAuthPolicy.isSetUserName()) {
@@ -1076,11 +1077,13 @@ public class HTTPConduit
                 type += " ";
                 type += proxyAuthPolicy.getAuthorization();
                 headers.put("Proxy-Authorization",
-                            Arrays.asList(new String[] {type}));
+                            createMutableList(type));
             }
         }
     }
-    
+    private static List<String> createMutableList(String val) {
+        return new ArrayList<String>(Arrays.asList(new String[] {val}));
+    }
     /**
      * This call places HTTP Header strings into the headers that are relevant
      * to the ClientPolicy that is set on this conduit by configuration.
@@ -1097,44 +1100,44 @@ public class HTTPConduit
         }
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
-                Arrays.asList(new String[] {policy.getCacheControl().value()}));
+                        createMutableList(policy.getCacheControl().value()));
         }
         if (policy.isSetHost()) {
             headers.put("Host",
-                Arrays.asList(new String[] {policy.getHost()}));
+                        createMutableList(policy.getHost()));
         }
         if (policy.isSetConnection()) {
             headers.put("Connection",
-                Arrays.asList(new String[] {policy.getConnection().value()}));
+                        createMutableList(policy.getConnection().value()));
         }
         if (policy.isSetAccept()) {
             headers.put("Accept",
-                Arrays.asList(new String[] {policy.getAccept()}));
+                        createMutableList(policy.getAccept()));
         } else {
-            headers.put("Accept", Arrays.asList(new String[] {"*"}));
+            headers.put("Accept", createMutableList("*"));
         }
         if (policy.isSetAcceptEncoding()) {
             headers.put("Accept-Encoding",
-                Arrays.asList(new String[] {policy.getAcceptEncoding()}));
+                        createMutableList(policy.getAcceptEncoding()));
         }
         if (policy.isSetAcceptLanguage()) {
             headers.put("Accept-Language",
-                Arrays.asList(new String[] {policy.getAcceptLanguage()}));
+                        createMutableList(policy.getAcceptLanguage()));
         }
         if (policy.isSetContentType()) {
             message.put(Message.CONTENT_TYPE, policy.getContentType());
         }
         if (policy.isSetCookie()) {
             headers.put("Cookie",
-                Arrays.asList(new String[] {policy.getCookie()}));
+                        createMutableList(policy.getCookie()));
         }
         if (policy.isSetBrowserType()) {
             headers.put("BrowserType",
-                Arrays.asList(new String[] {policy.getBrowserType()}));
+                        createMutableList(policy.getBrowserType()));
         }
         if (policy.isSetReferer()) {
             headers.put("Referer",
-                Arrays.asList(new String[] {policy.getReferer()}));
+                        createMutableList(policy.getReferer()));
         }
     }
 
@@ -1651,7 +1654,7 @@ public class HTTPConduit
         }
         String token = Base64Utility.encode(userpass.getBytes());
         headers.put("Authorization",
-                    Arrays.asList(new String[] {"Basic " + token}));
+                    createMutableList("Basic " + token));
     }
 
     /**
@@ -1677,7 +1680,7 @@ public class HTTPConduit
         }
         String token = Base64Utility.encode(userpass.getBytes());
         headers.put("Proxy-Authorization",
-                    Arrays.asList(new String[] {"Basic " + token}));
+                    createMutableList("Basic " + token));
     }
     
     /**
@@ -1905,8 +1908,10 @@ public class HTTPConduit
             Map<String, List<String>> headers = 
                 new HashMap<String, List<String>>();
             for (String key : connection.getHeaderFields().keySet()) {
-                headers.put(HttpHeaderHelper.getHeaderKey(key), 
+                if (key != null) {
+                    headers.put(HttpHeaderHelper.getHeaderKey(key), 
                         connection.getHeaderFields().get(key));
+                }
             }
             
             inMessage.put(Message.PROTOCOL_HEADERS, headers);
