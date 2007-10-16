@@ -328,6 +328,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                           output.getCanonicalPath() + "/classes", "-d",
                                           output.getCanonicalPath(), "-b",
                                           getLocation("/wsdl2java_wsdl/bug305924/binding1.xml"),
+                                          "-verbose",
                                           getLocation("/wsdl2java_wsdl/bug305924/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
@@ -815,5 +816,27 @@ public class CodeGenBugTest extends ProcessorTestBase {
         }
         assertFalse("sayHiAsyn method should not be generated", existSayHiAsyn);
     }
+    
+    
+    @Test
+    public void testCatalog() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1112/myservice.wsdl"));
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/catalog.xml"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/jaxbbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
+    
+    @Test
+    public void testCatalog2() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, "http://example.org/wsdl");
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/jax-ws-catalog.xml"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
     
 }
