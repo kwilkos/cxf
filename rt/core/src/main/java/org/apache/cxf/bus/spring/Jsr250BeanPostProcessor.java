@@ -41,12 +41,16 @@ public class Jsr250BeanPostProcessor implements DestructionAwareBeanPostProcesso
     }
 
     public Object postProcessBeforeInitialization(Object bean, String beanId) throws BeansException {
-        injector.construct(bean);
+        if (bean != null) {
+            injector.construct(bean);
+        }
         return bean;
     }
 
     public void postProcessBeforeDestruction(Object bean, String beanId) {
-        injector.destroy(bean);
+        if (bean != null) {
+            injector.destroy(bean);
+        }
     }
 
 }
