@@ -56,11 +56,9 @@ public class SpringBusFactory extends BusFactory {
     
     private boolean defaultBusNotExists() {
         if (null != context) {
-            context.containsBean(Bus.DEFAULT_BUS_ID);
-            return false;
-        } else {
-            return true;
+            return !context.containsBean(Bus.DEFAULT_BUS_ID);
         }
+        return true;
     }
 
     public Bus createBus(String cfgFile) {
