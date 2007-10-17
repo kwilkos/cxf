@@ -173,13 +173,21 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         }
     }
 
-    private synchronized void updateEndpointAddress(String addr) {
+    private String removeTrailingSeparator(String addr) {
+        if (addr.lastIndexOf('/') == addr.length() - 1) {
+            return addr.substring(0, addr.length() - 1);
+        } else {
+            return addr;
+        }
+    }
+    private synchronized String updateEndpointAddress(String addr) {
         // only update the EndpointAddress if the base path is equal
         // make sure we don't broke the get operation?parament query 
-        String address = endpointInfo.getAddress();
-        if (getBasePath(address).equals(getStem(getBasePath(addr)))) {
+        String address = removeTrailingSeparator(endpointInfo.getAddress());
+        if (getBasePath(address).equals(removeTrailingSeparator(getStem(getBasePath(addr))))) {
             endpointInfo.setAddress(addr);
         }
+        return address;
     }
    
     protected void doService(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -194,8 +202,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         }
         QueryHandlerRegistry queryHandlerRegistry = bus.getExtension(QueryHandlerRegistry.class);
         
-        if (null != req.getQueryString() && queryHandlerRegistry != null) {        
-            String requestURL = req.getRequestURL() + "?" + req.getQueryString();
+        if (null != req.getQueryString() && queryHandlerRegistry != null) {   
+            String reqAddr = req.getRequestURL().toString();
+            String requestURL =  reqAddr + "?" + req.getQueryString();
             String pathInfo = req.getPathInfo();                     
             for (QueryHandler qh : queryHandlerRegistry.getHandlers()) {
                 boolean recognized =
@@ -206,17 +215,21 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                                                                        contextMatchOnExact())
                     : qh.isRecognizedQuery(requestURL, pathInfo, endpointInfo);
                 if (recognized) {
-                    //replace the endpointInfo address with request url only for get wsdl           
-                    updateEndpointAddress(req.getRequestURL().toString());   
-                    resp.setContentType(qh.getResponseContentType(requestURL, pathInfo));
-                    try {
-                        qh.writeResponse(requestURL, pathInfo, endpointInfo, resp.getOutputStream());
-                    } catch (Exception ex) {
-                        LOG.log(Level.WARNING, "writeResponse failed: ", ex);
+                    //replace the endpointInfo address with request url only for get wsdl   
+                    synchronized (endpointInfo) {
+                        String oldAddress = updateEndpointAddress(reqAddr);   
+                        resp.setContentType(qh.getResponseContentType(requestURL, pathInfo));
+                        try {
+                            qh.writeResponse(requestURL, pathInfo, endpointInfo, resp.getOutputStream());
+                        } catch (Exception ex) {
+                            LOG.log(Level.WARNING, "writeResponse failed: ", ex);
+                        }
+                        endpointInfo.setAddress(oldAddress);
+                        resp.getOutputStream().flush();                     
+                        baseRequest.setHandled(true);
+                        return;    
                     }
-                    resp.getOutputStream().flush();                     
-                    baseRequest.setHandled(true);
-                    return;
+                    
                 }
             }
         }
