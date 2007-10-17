@@ -358,7 +358,7 @@ public class WSDLQueryHandler implements StemMatchingQueryHandler {
             baseURI = url.getPath();
             int idx = baseURI.lastIndexOf('/');
             if (idx != -1) {
-                baseURI = baseURI.substring(0, idx + 1);
+                baseURI = baseURI.substring(0, idx);
             }
         }        
         return baseURI;
