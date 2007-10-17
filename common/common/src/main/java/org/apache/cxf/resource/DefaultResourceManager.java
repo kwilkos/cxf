@@ -81,6 +81,9 @@ public class DefaultResourceManager implements ResourceManager {
     
     private <T> T findResource(String name, Class<T> type, boolean asStream, 
                                List<ResourceResolver> resolvers) {
+        if (resolvers == null) {
+            resolvers = registeredResolvers;
+        }
         
         if (LOG.isLoggable(Level.FINE)) { 
             LOG.fine("resolving resource <" + name + ">" + (asStream ? " as stream "  

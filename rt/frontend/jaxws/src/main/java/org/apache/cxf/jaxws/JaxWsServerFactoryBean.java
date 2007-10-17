@@ -199,8 +199,10 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
             ResourceInjector injector = new ResourceInjector(resourceManager);
             if (Proxy.isProxyClass(instance.getClass()) && getServiceClass() != null) {
                 injector.inject(instance, getServiceClass());
+                injector.construct(instance, getServiceClass());
             } else {
                 injector.inject(instance);
+                injector.construct(instance);
             }
         }
     }  

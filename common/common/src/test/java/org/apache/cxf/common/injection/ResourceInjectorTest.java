@@ -139,6 +139,7 @@ public class ResourceInjectorTest extends Assert {
     private void doInjectTest(Target target, Class<?> clazz) {
 
         injector.inject(target, clazz);
+        injector.construct(target);
         assertNotNull(target.getResource1()); 
         assertEquals(RESOURCE_ONE, target.getResource1()); 
 
