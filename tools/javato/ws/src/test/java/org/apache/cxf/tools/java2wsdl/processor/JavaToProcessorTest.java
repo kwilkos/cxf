@@ -417,5 +417,43 @@ public class JavaToProcessorTest extends ProcessorTestBase {
 
         String expectedFile = getClass().getResource("expected/list_expected.wsdl").getFile();
         assertFileEquals(new File(expectedFile), new File(output, "/list_test.wsdl"));
+
+    }
+
+    @Test
+    //  TODO: should suppor the XmlMimeType annotation in the SEI
+    public void testMimeTypeInSEI() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/send_image.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.ImageSender");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        try {
+            processor.setEnvironment(env);
+            processor.process();                  
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File wsdlFile = new File(output, "send_image.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        
+        String expectedFile = getClass().getResource("expected/expected_send_image.wsdl").getFile();
+        assertWsdlEquals(new File(expectedFile), wsdlFile);
+    }
+
+    @Test
+    public void testMimeTypeInBean() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/send_image2.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.ImageSender2");
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        try {
+            processor.setEnvironment(env);
+            processor.process();                  
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File wsdlFile = new File(output, "send_image2.wsdl");
+        assertTrue("Generate Wsdl Fail", wsdlFile.exists());
+        
+        String expectedFile = getClass().getResource("expected/expected_send_image2.wsdl").getFile();
+        assertWsdlEquals(new File(expectedFile), wsdlFile);
     }
 }
