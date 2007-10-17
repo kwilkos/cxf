@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -251,21 +252,15 @@ public class ProcessorTestBase extends Assert {
         assertTagEquals(expected, source, DEFAULT_IGNORE_ATTR, DEFAULT_IGNORE_TAG);
     }
 
-    protected void assertTagEquals(Tag expected, Tag source, 
-                                   final List<String> ignoreAttr, 
-                                   final List<String> ignoreTag) {
-        if (!expected.getName().equals(source.getName())) {
-            throw new ComparisonFailure("Tags not equal: ", 
-                                        expected.getName().toString(), 
-                                        source.getName().toString());
-        }
-
-        for (QName attr : expected.getAttributes()) {
+    protected void assertAttributesEquals(Collection<QName> q1, Collection<QName> q2, 
+                                          Collection<String> ignoreAttr) {
+        for (QName attr : q1) {
             if (ignoreAttr.contains(attr.getNamespaceURI())) {
                 continue;
             }
             boolean found = false;
-            for (QName attr2 : source.getAttributes()) {
+
+            for (QName attr2 : q2) {
                 if (attr2.getNamespaceURI().equals(attr.getNamespaceURI())) {
                     if (attr2.getLocalPart().equals(attr.getLocalPart())) {
                         found = true;
@@ -277,9 +272,23 @@ public class ProcessorTestBase extends Assert {
                 }
             }
             if (!found) {
-                throw new AssertionError("Attribute: " + attr + " is missing in the source file.");
+                throw new AssertionError("Attribute: " + attr + " is missing.");
             }
         }
+    }
+
+    protected void assertTagEquals(Tag expected, Tag source, 
+                                   final List<String> ignoreAttr, 
+                                   final List<String> ignoreTag) {
+        if (!expected.getName().equals(source.getName())) {
+            throw new ComparisonFailure("Tags not equal: ", 
+                                        expected.getName().toString(), 
+                                        source.getName().toString());
+        }
+
+        assertAttributesEquals(expected.getAttributes(), source.getAttributes(), ignoreAttr);
+        assertAttributesEquals(source.getAttributes(), expected.getAttributes(), ignoreAttr);
+
         if (!StringUtils.isEmpty(expected.getText())
                 && !expected.getText().equals(source.getText())) {
             throw new ComparisonFailure("Text not equal: ", 
@@ -289,7 +298,8 @@ public class ProcessorTestBase extends Assert {
 
         if (!expected.getTags().isEmpty()) {
             for (Tag expectedTag : expected.getTags()) {
-                if (ignoreTag.contains(expectedTag.getName().getLocalPart())) {
+                if (ignoreTag.contains(expectedTag.getName().getLocalPart()) 
+                    && expectedTag.getTags().isEmpty()) {
                     continue;
                 } 
                 Tag sourceTag = getFromSource(source, expectedTag);
@@ -315,7 +325,6 @@ public class ProcessorTestBase extends Assert {
         throws Exception {
         Tag expectedTag = StAXUtil.getTagTree(expected, attr);
         Tag sourceTag = StAXUtil.getTagTree(source, attr);
-
         assertTagEquals(expectedTag, sourceTag, attr, tag);
     }
 
