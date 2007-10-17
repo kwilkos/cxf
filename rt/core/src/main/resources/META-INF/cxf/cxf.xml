@@ -96,7 +96,14 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         
 
     <bean id="org.apache.cxf.transports.http.QueryHandlerRegistry" class="org.apache.cxf.transport.http.QueryHandlerRegistryImpl">
-        <property name="bus" ref="cxf"/>
+        <constructor-arg ref="cxf"/>
+        <constructor-arg>
+        	<list>
+        		<bean class="org.apache.cxf.transport.http.WSDLQueryHandler">
+			        <constructor-arg ref="cxf"/>
+        		</bean>	
+        	</list>
+        </constructor-arg>
     </bean>
 
     <bean id="org.apache.cxf.endpoint.EndpointResolverRegistry" class="org.apache.cxf.endpoint.EndpointResolverRegistryImpl">
