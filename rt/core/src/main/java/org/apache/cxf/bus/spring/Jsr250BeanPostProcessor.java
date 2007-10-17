@@ -19,30 +19,59 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
 
-public class Jsr250BeanPostProcessor implements DestructionAwareBeanPostProcessor, Ordered {
+public class Jsr250BeanPostProcessor 
+    implements DestructionAwareBeanPostProcessor, Ordered, ApplicationContextAware {
 
     private ResourceInjector injector;
-    
+    private ApplicationContext context;
+
     Jsr250BeanPostProcessor() {
         injector = new ResourceInjector(null, null); 
     }
-
+    
+    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+        context = arg0;    
+    }
+    
     public int getOrder() {
-        return 1002;
+        return 1010;
     }
         
     public Object postProcessAfterInitialization(Object bean, String beanId) throws BeansException {
+        if (bean != null
+            && injector != null) {
+            injector.construct(bean);
+        }
+        if (bean instanceof ResourceManager) {
+            ResourceManager rm = (ResourceManager)bean;
+
+            Map<String, Object> mp = CastUtils.cast(context.getBeansOfType(ResourceResolver.class));
+            Collection<ResourceResolver> resolvs = CastUtils.cast(mp.values());
+            List<ResourceResolver> resolvers = new ArrayList<ResourceResolver>(rm.getResourceResolvers());
+            resolvers.addAll(resolvs);
+            injector = new ResourceInjector(rm, resolvers);
+        }
         return bean;
     }
 
     public Object postProcessBeforeInitialization(Object bean, String beanId) throws BeansException {
-        if (bean != null) {
-            injector.construct(bean);
+        if (bean != null && injector != null) {
+            injector.inject(bean);
         }
         return bean;
     }

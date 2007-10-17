@@ -179,6 +179,7 @@ public class HandlerChainBuilder {
             resolvers.add(new InitParamResourceResolver(params));
             ResourceInjector resInj = new ResourceInjector(resMgr, resolvers);
             resInj.inject(handler);
+            resInj.construct(handler);
         }
     }
 
