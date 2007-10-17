@@ -62,6 +62,7 @@ import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.catalog.CatalogXmlSchemaURIResolver;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.FixedExtensionDeserializer;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -273,6 +274,8 @@ public class WSDLServiceBuilder {
     private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         serviceInfo.setXmlSchemaCollection(schemaCol);
+        schemaCol.getExtReg().setDefaultExtensionDeserializer(
+            new FixedExtensionDeserializer());
 
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);

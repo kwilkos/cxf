@@ -19,6 +19,9 @@
 package org.apache.cxf.systest.jaxb;
 
 
+import java.net.URL;
+
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.systest.jaxb.model.ExtendedWidget;
 import org.apache.cxf.systest.jaxb.model.Widget;
 import org.apache.cxf.systest.jaxb.service.TestService;
@@ -37,13 +40,18 @@ public class TestServiceTest extends AbstractDependencyInjectionSpringContextTes
 
     @Test
     public void testExtraSubClassWithJaxb() throws Throwable {
-
         Widget expected = new ExtendedWidget(42, "blah", "blah", true, true);
 
         Widget widgetFromService = testClient.getWidgetById((long)42);
 
         assertEquals(expected, widgetFromService);
-
+    }
+    
+    @Test
+    public void testSchema() throws Exception {
+        URL url = new URL("http://localhost:7081/service/TestService?wsdl");
+        String s = IOUtils.toString(url.openStream());
+        assertTrue(s, s.contains("application/octet-stream"));
     }
 
     /*
