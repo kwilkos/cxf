@@ -77,6 +77,7 @@ public final class ValidatorUtil {
         //
         baseURI = baseURI.replaceAll(" ", "%20");
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
+        schemaCol.setBaseUri(baseURI);
         NodeList nodes = document.getElementsByTagNameNS(
             WSDLConstants.NU_SCHEMA_XSD, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {

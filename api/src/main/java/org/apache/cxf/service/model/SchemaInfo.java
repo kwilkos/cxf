@@ -21,8 +21,12 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.io.CachedOutputStream;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
@@ -68,6 +72,31 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
     }
 
     public Element getElement() {
+        if (element == null && getSchema() != null) {
+            CachedOutputStream cout = new CachedOutputStream();
+            getSchema().write(cout);
+            Document sdoc = null;
+            try {
+                sdoc = XMLUtils.parse(cout.getInputStream());
+                cout.close();
+            } catch (Exception e1) {
+                return null;
+            }
+            
+            Element e = sdoc.getDocumentElement();
+            // XXX A problem can occur with the ibm jdk when the XmlSchema
+            // object is serialized. The xmlns declaration gets incorrectly
+            // set to the same value as the targetNamespace attribute.
+            // The aegis databinding tests demonstrate this particularly.
+            if (e.getPrefix() == null
+                && !WSDLConstants.NU_SCHEMA_XSD.equals(e.getAttributeNS(WSDLConstants.NU_XMLNS,
+                                                                        WSDLConstants.NP_XMLNS))) {
+                e.setAttributeNS(WSDLConstants.NU_XMLNS, 
+                                 WSDLConstants.NP_XMLNS, 
+                                 WSDLConstants.NU_SCHEMA_XSD);
+            }
+            setElement(e);
+        }
         return element;
     }
 
