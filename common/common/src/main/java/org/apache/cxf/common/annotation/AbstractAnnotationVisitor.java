@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractAnnotationVisitor implements AnnotationVisitor {
-    protected Object target; 
+    protected Object target;
+    protected Class<?> targetClass;
+    
 
     private final List<Class<? extends Annotation>> targetAnnotations = 
                                  new ArrayList<Class<? extends Annotation>>(); 
@@ -62,10 +64,18 @@ public abstract class AbstractAnnotationVisitor implements AnnotationVisitor {
 
     public void setTarget(Object object) {
         target = object;
+        targetClass = object.getClass();
+    }
+    public void setTarget(Object object, Class<?> cls) {
+        target = object;
+        targetClass = cls;
     }
     
     public Object getTarget() { 
         return target;
+    } 
+    public Class<?> getTargetClass() { 
+        return targetClass;
     } 
 
 }

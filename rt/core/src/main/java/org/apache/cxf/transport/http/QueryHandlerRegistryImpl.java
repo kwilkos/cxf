@@ -19,8 +19,8 @@
 
 package org.apache.cxf.transport.http;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -34,19 +34,27 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
     List<QueryHandler> queryHandlers;
     Bus bus;
     
+    
+    public QueryHandlerRegistryImpl() {
+    }
+    public QueryHandlerRegistryImpl(Bus b, List<QueryHandler> handlers) {
+        bus = b;
+        queryHandlers = new CopyOnWriteArrayList<QueryHandler>(handlers);
+    }
+    
+    
     @PostConstruct
     public void register() {
+        if (queryHandlers == null) {
+            queryHandlers = new CopyOnWriteArrayList<QueryHandler>();
+            if (bus != null) {
+                queryHandlers.add(new WSDLQueryHandler(bus));
+            }
+        }
         if (null != bus) {
             bus.setExtension(this, QueryHandlerRegistry.class);
         }
     }
-    
-    @PostConstruct
-    public void init() {
-        queryHandlers = new ArrayList<QueryHandler>();
-        registerHandler(new WSDLQueryHandler(bus));
-    }
-
 
     public List<QueryHandler> getHandlers() {
         return queryHandlers;

@@ -79,11 +79,14 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     public void inject(Object o, Class claz) {
         AnnotationProcessor processor = new AnnotationProcessor(o); 
         processor.accept(this, claz); 
-        invokePostConstruct();
     }
     
     public void construct(Object o) {
         setTarget(o);
+        invokePostConstruct();
+    }
+    public void construct(Object o, Class<?> cls) {
+        setTarget(o, cls);
         invokePostConstruct();
     }
 
@@ -345,6 +348,10 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
         Collection<Method> methods = new LinkedList<Method>(); 
         addAnnotatedMethods(acls, getTarget().getClass().getMethods(), methods); 
         addAnnotatedMethods(acls, getTarget().getClass().getDeclaredMethods(), methods);
+        if (getTargetClass() != getTarget().getClass()) {
+            addAnnotatedMethods(acls, getTargetClass().getMethods(), methods); 
+            addAnnotatedMethods(acls, getTargetClass().getDeclaredMethods(), methods);            
+        }
         return methods;
     } 
 
@@ -388,6 +395,9 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     }
 
     private Object resolveResource(String resourceName, Class<?> type) {
+        if (resourceManager == null) {
+            return null;
+        }
         return resourceManager.resolveResource(resourceName, type, resourceResolvers);
     }
         
