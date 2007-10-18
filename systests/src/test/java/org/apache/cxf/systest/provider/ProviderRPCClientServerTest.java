@@ -55,13 +55,16 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
         AttachmentPart ap1 = msg.createAttachmentPart();
         ap1.setContent("Attachment content", "text/plain");
         msg.addAttachmentPart(ap1);
+        AttachmentPart ap2 = msg.createAttachmentPart();
+        ap2.setContent("Attachment content - Part 2", "text/plain");
+        msg.addAttachmentPart(ap2);
         
         SOAPConnection con = conFac.createConnection();
         URL endpoint = new URL("http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1");
         SOAPMessage response = con.call(msg, endpoint); 
         QName sayHiResp = new QName("http://apache.org/hello_world_rpclit", "sayHiResponse");
         assertNotNull(response.getSOAPBody().getChildElements(sayHiResp));
-        assertEquals(1, response.countAttachments());
+        assertEquals(2, response.countAttachments());
     }
 
     private void doGreeterRPCLit(SOAPServiceRPCLit service, QName portName, int count) throws Exception {
