@@ -29,8 +29,6 @@ import javax.jws.WebService;
 public class JaxbElementTestImpl implements JaxbElementTest {
 
     public String newOperation(String in) {
-        // TODO Auto-generated method stub
-
         if (in == null) {
             return "in=null";
         } else {
