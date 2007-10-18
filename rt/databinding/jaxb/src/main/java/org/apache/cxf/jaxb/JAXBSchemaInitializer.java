@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
@@ -281,6 +282,14 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         ct.setParticle(seq);
         String namespace = part.getElementQName().getNamespaceURI();
         for (Field f : cls.getDeclaredFields()) {
+            // This code takes all the fields that are public and not static.
+            // It is arguable that it should be looking at get/is properties and all those
+            // bean-like things.
+            int modifiers = f.getModifiers();
+            if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers)) {
+                continue;
+            }
+        
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(f.getType());
             if (beanInfo != null) {
                 el = new XmlSchemaElement();
