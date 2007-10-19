@@ -63,6 +63,7 @@ public class JavaType {
     private JavaInterface owner;
     private DefaultValueWriter dvw;
 
+
     public JavaType() {
     }
 
@@ -71,7 +72,7 @@ public class JavaType {
         this.type = t;
         this.targetNamespace = tns;
         this.className = t;
-    }
+    }    
 
     public void setDefaultValueWriter(DefaultValueWriter w) {
         dvw = w;

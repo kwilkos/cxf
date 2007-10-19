@@ -1132,4 +1132,17 @@ public class CodeGenTest extends ProcessorTestBase {
         String contents = getStringFromFile(sei);
         assertTrue(contents.indexOf("@XmlSeeAlso({ObjectFactory.class})") != -1);
     }
+
+    @Test
+    public void testWSAction() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/wsdl_addr.wsdl"));
+
+        processor.setContext(env);
+        processor.execute();
+
+//         File sei = new File(output, "type_substitution/server/CarDealer.java");
+//         assertTrue(output.exists());
+//         String contents = getStringFromFile(sei);
+//         assertTrue(contents.indexOf("@XmlSeeAlso({ObjectFactory.class})") != -1);
+    }
 }

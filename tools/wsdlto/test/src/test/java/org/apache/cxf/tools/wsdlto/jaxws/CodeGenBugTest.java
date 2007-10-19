@@ -499,13 +499,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                       getLocation("/wsdl2java_wsdl/hello-mime.wsdl")};
 
         WSDLToJava.main(args);
+
         assertFileEquals(getClass().getResource("expected/expected_hello_mime").getFile(),
                          output.getCanonicalPath() + "/org/apache/hello_world_mime/Hello.java");
-
-
-
     }
-
 
     @Test
     public void testWebResult() throws Exception {
@@ -514,9 +511,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        assertFileEquals(getClass().getResource("expected/expected_sayHi").getFile(),
-                         output.getCanonicalPath() + "/org/apache/sayhi/SayHi.java");
-
+        String results = getStringFromFile(new File(output.getCanonicalPath(), 
+                                                    "org/apache/sayhi/SayHi.java"));
+        assertTrue(results.trim().length() > 0);
+        assertTrue(results.indexOf("@WebResult(name  =  \"return\",  " 
+                                   + "targetNamespace  =  \"http://apache.org/sayHi\")") != -1);
+        assertTrue(results.indexOf("@WebResult(name  =  \"return\",  targetNamespace  =  \"\")") != -1);
     }
 
 
@@ -720,7 +720,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
         String results = getStringFromFile(new File(output.getCanonicalPath(), 
                                                     "soapinterface/ems/esendex/com/AccountServiceSoap.java"));
         assertTrue(results.indexOf("public  int  getMessageLimit") != -1);
-        assertTrue(results.indexOf("header  =  true,  name  =  \"MessengerHeader") != -1);
+        assertTrue(results.indexOf("name  =  \"MessengerHeader") != -1);
+        assertTrue(results.indexOf("header  =  true") != -1);
     }
     
     @Test

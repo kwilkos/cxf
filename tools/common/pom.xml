@@ -89,6 +89,12 @@
 	    <version>${project.version}</version>
 	</dependency>	
 
+	<dependency>
+                <groupId>javax.xml.ws</groupId>
+                <artifactId>jaxws-api</artifactId>
+		<scope>test</scope>
+	</dependency>
+
     </dependencies>
 
 

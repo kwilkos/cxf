@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPBinding;
 import javax.wsdl.extensions.mime.MIMEContent;
@@ -52,7 +53,8 @@ import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
@@ -377,9 +379,9 @@ public class ServiceProcessor extends AbstractProcessor {
                 }
 
                 if (headerType == this.resultHeader) {
-                    JavaAnnotation resultAnno = jm.getAnnotationMap().get("WebResult");
+                    JAnnotation resultAnno = jm.getAnnotationMap().get("WebResult");
                     if (resultAnno != null) {
-                        resultAnno.addArgument("header", "true", "");
+                        resultAnno.addElement(new JAnnotationElement("header", true, true));
                     }
                 }
                 processParameter(jm, bop);
@@ -389,9 +391,12 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void setParameterAsHeader(JavaParameter parameter) {
         parameter.setHeader(true);
-        parameter.getAnnotation().addArgument("header", "true", "");
-        parameter.getAnnotation().addArgument("name", parameter.getQName().getLocalPart());
-        parameter.getAnnotation().addArgument("targetNamespace", parameter.getTargetNamespace());
+        JAnnotation parameterAnnotation = parameter.getAnnotation();
+        parameterAnnotation.addElement(new JAnnotationElement("header", true, true));
+        parameterAnnotation.addElement(new JAnnotationElement("name", 
+                                                                     parameter.getQName().getLocalPart()));
+        parameterAnnotation.addElement(new JAnnotationElement("targetNamespace", 
+                                                                     parameter.getTargetNamespace()));
     }
 
     private void processParameter(JavaMethod jm, BindingOperationInfo operation) throws ToolException {

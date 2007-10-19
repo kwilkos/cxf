@@ -19,10 +19,17 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlSeeAlso;
+
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
+import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ClassCollector;
 
 public final class XmlSeeAlsoAnnotator implements Annotator {
@@ -44,17 +51,19 @@ public final class XmlSeeAlsoAnnotator implements Annotator {
             throw new RuntimeException("XmlSeeAlso can only annotate JavaInterface");
         }
 
-        JavaAnnotation jaxbAnnotation = new JavaAnnotation("XmlSeeAlso");
-        intf.addImport("javax.xml.bind.annotation.XmlSeeAlso");
+        JAnnotation jaxbAnnotation = new JAnnotation(XmlSeeAlso.class);
+        intf.addImports(jaxbAnnotation.getImports());
         
+        List<JavaType> types = new ArrayList<JavaType>();
         for (String pkg : collector.getTypesPackages()) {
             if (pkg.equals(intf.getPackageName())) {
-                jaxbAnnotation.getClassList().add("ObjectFactory");
+                types.add(new JavaType(null, "ObjectFactory", null));
             } else {
-                jaxbAnnotation.getClassList().add(pkg + ".ObjectFactory");
+                types.add(new JavaType(null, pkg + ".ObjectFactory", null));
             }
         }
-        intf.addAnnotation(jaxbAnnotation.toString());
+        jaxbAnnotation.addElement(new JAnnotationElement(null, types));
+        intf.addAnnotation(jaxbAnnotation);
     }
 }
 

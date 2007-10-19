@@ -443,7 +443,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
         try {
             processor.setEnvironment(env);
-            processor.process();                  
+            processor.process();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -26,6 +26,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.model.JAnnotation;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
@@ -81,11 +82,10 @@ public class ServiceGenerator extends AbstractJAXWSGenerator {
                 handlerGen.setJavaInterface(js);
                 handlerGen.generate(getEnvironment());
 
-                String annot = handlerGen.getHandlerAnnotation().toString();
+                JAnnotation annot = handlerGen.getHandlerAnnotation();
                 if (handlerGen.getHandlerAnnotation() != null
                     && !js.getAnnotations().contains(annot)) {
                     js.addAnnotation(annot);
-                    js.addImport("javax.jws.HandlerChain");
                 }
             }
 

@@ -47,7 +47,7 @@ public class JavaMethod implements JavaAnnotatable {
     private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
-    private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
+    private final Map<String, JAnnotation> annotations = new HashMap<String, JAnnotation>();
 
     private JavaCodeBlock block;
 
@@ -154,7 +154,7 @@ public class JavaMethod implements JavaAnnotatable {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_PARAMETER", LOG, param.name, this.getName());
             throw new ToolException(msg);
         }
-        
+        param.setMethod(this);
         parameters.add(param);
     }
 
@@ -245,18 +245,22 @@ public class JavaMethod implements JavaAnnotatable {
         return this.soapUse;
     }
 
-    public void addAnnotation(String tag, JavaAnnotation annotation) {
+    public void addAnnotation(String tag, JAnnotation annotation) {
         if (annotation == null) {
             return;
         }
         this.annotations.put(tag, annotation);
+        
+        for (String importClz : annotation.getImports()) {
+            getInterface().addImport(importClz);
+        }
     }
 
-    public Collection<JavaAnnotation> getAnnotations() {
+    public Collection<JAnnotation> getAnnotations() {
         return this.annotations.values();
     }
 
-    public Map<String, JavaAnnotation> getAnnotationMap() {
+    public Map<String, JAnnotation> getAnnotationMap() {
         return this.annotations;
     }
 
