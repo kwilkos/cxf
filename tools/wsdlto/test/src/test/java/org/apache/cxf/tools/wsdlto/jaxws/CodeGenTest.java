@@ -1140,9 +1140,13 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-//         File sei = new File(output, "type_substitution/server/CarDealer.java");
-//         assertTrue(output.exists());
-//         String contents = getStringFromFile(sei);
-//         assertTrue(contents.indexOf("@XmlSeeAlso({ObjectFactory.class})") != -1);
+        File sei = new File(output, "com/example/AddNumbersPortType.java");
+        assertTrue(sei.exists());
+        String contents = getStringFromFile(sei).replace("  ", " ");
+        String expected = "@Action(input = \"3in\", output = \"3out\", "
+            + "fault = {@FaultAction(className = AddNumbersFault_Exception.class, value = \"3fault\")})";
+        assertTrue(contents.indexOf("import javax.xml.ws.Action;") != -1);
+        assertTrue(contents.indexOf("import javax.xml.ws.FaultAction;") != -1);
+        assertTrue(contents.indexOf(expected) != -1);
     }
 }
