@@ -55,8 +55,9 @@ public class TestSOAPHandler implements SOAPHandler<SOAPMessageContext> {
                         Object elem2 = it2.next();
                         if (elem2 instanceof SOAPElement) {
                             String value = ((SOAPElement)elem2).getValue();
-                            if (value.indexOf("Milestone-0") >= 0
-                                || value.indexOf("TestGreetMeResponseServerLogicalHandler") >= 0) {
+                            if (value != null 
+                                && (value.indexOf("Milestone-0") >= 0
+                                || value.indexOf("TestGreetMeResponseServerLogicalHandler") >= 0)) {
                                 value = value + "ServerSOAPHandler";
                                 ((SOAPElement)elem2).setValue(value);
                             }
