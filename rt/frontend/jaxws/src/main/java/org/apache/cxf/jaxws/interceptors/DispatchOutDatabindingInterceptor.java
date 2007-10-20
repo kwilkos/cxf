@@ -250,7 +250,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                         message.put(Message.PROTOCOL_HEADERS, heads);
                     }
                     
-                    //soapMessage.saveChanges();
+                    soapMessage.saveChanges();
                     Iterator<MimeHeader> smh = CastUtils.cast(soapMessage.getMimeHeaders().getAllHeaders());
                     while (smh.hasNext()) {
                         MimeHeader head = smh.next();

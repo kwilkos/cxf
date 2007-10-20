@@ -22,7 +22,6 @@ import java.io.InputStream;
 
 import javax.jws.HandlerChain;
 import javax.xml.namespace.QName;
-import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPMessage;
@@ -76,15 +75,9 @@ public class HWSoapMessageProvider implements Provider<SOAPMessage> {
                 response = sayHiResponse;
             } else if (n.getLocalName().equals(greetMe.getLocalPart())) {
                 response = greetMeResponse;
-            } else if (n.getLocalName().equals("sayHiWAttach")) {
-                MessageFactory factory = MessageFactory.newInstance();            
-                InputStream is = getClass().getResourceAsStream("resources/sayHiRpcLiteralResp.xml");
-                response = factory.createMessage(null, is);
-                is.close();
-                
-                AttachmentPart ap1 = response.createAttachmentPart();
-                ap1.setContent("Return Attachment content", "text/plain");
-                response.addAttachmentPart(ap1);
+            } else {
+                response = request;
+                //response.writeTo(System.out);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
