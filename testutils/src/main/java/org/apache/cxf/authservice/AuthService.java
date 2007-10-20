@@ -37,7 +37,10 @@ public interface AuthService {
     java.util.List<java.lang.String> getRoles(
                                               String sid
     );
+    
+    java.lang.String[] getRolesAsArray(String sid);
 
+    @WebMethod(operationName = "authenticate1")
     boolean authenticate(
                          String sid,
                          String uid,
@@ -49,4 +52,5 @@ public interface AuthService {
     boolean authenticate(Authenticate auth);
     
     String getAuthentication(String sid);
+    
 }
