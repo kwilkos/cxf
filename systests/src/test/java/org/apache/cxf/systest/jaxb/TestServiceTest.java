@@ -21,10 +21,17 @@ package org.apache.cxf.systest.jaxb;
 
 import java.net.URL;
 
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.Document;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.systest.jaxb.model.ExtendedWidget;
 import org.apache.cxf.systest.jaxb.model.Widget;
 import org.apache.cxf.systest.jaxb.service.TestService;
+import org.apache.cxf.test.TestUtilities;
 import org.junit.Test;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
@@ -32,11 +39,12 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 public class TestServiceTest extends AbstractDependencyInjectionSpringContextTests {
 
     private TestService testClient;
+    private TestUtilities testUtilities;
 
     public TestServiceTest() {
         setAutowireMode(AbstractDependencyInjectionSpringContextTests.AUTOWIRE_BY_NAME);
+        testUtilities = new TestUtilities(getClass());
     }
-
 
     @Test
     public void testExtraSubClassWithJaxb() throws Throwable {
@@ -52,6 +60,22 @@ public class TestServiceTest extends AbstractDependencyInjectionSpringContextTes
         URL url = new URL("http://localhost:7081/service/TestService?wsdl");
         String s = IOUtils.toString(url.openStream());
         assertTrue(s, s.contains("application/octet-stream"));
+    }
+    
+    @Test
+    public void testAutoFaultBeanProperties() throws Exception {
+        testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
+        testUtilities.addDefaultNamespaces();
+        testUtilities.addNamespace("ts", "http://cxf.org.apache/service");
+        Server s = testUtilities.getServerForService(new QName("http://cxf.org.apache/service", 
+                                                               "TestServiceService"));
+        Document wsdl = testUtilities.getWSDLDocument(s);
+        testUtilities.assertInvalid("//xsd:complexType[@name='TestServiceException']"
+                                    + "/xsd:sequence/xsd:element[@name='serialVersionUID']", wsdl);
+        testUtilities.assertInvalid("//xsd:complexType[@name='TestServiceException']"
+                                    + "/xsd:sequence/xsd:element[@name='privateInt']", wsdl);
+        testUtilities.assertValid("//xsd:complexType[@name='TestServiceException']"
+                                    + "/xsd:sequence/xsd:element[@name='publicString']", wsdl);
     }
 
     /*
@@ -77,5 +101,4 @@ public class TestServiceTest extends AbstractDependencyInjectionSpringContextTes
     public void setTestClient(TestService testClient) {
         this.testClient = testClient;
     }
-
 }

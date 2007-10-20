@@ -19,20 +19,25 @@
 
 package org.apache.cxf.systest.jaxb.service;
 
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
+/**
+ * Class used to test for unwanted serialization of exception fields. 
+ */
+public class TestServiceException extends Exception {
 
-import org.apache.cxf.systest.jaxb.model.Widget;
-
-@WebService(targetNamespace = "http://cxf.org.apache/service")
-public interface TestService {
-
-    @WebMethod(operationName = "getWidgetById")
-    Widget getWidgetById(@WebParam(name = "id")
-                         long id);
+    static final long serialVersionUID = 4948446750312293907L;
+    // CHECKSTYLE:OFF
+    public String publicString;
+    // CHECKSTYLE:ON
+    @SuppressWarnings("unused")
+    private int privateInt;
     
-    @WebMethod
-    void testExceptionMarshalling() throws TestServiceException;
 
+    public TestServiceException() {
+        privateInt = 2;
+        publicString = "strung";
+    }
+
+    public TestServiceException(String message) {
+        super(message);
+    }
 }
