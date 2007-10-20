@@ -709,8 +709,20 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 }
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
-                    el.setMinOccurs(0);
-                    el.setMaxOccurs(Long.MAX_VALUE);
+                    String min = (String)mpi.getProperty("minOccurs");
+                    String max = (String)mpi.getProperty("maxOccurs");
+                    if (min == null) {
+                        min = "0";
+                    }
+                    if (max == null) {
+                        max = "unbounded";
+                    }
+                    el.setMinOccurs(Long.parseLong(min));
+                    el.setMaxOccurs("unbounded".equals(max) ? Long.MAX_VALUE : Long.parseLong(max));
+                    Boolean b = (Boolean)mpi.getProperty("nillable");
+                    if (b != null && b.booleanValue()) {
+                        el.setNillable(b.booleanValue());
+                    }
                 } else if (Collection.class.isAssignableFrom(mpi.getTypeClass())
                            && mpi.getTypeClass().isInterface()) {
                     Type type = (Type)mpi.getProperty(GENERIC_TYPE);
