@@ -21,12 +21,16 @@ package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -46,6 +50,7 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
  * Walks the service model and sets up the element/type names.
  */
 class JAXBSchemaInitializer extends ServiceModelVisitor {
+    private static final Logger LOG = LogUtils.getLogger(JAXBSchemaInitializer.class);
 
     private XmlSchemaCollection schemas;
     private JAXBContextImpl context;
@@ -196,6 +201,9 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             QName name = (QName)fault.getProperty("elementName");
             part.setElementQName(name);           
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(cls);
+            if (beanInfo == null) {
+                throw new Fault(new Message("NO_BEAN_INFO", LOG, cls.getName()));
+            }
             SchemaInfo schemaInfo = null;
             for (SchemaInfo s : serviceInfo.getSchemas()) {
                 if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())
