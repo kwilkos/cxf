@@ -22,7 +22,10 @@ package org.apache.cxf.authservice;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jws.WebService;
 
+@WebService(targetNamespace = "http://cxf.apache.org/AuthService", name = "AuthService",
+            endpointInterface = "org.apache.cxf.authservice.AuthService")
 public class AuthServiceImpl implements AuthService {
 
     public boolean authenticate(String sid, String uid, String pwd) {
@@ -40,7 +43,18 @@ public class AuthServiceImpl implements AuthService {
     public List<String> getRoles(String sid) {
         List<String> list = new ArrayList<String>();
         list.add(sid);
+        list.add(sid + "-1");
+        list.add(sid + "-2");
         return list;
+    }
+    public String[] getRolesAsArray(String sid) {
+        if ("null".equals(sid)) {
+            return null;
+        }
+        if ("0".equals(sid)) {
+            return new String[0];
+        }
+        return new String[] {sid, sid + "-1"};
     }
 
 }

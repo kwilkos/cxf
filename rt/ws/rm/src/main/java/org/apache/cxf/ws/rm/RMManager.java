@@ -78,7 +78,7 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
     private SequenceIdentifierGenerator idGenerator;
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
-    private Timer timer = new Timer(true);
+    private Timer timer = new Timer("RMManager-Timer-" + System.identityHashCode(this), true);
     private RMAssertion rmAssertion;
     private DeliveryAssuranceType deliveryAssurance;
     private SourcePolicyType sourcePolicy;

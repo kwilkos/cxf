@@ -83,6 +83,10 @@ public interface DocLitWrappedCodeFirstService {
     @WebMethod
     int throwException(int i) throws ServiceTestFault;
     
+    @RequestWrapper(localName = "echoIntX")
+    @ResponseWrapper(localName = "echoIntXResponse")
+    int echoIntDifferentWrapperName(int i);
+    
     @WebMethod
     @WebResult(targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService",
                name = "result")

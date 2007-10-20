@@ -619,7 +619,7 @@ public class WSDLServiceBuilder {
         checkForWrapped(opInfo, false);
     }
 
-    public static void checkForWrapped(OperationInfo opInfo, boolean allowRefs) {
+    public static void checkForWrapped(OperationInfo opInfo, boolean relaxed) {
         MessageInfo inputMessage = opInfo.getInput();
         MessageInfo outputMessage = opInfo.getOutput();
         boolean passedRule = true;
@@ -650,8 +650,10 @@ public class WSDLServiceBuilder {
         } else {
             QName inputElementName = inputPart.getElementQName();
             inputEl = schemas.getElementByQName(inputElementName);
-            if (inputEl == null || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
+            if (inputEl == null) {
                 passedRule = false;
+            } else if (!opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
+                passedRule = relaxed;
             }
         }
 
@@ -690,7 +692,7 @@ public class WSDLServiceBuilder {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
             if (hasAttributes(xsct)
                 || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(),
-                                        unwrappedInput, allowRefs)) {
+                                        unwrappedInput, relaxed)) {
                 passedRule = false;
             }
         } else {
@@ -708,7 +710,7 @@ public class WSDLServiceBuilder {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
                 if (hasAttributes(xsct)
                     || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(), unwrappedOutput,
-                                            allowRefs)) {
+                                            relaxed)) {
                     passedRule = false;
                 }
             } else {
