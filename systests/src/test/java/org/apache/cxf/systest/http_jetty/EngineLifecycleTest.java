@@ -22,12 +22,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.ServerSocket;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Properties;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.helpers.IOUtils;
@@ -79,12 +82,6 @@ public class EngineLifecycleTest extends Assert {
         applicationContext.refresh();
     }
     
-    public void launchService() throws Exception {
-        applicationContext = new GenericApplicationContext();
-        readBeans(new ClassPathResource("server-lifecycle-beans.xml", getClass()));
-        applicationContext.refresh();
-    }
-    
     private void invokeService() {        
         DummyInterface client = (DummyInterface) applicationContext.getBean("dummy-client");
         assertEquals("We should get out put from this client", "hello world", client.echo("hello world"));
@@ -128,7 +125,9 @@ public class EngineLifecycleTest extends Assert {
         return furl.toString();
     }
 
-    public void shutdownService() throws Exception {        
+    public void shutdownService() throws Exception {   
+        Bus bus = (Bus)applicationContext.getBean("cxf");
+        bus.shutdown(true);
         applicationContext.destroy();
         applicationContext.close();        
     }
@@ -159,16 +158,41 @@ public class EngineLifecycleTest extends Assert {
         invokeService();        
         shutdownService();
     }
+    
+    private void setReuseAddrForServer(int port) throws SocketException {
+        Bus bus = (Bus)applicationContext.getBean("cxf");
+        boolean turnedOnReuseAddr = false;
+        ServerRegistry sr = bus.getExtension(ServerRegistry.class);
+        for (Server server : sr.getServers()) {
+            ServerImpl si = (ServerImpl) server;
+            JettyHTTPDestination jhd = (JettyHTTPDestination) si.getDestination();
+            JettyHTTPServerEngine e = (JettyHTTPServerEngine) jhd.getEngine();
+            if (e.getConnector().getPort() == port) {
+                ServerSocket socket = (ServerSocket)e.getConnector().getConnection();
+                socket.setReuseAddress(true);
+                turnedOnReuseAddr = true;
+            }
+        }
+        assertTrue(turnedOnReuseAddr); // insure that we actually found the server for 8801 and did the deed.
+        
+    }
 
+    /**
+     * 
+     * @throws Exception
+     */
     @Test
     public void testServerUpDownUp() throws Exception {        
-        setUpBus(false);
-        launchService();           
+        setUpBus(true);
+        setReuseAddrForServer(8801);
+
         getTestHtml();
         invokeService();        
         shutdownService();
 
-        launchService();
+        setUpBus(true);
+        setReuseAddrForServer(8801);
+
         invokeService();            
         getTestHtml();
         

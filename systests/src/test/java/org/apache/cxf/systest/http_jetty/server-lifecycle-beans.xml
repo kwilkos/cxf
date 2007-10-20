@@ -41,11 +41,19 @@
 
  <!--  define a service factory that supports both JAX-WS annotations and also Aegis files. -->
  <bean id='jaxws-and-aegis-service-factory' class="org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean"
-  scope='prototype'>
+       scope='prototype'>
   <property name="dataBinding" ref="aegisBean" />
  </bean>
 
  <jaxws:endpoint id="dummy-service-endpoint" implementor="org.apache.cxf.systest.http_jetty.Dummy" address="http://localhost:8808/Dummy">
+  <jaxws:serviceFactory>
+   <ref bean='jaxws-and-aegis-service-factory' />
+  </jaxws:serviceFactory>
+ </jaxws:endpoint>
+
+ <jaxws:endpoint id="dummy-8801-service-endpoint"  
+                 implementor="org.apache.cxf.systest.http_jetty.Dummy" 
+                 address="http://localhost:8801/Dummy">
   <jaxws:serviceFactory>
    <ref bean='jaxws-and-aegis-service-factory' />
   </jaxws:serviceFactory>
