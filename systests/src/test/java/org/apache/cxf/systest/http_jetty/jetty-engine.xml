@@ -35,14 +35,30 @@
  <httpj:engine-factory bus="cxf">
   <httpj:engine port="8808">
    <httpj:handlers>
-    <bean class="org.mortbay.jetty.handler.ResourceHandler">
-     <property name="baseResource">
-      <bean class="org.mortbay.resource.FileResource">
-       <constructor-arg value="${staticResourceURL}" />
+       <bean class="org.mortbay.jetty.handler.RequestLogHandler">
+      <property name="requestLog">
+        <bean class="org.mortbay.jetty.NCSARequestLog">
+         <property name="filename" value="jetty.log"/>
+        </bean>
+      </property>
+    </bean>
+    <bean class="org.mortbay.jetty.webapp.WebAppContext">
+      <constructor-arg value="."/>
+      <constructor-arg value="/jsunit"/>
+    </bean>
+    <bean class="org.mortbay.jetty.handler.ContextHandler">
+     <property name="contextPath" value="/" />
+     <property name="handler">
+      <bean class="org.mortbay.jetty.handler.ResourceHandler">
+       <property name="baseResource">
+        <bean class="org.mortbay.resource.FileResource">
+         <constructor-arg value="${staticResourceURL}" />
+        </bean>
+        </property>
       </bean>
      </property>
     </bean>
-     <bean class="org.mortbay.jetty.handler.DefaultHandler"/>
+    <bean class="org.mortbay.jetty.handler.DefaultHandler"/>
    </httpj:handlers>
   </httpj:engine>
  </httpj:engine-factory>
