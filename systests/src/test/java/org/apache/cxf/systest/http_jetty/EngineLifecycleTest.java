@@ -18,8 +18,6 @@
  */
 package org.apache.cxf.systest.http_jetty;
 
-
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -29,18 +27,24 @@ import java.net.URLConnection;
 import java.util.Properties;
 
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.helpers.IOUtils;
 
 import org.apache.cxf.io.CachedOutputStream;
+import org.apache.cxf.transport.http_jetty.JettyHTTPDestination;
+import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-
-
 
 /**
  * This class tests starting up and shutting down the embedded server when there
@@ -54,14 +58,16 @@ public class EngineLifecycleTest extends Assert {
         reader.loadBeanDefinitions(beanResource);
     }
     
-    public void setUpBus() throws Exception {
+    public void setUpBus(boolean includeService) throws Exception {
         applicationContext = new GenericApplicationContext();
         readBeans(new ClassPathResource("META-INF/cxf/cxf.xml"));
         readBeans(new ClassPathResource("META-INF/cxf/cxf-extension-soap.xml"));
         readBeans(new ClassPathResource("META-INF/cxf/cxf-extension-http.xml"));
         readBeans(new ClassPathResource("META-INF/cxf/cxf-extension-http-jetty.xml"));
         readBeans(new ClassPathResource("jetty-engine.xml", getClass()));
-        
+        if (includeService) {
+            readBeans(new ClassPathResource("server-lifecycle-beans.xml", getClass()));
+        }
         
         // bring in some property values from a Properties file
         PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
@@ -112,9 +118,6 @@ public class EngineLifecycleTest extends Assert {
         html.close();
         
         assertEquals("Can't get the right test html", html.toString(), response.toString());
-        
-        
-        
     }
     
     public String getStaticResourceURL() throws Exception {
@@ -130,9 +133,36 @@ public class EngineLifecycleTest extends Assert {
         applicationContext.close();        
     }
 
+    @Ignore
+    @Test
+    public void testUpDownWithServlets() throws Exception {
+        setUpBus(true);
+
+        Bus bus = (Bus)applicationContext.getBean("cxf");
+        ServerRegistry sr = bus.getExtension(ServerRegistry.class);
+        ServerImpl si = (ServerImpl) sr.getServers().get(0);
+        JettyHTTPDestination jhd = (JettyHTTPDestination) si.getDestination();
+        JettyHTTPServerEngine e = (JettyHTTPServerEngine) jhd.getEngine();
+        org.mortbay.jetty.Server jettyServer = e.getServer();
+
+        Handler[] contexts = jettyServer.getChildHandlersByClass(WebAppContext.class);
+        WebAppContext servletContext = null;
+        for (Handler h : contexts) {
+            WebAppContext wac = (WebAppContext) h;
+            if (wac.getContextPath().equals("/jsunit")) {
+                servletContext = wac;
+                break;
+            }
+        }
+        servletContext.addServlet("org.mortbay.jetty.servlet.DefaultServlet", "/bloop");
+        getTestHtml();
+        invokeService();        
+        shutdownService();
+    }
+
     @Test
     public void testServerUpDownUp() throws Exception {        
-        setUpBus();
+        setUpBus(false);
         launchService();           
         getTestHtml();
         invokeService();        
