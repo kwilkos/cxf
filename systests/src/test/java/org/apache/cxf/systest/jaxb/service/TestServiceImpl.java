@@ -33,6 +33,10 @@ public class TestServiceImpl implements TestService {
         return new ExtendedWidget(id, "blah", "blah", true, true);
     }
 
+    public void testExceptionMarshalling() throws TestServiceException {
+        throw new TestServiceException("Your hovercraft is full of eels.");
+    }
+
     
 
 }
