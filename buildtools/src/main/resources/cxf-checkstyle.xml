@@ -44,7 +44,8 @@ lengths, if/try depths, etc...
     <!--<module name="StrictDuplicateCode"/>-->
 
     <module name="TreeWalker">
-
+ 	    <!-- Enable FileContentsHolder to allow us to in turn turn on suppression comments -->
+        <module name="FileContentsHolder"/>
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
         <!--
@@ -283,5 +284,5 @@ lengths, if/try depths, etc...
         </module>
         <!--<module name="RequiredRegexp">-->
     </module>
-
+    <module name="SuppressionCommentFilter"/>
 </module>
