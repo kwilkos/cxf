@@ -41,6 +41,7 @@ import javax.xml.ws.WebFault;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -435,12 +436,20 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     public QName getRequestWrapperName(OperationInfo op, Method method) {
         Method m = getDeclaredMethod(method);
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
-        if (rw == null) {
-            return null;
+        String nm = null;
+        String lp = null;
+        if (rw != null) {
+            nm = rw.targetNamespace();
+            lp = rw.localName();
         }
-        String nm = rw.targetNamespace();
-        String lp = rw.localName();
-        if (nm.length() > 0 && lp.length() > 0) {            
+        WebMethod meth = m.getAnnotation(WebMethod.class);
+        if (meth != null && StringUtils.isEmpty(lp)) {
+            lp = meth.operationName();
+        }
+        if (StringUtils.isEmpty(nm)) {
+            nm = op.getName().getNamespaceURI();
+        }
+        if (!StringUtils.isEmpty(nm) && !StringUtils.isEmpty(lp)) {            
             return new QName(nm, lp); 
         } 
         return null;        
@@ -450,15 +459,26 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     public QName getResponseWrapperName(OperationInfo op, Method method) {
         Method m = getDeclaredMethod(method);
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
-        if (rw == null) {
-            return null;
+        String nm = null;
+        String lp = null;
+        if (rw != null) {
+            nm = rw.targetNamespace();
+            lp = rw.localName();
         }
-        String nm = rw.targetNamespace();
-        String lp = rw.localName();
-        if (nm.length() > 0 && lp.length() > 0) {            
+        WebMethod meth = m.getAnnotation(WebMethod.class);
+        if (meth != null && StringUtils.isEmpty(lp)) {
+            lp = meth.operationName();
+            if (!StringUtils.isEmpty(lp)) {
+                lp += "Response";
+            }
+        }
+        if (StringUtils.isEmpty(nm)) {
+            nm = op.getName().getNamespaceURI();
+        }
+        if (!StringUtils.isEmpty(nm) && !StringUtils.isEmpty(lp)) {            
             return new QName(nm, lp); 
         } 
-        return null;      
+        return null;        
     }
     
     
