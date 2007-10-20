@@ -126,4 +126,8 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
         return msg;
     }
 
+    public int echoIntDifferentWrapperName(int i) {
+        return i;
+    }
+
 }

@@ -46,6 +46,7 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -276,5 +277,18 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
 
         return msgInfo;
     }
-
+    
+    protected BindingOperationInfo getBindingOperationInfo(Exchange exchange, QName name,
+                                                           boolean client) {
+        BindingOperationInfo bop = ServiceModelUtil.getOperationForWrapperElement(exchange, name, client);
+        if (bop == null) {
+            bop = super.getBindingOperationInfo(exchange, name, client);
+        }
+            
+        if (bop != null) {
+            exchange.put(BindingOperationInfo.class, bop);
+            exchange.put(OperationInfo.class, bop.getOperationInfo());
+        }
+        return bop;
+    }
 }

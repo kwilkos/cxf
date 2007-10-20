@@ -439,7 +439,16 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             } else {
                 info = typeCreator.createBasicClassInfo(param.getTypeClass());
             }
-            
+            if (param.getMessageInfo().getOperation().isUnwrapped()
+                && param.getTypeClass().isArray()) {
+                //The service factory expects arrays going into the wrapper to be
+                //mapped to the array component type and will then add
+                //min=0/max=unbounded.   That doesn't work for Aegis where we
+                //already created a wrapper ArrayType so we'll let it know we want the default.
+                param.setProperty("minOccurs", "1");
+                param.setProperty("maxOccurs", "1");
+                param.setProperty("nillable", Boolean.TRUE);
+            }
             if (info.getMappedName() != null) {
                 param.setConcreteName(info.getMappedName());
                 param.setName(info.getMappedName());
