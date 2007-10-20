@@ -23,11 +23,14 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
@@ -172,28 +175,33 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         }
     }
 
-    
-    private void walkReferences(Class<?> cls) {
-        if (cls.getName().startsWith("java.")
-            || cls.getName().startsWith("javax.")) {
-            return;
-        }
-        //walk the public fields/methods to try and find all the classes.  JAXB will only load the 
-        //EXACT classes in the fields/methods if they are in a different package.   Thus,
-        //subclasses won't be found and the xsi:type stuff won't work at all.
+    private void walkReferences(Class<?> cls) { 
+        if (cls.getName().startsWith("java.") 
+            || cls.getName().startsWith("javax.")) { 
+            return; 
+        } 
+        //walk the public fields/methods to try and find all the classes. JAXB will only load the 
+        //EXACT classes in the fields/methods if they are in a different package. Thus, 
+        //subclasses won't be found and the xsi:type stuff won't work at all. 
         //We'll grab the public field/method types and then add the ObjectFactory stuff 
-        //as well as look for jaxb.index files in those packages.
-        
-        Field fields[] = cls.getFields();
-        for (Field f : fields) {
-            addType(f.getGenericType());
-        }
-        Method methods[] = cls.getMethods();
-        for (Method m : methods) {
-            addType(m.getGenericReturnType());
-            for (Type t : m.getGenericParameterTypes()) {
-                addType(t);
-            }
-        }
-    }
+        //as well as look for jaxb.index files in those packages. 
+
+        Field fields[] = cls.getFields(); 
+        for (Field f : fields) { 
+            if (f.getAnnotation(XmlTransient.class) == null
+                && !Modifier.isStatic(f.getModifiers())) { 
+                addType(f.getGenericType()); 
+            } 
+        } 
+        Method methods[] = cls.getMethods(); 
+        for (Method m : methods) { 
+            if (m.getAnnotation(XmlTransient.class) == null
+                && !Modifier.isStatic(m.getModifiers())) { 
+                addType(m.getGenericReturnType()); 
+                for (Type t : m.getGenericParameterTypes()) { 
+                    addType(t); 
+                } 
+            } 
+        } 
+    } 
 }
