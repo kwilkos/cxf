@@ -835,5 +835,14 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();
     }
     
+    @Test
+    public void testCatalog3() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, "http://example.org/wsdl");
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/jax-ws-catalog2.xml"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
     
 }
