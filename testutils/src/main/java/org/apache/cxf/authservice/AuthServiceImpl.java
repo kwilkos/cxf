@@ -29,6 +29,10 @@ import javax.jws.WebService;
 public class AuthServiceImpl implements AuthService {
 
     public boolean authenticate(String sid, String uid, String pwd) {
+        if (uid == null) {
+            //test to make sure a "middle" param can be null
+            return pwd != null;
+        }
         return sid.equals(uid);
     }
 

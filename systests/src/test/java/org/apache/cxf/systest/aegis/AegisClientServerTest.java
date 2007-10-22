@@ -56,6 +56,7 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         AuthService service = (AuthService) proxyFactory.create();
         assertTrue(service.authenticate("Joe", "Joe", "123"));
         assertFalse(service.authenticate("Joe1", "Joe", "fang"));      
+        assertTrue(service.authenticate("Joe", null, "123"));
         List<String> list = service.getRoles("Joe");
         assertEquals(3, list.size());
         assertEquals("Joe", list.get(0));
@@ -85,6 +86,7 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         AuthService service = (AuthService) proxyFactory.create();
         assertTrue(service.authenticate("Joe", "Joe", "123"));
         assertFalse(service.authenticate("Joe1", "Joe", "fang"));      
+        assertTrue(service.authenticate("Joe", null, "123"));
         List<String> list = service.getRoles("Joe");
         assertEquals(3, list.size());
         assertEquals("Joe", list.get(0));
