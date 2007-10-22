@@ -28,9 +28,11 @@ public class BookServer extends AbstractBusTestServerBase {
 
     protected void run() {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setResourceClasses(CustomerService.class);
+        BookStore bs = new BookStore();
+        sf.setServiceBeans(bs);
+        sf.setResourceClasses(BookStore.class);
         sf.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
-        sf.setAddress("http://localhost:9080/xml/");
+        sf.setAddress("http://localhost:9080/");
 
         sf.create();        
     }

@@ -19,6 +19,8 @@
 package org.apache.cxf.jaxrs;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.cxf.BusException;
@@ -57,6 +59,8 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     private Invoker invoker;
     private boolean start = true;
     private JAXRSServiceFactoryBean serviceFactory;
+    private List<Object> serviceBeans;
+
 
     public JAXRSServerFactoryBean() {
         this(new JAXRSServiceFactoryBean());
@@ -105,7 +109,12 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     }
 
     protected Invoker createInvoker() {
-        return new JAXRSInvoker();
+        if (serviceBeans == null) {
+            return new JAXRSInvoker();
+        } else {
+            return new JAXRSInvoker(serviceBeans);           
+        }
+
     }
 
     protected Endpoint createEndpoint() throws BusException, EndpointException {
@@ -217,4 +226,19 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     public void setResourceClasses(Class... classes) {
         serviceFactory.setResourceClasses(classes);
     }
+    
+    /**
+     * Set the backing service bean. If this is set a BeanInvoker is created for
+     * the provided bean.
+     * 
+     * @return
+     */
+    public void setServiceBeans(Object... beans) {
+        this.serviceBeans = new ArrayList<Object>(Arrays.asList(beans));
+    }
+    
+    public void setServiceBeans(List<Object> beans) {
+        this.serviceBeans = beans;
+    }
+
 }

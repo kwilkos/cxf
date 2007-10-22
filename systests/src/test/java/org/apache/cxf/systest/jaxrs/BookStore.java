@@ -21,45 +21,27 @@
 package org.apache.cxf.systest.jaxrs;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProduceMime;
 import javax.ws.rs.UriParam;
 import javax.ws.rs.UriTemplate;
-import javax.ws.rs.core.HttpContext;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 @UriTemplate("/bookstore/")
 public class BookStore {
     
-    private static List<Book> books = new ArrayList<Book>();
-    private static List<CD> cds = new ArrayList<CD>();
-    private static long bookId = 123;
-    private static long cdId = 123;
-    
-    @HttpContext UriInfo uriInfo;
-
-    static {
-        Book book = new Book();
-        book.setId(bookId);
-        book.setName("CXF in Action");
-        books.add(book);
-        
-        CD cd = new CD();
-        cd.setId(cdId);
-        cd.setName("BOHEMIAN RHAPSODY");
-        cds.add(cd);
-        CD cd1 = new CD();
-        cd1.setId(++cdId);
-        cd1.setName("BICYCLE RACE");
-        cds.add(cd1);
-    }
+    private Map<Long, Book> books = new HashMap<Long, Book>();
+    private Map<Long, CD> cds = new HashMap<Long, CD>();
+    private long bookId = 123;
+    private long cdId = 123;
     
     public BookStore() {
+        init();
+        System.out.println("----books: " + books.size());
+
     }
 /*
     @HttpMethod("GET")
@@ -72,24 +54,17 @@ public class BookStore {
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) {
-        System.out.println("----invoking getBook with cdId: " + id);
-        long idNumber = Long.parseLong(id);
-        for (Book b : books) {
-            if (idNumber == b.getId()) {
-                return b;
-            }
-        }
-        
-        return null;
+        System.out.println("----invoking getBook with id: " + id);
+        Book b = books.get(Long.parseLong(id));
+        return b;
     }
     
     @HttpMethod("POST")
     @UriTemplate("/books")
     public Response addBook(Book book) {
         System.out.println("----invoking addBook, book name is: " + book.getName());
-        book.setId(++bookId);
-        
-        books.add(book);
+        book.setId(++bookId);        
+        books.put(book.getId(), book);
 
         return Response.Builder.ok(book).build();
     }
@@ -98,18 +73,11 @@ public class BookStore {
     @UriTemplate("/books/")
     public Response updateBook(Book book) {
         System.out.println("----invoking updateBook, book name is: " + book.getName());
-        boolean found = false;
-        for (int i = 0; i < books.size(); i++) {
-            Book b = books.get(i);
-            if (b.getId() == book.getId()) {
-                books.set(i, book);
-                found = true;
-                break;
-            }
-        }
+        Book b = books.get(book.getId());
         
         Response r;
-        if (found) {
+        if (b != null) {
+            books.put(book.getId(), book);
             r = Response.Builder.ok().build();
         } else {
             r = Response.Builder.notModified().build();
@@ -123,19 +91,10 @@ public class BookStore {
     @UriTemplate("/books/{bookId}/")
     public Response deleteBook(@UriParam("bookId") String id) {
         System.out.println("----invoking deleteBook with bookId: " + id);
-        long idNumber = Long.parseLong(id);
-        boolean found = false;
-        for (int i = 0; i < books.size(); i++) {
-            Book b = books.get(i);
-            if (idNumber == b.getId()) {
-                books.remove(i);
-                found = true;
-                break;
-            }
-        }
+        Book b = books.get(Long.parseLong(id));
         
         Response r;
-        if (found) {
+        if (b != null) {
             r = Response.Builder.ok().build();
         } else {
             r = Response.Builder.notModified().build();
@@ -153,35 +112,40 @@ public class BookStore {
     // spec. The former one's pattern is "/cds/(/)?" the later one is "/cds/(.*?)(/)?
     public CD getCDJSON(@UriParam("CDId") String id) {
         System.out.println("----invoking getCDJSON with cdId: " + id);
-        long idNumber = Long.parseLong(id);
-        for (CD b : cds) {
-            if (idNumber == b.getId()) {
-                return b;
-            }
-        }
+        CD cd = cds.get(Long.parseLong(id));
         
-        return null;
+        return cd;
     }
     
     @HttpMethod("GET")
     @UriTemplate("/cds/")    
     public CDs getCDs() {
         System.out.println("----invoking getCDs");
-        CDs c = new CDs();       
-        c.setCD(cds);
+        CDs c = new CDs();
+        c.setCD(cds.values());
         return c;
     }
 
     //FIXME: wont work if remove this method, has to set hasSubResource to true
     @UriTemplate("/cds")
     public Response addCD(CD cd) {
-/*        System.out.println("----invoking addCD, cd name is: " + cd.getName());
-        cd.setId(++cd);
-        
-        cds.add(cd);
-
-        return Response.Builder.ok(book).build();*/
         return null;
+    }    
+
+    final void init() {
+        Book book = new Book();
+        book.setId(bookId);
+        book.setName("CXF in Action");
+        books.put(book.getId(), book);
+        
+        CD cd = new CD();
+        cd.setId(cdId);
+        cd.setName("BOHEMIAN RHAPSODY");
+        cds.put(cd.getId(), cd);
+        CD cd1 = new CD();
+        cd1.setId(++cdId);
+        cd1.setName("BICYCLE RACE");
+        cds.put(cd1.getId(), cd1);
     }
 }
 

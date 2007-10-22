@@ -31,27 +31,21 @@ import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.service.invoker.AbstractInvoker;
 
 public class JAXRSInvoker extends AbstractInvoker {
+    private List<Object> resourceObjects;
+
     public JAXRSInvoker() {
     }
-
+    
+    public JAXRSInvoker(List<Object> resourceObjects) {
+        this.resourceObjects = resourceObjects;
+    }
+    
     public Object invoke(Exchange exchange, Object o) {
         OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
 
         ClassResourceInfo classResourceInfo = ori.getClassResourceInfo();
         Method m = classResourceInfo.getMethodDispatcher().getMethod(ori);
-        Object serviceObject = null;
-        try {
-            serviceObject = classResourceInfo.getResourceClass().newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-/*        MethodDispatcher md = (MethodDispatcher)
-            exchange.get(Service.class).get(MethodDispatcher.class.getName());
-        Method m = md.getMethod(bop);*/
-        //Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
-        //m = matchMethod(m, serviceObject);
+        Object resourceObject = getServiceObject(exchange);
 
         List<Object> params = null;
         if (o instanceof List) {
@@ -60,11 +54,36 @@ public class JAXRSInvoker extends AbstractInvoker {
             params = new MessageContentsList(o);
         }
 
-        return invoke(exchange, serviceObject, m, params);
+        return invoke(exchange, resourceObject, m, params);
     }
 
-    public Object getServiceObject(Exchange ex) {
-        return null;
+    
+    //REVISIT: Not sure how to deal with Resource class lift cycle yet. The spec suggests
+    //that the root Resource class needs to be created by JSR-311 runtime for every request.
+    public Object getServiceObject(Exchange exchange) {
+        Object serviceObject = null;
+        
+        OperationResourceInfo ori = exchange.get(OperationResourceInfo.class);
+        ClassResourceInfo classResourceInfo = ori.getClassResourceInfo();
+        
+        if (resourceObjects != null) {
+            Class c  = classResourceInfo.getResourceClass();
+            for (Object resourceObject : resourceObjects) {
+                if (c.isInstance(resourceObject)) {
+                    serviceObject = resourceObject;
+                }
+            }
+        }
+        
+        if (serviceObject == null) {
+            try {
+                serviceObject = classResourceInfo.getResourceClass().newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return serviceObject;
     }
 
 }
