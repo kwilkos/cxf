@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.aegis.type.map.fortest;
+package org.apache.cxf.aegis.type.map.ns2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +25,13 @@ import java.util.Map;
 /**
  * An object containing a property of map value.
  */
-public class ObjectWithAMap {
+public class ObjectWithAMapNs2 {
     private Map<String, Boolean> theMap;
     
-    public ObjectWithAMap() {
+    public ObjectWithAMapNs2() {
         theMap = new HashMap<String, Boolean>();
+        theMap.put("rainy", Boolean.TRUE);
+        theMap.put("sunny", Boolean.FALSE);
     }
 
     public Map<String, Boolean> getTheMap() {
