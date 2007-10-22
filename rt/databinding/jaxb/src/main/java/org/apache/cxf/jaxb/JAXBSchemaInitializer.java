@@ -154,20 +154,20 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
     private void createBridgeXsElement(MessagePartInfo part, QName qn, QName typeName) {
         XmlSchemaElement el = null;
-        SchemaInfo schemaInfo = null;
-        for (SchemaInfo s : serviceInfo.getSchemas()) {
-            if (s.getNamespaceURI().equals(qn.getNamespaceURI())) {
-                schemaInfo = s;
-
+        SchemaInfo schemaInfo = serviceInfo.getSchema(qn.getNamespaceURI());
+        if (schemaInfo != null) {
+            el = schemaInfo.getElementByQName(qn);
+            if (el == null) {
                 el = createXsElement(part, typeName, schemaInfo);
 
                 schemaInfo.getSchema().getElements().add(el.getQName(), el);
                 schemaInfo.getSchema().getItems().add(el);
-                
-                return;
+            } else if (!typeName.equals(el.getSchemaTypeName())) {
+                throw new Fault(new Message("CANNOT_CREATE_ELEMENT", LOG, 
+                                            qn, typeName, el.getSchemaTypeName()));
             }
+            return;
         }
-        
         schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
         el = createXsElement(part, typeName, schemaInfo);
 
@@ -205,29 +205,24 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             if (beanInfo == null) {
                 throw new Fault(new Message("NO_BEAN_INFO", LOG, cls.getName()));
             }
-            SchemaInfo schemaInfo = null;
-            for (SchemaInfo s : serviceInfo.getSchemas()) {
-                if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())
-                    && !isExistSchemaElement(s.getSchema(), part.getElementQName())) {
-                    schemaInfo = s;
+            SchemaInfo schemaInfo = serviceInfo.getSchema(part.getElementQName().getNamespaceURI());
+            if (schemaInfo != null
+                && !isExistSchemaElement(schemaInfo.getSchema(), part.getElementQName())) {
                     
-                    XmlSchemaElement el = new XmlSchemaElement();
-                    el.setQName(part.getElementQName());
-                    el.setName(part.getElementQName().getLocalPart());
-                    el.setNillable(true);
-                    
-                    schemaInfo.getSchema().getItems().add(el);
-                    schemaInfo.getSchema().getElements().add(el.getQName(), el);
+                XmlSchemaElement el = new XmlSchemaElement();
+                el.setQName(part.getElementQName());
+                el.setName(part.getElementQName().getLocalPart());
+                el.setNillable(true);
+                
+                schemaInfo.getSchema().getItems().add(el);
+                schemaInfo.getSchema().getElements().add(el.getQName(), el);
 
-                    Iterator<QName> itr = beanInfo.getTypeNames().iterator();
-                    if (!itr.hasNext()) {
-                        continue;
-                    }
-                    QName typeName = itr.next();
-                    el.setSchemaTypeName(typeName);
-
+                Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+                if (!itr.hasNext()) {
                     return;
                 }
+                QName typeName = itr.next();
+                el.setSchemaTypeName(typeName);
             }
         } 
     }
