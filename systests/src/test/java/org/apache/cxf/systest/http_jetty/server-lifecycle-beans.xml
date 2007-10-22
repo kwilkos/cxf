@@ -45,7 +45,9 @@
   <property name="dataBinding" ref="aegisBean" />
  </bean>
 
- <jaxws:endpoint id="dummy-service-endpoint" implementor="org.apache.cxf.systest.http_jetty.Dummy" address="http://localhost:8808/Dummy">
+ <jaxws:endpoint id="dummy-service-endpoint" 
+    implementor="org.apache.cxf.systest.http_jetty.Dummy" 
+    address="http://localhost:8808/Dummy">
   <jaxws:serviceFactory>
    <ref bean='jaxws-and-aegis-service-factory' />
   </jaxws:serviceFactory>
@@ -64,6 +66,13 @@
  <bean id="clientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
   <property name="serviceClass" value="org.apache.cxf.systest.http_jetty.DummyInterface" />
   <property name="address" value="http://localhost:8808/Dummy" />
+ </bean>
+
+<bean id="dummy-client-8801" class="org.apache.cxf.systest.http_jetty.DummyInterface" factory-bean="clientFactory-8801" factory-method="create" />
+
+ <bean id="clientFactory-8801" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="org.apache.cxf.systest.http_jetty.DummyInterface" />
+  <property name="address" value="http://localhost:8801/Dummy" />
  </bean>
 
 </beans>
