@@ -174,12 +174,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     private String removeTrailingSeparator(String addr) {
-        if (addr.lastIndexOf('/') == addr.length() - 1) {
+        if (addr != null && addr.lastIndexOf('/') == addr.length() - 1) {
             return addr.substring(0, addr.length() - 1);
         } else {
             return addr;
         }
     }
+    
     private synchronized String updateEndpointAddress(String addr) {
         // only update the EndpointAddress if the base path is equal
         // make sure we don't broke the get operation?parament query 
