@@ -268,6 +268,9 @@ public abstract class WrapperHelper {
                 Object ret = wrapperType.newInstance();
 
                 for (int x = 0; x < setMethods.length; x++) {
+                    if (setMethods[x] == null && fields[x] == null) {
+                        continue;
+                    }
                     Object o = lst.get(x);
                     if (jaxbObjectMethods[x] != null) {
                         o = jaxbObjectMethods[x].invoke(objectFactory, o);
