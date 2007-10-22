@@ -94,6 +94,7 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
             MessageWriter w2 = writer.getElementWriter(part.getConcreteName());
             if (type.isNillable() && type.isWriteOuter() && obj == null) {
                 w2.writeXsiNil();
+                w2.close();
                 return;
             }
 

@@ -29,6 +29,7 @@ import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.aegis.xml.AbstractMessageWriter;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.StringUtils;
 
 /**
  * LiteralWriter
@@ -99,10 +100,10 @@ public class ElementWriter extends AbstractMessageWriter implements MessageWrite
             String decPrefix = writer.getNamespaceContext().getPrefix(namespace);
 
             // If the user didn't specify a prefix, create one
-            if (prefix == null && decPrefix == null) {
+            if (StringUtils.isEmpty(prefix) && decPrefix == null) {
                 declare = true;
                 prefix = NamespaceHelper.getUniquePrefix(writer);
-            } else if (prefix == null) {
+            } else if (StringUtils.isEmpty(prefix)) {
                 prefix = decPrefix;
             } else if (!prefix.equals(decPrefix)) {
                 declare = true;
