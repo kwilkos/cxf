@@ -23,6 +23,8 @@ import java.util.Map;
 
 import javax.jws.WebService;
 
+import org.apache.cxf.aegis.type.map.ns2.ObjectWithAMapNs2;
+
 /**
  * 
  */
@@ -33,4 +35,8 @@ public interface MapTest {
     void takeMap(ObjectWithAMap map);
     Map<String, Long> getMapStringToLong();
     Map<Long, String> getMapLongToString();
+    
+    ObjectWithAMapNs2 returnObjectWithAMapNs2();
+    void takeMapNs2(ObjectWithAMapNs2 map);
+    
 }
