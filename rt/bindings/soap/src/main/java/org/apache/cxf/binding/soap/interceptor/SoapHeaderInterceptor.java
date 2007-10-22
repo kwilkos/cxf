@@ -97,8 +97,9 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
                 }
                 
             }
-            
-            parameters.put(mpi, object);
+            if (object != null && mpi.getTypeClass() != null) {
+                parameters.put(mpi, object);
+            }
         }
         if (parameters.size() > 0) {
             message.setContent(List.class, parameters);
