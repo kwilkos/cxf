@@ -364,7 +364,7 @@ public final class SOAPBindingUtil {
         for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {
             BindingOperation bindingOp = (BindingOperation)ite2.next();
             String bopStyle = getSOAPOperationStyle(bindingOp);
-            if (!"".equals(bopStyle)) {
+            if (!StringUtils.isEmpty(bopStyle)) {
                 return bopStyle;
             }
         }

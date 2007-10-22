@@ -300,7 +300,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
                     for (Iterator ite3 = inMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null
+                        if (SOAPBinding.Style.RPC.name().equalsIgnoreCase(style) && p.getTypeName() == null
                             && !isHeaderPart(bop, p)) {
                             addErrorMessage("An rpc-literal binding in a DESCRIPTION MUST refer, "
                                             + "in its soapbind:body element(s), only to "
@@ -309,7 +309,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                             return false;
                         }
 
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name())
+                        if (SOAPBinding.Style.DOCUMENT.name().equalsIgnoreCase(style)
                             && p.getElementName() == null) {
                             addErrorMessage("A document-literal binding in a DESCRIPTION MUST refer, "
                                             + "in each of its soapbind:body element(s),"

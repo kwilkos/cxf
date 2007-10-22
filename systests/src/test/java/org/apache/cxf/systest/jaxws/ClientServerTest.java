@@ -843,7 +843,6 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
             client.invoke("greetMe", "test");        
             Object[] result = client.invoke("sayHi");
             assertNotNull("no response received from service", result);
-            System.out.println(result[0]);
             assertEquals("Bonjour", result[0]);
         } catch (Exception e) {            
             e.printStackTrace();
