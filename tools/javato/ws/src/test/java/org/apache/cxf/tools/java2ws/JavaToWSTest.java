@@ -26,6 +26,7 @@ import java.net.URLClassLoader;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolTestBase;
+import org.apache.cxf.tools.util.Compiler;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,15 +37,20 @@ public class JavaToWSTest extends ToolTestBase {
     protected String cp;
     protected ToolContext env;
     protected File output;
+    protected File classDir;
 
     @Before
-    public void startUp() throws Exception {
+    public void setUpResource() throws Exception {
+        super.setUp();
         env = new ToolContext();
         cp = System.getProperty("java.class.path");
         URL url = getClass().getResource(".");
         output = new File(url.toURI());
+        System.setProperty("java.class.path", getClassPath());
         output = new File(output, "/generated/");
         FileUtils.mkDir(output);
+        classDir = new File(output, "/classes/");
+        FileUtils.mkDir(classDir);    
     }
     
     @After
@@ -106,6 +112,13 @@ public class JavaToWSTest extends ToolTestBase {
         assertTrue("Failed to generate client file for simple front end ", client.exists());
         assertTrue("Failed to generate server file for simple front end ", server.exists());
         assertTrue("Failed to generate impl file for simple front end ", impl.exists());
+        Compiler compiler = new Compiler();
+        String[] files = new String[]{client.getAbsoluteFile().toString(),
+                                     server.getAbsoluteFile().toString(), 
+                                     impl.getAbsoluteFile().toString()};
+        compiler.compileFiles(files, this.classDir);
+        
+        
     }
         
     @Test
@@ -210,6 +223,7 @@ public class JavaToWSTest extends ToolTestBase {
                    .indexOf("Simple front end only supports aegis databinding") > -1);
     }
     
+    
     @Test
     public void testImplClassWithoutSei() throws Exception {
         File wsdlFile = outputFile("tmp.wsdl");
@@ -226,9 +240,7 @@ public class JavaToWSTest extends ToolTestBase {
         File server = outputFile("org/apache/cxf/tools/fortest/GreeterImpl_PortTypeServer.java");
         assertTrue("Failed to generate SEI file : GreeterImpl_PortTypeServer.java", server.exists());
     }
-    
-    
-
+        
     protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();

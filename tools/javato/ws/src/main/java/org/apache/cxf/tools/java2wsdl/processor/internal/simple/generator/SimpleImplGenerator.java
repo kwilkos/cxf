@@ -59,6 +59,7 @@ public class SimpleImplGenerator extends AbstractSimpleGenerator {
         for (JavaInterface intf : interfaces.values()) {
             clearAttributes();
             setAttributes("intf", intf);
+            setAttributes("seiClass", env.get(ToolConstants.SEI_CLASS));
             setCommonAttributes();
 
             doWrite(IMPL_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Impl"));

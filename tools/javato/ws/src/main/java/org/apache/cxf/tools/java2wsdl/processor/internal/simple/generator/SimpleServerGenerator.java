@@ -62,6 +62,7 @@ public class SimpleServerGenerator extends AbstractSimpleGenerator {
             setAttributes("implClass", env.get(ToolConstants.IMPL_CLASS));
             setCommonAttributes();
             doWrite(SERVER_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Server"));
+            env.put(ToolConstants.SERVER_CLASS, intf.getFullClassName() + "Server");
         }
     }
 
