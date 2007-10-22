@@ -33,6 +33,13 @@
            http://www.springframework.org/schema/beans
               http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
  <httpj:engine-factory bus="cxf">
+  <httpj:engine port='8801'>
+   <httpj:connector>
+    <bean class="org.mortbay.jetty.bio.SocketConnector">
+     <property name="port" value="8801"/>
+    </bean>
+   </httpj:connector>
+  </httpj:engine>
   <httpj:engine port="8808">
    <httpj:handlers>
        <bean class="org.mortbay.jetty.handler.RequestLogHandler">
