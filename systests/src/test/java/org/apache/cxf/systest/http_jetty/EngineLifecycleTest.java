@@ -86,6 +86,11 @@ public class EngineLifecycleTest extends Assert {
         DummyInterface client = (DummyInterface) applicationContext.getBean("dummy-client");
         assertEquals("We should get out put from this client", "hello world", client.echo("hello world"));
     }
+
+    private void invokeService8801() {        
+        DummyInterface client = (DummyInterface) applicationContext.getBean("dummy-client-8801");
+        assertEquals("We should get out put from this client", "hello world", client.echo("hello world"));
+    }
     
     private HttpURLConnection getHttpConnection(String target) throws Exception {
         URL url = new URL(target);       
@@ -187,13 +192,15 @@ public class EngineLifecycleTest extends Assert {
         setReuseAddrForServer(8801);
 
         getTestHtml();
-        invokeService();        
+        invokeService();    
+        invokeService8801();
         shutdownService();
 
         setUpBus(true);
         setReuseAddrForServer(8801);
 
         invokeService();            
+        invokeService8801();
         getTestHtml();
         
         shutdownService();
