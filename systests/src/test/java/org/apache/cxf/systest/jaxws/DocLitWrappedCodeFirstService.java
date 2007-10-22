@@ -93,7 +93,7 @@ public interface DocLitWrappedCodeFirstService {
     @RequestWrapper(className = "org.apache.cxf.systest.jaxws.Echo")
     @ResponseWrapper(className = "org.apache.cxf.systest.jaxws.EchoResponse")
     String echo(@WebParam(targetNamespace = 
-            "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+            "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService2", 
                           name = "String_1")
                         String msg);
 

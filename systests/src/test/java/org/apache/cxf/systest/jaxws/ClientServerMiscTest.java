@@ -58,7 +58,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
     }
     
     @Test
