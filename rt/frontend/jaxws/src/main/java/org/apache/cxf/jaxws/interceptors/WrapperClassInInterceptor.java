@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -120,10 +121,25 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             try {
                 newParams = new MessageContentsList(helper.getWrapperParts(wrappedObject));
                 
+                List<Integer> removes = null;
                 for (MessagePartInfo part : messageInfo.getMessageParts()) {
                     if (Boolean.TRUE.equals(part.getProperty(ReflectionServiceFactoryBean.HEADER))) {
                         MessagePartInfo mpi = wrappedMessageInfo.getMessagePart(part.getName());
-                        newParams.put(part, lst.get(mpi));
+                        if (lst.hasValue(mpi)) {
+                            newParams.put(part, lst.get(mpi));
+                        } else if (mpi.getTypeClass() == null) {
+                            //header, but not mapped to a param on the method
+                            if (removes == null) {
+                                removes = new ArrayList<Integer>();
+                            }
+                            removes.add(mpi.getIndex());
+                        }
+                    }
+                }
+                if (removes != null) {
+                    Collections.sort(removes, Collections.reverseOrder());
+                    for (Integer i : removes) {
+                        newParams.remove(i.intValue());
                     }
                 }
             } catch (Exception e) {
