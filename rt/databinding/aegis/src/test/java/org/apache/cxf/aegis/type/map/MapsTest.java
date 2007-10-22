@@ -31,6 +31,8 @@ import javax.wsdl.factory.WSDLFactory;
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.type.map.fortest.MapTest;
 import org.apache.cxf.aegis.type.map.fortest.MapTestImpl;
+import org.apache.cxf.aegis.type.map.fortest.ObjectWithAMap;
+import org.apache.cxf.aegis.type.map.ns2.ObjectWithAMapNs2;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
@@ -43,8 +45,8 @@ import org.junit.Test;
  */
 public class MapsTest extends AbstractAegisTest {
     
-    private MapTest clientInterface;
-    private Server server;
+    private static MapTest clientInterface;
+    private static Server server;
 
     @Before
     public void setUp() throws Exception {
@@ -87,5 +89,25 @@ public class MapsTest extends AbstractAegisTest {
     public void testInvocations() throws Exception {
         Map<Long, String> lts = clientInterface.getMapLongToString();
         assertEquals("twenty-seven", lts.get(Long.valueOf(27)));
+    }
+    
+    @Test
+    public void testObjectsWithMaps() throws Exception {
+        ObjectWithAMap obj1 = clientInterface.returnObjectWithAMap();
+        ObjectWithAMapNs2 obj2 = clientInterface.returnObjectWithAMapNs2();
+        assertNotNull(obj1);
+        assertNotNull(obj2);
+        
+        assertNotNull(obj1.getTheMap());
+        assertNotNull(obj2.getTheMap()); 
+        
+        assertEquals(2, obj1.getTheMap().size());
+        assertEquals(3, obj2.getTheMap().size());
+        
+        assertTrue(obj1.getTheMap().get("rainy"));
+        assertTrue(obj2.getTheMap().get("rainy"));
+        assertFalse(obj1.getTheMap().get("sunny"));
+        assertFalse(obj2.getTheMap().get("sunny"));
+        assertFalse(obj2.getTheMap().get("cloudy"));
     }
 }

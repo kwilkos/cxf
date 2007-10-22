@@ -22,6 +22,8 @@ package org.apache.cxf.aegis.type.map.fortest;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.cxf.aegis.type.map.ns2.ObjectWithAMapNs2;
+
 public class MapTestImpl implements MapTest {
 
     public Map<String, Long> getMapStringToLong() {
@@ -35,7 +37,10 @@ public class MapTestImpl implements MapTest {
     }
 
     public ObjectWithAMap returnObjectWithAMap() {
-        return new ObjectWithAMap();
+        ObjectWithAMap ret = new ObjectWithAMap();
+        ret.getTheMap().put("rainy", Boolean.TRUE);
+        ret.getTheMap().put("sunny", Boolean.FALSE);
+        return ret;
     }
 
     public Map<Long, String> getMapLongToString() {
@@ -43,6 +48,17 @@ public class MapTestImpl implements MapTest {
         map.put(Long.valueOf(1), "one");
         map.put(Long.valueOf(27), "twenty-seven");
         return map;
+    }
+
+    public ObjectWithAMapNs2 returnObjectWithAMapNs2() {
+        ObjectWithAMapNs2 ret = new ObjectWithAMapNs2();
+        ret.getTheMap().put("rainy", Boolean.TRUE);
+        ret.getTheMap().put("sunny", Boolean.FALSE);
+        ret.getTheMap().put("cloudy", Boolean.FALSE);
+        return ret;
+    }
+
+    public void takeMapNs2(ObjectWithAMapNs2 map) {
     }
 
 }
