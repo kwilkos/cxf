@@ -230,4 +230,8 @@ public final class ToolConstants {
     public static final String PORT_NAME = "portName";
     public static final String DEFAULT_DATA_BINDING_NAME = "jaxb";
     public static final String DATABIND_BEAN_NAME_SUFFIX = "DatabindingBean";
+
+
+    public static final String CLIENT_CLASS = "clientClass";
+    public static final String SERVER_CLASS = "serverClass";
 }
