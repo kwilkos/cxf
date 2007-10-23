@@ -311,6 +311,13 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
         } catch (ServiceTestFault ex) {
             assertEquals(10, ex.getFaultInfo().getId());
         }
+        // CXF-1131 testcase
+        try {
+            port.throwException(-1);
+            fail("Expected exception not found");
+        } catch (ServiceTestFault ex) {
+            assertNull(ex.getFaultInfo());
+        }
     }
     
     
