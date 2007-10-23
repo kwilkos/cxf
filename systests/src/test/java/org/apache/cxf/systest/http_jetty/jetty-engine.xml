@@ -42,13 +42,6 @@
   </httpj:engine>
   <httpj:engine port="8808">
    <httpj:handlers>
-       <bean class="org.mortbay.jetty.handler.RequestLogHandler">
-      <property name="requestLog">
-        <bean class="org.mortbay.jetty.NCSARequestLog">
-         <property name="filename" value="jetty.log"/>
-        </bean>
-      </property>
-    </bean>
     <bean class="org.mortbay.jetty.webapp.WebAppContext">
       <constructor-arg value="."/>
       <constructor-arg value="/jsunit"/>
