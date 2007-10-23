@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -33,6 +35,7 @@ import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
@@ -53,6 +56,7 @@ import org.apache.cxf.staxutils.W3CDOMStreamReader;
  * @author Dan Diephouse
  */
 public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
+    private static final Logger LOG = LogUtils.getLogger(ClientFaultConverter.class);
 
     public ClientFaultConverter() {
         super(Phase.UNMARSHAL);
@@ -118,16 +122,22 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         }
         
         if (!(e instanceof Exception)) {
-            Class<?> exClass = faultWanted.getProperty(Class.class.getName(), Class.class);
-            Class<?> beanClass = e.getClass();
+            
             try {
-                Constructor constructor = exClass.getConstructor(new Class[]{String.class, beanClass});
-                e = constructor.newInstance(new Object[]{fault.getMessage(), e});
+                Class<?> exClass = faultWanted.getProperty(Class.class.getName(), Class.class);
+                if (e == null) { 
+                    Constructor constructor = exClass.getConstructor(new Class[]{String.class});
+                    e = constructor.newInstance(new Object[]{fault.getMessage()});
+                } else {
+                    Class<?> beanClass = e.getClass();
+                    Constructor constructor = exClass.getConstructor(new Class[]{String.class, beanClass});
+                    e = constructor.newInstance(new Object[]{fault.getMessage(), e});
+                }
+                msg.setContent(Exception.class, e);
             } catch (Exception e1) {
-                throw new Fault(e1);
+                LogUtils.log(LOG, Level.INFO, "EXCEPTION_WHILE_CREATING_EXCEPTION", e1, e1.getMessage());
             }
         }
-        msg.setContent(Exception.class, e);
     }
 
     private boolean isDOMSupported(DataBinding db) {
