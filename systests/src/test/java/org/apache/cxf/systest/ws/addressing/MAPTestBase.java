@@ -271,6 +271,7 @@ public abstract class MAPTestBase extends AbstractClientServerTestBase implement
     
     
     @Test
+    @Ignore("Random failure on Linux")
     public void testApplicationFault() throws Exception {
         try {
             greeter.testDocLitFault("BadRecordLitFault");
