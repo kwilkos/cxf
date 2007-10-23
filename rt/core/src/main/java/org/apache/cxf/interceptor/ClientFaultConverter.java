@@ -137,7 +137,10 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
             } catch (Exception e1) {
                 LogUtils.log(LOG, Level.INFO, "EXCEPTION_WHILE_CREATING_EXCEPTION", e1, e1.getMessage());
             }
+        } else if (e != null) {
+            msg.setContent(Exception.class, e);
         }
+        
     }
 
     private boolean isDOMSupported(DataBinding db) {
