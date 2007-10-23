@@ -37,16 +37,24 @@ public class $expClass.Name extends Exception {
     
     $field.Modifier $field.ClassName $paraName;
 
-    public $expClass.Name (String message) {
+    public ${expClass.Name}() {
+        super();
+    }
+    
+    public ${expClass.Name}(String message) {
         super(message);
     }
+    
+    public ${expClass.Name}(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    public $expClass.Name (String message, $field.ClassName $paraName) {
+    public ${expClass.Name}(String message, $field.ClassName $paraName) {
         super(message);
         this.$paraName = $paraName;
     }
 
-    public $expClass.Name (String message, $field.ClassName $paraName, Throwable cause) {
+    public ${expClass.Name}(String message, $field.ClassName $paraName, Throwable cause) {
         super(message, cause);
         this.$paraName = $paraName;
     }
