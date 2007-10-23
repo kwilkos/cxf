@@ -46,7 +46,7 @@ import org.apache.cxf.transport.http_jetty.JettyHTTPServerEngine;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+
 
 import org.junit.Test;
 import org.mortbay.jetty.Connector;
@@ -76,7 +76,7 @@ public class EngineLifecycleTest extends Assert {
     
     @Before 
     public void setSystemProperties() {
-        close = System.getProperty("org.apache.cxf.transports.http_jetty.DontClosePort");
+        close = System.getProperty("org.apache.cxf.transports.http_jetty.DontClosePort");        
         System.setProperty("org.apache.cxf.transports.http_jetty.DontClosePort", "false");
         
     }
@@ -162,6 +162,7 @@ public class EngineLifecycleTest extends Assert {
         bus.shutdown(true);
         applicationContext.destroy();
         applicationContext.close();
+        //Waiting for the releasing of the socket
         Thread.sleep(2000);
         
     }
@@ -221,7 +222,8 @@ public class EngineLifecycleTest extends Assert {
                 turnedOnReuseAddr = socket.getReuseAddress();
             }
         }
-        assertTrue(turnedOnReuseAddr); // insure that we actually found the server for 8801 and did the deed.
+        assertTrue("Did not set the socket's ReuseAddress to be true", turnedOnReuseAddr); 
+        // insure that we actually found the server for the port and did the deed.
         
     }
     
@@ -242,8 +244,7 @@ public class EngineLifecycleTest extends Assert {
      * 
      * @throws Exception
      */
-    @Test
-    @Ignore("not working yet")
+    @Test   
     public void testServerUpDownUp() throws Exception {
         
         setUpBus(true);
@@ -255,7 +256,9 @@ public class EngineLifecycleTest extends Assert {
         shutdownService();
         verifyNoServer(8808);
         verifyNoServer(8801);
-        
+        // For some multicores linux box
+        // It will take more time to release the socket
+        Thread.sleep(4000);
         
         setUpBus(true);
         setReuseAddrForServer(8801);
