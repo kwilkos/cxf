@@ -34,7 +34,7 @@ public final class LoggerHelper {
     public static final String WRITER_HANDLER = "WriterHandler";
     private static String rootLoggerName = "org.apache.cxf";
     private static boolean initComplete;
-    private static Level currentLogLevel = Level.WARNING;;
+    private static Level currentLogLevel = Level.WARNING;
 
     private LoggerHelper() {
         //do nothing here
@@ -57,8 +57,7 @@ public final class LoggerHelper {
                 final WriterHandler handler = new WriterHandler(writer);
                 cxfLogger.addHandler(handler);
             }
-            // log just to the print writer
-            disableConsoleLogging();
+
         }
     }
     
