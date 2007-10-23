@@ -119,6 +119,9 @@ public class DocLitWrappedCodeFirstServiceImpl implements DocLitWrappedCodeFirst
     }
    
     public int throwException(int i) throws ServiceTestFault {
+        if (i == -1) {
+            throw new ServiceTestFault("Hello!");
+        }
         throw new ServiceTestFault(new ServiceTestFault.ServiceTestDetails(i));
     }
     
