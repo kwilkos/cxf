@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class OperationNSTest extends AbstractAegisTest {
     public void testWSDL() throws Exception {
         Collection<Document> wsdls = getWSDLDocuments("NotificationService");
 
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("xsd", SOAPConstants.XSD);
         //assertValid("//xsd:element[@name='Notify']", wsdl);
         assertTrue(isExist(wsdls, "//xsd:element[@name='Notify']", getNamespaces()));
     }

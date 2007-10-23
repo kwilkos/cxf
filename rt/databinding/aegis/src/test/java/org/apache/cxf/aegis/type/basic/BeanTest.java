@@ -32,12 +32,12 @@ import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.DefaultTypeMappingRegistry;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.util.jdom.StaxBuilder;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.DOMOutputter;
@@ -52,7 +52,7 @@ public class BeanTest extends AbstractAegisTest {
 
         addNamespace("b", "urn:Bean");
         addNamespace("a", "urn:anotherns");
-        addNamespace("xsi", XmlConstants.XSI_NS);
+        addNamespace("xsi", SOAPConstants.XSI_NS);
 
         reg = new DefaultTypeMappingRegistry(true);
         mapping = reg.createTypeMapping(true);
@@ -199,8 +199,8 @@ public class BeanTest extends AbstractAegisTest {
         assertValid("/b:root[@b:bleh='bleh']", element);
         assertValid("/b:root[@b:howdy='howdy']", element);
 
-        Element types = new Element("types", "xsd", XmlConstants.XSD);
-        Element schema = new Element("schema", "xsd", XmlConstants.XSD);
+        Element types = new Element("types", "xsd", SOAPConstants.XSD);
+        Element schema = new Element("schema", "xsd", SOAPConstants.XSD);
         types.addContent(schema);
 
         new Document(types);
@@ -272,8 +272,8 @@ public class BeanTest extends AbstractAegisTest {
         assertInvalid("/b:root[@b:howdy]", element);
         assertValid("/b:root/b:bleh[@xsi:nil='true']", element);
 
-        Element types = new Element("types", "xsd", XmlConstants.XSD);
-        Element schema = new Element("schema", "xsd", XmlConstants.XSD);
+        Element types = new Element("types", "xsd", SOAPConstants.XSD);
+        Element schema = new Element("schema", "xsd", SOAPConstants.XSD);
         types.addContent(schema);
 
         new Document(types);
@@ -294,8 +294,8 @@ public class BeanTest extends AbstractAegisTest {
         type.setTypeMapping(mapping);
         type.setSchemaType(new QName("urn:Bean", "bean"));
 
-        Element types = new Element("types", "xsd", XmlConstants.XSD);
-        Element schema = new Element("schema", "xsd", XmlConstants.XSD);
+        Element types = new Element("types", "xsd", SOAPConstants.XSD);
+        Element schema = new Element("schema", "xsd", SOAPConstants.XSD);
         types.addContent(schema);
 
         new Document(types);
@@ -326,8 +326,8 @@ public class BeanTest extends AbstractAegisTest {
         type.setTypeClass(IntBean.class);
         type.setTypeMapping(mapping);
 
-        Element types = new Element("types", "xsd", XmlConstants.XSD);
-        Element schema = new Element("schema", "xsd", XmlConstants.XSD);
+        Element types = new Element("types", "xsd", SOAPConstants.XSD);
+        Element schema = new Element("schema", "xsd", SOAPConstants.XSD);
         types.addContent(schema);
 
         new Document(types);
@@ -413,7 +413,7 @@ public class BeanTest extends AbstractAegisTest {
         // just
         // shouldn't be there.
 
-        addNamespace("xsi", XmlConstants.XSI_NS);
+        addNamespace("xsi", SOAPConstants.XSI_NS);
         assertValid("/b:root/b:data[@xsi:nil='true']", element);
 
         bean = (ByteBean)type.readObject(new JDOMReader(element), new Context());

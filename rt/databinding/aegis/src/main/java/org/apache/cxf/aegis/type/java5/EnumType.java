@@ -21,9 +21,9 @@ package org.apache.cxf.aegis.type.java5;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -53,14 +53,14 @@ public class EnumType extends Type {
 
     @Override
     public void writeSchema(Element root) {
-        Namespace xsd = Namespace.getNamespace(XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Namespace xsd = Namespace.getNamespace(SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
 
         Element simple = new Element("simpleType", xsd);
         simple.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
         root.addContent(simple);
 
         Element restriction = new Element("restriction", xsd);
-        restriction.setAttribute(new Attribute("base", XmlConstants.XSD_PREFIX + ":string"));
+        restriction.setAttribute(new Attribute("base", SOAPConstants.XSD_PREFIX + ":string"));
         simple.addContent(restriction);
 
         Object[] constants = getTypeClass().getEnumConstants();

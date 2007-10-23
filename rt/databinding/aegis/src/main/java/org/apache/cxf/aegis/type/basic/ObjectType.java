@@ -31,10 +31,10 @@ import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -50,8 +50,8 @@ import org.jdom.Element;
  * @author <a href="mailto:peter.royal@pobox.com">peter royal</a>
  */
 public class ObjectType extends Type {
-    private static final QName XSI_TYPE = new QName(XmlConstants.XSI_NS, "type");
-    private static final QName XSI_NIL = new QName(XmlConstants.XSI_NS, "nil");
+    private static final QName XSI_TYPE = new QName(SOAPConstants.XSI_NS, "type");
+    private static final QName XSI_NIL = new QName(SOAPConstants.XSI_NS, "nil");
 
     private Set<Type> dependencies;
     private boolean serializedWhenUnknown;
@@ -295,12 +295,12 @@ public class ObjectType extends Type {
     @Override
     public void writeSchema(Element root) {
         if (serializedWhenUnknown) {
-            Element simple = new Element("simpleType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element simple = new Element("simpleType", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             simple.setAttribute(new Attribute("name", "serializedJavaObject"));
             root.addContent(simple);
 
-            Element restriction = new Element("restriction", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
-            restriction.setAttribute(new Attribute("base", XmlConstants.XSD_PREFIX + ":base64Binary"));
+            Element restriction = new Element("restriction", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
+            restriction.setAttribute(new Attribute("base", SOAPConstants.XSD_PREFIX + ":base64Binary"));
 
             simple.addContent(restriction);
         }

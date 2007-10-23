@@ -22,7 +22,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.DatabindingException;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 
 /**
  * Basic type conversions for reading messages.
@@ -30,7 +30,7 @@ import org.apache.cxf.aegis.util.XmlConstants;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public abstract class AbstractMessageReader implements MessageReader {
-    private static final QName XSI_NIL = new QName(XmlConstants.XSI_NS, "nil", XmlConstants.XSI_PREFIX);
+    private static final QName XSI_NIL = new QName(SOAPConstants.XSI_NS, "nil", SOAPConstants.XSI_PREFIX);
 
     public AbstractMessageReader() {
     }

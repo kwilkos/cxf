@@ -23,7 +23,7 @@ package org.apache.cxf.aegis.type.java5;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.junit.Test;
 
@@ -40,7 +40,7 @@ public class DualOutServiceTest extends AbstractAegisTest {
         Document wsdl = getWSDLDocument("DualOutService");
         assertNotNull(wsdl);
  
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("xsd", SOAPConstants.XSD);
  
         assertValid(
                     "//xsd:complexType[@name='getValuesResponse']//xsd:element"

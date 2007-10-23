@@ -36,10 +36,10 @@ import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.util.NamespaceHelper;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.interceptor.Fault;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -387,7 +387,7 @@ public class BeanType extends Type {
     @Override
     public void writeSchema(Element root) {
         BeanTypeInfo inf = getTypeInfo();
-        Element complex = new Element("complexType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element complex = new Element("complexType", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         complex.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
         root.addContent(complex);
 
@@ -403,7 +403,9 @@ public class BeanType extends Type {
         }
 
         if (inf.isExtension() && sooperType != null) {
-            Element complexContent = new Element("complexContent", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element complexContent = new Element("complexContent", 
+                                                 SOAPConstants.XSD_PREFIX, 
+                                                 SOAPConstants.XSD);
             complex.addContent(complexContent);
             complex = complexContent;
         }
@@ -418,7 +420,7 @@ public class BeanType extends Type {
 
         if (isExtension && sooperType != null) {
 
-            Element extension = new Element("extension", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element extension = new Element("extension", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             complex.addContent(extension);
             QName baseType = sooperType.getSchemaType();
             extension.setAttribute(new Attribute("base", getNameWithPrefix2(root, baseType
@@ -444,11 +446,11 @@ public class BeanType extends Type {
             }
 
             if (seq == null) {
-                seq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+                seq = new Element("sequence", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
                 dummy.addContent(seq);
             }
 
-            Element element = new Element("element", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element element = new Element("element", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             seq.addContent(element);
 
             Type type = getType(inf, name);
@@ -466,7 +468,7 @@ public class BeanType extends Type {
          */
         if (inf.isExtensibleElements()) {
             if (seq == null) {
-                seq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+                seq = new Element("sequence", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
                 dummy.addContent(seq);
             }
             seq.addContent(createAnyElement());
@@ -476,7 +478,7 @@ public class BeanType extends Type {
         for (Iterator itr = inf.getAttributes(); itr.hasNext();) {
             QName name = (QName)itr.next();
 
-            Element element = new Element("attribute", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element element = new Element("attribute", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             dummy.addContent(element);
 
             Type type = getType(inf, name);
@@ -664,7 +666,7 @@ public class BeanType extends Type {
      * @return
      */
     private Element createAnyElement() {
-        Element result = new Element("any", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element result = new Element("any", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         result.setAttribute(new Attribute("minOccurs", "0"));
         result.setAttribute(new Attribute("maxOccurs", "unbounded"));
         return result;
@@ -693,7 +695,7 @@ public class BeanType extends Type {
      * @return
      */
     private Element createAnyAttribute() {
-        return new Element("anyAttribute", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        return new Element("anyAttribute", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
     }
 
 }

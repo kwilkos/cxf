@@ -27,9 +27,9 @@ import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.aegis.Context;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.attachment.ByteDataSource;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.message.Attachment;
 
 /**
@@ -38,7 +38,7 @@ import org.apache.cxf.message.Attachment;
 public class ByteArrayType extends AbstractXOPType {
     public ByteArrayType() {
         setTypeClass(byte[].class);
-        setSchemaType(new QName(XmlConstants.XSD, "base64Binary"));
+        setSchemaType(new QName(SOAPConstants.XSD, "base64Binary"));
     }
 
     @Override

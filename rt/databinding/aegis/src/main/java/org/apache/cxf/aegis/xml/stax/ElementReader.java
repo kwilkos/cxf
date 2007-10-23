@@ -28,9 +28,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.DatabindingException;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.AbstractMessageReader;
 import org.apache.cxf.aegis.xml.MessageReader;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -106,7 +106,7 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
         /*
          * We're making a conscious choice here -- garbage in == garbate out.
          */
-        String xsiTypeQname = root.getAttributeValue(XmlConstants.XSI_NS, "type");
+        String xsiTypeQname = root.getAttributeValue(SOAPConstants.XSI_NS, "type");
         if (xsiTypeQname != null) {
             Matcher m = QNAME_PATTERN.matcher(xsiTypeQname);
             if (m.matches()) {

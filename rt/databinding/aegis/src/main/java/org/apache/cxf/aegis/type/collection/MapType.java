@@ -32,9 +32,9 @@ import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.util.NamespaceHelper;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -176,27 +176,27 @@ public class MapType extends Type {
 
     @Override
     public void writeSchema(Element root) {
-        Element complex = new Element("complexType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element complex = new Element("complexType", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         complex.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
         root.addContent(complex);
 
-        Element seq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element seq = new Element("sequence", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         complex.addContent(seq);
 
         Type kType = getKeyType();
         Type vType = getValueType();
 
-        Element element = new Element("element", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element element = new Element("element", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         seq.addContent(element);
 
         element.setAttribute(new Attribute("name", getEntryName().getLocalPart()));
         element.setAttribute(new Attribute("minOccurs", "0"));
         element.setAttribute(new Attribute("maxOccurs", "unbounded"));
 
-        Element evComplex = new Element("complexType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element evComplex = new Element("complexType", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         element.addContent(evComplex);
 
-        Element evseq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element evseq = new Element("sequence", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         evComplex.addContent(evseq);
 
         createElement(root, evseq, getKeyName(), kType);
@@ -207,7 +207,7 @@ public class MapType extends Type {
      * Creates a element in a sequence for the key type and the value type.
      */
     private void createElement(Element root, Element seq, QName name, Type type) {
-        Element element = new Element("element", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+        Element element = new Element("element", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
         seq.addContent(element);
 
         String prefix = NamespaceHelper.getUniquePrefix((Element)root, type.getSchemaType()

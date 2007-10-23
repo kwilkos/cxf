@@ -36,11 +36,11 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.databinding.AegisServiceConfiguration;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.frontend.AbstractEndpointFactory;
@@ -92,9 +92,9 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
         
 
-        addNamespace("wsdl", XmlConstants.WSDL11_NS);
-        addNamespace("wsdlsoap", XmlConstants.WSDL11_SOAP_NS);
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("wsdl", SOAPConstants.WSDL11_NS);
+        addNamespace("wsdlsoap", SOAPConstants.WSDL11_SOAP_NS);
+        addNamespace("xsd", SOAPConstants.XSD);
 
 
     }

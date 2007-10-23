@@ -43,8 +43,8 @@ import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.TypeMappingRegistry;
 import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.type.basic.BeanType;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
@@ -142,7 +142,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         this.service = s;
         
         QName serviceName = s.getServiceInfos().get(0).getName();
-        TypeMapping serviceTM = typeMappingRegistry.createTypeMapping(XmlConstants.XSD, true);
+        TypeMapping serviceTM = typeMappingRegistry.createTypeMapping(SOAPConstants.XSD, true);
         typeMappingRegistry.register(serviceName.getNamespaceURI(), serviceTM);
 
         s.put(TypeMapping.class.getName(), serviceTM);
@@ -326,12 +326,12 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
         }
 
         for (Map.Entry<String, Set<Type>> entry : tns2Type.entrySet()) {
-            String xsdPrefix = XmlConstants.XSD_PREFIX;
-            if (namespaceMap != null && namespaceMap.containsKey(XmlConstants.XSD)) {
-                xsdPrefix = namespaceMap.get(XmlConstants.XSD);
+            String xsdPrefix = SOAPConstants.XSD_PREFIX;
+            if (namespaceMap != null && namespaceMap.containsKey(SOAPConstants.XSD)) {
+                xsdPrefix = namespaceMap.get(SOAPConstants.XSD);
             }
             
-            Element e = new Element("schema", xsdPrefix, XmlConstants.XSD);
+            Element e = new Element("schema", xsdPrefix, SOAPConstants.XSD);
 
             e.setAttribute(new Attribute(WSDLConstants.ATTR_TNS, entry.getKey()));
             
@@ -363,7 +363,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             try {
                 NamespaceMap nsMap = new NamespaceMap();
                 
-                nsMap.add(xsdPrefix, XmlConstants.XSD);
+                nsMap.add(xsdPrefix, SOAPConstants.XSD);
                 
                 // We prefer explicit prefixes over those generated in the types.
                 // This loop may have intended to support prefixes from individual aegis files,

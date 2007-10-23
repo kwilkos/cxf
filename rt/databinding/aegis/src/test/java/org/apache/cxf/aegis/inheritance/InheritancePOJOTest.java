@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +94,7 @@ public class InheritancePOJOTest extends AbstractAegisTest {
     @Test
     public void testLocalGetEmployee() throws Exception {
         Node response = invoke("InheritanceService", "GetEmployee.xml");
-        addNamespace("xsi", XmlConstants.XSI_NS);
+        addNamespace("xsi", SOAPConstants.XSI_NS);
         addNamespace("w", "urn:xfire:inheritance");
         addNamespace("p", "http://inheritance.aegis.cxf.apache.org");
         assertValid("//s:Body/w:getEmployeeResponse/w:return/p:division", response);

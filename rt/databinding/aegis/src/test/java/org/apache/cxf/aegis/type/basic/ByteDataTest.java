@@ -23,7 +23,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.services.DataService;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.junit.Test;
 
 /**
@@ -51,9 +51,9 @@ public class ByteDataTest extends AbstractAegisTest {
 
     public void testBeanServiceWSDL() throws Exception {
         Document doc = getWSDLDocument("DataService");
-        addNamespace("wsdl", XmlConstants.WSDL11_NS);
-        addNamespace("wsdlsoap", XmlConstants.WSDL11_SOAP_NS);
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("wsdl", SOAPConstants.WSDL11_NS);
+        addNamespace("wsdlsoap", SOAPConstants.WSDL11_SOAP_NS);
+        addNamespace("xsd", SOAPConstants.XSD);
 
         assertValid("//xsd:element[@name='data'][@type='xsd:base64Binary']", doc);
     }

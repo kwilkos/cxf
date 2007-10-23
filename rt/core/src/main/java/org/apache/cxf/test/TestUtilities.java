@@ -58,10 +58,11 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 /**
- * This class provides unit test support for tests that look at generated WSDL contents. 
+ * This class provides unit test support for tests that look at generated WSDL
+ * contents.
  */
 public class TestUtilities {
-    
+
     private static String basedirPath;
     protected Bus bus;
     protected Class<?> classpathAnchor;
@@ -70,32 +71,34 @@ public class TestUtilities {
      * Namespaces for the XPath expressions.
      */
     private Map<String, String> namespaces = new HashMap<String, String>();
-    
+
     /**
-     * This class provides utilities to several conflicting inheritance stacks of test
-     * support. Thus, it can't be a base class, and so can't use getClass() to find resources.
-     * Users should pass getClass() to this constructor instead.
+     * This class provides utilities to several conflicting inheritance stacks
+     * of test support. Thus, it can't be a base class, and so can't use
+     * getClass() to find resources. Users should pass getClass() to this
+     * constructor instead.
+     * 
      * @param classpathReference
      */
     public TestUtilities(Class<?> classpathReference) {
         classpathAnchor = classpathReference;
     }
-    
+
     public void addDefaultNamespaces() {
         addNamespace("s", "http://schemas.xmlsoap.org/soap/envelope/");
         addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
         addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
         addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
         addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
-        addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");        
+        addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");
         addNamespace("xml", "http://www.w3.org/XML/1998/namespace");
     }
-    
+
     /**
      * Assert that the following XPath query selects one or more nodes.
      * 
      * @param xpath
-     * @throws Exception 
+     * @throws Exception
      */
     public NodeList assertValid(String xpath, Node node) throws Exception {
         return XPathAssert.assertValid(xpath, node, namespaces);
@@ -109,7 +112,7 @@ public class TestUtilities {
     public NodeList assertInvalid(String xpath, Node node) throws Exception {
         return XPathAssert.assertInvalid(xpath, node, namespaces);
     }
-    
+
     /**
      * Assert that the text of the xpath node retrieved is equal to the value
      * specified.
@@ -124,6 +127,7 @@ public class TestUtilities {
 
     /**
      * Assert that this node is not a Soap fault body.
+     * 
      * @param node
      * @throws Exception
      */
@@ -131,9 +135,7 @@ public class TestUtilities {
         XPathAssert.assertNoFault(node);
     }
 
-    public byte[] invokeBytes(String address, 
-                                 String transport,
-                                 String message) throws Exception {
+    public byte[] invokeBytes(String address, String transport, String message) throws Exception {
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
         ei.setAddress(address);
 
@@ -143,7 +145,7 @@ public class TestUtilities {
 
         TestMessageObserver obs = new TestMessageObserver();
         conduit.setMessageObserver(obs);
-        
+
         Message m = new MessageImpl();
         conduit.prepare(m);
 
@@ -152,7 +154,7 @@ public class TestUtilities {
         if (is == null) {
             throw new RuntimeException("Could not find resource " + message);
         }
-        
+
         IOUtils.copy(is, os);
 
         // TODO: shouldn't have to do this. IO caching needs cleaning
@@ -160,26 +162,23 @@ public class TestUtilities {
         os.flush();
         is.close();
         os.close();
-        
+
         byte[] bs = obs.getResponseStream().toByteArray();
-        
+
         return bs;
     }
-    
-    public Node invoke(String address, 
-                          String transport,
-                          String message) throws Exception {
+
+    public Node invoke(String address, String transport, String message) throws Exception {
         byte[] bs = invokeBytes(address, transport, message);
-        
+
         ByteArrayInputStream input = new ByteArrayInputStream(bs);
         try {
             return DOMUtils.readXml(input);
         } catch (SAXParseException e) {
-            throw new IllegalStateException("Could not parse message:\n" 
-                                            + new String(bs));
+            throw new IllegalStateException("Could not parse message:\n" + new String(bs));
         }
     }
-    
+
     public InputStream getResourceAsStream(String resource) {
         return classpathAnchor.getResourceAsStream(resource);
     }
@@ -207,7 +206,8 @@ public class TestUtilities {
     }
 
     /**
-     * Return a DOM tree for the WSDL for a server. 
+     * Return a DOM tree for the WSDL for a server.
+     * 
      * @param server the server.
      * @return the DOM tree.
      * @throws WSDLException
@@ -217,22 +217,22 @@ public class TestUtilities {
         WSDLWriter writer = WSDLFactory.newInstance().newWSDLWriter();
         return writer.getDocument(definition);
     }
-    
+
     /**
      * Return a WSDL definition model for a server.
-     * @param server the server. 
+     * 
+     * @param server the server.
      * @return the definition.
      * @throws WSDLException
      */
     public Definition getWSDLDefinition(Server server) throws WSDLException {
         Service service = server.getEndpoint().getService();
-        
-        ServiceWSDLBuilder wsdlBuilder = 
-            new ServiceWSDLBuilder(bus, service.getServiceInfos().get(0));
+
+        ServiceWSDLBuilder wsdlBuilder = new ServiceWSDLBuilder(bus, service.getServiceInfos().get(0));
         wsdlBuilder.setUseSchemaImports(false);
         return wsdlBuilder.build();
     }
-    
+
     public Server getServerForService(QName serviceName) throws WSDLException {
         ServerRegistry svrMan = bus.getExtension(ServerRegistry.class);
         for (Server s : svrMan.getServers()) {
@@ -248,7 +248,7 @@ public class TestUtilities {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         boolean written;
         String contentType;
-        
+
         public ByteArrayOutputStream getResponseStream() throws Exception {
             synchronized (this) {
                 if (!written) {
@@ -257,14 +257,14 @@ public class TestUtilities {
             }
             return response;
         }
-        
+
         public String getResponseContentType() {
             return contentType;
         }
 
         public void onMessage(Message message) {
             try {
-                contentType = (String) message.get(Message.CONTENT_TYPE);
+                contentType = (String)message.get(Message.CONTENT_TYPE);
                 InputStream is = message.getContent(InputStream.class);
                 try {
                     IOUtils.copy(is, response);
@@ -294,22 +294,25 @@ public class TestUtilities {
 
     /**
      * retrieve the entire namespace map.
+     * 
      * @return
      */
     public Map<String, String> getNamespaces() {
         return namespaces;
     }
-    
+
     /**
      * Return the CXF bus used.
+     * 
      * @return
      */
     public Bus getBus() {
         return bus;
     }
-    
+
     /**
      * Set the CXF bus.
+     * 
      * @param bus
      */
     public void setBus(Bus bus) {

@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.header_test.rpc;
+package org.apache.cxf.testutils.header_test.rpc;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import javax.jws.WebParam;
 
+import org.apache.header_test.rpc.TestRPCHeader;
 import org.junit.Assert;
 import org.junit.Test;
 

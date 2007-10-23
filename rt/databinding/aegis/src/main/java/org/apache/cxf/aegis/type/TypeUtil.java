@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.util.NamespaceHelper;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 
 /**
  * Static methods/constants for Aegis.
@@ -44,7 +44,7 @@ public final class TypeUtil {
             return type;
         }
     
-        String overrideType = xsr.getAttributeValue(XmlConstants.XSI_NS, "type");
+        String overrideType = xsr.getAttributeValue(SOAPConstants.XSI_NS, "type");
         if (overrideType != null) {
             QName overrideTypeName = NamespaceHelper.createQName(xsr.getNamespaceContext(), overrideType);
             if (!overrideTypeName.equals(type.getSchemaType())) {

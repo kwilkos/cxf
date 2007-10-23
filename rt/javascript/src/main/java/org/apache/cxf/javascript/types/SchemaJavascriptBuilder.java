@@ -116,7 +116,7 @@ public class SchemaJavascriptBuilder {
             }
             
             // nillable and optional would be very strange together.
-            // and nillable in the array case can't be right, can it?
+            // and nillable in the array case applies to the elements.
             if (nillable && !isParticleArray(elChild)) {
                 utils.startIf(elementName + " == null");
                 utils.appendAppend("<" + elementXmlRef + " " + NIL_ATTRIBUTES + "/>");

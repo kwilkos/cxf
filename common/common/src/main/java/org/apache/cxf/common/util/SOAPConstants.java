@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.aegis.util;
+package org.apache.cxf.common.util;
 
 /**
- * SOAP constants from the specs.
+ * SOAP constants from the specifications.
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 18, 2004
  */
-public class XmlConstants {
+public class SOAPConstants {
     /** Document styles. */
 
     public static final String WSDL11_NS = "http://schemas.xmlsoap.org/wsdl/";
