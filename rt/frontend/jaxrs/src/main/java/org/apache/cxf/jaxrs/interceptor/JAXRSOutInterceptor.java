@@ -90,7 +90,7 @@ public class JAXRSOutInterceptor extends AbstractOutDatabindingInterceptor {
                     message.put(Message.CONTENT_TYPE, methodMimeTypes[0]);
                 }
                 
-                provider.writeTo(responseObj, null, out);
+                provider.writeTo(responseObj, null, null, out);
 
             } catch (IOException e) {
                 e.printStackTrace();

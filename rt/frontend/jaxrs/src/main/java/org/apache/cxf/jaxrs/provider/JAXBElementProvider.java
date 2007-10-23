@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.EntityProvider;
 import javax.xml.bind.JAXBContext;
@@ -40,7 +42,7 @@ public final class JAXBElementProvider implements EntityProvider<Object>  {
         return type.getAnnotation(XmlRootElement.class) != null;
     }
 
-    public Object readFrom(Class<Object> type, String mediaType, MultivaluedMap<String, String> headers,
+    public Object readFrom(Class<Object> type, MediaType m, MultivaluedMap<String, String> headers,
                            InputStream is) {
         try {
             JAXBContext context = getJAXBContext(type);
@@ -53,7 +55,7 @@ public final class JAXBElementProvider implements EntityProvider<Object>  {
         return null;
     }
 
-    public void writeTo(Object obj, MultivaluedMap<String, Object> headers, OutputStream os) {
+    public void writeTo(Object obj, MediaType m, MultivaluedMap<String, Object> headers, OutputStream os) {
         try {
             //Looks like we do not need to deal with Array and List as multiple root elements 
             //is not allowed in a plain-old-xml binding anyway.

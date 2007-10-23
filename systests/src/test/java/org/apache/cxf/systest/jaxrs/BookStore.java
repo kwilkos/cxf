@@ -32,12 +32,12 @@ import javax.ws.rs.core.Response;
 
 @UriTemplate("/bookstore/")
 public class BookStore {
-    
+
     private Map<Long, Book> books = new HashMap<Long, Book>();
     private Map<Long, CD> cds = new HashMap<Long, CD>();
     private long bookId = 123;
     private long cdId = 123;
-    
+
     public BookStore() {
         init();
         System.out.println("----books: " + books.size());
@@ -47,34 +47,33 @@ public class BookStore {
     @HttpMethod("GET")
     public List<Book> getAllItems() {
         System.out.println("----invoking getBooks");
-       
+
         return books;
     }    */
-   
+
     @HttpMethod("GET")
     @UriTemplate("/books/{bookId}/")
     public Book getBook(@UriParam("bookId") String id) {
         System.out.println("----invoking getBook with id: " + id);
-        Book b = books.get(Long.parseLong(id));
-        return b;
+        return books.get(Long.parseLong(id));
     }
-    
+
     @HttpMethod("POST")
     @UriTemplate("/books")
     public Response addBook(Book book) {
         System.out.println("----invoking addBook, book name is: " + book.getName());
-        book.setId(++bookId);        
+        book.setId(++bookId);
         books.put(book.getId(), book);
 
         return Response.Builder.ok(book).build();
     }
-    
+
     @HttpMethod("PUT")
     @UriTemplate("/books/")
     public Response updateBook(Book book) {
         System.out.println("----invoking updateBook, book name is: " + book.getName());
         Book b = books.get(book.getId());
-        
+
         Response r;
         if (b != null) {
             books.put(book.getId(), book);
@@ -82,27 +81,27 @@ public class BookStore {
         } else {
             r = Response.Builder.notModified().build();
         }
-        
-        return r;       
+
+        return r;
     }
-    
-    
+
+
     @HttpMethod("DELETE")
     @UriTemplate("/books/{bookId}/")
     public Response deleteBook(@UriParam("bookId") String id) {
         System.out.println("----invoking deleteBook with bookId: " + id);
         Book b = books.get(Long.parseLong(id));
-        
+
         Response r;
         if (b != null) {
             r = Response.Builder.ok().build();
         } else {
             r = Response.Builder.notModified().build();
         }
-        
-        return r;        
+
+        return r;
     }
-    
+
     @HttpMethod("GET")
     @UriTemplate("/cd/{CDId}/")
     @ProduceMime("application/json")
@@ -113,12 +112,12 @@ public class BookStore {
     public CD getCDJSON(@UriParam("CDId") String id) {
         System.out.println("----invoking getCDJSON with cdId: " + id);
         CD cd = cds.get(Long.parseLong(id));
-        
+
         return cd;
     }
-    
+
     @HttpMethod("GET")
-    @UriTemplate("/cds/")    
+    @UriTemplate("/cds/")
     public CDs getCDs() {
         System.out.println("----invoking getCDs");
         CDs c = new CDs();
@@ -130,14 +129,14 @@ public class BookStore {
     @UriTemplate("/cds")
     public Response addCD(CD cd) {
         return null;
-    }    
+    }
 
     final void init() {
         Book book = new Book();
         book.setId(bookId);
         book.setName("CXF in Action");
         books.put(book.getId(), book);
-        
+
         CD cd = new CD();
         cd.setId(cdId);
         cd.setName("BOHEMIAN RHAPSODY");

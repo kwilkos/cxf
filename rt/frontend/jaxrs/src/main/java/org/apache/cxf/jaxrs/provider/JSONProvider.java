@@ -28,6 +28,7 @@ import java.util.WeakHashMap;
 
 import javax.ws.rs.ConsumeMime;
 import javax.ws.rs.ProduceMime;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.EntityProvider;
 import javax.xml.bind.JAXBContext;
@@ -51,7 +52,7 @@ public final class JSONProvider implements EntityProvider<Object>  {
         return type.getAnnotation(XmlRootElement.class) != null;
     }
 
-    public Object readFrom(Class<Object> type, String mediaType, MultivaluedMap<String, String> headers,
+    public Object readFrom(Class<Object> type, MediaType m, MultivaluedMap<String, String> headers,
                            InputStream is) {
         try {
             JAXBContext context = getJAXBContext(type);
@@ -64,7 +65,7 @@ public final class JSONProvider implements EntityProvider<Object>  {
         return null;
     }
 
-    public void writeTo(Object obj, MultivaluedMap<String, Object> headers, OutputStream os) {
+    public void writeTo(Object obj, MediaType m, MultivaluedMap<String, Object> headers, OutputStream os) {
         try {
             JAXBContext context = getJAXBContext(obj.getClass());
             Marshaller marshaller = context.createMarshaller();
