@@ -25,17 +25,15 @@ import java.io.InputStream;
 
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.ServerSocket;
+
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.nio.channels.ServerSocketChannel;
 import java.util.Properties;
 
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.helpers.IOUtils;
@@ -49,9 +47,7 @@ import org.junit.Before;
 
 
 import org.junit.Test;
-import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -171,8 +167,7 @@ public class EngineLifecycleTest extends Assert {
     @Test
     public void testUpDownWithServlets() throws Exception {        
         setUpBus(true);
-        setReuseAddrForServer(8801);
-        setReuseAddrForServer(8808);
+       
         Bus bus = (Bus)applicationContext.getBean("cxf");
         ServerRegistry sr = bus.getExtension(ServerRegistry.class);
         ServerImpl si = (ServerImpl) sr.getServers().get(0);
@@ -197,36 +192,7 @@ public class EngineLifecycleTest extends Assert {
         verifyNoServer(8801);
     }
     
-    private void setReuseAddrForServer(int port) throws IOException {
-        Bus bus = (Bus)applicationContext.getBean("cxf");
-        boolean turnedOnReuseAddr = false;
-        ServerRegistry sr = bus.getExtension(ServerRegistry.class);
-        for (Server server : sr.getServers()) {
-            ServerImpl si = (ServerImpl) server;
-            JettyHTTPDestination jhd = (JettyHTTPDestination) si.getDestination();
-            JettyHTTPServerEngine e = (JettyHTTPServerEngine) jhd.getEngine();
-            Connector connector = e.getConnector();
-            if (connector.getPort() == port) {
-                if (connector.getConnection() == null) {
-                    connector.open();  // it might not be opened.
-                }    
-                ServerSocket socket = null;
-                if (connector instanceof SelectChannelConnector) {
-                    ServerSocketChannel channel = (ServerSocketChannel) connector.getConnection();
-                    socket = channel.socket();
-                } else {    
-                    socket = (ServerSocket)connector.getConnection();
-                }    
-                assertNotNull("connector must have socket", socket);
-                socket.setReuseAddress(true);
-                turnedOnReuseAddr = socket.getReuseAddress();
-            }
-        }
-        assertTrue("Did not set the socket's ReuseAddress to be true", turnedOnReuseAddr); 
-        // insure that we actually found the server for the port and did the deed.
         
-    }
-    
     private void verifyNoServer(int port) {
         try {
             Socket socket = new Socket(InetAddress.getLocalHost(), port);
@@ -248,8 +214,7 @@ public class EngineLifecycleTest extends Assert {
     public void testServerUpDownUp() throws Exception {
         
         setUpBus(true);
-        setReuseAddrForServer(8801);
-        setReuseAddrForServer(8808);
+        
         getTestHtml();
         invokeService();    
         invokeService8801();
@@ -261,8 +226,7 @@ public class EngineLifecycleTest extends Assert {
         Thread.sleep(4000);
         
         setUpBus(true);
-        setReuseAddrForServer(8801);
-        setReuseAddrForServer(8808);
+       
         invokeService();            
         invokeService8801();
         getTestHtml();
