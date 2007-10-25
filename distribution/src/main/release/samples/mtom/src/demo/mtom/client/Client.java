@@ -52,7 +52,7 @@ public final class Client {
         Client client = new Client();
 
         if (args.length == 0) {
-            System.out.println("please specify wsdl");
+            System.out.println("Please specify the WSDL file.");
             System.exit(1);
         }
         URL wsdlURL;
@@ -77,21 +77,21 @@ public final class Client {
         }
         Holder<byte[]> param = new Holder<byte[]>();
         param.value = new byte[(int) fileSize];
-        System.out.println("Start test without Mtom enable!");
-        System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
+        System.out.println("Start test without MTOM enabled:");
+        System.out.println("Sending out the me.bmp image content to server, data size is " + fileSize);
 
         InputStream in = client.getClass().getResourceAsStream("me.bmp");
         in.read(param.value);
         Holder<String> name = new Holder<String>("call detail");
         port.testXop(name, param);
-        System.out.println("received byte[] back from server, the size is " + param.value.length);
+        System.out.println("Received byte[] back from server, returned size is " + param.value.length);
 
         Image image = ImageIO.read(new ByteArrayInputStream(param.value));
-        System.out.println("build image with the returned byte[] back from server successfully, hashCode="
+        System.out.println("Build image with the returned byte[] back from server successfully, hashCode="
                 + image.hashCode());
-        System.out.println("Successfully run demo without mtom enable");
+        System.out.println("Successfully ran demo without MTOM enabled");
 
-        System.out.println("Start test with Mtom enable!");        
+        System.out.println("Start test with MTOM enabled:");        
         System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
         Holder<DataHandler> handler = new Holder<DataHandler>();
         byte[] data = new byte[(int) fileSize];
@@ -105,8 +105,8 @@ public final class Client {
             fileSize++;
         }
 
-        System.out.println("received DataHandler back from server, the size is " + fileSize);
-        System.out.println("Successfully run demo with mtom enable");
+        System.out.println("Received DataHandler back from server, returned size is " + fileSize);
+        System.out.println("Successfully ran demo with MTOM enabled");
         System.exit(0);
     }
 
