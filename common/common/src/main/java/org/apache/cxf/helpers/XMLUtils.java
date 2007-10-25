@@ -156,8 +156,7 @@ public final class XMLUtils {
             it.setOutputProperty(OutputKeys.ENCODING, charset);
             it.transform(src, new StreamResult(os));
         } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException("Failed to configure TRaX", e);
         }
 
     }
