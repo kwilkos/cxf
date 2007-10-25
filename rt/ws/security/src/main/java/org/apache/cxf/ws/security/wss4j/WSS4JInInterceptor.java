@@ -63,7 +63,10 @@ public class WSS4JInInterceptor extends AbstractWSS4JInterceptor {
     public static final String SIGNATURE_RESULT = "wss4j.signature.result";
 
     private static final Logger LOG = LogUtils.getL7dLogger(WSS4JInInterceptor.class);
-    private static final Logger TIME_LOG = Logger.getLogger(WSS4JInInterceptor.class.getName() + "-Time");
+    private static final Logger TIME_LOG = LogUtils.getL7dLogger(WSS4JInInterceptor.class,
+                                                                 null,
+                                                                 WSS4JInInterceptor.class.getName()
+                                                                     + "-Time");
     
     public WSS4JInInterceptor() {
         super();

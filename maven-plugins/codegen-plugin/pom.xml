@@ -84,13 +84,7 @@
             <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
+                     
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>

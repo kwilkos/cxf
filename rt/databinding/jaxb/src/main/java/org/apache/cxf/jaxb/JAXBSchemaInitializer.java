@@ -20,13 +20,18 @@
 package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -46,6 +51,7 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
  * Walks the service model and sets up the element/type names.
  */
 class JAXBSchemaInitializer extends ServiceModelVisitor {
+    private static final Logger LOG = LogUtils.getLogger(JAXBSchemaInitializer.class);
 
     private XmlSchemaCollection schemas;
     private JAXBContextImpl context;
@@ -148,20 +154,20 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
 
     private void createBridgeXsElement(MessagePartInfo part, QName qn, QName typeName) {
         XmlSchemaElement el = null;
-        SchemaInfo schemaInfo = null;
-        for (SchemaInfo s : serviceInfo.getSchemas()) {
-            if (s.getNamespaceURI().equals(qn.getNamespaceURI())) {
-                schemaInfo = s;
-
+        SchemaInfo schemaInfo = serviceInfo.getSchema(qn.getNamespaceURI());
+        if (schemaInfo != null) {
+            el = schemaInfo.getElementByQName(qn);
+            if (el == null) {
                 el = createXsElement(part, typeName, schemaInfo);
 
                 schemaInfo.getSchema().getElements().add(el.getQName(), el);
                 schemaInfo.getSchema().getItems().add(el);
-                
-                return;
+            } else if (!typeName.equals(el.getSchemaTypeName())) {
+                throw new Fault(new Message("CANNOT_CREATE_ELEMENT", LOG, 
+                                            qn, typeName, el.getSchemaTypeName()));
             }
+            return;
         }
-        
         schemaInfo = new SchemaInfo(serviceInfo, qn.getNamespaceURI());
         el = createXsElement(part, typeName, schemaInfo);
 
@@ -171,6 +177,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         schema.getItems().add(el);
 
         NamespaceMap nsMap = new NamespaceMap();
+        nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, schema.getTargetNamespace());
         nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
         schema.setNamespaceContext(nsMap);
         
@@ -195,29 +202,27 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             QName name = (QName)fault.getProperty("elementName");
             part.setElementQName(name);           
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(cls);
-            SchemaInfo schemaInfo = null;
-            for (SchemaInfo s : serviceInfo.getSchemas()) {
-                if (s.getNamespaceURI().equals(part.getElementQName().getNamespaceURI())
-                    && !isExistSchemaElement(s.getSchema(), part.getElementQName())) {
-                    schemaInfo = s;
+            if (beanInfo == null) {
+                throw new Fault(new Message("NO_BEAN_INFO", LOG, cls.getName()));
+            }
+            SchemaInfo schemaInfo = serviceInfo.getSchema(part.getElementQName().getNamespaceURI());
+            if (schemaInfo != null
+                && !isExistSchemaElement(schemaInfo.getSchema(), part.getElementQName())) {
                     
-                    XmlSchemaElement el = new XmlSchemaElement();
-                    el.setQName(part.getElementQName());
-                    el.setName(part.getElementQName().getLocalPart());
-                    el.setNillable(true);
-                    
-                    schemaInfo.getSchema().getItems().add(el);
-                    schemaInfo.getSchema().getElements().add(el.getQName(), el);
+                XmlSchemaElement el = new XmlSchemaElement();
+                el.setQName(part.getElementQName());
+                el.setName(part.getElementQName().getLocalPart());
+                el.setNillable(true);
+                
+                schemaInfo.getSchema().getItems().add(el);
+                schemaInfo.getSchema().getElements().add(el.getQName(), el);
 
-                    Iterator<QName> itr = beanInfo.getTypeNames().iterator();
-                    if (!itr.hasNext()) {
-                        continue;
-                    }
-                    QName typeName = itr.next();
-                    el.setSchemaTypeName(typeName);
-
+                Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+                if (!itr.hasNext()) {
                     return;
                 }
+                QName typeName = itr.next();
+                el.setSchemaTypeName(typeName);
             }
         } 
     }
@@ -237,6 +242,7 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
 
             NamespaceMap nsMap = new NamespaceMap();
+            nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, schema.getTargetNamespace());
             nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
             schema.setNamespaceContext(nsMap);
 
@@ -271,6 +277,14 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         ct.setParticle(seq);
         String namespace = part.getElementQName().getNamespaceURI();
         for (Field f : cls.getDeclaredFields()) {
+            // This code takes all the fields that are public and not static.
+            // It is arguable that it should be looking at get/is properties and all those
+            // bean-like things.
+            int modifiers = f.getModifiers();
+            if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers)) {
+                continue;
+            }
+        
             JaxBeanInfo<?> beanInfo = context.getBeanInfo(f.getType());
             if (beanInfo != null) {
                 el = new XmlSchemaElement();

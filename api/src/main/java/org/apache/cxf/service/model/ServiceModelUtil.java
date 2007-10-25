@@ -21,11 +21,14 @@ package org.apache.cxf.service.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
@@ -64,7 +67,39 @@ public final class ServiceModelUtil {
         BindingInfo service = ep.getEndpointInfo().getBinding();
         return service.getOperation(opName);
     }
-
+    public static BindingOperationInfo getOperationForWrapperElement(Exchange exchange,
+                                                                     QName opName,
+                                                                     boolean output) {
+        
+        Endpoint ep = exchange.get(Endpoint.class);
+        BindingInfo service = ep.getEndpointInfo().getBinding();
+        Map<QName, BindingOperationInfo> wrapperMap = 
+            CastUtils.cast(service.getProperty("ServiceModel.WRAPPER.MAP"
+                                               + (output ? "" : "_OUT"), Map.class)); 
+        
+        
+        if (wrapperMap == null) {
+            wrapperMap = new HashMap<QName, BindingOperationInfo>();
+            for (BindingOperationInfo b : service.getOperations()) {
+                if (b.isUnwrappedCapable()) {
+                    MessagePartInfo part = null;
+                    if (output && b.getOutput() != null
+                        && !b.getOutput().getMessageParts().isEmpty()) {
+                        part = b.getOutput().getMessageParts().get(0);
+                    } else if (!output
+                        && !b.getInput().getMessageParts().isEmpty()) {
+                        part = b.getInput().getMessageParts().get(0);
+                    }
+                    if (part != null) {
+                        wrapperMap.put(part.getConcreteName(), b);
+                    }
+                }
+            }
+            service.setProperty("ServiceModel.WRAPPER.MAP"
+                                + (output ? "" : "_OUT"), wrapperMap);
+        }
+        return wrapperMap.get(opName);
+    }
     public static SchemaInfo getSchema(ServiceInfo serviceInfo, MessagePartInfo messagePartInfo) {
         SchemaInfo schemaInfo = null;
         String tns = null;

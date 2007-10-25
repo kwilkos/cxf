@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -34,23 +35,23 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.FaultOutInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsServiceConfiguration;
+import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
-public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class WebFaultOutInterceptor extends FaultOutInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(WebFaultOutInterceptor.class);
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
     public WebFaultOutInterceptor() {
-        super(Phase.PRE_PROTOCOL);
+        super();
     }
     
     private QName getFaultName(WebFault wf, Class<?> cls, OperationInfo op) {
@@ -104,14 +105,27 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
             }
             Service service = message.getExchange().get(Service.class);
 
-            DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
-
-            OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
-            QName faultName = getFaultName(fault, cause.getClass(), op);
-            MessagePartInfo part = getFaultMessagePart(faultName, op);
-            writer.write(faultInfo, part, f.getOrCreateDetail());
-
-            f.setMessage(ex.getMessage());
+            try {
+                DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
+    
+                OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
+                QName faultName = getFaultName(fault, cause.getClass(), op);
+                MessagePartInfo part = getFaultMessagePart(faultName, op);
+                writer.write(faultInfo, part, f.getOrCreateDetail());
+    
+                f.setMessage(ex.getMessage());
+            } catch (Exception nex) {
+                //if exception occurs while writing a fault, we'll just let things continue
+                //and let the rest of the chain try handling it as is.
+                LOG.log(Level.WARNING, "EXCEPTION_WHILE_WRITING_FAULT", nex);
+            }
+        } else {
+            FaultMode mode = message.get(FaultMode.class);
+            if (mode == FaultMode.CHECKED_APPLICATION_FAULT) {
+                //only convert checked exceptions with this
+                //otherwise delegate down to the normal protocol specific stuff
+                super.handleMessage(message);
+            }
         }
     }
 

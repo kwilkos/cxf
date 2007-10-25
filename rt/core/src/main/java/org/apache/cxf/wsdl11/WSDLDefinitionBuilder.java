@@ -51,6 +51,7 @@ import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLBuilder;
+import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLExtensibilityPlugin;
 
 public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
@@ -79,7 +80,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             registry = wsdlFactory.newPopulatedExtensionRegistry();
-            QName header = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "header");
+            QName header = new QName(WSDLConstants.WSDL11_NAMESPACE, "header");
             registry.registerDeserializer(MIMEPart.class,
                                           header,
                                           new SOAPHeaderSerializer());
@@ -186,8 +187,8 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Registering extension: " + elementType + " for parent: " + parentType);
                 }
-                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
-                                .getClassLoader());
+                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, 
+                                                  Thread.currentThread().getContextClassLoader());
             } catch (ClassNotFoundException ex) {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
             } catch (JAXBException ex) {

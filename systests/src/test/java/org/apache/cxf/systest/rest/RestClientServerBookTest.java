@@ -29,13 +29,13 @@ import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.cxf.binding.http.HttpBindingFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.customer.book.Book;
 import org.apache.cxf.customer.book.BookService;
 import org.apache.cxf.customer.book.BookServiceWrapped;
 import org.apache.cxf.customer.book.GetAnotherBook;
 import org.apache.cxf.customer.book.GetBook;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
@@ -43,7 +43,7 @@ import org.junit.Test;
 
 
 public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
-    static final Logger LOG = Logger.getLogger(RestClientServerBookTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(RestClientServerBookTest.class);
 
     @BeforeClass
     public static void startServers() throws Exception {
@@ -114,8 +114,9 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
         InputStream expected = getClass()
             .getResourceAsStream("resources/expected_get_book123_xmlwrapped.txt");
 
+        String expectedString = getStringFromInputStream(expected);
         //System.out.println("---" + getStringFromInputStream(in));
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
+        assertEquals(expectedString, expectedString, getStringFromInputStream(in)); 
     }
     
     @Test
@@ -173,12 +174,7 @@ public class RestClientServerBookTest extends AbstractBusClientServerTestBase {
     }      
     
     private String getStringFromInputStream(InputStream in) throws Exception {        
-        CachedOutputStream bos = new CachedOutputStream();
-        IOUtils.copy(in, bos);
-        in.close();
-        bos.close();
-        //System.out.println(bos.getOut().toString());        
-        return bos.getOut().toString();        
+        return IOUtils.toString(in);
     }
 
 }

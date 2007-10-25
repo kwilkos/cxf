@@ -27,7 +27,7 @@ import org.apache.cxf.helpers.CastUtils;
 /**
  * Helper methods for {@link DestinationFactory}s and {@link ConduitInitiator}s.
  */
-public abstract class AbstractTransportFactory implements DestinationFactory {
+public abstract class AbstractTransportFactory {
     private List<String> transportIds;
 
     public List<String> getTransportIds() {

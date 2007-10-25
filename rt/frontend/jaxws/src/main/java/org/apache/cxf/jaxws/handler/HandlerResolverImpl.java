@@ -108,6 +108,7 @@ public class HandlerResolverImpl implements HandlerResolver {
 //            resourceManager.addResourceResolver(new WebContextEntriesResourceResolver());
             ResourceInjector injector = new ResourceInjector(resourceManager);
             injector.inject(handler);
+            injector.construct(handler);
         }
 
     }

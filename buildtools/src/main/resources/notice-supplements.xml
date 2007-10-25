@@ -43,9 +43,48 @@
         <name>Sun Microsystems</name>
         <url>http://www.sun.com/</url>
       </organization>
+      <licenses>
+        <license>
+          <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+          <url>http://www.sun.com/cddl/cddl.html</url>
+        </license>
+      </licenses>
     </project>
   </supplement>
-
+  <supplement>
+    <project>
+      <groupId>javax.xml.soap</groupId>
+      <artifactId>saaj-api</artifactId>
+      <name>Sun SAAJ API</name>
+      <organization>
+        <name>Sun Microsystems</name>
+        <url>http://www.sun.com/</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0</name>
+          <url>http://www.sun.com/cddl/cddl.html</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
+  <supplement>
+    <project>
+      <groupId>org.apache.neethi</groupId>
+      <artifactId>neethi</artifactId>
+      <name>Neethi</name>
+      <organization>
+        <name>The Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+      </organization>
+      <licenses>
+        <license>
+          <name>The Apache Software License, Version 2.0</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+      </licenses>
+    </project>
+  </supplement>
   <supplement>
     <project>
       <groupId>javax.xml.ws</groupId>

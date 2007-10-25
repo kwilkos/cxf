@@ -24,15 +24,34 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 
 public class LoggingFeature extends AbstractFeature {
-    private static final LoggingInInterceptor IN = new LoggingInInterceptor();
-    private static final LoggingOutInterceptor OUT = new LoggingOutInterceptor();
+    private static final int DEFAULT_LIMIT = 100 * 1024;
+    private static final LoggingInInterceptor IN = new LoggingInInterceptor(DEFAULT_LIMIT);
+    private static final LoggingOutInterceptor OUT = new LoggingOutInterceptor(DEFAULT_LIMIT);
+    
+    int limit = DEFAULT_LIMIT;
     
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
-        provider.getInInterceptors().add(IN);
-        provider.getInFaultInterceptors().add(IN);
-        provider.getOutInterceptors().add(OUT);
-        provider.getOutFaultInterceptors().add(OUT);
+        if (limit == DEFAULT_LIMIT) {
+            provider.getInInterceptors().add(IN);
+            provider.getInFaultInterceptors().add(IN);
+            provider.getOutInterceptors().add(OUT);
+            provider.getOutFaultInterceptors().add(OUT);
+        } else {
+            LoggingInInterceptor in = new LoggingInInterceptor(limit);
+            LoggingOutInterceptor out = new LoggingOutInterceptor(limit);
+            provider.getInInterceptors().add(in);
+            provider.getInFaultInterceptors().add(in);
+            provider.getOutInterceptors().add(out);
+            provider.getOutFaultInterceptors().add(out);
+        }
     }
 
+    public void setLimit(int lim) {
+        limit = lim;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }    
 }

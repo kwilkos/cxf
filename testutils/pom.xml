@@ -369,6 +369,9 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/inherit.wsdl</wsdl>
                                 </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/cardealer.wsdl</wsdl>
+                                </wsdlOption>
 
                             </wsdlOptions>
                         </configuration>

@@ -25,6 +25,7 @@
 # Start with a clean slate. Remove all keystores.
 #
 rm -f *.jks
+rm -f Truststore.pem
 
 #
 # This function generates a key/self-signed certificate with the following DN.
@@ -47,5 +48,6 @@ function genkey {
 for name in Bethal Gordy Tarpin Poltim Morpit
 do
    genkey $name $name
+   keytool -export -keystore Truststore.jks -storepass password -alias $i -rfc >> Truststore.pem
 done
 

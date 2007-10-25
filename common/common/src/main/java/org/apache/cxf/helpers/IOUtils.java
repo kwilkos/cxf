@@ -19,6 +19,7 @@
 
 package org.apache.cxf.helpers;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,24 @@ public final class IOUtils {
         return copy(input, output, DEFAULT_BUFFER_SIZE);
     }
 
-    
+    public static int copyAndCloseInput(final InputStream input, final OutputStream output)
+        throws IOException {
+        try {
+            return copy(input, output, DEFAULT_BUFFER_SIZE);
+        } finally {
+            input.close();
+        }
+    }
+    public static int copyAndCloseInput(final InputStream input,
+                                        final OutputStream output,
+                                        int bufferSize)
+        throws IOException {
+        try {
+            return copy(input, output, bufferSize);
+        } finally {
+            input.close();
+        }
+    }
     public static int copy(final InputStream input,
                             final OutputStream output,
                             int bufferSize)
@@ -79,7 +97,7 @@ public final class IOUtils {
     public static String toString(final InputStream input) 
         throws IOException {
         
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         int n = 0;
         n = input.read(buffer);
@@ -87,12 +105,13 @@ public final class IOUtils {
             buf.append(new String(buffer, 0, n));
             n = input.read(buffer);
         }
+        input.close();
         return buf.toString();
     }
     public static String toString(final Reader input) 
         throws IOException {
         
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         final char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         int n = 0;
         n = input.read(buffer);
@@ -100,6 +119,7 @@ public final class IOUtils {
             buf.append(new String(buffer, 0, n));
             n = input.read(buffer);
         }
+        input.close();
         return buf.toString();
     }
     
@@ -115,17 +135,33 @@ public final class IOUtils {
 
         return sb.toString();
     }
+    
+    /**
+     * Load the InputStream into memory and return a ByteArrayInputStream that 
+     * represents it.  Closes the in stream.
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    public static ByteArrayInputStream loadIntoBAIS(InputStream in) throws IOException {
+        int i = in.available();
+        if (i < DEFAULT_BUFFER_SIZE) {
+            i = DEFAULT_BUFFER_SIZE;
+        }
+        LoadingByteArrayOutputStream bout = new LoadingByteArrayOutputStream(i);
+        copy(in, bout);
+        in.close();
+        return bout.createInputStream();
+    }
 
     public static byte[] readBytesFromStream(InputStream in) throws IOException {
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
-
-        for (int i = in.read(); i != -1; i = in.read()) {
-            bos.write(i);
+        int i = in.available();
+        if (i < DEFAULT_BUFFER_SIZE) {
+            i = DEFAULT_BUFFER_SIZE;
         }
-
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(i);
+        copy(in, bos);
         in.close();
-
         return bos.toByteArray();
     }
 }

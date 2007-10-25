@@ -64,6 +64,12 @@ public abstract class AbstractBeanDefinitionParser
             String val = node.getValue();
             String pre = node.getPrefix();
             String name = node.getLocalName();
+            String prefix = node.getPrefix();
+            
+            // Don't process namespaces
+            if (isNamespace(name, prefix)) {
+                continue;
+            }
             
             if ("createdFromAPI".equals(name)) {
                 bean.setAbstract(true);
@@ -84,6 +90,10 @@ public abstract class AbstractBeanDefinitionParser
             }
         } 
         return setBus;
+    }
+
+    private boolean isNamespace(String name, String prefix) {
+        return "xmlns".equals(prefix) || prefix == null && "xmlns".equals(name);
     }
     
     protected void parseChildElements(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {

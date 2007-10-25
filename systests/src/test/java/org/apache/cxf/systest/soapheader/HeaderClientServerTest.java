@@ -33,7 +33,6 @@ import org.apache.cxf.pizza.types.OrderPizzaType;
 import org.apache.cxf.pizza.types.ToppingsListType;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
@@ -46,7 +45,6 @@ public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
-    @Ignore("Works in systests, but the wsdl2java will not load the soap module in the top level")
     public void testBasicConnection() throws Exception {
         Pizza port = getPort();
 
@@ -59,12 +57,9 @@ public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
         header.setName("mao");
         header.setPhoneNumber("108");
 
-        OrderPizzaResponseType res = port.orderPizza(req);
-        System.out.println(res);
+        OrderPizzaResponseType res =  port.orderPizza(req, header);
 
-        //OrderPizzaResponseType res =  port.orderPizza(req, header);
-
-        //assertEquals(208, res.getMinutesUntilReady());
+        assertEquals(208, res.getMinutesUntilReady());
     }
 
     private Pizza getPort() {
@@ -72,7 +67,7 @@ public class HeaderClientServerTest extends AbstractBusClientServerTestBase {
         assertNotNull("WSDL is null", wsdl);
 
         PizzaService service = new PizzaService(wsdl, serviceName);
-        assertNotNull("Service is ull ", service);
+        assertNotNull("Service is null ", service);
 
         return service.getPizzaPort();
     }

@@ -109,7 +109,9 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
                 for (MessagePartInfo p : messageInfo.getMessageParts()) {
                     if (Boolean.TRUE.equals(p.getProperty(ReflectionServiceFactoryBean.HEADER))) {
                         MessagePartInfo mpi = wrappedMsgInfo.getMessagePart(p.getName());
-                        newObjs.put(mpi, objs.get(p));
+                        if (objs.hasValue(p)) {
+                            newObjs.put(mpi, objs.get(p));
+                        }
                     }
                 }
 

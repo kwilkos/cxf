@@ -84,12 +84,12 @@ under the License.
 
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
-            <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
-            <wsdl:output message="tns:sayHiResponse" name="sayHiResponse"/>
+            <wsdl:input message="tns:sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
-            <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
-            <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+            <wsdl:input message="tns:greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse"/>
         </wsdl:operation>
         <wsdl:operation name="sendReceiveData">
             <wsdl:input message="tns:sendReceiveDataRequest" name="SendReceiveDataRequest"/>

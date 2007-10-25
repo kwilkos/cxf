@@ -23,7 +23,7 @@ import org.apache.cxf.tools.util.URIParserUtil;
 
 public class JavaField extends JavaType implements JavaAnnotatable {
     private String modifier;
-    private JavaAnnotation annotation;
+    private JAnnotation annotation;
 
     public JavaField() {
     }
@@ -41,11 +41,14 @@ public class JavaField extends JavaType implements JavaAnnotatable {
         this.modifier = modi;
     }
 
-    public void setAnnotation(JavaAnnotation anno) {
+    public void setAnnotation(JAnnotation anno) {
         this.annotation = anno;
+        for (String importClz : annotation.getImports()) {
+            getOwner().addImport(importClz);
+        }        
     }
 
-    public JavaAnnotation getAnnotation() {
+    public JAnnotation getAnnotation() {
         return this.annotation;
     }
 

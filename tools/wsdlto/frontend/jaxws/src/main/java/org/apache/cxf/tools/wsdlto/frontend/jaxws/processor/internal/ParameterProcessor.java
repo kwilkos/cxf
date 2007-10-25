@@ -186,7 +186,8 @@ public class ParameterProcessor extends AbstractProcessor {
         MessagePartInfo part = inputParts.iterator().next();
 
         List<QName> wrappedElements = ProcessorUtil.getWrappedElementQNames(context, part.getElementQName());
-        if (wrappedElements == null || wrappedElements.size() == 0) {
+        if ((wrappedElements == null || wrappedElements.size() == 0) 
+            && countOutOfBandHeader(inputMessage) == 0) {
             return;
         }
         boolean isSchemaQualified = ProcessorUtil.isSchemaFormQualified(context, part.getElementQName());
@@ -201,9 +202,9 @@ public class ParameterProcessor extends AbstractProcessor {
         }
 
         // Adding out of band headers
-        if (countOutOfBandHeader(inputMessage) > 0) {
+        if (requireOutOfBandHeader() && countOutOfBandHeader(inputMessage) > 0) {
             for (MessagePartInfo hpart : inputMessage.getMessageParts()) {
-                if (!isOutOfBandHeader(hpart) || !requireOutOfBandHeader()) {
+                if (!isOutOfBandHeader(hpart)) {
                     continue;
                 }
                 addParameter(method, getParameterFromPart(hpart, JavaType.Style.IN));
@@ -531,6 +532,7 @@ public class ParameterProcessor extends AbstractProcessor {
         // first for the ordered list
         int index = 0;
         int size = parameterList.size();
+
         while (index < size) {
             String partName = parameterList.get(index);
             MessagePartInfo part = inputPartsMap.get(inputMessage.getMessagePartQName(partName));

@@ -82,6 +82,18 @@
 	    <artifactId>cxf-common-utilities</artifactId>
 	    <version>${project.version}</version>
 	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.cxf</groupId>
+	    <artifactId>cxf-rt-core</artifactId>
+	    <version>${project.version}</version>
+	</dependency>	
+
+	<dependency>
+                <groupId>javax.xml.ws</groupId>
+                <artifactId>jaxws-api</artifactId>
+		<scope>test</scope>
+	</dependency>
 
     </dependencies>
 

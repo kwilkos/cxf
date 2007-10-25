@@ -20,7 +20,6 @@
 package org.apache.cxf.ws.rm.soap;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -40,6 +39,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.DeferredConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
@@ -327,20 +327,22 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                     }
                 }
             }
-            ByteArrayOutputStream savedOutputStream = (ByteArrayOutputStream)message
-                .get(RMMessageConstants.SAVED_OUTPUT_STREAM);
-            byte[] content = null;
-            if (null == savedOutputStream) {                
+            byte[] content = (byte[])message
+                .get(RMMessageConstants.SAVED_CONTENT);
+            if (null == content) {                
                 content = message.getContent(byte[].class); 
-                LOG.fine("Using saved byte array: " + content);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Using saved byte array: " + content);
+                }
             } else {
-                content = savedOutputStream.toByteArray();
-                LOG.fine("Using saved output stream: " + savedOutputStream);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Using saved output stream: " + new String(content));
+                }
             }
             ByteArrayInputStream bis = new ByteArrayInputStream(content);
 
             // copy saved output stream to new output stream in chunks of 1024
-            CachedOutputStream.copyStream(bis, os, 1024);
+            IOUtils.copyAndCloseInput(bis, os);
             os.flush();
             os.close();
         } catch (IOException ex) {

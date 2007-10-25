@@ -51,6 +51,7 @@ public interface DocLitWrappedCodeFirstService {
     int[] echoIntArray(int[] ar);
     
     @WebMethod
+    @WebResult(partName = "parameters")
     String listInput(List<String> inputs);
 
     @WebMethod
@@ -82,13 +83,17 @@ public interface DocLitWrappedCodeFirstService {
     @WebMethod
     int throwException(int i) throws ServiceTestFault;
     
+    @RequestWrapper(localName = "echoIntX")
+    @ResponseWrapper(localName = "echoIntXResponse")
+    int echoIntDifferentWrapperName(int i);
+    
     @WebMethod
     @WebResult(targetNamespace = "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService",
                name = "result")
     @RequestWrapper(className = "org.apache.cxf.systest.jaxws.Echo")
     @ResponseWrapper(className = "org.apache.cxf.systest.jaxws.EchoResponse")
     String echo(@WebParam(targetNamespace = 
-            "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+            "http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService2", 
                           name = "String_1")
                         String msg);
 

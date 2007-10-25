@@ -1119,4 +1119,34 @@ public class CodeGenTest extends ProcessorTestBase {
         assertTrue(contents.indexOf("SOAPBinding.ParameterStyle.BARE") != -1);
         assertTrue(contents.indexOf("@ResponseWrapper") == -1);
     }
+
+    @Test
+    public void testXmlSeeAlso() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cardealer.wsdl"));
+
+        processor.setContext(env);
+        processor.execute();
+
+        File sei = new File(output, "type_substitution/server/CarDealer.java");
+        assertTrue(output.exists());
+        String contents = getStringFromFile(sei);
+        assertTrue(contents.indexOf("@XmlSeeAlso({ObjectFactory.class})") != -1);
+    }
+
+    @Test
+    public void testWSAction() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/wsdl_addr.wsdl"));
+
+        processor.setContext(env);
+        processor.execute();
+
+        File sei = new File(output, "com/example/AddNumbersPortType.java");
+        assertTrue(sei.exists());
+        String contents = getStringFromFile(sei).replace("  ", " ");
+        String expected = "@Action(input = \"3in\", output = \"3out\", "
+            + "fault = {@FaultAction(className = AddNumbersFault_Exception.class, value = \"3fault\")})";
+        assertTrue(contents.indexOf("import javax.xml.ws.Action;") != -1);
+        assertTrue(contents.indexOf("import javax.xml.ws.FaultAction;") != -1);
+        assertTrue(contents.indexOf(expected) != -1);
+    }
 }

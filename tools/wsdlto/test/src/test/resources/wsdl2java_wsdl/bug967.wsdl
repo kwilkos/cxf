@@ -18,22 +18,25 @@
   under the License.
 -->
 
-<wsdl:definitions name="VoidVoid" targetNamespace="http://apache.org/hello_world_rpclit/voidvoid" 
+<wsdl:definitions name="Voidint" targetNamespace="http://apache.org/hello_world_rpclit/voidint" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http-conf="http://schemas.iona.com/transports/http/configuration"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://apache.org/hello_world_rpclit/voidvoid"
-    xmlns:x1="http://apache.org/hello_world_rpclit/voidvoid/types"
+    xmlns:tns="http://apache.org/hello_world_rpclit/voidint"
+    xmlns:x1="http://apache.org/hello_world_rpclit/voidint/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     
     <wsdl:message name="sayHiRequest">
 	<wsdl:part name="inInt" type="xsd:int"/>
     </wsdl:message>
+
+    <wsdl:message name="sayHiResponse"/>
     
     <wsdl:portType name="GreeterRPCLit">
         <wsdl:operation name="sayHi" parameterOrder="inInt">
             <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse" name="sayHiResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
@@ -43,10 +46,10 @@
         <wsdl:operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
 	    <wsdl:input>
-                <soap:body namespace="http://apache.org/hello_world_rpclit/voidvoid" use="literal"/>
+                <soap:body namespace="http://apache.org/hello_world_rpclit/voidint" use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body namespace="http://apache.org/hello_world_rpclit/voidvoid" use="literal"/>
+                <soap:body namespace="http://apache.org/hello_world_rpclit/voidint" use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         

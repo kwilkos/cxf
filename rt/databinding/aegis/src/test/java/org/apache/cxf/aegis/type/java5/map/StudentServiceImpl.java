@@ -18,29 +18,49 @@
  */
 package org.apache.cxf.aegis.type.java5.map;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class StudentServiceImpl implements StudentService {
-
+    
+    private Map<Long, Student> studentMap;
+    
+    public StudentServiceImpl() {
+        studentMap = new HashMap<Long, Student>();
+        studentMap.put(Long.valueOf(1), new Student("Student1", 1));
+        studentMap.put(Long.valueOf(100), new Student("Student100", 100));
+        studentMap.put(Long.valueOf(-1), new Student("StudentNegative", -1));
+    }
+    
     public Student findStudent(Long id) {
-        // TODO Auto-generated method stub
-        return null;
+        return studentMap.get(id);
     }
 
     public List<Student> getStudents(Map<String, String> filters) {
-        // TODO Auto-generated method stub
-        return null;
+        List<Student> returnValue = new LinkedList<Student>();
+        for (Map.Entry<Long, Student> e : studentMap.entrySet()) {
+            if (filters.containsKey(e.getValue())) {
+                returnValue.add(e.getValue());
+            }
+            
+        }
+        return returnValue;
     }
 
     public List<Student> getStudentsByIds(List<String> ids) {
-        // TODO Auto-generated method stub
-        return null;
+        List<Student> returnValue = new LinkedList<Student>();
+        for (String id : ids) {
+            Long longId = Long.decode(id);
+            Student s = studentMap.get(longId);
+            returnValue.add(s);
+        }
+        return returnValue;
     }
 
     public Map<Long, Student> getStudentsMap() {
-        // TODO Auto-generated method stub
-        return null;
+        return studentMap;
     }
 
 }

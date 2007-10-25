@@ -38,18 +38,28 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/src/test/generated</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
-                <!-- this dependency seems only work in the systest module, not work in the top level-->
-                <dependencies>
-                  <dependency>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-rt-bindings-soap</artifactId>
-                    <version>${project.version}</version>
-                  </dependency>
-                </dependencies>
-
                 <executions>
                     <execution>
                         <id>generate-test-sources</id>
@@ -59,12 +69,20 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/test/resources/wsdl/pizza_service.wsdl</wsdl>
-                                    <!--extraargs>
-                                      <extraarg>-exsh</extraarg>
-                                      <extraarg>true</extraarg>
-                                      <extraarg>-V</extraarg>
-                                    </extraargs-->
+                                    <extraargs>
+                                        <extraarg>-exsh</extraarg>
+                                        <extraarg>true</extraarg>
+                                    </extraargs>
                                 </wsdlOption>
+
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/wsdl/cxf-993.wsdl</wsdl>
+                                </wsdlOption>
+
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/wsdl/mtom.wsdl</wsdl>
+                                </wsdlOption>
+
                             </wsdlOptions>
                         </configuration>
                         <goals>
@@ -175,11 +193,6 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -407,12 +420,5 @@
     <properties>
         <surefire.fork.mode>pertest</surefire.fork.mode>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>apache-incubator</id>
-            <url>http://people.apache.org/repo/m2-incubating-repository</url>
-        </repository>
-    </repositories>
 
 </project>

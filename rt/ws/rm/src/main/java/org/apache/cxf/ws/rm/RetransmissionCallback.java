@@ -19,8 +19,7 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
@@ -48,34 +47,36 @@ public class RetransmissionCallback implements CachedOutputStreamCallback {
         manager = mgr;
     }
     public void onClose(CachedOutputStream cos) {
-        OutputStream os = cos.getOut();
    
-        if (os instanceof ByteArrayOutputStream) {
-            ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
-            message.put(RMMessageConstants.SAVED_OUTPUT_STREAM, bos);  
-            manager.getRetransmissionQueue().addUnacknowledged(message);
-            
-            RMStore store = manager.getStore();
-            if (null != store) {
-                Source s = manager.getSource(message);
-                RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);
-                Identifier sid = rmps.getSequence().getIdentifier();
-                SourceSequence ss = s.getSequence(sid);
-                RMMessage msg = new RMMessage();
-                msg.setMessageNumber(rmps.getSequence().getMessageNumber());
-                if (!MessageUtils.isRequestor(message)) {
-                    AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, true);
-                    if (null != maps && null != maps.getTo()) {
-                        msg.setTo(maps.getTo().getValue());
-                    }
-                }
-                msg.setContent(bos.toByteArray());
-                store.persistOutgoing(ss, msg); 
-            }
-        } else {
+        //REVISIT - would be nice to keep the cache on disk intead of in-memory 
+        byte bytes[] = null;
+        try {
+            bytes = cos.getBytes();
+        } catch (IOException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_CACHED_STREAM", 
                                                                    LOG, 
-                                                                   os.getClass()));
+                                                                   cos.getOut().getClass()));
+        }
+        
+        message.put(RMMessageConstants.SAVED_CONTENT, bytes);            
+        manager.getRetransmissionQueue().addUnacknowledged(message);
+        
+        RMStore store = manager.getStore();
+        if (null != store) {
+            Source s = manager.getSource(message);
+            RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);
+            Identifier sid = rmps.getSequence().getIdentifier();
+            SourceSequence ss = s.getSequence(sid);
+            RMMessage msg = new RMMessage();
+            msg.setMessageNumber(rmps.getSequence().getMessageNumber());
+            if (!MessageUtils.isRequestor(message)) {
+                AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, true);
+                if (null != maps && null != maps.getTo()) {
+                    msg.setTo(maps.getTo().getValue());
+                }
+            }
+            msg.setContent(bytes);
+            store.persistOutgoing(ss, msg); 
         }
     }
 

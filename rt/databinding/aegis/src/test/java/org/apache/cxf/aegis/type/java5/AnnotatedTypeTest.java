@@ -30,7 +30,7 @@ import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.XMLTypeCreator;
 import org.apache.cxf.aegis.type.basic.BeanType;
 import org.apache.cxf.aegis.type.basic.StringType;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.service.Service;
 import org.junit.Before;
@@ -143,7 +143,7 @@ public class AnnotatedTypeTest extends AbstractAegisTest {
     public void testWSDL() throws Exception {
         Document wsdl = getWSDLDocument("AnnotatedService");
 
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("xsd", SOAPConstants.XSD);
         assertValid(
                     "//xsd:complexType[@name='AnnotatedBean1']/xsd:sequence/xsd:"
                     + "element[@name='elementProperty']",

@@ -18,11 +18,18 @@
  */
 package org.apache.cxf.aegis.exception;
 
+import org.w3c.dom.Document;
+
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ExceptionTest extends AbstractAegisTest {
@@ -30,7 +37,7 @@ public class ExceptionTest extends AbstractAegisTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        Server s = createService(ExceptionService.class, null);
+        Server s = createService(ExceptionService.class, new ExceptionServiceImpl(), null);
         s.getEndpoint().getService().setInvoker(new BeanInvoker(new ExceptionServiceImpl()));
     }
 
@@ -50,6 +57,76 @@ public class ExceptionTest extends AbstractAegisTest {
         } catch (HelloException e) {
             // nothing
         }
+
+        //check to make sure the fault is an element
+        Document wsdl = getWSDLDocument("ExceptionService");
+        addNamespace("tns", "http://exception.aegis.cxf.apache.org");
+        assertValid("//wsdl:message[@name='HelloException']/wsdl:part[@name='HelloException']"
+                    + "[@element='tns:String']",
+                     wsdl);
+    }
+    
+    @Test(expected = HelloException.class)
+    @Ignore("Not working yet due to namespace things")
+    public void testJaxwsServerSimpleClient() throws Exception {
+        JaxWsServerFactoryBean sfbean = new JaxWsServerFactoryBean();
+        sfbean.setServiceClass(ExceptionService.class);
+        sfbean.setDataBinding(new AegisDatabinding());
+        sfbean.setAddress("local://ExceptionServiceJaxWs1");
+        Server server = sfbean.create();
+        Service service = server.getEndpoint().getService();
+        service.setInvoker(new BeanInvoker(new ExceptionServiceImpl()));
+        
+        ClientProxyFactoryBean proxyFac = new ClientProxyFactoryBean();
+        proxyFac.setAddress("local://ExceptionServiceJaxWs1");
+        proxyFac.setServiceClass(ExceptionService.class);
+        proxyFac.setBus(getBus());
+        setupAegis(proxyFac.getClientFactoryBean());
+        
+        ExceptionService clientInterface = (ExceptionService)proxyFac.create();
+        
+        clientInterface.sayHiWithException();
+    }
+    
+    @Test(expected = HelloException.class)
+    public void testJaxwsNoXfireCompat() throws Exception {
+        JaxWsServerFactoryBean sfbean = new JaxWsServerFactoryBean();
+        sfbean.setServiceClass(ExceptionService.class);
+        sfbean.setDataBinding(new AegisDatabinding());
+        sfbean.getServiceFactory().setDataBinding(sfbean.getDataBinding());
+        sfbean.setAddress("local://ExceptionServiceJaxWs");
+        Server server = sfbean.create();
+        Service service = server.getEndpoint().getService();
+        service.setInvoker(new BeanInvoker(new ExceptionServiceImpl()));
+        
+        JaxWsProxyFactoryBean proxyFac = new JaxWsProxyFactoryBean();
+        proxyFac.setAddress("local://ExceptionServiceJaxWs");
+        proxyFac.setServiceClass(ExceptionService.class);
+        proxyFac.setBus(getBus());
+        proxyFac.getClientFactoryBean().getServiceFactory().setDataBinding(new AegisDatabinding());
+        ExceptionService clientInterface = (ExceptionService)proxyFac.create();
+        
+        clientInterface.sayHiWithException();
+    }
+    
+    @Test(expected = HelloException.class)
+    public void testJaxws() throws Exception {
+        JaxWsServerFactoryBean sfbean = new JaxWsServerFactoryBean();
+        sfbean.setServiceClass(ExceptionService.class);
+        setupAegis(sfbean);
+        sfbean.setAddress("local://ExceptionService4");
+        Server server = sfbean.create();
+        Service service = server.getEndpoint().getService();
+        service.setInvoker(new BeanInvoker(new ExceptionServiceImpl()));
+        
+        JaxWsProxyFactoryBean proxyFac = new JaxWsProxyFactoryBean();
+        proxyFac.setAddress("local://ExceptionService4");
+        proxyFac.setServiceClass(ExceptionService.class);
+        proxyFac.setBus(getBus());
+        setupAegis(proxyFac.getClientFactoryBean());
+        ExceptionService clientInterface = (ExceptionService)proxyFac.create();
+        
+        clientInterface.sayHiWithException();
     }
     
     public static class ExceptionServiceImpl implements ExceptionService {

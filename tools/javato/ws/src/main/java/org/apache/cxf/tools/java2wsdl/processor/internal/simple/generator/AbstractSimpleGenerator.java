@@ -21,6 +21,7 @@ package org.apache.cxf.tools.java2wsdl.processor.internal.simple.generator;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ClassCollector;
@@ -34,8 +35,12 @@ public abstract class AbstractSimpleGenerator extends AbstractGenerator {
     public abstract boolean passthrough();
 
     public abstract void generate(ToolContext penv) throws ToolException;
+
     public void register(final ClassCollector collector, String packageName, String fileName) {
         
     }
-
+    public String getOutputDir() {
+        return (String)env.get(ToolConstants.CFG_SOURCEDIR);           
+    } 
+    
 }

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
@@ -34,11 +33,13 @@ import org.apache.cxf.tools.common.ClassNameProcessor;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
+import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.core.WSDLToProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.PortTypeProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ServiceProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.BindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebServiceAnnotator;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.XmlSeeAlsoAnnotator;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor implements ClassNameProcessor {
     private static final String MODEL_MAP = WSDLToProcessor.class.getName() 
@@ -92,6 +93,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor implements ClassNamePro
         for (JavaInterface intf : javaModel.getInterfaces().values()) {
             if (!interfaces.contains(intf)) {
                 intf.annotate(new WebServiceAnnotator());
+                intf.annotate(new XmlSeeAlsoAnnotator(context.get(ClassCollector.class)));
                 if (serviceInfo.getBindings().size() > 0) {
                     intf.annotate(new BindingAnnotator());
                 }

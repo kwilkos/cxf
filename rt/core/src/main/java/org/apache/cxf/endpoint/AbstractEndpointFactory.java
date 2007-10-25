@@ -46,6 +46,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     protected BindingFactory bindingFactory;
     protected DestinationFactory destinationFactory;
     protected QName endpointName;
+    protected QName serviceName;
     protected Map<String, Object> properties;
     protected List<AbstractFeature> features;
     protected BindingConfiguration bindingConfig;
@@ -116,7 +117,15 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     public void setEndpointName(QName endpointName) {
         this.endpointName = endpointName;
     }
-
+    
+    public void setServiceName(QName name) {
+        serviceName = name;
+    }
+    
+    public QName getServiceName() {
+        return serviceName;
+    }
+    
     public void setEndpointReference(EndpointReferenceType epr) {
         endpointReference = epr;
     }

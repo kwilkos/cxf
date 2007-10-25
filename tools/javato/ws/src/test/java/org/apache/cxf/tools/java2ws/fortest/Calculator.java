@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.tools.java2ws.fortest;
 
+import javax.jws.WebService;
+
+@WebService
 public class Calculator {
     public int add(int a, int b) throws AddException {
         if (a < 0 || b < 0) {

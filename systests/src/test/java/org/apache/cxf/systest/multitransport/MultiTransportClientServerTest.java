@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.systest.jms.EmbeddedJMSBrokerLauncher;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
@@ -40,7 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MultiTransportClientServerTest extends AbstractBusClientServerTestBase {
-    static final Logger LOG = Logger.getLogger(MultiTransportClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(MultiTransportClientServerTest.class);
     private final QName serviceName = new QName(
                                       "http://apache.org/hello_world_doc_lit",
                                                 "MultiTransportService");

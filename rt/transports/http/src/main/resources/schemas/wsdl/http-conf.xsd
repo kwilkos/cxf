@@ -73,7 +73,7 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="HonorKeepAlive" type="xs:boolean" use="optional" default="false">
+                <xs:attribute name="HonorKeepAlive" type="xs:boolean" use="optional" default="true">
                     <xs:annotation>
                         <xs:documentation>
                         When set to Yes, the request socket will remain open after the reply is 
@@ -249,7 +249,7 @@
                     </xs:annotation>      
                 </xs:attribute>
 
-                <xs:attribute name="Connection" type="http-conf:connectionType" use="optional" default="close">
+                <xs:attribute name="Connection" type="http-conf:connectionType" use="optional" default="Keep-Alive">
                     <xs:annotation>
                         <xs:documentation>
                         The connection disposition.  If close the connection to the server is closed 

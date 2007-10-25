@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
+import javax.xml.ws.WebServiceFeature;
 
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.common.i18n.Message;
@@ -72,6 +72,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     private JaxWsImplementorInfo implInfo;
 
     private JAXWSMethodDispatcher methodDispatcher;
+    
+    private List<WebServiceFeature> wsFeatures;
 
     public JaxWsServiceFactoryBean() {
         getIgnoredClasses().add(Service.class.getName());
@@ -135,7 +137,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     @Override
     public Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
-        return new JaxWsEndpointImpl(getBus(), getService(), ei, implInfo);
+        return new JaxWsEndpointImpl(getBus(), getService(), ei, implInfo, wsFeatures);
     }
 
     @Override
@@ -442,5 +444,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             getServiceConfigurations().add(0, jaxWsConfiguration);
         }
         methodDispatcher = new JAXWSMethodDispatcher(implInfo);
+    }
+
+    public List<WebServiceFeature> getWsFeatures() {
+        return wsFeatures;
+    }
+
+    public void setWsFeatures(List<WebServiceFeature> wsFeatures) {
+        this.wsFeatures = wsFeatures;
     }
 }

@@ -163,9 +163,12 @@ public class JAXBDataBinding implements DataBindingProfile {
         Map<String, String> nsPkgMap = context.getNamespacePackageMap();
         for (String ns : nsPkgMap.keySet()) {
             File file = JAXBUtils.getPackageMappingSchemaBindingFile(ns, context.mapPackageName(ns));
-            InputSource ins = new InputSource(file.toURI().toString());
-            schemaCompiler.parseSchema(ins);
-            FileUtils.delete(file);
+            try {
+                InputSource ins = new InputSource(file.toURI().toString());
+                schemaCompiler.parseSchema(ins);
+            } finally {
+                FileUtils.delete(file);                
+            }
         }
         
         if (context.getPackageName() != null) {
@@ -297,6 +300,12 @@ public class JAXBDataBinding implements DataBindingProfile {
 
             if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
+
+                ClassCollector classCollector = context.get(ClassCollector.class);
+                for (JClass cls : schem2JavaJaxbModel.getAllObjectFactories()) {
+                    classCollector.getTypesPackages().add(cls._package().name());
+                }
+
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
 
                 if (!isSuppressCodeGen()) {
@@ -304,6 +313,7 @@ public class JAXBDataBinding implements DataBindingProfile {
                 }
 
                 context.put(JCodeModel.class, jcodeModel);
+
                 for (String str : fileCodeWriter.getExcludeFileList()) {
                     context.getExcludeFileList().add(str);
                 }

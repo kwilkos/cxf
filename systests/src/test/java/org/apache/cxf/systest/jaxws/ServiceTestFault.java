@@ -24,6 +24,10 @@ import javax.xml.ws.WebFault;
 @WebFault()
 public class ServiceTestFault extends Exception {
     private ServiceTestDetails details;
+    
+    public ServiceTestFault(String msg) {
+        super(msg);
+    }
     public ServiceTestFault(String msg, ServiceTestDetails details) {
         super(msg);
         this.details = details;

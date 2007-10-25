@@ -144,4 +144,20 @@ public class CodeGenOptionTest extends ProcessorTestBase {
             fail("Catalog not working");
         }
     }
+
+    @Test
+    public void testGetCatalogPublic() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf1053/myservice.wsdl"));
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1053/catalog.xml"));
+        env.put(ToolConstants.CFG_COMPILE, null);
+        env.put(ToolConstants.CFG_CLASSDIR, null);
+
+        processor.setContext(env);
+        try {
+            processor.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Catalog not working");
+        }
+    }
 }

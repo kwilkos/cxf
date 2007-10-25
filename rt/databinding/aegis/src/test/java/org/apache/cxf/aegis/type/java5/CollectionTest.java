@@ -172,25 +172,27 @@ public class CollectionTest extends AbstractAegisTest {
 
     @Test
     public void testCollectionServiceWSDL() throws Exception {
-        createService(CollectionService.class, null);
+        
+        createService(CollectionService.class, new CollectionService(), null);
 
         Document wsdl = getWSDLDocument("CollectionService");
-        assertValid("//xsd:element[@name='return'][@type='ns1:ArrayOfString']", wsdl);
+        assertValid("//xsd:element[@name='return'][@type='tns:ArrayOfString']", wsdl);
     }
 
     @Test
-    public void testUnannotatedStrings() throws Exception {
-        createService(CollectionService.class, null);
+    public void testUnannotatedStrings() throws Exception {        
+        createService(CollectionService.class, new CollectionService(), null);
 
         Document doc = getWSDLDocument("CollectionService");
         // printNode(doc);
         assertValid(
                     "//xsd:complexType[@name='getUnannotatedStringsResponse']"
-                    + "/xsd:sequence/xsd:element[@type='ns1:ArrayOfString']",
+                    + "/xsd:sequence/xsd:element[@type='tns:ArrayOfString']",
                     doc);
     }
 
     public class CollectionService {
+        
         public Collection<String> getStrings() {
             return null;
         }

@@ -26,6 +26,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
@@ -43,7 +44,7 @@ import org.junit.Test;
  */
 public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(DecoupledClientServerTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(DecoupledClientServerTest.class);
     private Bus bus;
 
     public static class Server extends AbstractBusTestServerBase {

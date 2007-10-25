@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.configuration.spring.MapProvider;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.extension.RegistryImpl;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
@@ -42,11 +43,14 @@ public class DomainExpressionBuilderRegistry extends RegistryImpl<QName, DomainE
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AssertionBuilderRegistry.class);
     
     public DomainExpressionBuilderRegistry() {
-        this(null);
+        super(null);
     }
 
     public DomainExpressionBuilderRegistry(Map<QName, DomainExpressionBuilder> builders) {
         super(builders);
+    }
+    public DomainExpressionBuilderRegistry(MapProvider<QName, DomainExpressionBuilder> builders) {
+        super(builders.createMap());
     }
     
     public Class<?> getRegistrationType() {

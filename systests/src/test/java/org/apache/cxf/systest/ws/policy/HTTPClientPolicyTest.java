@@ -30,6 +30,7 @@ import javax.xml.ws.WebServiceException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
@@ -37,6 +38,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,13 +56,14 @@ import org.junit.Test;
  */
 public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(HTTPClientPolicyTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(HTTPClientPolicyTest.class);
 
     public static class Server extends AbstractBusTestServerBase {
    
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus();
+            
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             LoggingOutInterceptor out = new LoggingOutInterceptor();           
@@ -99,6 +102,10 @@ public class HTTPClientPolicyTest extends AbstractBusClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/http.xml");
         BusFactory.setDefaultBus(bus);
+        
+        PolicyTestUtils.setPolicyConstants(bus, 
+                                           PolicyConstants.NAMESPACE_W3_200607);
+        
         LoggingInInterceptor in = new LoggingInInterceptor();
         bus.getInInterceptors().add(in);
         bus.getInFaultInterceptors().add(in);

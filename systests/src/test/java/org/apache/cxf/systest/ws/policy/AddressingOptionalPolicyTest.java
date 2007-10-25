@@ -26,6 +26,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
@@ -37,6 +38,7 @@ import org.apache.cxf.systest.ws.util.MessageFlow;
 import org.apache.cxf.systest.ws.util.OutMessageRecorder;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.selector.MinimalAlternativeSelector;
 import org.apache.cxf.ws.rm.RMUtils;
@@ -50,13 +52,15 @@ import org.junit.Test;
  */
 public class AddressingOptionalPolicyTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(AddressingOptionalPolicyTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(AddressingOptionalPolicyTest.class);
 
     public static class Server extends AbstractBusTestServerBase {
     
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-optional.xml");
+            PolicyTestUtils.setPolicyConstants(bus, 
+                                               PolicyConstants.NAMESPACE_W3_200607);
             BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             bus.getInInterceptors().add(in);
@@ -95,6 +99,9 @@ public class AddressingOptionalPolicyTest extends AbstractBusClientServerTestBas
     public void testUsingAddressing() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-optional.xml");
+        Bus bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-optional.xml");
+        PolicyTestUtils.setPolicyConstants(bus, 
+                                           PolicyConstants.NAMESPACE_W3_200607);
         BusFactory.setDefaultBus(bus);
         InMessageRecorder in = new InMessageRecorder();
         bus.getInInterceptors().add(in);

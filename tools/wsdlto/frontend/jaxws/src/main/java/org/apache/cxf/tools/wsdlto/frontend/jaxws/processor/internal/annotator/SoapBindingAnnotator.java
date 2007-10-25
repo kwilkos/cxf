@@ -20,11 +20,12 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
 import javax.jws.soap.SOAPBinding;
+
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class SoapBindingAnnotator implements Annotator {
 
@@ -39,15 +40,15 @@ public class SoapBindingAnnotator implements Annotator {
             if (!method.isWrapperStyle()
                 && !SOAPBinding.ParameterStyle.BARE.equals(method.getInterface().getSOAPParameterStyle())) {
             
-                JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
-                bindingAnnotation.addArgument("parameterStyle",
-                                              SOAPBindingUtil.getBindingAnnotation("BARE"), "");
+                JAnnotation bindingAnnotation = new JAnnotation(SOAPBinding.class);
+                bindingAnnotation.addElement(new JAnnotationElement("parameterStyle", 
+                                                                           SOAPBinding.ParameterStyle.BARE));
                 method.addAnnotation("SOAPBinding", bindingAnnotation);
             } else if (method.isWrapperStyle()
                 && SOAPBinding.ParameterStyle.BARE.equals(method.getInterface().getSOAPParameterStyle())) {
-                JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
-                bindingAnnotation.addArgument("parameterStyle",
-                                              SOAPBindingUtil.getBindingAnnotation("WRAPPED"), "");
+                JAnnotation bindingAnnotation = new JAnnotation(SOAPBinding.class);
+                bindingAnnotation.addElement(new JAnnotationElement("parameterStyle", 
+                                                                        SOAPBinding.ParameterStyle.WRAPPED));
                 method.addAnnotation("SOAPBinding", bindingAnnotation);                
             }
         }

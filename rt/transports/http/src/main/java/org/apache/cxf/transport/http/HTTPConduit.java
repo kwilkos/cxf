@@ -19,7 +19,6 @@
 package org.apache.cxf.transport.http;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +51,6 @@ import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.io.CacheAndWriteOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -336,7 +335,7 @@ public class HTTPConduit
      * causes an injection of the Spring configuration properties
      * of this Conduit.
      */
-    void finalizeConfig() {
+    protected void finalizeConfig() {
         // See if not set by configuration, if there are defaults
         // in order from the Endpoint, Service, or Bus.
         
@@ -1061,7 +1060,7 @@ public class HTTPConduit
             type += " ";
             type += authPolicy.getAuthorization();
             headers.put("Authorization",
-                        Arrays.asList(new String[] {type}));
+                        createMutableList(type));
         }
         AuthorizationPolicy proxyAuthPolicy = getProxyAuthorization();
         if (proxyAuthPolicy != null && proxyAuthPolicy.isSetUserName()) {
@@ -1078,11 +1077,13 @@ public class HTTPConduit
                 type += " ";
                 type += proxyAuthPolicy.getAuthorization();
                 headers.put("Proxy-Authorization",
-                            Arrays.asList(new String[] {type}));
+                            createMutableList(type));
             }
         }
     }
-    
+    private static List<String> createMutableList(String val) {
+        return new ArrayList<String>(Arrays.asList(new String[] {val}));
+    }
     /**
      * This call places HTTP Header strings into the headers that are relevant
      * to the ClientPolicy that is set on this conduit by configuration.
@@ -1099,44 +1100,44 @@ public class HTTPConduit
         }
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
-                Arrays.asList(new String[] {policy.getCacheControl().value()}));
+                        createMutableList(policy.getCacheControl().value()));
         }
         if (policy.isSetHost()) {
             headers.put("Host",
-                Arrays.asList(new String[] {policy.getHost()}));
+                        createMutableList(policy.getHost()));
         }
         if (policy.isSetConnection()) {
             headers.put("Connection",
-                Arrays.asList(new String[] {policy.getConnection().value()}));
+                        createMutableList(policy.getConnection().value()));
         }
         if (policy.isSetAccept()) {
             headers.put("Accept",
-                Arrays.asList(new String[] {policy.getAccept()}));
+                        createMutableList(policy.getAccept()));
         } else {
-            headers.put("Accept", Arrays.asList(new String[] {"*"}));
+            headers.put("Accept", createMutableList("*"));
         }
         if (policy.isSetAcceptEncoding()) {
             headers.put("Accept-Encoding",
-                Arrays.asList(new String[] {policy.getAcceptEncoding()}));
+                        createMutableList(policy.getAcceptEncoding()));
         }
         if (policy.isSetAcceptLanguage()) {
             headers.put("Accept-Language",
-                Arrays.asList(new String[] {policy.getAcceptLanguage()}));
+                        createMutableList(policy.getAcceptLanguage()));
         }
         if (policy.isSetContentType()) {
             message.put(Message.CONTENT_TYPE, policy.getContentType());
         }
         if (policy.isSetCookie()) {
             headers.put("Cookie",
-                Arrays.asList(new String[] {policy.getCookie()}));
+                        createMutableList(policy.getCookie()));
         }
         if (policy.isSetBrowserType()) {
             headers.put("BrowserType",
-                Arrays.asList(new String[] {policy.getBrowserType()}));
+                        createMutableList(policy.getBrowserType()));
         }
         if (policy.isSetReferer()) {
             headers.put("Referer",
-                Arrays.asList(new String[] {policy.getReferer()}));
+                        createMutableList(policy.getReferer()));
         }
     }
 
@@ -1580,21 +1581,15 @@ public class HTTPConduit
         
         // Trust is okay, write the cached request.
         OutputStream out = connection.getOutputStream();
-        
-        CacheAndWriteOutputStream.copyStream(stream.getInputStream(), out, 2048);
-        out.close();
+        stream.writeCacheTo(out);
         
         if (LOG.isLoggable(Level.FINE)) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-            CacheAndWriteOutputStream.copyStream(stream.getInputStream(), 
-                    baos, 2048);
-
             LOG.fine("Conduit \""
                      + getConduitName() 
                      + "\" Retransmit message to: " 
                      + connection.getURL()
                      + ": "
-                     + baos.toString());
+                     + new String(stream.getBytes()));
         }
         return connection;
     }
@@ -1659,7 +1654,7 @@ public class HTTPConduit
         }
         String token = Base64Utility.encode(userpass.getBytes());
         headers.put("Authorization",
-                    Arrays.asList(new String[] {"Basic " + token}));
+                    createMutableList("Basic " + token));
     }
 
     /**
@@ -1685,39 +1680,39 @@ public class HTTPConduit
         }
         String token = Base64Utility.encode(userpass.getBytes());
         headers.put("Proxy-Authorization",
-                    Arrays.asList(new String[] {"Basic " + token}));
+                    createMutableList("Basic " + token));
     }
     
     /**
      * Wrapper output stream responsible for flushing headers and handling
      * the incoming HTTP-level response (not necessarily the MEP response).
      */
-    private class WrappedOutputStream extends AbstractWrappedOutputStream {
+    protected class WrappedOutputStream extends AbstractWrappedOutputStream {
         /**
          * This field contains the currently active connection.
          */
-        private HttpURLConnection connection;
+        protected HttpURLConnection connection;
         
         /**
          * This boolean is true if the request must be cached.
          */
-        private boolean cachingForRetransmision;
+        protected boolean cachingForRetransmission;
         
         /**
          * If we are going to be chunking, we won't flush till close which causes
          * new chunks, small network packets, etc..
          */
-        private final boolean chunking;
+        protected final boolean chunking;
         
         /**
          * This field contains the output stream with which we cache
          * the request. It maybe null if we are not caching.
          */
-        private CacheAndWriteOutputStream cachedStream;
+        protected CacheAndWriteOutputStream cachedStream;
 
-        private Message outMessage;
+        protected Message outMessage;
         
-        WrappedOutputStream(
+        protected WrappedOutputStream(
                 Message m, 
                 HttpURLConnection c, 
                 boolean possibleRetransmit,
@@ -1726,7 +1721,7 @@ public class HTTPConduit
             super();
             this.outMessage = m;
             connection = c;
-            cachingForRetransmision = possibleRetransmit;
+            cachingForRetransmission = possibleRetransmit;
             chunking = isChunking;
         }
 
@@ -1757,13 +1752,13 @@ public class HTTPConduit
             
             // If this is a GET method we must not touch the output
             // stream as this automagically turns the reqest into a POST.
-            if (connection.getRequestMethod().equals("GET")) {
+            if ("GET".equals(connection.getRequestMethod())) {
                 return;
             }
             
             // If we need to cache for retransmission, store data in a
             // CacheAndWriteOutputStream. Otherwise write directly to the output stream.
-            if (cachingForRetransmision) {
+            if (cachingForRetransmission) {
                 cachedStream =
                     new CacheAndWriteOutputStream(connection.getOutputStream());
                 wrappedStream = cachedStream;
@@ -1786,8 +1781,19 @@ public class HTTPConduit
                 handleHeadersTrustCaching();
             }
             super.flush();
-            super.close();
-            handleResponse();
+            if (!cachingForRetransmission) {
+                super.close();
+            } else {
+                cachedStream.getOut().close();
+                cachedStream.closeFlowthroughStream();
+            }
+            try {
+                handleResponse();
+            } finally {
+                if (cachingForRetransmission) {
+                    cachedStream.close();
+                }
+            }
         }
         
         
@@ -1796,20 +1802,17 @@ public class HTTPConduit
          *
          * @throws IOException
          */
-        private void handleRetransmits() throws IOException {
+        protected void handleRetransmits() throws IOException {
             // If we have a cachedStream, we are caching the request.
             if (cachedStream != null) {
 
                 if (LOG.isLoggable(Level.FINE)) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-                    IOUtils.copy(cachedStream.getInputStream(), baos, 2048);
-
                     LOG.fine("Conduit \""
                              + getConduitName() 
                              + "\" Transmit cached message to: " 
                              + connection.getURL()
                              + ": "
-                             + baos.toString());
+                             + new String(cachedStream.getBytes()));
                 }
 
                 HttpURLConnection oldcon = connection;
@@ -1852,7 +1855,7 @@ public class HTTPConduit
          * 
          * @throws IOException
          */
-        private void handleResponse() throws IOException {
+        protected void handleResponse() throws IOException {
             
             // Process retransmits until we fall out.
             handleRetransmits();
@@ -1905,13 +1908,26 @@ public class HTTPConduit
             Map<String, List<String>> headers = 
                 new HashMap<String, List<String>>();
             for (String key : connection.getHeaderFields().keySet()) {
-                headers.put(HttpHeaderHelper.getHeaderKey(key), 
+                if (key != null) {
+                    headers.put(HttpHeaderHelper.getHeaderKey(key), 
                         connection.getHeaderFields().get(key));
+                }
             }
+            
             inMessage.put(Message.PROTOCOL_HEADERS, headers);
             inMessage.put(Message.RESPONSE_CODE, responseCode);
-            inMessage.put(Message.CONTENT_TYPE, connection.getContentType());
-            inMessage.put(Message.ENCODING, connection.getContentEncoding());
+            String ct = connection.getContentType();
+            inMessage.put(Message.CONTENT_TYPE, ct);
+            String enc = connection.getContentEncoding();
+            if (enc == null 
+                && ct != null 
+                && ct.indexOf("charset") != -1) {
+                enc = ct.substring(ct.indexOf("charset") + 8);
+                if (enc.indexOf(";") != -1) {
+                    enc = enc.substring(0, enc.indexOf(";"));
+                }
+            }
+            inMessage.put(Message.ENCODING, HttpHeaderHelper.mapCharset(enc));
             
             if (maintainSession) {
                 String cookieStr = connection.getHeaderField("Set-Cookie");

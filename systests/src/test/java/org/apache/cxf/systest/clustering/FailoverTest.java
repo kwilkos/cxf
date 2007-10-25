@@ -30,6 +30,7 @@ import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.clustering.FailoverTargetSelector;
 import org.apache.cxf.clustering.RandomStrategy;
 import org.apache.cxf.clustering.SequentialStrategy;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.frontend.ClientProxy;
@@ -62,7 +63,7 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
     protected static final String REPLICA_D =
         "http://localhost:9054/SoapContext/ReplicatedPortD"; 
     private static final Logger LOG =
-        Logger.getLogger(FailoverTest.class.getName());
+        LogUtils.getLogger(FailoverTest.class);
     private static final String FAILOVER_CONFIG =
         "org/apache/cxf/systest/clustering/failover.xml";
 
@@ -138,7 +139,8 @@ public class FailoverTest extends AbstractBusClientServerTestBase {
             // java.net.ConnectionException on the unavailable 
             // replica A
             //
-            assertTrue("should revert to original exception when no failover",
+            assertTrue("should revert to original exception when no failover: " 
+                       + cause,
                        cause instanceof ConnectException);
             
             // similarly the current endpoint referenced by the client 

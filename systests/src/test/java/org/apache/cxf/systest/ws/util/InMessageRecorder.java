@@ -19,14 +19,15 @@
 package org.apache.cxf.systest.ws.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -34,7 +35,7 @@ import org.apache.cxf.phase.Phase;
 
 public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
 
-    private static final Logger LOG = Logger.getLogger(InMessageRecorder.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(InMessageRecorder.class);
     private List<byte[]> inbound;
 
     public InMessageRecorder() {
@@ -49,7 +50,7 @@ public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
             return;
         }
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        LoadingByteArrayOutputStream bos = new LoadingByteArrayOutputStream();
         try {
             IOUtils.copy(is, bos);
             is.close();
@@ -58,7 +59,7 @@ public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.fine("inbound: " + bos.toString());
             }
-            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            ByteArrayInputStream bis = bos.createInputStream();
             message.setContent(InputStream.class, bis);
         } catch (Exception ex) {
             ex.printStackTrace();

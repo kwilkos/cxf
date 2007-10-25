@@ -54,28 +54,42 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
             if (!hasInfoOption()) {
                 ToolContext env = new ToolContext();
                 env.setParameters(getParametersMap(new HashSet()));
+                if (env.get(ToolConstants.CFG_OUTPUTDIR) == null) {
+                    env.put(ToolConstants.CFG_OUTPUTDIR, ".");
+                }
+                
+                if (env.get(ToolConstants.CFG_SOURCEDIR) == null) {
+                    env.put(ToolConstants.CFG_SOURCEDIR, ".");
+                }
+                
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
+                String ft = (String)env.get(ToolConstants.CFG_FRONTEND);
+                if (ft == null || ToolConstants.JAXWS_FRONTEND.equals(ft)) {
+                    ft = ToolConstants.JAXWS_FRONTEND;
+                } else {
+                    ft = ToolConstants.SIMPLE_FRONTEND;
+                    //use aegis databinding for simple front end by default
+                    env.put(ToolConstants.CFG_DATABINDING, ToolConstants.AEGIS_DATABINDING);
+                }
+                env.put(ToolConstants.CFG_FRONTEND, ft); 
                 processor = new JavaToWSDLProcessor();
                 processor.setEnvironment(env);
                 processor.process();
-                String ft = (String)env.get(ToolConstants.CFG_FRONTEND);
-                if (ft == null || "jaxws".equals(ft.toLowerCase())) {
-                    ft = "jaxws";
-                    env.put(ToolConstants.CFG_FRONTEND, "jaxws");
+                
+                
+                if (ft.equals(ToolConstants.JAXWS_FRONTEND)) {
                     if (env.optionSet(ToolConstants.CFG_SERVER) || env.optionSet(ToolConstants.CFG_CLIENT)) {
                         processor = new JAXWSFrontEndProcessor();
                         processor.setEnvironment(env);
                         processor.process();
                     }
-                } else {
-                    ft = "simple";
-                    env.put(ToolConstants.CFG_FRONTEND, "simple");
+                } else {               
                     processor = new SimpleFrontEndProcessor();
                     processor.setEnvironment(env);
                     processor.process();
-                }       
+                }
             }
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
@@ -104,28 +118,38 @@ public class JavaToWSContainer extends AbstractCXFToolContainer {
     }
 
     public void checkParams(ErrorVisitor errs) throws ToolException {
-
+        super.checkParams(errs);
         CommandDocument doc = super.getCommandDocument();
 
-        if (doc.hasParameter("frontend")) {
-            String ft = doc.getParameter("frontend");           
-            if (!"simple".equalsIgnoreCase(ft) && !"jaxws".equalsIgnoreCase(ft)) {
-                Message msg = new Message("INVALID_FORNTEND", LOG, new Object[]{ft});               
+        if (doc.hasParameter(ToolConstants.CFG_FRONTEND)) {
+            String ft = doc.getParameter(ToolConstants.CFG_FRONTEND);
+            if (!ToolConstants.JAXWS_FRONTEND.equals(ft) 
+                && !ToolConstants.SIMPLE_FRONTEND.equals(ft)) {
+                Message msg = new Message("INVALID_FRONTEND", LOG, new Object[] {ft});
+                errs.add(new ErrorVisitor.UserError(msg.toString()));
+            }
+            
+            if (ToolConstants.SIMPLE_FRONTEND.equals(ft) 
+                && doc.getParameter(ToolConstants.CFG_DATABINDING) != null 
+                && !ToolConstants.
+                AEGIS_DATABINDING.equals(doc.getParameter(ToolConstants.CFG_DATABINDING))) {
+                Message msg = new Message("INVALID_DATABINDING_FOR_SIMPLE", LOG);
+                errs.add(new ErrorVisitor.UserError(msg.toString()));
+            }
+            
+        }
+
+        if (doc.hasParameter(ToolConstants.CFG_WRAPPERBEAN)) {
+            String ft = doc.getParameter(ToolConstants.CFG_FRONTEND);
+            if (ft != null && !ToolConstants.JAXWS_FRONTEND.equals(ft)) {
+                Message msg = new Message("WRAPPERBEAN_WITHOUT_JAXWS", LOG);
                 errs.add(new ErrorVisitor.UserError(msg.toString()));
             }
         }
         
         
-        if (doc.hasParameter("wrapperbean")) {
-            String ft = doc.getParameter("frontend");
-            if (ft != null &&  !"jaxws".equalsIgnoreCase(ft)) {
-                Message msg = new Message("CANT_GEN_WRAPPERBEAN", LOG);               
-                errs.add(new ErrorVisitor.UserError(msg.toString()));
-            }
-        }
-  
         if (errs.getErrors().size() > 0) {
-            Message msg = new Message("PARAMETER_MISSING", LOG);           
+            Message msg = new Message("PARAMETER_MISSING", LOG);
             throw new ToolException(msg, new BadUsageException(getUsage(), errs));
         }
 

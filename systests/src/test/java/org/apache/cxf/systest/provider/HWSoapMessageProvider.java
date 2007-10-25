@@ -75,6 +75,9 @@ public class HWSoapMessageProvider implements Provider<SOAPMessage> {
                 response = sayHiResponse;
             } else if (n.getLocalName().equals(greetMe.getLocalPart())) {
                 response = greetMeResponse;
+            } else {
+                response = request;
+                //response.writeTo(System.out);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

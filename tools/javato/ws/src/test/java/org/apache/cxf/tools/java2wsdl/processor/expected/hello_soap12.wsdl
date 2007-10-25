@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<wsdl:definitions name="GreeterService" targetNamespace="http://apache.org/hello_world_soap12_http" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns1="http://apache.org/hello_world_soap12_http" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://apache.org/hello_world_soap12_http/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="GreeterService" targetNamespace="http://apache.org/hello_world_soap12_http" xmlns:tns="http://apache.org/hello_world_soap12_http" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:ns1="http://apache.org/hello_world_soap12_http/types" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://apache.org/hello_world_soap12_http/types" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://apache.org/hello_world_soap12_http/types">
 <xs:element name="faultDetail">
@@ -47,42 +47,42 @@
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="sayHi">
-    <wsdl:part name="parameters" element="ns2:sayHi">
+    <wsdl:part name="parameters" element="ns1:sayHi">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="sayHiResponse">
-    <wsdl:part name="result" element="ns2:sayHiResponse">
+    <wsdl:part name="parameters" element="ns1:sayHiResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="PingMeFault">
-    <wsdl:part name="fault" element="ns2:faultDetail">
+    <wsdl:part name="PingMeFault" element="ns1:faultDetail">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMeResponse">
-    <wsdl:part name="result" element="ns2:pingMeResponse">
+    <wsdl:part name="parameters" element="ns1:pingMeResponse">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="pingMe">
-    <wsdl:part name="parameters" element="ns2:pingMe">
+    <wsdl:part name="parameters" element="ns1:pingMe">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Greeter">
     <wsdl:operation name="sayHi">
-      <wsdl:input name="sayHi" message="ns1:sayHi">
+      <wsdl:input name="sayHi" message="tns:sayHi">
     </wsdl:input>
-      <wsdl:output name="sayHiResponse" message="ns1:sayHiResponse">
+      <wsdl:output name="sayHiResponse" message="tns:sayHiResponse">
     </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="pingMe">
-      <wsdl:input name="pingMe" message="ns1:pingMe">
+      <wsdl:input name="pingMe" message="tns:pingMe">
     </wsdl:input>
-      <wsdl:output name="pingMeResponse" message="ns1:pingMeResponse">
+      <wsdl:output name="pingMeResponse" message="tns:pingMeResponse">
     </wsdl:output>
-      <wsdl:fault name="PingMeFault" message="ns1:PingMeFault">
+      <wsdl:fault name="PingMeFault" message="tns:PingMeFault">
     </wsdl:fault>
     </wsdl:operation>
   </wsdl:portType>
-  <wsdl:binding name="GreeterServiceSoapBinding" type="ns1:Greeter">
+  <wsdl:binding name="GreeterServiceSoapBinding" type="tns:Greeter">
     <soap12:binding style="document" transport="http://www.w3.org/2003/05/soap/bindings/HTTP/"/>
     <wsdl:operation name="sayHi">
       <soap12:operation soapAction="" style="document"/>
@@ -107,7 +107,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="GreeterService">
-    <wsdl:port name="GreeterPort" binding="ns1:GreeterServiceSoapBinding">
+    <wsdl:port name="GreeterPort" binding="tns:GreeterServiceSoapBinding">
       <soap12:address location="http://localhost:9090/hello"/>
     </wsdl:port>
   </wsdl:service>

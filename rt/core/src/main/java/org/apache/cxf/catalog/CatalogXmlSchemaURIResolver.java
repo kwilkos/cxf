@@ -19,9 +19,11 @@
 package org.apache.cxf.catalog;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.resource.ExtendedURIResolver;
 import org.apache.ws.commons.schema.XmlSchemaException;
 import org.apache.ws.commons.schema.resolver.URIResolver;
@@ -44,6 +46,13 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
         String resolvedSchemaLocation = null;
         try {
             resolvedSchemaLocation = this.catalogResolver.resolveSystem(schemaLocation);
+            
+            if (resolvedSchemaLocation == null) {
+                resolvedSchemaLocation = catalogResolver.resolveURI(schemaLocation);
+            }
+            if (resolvedSchemaLocation == null) {
+                resolvedSchemaLocation = catalogResolver.resolvePublic(schemaLocation, baseUri);
+            }
         } catch (IOException e) {
             throw new RuntimeException("Catalog resolution failed", e);
         }
@@ -64,6 +73,22 @@ public class CatalogXmlSchemaURIResolver implements URIResolver {
                                          + (baseUri == null
                                             ? "."
                                             : ", relative to '" + baseUri + "'."));
+        } else if (in.getByteStream() != null) {
+            //workaround bug in XmlSchema - XmlSchema is not closing the InputStreams
+            //that are returned for imports.  Thus, with a lot of services starting up 
+            //or a lot of schemas imported or similar, it's easy to run out of
+            //file handles.  We'll just load the file into a byte[] and return that.
+            try {
+                InputStream ins = IOUtils.loadIntoBAIS(in.getByteStream());
+                in.setByteStream(ins);
+            } catch (IOException e) {
+                throw new XmlSchemaException("Unable to load imported document "
+                                             + "at '" + schemaLocation + "'"
+                                             + (baseUri == null
+                                                ? "."
+                                                : ", relative to '" + baseUri + "'."),
+                                                e);
+            }
         }
 
         return in;

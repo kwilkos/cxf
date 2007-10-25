@@ -22,15 +22,23 @@ package org.apache.cxf.jaxws.interceptors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.activation.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.MessageFactory;
+import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPConstants;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -42,6 +50,7 @@ import javax.xml.ws.Service.Mode;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -49,14 +58,15 @@ import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.source.NodeDataWriter;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.jaxws.handler.logical.DispatchLogicalHandlerInterceptor;
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
@@ -77,9 +87,6 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
     }
 
     public void handleMessage(Message message) throws Fault {
-        org.apache.cxf.service.Service service = 
-            message.getExchange().get(org.apache.cxf.service.Service.class);
-
         Object obj = null;
         Object result = message.getContent(List.class);
         if (result != null) {
@@ -97,26 +104,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
         if (message instanceof SoapMessage) {
             Source source = null;
             if (mode == Service.Mode.PAYLOAD) {
-                if (obj instanceof SOAPMessage || obj instanceof DataSource) {
-                    throw new Fault(
-                                    new org.apache.cxf.common.i18n.Message(
-                                        "DISPATCH_OBJECT_NOT_SUPPORTED_SOAPBINDING",
-                                        LOG, obj.getClass(), "PAYLOAD"));
-                } else if (obj instanceof Source) {
-                    source = (Source)obj;
-                } else {
-                    //JAXB
-                    try {
-                        SOAPMessage msg = newSOAPMessage(null, ((SoapMessage)message).getVersion());
-                        DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
-                        dataWriter.write(obj, msg.getSOAPBody());
-                        //msg.writeTo(System.out);
-                        source = new DOMSource(DOMUtils.getChild(msg.getSOAPBody(), Node.ELEMENT_NODE));
-                    } catch (Exception e) {
-                        throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT",
-                                                                               LOG), e);
-                    }
-                }
+                source = handlePayloadMode(obj, message);
             } else {
                 if (obj instanceof DataSource) {
                     throw new Fault(
@@ -124,7 +112,8 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                                         "DISPATCH_OBJECT_NOT_SUPPORTED_SOAPBINDING",
                                         LOG, "DataSource", "MESSAGE"));
                 } else if (obj instanceof SOAPMessage) {
-                    source = new DOMSource(((SOAPMessage)obj).getSOAPPart());
+                    source = handleSOAPMessage(obj, message);
+
                 } else if (obj instanceof Source) {
                     source = (Source)obj;
                 } 
@@ -157,6 +146,8 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
             } else {
                 // JAXB element
                 try {
+                    org.apache.cxf.service.Service service = 
+                        message.getExchange().get(org.apache.cxf.service.Service.class);
                     DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, service,
                                                                            XMLStreamWriter.class);
                     W3CDOMStreamWriter xmlWriter = new W3CDOMStreamWriter();
@@ -173,6 +164,68 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
         message.getInterceptorChain().add(ending);
     }
     
+    private Source handleSOAPMessage(Object obj, Message message) {
+        SOAPMessage soapMessage = (SOAPMessage)obj;
+        try {
+            //workaround bug in Sun SAAJ impl
+            soapMessage.getSOAPPart().getEnvelope();
+        } catch (SOAPException e1) {
+            //ignore
+        }
+        Source source = new DOMSource(soapMessage.getSOAPPart());
+        
+        if (soapMessage.countAttachments() > 0) {
+            if (message.getAttachments() == null) {
+                message.setAttachments(new ArrayList<Attachment>(soapMessage
+                        .countAttachments()));
+            }
+            Iterator<AttachmentPart> it = CastUtils.cast(soapMessage.getAttachments());
+            while (it.hasNext()) {
+                AttachmentPart part = it.next();
+                AttachmentImpl att = new AttachmentImpl(part.getContentId());
+                try {
+                    att.setDataHandler(part.getDataHandler());
+                } catch (SOAPException e) {
+                    throw new Fault(e);
+                }
+                Iterator<MimeHeader> it2 = CastUtils.cast(part.getAllMimeHeaders());
+                while (it2.hasNext()) {
+                    MimeHeader header = it2.next();
+                    att.setHeader(header.getName(), header.getValue());
+                }
+                message.getAttachments().add(att);
+            }
+        }
+        return source;
+    }
+
+    private Source handlePayloadMode(Object obj, Message message) {
+        Source source = null;
+        if (obj instanceof SOAPMessage || obj instanceof DataSource) {
+            throw new Fault(
+                            new org.apache.cxf.common.i18n.Message(
+                                "DISPATCH_OBJECT_NOT_SUPPORTED_SOAPBINDING",
+                                LOG, obj.getClass(), "PAYLOAD"));
+        } else if (obj instanceof Source) {
+            source = (Source)obj;
+        } else {
+            //JAXB
+            try {
+                org.apache.cxf.service.Service service = 
+                    message.getExchange().get(org.apache.cxf.service.Service.class);
+                SOAPMessage msg = newSOAPMessage(null, ((SoapMessage)message).getVersion());
+                DataWriter<Node> dataWriter = getDataWriter(message, service, Node.class);
+                dataWriter.write(obj, msg.getSOAPBody());
+                //msg.writeTo(System.out);
+                source = new DOMSource(DOMUtils.getChild(msg.getSOAPBody(), Node.ELEMENT_NODE));
+            } catch (Exception e) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT",
+                                                                       LOG), e);
+            }
+        }
+        return source;
+    }
+
     private class DispatchOutDatabindingEndingInterceptor extends AbstractOutDatabindingInterceptor {
         public DispatchOutDatabindingEndingInterceptor() {
             super(Phase.WRITE_ENDING);
@@ -190,6 +243,27 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                 if (xmlWriter != null) {
                     xmlWriter.flush();
                 } else if (soapMessage != null) {
+                    Map<String, List<String>> heads 
+                        = CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
+                    if (heads == null) {
+                        heads = new HashMap<String, List<String>>();
+                        message.put(Message.PROTOCOL_HEADERS, heads);
+                    }
+                    
+                    soapMessage.saveChanges();
+                    Iterator<MimeHeader> smh = CastUtils.cast(soapMessage.getMimeHeaders().getAllHeaders());
+                    while (smh.hasNext()) {
+                        MimeHeader head = smh.next();
+                        if ("Content-Type".equals(head.getName())) {
+                            message.put(Message.CONTENT_TYPE, head.getValue());
+                        } else if (!"Content-Length".equals(head.getName())) {
+                            if (!heads.containsKey(head.getName())) {
+                                heads.put(head.getName(), new ArrayList<String>());
+                            }
+                            List<String>l = heads.get(head.getName());
+                            l.add(head.getValue());
+                        }
+                    }
                     soapMessage.writeTo(os);
                 } else if (source != null) {
                     doTransform(source, os);
@@ -200,6 +274,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                 // Finish the message processing, do flush
                 os.flush();
             } catch (Exception ex) {
+                ex.printStackTrace();
                 throw new Fault(new org.apache.cxf.common.i18n.Message("EXCEPTION_WRITING_OBJECT", LOG, ex));
             }
         }      
@@ -221,6 +296,20 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                 Source source = message.getContent(Source.class);
                 message.removeContent(Source.class);
 
+                //workaround bug in Sun SAAJ impl where
+                //source doesn't work if the SOAPPart was already 
+                //created from a source
+                if (source instanceof DOMSource) {
+                    DOMSource ds = (DOMSource)source;
+                    if (ds.getNode() instanceof SOAPPart) {
+                        try {
+                            ((SOAPPart)ds.getNode()).getEnvelope();
+                        } catch (SOAPException e) {
+                            //ignore
+                        }
+                    }
+                }
+                
                 if (mode == Service.Mode.PAYLOAD) {
                     // Input is Source in payload mode, need to wrap it
                     // with a SOAPMessage
@@ -234,11 +323,32 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
                     }
                 } else {
                     try {
-                        CachedOutputStream cos = new CachedOutputStream();
-                        Transformer transformer = XMLUtils.newTransformer();
-                        transformer.transform(source, new StreamResult(cos));
-                        obj = newSOAPMessage(cos.getInputStream(), ((SoapMessage)message).getVersion());
+                        SoapVersion version = ((SoapMessage)message).getVersion();
+                        MessageFactory msgFactory = null;
+                        if (version == null || version instanceof Soap11) {
+                            msgFactory = MessageFactory.newInstance();
+                        } else if (version instanceof Soap12) {
+                            msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                        }
+                        SOAPMessage msg = msgFactory.createMessage();
+                        msg.getSOAPPart().setContent(source);
+                        msg.saveChanges();
+                        if (message.getAttachments() != null) {
+                            for (Attachment att : message.getAttachments()) {
+                                AttachmentPart part = msg.createAttachmentPart(att.getDataHandler());
+                                if (att.getId() != null) {
+                                    part.setContentId(att.getId());
+                                }
+                                for (Iterator<String> it = att.getHeaderNames(); it.hasNext();) {
+                                    String s = it.next();
+                                    part.setMimeHeader(s, att.getHeader(s));
+                                }
+                                msg.addAttachmentPart(part);
+                            }
+                        }
+                        obj = msg;                    
                     } catch (Exception e) {
+                        e.printStackTrace();
                         throw new Fault(e);
                     }
                 }                
@@ -278,7 +388,7 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
         }
         if (obj instanceof DataSource) {
             InputStream is = ((DataSource)obj).getInputStream();
-            IOUtils.copy(((DataSource)obj).getInputStream(), os);
+            IOUtils.copy(is, os);
             is.close();
         }
     }

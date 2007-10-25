@@ -27,9 +27,11 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.PolicyBuilder;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
@@ -67,7 +69,7 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
     }
     
     @Test
-    public void testBuildFail() throws Exception {
+    public void testBuildFailOlderNs() throws Exception {
         String data = 
             "<wsam:Addressing wsp:Optional=\"true\""
             + " xmlns:wsp=\"http://www.w3.org/2006/07/ws-policy\""
@@ -82,7 +84,25 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
     }
     
     @Test
-    public void testBuild() throws Exception {
+    public void testBuildDefaultNs() throws Exception {
+        String data = 
+            "<wsam:Addressing wsp:Optional=\"true\""
+            + " xmlns:wsp=\"http://www.w3.org/ns/ws-policy\""
+            + " xmlns:wsam=\"http://www.w3.org/2007/01/addressing/metadata\">"
+            + "<wsp:Policy/></wsam:Addressing>";
+ 
+        Policy nested = control.createMock(Policy.class);
+        EasyMock.expect(builder.getPolicy(EasyMock.isA(Element.class))).andReturn(nested);
+        control.replay();
+        NestedPrimitiveAssertion npc = (NestedPrimitiveAssertion)npab.build(getElement(data));
+        assertEquals(TEST_NAME1, npc.getName());
+        assertSame(nested, npc.getNested());
+        assertTrue(npc.isOptional());
+        control.verify();
+    }
+    
+    @Test
+    public void testBuildOlderNs() throws Exception {
         String data = 
             "<wsam:Addressing wsp:Optional=\"true\""
             + " xmlns:wsp=\"http://www.w3.org/2006/07/ws-policy\""
@@ -91,7 +111,14 @@ public class NestedPrimitiveAssertionBuilderTest extends Assert {
  
         Policy nested = control.createMock(Policy.class);
         EasyMock.expect(builder.getPolicy(EasyMock.isA(Element.class))).andReturn(nested);
+        
+        PolicyConstants pc = new PolicyConstants();
+        pc.setNamespace(PolicyConstants.NAMESPACE_W3_200607);
+        Bus bus = control.createMock(Bus.class);
+        EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(pc);
         control.replay();
+        
+        npab.setBus(bus);
         NestedPrimitiveAssertion npc = (NestedPrimitiveAssertion)npab.build(getElement(data));
         assertEquals(TEST_NAME1, npc.getName());
         assertSame(nested, npc.getNested());

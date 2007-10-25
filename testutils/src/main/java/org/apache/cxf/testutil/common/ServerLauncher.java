@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ServerLauncher {
+import org.apache.cxf.common.logging.LogUtils;
 
+public class ServerLauncher {
     public static final int DEFAULT_TIMEOUT = 3 * 60 * 1000;
 
     protected static final String SERVER_FAILED = 
@@ -43,7 +44,7 @@ public class ServerLauncher {
 
     private static final boolean DEFAULT_IN_PROCESS = false;
     
-    private static final Logger LOG = Logger.getLogger(ServerLauncher.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(ServerLauncher.class);
 
     boolean serverPassed;
     final String className;
@@ -186,8 +187,9 @@ public class ServerLauncher {
                 throw ex;
             }
 
+            LOG.fine("CMD: " + cmd);
             if (debug) {
-                System.err.print("CMD: ");
+                System.err.print("CMD: " + cmd);
             }
             
             
@@ -322,10 +324,30 @@ public class ServerLauncher {
         }
 
         cmd.add("-ea");
+        
+        cmd.add("-Djavax.xml.ws.spi.Provider=org.apache.cxf.bus.jaxws.spi.ProviderImpl");
+        String portClose = System.getProperty("org.apache.cxf.transports.http_jetty.DontClosePort");
+        if (portClose != null) {
+            cmd.add("-Dorg.apache.cxf.transports.http_jetty.DontClosePort=" + portClose);
+        }
+        String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
+        if (null != loggingPropertiesFile) {
+            cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
+        } 
+        
         cmd.add("-classpath");
         
         ClassLoader loader = this.getClass().getClassLoader();
         StringBuffer classpath = new StringBuffer(System.getProperty("java.class.path"));
+        if (classpath.indexOf("/.compatibility/") != -1) {
+            classpath.append(":");
+            //on OSX, the compatibility lib brclasspath.indexOf("/.compatibility/")
+            int idx = classpath.indexOf("/.compatibility/");
+            int idx1 = classpath.lastIndexOf(":", idx);
+            int idx2 = classpath.indexOf(":", idx);
+            classpath.replace(idx1, idx2, ":");
+        }
+        
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlloader = (URLClassLoader)loader; 
             for (URL url : urlloader.getURLs()) {
@@ -335,12 +357,6 @@ public class ServerLauncher {
         }
         cmd.add(classpath.toString());
         
-        cmd.add("-Djavax.xml.ws.spi.Provider=org.apache.cxf.bus.jaxws.spi.ProviderImpl");
-        
-        String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
-        if (null != loggingPropertiesFile) {
-            cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
-        } 
 
         // If the client set the transformer factory property,
         // we want the server to also set that property.

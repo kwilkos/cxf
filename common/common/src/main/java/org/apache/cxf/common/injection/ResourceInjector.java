@@ -52,6 +52,7 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     private static final List<Class<? extends Annotation>> ANNOTATIONS = 
         new ArrayList<Class<? extends Annotation>>();
     
+        
     static {
         ANNOTATIONS.add(Resource.class);
         ANNOTATIONS.add(Resources.class);
@@ -71,16 +72,21 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     }
     
     
-    public void inject(Object o) {
-
+    public void inject(Object o) {        
+        inject(o, o.getClass());
+    }
+    
+    public void inject(Object o, Class claz) {
         AnnotationProcessor processor = new AnnotationProcessor(o); 
-        processor.accept(this); 
-
-        invokePostConstruct();
+        processor.accept(this, claz); 
     }
     
     public void construct(Object o) {
         setTarget(o);
+        invokePostConstruct();
+    }
+    public void construct(Object o, Class<?> cls) {
+        setTarget(o, cls);
         invokePostConstruct();
     }
 
@@ -235,11 +241,21 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     private void invokeSetter(Method method, Object resource) { 
         try {
             method.setAccessible(true);
-            method.invoke(getTarget(), resource);
+            if (method.getDeclaringClass().isAssignableFrom(getTarget().getClass())) {
+                method.invoke(getTarget(), resource);
+            } else { // deal with the proxy setter method
+                Method targetMethod = getTarget().getClass().
+                getMethod(method.getName(), new Class[]{resource.getClass()});
+                targetMethod.invoke(getTarget(), resource);
+            }
         } catch (IllegalAccessException e) { 
             LOG.log(Level.SEVERE, "INJECTION_SETTER_NOT_VISIBLE", method);
         } catch (InvocationTargetException e) { 
             LogUtils.log(LOG, Level.SEVERE, "INJECTION_SETTER_RAISED_EXCEPTION", e, method);
+        } catch (SecurityException e) {
+            LogUtils.log(LOG, Level.SEVERE, "INJECTION_SETTER_RAISED_EXCEPTION", e, method);
+        } catch (NoSuchMethodException e) {
+            LOG.log(Level.SEVERE, "INJECTION_SETTER_METHOD_NOT_FOUND", new Object[] {method.getName()});
         } 
     } 
 
@@ -332,6 +348,10 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
         Collection<Method> methods = new LinkedList<Method>(); 
         addAnnotatedMethods(acls, getTarget().getClass().getMethods(), methods); 
         addAnnotatedMethods(acls, getTarget().getClass().getDeclaredMethods(), methods);
+        if (getTargetClass() != getTarget().getClass()) {
+            addAnnotatedMethods(acls, getTargetClass().getMethods(), methods); 
+            addAnnotatedMethods(acls, getTargetClass().getDeclaredMethods(), methods);            
+        }
         return methods;
     } 
 
@@ -375,6 +395,10 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
     }
 
     private Object resolveResource(String resourceName, Class<?> type) {
+        if (resourceManager == null) {
+            return null;
+        }
         return resourceManager.resolveResource(resourceName, type, resourceResolvers);
     }
+        
 }

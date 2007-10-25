@@ -78,7 +78,7 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
     private SequenceIdentifierGenerator idGenerator;
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
-    private Timer timer = new Timer(true);
+    private Timer timer = new Timer("RMManager-Timer-" + System.identityHashCode(this), true);
     private RMAssertion rmAssertion;
     private DeliveryAssuranceType deliveryAssurance;
     private SourcePolicyType sourcePolicy;
@@ -87,7 +87,7 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
     // ServerLifeCycleListener
     
     public void startServer(Server server) {
-        recoverReliableEndpoint(server.getEndpoint(), null);
+        recoverReliableEndpoint(server.getEndpoint(), (Conduit)null);
     }
 
     public void stopServer(Server server) {
@@ -97,6 +97,17 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
     // ClientLifeCycleListener
     
     public void clientCreated(Client client) {
+        if (null == store || null == retransmissionQueue) {
+            return;
+        }        
+        String id = RMUtils.getEndpointIdentifier(client.getEndpoint());
+        
+        Collection<SourceSequence> sss = store.getSourceSequences(id);
+        if (null == sss || 0 == sss.size()) {                        
+            return;
+        }
+        LOG.log(Level.FINE, "Number of source sequences: {0}", sss.size());
+        
         recoverReliableEndpoint(client.getEndpoint(), client.getConduit());
     }
     
@@ -372,7 +383,6 @@ public class RMManager implements ServerLifeCycleListener, ClientLifeCycleListen
         LOG.log(Level.FINE, "Number of source sequences: {0}", sss.size());
         
         RMEndpoint rme = null;
-        
         for (SourceSequence ss : sss) {            
  
             Collection<RMMessage> ms = store.getMessages(ss.getIdentifier(), true);

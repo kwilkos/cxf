@@ -20,6 +20,7 @@ package org.apache.cxf.aegis;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
 import javax.wsdl.WSDLException;
@@ -35,11 +36,11 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.databinding.AegisServiceConfiguration;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.frontend.AbstractWSDLBasedEndpointFactory;
@@ -91,9 +92,9 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
         bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
         
 
-        addNamespace("wsdl", XmlConstants.WSDL11_NS);
-        addNamespace("wsdlsoap", XmlConstants.WSDL11_SOAP_NS);
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("wsdl", SOAPConstants.WSDL11_NS);
+        addNamespace("wsdlsoap", SOAPConstants.WSDL11_SOAP_NS);
+        addNamespace("xsd", SOAPConstants.XSD);
 
 
     }
@@ -110,27 +111,56 @@ public abstract class AbstractAegisTest extends AbstractCXFTest {
     }
     
     public Server createService(Class serviceClass, QName name) {
-        return createService(serviceClass, serviceClass.getSimpleName(), name);
+        return createService(serviceClass, null, name);
     }
     
-    public Server createService(Class serviceClass, 
-                                String address, QName name) {
-        ServerFactoryBean sf = createServiceFactory(serviceClass, address, name);
+    public Server createService(Class serviceClass, Object serviceBean, QName name) {
+        return createService(serviceClass, serviceBean, serviceClass.getSimpleName(), name);
+    }
+    
+    protected Server createService(Class serviceClass, QName name, AegisDatabinding binding) {
+        return createService(serviceClass, serviceClass.getSimpleName(), name, binding);
+    }
+
+    protected Server createService(Class serviceClass, 
+                                   String address, QName name, 
+                                    AegisDatabinding binding) {
+        ServerFactoryBean sf = createServiceFactory(serviceClass, null, address, name, binding);
+        return sf.create();
+    }
+    
+    public Server createService(Class serviceClass,
+                                Object serviceBean, 
+                                String address,
+                                QName name) {
+        ServerFactoryBean sf = createServiceFactory(serviceClass, serviceBean, address, name, null);
         return sf.create();
     }
 
-    protected ServerFactoryBean createServiceFactory(Class serviceClass, String address, QName name) {
+    protected ServerFactoryBean createServiceFactory(Class serviceClass, 
+                                                     Object serviceBean, 
+                                                     String address, 
+                                                     QName name,
+                                                     AegisDatabinding binding) {
         ServerFactoryBean sf = new ServerFactoryBean();
         sf.setServiceClass(serviceClass);
+        if (serviceBean != null) {
+            sf.setServiceBean(serviceBean);
+        }    
         sf.getServiceFactory().setServiceName(name);
         sf.setAddress("local://" + address);
-        setupAegis(sf);
+        setupAegis(sf, binding);
         return sf;
     }
-
-    protected void setupAegis(AbstractWSDLBasedEndpointFactory sf) {
+    protected void setupAegis(AbstractWSDLBasedEndpointFactory sf) { 
+        setupAegis(sf, null);
+    }
+    protected void setupAegis(AbstractWSDLBasedEndpointFactory sf, AegisDatabinding binding) {
+        if (binding == null) {
+            binding = new AegisDatabinding();
+        }
         sf.getServiceFactory().getServiceConfigurations().add(0, new AegisServiceConfiguration());
-        sf.getServiceFactory().setDataBinding(new AegisDatabinding());
+        sf.getServiceFactory().setDataBinding(binding);
     }
 
     protected Collection<Document> getWSDLDocuments(String string) throws WSDLException {

@@ -58,7 +58,7 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     @BeforeClass
     public static void startServers() throws Exception {
-        assertTrue("server did not launch correctly", launchServer(ServerMisc.class, true));
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
     }
     
     @Test
@@ -226,6 +226,8 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
     }
     
     private void runDocLitTest(DocLitWrappedCodeFirstService port) throws Exception {
+        assertEquals(24, port.echoIntDifferentWrapperName(24));
+        
         String echoMsg = port.echo("Hello");
         assertEquals("Hello", echoMsg);
         
@@ -308,6 +310,13 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
             fail("Expected exception not found");
         } catch (ServiceTestFault ex) {
             assertEquals(10, ex.getFaultInfo().getId());
+        }
+        // CXF-1131 testcase
+        try {
+            port.throwException(-1);
+            fail("Expected exception not found");
+        } catch (ServiceTestFault ex) {
+            assertNull(ex.getFaultInfo());
         }
     }
     

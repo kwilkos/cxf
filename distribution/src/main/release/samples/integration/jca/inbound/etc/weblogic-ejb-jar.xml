@@ -18,11 +18,11 @@
   under the License.
 -->
 
-<jboss-ejb-jar>
+<weblogic-ejb-jar xmlns="http://www.bea.com/ns/weblogic/90">
 
-   <jboss-enterprise-bean>
+   <weblogic-enterprise-bean>
       <ejb-name>GreeterBean</ejb-name>
       <jndi-name>GreeterBean</jndi-name>
-   </jboss-enterprise-bean>
+   </weblogic-enterprise-bean>
 
-</jboss-ejb-jar>
+</weblogic-ejb-jar>

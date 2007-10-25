@@ -118,8 +118,19 @@ public class ReferenceResolverTest extends Assert {
     }
     
     @Test
-    public void testRemoteReferenceResolver() {
+    public void testRemoteReferenceResolverWithOlderNs() {
         
+        doTestRemoteResolver(PolicyConstants.NAMESPACE_W3_200607);
+    }
+    
+    @Test
+    public void testRemoteReferenceResolverWithDefaultNs() {
+        doTestRemoteResolver(PolicyConstants.NAMESPACE_WS_POLICY);
+    }
+    
+    private void doTestRemoteResolver(String policyNs) {
+        
+        constants.setNamespace(policyNs);
         URL url = ReferenceResolverTest.class.getResource("referring.wsdl");
         String baseURI = url.toString();
         PolicyBuilder builder = control.createMock(PolicyBuilder.class);
@@ -132,6 +143,7 @@ public class ReferenceResolverTest extends Assert {
         
         control.replay();
         assertSame(p, resolver.resolveReference("referred.wsdl#PolicyA"));
-        control.verify();   
+        control.verify(); 
+        control.reset();
     }
 }

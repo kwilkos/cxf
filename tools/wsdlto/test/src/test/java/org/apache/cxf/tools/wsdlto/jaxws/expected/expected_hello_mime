@@ -16,46 +16,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+
 package org.apache.hello_world_mime;
 
-import javax.jws.WebParam.Mode;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding.Style;
-import javax.jws.soap.SOAPBinding;
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebParam.Mode;
 import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
 @WebService(targetNamespace = "http://apache.org/hello_world_mime", name = "Hello")
+@XmlSeeAlso({org.apache.cxf.mime.ObjectFactory.class})
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 
 public interface Hello {
 
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
-    @WebResult(targetNamespace = "http://apache.org/hello_world_mime/types", partName = "mime", name = "addressRes")
+    @WebResult(name = "addressRes", targetNamespace = "http://apache.org/hello_world_mime/types", partName = "mime")
     @WebMethod
     public javax.xml.transform.Source address(
-        @WebParam(targetNamespace = "http://apache.org/hello_world_mime/types", partName = "mime", name = "address")
+        @WebParam(partName = "mime", name = "address", targetNamespace = "http://apache.org/hello_world_mime/types")
         org.apache.cxf.mime.Address mime
     );
 
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebMethod
     public void helloMime(
-        @WebParam(targetNamespace = "http://apache.org/hello_world_mime/types", partName = "body", name = "body")
+        @WebParam(partName = "body", name = "body", targetNamespace = "http://apache.org/hello_world_mime/types")
         java.lang.String body,
-        @WebParam(targetNamespace = "", mode = Mode.INOUT, partName = "mime", name = "mime")
+        @WebParam(partName = "mime", mode = WebParam.Mode.INOUT, name = "mime", targetNamespace = "")
         javax.xml.ws.Holder<java.awt.Image> mime
     );
 
     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
     @WebMethod
     public void hello(
-        @WebParam(targetNamespace = "http://apache.org/hello_world_mime/types", partName = "body", name = "body")
+        @WebParam(partName = "body", name = "body", targetNamespace = "http://apache.org/hello_world_mime/types")
         java.lang.String body,
-        @WebParam(targetNamespace = "", mode = Mode.INOUT, partName = "mime", name = "mime")
+        @WebParam(partName = "mime", mode = WebParam.Mode.INOUT, name = "mime", targetNamespace = "")
         javax.xml.ws.Holder<byte[]> mime
     );
 }

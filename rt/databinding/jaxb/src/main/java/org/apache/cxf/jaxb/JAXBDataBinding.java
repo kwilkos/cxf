@@ -32,8 +32,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBContext;
@@ -53,8 +54,8 @@ import org.w3c.dom.Node;
 import com.sun.xml.bind.v2.ContextFactory;
 import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
 
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.CacheMap;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -72,13 +73,13 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public final class JAXBDataBinding extends AbstractDataBinding implements DataBinding {
-
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
     
     public static final String UNWRAP_JAXB_ELEMENT = "unwrap.jaxb.element";
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBDataBinding.class);
-    
+    private static final Logger LOG = LogUtils.getLogger(JAXBDataBinding.class);
+
+
     private static final Class<?> SUPPORTED_READER_FORMATS[] = new Class<?>[] {Node.class,
                                                                                XMLEventReader.class,
                                                                                XMLStreamReader.class};
@@ -198,6 +199,9 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             }
         }
             
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.log(Level.FINE, "CREATED_JAXB_CONTEXT", new Object[] {ctx, contextClasses});
+        }
         setContext(ctx);
         
             
@@ -225,7 +229,7 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
                                           (Document)r.getNode(), r.getSystemId());
                     }
                 } catch (IOException e) {
-                    throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", BUNDLE), e);
+                    throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", LOG), e);
                 }
             }
             
@@ -392,8 +396,8 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
     
     
     //Now we can not add all the classes that Jaxb needed into JaxbContext, especially when 
-    //an ObjectFactroy is pointed by an jaxb @XmlElementDecl annotation
-    //added this workaround method to load the jaxb needed OjbectFactory class
+    //an ObjectFactory is pointed to by an jaxb @XmlElementDecl annotation
+    //added this workaround method to load the jaxb needed ObjectFactory class
     public boolean addJaxbObjectFactory(JAXBException e1) {
         boolean added = false;
         java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
@@ -418,6 +422,14 @@ public final class JAXBDataBinding extends AbstractDataBinding implements DataBi
             
         }
         return added;
+    }
+
+    /**
+     * Jaxb has no declared namespace prefixes.
+     * {@inheritDoc}
+     */
+    public Map<String, String> getDeclaredNamespaceMappings() {
+        return null;
     }
     
     

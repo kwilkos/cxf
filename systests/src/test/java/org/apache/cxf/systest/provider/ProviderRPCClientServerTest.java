@@ -23,6 +23,12 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.AttachmentPart;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPFactory;
+import javax.xml.soap.SOAPMessage;
 
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_rpclit.GreeterRPCLit;
@@ -35,6 +41,30 @@ public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase
     @BeforeClass
     public static void startServers() throws Exception {
         assertTrue("server did not launch correctly", launchServer(Server.class));
+    }
+    
+    @Test
+    public void testSWA() throws Exception {
+        SOAPFactory soapFac = SOAPFactory.newInstance();
+        MessageFactory msgFac = MessageFactory.newInstance();
+        SOAPConnectionFactory conFac = SOAPConnectionFactory.newInstance();
+        SOAPMessage msg = msgFac.createMessage();
+        
+        QName sayHi = new QName("http://apache.org/hello_world_rpclit", "sayHiWAttach");
+        msg.getSOAPBody().addChildElement(soapFac.createElement(sayHi));
+        AttachmentPart ap1 = msg.createAttachmentPart();
+        ap1.setContent("Attachment content", "text/plain");
+        msg.addAttachmentPart(ap1);
+        AttachmentPart ap2 = msg.createAttachmentPart();
+        ap2.setContent("Attachment content - Part 2", "text/plain");
+        msg.addAttachmentPart(ap2);
+        
+        SOAPConnection con = conFac.createConnection();
+        URL endpoint = new URL("http://localhost:9008/SOAPServiceProviderRPCLit/SoapPortProviderRPCLit1");
+        SOAPMessage response = con.call(msg, endpoint); 
+        QName sayHiResp = new QName("http://apache.org/hello_world_rpclit", "sayHiResponse");
+        assertNotNull(response.getSOAPBody().getChildElements(sayHiResp));
+        assertEquals(2, response.countAttachments());
     }
 
     private void doGreeterRPCLit(SOAPServiceRPCLit service, QName portName, int count) throws Exception {

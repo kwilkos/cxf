@@ -113,19 +113,19 @@
 
     <wsdl:portType name="Greeter">
         <wsdl:operation name="sayHi">
-            <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
-            <wsdl:output message="tns:sayHiResponse" name="sayHiResponse"/>
+            <wsdl:input message="x1:sayHiRequest"/>
+            <wsdl:output message="x1:sayHiResponse"/>
         </wsdl:operation>
 
         <wsdl:operation name="greetMe">
-            <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
-            <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+            <wsdl:input message="x1:greetMeRequest"/>
+            <wsdl:output message="x1:greetMeResponse"/>
         </wsdl:operation>
 
         <wsdl:operation name="pingMe">
-            <wsdl:input name="pingMeRequest" message="tns:pingMeRequest"/>
-            <wsdl:output name="pingMeResponse" message="tns:pingMeResponse"/>
-            <wsdl:fault name="pingMeFault" message="tns:pingMeFault"/>
+            <wsdl:input message="x1:pingMeRequest"/>
+            <wsdl:output message="x1:pingMeResponse"/>
+            <wsdl:fault name="pingMeFault" message="x1:pingMeFault"/>
         </wsdl:operation>
     </wsdl:portType>
 

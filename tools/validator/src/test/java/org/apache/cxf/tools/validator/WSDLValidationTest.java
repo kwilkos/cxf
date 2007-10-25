@@ -220,6 +220,26 @@ public class WSDLValidationTest extends ToolTestBase {
         }
     }
 
+    @Test
+    public void testBPR2717() throws Exception {
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/cxf996.wsdl")};
+            WSDLValidator.main(args);
+        } catch (Exception e) {
+            assertTrue(getStdErr().indexOf("WSI-BP-1.0 R2717") == -1);
+            assertTrue(getStdErr().indexOf("WSI-BP-1.0 R2210") != -1);
+        }
+
+        try {
+            String[] args = new String[] {"-verbose",
+                                          getLocation("/validator_wsdl/bp2717.wsdl")};
+            WSDLValidator.main(args);
+        } catch (Exception e) {
+            assertTrue(getStdErr().indexOf("WSI-BP-1.0 R2717") != -1);
+        }
+    }
+
     @Override
     protected String getLocation(String wsdlFile) throws Exception {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);

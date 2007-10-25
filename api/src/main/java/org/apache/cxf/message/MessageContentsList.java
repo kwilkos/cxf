@@ -59,7 +59,7 @@ public class MessageContentsList extends ArrayList<Object> {
     
     private void ensureSize(int idx) {
         while (idx >= size()) {
-            add(null);
+            add(REMOVED_MARKER);
         }
     }
     
@@ -69,6 +69,9 @@ public class MessageContentsList extends ArrayList<Object> {
     }
     
     public boolean hasValue(MessagePartInfo key) {
+        if (key.getIndex() >= size()) {
+            return false;
+        }
         return super.get(key.getIndex()) != REMOVED_MARKER;
     }
     

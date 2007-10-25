@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.common.util.FixedExtensionDeserializer;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -46,7 +47,7 @@ public class AbstractDataBinding {
     }
     
 
-    protected void addSchemaDocument(ServiceInfo serviceInfo, 
+    protected XmlSchema addSchemaDocument(ServiceInfo serviceInfo, 
                                    XmlSchemaCollection col,
                                    Document d,
                                    String systemId) {
@@ -66,12 +67,12 @@ public class AbstractDataBinding {
                 }
             }
         }
-        
         SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
-        schema.setElement(d.getDocumentElement());
         schema.setSystemId(systemId);
+        col.getExtReg().setDefaultExtensionDeserializer(new FixedExtensionDeserializer());
         XmlSchema xmlSchema = col.read(d.getDocumentElement());
         schema.setSchema(xmlSchema);
         serviceInfo.addSchema(schema);
+        return xmlSchema;
     }
 }

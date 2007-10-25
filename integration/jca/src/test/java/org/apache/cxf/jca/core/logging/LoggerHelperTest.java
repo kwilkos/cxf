@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class LoggerHelperTest extends Assert {
 
     @Test
     public void testEnableDisableConsoleLogging() {
-        Logger rootLogger = Logger.getLogger("");
+        Logger rootLogger = LogUtils.getLogger(this.getClass(), null, "");
         Handler handler;
         
         /*Handler handler = LoggerHelper.getHandler(rootLogger, LoggerHelper.CONSOLE_HANDLER);
@@ -52,7 +53,7 @@ public class LoggerHelperTest extends Assert {
         LoggerHelper.enableConsoleLogging();
 
         handler = LoggerHelper.getHandler(rootLogger, LoggerHelper.CONSOLE_HANDLER);
-        assertNotNull("default console appender is there", handler);
+        assertNotNull("default console appender is not there", handler);
 
         LoggerHelper.disableConsoleLogging();
 
@@ -65,8 +66,9 @@ public class LoggerHelperTest extends Assert {
         LoggerHelper.setRootLoggerName(TEST_LOGGER_NAME);
         LoggerHelper.setLogLevel("INFO");
         assertEquals("incorrect log level", "INFO", LoggerHelper.getLogLevel());
-        assertEquals("log level not set on IONA logger", "INFO", Logger.getLogger(TEST_LOGGER_NAME)
-            .getLevel().toString());
+        assertEquals("log level not set on IONA logger", "INFO",
+                     LogUtils.getLogger(this.getClass(), null, TEST_LOGGER_NAME)
+                         .getLevel().toString());
     }
 
     @Test

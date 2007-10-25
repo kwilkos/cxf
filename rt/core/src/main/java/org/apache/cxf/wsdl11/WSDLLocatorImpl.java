@@ -51,6 +51,13 @@ public class WSDLLocatorImpl implements WSDLLocator {
             String resolvedLocation = null;
             if (catalogResolver != null) {
                 resolvedLocation  = catalogResolver.resolveSystem(target);
+                
+                if (resolvedLocation == null) {
+                    resolvedLocation = catalogResolver.resolveURI(target);
+                }
+                if (resolvedLocation == null) {
+                    resolvedLocation = catalogResolver.resolvePublic(target, base);
+                }                
             }
             if (resolvedLocation == null) {
                 return this.resolver.resolve(target, base);
@@ -63,7 +70,7 @@ public class WSDLLocatorImpl implements WSDLLocator {
     }
 
     public InputSource getBaseInputSource() {
-        InputSource result =  resolve(baseUri, null);
+        InputSource result = resolve(baseUri, null);
         baseUri = resolver.getURI();
         return result;
     }

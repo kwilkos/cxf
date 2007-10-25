@@ -78,7 +78,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         SoapBody outSoapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
         if (inSoapBody != null && !StringUtils.isEmpty(inSoapBody.getNamespaceURI())
             || outSoapBody != null && !StringUtils.isEmpty(outSoapBody.getNamespaceURI())) {
-            addErrorMessage("Violate WSI-BP-1.0 R2716 operation '"
+            addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2716") + "Operation '"
                             + bop.getName() + "' soapBody MUST NOT have namespace attribute");
             return false;
         }
@@ -87,7 +87,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         SoapHeader outSoapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
         if (inSoapHeader != null && !StringUtils.isEmpty(inSoapHeader.getNamespaceURI())
             || outSoapHeader != null && !StringUtils.isEmpty(outSoapHeader.getNamespaceURI())) {
-            addErrorMessage("Violate WSI-BP-1.0 R2716 operation '"
+            addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2716") + "Operation '"
                             + bop.getName() + "' soapHeader MUST NOT have namespace attribute");
             return false;
         }
@@ -95,7 +95,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         List<SoapFault> soapFaults = SOAPBindingUtil.getBindingOperationSoapFaults(bop);
         for (SoapFault fault : soapFaults) {
             if (!StringUtils.isEmpty(fault.getNamespaceURI())) {
-                addErrorMessage("Violate WSI-BP-1.0 R2716 operation '"
+                addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2716") + "Operation '"
                                 + bop.getName() + "' soapFault MUST NOT have namespace attribute");
                 return false;
             }
@@ -111,8 +111,9 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         SoapBody outSoapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
         if (inSoapBody != null && StringUtils.isEmpty(inSoapBody.getNamespaceURI())
             || outSoapBody != null && StringUtils.isEmpty(outSoapBody.getNamespaceURI())) {
-            addErrorMessage("Violate WSI-BP-1.0 R2717 soapBody in the input/output of the binding operation '"
-                            + bop.getName() + "' MUST have namespace attribute");
+            addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2717")  
+                + "soapBody in the input/output of the binding operation '"
+                + bop.getName() + "' MUST have namespace attribute");
             return false;
         }
 
@@ -120,7 +121,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         SoapHeader outSoapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
         if (inSoapHeader != null && !StringUtils.isEmpty(inSoapHeader.getNamespaceURI())
             || outSoapHeader != null && !StringUtils.isEmpty(outSoapHeader.getNamespaceURI())) {
-            addErrorMessage("Violate WSI-BP-1.0 R2726 operation '"
+            addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2726") + "Operation '"
                             + bop.getName() + "' soapHeader MUST NOT have namespace attribute");
             return false;
         }
@@ -128,7 +129,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         List<SoapFault> soapFaults = SOAPBindingUtil.getBindingOperationSoapFaults(bop);
         for (SoapFault fault : soapFaults) {
             if (!StringUtils.isEmpty(fault.getNamespaceURI())) {
-                addErrorMessage("Violate WSI-BP-1.0 R2726 operation '"
+                addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2726") + "Operation '"
                                 + bop.getName() + "' soapFault MUST NOT have namespace attribute");
                 return false;
             }
@@ -163,7 +164,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                         }
                     }
                     if (!isDefined) {
-                        addErrorMessage("Violate WSI-BP-1.0 R2201 operation '"
+                        addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2201") + "Operation '"
                                         + operation.getName() + "' soapBody parts : "
                                         + partName + " not found in the message, wrong WSDL");
                         return false;
@@ -171,7 +172,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                 }
             } else {
                 if (partsList.size() > 1) {
-                    addErrorMessage("Violate WSI-BP-1.0 R2210:  operation '" + operation.getName()
+                    addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2210") + "Operation '" + operation.getName()
                                     + "' more than one part bound to body");
                     return false;
                 }
@@ -179,7 +180,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
 
             if (boundPartSize > 1) {
-                addErrorMessage("Violate WSI-BP-1.0  R2201 operation '" + operation.getName()
+                addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2201") + "Operation '" + operation.getName()
                                 + "' more than one part bound to body");
                 return false;
             }
@@ -212,7 +213,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                         }
                     }
                     if (!isDefined) {
-                        addErrorMessage("Violate WSI-BP-1.0 R2201 operation '"
+                        addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2201") + "Operation '"
                                         + operation.getName() + "' soapBody parts : "
                                         + partName + " not found in the message, wrong WSDL");
                         return false;
@@ -221,14 +222,14 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                 }
             } else {
                 if (wsdlHelper.getOutMessageParts(operation).size() > 1) {
-                    addErrorMessage("Violate WSI-BP-1.0 R2210:  operation '" + operation.getName()
+                    addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2210") + "Operation '" + operation.getName()
                                     + "' more than one part bound to body");
                     return false;
                 }
             }
 
             if (boundPartSize > 1) {
-                addErrorMessage("Violate WSI-BP-1.0 R2201 operation '" + operation.getName()
+                addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2201") + "Operation '" + operation.getName()
                                 + "' more than one part bound to body");
                 return false;
             }
@@ -247,10 +248,9 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                 BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
                 Binding binding = wsdlHelper.getBinding(bop, def);
                 String bindingStyle = binding != null ? SOAPBindingUtil.getBindingStyle(binding) : "";
-
                 String style = "".equals(SOAPBindingUtil.getSOAPOperationStyle(bop))
                     ? bindingStyle : SOAPBindingUtil.getSOAPOperationStyle(bop);
-                if ("DOCUMENT".equalsIgnoreCase(style)) {
+                if ("DOCUMENT".equalsIgnoreCase(style) || "".equals(style)) {
                     boolean passed = checkR2201Input(operation, bop)
                         && checkR2201Output(operation, bop)
                         && checkR2716(bop);
@@ -300,7 +300,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
 
                     for (Iterator ite3 = inMess.getParts().values().iterator(); ite3.hasNext();) {
                         Part p = (Part)ite3.next();
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.RPC.name()) && p.getTypeName() == null
+                        if (SOAPBinding.Style.RPC.name().equalsIgnoreCase(style) && p.getTypeName() == null
                             && !isHeaderPart(bop, p)) {
                             addErrorMessage("An rpc-literal binding in a DESCRIPTION MUST refer, "
                                             + "in its soapbind:body element(s), only to "
@@ -309,7 +309,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                             return false;
                         }
 
-                        if (style.equalsIgnoreCase(SOAPBinding.Style.DOCUMENT.name())
+                        if (SOAPBinding.Style.DOCUMENT.name().equalsIgnoreCase(style)
                             && p.getElementName() == null) {
                             addErrorMessage("A document-literal binding in a DESCRIPTION MUST refer, "
                                             + "in each of its soapbind:body element(s),"
@@ -374,9 +374,9 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                     Collection<Part> parts = message.getParts().values();
                     for (Part part : parts) {
                         if (part.getElementName() == null) {
-                            addErrorMessage("Violate WSI-BP-1.0 R2205: In Message " + message.getQName()
-                                            + ", part " + part.getName()
-                                            + " must specify a 'element' attribute");
+                            addErrorMessage(getErrorPrefix("WSI-BP-1.0 R2205") + "In Message " 
+                                + message.getQName() + ", part " + part.getName()
+                                    + " must specify a 'element' attribute");
                             return false;
                         }
                     }
@@ -408,4 +408,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
         return false;
     }
 
+    private static String getErrorPrefix(String ruleBroken) {
+        return ruleBroken + " violation: ";
+    }
 }

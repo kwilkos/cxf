@@ -28,9 +28,9 @@ import org.apache.cxf.aegis.type.Configuration;
 import org.apache.cxf.aegis.type.CustomTypeMapping;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.java5.CurrencyService.Currency;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.jdom.Element;
 import org.jdom.output.DOMOutputter;
 import org.junit.Before;
@@ -101,7 +101,7 @@ public class EnumTypeTest extends AbstractAegisTest {
         type.writeSchema(root);
 
         Document doc = new DOMOutputter().output(wsdl);
-        addNamespace("xsd", XmlConstants.XSD);
+        addNamespace("xsd", SOAPConstants.XSD);
         assertValid("//xsd:simpleType[@name='test']/xsd:restriction[@base='xsd:string']", doc);
         assertValid("//xsd:restriction[@base='xsd:string']/xsd:enumeration[@value='VALUE1']", doc);
         assertValid("//xsd:restriction[@base='xsd:string']/xsd:enumeration[@value='VALUE2']", doc);

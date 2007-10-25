@@ -24,10 +24,15 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     private boolean holder;
     private String holderName;
-    private JavaAnnotation annotation;
+    private JAnnotation annotation;
     private String partName;
 
     private JavaMethod javaMethod;
+
+    /**
+     * Describe callback here.
+     */
+    private boolean callback;
     
     public JavaParameter() {
     }
@@ -52,11 +57,14 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
         this.holderName = hn;
     }
 
-    public void setAnnotation(JavaAnnotation anno) {
+    public void setAnnotation(JAnnotation anno) {
         this.annotation = anno;
+        for (String importClz : annotation.getImports()) {
+            getMethod().getInterface().addImport(importClz);
+        }        
     }
 
-    public JavaAnnotation getAnnotation() {
+    public JAnnotation getAnnotation() {
         return this.annotation;
     }
 
@@ -96,5 +104,23 @@ public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     public void annotate(Annotator annotator) {
         annotator.annotate(this);
+    }
+
+    /**
+     * Get the <code>Callback</code> value.
+     *
+     * @return a <code>boolean</code> value
+     */
+    public final boolean isCallback() {
+        return callback;
+    }
+
+    /**
+     * Set the <code>Callback</code> value.
+     *
+     * @param newCallback The new Callback value.
+     */
+    public final void setCallback(final boolean newCallback) {
+        this.callback = newCallback;
     }
 }

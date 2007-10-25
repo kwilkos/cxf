@@ -45,7 +45,7 @@ public class GreeterTest extends AbstractJaxWsTest {
         bean.setServiceClass(GreeterImpl.class);
         GreeterImpl greeter = new GreeterImpl();
         BeanInvoker invoker = new BeanInvoker(greeter);
-        bean.setInvoker(invoker);
+        
         
         Service service = bean.create();
 
@@ -55,6 +55,7 @@ public class GreeterTest extends AbstractJaxWsTest {
         ServerFactoryBean svr = new ServerFactoryBean();
         svr.setBus(bus);
         svr.setServiceFactory(bean);
+        svr.setInvoker(invoker);
         
         svr.create();
 

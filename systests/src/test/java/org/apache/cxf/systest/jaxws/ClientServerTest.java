@@ -53,6 +53,7 @@ import org.w3c.dom.Node;
 
 //import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
@@ -77,14 +78,14 @@ import org.junit.Test;
 
 public class ClientServerTest extends AbstractBusClientServerTestBase {
   
-    static final Logger LOG = Logger.getLogger(ClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(ClientServerTest.class);
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                                              "SoapPort");
     
     private final QName fakePortName = new QName("http://apache.org/hello_world_soap_http",
-                                                 "FackPort");
+                                                 "FakePort");
     
     
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
@@ -842,7 +843,6 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
             client.invoke("greetMe", "test");        
             Object[] result = client.invoke("sayHi");
             assertNotNull("no response received from service", result);
-            System.out.println(result[0]);
             assertEquals("Bonjour", result[0]);
         } catch (Exception e) {            
             e.printStackTrace();

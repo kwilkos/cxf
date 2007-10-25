@@ -83,11 +83,13 @@
             <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <artifactId>cxf-tools-java2ws</artifactId>
             <version>${pom.version}</version>
-        </dependency>
+        </dependency>        
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-xjc-dv</artifactId>
@@ -191,11 +193,18 @@
             <artifactId>cxf-rt-ws-policy</artifactId>
             <version>${pom.version}</version>
         </dependency>
-		<dependency>
+		    <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
             <version>${pom.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>bouncycastle</groupId>
+                    <artifactId>bcprov-jdk14</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -220,6 +229,10 @@
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
             <version>1.0-RC2</version>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>

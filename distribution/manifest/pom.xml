@@ -74,16 +74,19 @@
             <artifactId>cxf-tools-wsdlto-databinding-jaxb</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
             <version>${pom.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <artifactId>cxf-tools-java2ws</artifactId>
             <version>${pom.version}</version>
-        </dependency>
+        </dependency>       
+        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-xjc-dv</artifactId>
@@ -211,7 +214,7 @@
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <version>${pom.version}</version>
-        </dependency>
+        </dependency>        
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-bundle</artifactId>
@@ -223,15 +226,9 @@
             <version>1.0-RC2</version>
         </dependency>
         <dependency>
-	    <groupId>commons-httpclient</groupId>
-	    <artifactId>commons-httpclient</artifactId>
-	    <version>3.1-rc1</version>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
         </dependency>
-         <dependency>
-             <groupId>javax.ws.rs</groupId>
-             <artifactId>jsr311-api</artifactId>
-             <version>0.3</version>
-         </dependency>     
     </dependencies>
 
     <build>

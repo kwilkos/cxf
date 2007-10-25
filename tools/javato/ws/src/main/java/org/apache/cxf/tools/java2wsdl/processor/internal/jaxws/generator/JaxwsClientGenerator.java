@@ -33,9 +33,7 @@ public class JaxwsClientGenerator extends AbstractJaxwsGenerator {
 
     private static final String CLIENT_TEMPLATE = TEMPLATE_BASE + "/javafirst-client.vm";
 
-    public JaxwsClientGenerator() {
-        this.name = ToolConstants.CLT_GENERATOR;
-    }
+
 
     public boolean passthrough() {
         if (env.optionSet(ToolConstants.CFG_CLIENT)) {
@@ -61,7 +59,7 @@ public class JaxwsClientGenerator extends AbstractJaxwsGenerator {
             setAttributes("service", service);
             setAttributes("port", port);
             setAttributes("address", "http://localhost:9090/hello");
-            setAttributes("seiClass", ((Class)env.get(ToolConstants.SEI_CLASS)).getName());
+            setAttributes("seiClass", (String)env.get(ToolConstants.SEI_CLASS));
             setCommonAttributes();
             doWrite(CLIENT_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Client"));
 

@@ -20,6 +20,7 @@ package org.apache.cxf.jaxws;
 
 
 
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 import javax.xml.ws.WebServiceException;
@@ -172,7 +173,7 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     private void buildHandlerChain() {
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-        List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBean().getClass(),
+        List<Handler> chain = builder.buildHandlerChainFromClass(getServiceBeanClass(),
                                                                  getEndpointName());
         for (Handler h : chain) {
             injectResources(h);
@@ -196,7 +197,13 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
             resourceManager = new DefaultResourceManager(resolvers); 
             resourceManager.addResourceResolver(new WebServiceContextResourceResolver());
             ResourceInjector injector = new ResourceInjector(resourceManager);
-            injector.inject(instance);
+            if (Proxy.isProxyClass(instance.getClass()) && getServiceClass() != null) {
+                injector.inject(instance, getServiceClass());
+                injector.construct(instance, getServiceClass());
+            } else {
+                injector.inject(instance);
+                injector.construct(instance);
+            }
         }
     }  
 }

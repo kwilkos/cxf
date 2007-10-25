@@ -19,9 +19,13 @@
 
 package org.apache.cxf.tools.java2wsdl.generator.wsdl11.annotator;
 
+import javax.xml.bind.annotation.XmlElement;
+
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaField;
 
 public class WrapperBeanFieldAnnotator implements Annotator {
@@ -34,12 +38,13 @@ public class WrapperBeanFieldAnnotator implements Annotator {
             throw new RuntimeException("WrapperBeanFiledAnnotator expect JavaField as input");
         }
         String rawName = jField.getRawName();
-        JavaAnnotation xmlElementAnnotation = new JavaAnnotation("XmlElement");
-        
-        xmlElementAnnotation.addArgument("name", rawName);
-        xmlElementAnnotation.addArgIgnoreEmpty("namespace", jField.getTargetNamespace(), "\"");
+        JAnnotation xmlElementAnnotation = new JAnnotation(XmlElement.class);
+        xmlElementAnnotation.addElement(new JAnnotationElement("name", rawName));
+        if (!StringUtils.isEmpty(jField.getTargetNamespace())) {
+            xmlElementAnnotation.addElement(new JAnnotationElement("namespace", 
+                                                                          jField.getTargetNamespace()));
+        }
 
         jField.setAnnotation(xmlElementAnnotation);
-        jField.getOwner().addImport("javax.xml.bind.annotation.XmlElement");
     }
 }

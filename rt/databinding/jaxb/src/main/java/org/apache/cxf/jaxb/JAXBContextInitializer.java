@@ -19,15 +19,22 @@
 
 package org.apache.cxf.jaxb;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
@@ -56,12 +63,12 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         }
 
         boolean isFromWrapper = part.getMessageInfo().getOperation().isUnwrapped();
-        if (isFromWrapper 
-            && clazz.isArray() 
+        if (isFromWrapper
+            && clazz.isArray()
             && !Byte.TYPE.equals(clazz.getComponentType())) {
             clazz = clazz.getComponentType();
         }
-        
+
         Type genericType = (Type) part.getProperty("generic.type");
         if (genericType != null) {
             boolean isList = Collection.class.isAssignableFrom(clazz);
@@ -73,38 +80,38 @@ class JAXBContextInitializer extends ServiceModelVisitor {
                         && !Byte.TYPE.equals(cl2.getComponentType())) {
                         genericType = cl2.getComponentType();
                     }
-                    addType(genericType);                
+                    addType(genericType);
                 } else if (!isList) {
-                    addType(genericType);                
+                    addType(genericType);
                 }
             } else {
-                addType(genericType);                
+                addType(genericType);
             }
-            
-            if (isList 
+
+            if (isList
                 && genericType instanceof ParameterizedType) {
                 ParameterizedType pt = (ParameterizedType) genericType;
-                if (pt.getActualTypeArguments().length > 0 
+                if (pt.getActualTypeArguments().length > 0
                     && pt.getActualTypeArguments()[0] instanceof Class) {
-            
-                    Class<? extends Object> arrayCls = 
+
+                    Class<? extends Object> arrayCls =
                         Array.newInstance((Class) pt.getActualTypeArguments()[0], 0).getClass();
                     clazz = arrayCls;
                     part.setTypeClass(clazz);
                     if (isFromWrapper) {
                         addType(clazz.getComponentType());
                     }
-                } else if (pt.getActualTypeArguments().length > 0 
+                } else if (pt.getActualTypeArguments().length > 0
                     && pt.getActualTypeArguments()[0] instanceof GenericArrayType) {
                     GenericArrayType gat = (GenericArrayType)pt.getActualTypeArguments()[0];
                     gat.getGenericComponentType();
-                    Class<? extends Object> arrayCls = 
+                    Class<? extends Object> arrayCls =
                         Array.newInstance((Class) gat.getGenericComponentType(), 0).getClass();
                     clazz = Array.newInstance(arrayCls, 0).getClass();
                     part.setTypeClass(clazz);
                     if (isFromWrapper) {
                         addType(clazz.getComponentType());
-                    }                    
+                    }
                 }
             }
             if (isFromWrapper && isList) {
@@ -115,7 +122,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             addClass(clazz);
         }
     }
-    
+
     private void addType(Type cls) {
         if (cls instanceof Class) {
             addClass((Class)cls);
@@ -127,11 +134,11 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             GenericArrayType gt = (GenericArrayType)cls;
             Class ct = (Class) gt.getGenericComponentType();
             ct = Array.newInstance(ct, 0).getClass();
-            
+
             addClass(ct);
         }
     }
-    
+
 
     private  void addClass(Class<?> cls) {
         if (cls.isArray() && cls.getComponentType().isPrimitive()) {
@@ -172,28 +179,101 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         }
     }
 
-    
     private void walkReferences(Class<?> cls) {
         if (cls.getName().startsWith("java.")
             || cls.getName().startsWith("javax.")) {
             return;
         }
-        //walk the public fields/methods to try and find all the classes.  JAXB will only load the 
-        //EXACT classes in the fields/methods if they are in a different package.   Thus,
+        //walk the public fields/methods to try and find all the classes. JAXB will only load the
+        //EXACT classes in the fields/methods if they are in a different package. Thus,
         //subclasses won't be found and the xsi:type stuff won't work at all.
-        //We'll grab the public field/method types and then add the ObjectFactory stuff 
+        //We'll grab the public field/method types and then add the ObjectFactory stuff
         //as well as look for jaxb.index files in those packages.
-        
-        Field fields[] = cls.getFields();
-        for (Field f : fields) {
-            addType(f.getGenericType());
+
+        XmlAccessorType accessorType = cls.getAnnotation(XmlAccessorType.class);
+        if (accessorType == null && cls.getPackage() != null) {
+            accessorType = cls.getPackage().getAnnotation(XmlAccessorType.class);
         }
-        Method methods[] = cls.getMethods();
-        for (Method m : methods) {
-            addType(m.getGenericReturnType());
-            for (Type t : m.getGenericParameterTypes()) {
-                addType(t);
+        XmlAccessType accessType = accessorType != null ? accessorType.value() : XmlAccessType.PUBLIC_MEMBER;
+
+        if (accessType != XmlAccessType.PROPERTY) {   // only look for fields if we are instructed to
+            Field fields[] = cls.getFields();
+            for (Field f : fields) {
+                if (isFieldAccepted(f, accessType)) {
+                    addType(f.getGenericType());
+                }
             }
         }
+
+        if (accessType != XmlAccessType.FIELD) {   // only look for methods if we are instructed to
+            Method methods[] = cls.getMethods(); 
+            for (Method m : methods) {
+                if (isMethodAccepted(m, accessType)) {
+                    addType(m.getGenericReturnType());
+                    for (Type t : m.getGenericParameterTypes()) {
+                        addType(t);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks is the field is accepted as a JAXB property.
+     */
+    private boolean isFieldAccepted(Field field, XmlAccessType accessType) {
+        // We only accept non static fields which are not marked @XmlTransient
+        if (Modifier.isStatic(field.getModifiers()) || field.isAnnotationPresent(XmlTransient.class)) {
+            return false;
+        }
+
+        if (accessType == XmlAccessType.NONE) {
+            return checkJaxbAnnotation(field.getAnnotations());
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Checks is the method is accepted as a JAXB property getter.
+     */
+    private boolean isMethodAccepted(Method method, XmlAccessType accessType) {
+        // We only accept non static property getters which are not marked @XmlTransient
+        if (Modifier.isStatic(method.getModifiers()) || method.isAnnotationPresent(XmlTransient.class)) {
+            return false;
+        }
+
+        // must not have parameters and return type must not be void
+        if (method.getReturnType() == Void.class || method.getParameterTypes().length != 0) {
+            return false;
+        }
+
+        boolean isPropGetter = method.getName().startsWith("get") || method.getName().startsWith("is");
+
+        if (!isPropGetter) {
+            return false;
+        }
+
+        if (accessType == XmlAccessType.NONE) {
+            return checkJaxbAnnotation(method.getAnnotations());
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Checks if there are JAXB annotations among the annotations of the class member.
+     * @param annotations the array of annotations from the class member
+     * @return true if JAXB annotations are present, false otherwise
+     */
+    private boolean checkJaxbAnnotation(Annotation[] annotations) {
+        // must check if there are any jaxb annotations
+        Package jaxbAnnotationsPackage = XmlElement.class.getPackage();
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().getPackage() == jaxbAnnotationsPackage) {
+                return true;
+            }
+        }
+        return false;
     }
 }

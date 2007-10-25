@@ -35,9 +35,9 @@ import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeUtil;
 import org.apache.cxf.aegis.util.NamespaceHelper;
-import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -265,14 +265,14 @@ public class ArrayType extends Type {
                 return;
             }
             
-            Element complex = new Element("complexType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element complex = new Element("complexType", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             complex.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
             root.addContent(complex);
 
-            Element seq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element seq = new Element("sequence", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             complex.addContent(seq);
 
-            Element element = new Element("element", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
+            Element element = new Element("element", SOAPConstants.XSD_PREFIX, SOAPConstants.XSD);
             seq.addContent(element);
 
             Type componentType = getComponentType();
@@ -308,7 +308,7 @@ public class ArrayType extends Type {
      * @return
      */
     private boolean hasDefinedArray(Element root) {
-        List children = root.getChildren("complexType", Namespace.getNamespace(XmlConstants.XSD));
+        List children = root.getChildren("complexType", Namespace.getNamespace(SOAPConstants.XSD));
         for (Iterator itr = children.iterator(); itr.hasNext();) {
             Element e = (Element) itr.next();
             

@@ -22,6 +22,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
@@ -178,16 +179,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
 
-
-
-
     @Test
     public void testBug305772() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_ANT, ToolConstants.CFG_ANT);
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        // env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305772/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
@@ -501,13 +499,10 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                       getLocation("/wsdl2java_wsdl/hello-mime.wsdl")};
 
         WSDLToJava.main(args);
+
         assertFileEquals(getClass().getResource("expected/expected_hello_mime").getFile(),
                          output.getCanonicalPath() + "/org/apache/hello_world_mime/Hello.java");
-
-
-
     }
-
 
     @Test
     public void testWebResult() throws Exception {
@@ -516,9 +511,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
 
-        assertFileEquals(getClass().getResource("expected/expected_sayHi").getFile(),
-                         output.getCanonicalPath() + "/org/apache/sayhi/SayHi.java");
-
+        String results = getStringFromFile(new File(output.getCanonicalPath(), 
+                                                    "org/apache/sayhi/SayHi.java"));
+        assertTrue(results.trim().length() > 0);
+        assertTrue(results.indexOf("@WebResult(name  =  \"return\",  " 
+                                   + "targetNamespace  =  \"http://apache.org/sayHi\")") != -1);
+        assertTrue(results.indexOf("@WebResult(name  =  \"return\",  targetNamespace  =  \"\")") != -1);
     }
 
 
@@ -677,4 +675,175 @@ public class CodeGenBugTest extends ProcessorTestBase {
             fail("The cxf967.wsdl is a valid wsdl, should pass the test, caused by: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testParameterOrderDifferentNS() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL,
+                    getLocation("/wsdl2java_wsdl/bug978/bug.wsdl"));
+            processor.setContext(env);
+            processor.execute();
+
+            String results = getStringFromFile(new File(output.getCanonicalPath(), 
+                                                        "org/tempuri/GreeterRPCLit.java"));
+            assertTrue(results.indexOf("@WebParam(partName  =  \"inInt\",  name  =  \"inInt\")") != -1);
+        } catch (Exception e) {
+            fail("The cxf978.wsdl is a valid wsdl, should pass the test, caused by: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAsyncImplAndClient() throws Exception {
+        //CXF994
+        env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf994/hello_world_async.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf994/async.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+
+    @Test
+    public void testZeroInputOutOfBandHeader() throws Exception {
+        env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf1001.wsdl"));
+        env.put(ToolConstants.CFG_EXTRA_SOAPHEADER, "TRUE");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
+
+        processor.setContext(env);
+        processor.execute();
+
+        String results = getStringFromFile(new File(output.getCanonicalPath(), 
+                                                    "soapinterface/ems/esendex/com/AccountServiceSoap.java"));
+        assertTrue(results.indexOf("public  int  getMessageLimit") != -1);
+        assertTrue(results.indexOf("name  =  \"MessengerHeader") != -1);
+        assertTrue(results.indexOf("header  =  true") != -1);
+    }
+    
+    @Test
+    public void testBindingForImportWSDL() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1095/hello_world_services.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, 
+                new String[] {getLocation("/wsdl2java_wsdl/cxf1095/binding.xml")
+                              , getLocation("/wsdl2java_wsdl/cxf1095/binding1.xml")});
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader
+        .loadClass("org.apache.hello_world.messages.CustomizedFault");
+        assertNotNull("Customization Fault Class is not generated", clz);
+        Class serviceClz = classLoader
+        .loadClass("org.apache.hello_world.services.CustomizedService");
+        assertNotNull("Customization Fault Class is not generated", serviceClz);
+
+    }
+    
+    @Test
+    public void testReuseJaxwsBindingFile() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/async_binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        
+        Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
+                                                                            javax.xml.ws.AsyncHandler.class});
+ 
+        assertNotNull("jaxws binding file does not take effect for hello_world.wsdl", method1);
+
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/echo_date.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/async_binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        clz = classLoader.loadClass("org.apache.cxf.tools.fortest.date.EchoDate");
+        
+        Method method2 = clz.getMethod("echoDateAsync",
+                                       new Class[] {javax.xml.datatype.XMLGregorianCalendar.class,
+                                                    javax.xml.ws.AsyncHandler.class});       
+        assertNotNull("jaxws binding file does not take effect for echo_date.wsdl", method2);
+
+    }
+    
+    
+    @Test
+    public void testReuseJabBindingFile1() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/jaxbbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
+        assertNotNull("Failed to generate customized class for hello_world.wsdl" , clz);
+       
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1094/hello_world_oneway.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1094/jaxbbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        Class customizedClz = classLoader.loadClass("org.apache.oneway.types.CreateProcess$MyProcess");
+        assertNotNull("Failed to generate customized class for hello_world_oneway.wsdl", 
+                      customizedClz);        
+    }    
+    
+    @Test
+    public void testBindingXPath() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1106/binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader
+        .loadClass("org.apache.hello_world_soap_http.Greeter");
+        assertNotNull("Failed to generate SEI class", clz);
+        Method[] methods = clz.getMethods();
+        assertEquals("jaxws binding file parse error, number of generated method is not expected"
+                     , 14, methods.length);
+        
+        boolean existSayHiAsyn = false;
+        for (Method m : methods) {
+            if (m.getName().equals("sayHiAsyn")) {
+                existSayHiAsyn = true;
+            }             
+        }
+        assertFalse("sayHiAsyn method should not be generated", existSayHiAsyn);
+    }
+    
+    
+    @Test
+    public void testCatalog() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, 
+                getLocation("/wsdl2java_wsdl/cxf1112/myservice.wsdl"));
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/catalog.xml"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/jaxbbinding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
+    
+    @Test
+    public void testCatalog2() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, "http://example.org/wsdl");
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/jax-ws-catalog.xml"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
+    @Test
+    public void testCatalog3() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, "http://example.org/wsdl");
+        env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/jax-ws-catalog2.xml"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/binding.xml"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
+    
 }

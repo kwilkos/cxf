@@ -113,7 +113,7 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
             if (invoker == null) {
                 if (serviceBean != null) {
                     ep.getService().setInvoker(createInvoker());
-                }
+                }    
             } else {
                 ep.getService().setInvoker(invoker);
             }
@@ -129,7 +129,7 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
             throw new ServiceConstructionException(e);
         }
         
-        if (getServiceBean() != null) {
+        if (serviceBean != null) {
             initializeAnnotationInterceptors(server.getEndpoint(), this.getServiceBean().getClass());
         }
         
@@ -199,7 +199,7 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
       
     
     protected Invoker createInvoker() {
-        return new BeanInvoker(serviceBean);
+        return new BeanInvoker(getServiceBean());
     }
 
     public Server getServer() {
@@ -222,11 +222,16 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
         this.start = start;
     }
 
-    public Object getServiceBean() {
-        if (serviceBean == null) {
+    public Object getServiceBean() {        
+        return serviceBean;
+    }
+    
+    public Class<?> getServiceBeanClass() {
+        if (serviceBean != null) {
+            return serviceBean.getClass();
+        } else {
             return getServiceFactory().getServiceClass();
         }
-        return serviceBean;
     }
 
     /**

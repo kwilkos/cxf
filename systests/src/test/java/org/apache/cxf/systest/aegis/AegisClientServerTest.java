@@ -20,20 +20,26 @@
 package org.apache.cxf.systest.aegis;
 
 
+import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.authservice.AuthService;
 import org.apache.cxf.authservice.Authenticate;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.test.TestUtilities;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AegisClientServerTest extends AbstractBusClientServerTestBase {
-    static final Logger LOG = Logger.getLogger(AegisClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(AegisClientServerTest.class);
     
     @BeforeClass
     public static void startServers() throws Exception {
@@ -50,9 +56,17 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         AuthService service = (AuthService) proxyFactory.create();
         assertTrue(service.authenticate("Joe", "Joe", "123"));
         assertFalse(service.authenticate("Joe1", "Joe", "fang"));      
+        assertTrue(service.authenticate("Joe", null, "123"));
         List<String> list = service.getRoles("Joe");
-        assertEquals(1, list.size());
+        assertEquals(3, list.size());
         assertEquals("Joe", list.get(0));
+        assertEquals("Joe-1", list.get(1));
+        assertEquals("Joe-2", list.get(2));
+        String roles[] = service.getRolesAsArray("Joe");
+        assertEquals(2, roles.length);
+        assertEquals("Joe", roles[0]);
+        assertEquals("Joe-1", roles[1]);
+        
         assertEquals("get Joe", service.getAuthentication("Joe"));
         Authenticate au = new Authenticate();
         au.setSid("ffang");
@@ -72,9 +86,23 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         AuthService service = (AuthService) proxyFactory.create();
         assertTrue(service.authenticate("Joe", "Joe", "123"));
         assertFalse(service.authenticate("Joe1", "Joe", "fang"));      
+        assertTrue(service.authenticate("Joe", null, "123"));
         List<String> list = service.getRoles("Joe");
-        assertEquals(1, list.size());
+        assertEquals(3, list.size());
         assertEquals("Joe", list.get(0));
+        assertEquals("Joe-1", list.get(1));
+        assertEquals("Joe-2", list.get(2));
+        String roles[] = service.getRolesAsArray("Joe");
+        assertEquals(2, roles.length);
+        assertEquals("Joe", roles[0]);
+        assertEquals("Joe-1", roles[1]);
+        
+        roles = service.getRolesAsArray("null");
+        assertNull(roles);
+        
+        roles = service.getRolesAsArray("0");
+        assertEquals(0, roles.length);
+        
         assertEquals("get Joe", service.getAuthentication("Joe"));
         Authenticate au = new Authenticate();
         au.setSid("ffang");
@@ -82,5 +110,21 @@ public class AegisClientServerTest extends AbstractBusClientServerTestBase {
         assertTrue(service.authenticate(au));
         au.setUid("ffang1");
         assertFalse(service.authenticate(au));
+    }
+    
+    @Test
+    public void testWSDL() throws Exception {
+        URL url = new URL("http://localhost:9002/jaxwsAndAegis?wsdl");
+        Document dom = XMLUtils.parse(url.openStream());
+        TestUtilities util = new TestUtilities(this.getClass());
+        util.addDefaultNamespaces();
+        util.assertInvalid("//wsdl:definitions/wsdl:types/xsd:schema/"
+                           + "xsd:complexType[@name='getRolesAsArrayResponse']/"
+                           + "xsd:sequence/xsd:element[@maxOccurs]",
+                           dom);
+        util.assertValid("//wsdl:definitions/wsdl:types/xsd:schema/"
+                           + "xsd:complexType[@name='getRolesAsArrayResponse']/"
+                           + "xsd:sequence/xsd:element[@nillable='true']",
+                           dom);
     }
 }

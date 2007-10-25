@@ -56,12 +56,14 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         if (SAXSource.class.isAssignableFrom(type)) {
             try {
                 CachedOutputStream out = new CachedOutputStream();
-                XMLStreamWriter xsw = StaxUtils.createXMLStreamWriter(out);
-                StaxUtils.copy(input, xsw);
-                xsw.close();
-                out.close();
-                
-                return new SAXSource(new InputSource(out.getInputStream()));
+                try {
+                    XMLStreamWriter xsw = StaxUtils.createXMLStreamWriter(out);
+                    StaxUtils.copy(input, xsw);
+                    xsw.close();
+                    return new SAXSource(new InputSource(out.getInputStream()));
+                } finally {
+                    out.close();
+                }
             } catch (IOException e) {
                 throw new Fault(new Message("COULD_NOT_READ_XML_STREAM", LOG), e);
             } catch (XMLStreamException e) {
@@ -70,12 +72,14 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         } else if (StreamSource.class.isAssignableFrom(type)) {
             try {
                 CachedOutputStream out = new CachedOutputStream();
-                XMLStreamWriter xsw = StaxUtils.createXMLStreamWriter(out);
-                StaxUtils.copy(input, xsw);
-                xsw.close();
-                out.close();
-                
-                return new StreamSource(out.getInputStream());
+                try {
+                    XMLStreamWriter xsw = StaxUtils.createXMLStreamWriter(out);
+                    StaxUtils.copy(input, xsw);
+                    xsw.close();
+                    return new StreamSource(out.getInputStream());
+                } finally {
+                    out.close();
+                }
             } catch (IOException e) {
                 throw new Fault(new Message("COULD_NOT_READ_XML_STREAM", LOG), e);
             } catch (XMLStreamException e) {

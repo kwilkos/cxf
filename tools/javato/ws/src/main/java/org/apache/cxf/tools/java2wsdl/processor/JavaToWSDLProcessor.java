@@ -24,12 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.bus.spring.BusApplicationContext;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -47,6 +49,12 @@ import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WrapperBeanGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilderFactory;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 public class JavaToWSDLProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
@@ -54,7 +62,8 @@ public class JavaToWSDLProcessor implements Processor {
     private static final String JAVA_CLASS_PATH = "java.class.path";
     private ToolContext context;
     private final List<AbstractGenerator> generators = new ArrayList<AbstractGenerator>();
-
+    private ApplicationContext applicationContext;
+    
     private void customize(ServiceInfo service) {
         if (context.containsKey(ToolConstants.CFG_TNS)) {
             String ns = (String)context.get(ToolConstants.CFG_TNS);
@@ -73,7 +82,28 @@ public class JavaToWSDLProcessor implements Processor {
             service.setName(new QName(service.getName().getNamespaceURI(), svName));
         }
     }
-
+    
+    /**
+     * This is factored out to permit use in a unit test.
+     * @param bus
+     * @return
+     */
+    public static ApplicationContext getApplicationContext(Bus bus, List<String> additionalFilePathnames) {
+        BusApplicationContext busApplicationContext = bus.getExtension(BusApplicationContext.class);
+        GenericApplicationContext appContext = new GenericApplicationContext(busApplicationContext);
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(appContext);
+        reader.loadBeanDefinitions(new ClassPathResource("META-INF/cxf/java2wsbeans.xml"));
+        for (String pathname : additionalFilePathnames) {
+            try {
+                reader.loadBeanDefinitions(new FileSystemResource(pathname));
+            } catch (BeanDefinitionStoreException bdse) {
+                throw new ToolException("Unable to open bean definition file " + pathname, bdse.getCause());
+            }
+        }
+            
+        return appContext;
+    }
+    
     public void process() throws ToolException {
         String oldClassPath = System.getProperty(JAVA_CLASS_PATH);
         LOG.log(Level.INFO, "OLD_CP", oldClassPath);
@@ -82,6 +112,9 @@ public class JavaToWSDLProcessor implements Processor {
             System.setProperty(JAVA_CLASS_PATH, newCp + File.pathSeparator + oldClassPath);
             LOG.log(Level.INFO, "NEW_CP", newCp);
         }
+
+        // check for command line specification of data binding.
+       
 
         ServiceBuilder builder = getServiceBuilder();
         ServiceInfo service = builder.createService();
@@ -98,6 +131,7 @@ public class JavaToWSDLProcessor implements Processor {
         if (context.containsKey(ToolConstants.CFG_WRAPPERBEAN)) {
             generators.add(getWrapperBeanGenerator());
             generators.add(getFaultBeanGenerator());
+            
         }
         generate(service, outputDir);
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
@@ -139,25 +173,38 @@ public class JavaToWSDLProcessor implements Processor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public ServiceBuilder getServiceBuilder() throws ToolException {
-
+        Object beanFilesParameter = context.get(ToolConstants.CFG_BEAN_CONFIG);
+        List<String> beanDefinitions = new ArrayList<String>();
+        if (beanFilesParameter != null) {
+            if (beanFilesParameter instanceof String) {
+                beanDefinitions.add((String)beanFilesParameter);
+            } else if (beanFilesParameter instanceof List) {
+                // is there a better way to avoid the warning?
+                beanDefinitions.addAll((List<String>)beanFilesParameter);
+            }
+        }
+        applicationContext = getApplicationContext(getBus(), beanDefinitions);
         ServiceBuilderFactory builderFactory = ServiceBuilderFactory.getInstance();
         Class<?> clz = getServiceClass();
         context.put(Class.class, clz);
         if (clz.isInterface()) {
             context.put(ToolConstants.GEN_FROM_SEI, Boolean.TRUE);
-            context.put(ToolConstants.SEI_CLASS, clz);
+            context.put(ToolConstants.SEI_CLASS, clz.getName());
         } else {
-            context.put(ToolConstants.IMPL_CLASS, clz);
+            context.put(ToolConstants.IMPL_CLASS, clz.getName());
             if (clz.getInterfaces().length == 1) {
                 context.put(ToolConstants.SEI_CLASS, clz.getInterfaces()[0].getName());
             }
+            //TODO: if it is simple frontend, and the impl class implments 
+            //multiple interfaces
             context.put(ToolConstants.GEN_FROM_SEI, Boolean.FALSE); 
         }
         builderFactory.setServiceClass(clz);
-        // TODO check if user specify the style from cli arguments
-        //      builderFactory.setStyle(style/from/command/line);
-        ServiceBuilder builder = builderFactory.newBuilder();
+        builderFactory.setDatabindingName(getDataBindingName());
+        // The service class determines the frontend, so no need to pass it in twice.
+        ServiceBuilder builder = builderFactory.newBuilder(applicationContext);
 
         builder.validate();
 
@@ -242,7 +289,7 @@ public class JavaToWSDLProcessor implements Processor {
 
     public Class<?> getServiceClass() {
         return AnnotationUtil.loadClass((String)context.get(ToolConstants.CFG_CLASSNAME),
-                                        getClass().getClassLoader());
+                                        Thread.currentThread().getContextClassLoader());
     }
 
     public WSDLConstants.WSDLVersion getWSDLVersion() {
@@ -284,5 +331,12 @@ public class JavaToWSDLProcessor implements Processor {
     public ToolContext getEnvironment() {
         return this.context;
     }
-
+    
+    public String getDataBindingName() {
+        String databindingName = (String)context.get(ToolConstants.CFG_DATABINDING);
+        if (databindingName == null) {
+            databindingName = ToolConstants.DEFAULT_DATA_BINDING_NAME;
+        }
+        return databindingName;
+    }
 }

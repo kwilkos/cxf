@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.tools.fortest;
 
+import javax.jws.WebService;
+
+@WebService
 public interface Hello {
     String sayHi(String arg);
 }

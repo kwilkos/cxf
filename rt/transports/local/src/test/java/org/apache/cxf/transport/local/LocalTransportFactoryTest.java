@@ -19,18 +19,17 @@
 
 package org.apache.cxf.transport.local;
 
-import java.io.ByteArrayInputStream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
+
 import org.apache.cxf.transport.MessageObserver;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,35 +37,16 @@ import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class LocalTransportFactoryTest extends Assert {
     @Test
-    public void testTransportFactory() throws Exception {
-        LocalTransportFactory factory = new LocalTransportFactory();
-        
-        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        AddressType a = new AddressType();
-        a.setLocation("http://localhost/test");
-        ei.addExtensor(a);
-
-        Destination d = factory.getDestination(ei);
-        d.setMessageObserver(new EchoObserver());
-        
-        
-        Conduit conduit = factory.getConduit(ei);
-        TestMessageObserver obs = new TestMessageObserver();
-        conduit.setMessageObserver(obs);
-        
-        Message m = new MessageImpl();
-        conduit.prepare(m);
-
-        OutputStream out = m.getContent(OutputStream.class);
-        out.write("hello".getBytes());
-        out.close();
-
-        
-        assertEquals("hello", obs.getResponseStream().toString());
+    public void testLocalTransportWithSeparateThread() throws Exception {
+        testInvocation(false);
     }
 
     @Test
-    public void testDirectInvocation() throws Exception {
+    public void testLocalTransportWithDirectDispatch() throws Exception {
+        testInvocation(true);
+    }
+    
+    private void testInvocation(boolean isDirectDispatch) throws Exception {
         LocalTransportFactory factory = new LocalTransportFactory();
         
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
@@ -83,10 +63,15 @@ public class LocalTransportFactoryTest extends Assert {
         conduit.setMessageObserver(obs);
         
         MessageImpl m = new MessageImpl();
-        m.put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
+        if (isDirectDispatch) {
+            m.put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
+        }    
         m.setDestination(d);
-        m.setContent(InputStream.class, new ByteArrayInputStream("hello".getBytes()));
         conduit.prepare(m);
+        
+        OutputStream out = m.getContent(OutputStream.class);
+        out.write("hello".getBytes());
+        out.close();
         conduit.close(m);
 
         assertEquals("hello", obs.getResponseStream().toString());
@@ -95,20 +80,19 @@ public class LocalTransportFactoryTest extends Assert {
 
         public void onMessage(Message message) {
             try {
+                message.getExchange().setInMessage(message);
                 Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
-                message.remove(LocalConduit.DIRECT_DISPATCH);
                 
-                backChannel.prepare(message);
-
-                OutputStream out = message.getContent(OutputStream.class);
-                assertNotNull(out);
                 InputStream in = message.getContent(InputStream.class);
-                assertNotNull(in);
-                
+                assertNotNull(in);   
+                backChannel.prepare(message);
+                OutputStream out = message.getContent(OutputStream.class);
+                assertNotNull(out);                             
                 copy(in, out, 1024);
-
                 out.close();
-                in.close();
+                in.close();                
+                backChannel.close(message);
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -135,6 +119,7 @@ public class LocalTransportFactoryTest extends Assert {
     class TestMessageObserver implements MessageObserver {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         boolean written;
+        Message inMessage;
         
         public synchronized ByteArrayOutputStream getResponseStream() throws Exception {
             if (!written) {
@@ -148,6 +133,7 @@ public class LocalTransportFactoryTest extends Assert {
             try {
                 message.remove(LocalConduit.DIRECT_DISPATCH);
                 copy(message.getContent(InputStream.class), response, 1024);
+                inMessage = message;
             } catch (IOException e) {
                 e.printStackTrace();
                 fail();

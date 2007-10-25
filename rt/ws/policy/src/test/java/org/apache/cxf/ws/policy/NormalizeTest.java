@@ -53,7 +53,7 @@ public class NormalizeTest extends Assert {
     public void testNormalise() throws Exception {
         Bus bus = control.createMock(Bus.class);
         PolicyConstants constants = new PolicyConstants();
-        constants.setNamespace("http://schemas.xmlsoap.org/ws/2004/09/policy");
+        constants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
         EasyMock.expect(bus.getExtension(PolicyConstants.class)).andReturn(constants).anyTimes();
         control.replay();
         PolicyBuilderImpl builder = new PolicyBuilderImpl();

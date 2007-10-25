@@ -20,9 +20,12 @@
 package org.apache.cxf.systest.factory_pattern;
 
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +78,7 @@ public class MultiplexHttpAddressClientServerTest extends AbstractBusClientServe
         Map<String, String> props = new HashMap<String, String>();    
         props.put("cxf.config.file", "org/apache/cxf/systest/factory_pattern/cxf.xml");
         assertTrue("server did not launch correctly",
-                   launchServer(Server.class, props, null));
+                   launchServer(Server.class, props, null, false));
     }
 
     
@@ -124,5 +127,42 @@ public class MultiplexHttpAddressClientServerTest extends AbstractBusClientServe
         firstChar = new URL(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT 
                                 + "103?wsdl").openStream().read();
         assertTrue("firstChar :" + String.valueOf(firstChar), firstChar == '<');
+    }
+    
+    @Test
+    public void testSoapAddressLocation() throws Exception {
+        
+        assertTrue("Should have received the soap:address location " 
+                   + NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT, 
+                   checkSoapAddressLocation(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT));
+        assertTrue("Should have received the soap:address location " 
+                   + NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT + "20", 
+                   checkSoapAddressLocation(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT + "20"));
+        assertTrue("Should have received the soap:address location " 
+                   + NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT + "22", 
+                   checkSoapAddressLocation(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT + "22"));
+        assertTrue("Should have received the soap:address location " 
+                   + NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT + "20", 
+                   checkSoapAddressLocation(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT + "20"));
+        assertTrue("Should have received the soap:address location " 
+                   + NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT, 
+                   checkSoapAddressLocation(NumberFactoryImpl.NUMBER_SERVANT_ADDRESS_ROOT));
+    }
+    
+    private boolean checkSoapAddressLocation(String address) 
+        throws Exception {
+        URL url = new URL(address + "?wsdl");
+        
+        URLConnection urlConn = url.openConnection();
+        BufferedReader br = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+        
+        while (br.ready()) {
+            String str = br.readLine();
+            if (str.contains("soap:address") 
+                && str.contains("location=" + "\"" + address + "\"")) {
+                return  true;
+            }
+        }
+        return false;
     }
 }

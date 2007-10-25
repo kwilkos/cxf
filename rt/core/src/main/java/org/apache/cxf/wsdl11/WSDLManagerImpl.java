@@ -206,8 +206,9 @@ public class WSDLManagerImpl implements WSDLManager {
     private void registerInitialExtensions() throws BusException {
         Properties initialExtensions = null;
         try {
-            initialExtensions = PropertiesLoaderUtils.loadAllProperties(EXTENSIONS_RESOURCE, Thread
-                            .currentThread().getContextClassLoader());
+            initialExtensions = PropertiesLoaderUtils.loadAllProperties(EXTENSIONS_RESOURCE, 
+                                                                        Thread.currentThread()
+                                                                              .getContextClassLoader());
         } catch (IOException ex) {
             throw new BusException(ex);
         }
@@ -220,8 +221,9 @@ public class WSDLManagerImpl implements WSDLManager {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Registering extension: " + elementType + " for parent: " + parentType);
                 }
-                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
-                                .getClassLoader());
+                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, 
+                                                  Thread.currentThread()
+                                                      .getContextClassLoader());
             } catch (ClassNotFoundException ex) {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
             } catch (JAXBException ex) {

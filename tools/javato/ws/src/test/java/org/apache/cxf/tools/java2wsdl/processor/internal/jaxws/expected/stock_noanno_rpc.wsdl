@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements. See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership. The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License. You may obtain a copy of the License at
- 
-  http://www.apache.org/licenses/LICENSE-2.0
- 
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-<wsdl:definitions name="StockService" targetNamespace="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:ns1="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions name="StockService" targetNamespace="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:tns="http://rpc.classnoanno.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:message name="getPrice">
     <wsdl:part name="arg0" type="xsd:string">
     </wsdl:part>
@@ -28,13 +10,13 @@
   </wsdl:message>
   <wsdl:portType name="Stock">
     <wsdl:operation name="getPrice">
-      <wsdl:input name="getPrice" message="ns1:getPrice">
+      <wsdl:input name="getPrice" message="tns:getPrice">
     </wsdl:input>
-      <wsdl:output name="getPriceResponse" message="ns1:getPriceResponse">
+      <wsdl:output name="getPriceResponse" message="tns:getPriceResponse">
     </wsdl:output>
     </wsdl:operation>
   </wsdl:portType>
-  <wsdl:binding name="StockServiceSoapBinding" type="ns1:Stock">
+  <wsdl:binding name="StockServiceSoapBinding" type="tns:Stock">
     <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
     <wsdl:operation name="getPrice">
       <soap:operation soapAction="" style="rpc"/>
@@ -47,7 +29,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="StockService">
-    <wsdl:port name="StockPort" binding="ns1:StockServiceSoapBinding">
+    <wsdl:port name="StockPort" binding="tns:StockServiceSoapBinding">
       <soap:address location="http://localhost"/>
     </wsdl:port>
   </wsdl:service>

@@ -27,6 +27,7 @@ import javax.xml.ws.Response;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.Control;
@@ -56,7 +57,7 @@ public class ServerPersistenceTest extends AbstractBusClientServerTestBase {
 
     public static final String GREETMEONEWAY_ACTION = null;
     public static final String GREETME_ACTION = null;
-    private static final Logger LOG = Logger.getLogger(ServerPersistenceTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(ServerPersistenceTest.class);
     private static final String CFG = "/org/apache/cxf/systest/ws/rm/persistent.xml";
     private static final String SERVER_LOSS_CFG 
         = "/org/apache/cxf/systest/ws/rm/persistent-message-loss-server.xml";

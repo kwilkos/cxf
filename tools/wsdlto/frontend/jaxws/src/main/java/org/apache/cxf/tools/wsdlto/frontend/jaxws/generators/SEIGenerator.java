@@ -26,6 +26,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.model.JAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
@@ -87,7 +88,7 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
                 handlerGen.setJavaInterface(intf);
                 handlerGen.generate(getEnvironment());
 
-                String annot = handlerGen.getHandlerAnnotation().toString();
+                JAnnotation annot = handlerGen.getHandlerAnnotation();
                 if (handlerGen.getHandlerAnnotation() != null
                     && !intf.getAnnotations().contains(annot)) {
                     intf.addAnnotation(annot);

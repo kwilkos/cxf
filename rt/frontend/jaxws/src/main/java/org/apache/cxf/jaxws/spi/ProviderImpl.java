@@ -20,19 +20,18 @@
 package org.apache.cxf.jaxws.spi;
 
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Logger;
-
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 import javax.xml.ws.Endpoint;
-//TODO JAX-WS 2.1
-//import javax.xml.ws.EndpointReference;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
-//TODO JAX-WS 2.1
-//import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.spi.ServiceDelegate;
-//TODO JAX-WS 2.1
-//import javax.xml.ws.wsaddressing.W3CEndpointReference;
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
+import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -41,6 +40,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.EndpointUtils;
 import org.apache.cxf.jaxws.ServiceImpl;
+
 
 public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public static final String JAXWS_PROVIDER = ProviderImpl.class.getName();
@@ -76,28 +76,24 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     }
 
     // TODO JAX-WS 2.1
-    /*
+
     public W3CEndpointReference createW3CEndpointReference(String address,
                                                            QName serviceName,
                                                            QName portName,
                                                            List<Element> metadata,
                                                            String wsdlDocumentLocation,
                                                            List<Element> referenceParameters) {
-        // TODO
         throw new UnsupportedOperationException();
     }
 
     public <T> T getPort(EndpointReference endpointReference,
                          Class<T> serviceEndpointInterface,
                          WebServiceFeature... features) {
-        // TODO
         throw new UnsupportedOperationException();
     }
 
     public EndpointReference readEndpointReference(Source eprInfoset) {
-        // TODO
         throw new UnsupportedOperationException();
     }
-    */
 
 }

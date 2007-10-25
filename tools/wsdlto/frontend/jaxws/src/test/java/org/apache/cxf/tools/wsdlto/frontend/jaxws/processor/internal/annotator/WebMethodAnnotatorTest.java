@@ -19,10 +19,11 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
+import java.util.List;
 import java.util.Map;
 
-
-import org.apache.cxf.tools.common.model.JavaAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class WebMethodAnnotatorTest extends Assert {
         method.setName("echoFoo");
         method.setOperationName("echoFoo");
         method.annotate(new WebMethodAnnotator());
-        Map<String, JavaAnnotation> annotations = method.getAnnotationMap();
+        Map<String, JAnnotation> annotations = method.getAnnotationMap();
         assertNotNull(annotations);
         assertEquals(1, annotations.size());
         assertEquals("WebMethod", annotations.keySet().iterator().next());
@@ -45,15 +46,16 @@ public class WebMethodAnnotatorTest extends Assert {
     public void testAddWebResultAnnotation() throws Exception {
         JavaMethod method = new JavaMethod();
         method.annotate(new WebResultAnnotator());
-        Map<String, JavaAnnotation> annotations = method.getAnnotationMap();
+        Map<String, JAnnotation> annotations = method.getAnnotationMap();
         assertNotNull(annotations);
         assertEquals(1, annotations.size());
         assertEquals("WebResult", annotations.keySet().iterator().next());
-        JavaAnnotation resultAnnotation = annotations.values().iterator().next();
-        Map<String, String> arguments = resultAnnotation.getArguments();
-        assertNotNull(arguments);
-        assertEquals(1, arguments.size());
-        assertEquals("name", arguments.keySet().iterator().next());
-        assertEquals("\"return\"", arguments.values().iterator().next());
+        JAnnotation resultAnnotation = annotations.get("WebResult");
+        assertEquals("@WebResult(name = \"return\")", resultAnnotation.toString());
+        List<JAnnotationElement> elements = resultAnnotation.getElements();
+        assertNotNull(elements);
+        assertEquals(1, elements.size());
+        assertEquals("name", elements.get(0).getName());
+        assertEquals("return", elements.get(0).getValue());
     }
 }

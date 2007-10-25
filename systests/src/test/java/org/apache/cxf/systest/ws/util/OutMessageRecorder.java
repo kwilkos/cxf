@@ -19,13 +19,13 @@
 
 package org.apache.cxf.systest.ws.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.io.CachedOutputStream;
@@ -43,7 +43,7 @@ import org.apache.cxf.ws.rm.RetransmissionInterceptor;
  */
 public class OutMessageRecorder extends AbstractPhaseInterceptor {
     
-    private static final Logger LOG = Logger.getLogger(OutMessageRecorder.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(OutMessageRecorder.class);
     private List<byte[]> outbound;
 
     public OutMessageRecorder() {
@@ -75,15 +75,15 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         
         public void onClose(CachedOutputStream cos) {
             // bytes were already copied after flush
-            OutputStream os = cos.getOut();
-            if (os instanceof ByteArrayOutputStream) {
-                ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
-                outbound.add(bos.toByteArray());
+            try {
+                byte bytes[] = cos.getBytes();
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("outbound: " + bos.toString());
+                    LOG.fine("outbound: " + bytes);
                 }
-            } else {
-                LOG.fine("Can't record message from output stream class: " + os.getClass().getName());
+                outbound.add(bytes);
+            } catch (Exception e) {
+                LOG.fine("Can't record message from output stream class: "
+                         + cos.getOut().getClass().getName());
             }
         }
         

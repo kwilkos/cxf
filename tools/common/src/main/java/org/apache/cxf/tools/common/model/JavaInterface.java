@@ -38,7 +38,7 @@ public class JavaInterface implements JavaAnnotatable {
     private SOAPBinding.ParameterStyle soapParameterStyle;
     
     private final List<JavaMethod> methods = new ArrayList<JavaMethod>();
-    private final List<String> annotations = new ArrayList<String>();
+    private final List<JAnnotation> annotations = new ArrayList<JAnnotation>();
     private final Set<String> imports = new TreeSet<String>();
 
     private String webserviceName;
@@ -168,16 +168,29 @@ public class JavaInterface implements JavaAnnotatable {
         this.namespace = ns;
     }
 
-    public void addAnnotation(String annotation) {
+    public void addAnnotation(JAnnotation annotation) {
         this.annotations.add(annotation);
+        for (String importClz : annotation.getImports()) {
+            addImport(importClz);
+        }        
     }
 
-    public List<String> getAnnotations() {
+    public List<JAnnotation> getAnnotations() {
         return this.annotations;
     }
 
     public void addImport(String i) {
+        if (i != null && i.lastIndexOf(".") != -1 && getPackageName() != null
+            && getPackageName().equals(i.substring(0, i.lastIndexOf(".")))) {
+            return;
+        }
         imports.add(i);
+    }
+    
+    public void addImports(Collection<String> ii) {
+        for (String i : ii) {
+            imports.add(i);
+        }
     }
 
     public Iterator<String> getImports() {
@@ -216,7 +229,7 @@ public class JavaInterface implements JavaAnnotatable {
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        for (String anno : annotations) {
+        for (JAnnotation anno : annotations) {
             sb.append(anno);
             sb.append("\n");
         }

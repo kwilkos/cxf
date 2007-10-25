@@ -32,6 +32,7 @@ import javax.xml.ws.Endpoint;
 
 
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.any.Greeter;
@@ -43,7 +44,7 @@ import org.junit.Test;
 
 public final class AnyClientServerTest extends AbstractBusClientServerTestBase {
 
-    static final Logger LOG = Logger.getLogger(AnyClientServerTest.class.getName());
+    static final Logger LOG = LogUtils.getLogger(AnyClientServerTest.class);
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http/any", 
                                                 "SOAPService");
 

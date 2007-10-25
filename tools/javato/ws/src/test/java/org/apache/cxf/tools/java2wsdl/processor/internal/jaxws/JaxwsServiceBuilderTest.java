@@ -95,7 +95,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass()
             .getResource("expected/expected_doc_lit_wrapped_no_wrapperclass.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
     
 
@@ -112,7 +112,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass().getResource("expected/expected_hello_world_doc_lit.wsdl")
             .getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
+        //assertFileEquals(expectedFile, output.getAbsolutePath());
     }
  
     @Test
@@ -144,7 +145,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass()
             .getResource("expected/expected_doc_lit_wrapped_no_webparam.wsdl").getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), output);
     }
     
     @Test
@@ -174,7 +175,8 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
 
         String expectedFile = this.getClass().getResource("expected/expected_hello_world_async.wsdl")
             .getFile();
-        assertFileEquals(expectedFile, output.getAbsolutePath());
+
+        assertWsdlEquals(new File(expectedFile), output);
     }
 
     @Test
@@ -190,7 +192,7 @@ public class JaxwsServiceBuilderTest extends ProcessorTestBase {
         assertTrue(output.exists());
 
         String expectedFile = this.getClass().getResource("expected/expected_rpc_lit.wsdl").getFile();
-        assertFileEquals(expectedFile, file.getAbsolutePath());
+        assertWsdlEquals(new File(expectedFile), file);
     }
 
 

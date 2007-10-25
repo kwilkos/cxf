@@ -58,10 +58,13 @@
     </path>
 
     <condition property="is.java.version.15">
-        <equals arg1="${ant.java.version}" arg2="1.5"/>
+        <or>
+          <equals arg1="${ant.java.version}" arg2="1.5"/>
+          <equals arg1="${ant.java.version}" arg2="1.6"/>
+        </or>
     </condition>
 
-    <fail message="Apache CXF requires Java version 1.5. You are currently using Java version ${ant.java.version}."
+    <fail message="Apache CXF requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
         unless="is.java.version.15"/>
 
 

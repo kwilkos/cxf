@@ -30,41 +30,42 @@ import javax.resource.spi.ConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.xml.namespace.QName;
 
-
-
 import org.easymock.classextension.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ConnectionFactoryImplTest extends Assert {
+    
     ManagedConnectionFactory mockConnectionFactory;
-
     ConnectionManager mockConnectionManager;
+    CXFConnectionRequestInfo param;
+    ConnectionFactoryImpl cf;
 
     @Before
     public void setUp() throws Exception {
         mockConnectionFactory = EasyMock.createMock(ManagedConnectionFactory.class);
         mockConnectionManager = EasyMock.createMock(ConnectionManager.class);
+        
+        param = new CXFConnectionRequestInfo();
+        param.setInterface(Runnable.class);
+        
+        cf = new ConnectionFactoryImpl(mockConnectionFactory, mockConnectionManager);
     }
 
     @Test
     public void testInstanceOfSerializable() throws Exception {
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl(mockConnectionFactory,
-                                                             mockConnectionManager);
-        assertTrue("instance of serializable", cf instanceof Serializable);
+        assertTrue("Instance of Serializable", cf instanceof Serializable);
     }
 
     @Test
     public void testInstanceOfReferencable() throws Exception {
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl(mockConnectionFactory,
-                                                             mockConnectionManager);
-        assertTrue("instance of Referencable", cf instanceof Referenceable);
+        assertTrue("Instance of Referenceable", cf instanceof Referenceable);
 
-        assertNull("no ref set", cf.getReference());
+        assertNull("No ref set", cf.getReference());
         Reference ref = EasyMock.createMock(Reference.class);
         cf.setReference(ref);
-        assertEquals("got back what was set", ref, cf.getReference());
+        assertEquals("Got back what was set", ref, cf.getReference());
     }
 
     @Test
@@ -82,12 +83,11 @@ public class ConnectionFactoryImplTest extends Assert {
         EasyMock.expectLastCall().andReturn(null);
         EasyMock.replay(mockConnectionManager);
          
-       
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl((ManagedConnectionFactory)mockConnectionFactory,
-                                                             (ConnectionManager)mockConnectionManager);
-        
-        Object o = cf.getConnection(Runnable.class, new URL("file:/tmp/foo"), new QName(""), new QName(""));
-        assertNull("got the result (the passed in ConnectionRequestInfo) from out mock manager",
+        param.setWsdlLocation(new URL("file:/tmp/foo"));
+        param.setServiceName(new QName(""));
+        param.setPortName(new QName(""));
+        Object o = cf.getConnection(param);
+        assertNull("Got the result (the passed in ConnectionRequestInfo) from out mock manager",
                    o);
         EasyMock.verify(mockConnectionManager); 
     }
@@ -107,15 +107,14 @@ public class ConnectionFactoryImplTest extends Assert {
                                                  EasyMock.eq(reqInfo));
         EasyMock.expectLastCall().andReturn(null);
         EasyMock.replay(mockConnectionManager);
-
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl((ManagedConnectionFactory)mockConnectionFactory,
-                                                             (ConnectionManager)mockConnectionManager);
         
-        Object o = cf.getConnection(Runnable.class, new URL("file:/tmp/foo"), new QName(""));
+        param.setWsdlLocation(new URL("file:/tmp/foo"));
+        param.setServiceName(new QName(""));
+        Object o = cf.getConnection(param);
         
         EasyMock.verify(mockConnectionManager);
         
-        assertNull("got the result (the passed in ConnectionRequestInfo) from out mock manager",
+        assertNull("Got the result (the passed in ConnectionRequestInfo) from out mock manager",
                    o);
         
         
@@ -137,13 +136,12 @@ public class ConnectionFactoryImplTest extends Assert {
         EasyMock.expectLastCall().andReturn(null);
         EasyMock.replay(mockConnectionManager);
 
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl((ManagedConnectionFactory)mockConnectionFactory,
-                                                             (ConnectionManager)mockConnectionManager);
-
-        Object o = cf.getConnection(Runnable.class, new QName(""), new QName(""));
+        param.setServiceName(new QName(""));
+        param.setPortName(new QName(""));
+        Object o = cf.getConnection(param);
         EasyMock.verify(mockConnectionManager);
         
-        assertNull("got the result (the passed in ConnectionRequestInfo) from out mock manager",
+        assertNull("Got the result (the passed in ConnectionRequestInfo) from out mock manager",
                    o);
         
     }
@@ -164,11 +162,10 @@ public class ConnectionFactoryImplTest extends Assert {
         EasyMock.expectLastCall().andReturn(null);
         EasyMock.replay(mockConnectionManager);
         
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl((ManagedConnectionFactory)mockConnectionFactory,
-                                                             (ConnectionManager)mockConnectionManager);
-
-        Object o = cf.getConnection(Runnable.class, new QName(""));
-        assertNull("got the result (the passed in ConnectionRequestInfo) from out mock manager",
+        cf = new ConnectionFactoryImpl(mockConnectionFactory, mockConnectionManager);
+        param.setServiceName(new QName(""));
+        Object o = cf.getConnection(param);
+        assertNull("Got the result (the passed in ConnectionRequestInfo) from out mock manager",
                    o);
         
 
@@ -176,17 +173,27 @@ public class ConnectionFactoryImplTest extends Assert {
 
     @Test
     public void testGetConnectionWithNonInterface() throws Exception {
-        ConnectionFactoryImpl cf = new ConnectionFactoryImpl(mockConnectionFactory,
-                                                             mockConnectionManager);
-
         try {
-            cf.getConnection(Object.class, new URL("file:/tmp/foo"), new QName(""), new QName(""));
-            fail("expect exception on use of non interface class");
+            param.setInterface(Object.class);
+            param.setWsdlLocation(new URL("file:/tmp/foo"));
+            param.setServiceName(new QName(""));
+            param.setPortName(new QName(""));
+            cf.getConnection(param);
+            fail("Expect exception on using of none interface class");
         } catch (ResourceException re) {
-            assertTrue("nested ex is invalid arg", re.getCause() instanceof IllegalArgumentException);
+            assertTrue(true);
         }
     }
 
-    
+    @Test
+    public void testGetConnectionWithNoInterface() throws Exception {
+        try {
+            param.setInterface(null);
+            cf.getConnection(param);
+            fail("Expect exception of no interface here");
+        } catch (ResourceException re) {
+            assertTrue(true);
+        }
+    }
     
 }

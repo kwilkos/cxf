@@ -26,6 +26,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.greeter_control.BasicGreeterService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
@@ -44,7 +45,7 @@ import org.junit.Test;
  */
 public class AddressingPolicyTest extends AbstractBusClientServerTestBase {
 
-    private static final Logger LOG = Logger.getLogger(AddressingPolicyTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(AddressingPolicyTest.class);
 
     public static class Server extends AbstractBusTestServerBase {
     

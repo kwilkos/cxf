@@ -73,7 +73,8 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
         JAXBExtensionHelper helper = new JAXBExtensionHelper(cls);
         
         try {
-            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(cls) + ".ObjectFactory");
+            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(cls) + ".ObjectFactory",
+                                                   true, cls.getClassLoader());
             Method methods[] = objectFactory.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.getParameterTypes().length == 1
@@ -85,15 +86,10 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
                         registry.registerDeserializer(parentType, elementType, helper); 
                         registry.registerSerializer(parentType, elementType, helper);                         
                         registry.mapExtensionTypes(parentType, elementType, cls);                        
-                        registry.createExtension(parentType, elementType);
                     }                    
                 }
             }        
             
-        } catch (WSDLException we) {
-            // TODO
-            we.printStackTrace();            
-
         } catch (ClassNotFoundException ex) {
             // TODO
             ex.printStackTrace();            
@@ -136,7 +132,9 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
             
             Object mObj = obj;
             
-            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(typeClass) + ".ObjectFactory");
+            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(typeClass) + ".ObjectFactory",
+                                                   true,
+                                                   obj.getClass().getClassLoader());
             Method methods[] = objectFactory.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.getParameterTypes().length == 1

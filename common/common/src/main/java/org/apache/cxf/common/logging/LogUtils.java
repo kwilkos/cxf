@@ -19,6 +19,11 @@
 
 package org.apache.cxf.common.logging;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -27,14 +32,19 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.util.StringUtils;
 
 
 /**
  * A container for static utility methods related to logging.
  */
 public final class LogUtils {
+    public static final String KEY = "org.apache.cxf.Logger";
     
     private static final Object[] NO_PARAMETERS = new Object[0];
+
+    
+    private static Class<?> loggerClass;
     
     /**
      * Prevents instantiation.
@@ -42,18 +52,47 @@ public final class LogUtils {
     private LogUtils() {
     }
 
+    static {
+        try {
+            String cname = System.getProperty(KEY);
+            if (StringUtils.isEmpty(cname)) {
+                InputStream ins = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream("META-INF/cxf/" + KEY);
+                if (ins == null) {
+                    ins = ClassLoader.getSystemResourceAsStream("META-INF/cxf/" + KEY);
+                }
+                if (ins != null) {
+                    BufferedReader din = new BufferedReader(new InputStreamReader(ins));
+                    cname = din.readLine();
+                }
+            }
+            if (!StringUtils.isEmpty(cname)) {
+                loggerClass = Class.forName(cname, true,
+                                            Thread.currentThread().getContextClassLoader());
+                getLogger(LogUtils.class).fine("Using " + loggerClass.getName() + " for logging.");
+            }
+        } catch (Exception ex) {
+            //ignore
+        }
+    }
+    
+    
+    /**
+     * Enable users to use their own logger implementation.
+     */
+    public static void setLoggerClass(Class<?> cls) {
+        loggerClass = cls;
+    }
+
+    
     /**
      * Get a Logger with the associated default resource bundle for the class.
      *
      * @param cls the Class to contain the Logger
      * @return an appropriate Logger 
      */
-    public static Logger getL7dLogger(Class<?> cls) {
-        try {
-            return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
-        } catch (MissingResourceException rex) {
-            return Logger.getLogger(cls.getName());
-        }
+    public static Logger getLogger(Class<?> cls) {
+        return createLogger(cls, null, cls.getName());
     }
     
     /**
@@ -63,8 +102,102 @@ public final class LogUtils {
      * @param name the resource name
      * @return an appropriate Logger 
      */
-    public static Logger getL7dLogger(Class<?> cls, String name) {
-        return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls, name));
+    public static Logger getLogger(Class<?> cls, String resourcename) {
+        return createLogger(cls, resourcename, cls.getName());
+    }
+
+    /**
+     * Get a Logger with an associated resource bundle.
+     *
+     * @param cls the Class to contain the Logger (to find resources)
+     * @param name the resource name
+     * @param loggerName the full name for the logger
+     * @return an appropriate Logger 
+     */
+    public static Logger getLogger(Class<?> cls,
+                                     String resourcename,
+                                     String loggerName) {
+        return createLogger(cls, resourcename, loggerName);
+    }
+
+    /**
+     * Get a Logger with the associated default resource bundle for the class.
+     *
+     * @param cls the Class to contain the Logger
+     * @return an appropriate Logger 
+     */
+    public static Logger getL7dLogger(Class<?> cls) {
+        return createLogger(cls, null, cls.getName());
+    }
+    
+    /**
+     * Get a Logger with an associated resource bundle.
+     *
+     * @param cls the Class to contain the Logger
+     * @param name the resource name
+     * @return an appropriate Logger 
+     */
+    public static Logger getL7dLogger(Class<?> cls, String resourcename) {
+        return createLogger(cls, resourcename, cls.getName());
+    }
+
+    /**
+     * Get a Logger with an associated resource bundle.
+     *
+     * @param cls the Class to contain the Logger (to find resources)
+     * @param name the resource name
+     * @param loggerName the full name for the logger
+     * @return an appropriate Logger 
+     */
+    public static Logger getL7dLogger(Class<?> cls,
+                                      String resourcename,
+                                      String loggerName) {
+        return createLogger(cls, resourcename, loggerName);
+    }
+    
+    /**
+     * Create a logger
+     */
+    protected static Logger createLogger(Class<?> cls, 
+                                         String name, 
+                                         String loggerName) {
+        if (loggerClass != null) {
+            try {
+                Constructor cns = loggerClass.getConstructor(String.class, String.class);
+                if (name == null) {
+                    try {
+                        return (Logger) cns.newInstance(loggerName, BundleUtils.getBundleName(cls));
+                    } catch (InvocationTargetException ite) {
+                        if (ite.getTargetException() instanceof MissingResourceException) {
+                            return (Logger) cns.newInstance(loggerName, null);
+                        } else {
+                            throw ite;
+                        }
+                    } 
+                } else {
+                    try {
+                        return (Logger) cns.newInstance(loggerName, BundleUtils.getBundleName(cls, name));
+                    } catch (InvocationTargetException ite) {
+                        if (ite.getTargetException() instanceof MissingResourceException) {
+                            throw (MissingResourceException)ite.getTargetException();
+                        } else {
+                            throw ite;
+                        }
+                    } 
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (name == null) {
+            try {
+                return Logger.getLogger(loggerName, BundleUtils.getBundleName(cls)); //NOPMD
+            } catch (MissingResourceException rex) {
+                return Logger.getLogger(loggerName, null); //NOPMD
+            }
+        } else {
+            return Logger.getLogger(loggerName, BundleUtils.getBundleName(cls, name)); //NOPMD
+        }
     }
 
     /**

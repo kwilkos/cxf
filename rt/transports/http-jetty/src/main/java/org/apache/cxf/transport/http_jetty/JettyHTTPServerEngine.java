@@ -40,6 +40,7 @@ import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
+import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
@@ -165,7 +166,28 @@ public class JettyHTTPServerEngine
      * remove it from the factory's cache. 
      */
     public void shutdown() {
-        factory.destroyForPort(port);
+        if (shouldDestroyPort()) {
+            if (factory != null && servantCount == 0) {
+                factory.destroyForPort(port);
+            } else {
+                LOG.log(Level.WARNING, "FAILED_TO_SHUTDOWN_ENGINE_MSG", port);
+            }
+        }
+    }
+    
+    private boolean shouldDestroyPort() {
+        //if we shutdown the port, on SOME OS's/JVM's, if a client
+        //in the same jvm had been talking to it at some point and keep alives
+        //are on, then the port is held open for about 60 seconds
+        //afterword and if we restart, connections will then 
+        //get sent into the old stuff where there are 
+        //no longer any servant registered.   They pretty much just hang.
+        
+        //this is most often seen in our unit/system tests that 
+        //test things in the same VM.
+        
+        String s = System.getProperty("org.apache.cxf.transports.http_jetty.DontClosePort");
+        return !Boolean.valueOf(s);
     }
     
     /**
@@ -225,6 +247,7 @@ public class JettyHTTPServerEngine
      */
     public synchronized void addServant(URL url, JettyHTTPHandler handler) {
         if (server == null) {
+            DefaultHandler defaultHandler = null;
             // create a new jetty server instance if there is no server there            
             server = new Server();
             if (connector == null) {
@@ -234,12 +257,21 @@ public class JettyHTTPServerEngine
             if (handlers != null && handlers.size() > 0) {
                 HandlerList handlerList = new HandlerList();
                 for (Handler h : handlers) {
-                    handlerList.addHandler(h);
+                    // filting the jetty default handler 
+                    // which should not be added at this point
+                    if (h instanceof DefaultHandler) {
+                        defaultHandler = (DefaultHandler) h;
+                    } else {
+                        handlerList.addHandler(h);
+                    }
                 }
                 server.addHandler(handlerList);
             }
             contexts = new ContextHandlerCollection();
-            server.addHandler(contexts);            
+            server.addHandler(contexts);
+            if (defaultHandler != null) {
+                server.addHandler(defaultHandler);
+            }
             try {
                 server.start();
                 AbstractConnector aconn = (AbstractConnector) connector;
@@ -471,6 +503,8 @@ public class JettyHTTPServerEngine
         }
     }
     
+
+    
     /**
      * This method is called by the ServerEngine Factory to destroy the 
      * listener.
@@ -478,10 +512,11 @@ public class JettyHTTPServerEngine
      */
     protected void stop() throws Exception {
         if (server != null) {
+            
             connector.close();
             server.stop();
             server.destroy();
-            server   = null;
+            server = null;
         }
     }
     

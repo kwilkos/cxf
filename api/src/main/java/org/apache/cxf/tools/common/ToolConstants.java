@@ -28,6 +28,11 @@ public final class ToolConstants {
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
     public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
     public static final String WSDL_NAMESPACE_URI = "http://schemas.xmlsoap.org/wsdl/";
+    
+    /**
+     * Tools permit caller to pass in additional bean definitions.
+     */
+    public static final String CFG_BEAN_CONFIG = "beans";
 
     public static final String DEFAULT_TEMP_DIR = "gen_tmp";
     public static final String CFG_OUTPUTDIR = "outputdir";
@@ -61,11 +66,12 @@ public final class ToolConstants {
 
     public static final String CFG_VALIDATE_WSDL = "validate";
     public static final String CFG_CREATE_XSD_IMPORTS = "createxsdimports";
-
+    /**
+     * Front-end selection command-line option to java2ws.
+     */
     public static final String CFG_FRONTEND = "frontend";
 
-    public static final String CFG_DATABINDING = "db";
-
+    public static final String CFG_DATABINDING = "databinding";
 
     // WSDL2Java Constants
 
@@ -213,9 +219,19 @@ public final class ToolConstants {
     //For java2ws tool
     public static final String SERVICE_LIST = "serviceList";
     public static final String GEN_FROM_SEI = "genFromSEI";
+    public static final String JAXWS_FRONTEND = "jaxws";
+    public static final String SIMPLE_FRONTEND = "simple";
+    public static final String JAXB_DATABINDING = "jaxb";
+    public static final String AEGIS_DATABINDING = "aegis";
     //For Simple FrontEnd
     public static final String SEI_CLASS = "seiClass";
     public static final String IMPL_CLASS = "implClass";
     public static final String SERVICE_NAME = "serviceName";
     public static final String PORT_NAME = "portName";
+    public static final String DEFAULT_DATA_BINDING_NAME = "jaxb";
+    public static final String DATABIND_BEAN_NAME_SUFFIX = "DatabindingBean";
+
+
+    public static final String CLIENT_CLASS = "clientClass";
+    public static final String SERVER_CLASS = "serverClass";
 }

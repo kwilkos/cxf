@@ -179,6 +179,7 @@ public class HandlerChainBuilder {
             resolvers.add(new InitParamResourceResolver(params));
             ResourceInjector resInj = new ResourceInjector(resMgr, resolvers);
             resInj.inject(handler);
+            resInj.construct(handler);
         }
     }
 
@@ -198,7 +199,7 @@ public class HandlerChainBuilder {
         try {
             m = handler.getClass().getMethod("init", Map.class);
         } catch (NoSuchMethodException ex) {
-            // emtpy
+            // empty
         }
         return m;
     }

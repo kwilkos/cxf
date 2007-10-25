@@ -19,15 +19,14 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
-import java.util.*;
 import javax.jws.soap.SOAPBinding;
 
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JAnnotation;
+import org.apache.cxf.tools.common.model.JAnnotationElement;
 import org.apache.cxf.tools.common.model.JavaAnnotatable;
-import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public final class BindingAnnotator implements Annotator {
     
@@ -40,22 +39,18 @@ public final class BindingAnnotator implements Annotator {
         }
         
         if (processBinding(intf)) {
-            JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
+            JAnnotation bindingAnnotation = new JAnnotation(SOAPBinding.class);
             if (!SOAPBinding.Style.DOCUMENT.equals(intf.getSOAPStyle())) {
-                String style = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPStyle().toString());
-                bindingAnnotation.addArgument("style", style, "");                
+                bindingAnnotation.addElement(new JAnnotationElement("style", intf.getSOAPStyle()));
             }
             if (!SOAPBinding.Use.LITERAL.equals(intf.getSOAPUse())) {
-                String use = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPUse().toString());
-                bindingAnnotation.addArgument("use", use, "");
+                bindingAnnotation.addElement(new JAnnotationElement("use", intf.getSOAPUse()));
             }            
             if (intf.getSOAPStyle() == SOAPBinding.Style.DOCUMENT) {
-                String parameterStyle = SOAPBindingUtil.getBindingAnnotation(intf.
-                                                                             getSOAPParameterStyle().
-                                                                             toString());
-                bindingAnnotation.addArgument("parameterStyle", parameterStyle, "");
+                bindingAnnotation.addElement(new JAnnotationElement("parameterStyle", 
+                                                                           intf.getSOAPParameterStyle()));
             }
-            intf.addAnnotation(bindingAnnotation.toString());
+            intf.addAnnotation(bindingAnnotation);
         }
     }
     

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.interceptor;
 
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,14 +38,33 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
    
     private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
 
+    private int limit = 100 * 1024;
+    
     public LoggingOutInterceptor() {
         super(Phase.PRE_STREAM);
         addBefore(StaxOutInterceptor.class.getName());
     }
+    public LoggingOutInterceptor(int lim) {
+        super(Phase.PRE_STREAM);
+        addBefore(StaxOutInterceptor.class.getName());
+        limit = lim;
+    }
+    
+    public void setLimit(int lim) {
+        limit = lim;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }    
+
     
     public void handleMessage(Message message) throws Fault {
         final OutputStream os = message.getContent(OutputStream.class);
         if (os == null) {
+            return;
+        }
+        if (!LOG.isLoggable(Level.INFO)) {
             return;
         }
         
@@ -63,14 +81,30 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         }
         
         public void onClose(CachedOutputStream cos) {
-            OutputStream os = cos.getOut();
-            if (os instanceof ByteArrayOutputStream && LOG.isLoggable(Level.INFO)) {
-                // TODO - make this work with large messages
-                LOG.info("Outbound Message \n"
-                         + "--------------------------------------\n"
-                         + os.toString()
-                         + "\n--------------------------------------");
+            
+            StringBuilder buffer = new StringBuilder(2048);
+            
+            if (cos.getTempFile() == null) {
+                buffer.append("Outbound Message:\n");
+                if (cos.size() > limit) {
+                    buffer.append("(message truncated to " + limit + " bytes)\n");
+                }
+                buffer.append("--------------------------------------\n");
+            } else {
+                buffer.append("Outbound Message (saved to tmp file):\n");
+                buffer.append("Filename: " + cos.getTempFile().getAbsolutePath() + "\n");
+                if (cos.size() > limit) {
+                    buffer.append("(message truncated to " + limit + " bytes)\n");
+                }
+                buffer.append("--------------------------------------\n");
             }
+            try {
+                cos.writeCacheTo(buffer, limit);
+            } catch (Exception ex) {
+                //ignore
+            }
+            buffer.append("--------------------------------------\n");
+            LOG.info(buffer.toString());
         }
         
     } 

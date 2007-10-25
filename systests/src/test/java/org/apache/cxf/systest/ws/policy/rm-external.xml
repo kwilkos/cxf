@@ -17,7 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<attachments xmlns:wsp="http://www.w3.org/2006/07/ws-policy" xmlns:wsa="http://www.w3.org/2005/08/addressing">
+<attachments xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsa="http://www.w3.org/2005/08/addressing">
     <wsp:PolicyAttachment>
         <wsp:AppliesTo>
             <wsa:EndpointReference>

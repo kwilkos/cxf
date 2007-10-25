@@ -276,32 +276,34 @@ public abstract class AbstractHTTPDestination extends AbstractMultiplexDestinati
                     new HTTPServerPolicy(), HTTPServerPolicy.class);
         }
     }
-
+    private static List<String> createMutableList(String val) {
+        return new ArrayList<String>(Arrays.asList(new String[] {val}));
+    }
     void setPolicies(Map<String, List<String>> headers) {
         HTTPServerPolicy policy = server; 
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
-                        Arrays.asList(new String[] {policy.getCacheControl().value()}));
+                        createMutableList(policy.getCacheControl().value()));
         }
         if (policy.isSetContentLocation()) {
             headers.put("Content-Location",
-                        Arrays.asList(new String[] {policy.getContentLocation()}));
+                        createMutableList(policy.getContentLocation()));
         }
         if (policy.isSetContentEncoding()) {
             headers.put("Content-Encoding",
-                        Arrays.asList(new String[] {policy.getContentEncoding()}));
+                        createMutableList(policy.getContentEncoding()));
         }
         if (policy.isSetContentType()) {
             headers.put(HttpHeaderHelper.CONTENT_TYPE,
-                        Arrays.asList(new String[] {policy.getContentType()}));
+                        createMutableList(policy.getContentType()));
         }
         if (policy.isSetServerType()) {
             headers.put("Server",
-                        Arrays.asList(new String[] {policy.getServerType()}));
+                        createMutableList(policy.getServerType()));
         }
         if (policy.isSetHonorKeepAlive() && !policy.isHonorKeepAlive()) {
             headers.put("Connection",
-                        Arrays.asList(new String[] {"close"}));
+                        createMutableList("close"));
         }
         
     

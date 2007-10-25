@@ -361,6 +361,9 @@ public class HTTPConduitURLEasyMockTest extends Assert {
                 EasyMock.expectLastCall().andReturn("POST");
                 connection.setChunkedStreamingMode(-1);
                 EasyMock.expectLastCall();                    
+            } else {
+                connection.getRequestMethod();
+                EasyMock.expectLastCall().andReturn("POST").anyTimes();
             }
 
             connection.setConnectTimeout(303030);
@@ -537,7 +540,7 @@ public class HTTPConduitURLEasyMockTest extends Assert {
                    message.getContentFormats().contains(OutputStream.class));
         
         connection.getRequestMethod();
-        EasyMock.expectLastCall().andReturn("POST");
+        EasyMock.expectLastCall().andReturn("POST").anyTimes();
 
         os = EasyMock.createMock(OutputStream.class);
         connection.getOutputStream();
@@ -578,7 +581,7 @@ public class HTTPConduitURLEasyMockTest extends Assert {
                                       ResponseDelimiter delimiter,
                                       boolean emptyResponse) throws IOException {
         connection.getHeaderFields();
-        EasyMock.expectLastCall().andReturn(Collections.EMPTY_MAP);
+        EasyMock.expectLastCall().andReturn(Collections.EMPTY_MAP).anyTimes();
         int responseCode = style == ResponseStyle.BACK_CHANNEL
                            ? HttpURLConnection.HTTP_OK
                            : HttpURLConnection.HTTP_ACCEPTED;
@@ -593,7 +596,7 @@ public class HTTPConduitURLEasyMockTest extends Assert {
             connection.getContentLength();
             if (delimiter == ResponseDelimiter.CHUNKED 
                 || delimiter == ResponseDelimiter.EOF) {
-                EasyMock.expectLastCall().andReturn(-1);
+                EasyMock.expectLastCall().andReturn(-1).anyTimes();
                 if (delimiter == ResponseDelimiter.CHUNKED) {
                     connection.getHeaderField("Transfer-Encoding");
                     EasyMock.expectLastCall().andReturn("chunked");
@@ -604,7 +607,7 @@ public class HTTPConduitURLEasyMockTest extends Assert {
                 is.read();
                 EasyMock.expectLastCall().andReturn(emptyResponse ? -1 : (int)'<');
             } else {
-                EasyMock.expectLastCall().andReturn(123);
+                EasyMock.expectLastCall().andReturn(123).anyTimes();
             }
             if (emptyResponse) {
                 is.close();

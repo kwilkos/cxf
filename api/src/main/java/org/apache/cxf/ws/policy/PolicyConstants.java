@@ -28,11 +28,15 @@ import org.apache.cxf.extension.BusExtension;
  */
 public final class PolicyConstants implements BusExtension {
     
-    public static final String NAMESPACE_XMLSOAP_200409
-        = "http://schemas.xmlsoap.org/ws/2004/09/policy";
+    public static final String NAMESPACE_WS_POLICY
+        = "http://www.w3.org/ns/ws-policy";
     
     public static final String NAMESPACE_W3_200607
         = "http://www.w3.org/2006/07/ws-policy";
+    
+    public static final String NAMESPACE_XMLSOAP_200409
+        = "http://schemas.xmlsoap.org/ws/2004/09/policy";
+    
     
     public static final String CLIENT_POLICY_OUT_INTERCEPTOR_ID
         = "org.apache.cxf.ws.policy.ClientPolicyOutInterceptor";
@@ -106,7 +110,7 @@ public final class PolicyConstants implements BusExtension {
     
     
     public PolicyConstants() {
-        setNamespace(NAMESPACE_W3_200607);
+        setNamespace(NAMESPACE_WS_POLICY);
     }
     
     public Class<?> getRegistrationType() {

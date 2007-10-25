@@ -18,11 +18,15 @@
  */
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.customization;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -37,11 +41,15 @@ import org.w3c.dom.NodeList;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.helpers.MapNamespaceContext;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -49,14 +57,17 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.StAXUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
+import org.apache.xml.resolver.Catalog;
 
 public final class CustomizationParser {
     // For WSDL1.1
     private static final Logger LOG = LogUtils.getL7dLogger(CustomizationParser.class);
 
     private ToolContext env;
-    private final List<Element> jaxwsBindings = new ArrayList<Element>();
+    // map for jaxws binding and wsdl element
+    private final Map<Element, Element> jaxwsBindingsMap = new HashMap<Element, Element>();
     private final List<InputSource> jaxbBindings = new ArrayList<InputSource>();
+    private final Map<String, Element> customizedElements = new HashMap<String, Element>();
 
     private Element handlerChains;
     private Element wsdlNode;
@@ -65,7 +76,7 @@ public final class CustomizationParser {
     private CustomNodeSelector nodeSelector = new CustomNodeSelector();
 
     public CustomizationParser() {
-        jaxwsBindings.clear();
+        jaxwsBindingsMap.clear();
         jaxbBindings.clear();
     }
 
@@ -77,8 +88,15 @@ public final class CustomizationParser {
         this.env = pe;
         String[] bindingFiles;
         try {
-            this.wsdlURL = URIParserUtil.getAbsoluteURI((String)env.get(ToolConstants.CFG_WSDLURL));
-            this.wsdlNode = this.getTargetNode(this.wsdlURL);
+            wsdlURL = URIParserUtil.getAbsoluteURI((String)env.get(ToolConstants.CFG_WSDLURL));
+
+            wsdlNode = getTargetNode(this.wsdlURL);
+
+            if (wsdlNode == null && env.get(ToolConstants.CFG_CATALOG) != null) {
+                wsdlNode = resolveNodeByCatalog(wsdlURL);
+            }
+            // TODO: if wsdlNode is null throw exception
+            customizedElements.put(wsdlURL.toString(), wsdlNode);
             bindingFiles = (String[])env.get(ToolConstants.CFG_BINDING);
             if (bindingFiles == null) {
                 return;
@@ -97,27 +115,35 @@ public final class CustomizationParser {
             }
         }
 
-        for (Element element : jaxwsBindings) {
+        for (Element element : jaxwsBindingsMap.keySet()) {
             nodeSelector.addNamespaces(element);
-            internalizeBinding(element, "");
+            Element targetNode = jaxwsBindingsMap.get(element);
+            internalizeBinding(element, targetNode, "");
+            String uri = element.getAttribute("wsdlLocation");
+            customizedElements.put(uri, targetNode);
         }
         buildHandlerChains();
     }
 
-    public Element getTargetNode(String wsdlLoc) {
+    public Element getTargetNode(String uri) {
         Document doc = null;
         InputStream ins = null;
+
         try {
-            URIResolver resolver = new URIResolver(wsdlLoc);
+            URIResolver resolver = new URIResolver(uri);
             ins = resolver.getInputStream();
         } catch (IOException e1) {
-            throw new ToolException(e1);
+            return null;
         }
 
+        if (ins == null) {
+            return null;
+        }
+        
         try {
             doc = DOMUtils.readXml(ins);
         } catch (Exception e) {
-            Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {wsdlLoc});
+            Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {uri});
             throw new ToolException(msg, e);
         }
 
@@ -129,7 +155,7 @@ public final class CustomizationParser {
 
     private void buildHandlerChains() {
 
-        for (Element jaxwsBinding : jaxwsBindings) {
+        for (Element jaxwsBinding : jaxwsBindingsMap.keySet()) {
             NodeList nl = jaxwsBinding.getElementsByTagNameNS(ToolConstants.HANDLER_CHAINS_URI,
                                                               ToolConstants.HANDLER_CHAINS);
             if (nl.getLength() == 0) {
@@ -148,8 +174,7 @@ public final class CustomizationParser {
         Node annotationNode = nodeSelector.queryNode(node, "//xsd:annotation");
 
         if (annotationNode == null) {
-            annotationNode = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
-                                                                     "annotation");
+            annotationNode = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI, "annotation");
         }
 
         nodes[0] = annotationNode;
@@ -157,8 +182,7 @@ public final class CustomizationParser {
         Node appinfoNode = nodeSelector.queryNode(annotationNode, "//xsd:appinfo");
 
         if (appinfoNode == null) {
-            appinfoNode = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
-                                                                  "appinfo");
+            appinfoNode = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI, "appinfo");
             annotationNode.appendChild(appinfoNode);
         }
         nodes[1] = appinfoNode;
@@ -177,13 +201,15 @@ public final class CustomizationParser {
         Element jaxbBindingElement = getJaxbBindingElement(jaxwsBindingNode);
         appendJaxbVersion((Element)schemaNode);
         if (jaxbBindingElement != null) {
-            copyAllJaxbDeclarations(nodeSelector.queryNode(schemaNode,
-                                                           jaxbBindingElement.getAttribute("node")),
-                                    jaxbBindingElement);
+            NodeList nlist = nodeSelector.queryNodes(schemaNode, jaxbBindingElement.getAttribute("node"));
+            for (int i = 0; i < nlist.getLength(); i++) {
+                Node node = nlist.item(i);
+                copyAllJaxbDeclarations(node, jaxbBindingElement);
+            }
             return;
         }
 
-        Node[] embededNodes  = getAnnotationNodes(schemaNode);
+        Node[] embededNodes = getAnnotationNodes(schemaNode);
         Node annotationNode = embededNodes[0];
         Node appinfoNode = embededNodes[1];
 
@@ -207,13 +233,13 @@ public final class CustomizationParser {
         }
     }
 
-    protected void internalizeBinding(Element bindings, String expression) {
+    protected void internalizeBinding(Element bindings, Element targetNode, String expression) {
         if (bindings.getAttributeNode("wsdlLocation") != null) {
             expression = "/";
         }
 
         if (isGlobaleBindings(bindings)) {
-            String pfx = wsdlNode.getPrefix();
+            String pfx = targetNode.getPrefix();
             if (pfx == null) {
                 pfx = "";
             } else {
@@ -221,7 +247,7 @@ public final class CustomizationParser {
             }
 
             nodeSelector.addNamespaces(wsdlNode);
-            Node node = nodeSelector.queryNode(wsdlNode, "//" + pfx + "definitions");
+            Node node = nodeSelector.queryNode(targetNode, "//" + pfx + "definitions");
             copyBindingsToWsdl(node, bindings, nodeSelector.getNamespaceContext());
         }
 
@@ -230,25 +256,28 @@ public final class CustomizationParser {
 
             nodeSelector.addNamespaces(bindings);
 
-            Node node = nodeSelector.queryNode(wsdlNode, expression);
-            if (node == null) {
-                throw new ToolException(new Message("NODE_NOT_EXISTS",
-                                                    LOG, new Object[] {expression}));
+            NodeList nodeList = nodeSelector.queryNodes(targetNode, expression);
+            if (nodeList == null || nodeList.getLength() == 0) {
+                throw new ToolException(new Message("NODE_NOT_EXISTS", LOG, new Object[] {expression}));
             }
 
-            if (hasJaxbBindingDeclaration(bindings)) {
-                copyAllJaxbDeclarations(node, bindings);
-            } else {
-                copyBindingsToWsdl(node, bindings, nodeSelector.getNamespaceContext());
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if (hasJaxbBindingDeclaration(bindings)) {
+                    copyAllJaxbDeclarations(node, bindings);
+                } else {
+                    copyBindingsToWsdl(node, bindings, nodeSelector.getNamespaceContext());
+                }
             }
         }
 
         Element[] children = getChildElements(bindings, ToolConstants.NS_JAXWS_BINDINGS);
         for (int i = 0; i < children.length; i++) {
             if (children[i].getNodeType() == Node.ELEMENT_NODE) {
-                internalizeBinding(children[i], expression);
+                internalizeBinding(children[i], targetNode, expression);
             }
         }
+
     }
 
     private void copyBindingsToWsdl(Node node, Node bindings, MapNamespaceContext ctx) {
@@ -258,8 +287,8 @@ public final class CustomizationParser {
 
         for (Map.Entry<String, String> ent : ctx.getUsedNamespaces().entrySet()) {
             if (node.lookupNamespaceURI(ent.getKey()) == null) {
-                node.getOwnerDocument().getDocumentElement()
-                    .setAttribute("xmlns:" + ent.getKey(), ent.getValue());
+                node.getOwnerDocument().getDocumentElement().setAttribute("xmlns:" + ent.getKey(),
+                                                                          ent.getValue());
             }
 
         }
@@ -298,7 +327,6 @@ public final class CustomizationParser {
                 if (attrNode != null) {
                     cloneNode.removeChild(child);
                 }
-
             }
         }
         firstChild.appendChild(cloneNode);
@@ -345,58 +373,142 @@ public final class CustomizationParser {
 
         StAXUtil.toStartTag(reader);
 
+        Element root = null;
+        try {
+            URIResolver resolver = new URIResolver(bindingFile);
+            root = DOMUtils.readXml(resolver.getInputStream()).getDocumentElement();
+        } catch (Exception e1) {
+            Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {bindingFile});
+            throw new ToolException(msg, e1);
+        }
         if (isValidJaxwsBindingFile(bindingFile, reader)) {
-            Element root = null;
-            try {
-                URIResolver resolver = new URIResolver(bindingFile);
-                root = DOMUtils.readXml(resolver.getInputStream()).getDocumentElement();
-            } catch (Exception e1) {
-                Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {bindingFile});
-                throw new ToolException(msg, e1);
-            }
-            String wsdlLocation = root.getAttribute("wsdlLocation");
-            URI wsdlURI = null;
-            try {
-                wsdlURI = new URI(wsdlLocation);
-            } catch (URISyntaxException e) {
-                Message msg = new Message("JAXWSBINDINGS_WSDLLOC_ERROR", LOG, new Object[] {wsdlLocation});
-                throw new ToolException(msg);
-            }
 
-            if (!wsdlURI.isAbsolute()) {
-                try {
-                    URI baseURI = new URI(bindingFile);
-                    wsdlURI = baseURI.resolve(wsdlURI);
-                } catch (URISyntaxException e) {
-                    Message msg = new Message("NOT_URI", LOG, new Object[] {bindingFile});
-                    throw new ToolException(msg, e);
+            String wsdlLocation = root.getAttribute("wsdlLocation");
+            Element targetNode = null;
+            if (!StringUtils.isEmpty(wsdlLocation)) {
+                String wsdlURI = getAbsoluteURI(wsdlLocation, bindingFile);
+                targetNode = getTargetNode(wsdlURI);
+                String resolvedLoc = wsdlURI;
+                if (targetNode == null && env.get(ToolConstants.CFG_CATALOG) != null) {
+                    resolvedLoc = resolveByCatalog(wsdlURI.toString());
+                    targetNode = getTargetNode(resolvedLoc);
+                }
+                if (targetNode == null) {
+                    Message msg = new Message("POINT_TO_WSDL_DOES_NOT_EXIST", 
+                                              LOG, new Object[] {bindingFile, resolvedLoc});
+                    throw new ToolException(msg);
                 }
 
-            }
-
-            URI normalizedURL = null;
-            if (this.wsdlURL != null) {
-                normalizedURL = URI.create(this.wsdlURL).normalize();
-            }
-
-            if (wsdlURI.normalize().equals(normalizedURL)) {
-                jaxwsBindings.add(root);
+                root.setAttribute("wsdlLocation", wsdlURI);
             } else {
-                Message msg = new Message("NOT_POINTTO_URL", LOG, new Object[] {bindingFile, 
-                                                                                wsdlURI.normalize(), 
-                                                                                normalizedURL});
-                throw new ToolException(msg);
+                targetNode = wsdlNode;
+
+                root.setAttribute("wsdlLocation", wsdlURL);
             }
+            jaxwsBindingsMap.put(root, targetNode);
+
         } else if (isValidJaxbBindingFile(reader)) {
-            jaxbBindings.add(is);
+            String schemaLocation = root.getAttribute("schemaLocation");
+            if (StringUtils.isEmpty(schemaLocation)) {
+                InputSource tmpIns = null;
+                try {
+                    tmpIns = convertToTmpInputSource(root, wsdlURL);
+                } catch (Exception e1) {
+                    Message msg = new Message("FAILED_TO_ADD_SCHEMALOCATION", LOG, bindingFile);
+                    throw new ToolException(msg, e1);
+                }
+                jaxbBindings.add(tmpIns);
+            } else {
+                String schemeURI = this.getAbsoluteURI(schemaLocation, bindingFile);
+                Element ele = getTargetNode(schemeURI);
+                if (ele != null) {
+                    jaxbBindings.add(is);
+                } else {
+                    // try to resolve it with CatalogReslover
+                    String resolvedLocation = null;
+                    if (env.get(ToolConstants.CFG_CATALOG) != null) {
+                        resolvedLocation = resolveByCatalog(schemaLocation);
+                    }
+                    if (resolvedLocation == null) {
+                        Message msg = new Message("POINT_TO_XSD_DOES_NOT_EXIST", LOG, schemaLocation);
+                        throw new ToolException(msg);
+                    } else {
+                        InputSource tmpIns = null;
+                        try {
+                            tmpIns = convertToTmpInputSource(root, resolvedLocation);
+                        } catch (Exception e1) {
+                            Message msg = new Message("FAILED_TO_ADD_SCHEMALOCATION", LOG, bindingFile);
+                            throw new ToolException(msg, e1);
+                        }
+                        jaxbBindings.add(tmpIns);
+                    }
+                }
+            }
+
         } else {
             Message msg = new Message("UNKNOWN_BINDING_FILE", LOG, bindingFile);
             throw new ToolException(msg);
         }
     }
 
+    private String getAbsoluteURI(String  uri, String bindingFile) {
+        URI locURI = null;
+        try {
+            locURI = new URI(uri);
+        } catch (URISyntaxException e) {
+            Message msg = new Message("BINDING_LOC_ERROR", 
+                                      LOG, new Object[] {uri});
+            throw new ToolException(msg);
+        }
+
+        if (!locURI.isAbsolute()) {
+            try {
+                String base = URIParserUtil.getAbsoluteURI(bindingFile);
+                URI baseURI = new URI(base);
+                locURI = baseURI.resolve(locURI);
+            } catch (URISyntaxException e) {
+                Message msg = new Message("NOT_URI", LOG, new Object[] {bindingFile});
+                throw new ToolException(msg, e);
+            }
+
+        }
+        return locURI.toString();
+    }
+    
+    private Element resolveNodeByCatalog(String url) {
+        String resolvedLocation = resolveByCatalog(url);
+        return getTargetNode(resolvedLocation);
+    }
+
+    private String resolveByCatalog(String url) {
+        Bus bus = (Bus)env.get(Bus.class);
+        Catalog catalogResolver = OASISCatalogManager.getCatalogManager(bus).getCatalog();
+        String resolvedLocation;
+        try {
+            resolvedLocation = catalogResolver.resolveSystem(url);
+            if (resolvedLocation == null) {
+                resolvedLocation = catalogResolver.resolveURI(url);
+            }
+        } catch (Exception e1) {
+            Message msg = new Message("FAILED_RESOLVE_CATALOG", LOG, url);
+            throw new ToolException(msg, e1);
+        }
+        return resolvedLocation;
+    }
+
+    private InputSource convertToTmpInputSource(Element ele, String schemaLoc) throws Exception {
+        InputSource result = null;
+        ele.setAttribute("schemaLocation", schemaLoc);
+        File tmpFile = FileUtils.createTempFile("jaxbbinding", ".xml");
+        XMLUtils.writeTo(ele, new FileOutputStream(tmpFile));
+        result = new InputSource(URIParserUtil.getAbsoluteURI(tmpFile.getAbsolutePath()));
+        tmpFile.deleteOnExit();
+        return result;
+    }
+
     private boolean isValidJaxbBindingFile(XMLStreamReader reader) {
         if (ToolConstants.JAXB_BINDINGS.equals(reader.getName())) {
+
             return true;
         }
         return false;
@@ -404,10 +516,14 @@ public final class CustomizationParser {
 
     private boolean isValidJaxwsBindingFile(String bindingLocation, XMLStreamReader reader) {
         if (ToolConstants.JAXWS_BINDINGS.equals(reader.getName())) {
-            String wsdlLocation = reader.getAttributeValue(null, "wsdlLocation");
-            if (!StringUtils.isEmpty(wsdlLocation)) {
-                return true;
-            }
+            // Comment this check , by default wsdlLocation value will be the
+            // user input wsdl url
+            /*
+             * String wsdlLocation = reader.getAttributeValue(null,
+             * "wsdlLocation"); if (!StringUtils.isEmpty(wsdlLocation)) { return
+             * true; }
+             */
+            return true;
         }
         return false;
 
@@ -416,6 +532,7 @@ public final class CustomizationParser {
     protected void setWSDLNode(final Element node) {
         this.wsdlNode = node;
     }
+
     public Node getWSDLNode() {
         return this.wsdlNode;
     }
@@ -436,7 +553,7 @@ public final class CustomizationParser {
     protected Element getJaxbBindingElement(final Element bindings) {
         NodeList list = bindings.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "bindings");
         if (list.getLength() > 0) {
-            return (Element) list.item(0);
+            return (Element)list.item(0);
         }
         return null;
     }
@@ -452,8 +569,8 @@ public final class CustomizationParser {
         return false;
     }
 
-    public Element getCustomizedWSDLElement() {
-        return this.wsdlNode;
+    public Map<String, Element> getCustomizedWSDLElements() {
+        return this.customizedElements;
     }
 
     public List<InputSource> getJaxbBindings() {

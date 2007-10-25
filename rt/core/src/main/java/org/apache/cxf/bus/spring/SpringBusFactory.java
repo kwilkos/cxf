@@ -29,8 +29,6 @@ import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -47,6 +45,10 @@ public class SpringBusFactory extends BusFactory {
     public SpringBusFactory(ApplicationContext context) {
         this.context = context;
     }
+    
+    public ApplicationContext getApplicationContext() {
+        return context;
+    }
         
     public Bus createBus() {
         return createBus((String)null);
@@ -54,11 +56,9 @@ public class SpringBusFactory extends BusFactory {
     
     private boolean defaultBusNotExists() {
         if (null != context) {
-            context.containsBean(Bus.DEFAULT_BUS_ID);
-            return false;
-        } else {
-            return true;
+            return !context.containsBean(Bus.DEFAULT_BUS_ID);
         }
+        return true;
     }
 
     public Bus createBus(String cfgFile) {
@@ -68,7 +68,7 @@ public class SpringBusFactory extends BusFactory {
     private Bus finishCreatingBus(BusApplicationContext bac) {
         final Bus bus = (Bus)bac.getBean(Bus.DEFAULT_BUS_ID);
 
-        bus.setExtension(new ConfigurerImpl(bac), Configurer.class);
+        //bus.setExtension(new ConfigurerImpl(bac), Configurer.class);
         bus.setExtension(bac, BusApplicationContext.class);
 
         possiblySetDefaultBus(bus);

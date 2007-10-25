@@ -92,7 +92,7 @@ public class ServerFactoryBeanDefinitionParser extends AbstractBeanDefinitionPar
         throws BeanDefinitionStoreException {
         String id = super.resolveId(elem, definition, ctx);
         if (StringUtils.isEmpty(id)) {
-            id = getBeanClass().getName() + "--" + hashCode();
+            id = getBeanClass().getName() + "--" + definition.hashCode();
         }
         
         return id;

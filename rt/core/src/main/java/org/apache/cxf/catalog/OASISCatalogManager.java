@@ -18,7 +18,10 @@
  */
 package org.apache.cxf.catalog;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -38,9 +41,13 @@ import org.apache.xml.resolver.tools.CatalogResolver;
 
 public class OASISCatalogManager {
     public static final String DEFAULT_CATALOG_NAME = "META-INF/jax-ws-catalog.xml";
+    public static final String CATALOG_DEBUG_KEY = "OASISCatalogManager.catalog.debug.level";
 
     private static final Logger LOG =
         LogUtils.getL7dLogger(OASISCatalogManager.class);
+    private static final String DEBUG_LEVEL = System.getProperty(CATALOG_DEBUG_KEY);
+    
+    
 
     private Catalog resolver;
     private Set<URL> loadedCatalogs = Collections.synchronizedSet(new HashSet<URL>());
@@ -51,6 +58,9 @@ public class OASISCatalogManager {
         catalogManager.setUseStaticCatalog(false);
         catalogManager.setIgnoreMissingProperties(true);
         CatalogResolver catalogResolver = new CatalogResolver(catalogManager);
+        if (DEBUG_LEVEL != null) {
+            catalogManager.debug.setDebug(Integer.parseInt(DEBUG_LEVEL));            
+        }
         this.resolver = catalogResolver.getCatalog();
     }
 
@@ -103,7 +113,19 @@ public class OASISCatalogManager {
 
     public void loadCatalog(URL catalogURL) throws IOException {
         if (!loadedCatalogs.contains(catalogURL)) {
+            if ("file".equals(catalogURL.getProtocol())) {
+                try {
+                    File file = new File(catalogURL.toURI());
+                    if (!file.exists()) {
+                        throw new FileNotFoundException(file.getAbsolutePath());
+                    }
+                } catch (URISyntaxException e) {
+                    //just process as is
+                }
+            }
+
             this.resolver.parseCatalog(catalogURL);
+
             loadedCatalogs.add(catalogURL);
         }
     }

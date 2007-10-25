@@ -53,7 +53,7 @@ public class PolicyBeansTest extends Assert {
         assertEquals(MaximalAlternativeSelector.class.getName(), 
                      pe.getAlternativeSelector().getClass().getName()); 
         
-        assertEquals("http://www.w3.org/ns/ws-policy",
+        assertEquals(PolicyConstants.NAMESPACE_WS_POLICY,
                      bus.getExtension(PolicyConstants.class).getNamespace());
         
         PolicyEngineImpl pei = (PolicyEngineImpl)pe;

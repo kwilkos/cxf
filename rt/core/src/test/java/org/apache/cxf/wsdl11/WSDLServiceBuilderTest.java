@@ -44,6 +44,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -71,7 +72,7 @@ import org.junit.Test;
 
 public class WSDLServiceBuilderTest extends Assert {
     // TODO: reuse the wsdl in testutils and add the parameter order into one of the wsdl
-    private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
+    private static final Logger LOG = LogUtils.getLogger(WSDLServiceBuilderTest.class);
     private static final String WSDL_PATH = "hello_world.wsdl";
     private static final String BARE_WSDL_PATH = "hello_world_bare.wsdl";
     private static final String IMPORT_WSDL_PATH = "hello_world_schema_import.wsdl";

@@ -62,6 +62,7 @@ import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.catalog.CatalogXmlSchemaURIResolver;
 import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.FixedExtensionDeserializer;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -273,6 +274,8 @@ public class WSDLServiceBuilder {
     private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         serviceInfo.setXmlSchemaCollection(schemaCol);
+        schemaCol.getExtReg().setDefaultExtensionDeserializer(
+            new FixedExtensionDeserializer());
 
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);
@@ -616,7 +619,7 @@ public class WSDLServiceBuilder {
         checkForWrapped(opInfo, false);
     }
 
-    public static void checkForWrapped(OperationInfo opInfo, boolean allowRefs) {
+    public static void checkForWrapped(OperationInfo opInfo, boolean relaxed) {
         MessageInfo inputMessage = opInfo.getInput();
         MessageInfo outputMessage = opInfo.getOutput();
         boolean passedRule = true;
@@ -647,8 +650,10 @@ public class WSDLServiceBuilder {
         } else {
             QName inputElementName = inputPart.getElementQName();
             inputEl = schemas.getElementByQName(inputElementName);
-            if (inputEl == null || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
+            if (inputEl == null) {
                 passedRule = false;
+            } else if (!opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
+                passedRule = relaxed;
             }
         }
 
@@ -687,7 +692,7 @@ public class WSDLServiceBuilder {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
             if (hasAttributes(xsct)
                 || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(),
-                                        unwrappedInput, allowRefs)) {
+                                        unwrappedInput, relaxed)) {
                 passedRule = false;
             }
         } else {
@@ -703,9 +708,12 @@ public class WSDLServiceBuilder {
 
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
+                if (xsct.isAbstract()) {
+                    passedRule = false;
+                }
                 if (hasAttributes(xsct)
                     || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(), unwrappedOutput,
-                                            allowRefs)) {
+                                            relaxed)) {
                     passedRule = false;
                 }
             } else {

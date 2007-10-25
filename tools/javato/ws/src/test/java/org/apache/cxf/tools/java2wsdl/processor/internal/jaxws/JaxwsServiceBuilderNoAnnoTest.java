@@ -41,9 +41,6 @@ public class JaxwsServiceBuilderNoAnnoTest extends ProcessorTestBase {
         generator.setBus(builder.getBus());
     }
 
-    public void tearDown() {
-
-    }
 
     @Test
     public void testGeneratedWithElementryClass() throws Exception {

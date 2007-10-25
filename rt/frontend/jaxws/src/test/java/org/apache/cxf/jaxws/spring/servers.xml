@@ -39,7 +39,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
       </property>
   </bean>
   
-  <jaxws:server id="simple" serviceBean="#greeter"/>
+  <jaxws:server id="simple" serviceBean="#greeter" xmlns:test="urn:foo" xmlns="urn:foo"/>
 
   <bean id="greeter" class="org.apache.hello_world_soap_http.GreeterImpl"/>
 
@@ -56,10 +56,10 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
     serviceClass="org.apache.hello_world_soap_http.GreeterImpl"
     address="http://localhost:8080/simpleWithAddress" 
     bus="cxf" 
-    endpointName="e:HelloEndpointCustomized"
-    serviceName="s:HelloServiceCustomized"    
-    xmlns:e="http://service.jaxws.cxf.apache.org/endpoint"
-    xmlns:s="http://service.jaxws.cxf.apache.org/service">
+    endpointName="e:SoapPort_Test1"
+    serviceName="s:SOAPService_Test1"    
+    xmlns:e="http://apache.org/hello_world_soap_http"
+    xmlns:s="http://apache.org/hello_world_soap_http">
     <jaxws:invoker>
       <bean class="org.apache.cxf.service.invoker.BeanInvoker">
         <constructor-arg>

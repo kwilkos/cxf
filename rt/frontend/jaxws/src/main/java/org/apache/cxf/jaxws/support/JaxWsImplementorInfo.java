@@ -54,7 +54,7 @@ public class JaxWsImplementorInfo {
 
     public JaxWsImplementorInfo(Class<?> ic) {
         implementorClass = ic;
-        initialise();
+        initialize();
     }
 
     public Class<?> getSEIClass() {
@@ -253,7 +253,7 @@ public class JaxWsImplementorInfo {
         }
         return null;
     }
-    private void initialise() {
+    private void initialize() {
         Class<?> cls = implementorClass;
         while (cls != null) {
             WebService annotation = cls.getAnnotation(WebService.class);

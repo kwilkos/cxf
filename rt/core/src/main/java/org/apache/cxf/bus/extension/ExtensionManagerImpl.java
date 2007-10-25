@@ -157,6 +157,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
         
         try {
             injector.inject(obj);
+            injector.construct(obj);
         } finally {
             if (null != namespacesResolver) {
                 resourceManager.removeResourceResolver(namespacesResolver);

@@ -19,9 +19,11 @@
 
 package org.apache.cxf.helpers;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class HttpHeaderHelper {
     
@@ -37,6 +39,7 @@ public final class HttpHeaderHelper {
 
     
     private static Map<String, String> internalHeaders = new HashMap<String, String>();
+    private static Map<String, String> encodings = new ConcurrentHashMap<String, String>();
     
     static {
         internalHeaders.put("Content-Type", "content-type");
@@ -61,5 +64,23 @@ public final class HttpHeaderHelper {
         } else {
             return key;
         }
+    }
+    
+    //helper to map the charsets that various things send in the http Content-Type header 
+    //into something that is actually supported by Java and the Stax parsers and such.
+    public static String mapCharset(String enc) {
+        if (enc == null) {
+            return null;
+        }
+        String newenc = encodings.get(enc);
+        if (newenc == null) {
+            try {
+                newenc = Charset.forName(enc).name();
+            } catch (Exception ex) {
+                //ignore
+            }
+            encodings.put(enc, newenc);
+        }
+        return newenc == null ? enc : newenc;
     }
 }

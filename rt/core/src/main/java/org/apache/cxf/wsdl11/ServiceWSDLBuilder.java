@@ -52,11 +52,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
-import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -72,9 +72,16 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.ws.commons.schema.XmlSchemaSerializer;
-import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
 
+/**
+ * Consume a set of service definitions and produce a WSDL model. The ServiceInfo objects
+ * contain the bindings, operations, and ports, plus XMLSchema schemas. 
+ * 
+ * Each wsdl:definition has to have a single target namespace. The first service in the list
+ * defines the TNS of the overall WSDL. If a subsequent service has a divergent TNS, then
+ * the code creates a new definition element (i.e., Definition object), and imports it into
+ * the top-level object.
+ */
 public final class ServiceWSDLBuilder {
     
     private final Map<String, String> ns2prefix;
@@ -85,25 +92,64 @@ public final class ServiceWSDLBuilder {
     private int xsdCount;
     private final Bus bus;
     
+    /**
+     * Sets up the builder on a bus with a list of services.
+     * @param b the bus.
+     * @param services the services.
+     */
     public ServiceWSDLBuilder(Bus b, List<ServiceInfo> services) {
         this.services = services;
         bus = b;
         ns2prefix = new HashMap<String, String>();
     }
+    
+    /**
+     * For callers who prefer varargs, an inline list of ServiceInfo objects instead of 
+     * a List. Primarily used for tests or other callers with only one service in hand. 
+     * @param b the bus.
+     * @param services the services.
+     */
     public ServiceWSDLBuilder(Bus b, ServiceInfo ... services) {
         this(b, Arrays.asList(services));
     }
+    
+    /**
+     * Set whether to emit references to imported schema files.
+     * This is only effective for {@link #build(Map)}, which is passed additional schemas for 
+     * import. {@link #build()} resets this flag to false.
+     * @param b true to use imports.
+     */
     public void setUseSchemaImports(boolean b) {
         useSchemaImports = b;
     }
+    
+    /**
+     * Base filename for imported files.
+     * @param s pathname.
+     */
     public void setBaseFileName(String s) {
         baseFileName = s;
     }
     
+    /**
+     * Create the WSDL Definition object and return it. This function will never create
+     * imports to schemas.
+     * @return the WSDL definition.
+     * @throws WSDLException
+     */
     public Definition build() throws WSDLException {
         useSchemaImports = false;
         return build(null);
     }
+    
+    /**
+     * Create the WSDL Definition object and return it. This function respects the 
+     * setting of {@link #setUseSchemaImports(boolean)}.
+     * @param imports A set of schema imports to either reference as imports or read and 
+     * then inline.
+     * @return the WSDL definition
+     * @throws WSDLException
+     */
     public Definition build(Map<String, SchemaInfo> imports) throws WSDLException {
         try {
             definition = services.get(0).getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
@@ -113,6 +159,7 @@ public final class ServiceWSDLBuilder {
         if (definition == null) {
             ServiceInfo si = services.get(0);
             definition = newDefinition(si.getName(), si.getTargetNamespace());
+            addNamespace(WSDLConstants.CONVENTIONAL_TNS_PREFIX, si.getTargetNamespace(), definition);
             addExtensibiltyElements(definition, getWSDL11Extensors(si));
 
             Collection<PortType> portTypes = new HashSet<PortType>();
@@ -127,7 +174,7 @@ public final class ServiceWSDLBuilder {
                     wsdlImport.setNamespaceURI(tns);
                     wsdlImport.setLocationURI(service.getInterface().getName().getLocalPart() + ".wsdl");
                     definition.addImport(wsdlImport);
-                    addNamespace(tns);
+                    addNamespace(getPrefix(tns), tns, definition);
                 }
                 portTypes.add(buildPortType(service.getInterface(), portTypeDef));
                 
@@ -157,7 +204,12 @@ public final class ServiceWSDLBuilder {
         return d;
     }
 
-
+    /** 
+     * Return a list of ExtensibilityElements for a particular component, such as a BindingFaultInfo.
+     * This perhaps should be protected.
+     * @param holder The item containing the extensibility elements.
+     * @return the extensibility elements.
+     */
     public List<ExtensibilityElement> getWSDL11Extensors(AbstractPropertiesHolder holder) {
         return holder.getExtensors(ExtensibilityElement.class);
     }
@@ -182,36 +234,14 @@ public final class ServiceWSDLBuilder {
         try {
             doc = XMLUtils.newDocument();
         } catch (ParserConfigurationException e) {
-            //should not happen
+            throw new RuntimeException("DOM configuration problem", e);
         }
-        Element nd = XMLUtils.createElementNS(doc, new QName("http://www.w3.org/2001/XMLSchema",
+        Element nd = XMLUtils.createElementNS(doc, new QName(WSDLConstants.NU_SCHEMA_XSD,
                                                              "schema"));
-        nd.setAttribute("xmlns", "http://www.w3.org/2001/XMLSchema");
+        nd.setAttribute("xmlns", WSDLConstants.NU_SCHEMA_XSD);
         doc.appendChild(nd);
         
         for (SchemaInfo schemaInfo : schemas) {
-            
-            if (schemaInfo.getSchema() != null) {
-                Document[] docs;
-                try {
-                    docs = XmlSchemaSerializer.serializeSchema(schemaInfo.getSchema(), false);
-                } catch (XmlSchemaSerializerException e1) {
-                    throw new ServiceConstructionException(e1);
-                }
-                Element e = docs[0].getDocumentElement();
-                // XXX A problem can occur with the ibm jdk when the XmlSchema
-                // object is serialized. The xmlns declaration gets incorrectly
-                // set to the same value as the targetNamespace attribute.
-                // The aegis databinding tests demonstrate this particularly.
-                if (e.getPrefix() == null
-                    && !WSDLConstants.NU_SCHEMA_XSD.equals(e.getAttributeNS(WSDLConstants.NU_XMLNS,
-                                                                            WSDLConstants.NP_XMLNS))) {
-                    e.setAttributeNS(WSDLConstants.NU_XMLNS, 
-                                     WSDLConstants.NP_XMLNS, 
-                                     WSDLConstants.NU_SCHEMA_XSD);
-                }
-                schemaInfo.setElement(e);
-            }
             
             if (!useSchemaImports) {
                 SchemaImpl schemaImpl = new SchemaImpl();
@@ -223,7 +253,7 @@ public final class ServiceWSDLBuilder {
                 //imports
                 String name = baseFileName + "_schema" + (++xsdCount) + ".xsd";
                 Element imp = XMLUtils.createElementNS(doc, 
-                                                       new QName("http://www.w3.org/2001/XMLSchema",
+                                                       new QName(WSDLConstants.NU_SCHEMA_XSD,
                                                                   "import"));
                 imp.setAttribute("schemaLocation", name);
                 imp.setAttribute("namespace", schemaInfo.getNamespaceURI());

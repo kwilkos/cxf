@@ -122,7 +122,7 @@
         </license>
     </licenses>
     <organization>
-        <name>Apache Software Foundation</name>
+        <name>The Apache Software Foundation</name>
         <url>http://www.apache.org/</url>
     </organization>
 
@@ -137,8 +137,10 @@
         <module>integration</module>
         <module>systests</module>
         <module>maven-plugins/codegen-plugin</module>
+        <module>maven-plugins/java2ws-plugin</module>
         <module>maven-plugins/archetypes</module>
         <module>maven-plugins/eclipse-plugin-generator</module>
+
     </modules>
     
 
@@ -271,18 +273,23 @@
                                         </concat>
                                         <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CXFCodeFormatter.xml" />
                                         <loadfile property="eclipse.code.templates" srcFile="${basedir}/etc/eclipse/codetemplates.xml" />
+					<loadfile property="eclipse.xml.templates" srcFile="${basedir}/etc/eclipse/xmltemplates.xml" />
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
                                             <entry key="formatter_profile" value="_CXF Java Conventions" />
                                             <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}" />
                                             <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}" />
 
                                             <!-- Add import order -->
-                                            <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;w3c;" />
+                                            <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;junit" />
                                             <!-- Sort order -->
                                             <entry key="org.eclipse.jdt.ui.visibility.order" value="B,R,D,V," />
                                             <entry key="outlinesortoption" value="T,SF,F,SI,I,C,SM,M," />
                                             <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true" />
                                         </propertyfile>
+					<propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.ui.prefs">
+					    <entry key="eclipse.preferences.version" value="1"/>
+					    <entry key="org.eclipse.wst.sse.ui.custom_templates" value="${eclipse.xml.templates}" />
+					</propertyfile>
                                     </tasks>
                                 </configuration>
                                 <goals>
@@ -311,7 +318,7 @@
                     <!-- We want to sign the artifact, the POM, and all attached artifacts -->
                     <plugin>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.0-alpha-3</version>
+                        <version>1.0-alpha-4</version>
                         <executions>
                             <execution>
                                 <goals>

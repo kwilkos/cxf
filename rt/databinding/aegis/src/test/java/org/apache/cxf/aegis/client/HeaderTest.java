@@ -25,7 +25,7 @@ import javax.xml.ws.Holder;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.util.XmlConstants;
+import org.apache.cxf.common.util.SOAPConstants;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -82,7 +82,7 @@ public class HeaderTest extends AbstractAegisTest {
 
         Document wsdl = getWSDLDocument("Echo");
 
-        addNamespace("wsdlsoap", XmlConstants.WSDL11_NS);
+        addNamespace("wsdlsoap", SOAPConstants.WSDL11_NS);
         assertValid("//wsdl:input/wsdlsoap:header[@message='tns:echoRequestHeaders'][@part='in0']", wsdl);
         assertValid("//wsdl:output/wsdlsoap:header[@message='tns:echoResponseHeaders'][@part='out']", wsdl);
         assertValid("//wsdl:output/wsdlsoap:header[@message='tns:echoResponseHeaders'][@part='out0']", wsdl);

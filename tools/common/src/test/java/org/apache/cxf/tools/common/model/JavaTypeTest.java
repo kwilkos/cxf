@@ -44,4 +44,12 @@ public class JavaTypeTest extends Assert {
                      new JavaType("i", "org.apache.cxf.tools.common.model.JavaType", null)
                          .getDefaultTypeValue());
     }
+
+    @Test
+    public void testSetClass() {
+        JavaType type = new JavaType();
+        type.setClassName("foo.bar.A");
+        assertEquals("foo.bar", type.getPackageName());
+        assertEquals("A", type.getSimpleName());
+    }
 }

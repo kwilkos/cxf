@@ -20,6 +20,7 @@ package org.apache.cxf.transport.http_jetty;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,9 +31,12 @@ import javax.imageio.IIOException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.AbstractHTTPTransportFactory;
 
-public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
+public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory
+    implements DestinationFactory {
 
     private Map<String, JettyHTTPDestination> destinations = 
         new HashMap<String, JettyHTTPDestination>();
@@ -48,6 +52,23 @@ public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
 
     @PostConstruct
     public void finalizeConfig() {
+        if (null == bus) {
+            return;
+        }
+        
+        if (getTransportIds() == null) {
+            setTransportIds(new ArrayList<String>(activationNamespaces));
+        }
+        if (activationNamespaces == null) {
+            activationNamespaces = getTransportIds();
+        }
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        if (null != dfm && null != activationNamespaces) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
+        }
+
         // This call will register the server engine factory
         // with the Bus.
         getJettyHTTPServerEngineFactory();
@@ -73,7 +94,6 @@ public class JettyHTTPTransportFactory extends AbstractHTTPTransportFactory {
         return serverEngineFactory;
     }
     
-    @Override
     public Destination getDestination(EndpointInfo endpointInfo) 
         throws IOException {
         

@@ -47,9 +47,11 @@ public class JavaMethod implements JavaAnnotatable {
     private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
-    private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
+    private final Map<String, JAnnotation> annotations = new HashMap<String, JAnnotation>();
 
     private JavaCodeBlock block;
+
+    private boolean async;
     
     public JavaMethod() {
         this(new JavaInterface());
@@ -107,6 +109,11 @@ public class JavaMethod implements JavaAnnotatable {
         return javaReturn;
     }
 
+    public String getReturnValue() {
+        String value = getClassName(javaReturn);
+        return value == null ? "void" : value;
+    }
+
     public void setReturn(JavaReturn rt) {
         if (rt != null && rt.getType() == null && rt.getClassName() == null) {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_OUTPUT_PARAMETER", LOG, rt.name, this.getName());
@@ -147,7 +154,7 @@ public class JavaMethod implements JavaAnnotatable {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_PARAMETER", LOG, param.name, this.getName());
             throw new ToolException(msg);
         }
-        
+        param.setMethod(this);
         parameters.add(param);
     }
 
@@ -238,18 +245,22 @@ public class JavaMethod implements JavaAnnotatable {
         return this.soapUse;
     }
 
-    public void addAnnotation(String tag, JavaAnnotation annotation) {
+    public void addAnnotation(String tag, JAnnotation annotation) {
         if (annotation == null) {
             return;
         }
         this.annotations.put(tag, annotation);
+        
+        for (String importClz : annotation.getImports()) {
+            getInterface().addImport(importClz);
+        }
     }
 
-    public Collection<JavaAnnotation> getAnnotations() {
+    public Collection<JAnnotation> getAnnotations() {
         return this.annotations.values();
     }
 
-    public Map<String, JavaAnnotation> getAnnotationMap() {
+    public Map<String, JAnnotation> getAnnotationMap() {
         return this.annotations;
     }
 
@@ -259,6 +270,16 @@ public class JavaMethod implements JavaAnnotatable {
 
     public List<String> getParameterListWithoutAnnotation() {
         return getParameterList(false);
+    }
+
+    private String getClassName(JavaType type) {
+        if (getInterface() == null || getInterface().getPackageName() == null) {
+            return type.getClassName();
+        }
+        if (getInterface().getPackageName().equals(type.getPackageName())) {
+            return type.getSimpleName();
+        }
+        return type.getClassName();
     }
 
     public List<String> getParameterList(boolean includeAnnotation) {
@@ -273,10 +294,10 @@ public class JavaMethod implements JavaAnnotatable {
             if (parameter.isHolder()) {
                 sb.append(parameter.getHolderName());
                 sb.append("<");
-                sb.append(parameter.getClassName());
+                sb.append(getClassName(parameter));
                 sb.append(">");
             } else {
-                sb.append(parameter.getClassName());
+                sb.append(getClassName(parameter));
             }
             sb.append(" ");
             sb.append(parameter.getName());
@@ -320,5 +341,13 @@ public class JavaMethod implements JavaAnnotatable {
 
     public JavaCodeBlock getJavaCodeBlock() {
         return this.block;
+    }
+
+    public final boolean isAsync() {
+        return async;
+    }
+
+    public final void setAsync(final boolean newAsync) {
+        this.async = newAsync;
     }
 }
