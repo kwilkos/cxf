@@ -78,7 +78,8 @@
          </xs:choice>         
          <xs:element name="connector" type="xsd:anyType" minOccurs="0"/>
          <xs:element name="handlers" type="xsd:anyType" minOccurs="0"/>
-         <xs:element name="sessionSupport" type="xsd:boolean" minOccurs="0"/>          
+         <xs:element name="sessionSupport" type="xsd:boolean" minOccurs="0"/>
+         <xs:element name="reuseAddress" type="xsd:boolean" minOccurs="0" />          
        </xs:sequence>
           <xs:attribute name="port" type="xs:int" use="required"/>
     </xs:complexType>
