@@ -104,12 +104,10 @@ public class JettyHTTPServerEngineBeanDefinitionParser extends AbstractBeanDefin
                         List handlers = 
                             ctx.getDelegate().parseListElement((Element) n, bean.getBeanDefinition());
                         bean.addPropertyValue("handlers", handlers);
-                    } else if ("sessionSupport".equals(name)) {
-                        String text = n.getTextContent();
-                        System.out.println("sessionSupport is " + Boolean.valueOf(text));
+                    } else if ("sessionSupport".equals(name) || "reuseAddress".equals(name)) {
+                        String text = n.getTextContent();                        
                         bean.addPropertyValue(name, Boolean.valueOf(text));
-                    }
-                        
+                    }                         
                 }
             }
         } catch (Exception e) {

@@ -20,7 +20,9 @@
 package org.apache.cxf.transport.http_jetty;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.URL;
+import java.nio.channels.ServerSocketChannel;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,6 +40,7 @@ import org.mortbay.jetty.AbstractConnector;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
 import org.mortbay.jetty.handler.DefaultHandler;
@@ -87,6 +90,7 @@ public class JettyHTTPServerEngine
     private String protocol = "http";    
     
     private Boolean isSessionSupport = false;
+    private Boolean isReuseAddress = true;
     private int servantCount;
     private Server server;
     private Connector connector;
@@ -239,6 +243,14 @@ public class JettyHTTPServerEngine
         return connector;
     }
     
+    public boolean isReuseAddress() {
+        return isReuseAddress;
+    }
+    
+    public void setReuseAddress(boolean reuse) {
+        isReuseAddress = reuse;
+    }
+    
     /**
      * Register a servant.
      * 
@@ -274,6 +286,9 @@ public class JettyHTTPServerEngine
             }
             try {
                 server.start();
+                if (isReuseAddress()) {
+                    setReuseAddress(connector);
+                }
                 AbstractConnector aconn = (AbstractConnector) connector;
                 if (aconn.getThreadPool() instanceof BoundedThreadPool
                     && isSetThreadingParameters()) {
@@ -327,6 +342,23 @@ public class JettyHTTPServerEngine
         ++servantCount;
     }
     
+    private void setReuseAddress(Connector conn) throws IOException {
+        if (conn.getConnection() == null) {
+            conn.open();  // it might not be opened.
+        }    
+        ServerSocket socket = null;
+        if (conn instanceof SelectChannelConnector) {
+            ServerSocketChannel channel = (ServerSocketChannel) conn.getConnection();
+            socket = channel.socket();
+        } else if (conn instanceof SocketConnector) {    
+            socket = (ServerSocket)conn.getConnection();
+        } else {
+            LOG.info("UNKNOWN_CONNECTOR_MSG");
+            return;
+        }       
+        socket.setReuseAddress(true);        
+    }
+
     /**
      * Remove a previously registered servant.
      * 
