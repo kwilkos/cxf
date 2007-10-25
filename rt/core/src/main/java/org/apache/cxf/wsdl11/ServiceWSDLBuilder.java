@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
 import javax.wsdl.BindingInput;
@@ -48,6 +49,7 @@ import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,6 +59,7 @@ import com.ibm.wsdl.extensions.schema.SchemaImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -72,6 +75,7 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.ws.commons.schema.utils.NamespacePrefixList;
 
 /**
  * Consume a set of service definitions and produce a WSDL model. The ServiceInfo objects
@@ -82,7 +86,7 @@ import org.apache.cxf.wsdl.WSDLManager;
  * the code creates a new definition element (i.e., Definition object), and imports it into
  * the top-level object.
  */
-public final class ServiceWSDLBuilder {
+public class ServiceWSDLBuilder {
     
     private final Map<String, String> ns2prefix;
     private Definition definition;
@@ -224,6 +228,39 @@ public final class ServiceWSDLBuilder {
             }
         }
     }
+    
+    /**
+     * For a schema, require all namespace with prefixes to be imported. In theory,
+     * if a namespace has a prefix but is not used, the import is not needed, and could
+     * cause a problem. In practice, the code generating these schemas should not be adding
+     * spurious prefixes. Hypothetically, we could check that, in the overall WSDL, that
+     * all of the schemas that we are importing are accounted for. However, that's a validation
+     * that is best left to the validator.
+     * @param schemaInfo Schema to process.
+     */
+    protected void addRequiredSchemaImports(SchemaInfo schemaInfo) {
+        Element schemaElement = schemaInfo.getElement();
+        // we need an import for every namespace except the main one.
+        String schemaNamespace = schemaInfo.getNamespaceURI();
+        Map<String, String> queryPrefixMap = new HashMap<String, String>();
+        queryPrefixMap.put("xs", WSDLConstants.NU_SCHEMA_XSD);
+        XPathUtils xpu = new XPathUtils(queryPrefixMap);
+        NamespacePrefixList schemaPrefixes = schemaInfo.getSchema().getNamespaceContext();
+        for (String prefix : schemaPrefixes.getDeclaredPrefixes()) {
+            String namespace = schemaPrefixes.getNamespaceURI(prefix);
+            if (!namespace.equals(schemaNamespace) 
+                && !namespace.equals(WSDLConstants.NU_SCHEMA_XSD)
+                && !xpu.isExist("xs:import[@namespace='" + namespace + "']", 
+                                 schemaElement, 
+                                 XPathConstants.NODE)) {
+                Element importElement = XMLUtils.createElementNS(schemaElement.getOwnerDocument(), 
+                                                                 WSDLConstants.NU_SCHEMA_XSD,
+                                                                 "import");
+                importElement.setAttribute("namespace", namespace);
+                schemaElement.insertBefore(importElement, schemaElement.getFirstChild());
+            }
+        }
+    }
 
     protected void buildTypes(final Collection<SchemaInfo> schemas,
                               final Map<String, SchemaInfo> imports,
@@ -261,6 +298,8 @@ public final class ServiceWSDLBuilder {
                                
                 imports.put(name, schemaInfo);
             }
+            // add imports for those schemata which are inlined.
+            addRequiredSchemaImports(schemaInfo);
         }
         if (useSchemaImports) {
             SchemaImpl schemaImpl = new SchemaImpl();
