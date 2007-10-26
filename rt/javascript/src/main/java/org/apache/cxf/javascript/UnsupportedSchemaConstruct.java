@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.javascript;
 
+import org.apache.cxf.common.i18n.Message;
+
 /**
  * This exception is thrown when the Javascript client generator hits a schema
  * construct that it cannot handle. 
@@ -37,6 +39,10 @@ public class UnsupportedSchemaConstruct extends RuntimeException {
 
     public UnsupportedSchemaConstruct(String explanation, Throwable cause) {
         super(explanation, cause);
+    }
+
+    public UnsupportedSchemaConstruct(Message message) {
+        super(message.toString());
     }
 
 }

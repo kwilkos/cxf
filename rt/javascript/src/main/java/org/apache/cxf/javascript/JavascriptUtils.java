@@ -19,7 +19,13 @@
 
 package org.apache.cxf.javascript;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 
 /**
  * 
@@ -29,11 +35,41 @@ public class JavascriptUtils {
     private StringBuffer code;
     private Stack<String> prefixStack;
     private String xmlStringAccumulatorVariable;
+    private Map<String, String> defaultValueForSimpleType;
+    private Set<String> nonStringSimpleTypes;
     
     public JavascriptUtils(StringBuffer code) {
         this.code = code;
+        defaultValueForSimpleType = new HashMap<String, String>();
+        defaultValueForSimpleType.put("int", "0");
+        defaultValueForSimpleType.put("long", "0");
+        defaultValueForSimpleType.put("float", "0.0");
+        defaultValueForSimpleType.put("double", "0.0");
+        nonStringSimpleTypes = new HashSet<String>();
+        nonStringSimpleTypes.add("int");
+        nonStringSimpleTypes.add("long");
+        nonStringSimpleTypes.add("float");
+        nonStringSimpleTypes.add("double");
+        
         prefixStack = new Stack<String>();
-        prefixStack.push("");
+        prefixStack.push("    ");
+    }
+    
+    public String getDefaultValueForSimpleType(XmlSchemaSimpleType type) {
+        String val = defaultValueForSimpleType.get(type.getName());
+        if (val == null) {
+            return "''";
+        } else {
+            return val;
+        }
+    }
+    
+    public boolean isStringSimpleType(XmlSchemaSimpleType type) {
+        return !nonStringSimpleTypes.contains(type.getName());
+    }
+    
+    public void setXmlStringAccumulator(String variableName) {
+        xmlStringAccumulatorVariable = variableName;
     }
     
     public void startXmlStringAccumulator(String variableName) {
@@ -48,11 +84,22 @@ public class JavascriptUtils {
         return value.replaceAll("'", "\\'");
     }
     
+    public String escapeStringQuotes(String data) {
+        return data.replace("'", "\\'");
+    }
+    
     /**
      * emit javascript to append a value to the accumulator. 
      * @param value
      */
-    public void appendAppend(String value) {
+    public void appendString(String value) {
+        code.append(prefix());
+        code.append(xmlStringAccumulatorVariable + " = " + xmlStringAccumulatorVariable + " + '");
+        code.append(escapeStringQuotes(value));
+        code.append("';" + NL);
+    }
+    
+    public void appendExpression(String value) {
         code.append(prefix());
         code.append(xmlStringAccumulatorVariable + " = " + xmlStringAccumulatorVariable + " + ");
         code.append(value);
