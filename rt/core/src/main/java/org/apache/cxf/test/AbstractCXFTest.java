@@ -42,6 +42,7 @@ import org.junit.Before;
 
 /**
  * A basic test case meant for helping users unit test their services.
+ * @see TestUtilities
  */
 public class AbstractCXFTest extends Assert {
     

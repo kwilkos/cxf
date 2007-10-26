@@ -59,7 +59,7 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 /**
  * This class provides unit test support for tests that look at generated WSDL
- * contents.
+ * contents, as well as some test methods for invoking services.
  */
 public class TestUtilities {
 
