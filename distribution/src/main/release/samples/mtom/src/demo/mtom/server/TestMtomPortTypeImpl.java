@@ -24,33 +24,31 @@ import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
-import org.apache.cxf.mime.TestMtom;
+import org.apache.cxf.mime.TestMtomPortType;
 
 @WebService(serviceName = "TestMtomService",
                 portName = "TestMtomPort",
-                endpointInterface = "org.apache.cxf.mime.TestMtom",
+                endpointInterface = "org.apache.cxf.mime.TestMtomPortType",
                 targetNamespace = "http://cxf.apache.org/mime")
 
-public class TestMtomImpl implements TestMtom {
+public class TestMtomPortTypeImpl implements TestMtomPortType {
 
 
-    public void testXop(Holder<String> name, Holder<byte[]> attachinfo) {
-        System.out.println("Received image holder data from client");
-        System.out.println("The image holder data length is " + attachinfo.value.length);        
-        name.value = "return detail + " + name.value;        
+    public void testByteArray(Holder<String> name, Holder<byte[]> attachinfo) {
+        System.out.println("Received image from client");
+        System.out.println("The image data size is " + attachinfo.value.length);        
+        name.value = "Hello " + name.value;        
     }
 
-    public void testMtom(Holder<String> name, Holder<DataHandler> attachinfo) {
+    public void testDataHandler(Holder<String> name, Holder<DataHandler> attachinfo) {
         try {
-            System.out.println("Received image holder data with mtom enable from client");
+            System.out.println("Received image with mtom enabled from client");
             InputStream mtomIn = attachinfo.value.getInputStream();
             long fileSize = 0;
-            System.out.println("The image holder data length is " + mtomIn.available());
-            name.value = "return detail + " + name.value;
+            System.out.println("The image data size is " + mtomIn.available());
+            name.value = "Hello " + name.value;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
 }
