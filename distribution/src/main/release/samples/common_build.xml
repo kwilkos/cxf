@@ -115,8 +115,8 @@
         </javac>
 
         <copy todir="${build.classes.dir}">
-            <fileset dir="${basedir}/src" includes="**/*.xml" />
-            <fileset dir="${build.src.dir}" includes="**/*.xml" />
+            <fileset dir="${basedir}/src" includes="**/*.xml, **/*.txt" />
+            <fileset dir="${build.src.dir}" includes="**/*.xml, **/*.txt" />
         </copy>
     </target>
 

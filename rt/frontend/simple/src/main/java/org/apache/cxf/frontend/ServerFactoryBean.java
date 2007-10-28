@@ -78,7 +78,7 @@ import org.apache.cxf.service.invoker.Invoker;
  * sf.create();
  * </pre>
  */
-public class ServerFactoryBean extends AbstractEndpointFactory {
+public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(ServerFactoryBean.class);
 
     private Server server;

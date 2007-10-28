@@ -213,7 +213,12 @@
             <version>${pom.version}</version>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${pom.version}</version>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>

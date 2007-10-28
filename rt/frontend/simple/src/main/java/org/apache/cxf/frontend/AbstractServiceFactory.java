@@ -23,7 +23,8 @@ import java.io.File;
 import org.apache.cxf.service.ServiceBuilder;
 import org.apache.cxf.service.model.ServiceInfo;
 
-public abstract class AbstractServiceFactory extends AbstractEndpointFactory implements ServiceBuilder {
+public abstract class AbstractServiceFactory extends AbstractWSDLBasedEndpointFactory implements
+    ServiceBuilder {
     public ServiceInfo createService() {
         try {
             return createEndpoint().getEndpointInfo().getService();

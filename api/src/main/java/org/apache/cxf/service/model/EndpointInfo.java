@@ -38,15 +38,19 @@ public class EndpointInfo extends AbstractDescriptionElement {
         transportId = ns;
         service = serv;
     }
+    
     public String getTransportId() {
         return transportId;
     }    
+    
     public void setTransportId(String tid) {
         transportId = tid;
     }
+    
     public InterfaceInfo getInterface() {
         return service.getInterface();
     }
+    
     public ServiceInfo getService() {
         return service;
     }
@@ -54,6 +58,7 @@ public class EndpointInfo extends AbstractDescriptionElement {
     public QName getName() {
         return name;
     }
+    
     public void setName(QName n) {
         name = n;
     }
@@ -61,6 +66,7 @@ public class EndpointInfo extends AbstractDescriptionElement {
     public BindingInfo getBinding() {
         return binding;
     }
+    
     public void setBinding(BindingInfo b) {
         binding = b;
     }    
@@ -76,6 +82,7 @@ public class EndpointInfo extends AbstractDescriptionElement {
             EndpointReferenceUtils.setAddress(address, addr);
         }
     }
+    
     public void setAddress(EndpointReferenceType endpointReference) {
         address = endpointReference;
     }
