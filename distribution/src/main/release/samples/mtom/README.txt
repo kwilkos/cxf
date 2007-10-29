@@ -116,17 +116,14 @@ servlet container.
 Build the war file with the command:
 
   ant war
-    
+   
 
 The war file will be included in the directory
 samples/mtom/build/war.  Simply copy the war file into
 the servlet container's deployment directory.  For example,
 with Tomcat copy the war file into the directory
-<installationDirectory>/webapps.  The servlet container will
+$CATALINA_HOME/webapps.  The servlet container will
 extract the war and deploy the application.
-
-Make sure already copy all jars from CXF_HOME/lib to
-<TomcatInstallationDirectory>/shared/lib
 
 Using ant, run the client application with the command:
 
