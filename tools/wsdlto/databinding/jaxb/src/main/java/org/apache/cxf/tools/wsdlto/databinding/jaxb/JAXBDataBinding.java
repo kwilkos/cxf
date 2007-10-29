@@ -17,7 +17,6 @@
  * under the License.
  */
 package org.apache.cxf.tools.wsdlto.databinding.jaxb;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -38,6 +37,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.SchemaFactory;
+
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -65,6 +65,7 @@ import com.sun.tools.xjc.api.TypeAndAnnotation;
 import com.sun.tools.xjc.api.XJC;
 import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -79,6 +80,8 @@ import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.DefaultValueProvider;
 import org.apache.cxf.tools.wsdlto.core.RandomValueProvider;
+
+
 
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
@@ -146,7 +149,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             }
             if (context.get(ToolConstants.CFG_VALIDATE_WSDL) != null) {
                 validateSchema(ele);
-            }
+            }           
             schemaCompiler.parseSchema(key, ele);
 
         }
@@ -155,11 +158,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             schemaCompiler.parseSchema(binding);
         }
 
-        /*if (context.getPackageName() != null) {
-            schemaCompiler.forcePackageName(context.getPackageName());
-        } else {*/
-            
-            
+                       
         Map<String, String> nsPkgMap = context.getNamespacePackageMap();
         for (String ns : nsPkgMap.keySet()) {
             File file = JAXBUtils.getPackageMappingSchemaBindingFile(ns, context.mapPackageName(ns));

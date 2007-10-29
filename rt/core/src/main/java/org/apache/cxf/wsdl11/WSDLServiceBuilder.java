@@ -109,6 +109,7 @@ public class WSDLServiceBuilder {
     private static final Logger LOG = LogUtils.getL7dLogger(WSDLServiceBuilder.class);
     private Bus bus;
     private Map<String, Element> schemaList = new HashMap<String, Element>();
+    private Map<String, String> catalogResolvedMap;
 
     public WSDLServiceBuilder(Bus bus) {
         this.bus = bus;
@@ -357,14 +358,14 @@ public class WSDLServiceBuilder {
                 Object obj = ite.next();
                 if (obj instanceof Schema) {
                     Schema schema = (Schema)obj;
-                    addSchema(schema);
+                    addSchema(schema.getDocumentBaseURI(), schema);
                 }
             }
         }
     }
 
-    private void addSchema(Schema schema) {
-        String docBaseURI = schema.getDocumentBaseURI();
+    private void addSchema(String docBaseURI, Schema schema) {
+        //String docBaseURI = schema.getDocumentBaseURI();
         Element schemaEle = schema.getElement();
         if (schemaList.get(docBaseURI) == null) {
             schemaList.put(docBaseURI, schemaEle);
@@ -384,16 +385,21 @@ public class WSDLServiceBuilder {
             for (String importNamespace : importKeys) {
 
                 List<SchemaImport> schemaImports = CastUtils.cast(imports.get(importNamespace));
-
+                
                 for (SchemaImport schemaImport : schemaImports) {
-                    Schema tempImport = schemaImport.getReferencedSchema();
-                    if (importNamespace == null) {
+                    Schema tempImport = schemaImport.getReferencedSchema();                   
+                    String key = schemaImport.getSchemaLocationURI();
+                    if (importNamespace == null && tempImport != null) {
                         importNamespace = tempImport.getDocumentBaseURI();
                     }
+                    if ((catalogResolvedMap == null || !catalogResolvedMap.containsKey(key)) 
+                        && tempImport != null) {                 
+                        key = tempImport.getDocumentBaseURI();
+                    }
                     if (tempImport != null
-                        && !isSchemaParsed(tempImport.getDocumentBaseURI(), importNamespace)
+                        && !isSchemaParsed(key, importNamespace)
                         && !schemaList.containsValue(tempImport.getElement())) {
-                        addSchema(tempImport);
+                        addSchema(key, tempImport);
                     }
                 }
 
@@ -800,6 +806,10 @@ public class WSDLServiceBuilder {
                 pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
             }
         }
+    }
+    
+    public void setCatalogResolvedMap(Map<String, String> resolvedMap) {
+        catalogResolvedMap = resolvedMap;
     }
 
 }

@@ -17,8 +17,6 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<!--WSDL file template-->
-<!--(c) 2005, IONA Technologies, Inc.-->
 <definitions name="InvoiceServer.wsdl" 
 	     targetNamespace="http://apache.org/InvoiceServer" 
 	     xmlns="http://schemas.xmlsoap.org/wsdl/" 

@@ -40,6 +40,7 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.validator.UniqueBodyValidator;
 import org.junit.After;
 import org.junit.Before;
+
 import org.junit.Test;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.ResourceHandler;
@@ -817,13 +818,14 @@ public class CodeGenBugTest extends ProcessorTestBase {
     
     
     @Test
-    public void testCatalog() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, 
-                getLocation("/wsdl2java_wsdl/cxf1112/myservice.wsdl"));
+    public void testJaxbCatalog() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/cxf1112/myservice.wsdl"));
         env.put(ToolConstants.CFG_CATALOG, getLocation("/wsdl2java_wsdl/cxf1112/catalog.xml"));
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/cxf1112/jaxbbinding.xml"));
         processor.setContext(env);
         processor.execute();
+        Class clz = classLoader.loadClass("org.mytest.ObjectFactory");
+        assertNotNull("Customization types class should be generated", clz);
     }
     
     
@@ -844,6 +846,25 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
     }
+    
+    @Test
+    public void testServer() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, new String[] {getLocation("/wsdl2java_wsdl/cxf1141/jaxws.xml"),
+                                                         getLocation("/wsdl2java_wsdl/cxf1141/jaxb.xml")});
+        processor.setContext(env);
+        processor.execute();
+        
+        File file = new File(output, "org/mytest");
+        assertEquals(13, file.list().length);
+        
+    }
+
+
+    
+    
+    
+    
     
     
 }
