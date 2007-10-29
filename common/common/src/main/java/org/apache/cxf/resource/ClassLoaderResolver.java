@@ -35,7 +35,7 @@ public class ClassLoaderResolver implements ResourceResolver {
     }
  
     public <T> T resolve(String resourceName, Class<T> resourceType) {
-        if (resourceName == null) {
+        if (resourceName == null || resourceType == null) {
             return null;
         }
         URL url = loader.getResource(resourceName);
