@@ -1,4 +1,4 @@
-RESTful Hello World Demo 
+RESTful JAX-RS World Demo 
 ========================
 
 The demo shows REST based Web Services using JAX-RS (JSR-311). The REST server provides the following services: 
@@ -36,7 +36,7 @@ updates the customer instance whose id is 123
 
 
 The client code demonstrates how to send HTTP GET/POST/PUT/DELETE request. The 
-server code demonstrates how to build a RESTful endpoints through 
+server code demonstrates how to build a RESTful endpoint through 
 JAX-RS (JSR-311) APIs.
 
 

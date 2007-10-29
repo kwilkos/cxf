@@ -244,11 +244,6 @@
 	    <artifactId>commons-httpclient</artifactId>
 	    <version>3.1-rc1</version>
         </dependency>
-         <dependency>
-             <groupId>javax.ws.rs</groupId>
-             <artifactId>jsr311-api</artifactId>
-             <version>0.3</version>
-         </dependency>
     </dependencies>
 
     <build>
