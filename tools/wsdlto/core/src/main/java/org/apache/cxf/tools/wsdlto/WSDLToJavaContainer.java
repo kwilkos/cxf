@@ -102,7 +102,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         Bus bus = BusFactory.getDefaultBus();
 
         OASISCatalogManager catalogManager = bus.getExtension(OASISCatalogManager.class);
-
+        
         String catalogLocation = getCatalogURL();
         if (!StringUtils.isEmpty(catalogLocation)) {
             try {
@@ -147,7 +147,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                         .getWSDLBuilder();
                     builder.setContext(context);
                     builder.setBus(getBus());
-
+                    context.put(Bus.class, getBus());
                     builder.build(URIParserUtil.getAbsoluteURI(wsdlURL));
                     builder.customize();
                     Definition definition = builder.getWSDLModel();
@@ -158,7 +158,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     }
 
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-
+                    serviceBuilder.setCatalogResolvedMap(builder.getCataLogResovedMap());
                     String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
 
                     if (serviceName != null) {
