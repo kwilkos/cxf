@@ -67,7 +67,7 @@ public final class Client {
 
         TestMtomService tms = new TestMtomService(wsdlURL, SERVICE_NAME);
         TestMtomPortType port = (TestMtomPortType) tms.getPort(PORT_NAME, 
-        TestMtomPortType.class);
+            TestMtomPortType.class);
         Binding binding = ((BindingProvider)port).getBinding();
         ((SOAPBinding)binding).setMTOMEnabled(true);
 
@@ -95,8 +95,8 @@ public final class Client {
         System.out.println("--Returned string value is " + name.value);
 
         Image image = ImageIO.read(new ByteArrayInputStream(param.value));
-        System.out.println("--Loaded image from byte[] successfully, hashCode=" + 
-            image.hashCode());
+        System.out.println("--Loaded image from byte[] successfully, hashCode=" 
+            + image.hashCode());
         System.out.println("Successfully ran MTOM/byte array demo");
 
         System.out.println("\nStarting MTOM test with DataHandler:");        
@@ -117,8 +117,8 @@ public final class Client {
             fileSize++;
         }
 
-        System.out.println("--Received DataHandler back from server, " +
-            "returned size is " + fileSize);
+        System.out.println("--Received DataHandler back from server, " 
+            + "returned size is " + fileSize);
         System.out.println("--Returned string value is " + name.value);
         
         System.out.println("Successfully ran MTOM/DataHandler demo");
