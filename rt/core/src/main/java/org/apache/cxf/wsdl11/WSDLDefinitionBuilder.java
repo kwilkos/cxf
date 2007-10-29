@@ -80,17 +80,28 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             registry = wsdlFactory.newPopulatedExtensionRegistry();
-            QName header = new QName(WSDLConstants.WSDL11_NAMESPACE, "header");
+            QName header11 = new QName(WSDLConstants.SOAP11_NAMESPACE, "header");
+            QName header12 = new QName(WSDLConstants.SOAP12_NAMESPACE, "header");
             registry.registerDeserializer(MIMEPart.class,
-                                          header,
+                                          header11,
                                           new SOAPHeaderSerializer());
             registry.registerSerializer(MIMEPart.class,
-                                        header,
+                                        header11,
                                         new SOAPHeaderSerializer());
-            registry.mapExtensionTypes(MIMEPart.class, header, SOAPHeaderImpl.class);
+            registry.mapExtensionTypes(MIMEPart.class, header11, SOAPHeaderImpl.class);
+            registry.registerDeserializer(MIMEPart.class,
+                                          header12,
+                                          new SOAPHeaderSerializer());
+            registry.registerSerializer(MIMEPart.class,
+                                        header12,
+                                        new SOAPHeaderSerializer());
+            registry.mapExtensionTypes(MIMEPart.class, header12, SOAPHeaderImpl.class);
+            
 
             registerInitialExtensions();
             wsdlReader = wsdlFactory.newWSDLReader();
+            wsdlReader.setExtensionRegistry(registry);
+            
             // TODO enable the verbose if in verbose mode.
             wsdlReader.setFeature("javax.wsdl.verbose", false);
             wsdlReader.setFeature("javax.wsdl.importDocuments", true);
