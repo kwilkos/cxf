@@ -684,6 +684,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
         ct.setName(wrapperName.getLocalPart());
         el.setSchemaTypeName(wrapperName);
+        el.setSchemaType(ct);
         schema.addType(ct);
         schema.getItems().add(ct);
 
@@ -699,6 +700,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 el.setRefName(mpi.getElementQName());
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
+                el.setSchemaType((XmlSchemaType)mpi.getXmlSchema());
                 if (schema.getElementFormDefault().getValue().equals(XmlSchemaForm.UNQUALIFIED)) {
                     mpi.setConcreteName(new QName(null, mpi.getName().getLocalPart()));
                 }
