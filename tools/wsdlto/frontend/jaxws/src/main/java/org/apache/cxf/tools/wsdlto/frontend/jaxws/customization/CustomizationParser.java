@@ -409,7 +409,18 @@ public final class CustomizationParser {
 
         } else if (isValidJaxbBindingFile(reader)) {
             String schemaLocation = root.getAttribute("schemaLocation");
-            if (StringUtils.isEmpty(schemaLocation)) {
+            boolean hasJaxbBindingChild = false;
+            NodeList nlist = root.getElementsByTagNameNS(ToolConstants.JAXB_BINDINGS.getNamespaceURI(),
+                                                             ToolConstants.JAXB_BINDINGS.getLocalPart());
+            for (int i = 0; i < nlist.getLength(); i++) {
+                Node node = nlist.item(i);
+                if (node instanceof Element) {
+                    hasJaxbBindingChild = true;
+                    break;
+                }
+            }
+                           
+            if (StringUtils.isEmpty(schemaLocation) && !hasJaxbBindingChild) {
                 InputSource tmpIns = null;
                 try {
                     tmpIns = convertToTmpInputSource(root, wsdlURL);
@@ -419,30 +430,7 @@ public final class CustomizationParser {
                 }
                 jaxbBindings.add(tmpIns);
             } else {
-                String schemeURI = this.getAbsoluteURI(schemaLocation, bindingFile);
-                Element ele = getTargetNode(schemeURI);
-                if (ele != null) {
-                    jaxbBindings.add(is);
-                } else {
-                    // try to resolve it with CatalogReslover
-                    String resolvedLocation = null;
-                    if (env.get(ToolConstants.CFG_CATALOG) != null) {
-                        resolvedLocation = resolveByCatalog(schemaLocation);
-                    }
-                    if (resolvedLocation == null) {
-                        Message msg = new Message("POINT_TO_XSD_DOES_NOT_EXIST", LOG, schemaLocation);
-                        throw new ToolException(msg);
-                    } else {
-                        InputSource tmpIns = null;
-                        try {
-                            tmpIns = convertToTmpInputSource(root, resolvedLocation);
-                        } catch (Exception e1) {
-                            Message msg = new Message("FAILED_TO_ADD_SCHEMALOCATION", LOG, bindingFile);
-                            throw new ToolException(msg, e1);
-                        }
-                        jaxbBindings.add(tmpIns);
-                    }
-                }
+                jaxbBindings.add(is);
             }
 
         } else {
