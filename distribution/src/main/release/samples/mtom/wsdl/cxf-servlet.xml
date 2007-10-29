@@ -29,7 +29,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
     <jaxws:endpoint
         id="mtom"
-        implementor="demo.mtom.server.TestMtomImpl"
+        implementor="demo.mtom.server.TestMtomPortTypeImpl"
         wsdlLocation="WEB-INF/wsdl/mtom_xop.wsdl"
         address="/mtom" />
 
