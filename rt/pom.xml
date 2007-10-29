@@ -49,7 +49,6 @@
         <module>ws/rm</module>
         <module>ws/security</module>
         <module>management</module>
-        <module>javascript</module>
     </modules>
 
     <scm>
