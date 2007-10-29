@@ -54,10 +54,15 @@ public class ServletController {
     private ServletTransportFactory transport;
     private CXFServlet cxfServlet;
     private String lastBase = "";
+    private boolean isGenerateServiceList = true;
  
     public ServletController(ServletTransportFactory df, CXFServlet servlet) {
         this.transport = df;
-        this.cxfServlet = servlet;
+        this.cxfServlet = servlet;       
+    }
+    
+    public void setGenerateServiceList(boolean generate) {
+        isGenerateServiceList = generate;
     }
     
     private synchronized void updateDests(HttpServletRequest request) {
@@ -165,18 +170,19 @@ public class ServletController {
         Collection<ServletDestination> destinations = transport.getDestinations();
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
-        
-        if (destinations.size() > 0) {  
-            for (ServletDestination sd : destinations) {
-                if (null != sd.getEndpointInfo().getName()) {
-                    String address = sd.getEndpointInfo().getAddress();
-                    response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
-                    response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");
-                }    
+        if (isGenerateServiceList) {
+            if (destinations.size() > 0) {  
+                for (ServletDestination sd : destinations) {
+                    if (null != sd.getEndpointInfo().getName()) {
+                        String address = sd.getEndpointInfo().getAddress();
+                        response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
+                        response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");
+                    }    
+                }
+            } else {
+                response.getWriter().write("No service was found.");
             }
-        } else {
-            response.getWriter().write("No service was found.");
-        }
+        }    
         response.getWriter().write("</body></html>");
     }
 
