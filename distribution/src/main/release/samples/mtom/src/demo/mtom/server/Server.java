@@ -27,7 +27,7 @@ public class Server {
 
     protected Server() throws Exception {
         System.out.println("Starting Server");
-        Object implementor = new TestMtomImpl();
+        Object implementor = new TestMtomPortTypeImpl();
         String address = "http://localhost:9000/mime-test";
         Endpoint ep = Endpoint.publish(address, implementor);
         Binding binding = ep.getBinding();        

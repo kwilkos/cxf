@@ -35,7 +35,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.cxf.mime.TestMtom;
+import org.apache.cxf.mime.TestMtomPortType;
 import org.apache.cxf.mime.TestMtomService;
 
 public final class Client {
@@ -66,7 +66,8 @@ public final class Client {
         System.out.println(wsdlURL);
 
         TestMtomService tms = new TestMtomService(wsdlURL, SERVICE_NAME);
-        TestMtom port = (TestMtom) tms.getPort(PORT_NAME, TestMtom.class);
+        TestMtomPortType port = (TestMtomPortType) tms.getPort(PORT_NAME, 
+        TestMtomPortType.class);
         Binding binding = ((BindingProvider)port).getBinding();
         ((SOAPBinding)binding).setMTOMEnabled(true);
 
@@ -75,38 +76,52 @@ public final class Client {
         for (int i = pre.read(); i != -1; i = pre.read()) {
             fileSize++;
         }
+        System.out.println("Filesize of me.bmp image is: " + fileSize);
+
         Holder<byte[]> param = new Holder<byte[]>();
         param.value = new byte[(int) fileSize];
-        System.out.println("Start test without MTOM enabled:");
-        System.out.println("Sending out the me.bmp image content to server, data size is " + fileSize);
+        System.out.println("\nStarting MTOM Test using basic byte array:");
 
+        Holder<String> name = new Holder<String>("Sam");
         InputStream in = client.getClass().getResourceAsStream("me.bmp");
         in.read(param.value);
-        Holder<String> name = new Holder<String>("call detail");
-        port.testXop(name, param);
-        System.out.println("Received byte[] back from server, returned size is " + param.value.length);
+        System.out.println("--Sending the me.bmp image to server");
+        System.out.println("--Sending a name value of " + name.value);
+
+        port.testByteArray(name, param);
+
+        System.out.println("--Received byte[] back from server, returned size is "
+            + param.value.length);
+        System.out.println("--Returned string value is " + name.value);
 
         Image image = ImageIO.read(new ByteArrayInputStream(param.value));
-        System.out.println("Build image with the returned byte[] back from server successfully, hashCode="
-                + image.hashCode());
-        System.out.println("Successfully ran demo without MTOM enabled");
+        System.out.println("--Loaded image from byte[] successfully, hashCode=" + 
+            image.hashCode());
+        System.out.println("Successfully ran MTOM/byte array demo");
 
-        System.out.println("Start test with MTOM enabled:");        
-        System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
+        System.out.println("\nStarting MTOM test with DataHandler:");        
+        name.value = "Bob";
         Holder<DataHandler> handler = new Holder<DataHandler>();
         byte[] data = new byte[(int) fileSize];
         client.getClass().getResourceAsStream("me.bmp").read(data);
-        handler.value = new DataHandler(new ByteArrayDataSource(data, "application/octet-stream"));
-        port.testMtom(name, handler);
+        handler.value = new DataHandler(new ByteArrayDataSource(data, 
+            "application/octet-stream"));
+        System.out.println("--Sending the me.bmp image to server");
+        System.out.println("--Sending a name value of " + name.value);
+
+        port.testDataHandler(name, handler);
+
         InputStream mtomIn = handler.value.getInputStream();
         fileSize = 0;
-        
         for (int i = mtomIn.read(); i != -1; i = mtomIn.read()) {
             fileSize++;
         }
 
-        System.out.println("Received DataHandler back from server, returned size is " + fileSize);
-        System.out.println("Successfully ran demo with MTOM enabled");
+        System.out.println("--Received DataHandler back from server, " +
+            "returned size is " + fileSize);
+        System.out.println("--Returned string value is " + name.value);
+        
+        System.out.println("Successfully ran MTOM/DataHandler demo");
         System.exit(0);
     }
 
