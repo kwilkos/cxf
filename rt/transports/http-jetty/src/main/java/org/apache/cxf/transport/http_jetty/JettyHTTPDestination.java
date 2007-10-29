@@ -174,7 +174,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     private String removeTrailingSeparator(String addr) {
-        if (addr != null && addr.lastIndexOf('/') == addr.length() - 1) {
+        if (addr != null && addr.length() > 0 
+            && addr.lastIndexOf('/') == addr.length() - 1) {
             return addr.substring(0, addr.length() - 1);
         } else {
             return addr;
