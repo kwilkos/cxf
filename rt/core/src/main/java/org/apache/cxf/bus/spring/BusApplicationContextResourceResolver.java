@@ -52,6 +52,9 @@ public class BusApplicationContextResourceResolver
     }
 
     public <T> T resolve(String resourceName, Class<T> resourceType) {
+        if (resourceName == null) {
+            return null;
+        }    
         try { 
             return resourceType.cast(context.getBean(resourceName, resourceType));
         } catch (NoSuchBeanDefinitionException def) {

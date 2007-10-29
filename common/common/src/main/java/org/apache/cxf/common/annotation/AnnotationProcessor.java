@@ -127,7 +127,7 @@ public  class AnnotationProcessor {
             for (Class<? extends Annotation> clz : annotationTypes) {
                 Annotation ann = element.getAnnotation(clz); 
                 if (ann != null) {
-                    try {
+                    try {                        
                         visitorMethod.invoke(visitor, element, ann);
                     } catch (IllegalAccessException e) {
                         // ignore, we're invoking methods of a public interface

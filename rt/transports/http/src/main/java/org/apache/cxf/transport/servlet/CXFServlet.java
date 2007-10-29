@@ -65,8 +65,13 @@ public class CXFServlet extends HttpServlet {
     private ServletController controller;
     private GenericApplicationContext childCtx;
 
-    public ServletController createServletController() {
-        return new ServletController(servletTransportFactory, this);
+    public ServletController createServletController(ServletConfig servletConfig) {
+        String generateServiceList = servletConfig.getInitParameter("generate-service-list");
+        ServletController newController = new ServletController(servletTransportFactory, this);
+        if (generateServiceList != null) {
+            newController.setGenerateServiceList(Boolean.valueOf(generateServiceList));
+        }    
+        return newController;
     }
 
     public ServletController getController() {
@@ -120,7 +125,7 @@ public class CXFServlet extends HttpServlet {
                                                servletConfig.getServletContext()));
         
         // Set up the ServletController
-        controller = createServletController();
+        controller = createServletController(servletConfig);
 
         replaceDestinationFactory();
         
@@ -165,7 +170,7 @@ public class CXFServlet extends HttpServlet {
         replaceDestinationFactory();
 
         // Set up the ServletController
-        controller = createServletController();
+        controller = createServletController(servletConfig);
         
         // build endpoints from the web.xml or a config file
         loadAdditionalConfig(ctx, servletConfig);
