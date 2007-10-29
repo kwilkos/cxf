@@ -24,11 +24,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
-import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
@@ -40,9 +40,11 @@ import org.apache.cxf.mime.TestMtomService;
 
 public final class Client {
 
-    private static final QName SERVICE_NAME = new QName("http://cxf.apache.org/mime", "TestMtomService");
+    private static final QName SERVICE_NAME = new QName("http://cxf.apache.org/mime", 
+        "TestMtomService");
 
-    private static final QName PORT_NAME = new QName("http://cxf.apache.org/mime", "TestMtomPort");
+    private static final QName PORT_NAME = new QName("http://cxf.apache.org/mime", 
+        "TestMtomPort");
 
     private Client() {
     }
@@ -71,19 +73,16 @@ public final class Client {
         Binding binding = ((BindingProvider)port).getBinding();
         ((SOAPBinding)binding).setMTOMEnabled(true);
 
-        InputStream pre = client.getClass().getResourceAsStream("me.bmp");
-        long fileSize = 0;
-        for (int i = pre.read(); i != -1; i = pre.read()) {
-            fileSize++;
-        }
+        URL fileURL = client.getClass().getClassLoader().getResource("me.bmp");
+        File aFile = new File(new URI(fileURL.toString()));
+        long fileSize = aFile.length();
         System.out.println("Filesize of me.bmp image is: " + fileSize);
 
+        System.out.println("\nStarting MTOM Test using basic byte array:");
+        Holder<String> name = new Holder<String>("Sam");
         Holder<byte[]> param = new Holder<byte[]>();
         param.value = new byte[(int) fileSize];
-        System.out.println("\nStarting MTOM Test using basic byte array:");
-
-        Holder<String> name = new Holder<String>("Sam");
-        InputStream in = client.getClass().getResourceAsStream("me.bmp");
+        InputStream in = fileURL.openStream();
         in.read(param.value);
         System.out.println("--Sending the me.bmp image to server");
         System.out.println("--Sending a name value of " + name.value);
@@ -102,10 +101,9 @@ public final class Client {
         System.out.println("\nStarting MTOM test with DataHandler:");        
         name.value = "Bob";
         Holder<DataHandler> handler = new Holder<DataHandler>();
-        byte[] data = new byte[(int) fileSize];
-        client.getClass().getResourceAsStream("me.bmp").read(data);
-        handler.value = new DataHandler(new ByteArrayDataSource(data, 
-            "application/octet-stream"));
+
+        handler.value = new DataHandler(fileURL);
+
         System.out.println("--Sending the me.bmp image to server");
         System.out.println("--Sending a name value of " + name.value);
 
