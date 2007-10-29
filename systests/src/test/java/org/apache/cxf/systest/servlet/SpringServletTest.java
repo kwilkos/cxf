@@ -118,5 +118,18 @@ public class SpringServletTest extends AbstractServletTest {
         
     }
     
+    @Test
+    public void testGetServiceList() throws Exception {
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(true);
+        
+        WebRequest req = 
+            new GetMethodQueryWebRequest(CONTEXT_URL + "/services/");
+        WebResponse res = client.getResponse(req);
+        assertEquals(200, res.getResponseCode());
+        assertEquals("text/html", res.getContentType());
+        assertEquals("Here should have no services links ", 0, res.getLinks().length);
+                
+    }
     
 }

@@ -29,6 +29,9 @@ import java.net.URL;
 public class ClasspathResolver implements ResourceResolver {
 
     public <T> T resolve(String resourceName, Class<T> resourceType) { 
+        if (resourceName == null) {
+            return null;
+        }
         URL url = ClassLoader.getSystemResource(resourceName);
         if (resourceType.isInstance(url)) {
             return resourceType.cast(url);
