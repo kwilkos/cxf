@@ -2,28 +2,28 @@
 <wsdl:definitions name="StockService" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/" xmlns:tns="http://doc.withannotation.fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://doc.withannotation.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://doc.withannotation.fortest.tools.cxf.apache.org/">
-<xs:element name="getPrice">
-<xs:complexType>
-<xs:sequence>
-<xs:element name="responseType" type="xs:string"/>
-</xs:sequence>
-</xs:complexType>
-</xs:element>
-<xs:element name="getPriceResponse">
-<xs:complexType>
-<xs:sequence>
-<xs:element name="responseType" type="xs:float"/>
-</xs:sequence>
-</xs:complexType>
-</xs:element>
+    <xs:element name="getPrice" type="getPrice"/>
+    <xs:element name="getPriceResponse" type="getPriceResponse"/>
+    <xs:complexType name="getPriceResponse">
+        <xs:sequence>
+            <xs:element name="responseType" type="xs:float"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="getPrice">
+        <xs:sequence>
+            <xs:element name="responseType" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="xXx" nillable="true" type="getPrice"/>
+    <xs:element name="zZz" nillable="true" type="getPriceResponse"/>
 </xs:schema>
   </wsdl:types>
   <wsdl:message name="getPriceResponse">
-    <wsdl:part name="parameters" element="tns:getPriceResponse">
+    <wsdl:part name="parameters" element="tns:zZz">
     </wsdl:part>
   </wsdl:message>
   <wsdl:message name="getPrice">
-    <wsdl:part name="parameters" element="tns:getPrice">
+    <wsdl:part name="parameters" element="tns:xXx">
     </wsdl:part>
   </wsdl:message>
   <wsdl:portType name="Stock">
