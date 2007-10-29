@@ -31,14 +31,14 @@ public final class URITemplate {
     /**
      * Regex for sub-resource: For each resource class compute a regular
      * expression from its URI template, If the resource class has sub-resources
-     * then append ¡®(/.*)?¡¯ to the resulting regular expression.
+     * then append (/.*)? to the resulting regular expression.
      */
     public static final String SUB_RESOURCE_REGEX_SUFFIX = "(/.*)?";
 
     /**
      * Regex for none sub-resource: For each resource class compute a regular
      * expression from its URI template, If the resource class has no
-     * sub-resources then append ¡®(/)?¡¯ to the resulting regular expression.
+     * sub-resources then append (/)? to the resulting regular expression.
      */
     public static final String NONE_SUB_RESOURCE_REGEX_SUFFIX = "(/)?";
     
@@ -49,7 +49,7 @@ public final class URITemplate {
 
     /**
      * A URI template is converted into a regular expression by substituting
-     * ¡®(.*?)¡¯ for each occurrence of {\([w- 14 \. ]+?\)} within the URL
+     * (.*?) for each occurrence of {\([w- 14 \. ]+?\)} within the URL
      * template
      */
     private static final String URITEMPLATE_REGEX = "(.*?)";
@@ -60,15 +60,6 @@ public final class URITemplate {
     private final List<String> templateVariables;
     private final String templateRegex;
     private final Pattern templateRegexPattern;
-
-    private URITemplate() {
-        this.template = "";
-        this.regexSuffix = null;
-        this.endsWithSlash = false;
-        this.templateVariables = Collections.emptyList();
-        this.templateRegex = "";
-        this.templateRegexPattern = null;
-    }
 
     public URITemplate(String theTemplate) {
         this(theTemplate, null);
