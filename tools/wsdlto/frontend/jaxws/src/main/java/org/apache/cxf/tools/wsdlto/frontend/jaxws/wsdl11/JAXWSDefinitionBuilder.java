@@ -20,6 +20,7 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
     private List<InputSource> jaxbBindings;
     private Element handlerChain;
+    private Map<String, String> cataLogResovedMap = new HashMap<String, String>();
 
     public JAXWSDefinitionBuilder() {
         builder = new WSDLDefinitionBuilder();
@@ -173,7 +175,9 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         String wsdlUrl = URIParserUtil.getAbsoluteURI((String)context.get(ToolConstants.CFG_WSDLURL));
         CustomizedWSDLLocator wsdlLocator = new CustomizedWSDLLocator(wsdlUrl, eleMap);
         wsdlLocator.setCatalogResolver(OASISCatalogManager.getCatalogManager(bus).getCatalog());
-        return wsdlReader.readWSDL(wsdlLocator);
+        Definition def = wsdlReader.readWSDL(wsdlLocator);
+        cataLogResovedMap.putAll(wsdlLocator.getResolvedMap());
+        return def;
 
     }
 
@@ -192,5 +196,10 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
     public boolean validate(Definition def) throws ToolException {
         return new WSDL11Validator(def, context).isValid();
+    }
+    
+    
+    public Map<String, String> getCataLogResovedMap() {
+        return this.cataLogResovedMap;
     }
 }

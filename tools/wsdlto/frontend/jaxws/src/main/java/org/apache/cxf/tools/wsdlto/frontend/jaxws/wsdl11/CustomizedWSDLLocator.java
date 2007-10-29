@@ -21,6 +21,7 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Element;
@@ -42,6 +43,7 @@ public class CustomizedWSDLLocator implements javax.wsdl.xml.WSDLLocator {
    
     private Map<String, Element> elementMap;
     private String latestImportURI;
+    private Map<String, String> resolvedMap = new HashMap<String, String>();
     private boolean resolveFromMap;
     
     public CustomizedWSDLLocator(String wsdlUrl, Map<String, Element> map) {
@@ -71,6 +73,7 @@ public class CustomizedWSDLLocator implements javax.wsdl.xml.WSDLLocator {
             if (resolvedLocation == null) {
                 return this.resolver.resolve(target, base);
             } else {
+                resolvedMap.put(target, resolvedLocation);
                 return this.resolver.resolve(resolvedLocation, base);
             }
         } catch (Exception e) {
@@ -130,6 +133,10 @@ public class CustomizedWSDLLocator implements javax.wsdl.xml.WSDLLocator {
     }
     public void close() {
         resolver.close();
+    }
+    
+    public Map<String, String> getResolvedMap() {
+        return resolvedMap;
     }
 
 }
