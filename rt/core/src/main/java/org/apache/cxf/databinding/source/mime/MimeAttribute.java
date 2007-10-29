@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.fortest;
+package org.apache.cxf.databinding.source.mime;
 
-import java.awt.Image;
-import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlMimeType;
+import javax.xml.namespace.QName;
 
-@WebService
-public class ImageSender {
-    public void sendImage(@XmlMimeType("image/png") Image photo) {
-        // empty
+public final class MimeAttribute {
+    public static final QName MIME_QNAME = new QName("http://www.w3.org/2005/05/xmlmime", 
+                                                     "expectedContentTypes");
+
+    private String value;
+    
+    public void setValue(String v) {
+        this.value = v;
+    }
+    
+    public String getValue() {
+        return this.value;
     }
 
-    @XmlMimeType("image/png")
-    public Image getImage(String key) {
-        return null;
-    }
 }
-
-

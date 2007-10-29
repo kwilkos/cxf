@@ -20,10 +20,22 @@
 <wsdl:definitions name="ImageSenderService" targetNamespace="http://fortest.tools.cxf.apache.org/" xmlns:tns="http://fortest.tools.cxf.apache.org/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://fortest.tools.cxf.apache.org/">
+    <xsd:element name="getImage" type="tns:getImage"/>
+    <xsd:complexType name="getImage">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" name="arg0" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="getImageResponse" type="tns:getImageResponse"/>
+    <xsd:complexType name="getImageResponse">
+        <xsd:sequence>
+            <xsd:element xmlns:ns0="http://www.w3.org/2005/05/xmlmime" minOccurs="0" name="return" ns0:expectedContentTypes="image/png" type="xsd:base64Binary"/>
+        </xsd:sequence>
+    </xsd:complexType>
     <xsd:element name="sendImage" type="tns:sendImage"/>
     <xsd:complexType name="sendImage">
         <xsd:sequence>
-            <xsd:element minOccurs="0" name="arg0" type="xsd:base64Binary"/>
+	    <xsd:element xmlns:ns0="http://www.w3.org/2005/05/xmlmime" minOccurs="0" name="arg0" ns0:expectedContentTypes="image/png" type="xsd:base64Binary"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:element name="sendImageResponse" type="tns:sendImageResponse"/>

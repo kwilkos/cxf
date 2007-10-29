@@ -19,6 +19,7 @@
 
 package org.apache.cxf.service.factory;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -39,6 +40,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
@@ -46,6 +48,8 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.databinding.source.mime.MimeAttribute;
+import org.apache.cxf.databinding.source.mime.MimeSerializer;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
@@ -104,6 +108,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public static final String HEADER = "messagepart.isheader";
     public static final String ELEMENT_NAME = "messagepart.elementName";
     public static final String METHOD = "operation.method";
+    public static final String METHOD_PARAM_ANNOTATIONS = "method.parameters.annotations";
+    public static final String METHOD_ANNOTATONS = "method.return.annotations";
 
     private static final Logger LOG = LogUtils.getL7dLogger(ReflectionServiceFactoryBean.class,
                                                             "SimpleMessages");
@@ -141,6 +147,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     @Override
     public Service create() {
+//        System.setProperty(Constants.SystemConstants.EXTENSION_REGISTRY_KEY,
+//                           CustomExtensionRegistry.class.getName());
+
         initializeServiceConfigurations();
 
         initializeServiceModel();
@@ -674,6 +683,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                             AbstractMessageContainer unwrappedMessage,
                                             XmlSchema schema,
                                             QName wrapperName) {
+        
         XmlSchemaElement el = new XmlSchemaElement();
         el.setQName(wrapperName);
         el.setName(wrapperName.getLocalPart());
@@ -691,7 +701,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         ct.setParticle(seq);
 
         for (MessagePartInfo mpi : unwrappedMessage.getMessageParts()) {
-
             el = new XmlSchemaElement();
             el.setName(mpi.getName().getLocalPart());
             el.setQName(mpi.getName());
@@ -707,6 +716,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (!mpi.isElement()) {
                     mpi.setXmlSchema(el);                    
                 }
+                Annotation[] parameterAnnotation = getMethodParameterAnnotations(mpi);
+                if (parameterAnnotation != null) {
+                    addMimeType(el, parameterAnnotation);
+                }
+                
+                Annotation[] methodAnnotations = getMethodAnnotations(mpi);
+                if (methodAnnotations != null) {
+                    addMimeType(el, methodAnnotations);
+                }                
+                                
                 if (mpi.getTypeClass() != null && mpi.getTypeClass().isArray()
                     && !Byte.TYPE.equals(mpi.getTypeClass().getComponentType())) {
                     String min = (String)mpi.getProperty("minOccurs");
@@ -757,6 +776,29 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
     }
+    
+    private Annotation[] getMethodParameterAnnotations(final MessagePartInfo mpi) {
+        Annotation[][] paramAnno = (Annotation[][])mpi.getProperty(METHOD_PARAM_ANNOTATIONS);
+        int index = mpi.getIndex();
+        if (paramAnno != null && index < paramAnno.length && index >= 0) {
+            return paramAnno[index];
+        }
+        return null;
+    }
+    
+    private Annotation[] getMethodAnnotations(final MessagePartInfo mpi) {
+        return (Annotation[])mpi.getProperty(METHOD_ANNOTATONS);        
+    }    
+    
+    private void addMimeType(final XmlSchemaElement element, final Annotation[] annotations) {
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof XmlMimeType) {
+                MimeAttribute attr = new MimeAttribute();
+                attr.setValue(((XmlMimeType)annotation).value());
+                element.addMetaInfo(MimeAttribute.MIME_QNAME, attr);
+            }
+        }         
+    }
 
     private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo,
                                          String namespaceURI, 
@@ -769,6 +811,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
         XmlSchemaCollection col = new XmlSchemaCollection();
+        col.getExtReg().registerSerializer(MimeAttribute.class, new MimeSerializer());
         XmlSchema schema = new XmlSchema(namespaceURI, col);
         if (qualified) {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
@@ -808,7 +851,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 final QName q2 = getInPartName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q2);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
-
+                part.setProperty(METHOD_PARAM_ANNOTATIONS, method.getParameterAnnotations());                
                 if (!isWrapped(method) && !isRPC(method)) {
                     part.setProperty(ELEMENT_NAME, q);
                 }
@@ -838,7 +881,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (!isRPC(method) && !isWrapped(method)) {
                     part.setProperty(ELEMENT_NAME, q2);
                 }
-
+                part.setProperty(METHOD_ANNOTATONS, method.getAnnotations());
                 if (isHeader(method, -1)) {
                     part.setProperty(HEADER, Boolean.TRUE);
                     if (isRPC(method) || !isWrapped(method)) {
@@ -982,7 +1025,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             ParameterizedType paramType = (ParameterizedType)type;
             rawClass = getHolderClass(paramType);
         }
-
         part.setProperty(GENERIC_TYPE, type);
         part.setTypeClass(rawClass);
     }

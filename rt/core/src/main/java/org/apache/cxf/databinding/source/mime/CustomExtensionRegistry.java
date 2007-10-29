@@ -16,22 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.tools.fortest;
 
-import java.awt.Image;
-import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlMimeType;
+package org.apache.cxf.databinding.source.mime;
 
-@WebService
-public class ImageSender {
-    public void sendImage(@XmlMimeType("image/png") Image photo) {
-        // empty
-    }
+import org.apache.ws.commons.schema.extensions.ExtensionRegistry;
 
-    @XmlMimeType("image/png")
-    public Image getImage(String key) {
-        return null;
+public class CustomExtensionRegistry extends ExtensionRegistry {
+    public CustomExtensionRegistry() {
+        registerSerializer(MimeAttribute.class, new MimeSerializer());
     }
 }
-
-
