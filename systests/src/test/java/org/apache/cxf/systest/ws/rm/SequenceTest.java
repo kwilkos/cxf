@@ -808,6 +808,8 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayMessageLoss) {
             return;
         }
+        // waite a while for the last bus shutdown
+        Thread.sleep(5000);
         testOnewayMessageLoss(null);
     }
     
