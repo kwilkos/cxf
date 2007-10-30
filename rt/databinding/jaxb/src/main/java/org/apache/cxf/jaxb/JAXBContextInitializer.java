@@ -197,12 +197,15 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         XmlAccessType accessType = accessorType != null ? accessorType.value() : XmlAccessType.PUBLIC_MEMBER;
 
         if (accessType != XmlAccessType.PROPERTY) {   // only look for fields if we are instructed to
-            Field fields[] = cls.getFields();
+            //fields are accessible even if not public, must look at the declared fields
+            //then walk to parents declared fields, etc...
+            Field fields[] = cls.getDeclaredFields(); 
             for (Field f : fields) {
                 if (isFieldAccepted(f, accessType)) {
                     addType(f.getGenericType());
                 }
             }
+            walkReferences(cls.getSuperclass());
         }
 
         if (accessType != XmlAccessType.FIELD) {   // only look for methods if we are instructed to
