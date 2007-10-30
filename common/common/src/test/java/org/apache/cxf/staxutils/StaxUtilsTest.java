@@ -172,4 +172,27 @@ public class StaxUtilsTest extends Assert {
         assertTrue(output.contains("snarf"));        
         assertTrue(output.contains("blop"));        
     }
+    
+    @Test
+    public void testEmptyNamespace() throws Exception {
+        String testString = "<ns1:a xmlns:ns1=\"http://www.apache.org/\"><s1 xmlns=\"\">"
+            + "abc</s1><s2 xmlns=\"\">def</s2></ns1:a>";
+        
+        StringReader reader = new StringReader(testString);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        Document doc = dbf.newDocumentBuilder().parse(new InputSource(reader));
+        
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter swriter = StaxUtils.createXMLStreamWriter(sw);
+        //should not throw an exception
+        StaxUtils.writeDocument(doc, swriter, false, true);
+        swriter.flush();
+        swriter.close();
+        
+        String output = sw.toString();
+        assertEquals(testString, output);
+
+    }
+
 }
