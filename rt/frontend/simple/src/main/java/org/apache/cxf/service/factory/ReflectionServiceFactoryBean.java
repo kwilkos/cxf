@@ -303,6 +303,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void initializeWSDLOperations() {
+        List<OperationInfo> removes = new ArrayList<OperationInfo>();
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
 
@@ -329,17 +330,29 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
 
             if (selected == null) {
-                throw new ServiceConstructionException(new Message("NO_METHOD_FOR_OP", LOG, o.getName()));
+                LOG.log(Level.WARNING, "NO_METHOD_FOR_OP", o.getName());
+                removes.add(o);
+            } else {
+                initializeWSDLOperation(intf, o, selected);
             }
-
-            initializeWSDLOperation(intf, o, selected);
+        }
+        for (OperationInfo op : removes) {
+            intf.removeOperation(op);
         }
 
         //Some of the operations may have switched from unwrapped to wrapped.  Update the bindings.
         for (ServiceInfo service : getService().getServiceInfos()) {
             for (BindingInfo bi : service.getBindings()) {
+                List<BindingOperationInfo> biremoves = new ArrayList<BindingOperationInfo>();
                 for (BindingOperationInfo binfo : bi.getOperations()) {
-                    binfo.updateUnwrappedOperation();
+                    if (removes.contains(binfo.getOperationInfo())) {
+                        biremoves.add(binfo); 
+                    } else {
+                        binfo.updateUnwrappedOperation();
+                    }
+                }
+                for (BindingOperationInfo binfo : biremoves) {
+                    bi.removeOperation(binfo);
                 }
             }
         }
