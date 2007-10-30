@@ -536,7 +536,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     }
 
     @Test
-    //Test for CXF-765
+    // Test for CXF-765
     public void testClientServer() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug765/hello_world_ports.wsdl"));
         env.remove(ToolConstants.CFG_COMPILE);
@@ -570,7 +570,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
     public void testCXF804() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, 
                 getLocation("/wsdl2java_wsdl/cxf804/hello_world_contains_import.wsdl"));
-        //env.put(ToolConstants.CFG_SERVICENAME, "SOAPService");
+        // env.put(ToolConstants.CFG_SERVICENAME, "SOAPService");
         processor.setContext(env);
         processor.execute();
         
@@ -633,7 +633,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
         try {
             env.put(ToolConstants.CFG_WSDLURL,
                     getLocation("/wsdl2java_wsdl/cxf939/bug.wsdl"));
-            //            env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
+            // env.put(ToolConstants.CFG_VALIDATE_WSDL,
+            // ToolConstants.CFG_VALIDATE_WSDL);
             processor.setContext(env);
             processor.execute();
         } catch (Exception e) {
@@ -695,7 +696,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     @Test
     public void testAsyncImplAndClient() throws Exception {
-        //CXF994
+        // CXF994
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
@@ -859,12 +860,21 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertEquals(13, file.list().length);
         
     }
-
-
     
-    
-    
-    
-    
-    
+    @Test
+    public void testTwoJaxwsBindingFile() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, new String[] {getLocation("/wsdl2java_wsdl/cxf1152/jaxws1.xml"),
+                                                         getLocation("/wsdl2java_wsdl/cxf1152/jaxws2.xml")});
+        processor.setContext(env);
+        processor.execute();
+        File file = new File(output, "org/mypkg");
+        assertEquals(23, file.listFiles().length);
+        Class clz = classLoader.loadClass("org.mypkg.MyService");
+        assertNotNull("Customized service class is not found", clz);
+        clz = classLoader.loadClass("org.mypkg.MyGreeter");
+        assertNotNull("Customized SEI class is not found", clz);
+        Method customizedMethod = clz.getMethod("myGreetMe", new Class[] {String.class});
+        assertNotNull("Customized method 'myGreetMe' in MyGreeter.class is not found", customizedMethod);
+    }  
 }
