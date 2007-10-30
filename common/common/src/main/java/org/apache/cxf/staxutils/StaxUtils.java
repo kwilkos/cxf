@@ -448,12 +448,13 @@ public final class StaxUtils {
         for (int i = 0; i < attrs.getLength(); i++) {
             Node attr = attrs.item(i);
 
-            String name = attr.getNodeName();
-            String attrPrefix = "";
-            int prefixIndex = name.indexOf(':');
-            if (prefixIndex != -1) {
-                attrPrefix = name.substring(0, prefixIndex);
-                name = name.substring(prefixIndex + 1);
+            String name = attr.getLocalName();
+            String attrPrefix = attr.getPrefix();
+            if (attrPrefix == null) {
+                attrPrefix = "";
+            }
+            if (name == null) {
+                name = attr.getNodeName();
             }
      
             if ("xmlns".equals(attrPrefix)) {
@@ -467,6 +468,9 @@ public final class StaxUtils {
                 if ("xmlns".equals(name) && "".equals(attrPrefix)) {
                     writer.writeNamespace("", attr.getNodeValue());
                     if (attr.getNodeValue().equals(ns)) {
+                        declareNamespace = false;
+                    } else if (StringUtils.isEmpty(attr.getNodeValue())
+                        && StringUtils.isEmpty(ns)) {
                         declareNamespace = false;
                     }
                 } else {
