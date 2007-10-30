@@ -54,15 +54,15 @@ public class ServletController {
     private ServletTransportFactory transport;
     private CXFServlet cxfServlet;
     private String lastBase = "";
-    private boolean isGenerateServiceList = true;
+    private boolean isHideServiceList;
  
     public ServletController(ServletTransportFactory df, CXFServlet servlet) {
         this.transport = df;
         this.cxfServlet = servlet;       
     }
     
-    public void setGenerateServiceList(boolean generate) {
-        isGenerateServiceList = generate;
+    public void setHideServiceList(boolean generate) {
+        isHideServiceList = generate;
     }
     
     private synchronized void updateDests(HttpServletRequest request) {
@@ -170,7 +170,7 @@ public class ServletController {
         Collection<ServletDestination> destinations = transport.getDestinations();
         response.setContentType("text/html");        
         response.getWriter().write("<html><body>");
-        if (isGenerateServiceList) {
+        if (!isHideServiceList) {
             if (destinations.size() > 0) {  
                 for (ServletDestination sd : destinations) {
                     if (null != sd.getEndpointInfo().getName()) {
