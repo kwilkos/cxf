@@ -54,7 +54,6 @@
  	var bean1 = new org_apache_cxf_javascript_testns_testBean1();
  	bean1.setStringItem("bean1<stringItem");
  	bean1.setIntItem(64);
- 	bean1.setLongItem(64000000);
  	bean1.setBase64Item(''); // later
  	bean1.setOptionalIntItem(33);
  	bean1.setOptionalIntArrayItem(null);

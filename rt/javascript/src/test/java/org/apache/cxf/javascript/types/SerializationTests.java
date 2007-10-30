@@ -19,8 +19,7 @@
 
 package org.apache.cxf.javascript.types;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +47,11 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 public class SerializationTests extends AbstractDependencyInjectionSpringContextTests {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
+    private Client client;
+    private List<ServiceInfo> serviceInfos;
+    private Collection<SchemaInfo> schemata;
+    private NameManager nameManager;
+    private JaxWsProxyFactoryBean clientProxyFactory;
 
     public SerializationTests() {
         testUtilities = new JavascriptTestUtilities(getClass());
@@ -62,29 +66,7 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
     
     @Test
     public void testSerialization() throws Exception {
-        testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
-        
-        testUtilities.initializeRhino();
-        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
-
-        JaxWsProxyFactoryBean clientProxyFactory = 
-            (JaxWsProxyFactoryBean)applicationContext.getBean("simple-dlwu-proxy-factory");
-        
-        Client client = clientProxyFactory.getClientFactoryBean().create();
-        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
-        // there can only be one.
-        assertEquals(1, serviceInfos.size());
-        ServiceInfo serviceInfo = serviceInfos.get(0);
-        Collection<SchemaInfo> schemata = serviceInfo.getSchemas();
-        NameManager nameManager = new BasicNameManager(serviceInfo);
-
-        for (SchemaInfo schema : schemata) {
-            SchemaJavascriptBuilder builder = 
-                new SchemaJavascriptBuilder(nameManager, schema);
-            String allThatJavascript = builder.generateCodeForSchema(schema);
-            assertNotNull(allThatJavascript);
-            testUtilities.readStringIntoRhino(allThatJavascript, schema.toString());
-        }
+        setupClientAndRhino("simple-dlwu-proxy-factory");
         
         testUtilities.readResourceIntoRhino("/serializationTest.js");
         DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
@@ -110,16 +92,68 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
             assertEquals(1, testBean.optionalIntArrayItem.length);
             assertEquals(543, testBean.optionalIntArrayItem[0]);
             
+            serialized = testUtilities.rhinoCall("serializeTestBean1_2");
+            assertTrue(serialized instanceof String);
+            xml = (String)serialized;
+            reader = dataBinding.createReader(XMLStreamReader.class);
+            stringReader = new StringReader(xml);
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+            bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
+            assertNotNull(bean);
+            assertTrue(bean instanceof TestBean1);
+            testBean = (TestBean1)bean;
+            assertEquals("bean1<stringItem", testBean.stringItem);
+            assertEquals(64, testBean.intItem);
+            assertEquals(64000000, testBean.longItem);
+            assertEquals(0, testBean.optionalIntItem);
+            assertNotNull(testBean.optionalIntArrayItem);
+            assertEquals(3, testBean.optionalIntArrayItem.length);
+            assertEquals(543, testBean.optionalIntArrayItem[0]);
+            assertEquals(0, testBean.optionalIntArrayItem[1]);
+            assertEquals(345, testBean.optionalIntArrayItem[2]);
+            
+            serialized = testUtilities.rhinoCall("serializeTestBean1_3");
+            assertTrue(serialized instanceof String);
+            xml = (String)serialized;
+            reader = dataBinding.createReader(XMLStreamReader.class);
+            stringReader = new StringReader(xml);
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+            bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
+            assertNotNull(bean);
+            assertTrue(bean instanceof TestBean1);
+            testBean = (TestBean1)bean;
+            assertEquals("bean1<stringItem", testBean.stringItem);
+            assertEquals(64, testBean.intItem);
+            assertEquals(43, testBean.longItem);
+            assertEquals(33, testBean.optionalIntItem);
+            assertNull(testBean.optionalIntArrayItem);
         } catch (RhinoException angryRhino) {
-            String trace = angryRhino.getScriptStackTrace(new FilenameFilter() {
-
-                public boolean accept(File dir, String name) {
-                    return true;
-                }
-            } 
-            );
+            String trace = angryRhino.getScriptStackTrace();
             Assert.fail("Javascript error: " + angryRhino.toString() + " " + trace);
         }
         
+    }
+
+    private void setupClientAndRhino(String clientProxyFactoryBeanId) throws IOException {
+        testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
+        
+        testUtilities.initializeRhino();
+        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
+
+        clientProxyFactory = (JaxWsProxyFactoryBean)applicationContext.getBean(clientProxyFactoryBeanId);
+        client = clientProxyFactory.getClientFactoryBean().create();
+        serviceInfos = client.getEndpoint().getService().getServiceInfos();
+        // there can only be one.
+        assertEquals(1, serviceInfos.size());
+        ServiceInfo serviceInfo = serviceInfos.get(0);
+        schemata = serviceInfo.getSchemas();
+        nameManager = new BasicNameManager(serviceInfo);
+        for (SchemaInfo schema : schemata) {
+            SchemaJavascriptBuilder builder = 
+                new SchemaJavascriptBuilder(nameManager, schema);
+            String allThatJavascript = builder.generateCodeForSchema(schema);
+            assertNotNull(allThatJavascript);
+            testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");
+        }
     }
 }

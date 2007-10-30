@@ -30,6 +30,7 @@ public class TestBean1 {
     //CHECKSTYLE:OFF
     public String stringItem;
     public int intItem;
+    @XmlElement(defaultValue = "43")
     public long longItem;
     public byte[] base64Item;
     @XmlElement(required = false)

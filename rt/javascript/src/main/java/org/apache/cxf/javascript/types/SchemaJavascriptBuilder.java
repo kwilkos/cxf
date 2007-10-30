@@ -375,6 +375,8 @@ public class SchemaJavascriptBuilder {
             }
             
             if (isParticleArray(elChild)) {
+                // protected against null in arrays.
+                utils.startIf(elementName + " != null");
                 utils.startFor("var ax = 0", "ax < " +  elementName + ".length", "ax ++");
                 elementName = elementName + "[ax]";
                 // we need an extra level of 'nil' testing here. Or do we, depending on the type structure?
@@ -403,6 +405,7 @@ public class SchemaJavascriptBuilder {
             if (isParticleArray(elChild)) {
                 utils.endBlock(); // for the extra level of nil checking, which might be wrong.
                 utils.endBlock(); // for the for loop.
+                utils.endBlock(); // the null protection.
             }
             
             if (nillable && !isParticleArray(elChild)) {
