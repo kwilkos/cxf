@@ -50,6 +50,12 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
     private Class serviceClass;
     private ReflectionServiceFactoryBean serviceFactory;
     
+    protected AbstractWSDLBasedEndpointFactory(ReflectionServiceFactoryBean sbean) {
+        serviceFactory = sbean;
+    }
+    protected AbstractWSDLBasedEndpointFactory() {
+    }
+    
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         Service service = serviceFactory.getService();
         

@@ -88,9 +88,10 @@ public class ServerFactoryBean extends AbstractWSDLBasedEndpointFactory {
     private Invoker invoker;
     
     public ServerFactoryBean() {
-        super();
-        setServiceFactory(new ReflectionServiceFactoryBean());
-        
+        this(new ReflectionServiceFactoryBean());       
+    }
+    public ServerFactoryBean(ReflectionServiceFactoryBean sbean) {
+        super(sbean);
     }
     
     public String getBeanName() {
