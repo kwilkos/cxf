@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -117,11 +116,14 @@ public final class CustomizationParser {
 
         for (Element element : jaxwsBindingsMap.keySet()) {
             nodeSelector.addNamespaces(element);
-            Element targetNode = jaxwsBindingsMap.get(element);
+            Element oldTargetNode = jaxwsBindingsMap.get(element);
+            Element targetNode = oldTargetNode;
             internalizeBinding(element, targetNode, "");
             String uri = element.getAttribute("wsdlLocation");
             customizedElements.put(uri, targetNode);
+            updateJaxwsBindingMapValue(targetNode);  
         }
+        
         buildHandlerChains();
     }
 
@@ -142,6 +144,7 @@ public final class CustomizationParser {
         
         try {
             doc = DOMUtils.readXml(ins);
+            doc.setDocumentURI(uri);
         } catch (Exception e) {
             Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {uri});
             throw new ToolException(msg, e);
@@ -153,6 +156,16 @@ public final class CustomizationParser {
         return null;
     }
 
+    private void updateJaxwsBindingMapValue(Element value) {
+        String baseURI = value.getBaseURI();        
+        for (Element ele : jaxwsBindingsMap.keySet()) {
+            String uri = jaxwsBindingsMap.get(ele).getBaseURI();
+            if (uri != null && uri.equals(baseURI)) {
+                jaxwsBindingsMap.put(ele, value);
+            }
+        }      
+    }
+    
     private void buildHandlerChains() {
 
         for (Element jaxwsBinding : jaxwsBindingsMap.keySet()) {
@@ -269,6 +282,8 @@ public final class CustomizationParser {
                     copyBindingsToWsdl(node, bindings, nodeSelector.getNamespaceContext());
                 }
             }
+            
+           
         }
 
         Element[] children = getChildElements(bindings, ToolConstants.NS_JAXWS_BINDINGS);
