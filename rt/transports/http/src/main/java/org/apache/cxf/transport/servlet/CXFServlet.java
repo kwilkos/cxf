@@ -49,6 +49,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 
+
 /**
  * A Servlet which supports loading of JAX-WS endpoints from an
  * XML file and handling requests for endpoints created via other means
@@ -63,13 +64,15 @@ public class CXFServlet extends HttpServlet {
     private Bus bus;
     private ServletTransportFactory servletTransportFactory;
     private ServletController controller;
-    private GenericApplicationContext childCtx;
-
+    private Object childCtx;
+    private Object reader;
+    
+   
     public ServletController createServletController(ServletConfig servletConfig) {
-        String generateServiceList = servletConfig.getInitParameter("generate-service-list");
+        String hideServiceList = servletConfig.getInitParameter("hide-service-list-page");
         ServletController newController = new ServletController(servletTransportFactory, this);
-        if (generateServiceList != null) {
-            newController.setGenerateServiceList(Boolean.valueOf(generateServiceList));
+        if (hideServiceList != null) {
+            newController.setHideServiceList(Boolean.valueOf(hideServiceList));
         }    
         return newController;
     }
@@ -123,11 +126,10 @@ public class CXFServlet extends HttpServlet {
         ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
         resourceManager.addResourceResolver(new ServletContextResourceResolver(
                                                servletConfig.getServletContext()));
-        
+                        
+        replaceDestinationFactory();
         // Set up the ServletController
         controller = createServletController(servletConfig);
-
-        replaceDestinationFactory();
         
     }
 
@@ -176,7 +178,7 @@ public class CXFServlet extends HttpServlet {
         loadAdditionalConfig(ctx, servletConfig);
     }
 
-    protected void loadAdditionalConfig(ApplicationContext ctx, 
+    private void loadAdditionalConfig(ApplicationContext ctx, 
                                         ServletConfig servletConfig) throws ServletException {
         String location = servletConfig.getInitParameter("config-location");
         if (location == null) {
@@ -201,11 +203,13 @@ public class CXFServlet extends HttpServlet {
             LOG.log(Level.INFO, "BUILD_ENDPOINTS_FROM_CONFIG_LOCATION", new Object[]{location});
             childCtx = new GenericApplicationContext(ctx);
             
-            XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(childCtx);
-            reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
-            reader.loadBeanDefinitions(new InputStreamResource(is, location));
+            reader = 
+                new XmlBeanDefinitionReader(
+                    (GenericApplicationContext)childCtx);
+            ((XmlBeanDefinitionReader)reader).setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
+            ((XmlBeanDefinitionReader)reader).loadBeanDefinitions(new InputStreamResource(is, location));
             
-            childCtx.refresh();
+            ((GenericApplicationContext)childCtx).refresh();
         } 
     }
 
@@ -249,7 +253,7 @@ public class CXFServlet extends HttpServlet {
 
     public void destroy() {
         if (childCtx != null) {
-            childCtx.destroy();
+            ((GenericApplicationContext)childCtx).destroy();
         }
         
         String s = bus.getId();
