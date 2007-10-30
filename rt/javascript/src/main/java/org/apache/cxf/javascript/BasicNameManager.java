@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -55,16 +57,28 @@ public class BasicNameManager implements NameManager {
         }
         
         for (String uri : poorPrefixURIs) {
-            // this needs more work later. We are bound to annoy someone somehow in this area.
-            String jsPrefix = uri.replace("http:", "").replace("uri:", "").replaceAll("[\\.:/-]", "_");
-            nsPrefixMap.put(uri, jsPrefix.toUpperCase());
+            defineFallbackPrefix(uri);
         }
+    }
+
+    private String defineFallbackPrefix(String uri) {
+        // this needs more work later. We are bound to annoy someone somehow in this area.
+        String jsPrefix = uri.replace("http:", "").replace("uri:", "").replaceAll("[\\.:/-]", "_");
+        nsPrefixMap.put(uri, jsPrefix);
+        return jsPrefix;
     }
 
     /** {@inheritDoc}*/
     public String getJavascriptName(XmlSchemaComplexType schemaType) {
-        return nsPrefixMap.get(schemaType.getQName().getNamespaceURI()) 
+        QName typeQName = schemaType.getQName();
+        String nsprefix = nsPrefixMap.get(typeQName.getNamespaceURI());
+        // nsprefix will be null if there is no prefix.
+        if (nsprefix == null) {
+            nsprefix = defineFallbackPrefix(typeQName.getNamespaceURI());
+        }
+        return nsprefix 
+               + "_"
         //TODO: the local part of the name may be a problem for JavaScript.
-                               + schemaType.getQName().getLocalPart();
+               + schemaType.getQName().getLocalPart();
     }
 }

@@ -30,11 +30,22 @@ under the License.
 	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-extension-jaxws.xml" />
 	<import resource="classpath:META-INF/cxf/cxf-extension-local.xml" />
-
+	
+	<!--  We use a client for the service for basic tests. We don't need a server at all. -->
+	<bean id="simple-dlwu-proxy-factory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean" >
+    <property name="serviceClass" value="org.apache.cxf.javascript.fortest.SimpleDocLitWrappedUnqualified"/>
+    <property name="address" value="local://SimpleDocLitWrappedUnqualified"/>
+  </bean>
+   
+  <bean id="simple-dlwu-client" class="org.apache.cxf.javascript.fortest.SimpleDocLitWrappedUnqualified" scope='prototype'
+    factory-bean="simple-dlwu-proxy-factory" factory-method="create"/>
+	
 	<!-- Services. We use the JAXB test server which handles a lot of types. -->
+	<!--  very slow to set up, and not obviously useful
 	<jaxws:server id="TestServer" 
                    serviceClass="org.apache.type_test.doc.TypeTestPortType" 
 	               address="local://TestService">
 	</jaxws:server>
+	-->
 </beans>
 

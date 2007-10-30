@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
-
 /**
  * 
  */
@@ -55,17 +53,19 @@ public class JavascriptUtils {
         prefixStack.push("    ");
     }
     
-    public String getDefaultValueForSimpleType(XmlSchemaSimpleType type) {
-        String val = defaultValueForSimpleType.get(type.getName());
-        if (val == null) {
+    // the next two functions operate by name to get around XmlSchema quirk.
+    
+    public String getDefaultValueForSimpleType(String typeName) {
+        String val = defaultValueForSimpleType.get(typeName);
+        if (val == null) { // ints and such return the appropriate 0.
             return "''";
         } else {
             return val;
         }
     }
     
-    public boolean isStringSimpleType(XmlSchemaSimpleType type) {
-        return !nonStringSimpleTypes.contains(type.getName());
+    public boolean isStringSimpleType(String typeName) {
+        return !nonStringSimpleTypes.contains(typeName);
     }
     
     public void setXmlStringAccumulator(String variableName) {
@@ -77,7 +77,7 @@ public class JavascriptUtils {
         code.append(prefix());
         code.append("var ");
         code.append(variableName);
-        code.append(";" + NL);
+        code.append(" = '';" + NL);
     }
     
     public static String protectSingleQuotes(String value) {

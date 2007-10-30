@@ -22,7 +22,7 @@ package org.apache.cxf.tools.common.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.cxf.tools.util.AnnotationUtil;
+import org.apache.cxf.common.util.StringUtils;
 
 public class JavaClass extends JavaInterface {
     
@@ -44,7 +44,7 @@ public class JavaClass extends JavaInterface {
     }
 
     public JavaMethod appendGetter(JavaField field) {
-        String getterName = "get" + AnnotationUtil.capitalize(field.getName());
+        String getterName = "get" + StringUtils.capitalize(field.getName());
         JavaMethod jMethod = new JavaMethod(this);
         jMethod.setName(getterName);
         jMethod.setReturn(new JavaReturn(field.getName(),
@@ -63,7 +63,7 @@ public class JavaClass extends JavaInterface {
     }
 
     public JavaMethod appendSetter(JavaField field) {
-        String setterName = "set" + AnnotationUtil.capitalize(field.getName());
+        String setterName = "set" + StringUtils.capitalize(field.getName());
         JavaMethod jMethod = new JavaMethod(this);
         jMethod.setReturn(new JavaReturn("return", "void", null));
         String paramName = getSetterParamName(field.getName());
@@ -83,7 +83,7 @@ public class JavaClass extends JavaInterface {
     }
 
     private String getSetterParamName(String fieldName) {
-        return "new" + AnnotationUtil.capitalize(fieldName);
+        return "new" + StringUtils.capitalize(fieldName);
     }
     
 }

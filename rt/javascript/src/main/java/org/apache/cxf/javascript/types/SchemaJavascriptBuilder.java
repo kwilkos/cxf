@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.UnsupportedSchemaConstruct;
@@ -42,7 +43,6 @@ import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
@@ -60,7 +60,6 @@ public class SchemaJavascriptBuilder {
     private static final String XSI_NS_ATTR = WSDLConstants.NP_XMLNS + ":" 
         + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NU_SCHEMA_XSI + "'";
     private static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
-    // The schema that we are operating upon.
     private SchemaInfo schemaInfo;
     private NameManager nameManager;
     private Map<String, String> fallbackNamespacePrefixMap;
@@ -174,6 +173,9 @@ public class SchemaJavascriptBuilder {
     
     public String generateCodeForSchema(SchemaInfo schema) {
         StringBuffer code = new StringBuffer();
+        code.append("//\n");
+        code.append("// Definitions for schema: " + schema.toString() + "\n");
+        code.append("//\n");
 
         XmlSchemaObjectTable schemaTypes = schema.getSchema().getSchemaTypes();
         Iterator namesIterator = schemaTypes.getNames();
@@ -194,6 +196,20 @@ public class SchemaJavascriptBuilder {
         return code.toString();
     }
     
+    /**
+     * If you ask an XmlSchemaElement for a type object, and the object is of simple type, 
+     * the answer appears to be, in some cases,
+     * null! The name, however, is OK. Since all we need is the name, this function 
+     * encapsulates the workaround. 
+     * @param element
+     * @return
+     */
+    private String getElementSimpleTypeName(XmlSchemaElement element) {
+        QName typeName = element.getSchemaTypeName();
+        assert WSDLConstants.NU_SCHEMA_XSD.equals(typeName.getNamespaceURI());
+        return typeName.getLocalPart();
+    }
+    
     public String complexTypeConstructorAndAccessors(XmlSchemaComplexType type) {
         StringBuffer code = new StringBuffer();
         StringBuffer accessors = new StringBuffer();
@@ -203,7 +219,7 @@ public class SchemaJavascriptBuilder {
         final String elementPrefix = "this._";
         
         String typeObjectName = nameManager.getJavascriptName(type);
-        code.append(typeObjectName + " () {\n");
+        code.append("function " + typeObjectName + " () {\n");
         
         if (particle == null) {
             unsupportedConstruct("NULL_PARTICLE", type);
@@ -231,14 +247,18 @@ public class SchemaJavascriptBuilder {
             // Assume that no lunatic has created multiple elements that differ only by namespace.
             // if elementForm is unqualified, how can that be valid?
             String elementName = elementPrefix + elChild.getName();
+            String accessorSuffix = StringUtils.capitalize(elChild.getName());
 
-            String accessorName = typeObjectName + "_get" + elChild.getName();
-            accessors.append(accessorName + "() { return " + elementName + ";}\n");
-            accessors.append(typeObjectName + ".get" + elChild.getName() + " = " + accessorName + ";\n");
+            String accessorName = typeObjectName + "_get" + accessorSuffix;
+            accessors.append("function " + accessorName + "() { return " + elementName + ";}\n");
+            accessors.append(typeObjectName + ".prototype.get" 
+                             + accessorSuffix + " = " + accessorName + ";\n");
             
-            accessorName = typeObjectName + "_set" + elChild.getName();
-            accessors.append(accessorName + "(value) {" + elementName + " = value;}\n");
-            accessors.append(typeObjectName + ".set" + elChild.getName() + " = " + accessorName + ";\n");
+            accessorName = typeObjectName + "_set" + accessorSuffix;
+            accessors.append("function " 
+                             + accessorName + "(value) {" + elementName + " = value;}\n");
+            accessors.append(typeObjectName 
+                             + ".prototype.set" + accessorSuffix + " = " + accessorName + ";\n");
             
             if (isParticleOptional(elChild) || (nillable && !isParticleArray(elChild))) {
                 utils.appendLine(elementName + " = null;");
@@ -253,7 +273,7 @@ public class SchemaJavascriptBuilder {
                 String defaultValueString = elChild.getDefaultValue();
                 if (defaultValueString == null) {
                     defaultValueString = 
-                        utils.getDefaultValueForSimpleType((XmlSchemaSimpleType)elChild.getSchemaType());
+                        utils.getDefaultValueForSimpleType(getElementSimpleTypeName(elChild));
                 }
                 utils.appendLine(elementName + " = " + defaultValueString + ";");
             }
@@ -282,7 +302,7 @@ public class SchemaJavascriptBuilder {
         StringBuffer code = new StringBuffer();
         JavascriptUtils utils = new JavascriptUtils(code);
         String functionName = nameManager.getJavascriptName(type) + "_" + "serialize";
-        code.append(functionName + "(elementName) {\n");
+        code.append("function " + functionName + "(cxfjsutils, elementName) {\n");
         utils.startXmlStringAccumulator("xml");
         utils.startIf("elementName != null");
         utils.appendString("<");
@@ -301,9 +321,10 @@ public class SchemaJavascriptBuilder {
         utils.appendExpression("elementName");
         utils.appendString(">");
         utils.endBlock();
+        code.append("return xml;\n");
         code.append("}\n");
 
-        code.append(nameManager.getJavascriptName(type) + ".serialize = " + functionName + ";\n");
+        code.append(nameManager.getJavascriptName(type) + ".prototype.serialize = " + functionName + ";\n");
         return code.toString();
     }
    
@@ -365,13 +386,14 @@ public class SchemaJavascriptBuilder {
             
             // now for the thing itself.
             if (elType instanceof XmlSchemaComplexType) {
-                utils.appendExpression(elementName + ".serialize(" + elementXmlRef + ")");
+                utils.appendExpression(elementName + ".serialize(cxfjsutils, " + elementXmlRef + ")");
             } else {
+                String typeName = getElementSimpleTypeName(elChild);
                 utils.appendString("<" + elementXmlRef + ">");
                 // warning: this assumes that ordinary Javascript serialization is all we need.
                 // except for &gt; ad all of that.
-                if (utils.isStringSimpleType((XmlSchemaSimpleType)elType)) {
-                    utils.appendExpression("cxf_xml_serialize_string(" + elementName + ")");
+                if (utils.isStringSimpleType(typeName)) {
+                    utils.appendExpression("cxfjsutils.escapeXmlEntities(" + elementName + ")");
                 } else {
                     utils.appendExpression(elementName);
                 }

@@ -49,7 +49,6 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
@@ -497,7 +496,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
         String clsName = "";
         if (rw == null) {
-            clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName())
+            clsName = getPackageName(selected) + ".jaxws." + StringUtils.capitalize(selected.getName())
                       + "Response";
         } else {
             clsName = rw.className();
@@ -549,7 +548,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
         String clsName = "";
         if (rw == null) {
-            clsName = getPackageName(selected) + ".jaxws." + AnnotationUtil.capitalize(selected.getName());
+            clsName = getPackageName(selected) + ".jaxws." + StringUtils.capitalize(selected.getName());
         } else {
             clsName = rw.className();
         }

@@ -19,27 +19,42 @@
 
 package org.apache.cxf.javascript.types;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.validation.Schema;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.BasicNameManager;
+import org.apache.cxf.javascript.JavascriptTestUtilities;
 import org.apache.cxf.javascript.NameManager;
-import org.apache.cxf.service.Service;
+import org.apache.cxf.javascript.fortest.TestBean1;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.test.TestUtilities;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.junit.Assert;
 import org.junit.Test;
+import org.mozilla.javascript.RhinoException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 public class SerializationTests extends AbstractDependencyInjectionSpringContextTests {
-    private TestUtilities testUtilities;
+    private JavascriptTestUtilities testUtilities;
+    private XMLInputFactory xmlInputFactory;
 
     public SerializationTests() {
-        testUtilities = new TestUtilities(getClass());
+        testUtilities = new JavascriptTestUtilities(getClass());
+        testUtilities.addDefaultNamespaces();
+        xmlInputFactory = XMLInputFactory.newInstance();
     }
 
     @Override
@@ -50,11 +65,15 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
     @Test
     public void testSerialization() throws Exception {
         testUtilities.setBus((Bus)applicationContext.getBean("cxf"));
-        testUtilities.addDefaultNamespaces();
-        Server server = testUtilities.getServerForService(new QName("http://apache.org/type_test/doc", 
-                                                                "TypeTestPortTypeService"));
-        Service service = server.getEndpoint().getService();
-        List<ServiceInfo> serviceInfos = service.getServiceInfos();
+        
+        testUtilities.initializeRhino();
+        testUtilities.readResourceIntoRhino("/org/apache/cxf/javascript/cxf-utils.js");
+
+        JaxWsProxyFactoryBean clientProxyFactory = 
+            (JaxWsProxyFactoryBean)applicationContext.getBean("simple-dlwu-proxy-factory");
+        
+        Client client = clientProxyFactory.getClientFactoryBean().create();
+        List<ServiceInfo> serviceInfos = client.getEndpoint().getService().getServiceInfos();
         // there can only be one.
         assertEquals(1, serviceInfos.size());
         ServiceInfo serviceInfo = serviceInfos.get(0);
@@ -62,12 +81,47 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         NameManager nameManager = new BasicNameManager(serviceInfo);
 
         for (SchemaInfo schema : schemata) {
-            SchemaJavascriptBuilder builder = new SchemaJavascriptBuilder(nameManager, schema);
+            SchemaJavascriptBuilder builder = 
+                new SchemaJavascriptBuilder(nameManager, schema);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             assertNotNull(allThatJavascript);
+            testUtilities.readStringIntoRhino(allThatJavascript, schema.toString());
         }
+        
+        testUtilities.readResourceIntoRhino("/serializationTest.js");
+        DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
+        assertNotNull(dataBinding);
+        
+        try {
+            Object serialized = testUtilities.rhinoCall("serializeTestBean1_1");
+            assertTrue(serialized instanceof String);
+            String xml = (String)serialized;
+            DataReader<XMLStreamReader> reader = dataBinding.createReader(XMLStreamReader.class);
+            StringReader stringReader = new StringReader(xml);
+            XMLStreamReader xmlStreamReader = xmlInputFactory.createXMLStreamReader(stringReader);
+            QName testBeanQName = new QName("uri:org.apache.cxf.javascript.testns", "TestBean1");
+            Object bean = reader.read(testBeanQName, xmlStreamReader, TestBean1.class);
+            assertNotNull(bean);
+            assertTrue(bean instanceof TestBean1);
+            TestBean1 testBean = (TestBean1)bean;
+            assertEquals("bean1<stringItem", testBean.stringItem);
+            assertEquals(64, testBean.intItem);
+            assertEquals(64000000, testBean.longItem);
+            assertEquals(101, testBean.optionalIntItem);
+            assertNotNull(testBean.optionalIntArrayItem);
+            assertEquals(1, testBean.optionalIntArrayItem.length);
+            assertEquals(543, testBean.optionalIntArrayItem[0]);
+            
+        } catch (RhinoException angryRhino) {
+            String trace = angryRhino.getScriptStackTrace(new FilenameFilter() {
+
+                public boolean accept(File dir, String name) {
+                    return true;
+                }
+            } 
+            );
+            Assert.fail("Javascript error: " + angryRhino.toString() + " " + trace);
+        }
+        
     }
-    
-    
-    
 }

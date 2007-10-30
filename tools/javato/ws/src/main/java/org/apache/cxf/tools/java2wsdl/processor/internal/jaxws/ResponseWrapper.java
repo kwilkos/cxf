@@ -30,8 +30,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
-import org.apache.cxf.tools.util.AnnotationUtil;
-
 
 public final class ResponseWrapper extends Wrapper { 
     @Override
@@ -125,7 +123,7 @@ public final class ResponseWrapper extends Wrapper {
         }  
         if (resClassName == null) {
             resClassName = getPackageName(method) + ".jaxws." 
-                + AnnotationUtil.capitalize(method.getName())
+                + StringUtils.capitalize(method.getName())
                 + "Response";
         }
         

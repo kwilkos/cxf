@@ -29,7 +29,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.model.WrapperBeanClass;
-import org.apache.cxf.tools.util.AnnotationUtil;
 
 public class RequestWrapper extends Wrapper {
     @Override
@@ -97,7 +96,7 @@ public class RequestWrapper extends Wrapper {
             reqNs = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : null;
         } 
         if (reqClassName == null) {
-            reqClassName = getPackageName(method) + ".jaxws." + AnnotationUtil.capitalize(method.getName());
+            reqClassName = getPackageName(method) + ".jaxws." + StringUtils.capitalize(method.getName());
         }
 
         WrapperBeanClass jClass = new WrapperBeanClass();

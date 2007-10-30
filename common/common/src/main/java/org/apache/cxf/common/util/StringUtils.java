@@ -208,4 +208,18 @@ public final class StringUtils {
         }                
         return urlString;
     }
+ 
+    /**
+     * Return input string with first character in upper case.
+     * @param name input string.
+     * @return capitalized form.
+     */
+    public static String capitalize(String name) {
+        if (name == null || name.length() == 0) {
+            return name;
+        }
+        char chars[] = name.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        return new String(chars);
+    }
 }
