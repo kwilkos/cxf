@@ -77,6 +77,13 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
     private EndpointReferenceType endpointReference;
     private ConduitSelector conduitSelector;
     
+    protected AbstractEndpointFactory() {
+    }
+    
+    protected AbstractEndpointFactory(ReflectionServiceFactoryBean bean) {
+        serviceFactory = bean;
+    }
+    
     protected Endpoint createEndpoint() throws BusException, EndpointException {
         
         if (serviceName != null) {
