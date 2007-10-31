@@ -389,8 +389,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         if (header != null && serviceInfo.getMessage(header.getMessage()) == null) {
             Definition def = (Definition)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_DEFINITION);
-            XmlSchemaCollection schemas = (XmlSchemaCollection)serviceInfo
-                .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+            XmlSchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
 
             if (def != null && schemas != null) {
                 javax.wsdl.Message msg = def.getMessage(header.getMessage());
