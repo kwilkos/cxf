@@ -19,11 +19,12 @@
 
 package org.apache.cxf.wsdl;
 
+import java.io.InputStream;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,6 +49,9 @@ import javax.xml.validation.SchemaFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
+
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
@@ -57,6 +61,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerRegistry;
+import org.apache.cxf.helpers.LoadingByteArrayOutputStream;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Destination;
@@ -66,6 +71,8 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.MetadataType;
 import org.apache.cxf.ws.addressing.wsdl.AttributedQNameType;
 import org.apache.cxf.ws.addressing.wsdl.ServiceNameType;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 
 /**
@@ -74,8 +81,6 @@ import org.apache.cxf.ws.addressing.wsdl.ServiceNameType;
 public final class EndpointReferenceUtils {
 
     public static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
-
-    static WeakHashMap<ServiceInfo, Schema> schemaMap = new WeakHashMap<ServiceInfo, Schema>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
 
@@ -438,17 +443,12 @@ public final class EndpointReferenceUtils {
         if (serviceInfo == null) {
             return null;
         }
-        synchronized (schemaMap) {
-            if (schemaMap.containsKey(serviceInfo)) {
-                return schemaMap.get(serviceInfo);
-            }
-        }
-        Schema schema = schemaMap.get(serviceInfo);
-
+        Schema schema = serviceInfo.getProperty(Schema.class.getName(), Schema.class);
         if (schema == null) {
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);
             List<Source> schemaSources = new ArrayList<Source>();
+            final XmlSchemaCollection sc = serviceInfo.getXmlSchemaCollection();
             for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
                 Source source = new DOMSource(schemaInfo.getElement());
                 if (source != null) {
@@ -457,12 +457,39 @@ public final class EndpointReferenceUtils {
                 }
             }
             try {
+                factory.setResourceResolver(new LSResourceResolver() {
+                    public LSInput resolveResource(String type, String namespaceURI, String publicId,
+                                                   String systemId, String baseURI) {
+                        for (XmlSchema sch : sc.getXmlSchemas()) {
+                            if (namespaceURI.equals(sch.getTargetNamespace())) {
+                                LSInputImpl impl = new LSInputImpl();
+                                InputStream ins = null;
+                                try {
+                                    URL url = new URL(sch.getSourceURI());
+                                    ins = url.openStream();
+                                } catch (Exception e) {
+                                    //ignore, we'll just use what we have.  (though
+                                    //bugs in XmlSchema could make this less useful)
+                                }
+                                
+                                if (ins == null) {
+                                    LoadingByteArrayOutputStream out = new LoadingByteArrayOutputStream();
+                                    sch.write(out);
+                                    ins = out.createInputStream();
+                                    System.out.println(out.toString());
+                                }
+                                impl.setByteStream(ins);
+                                return impl;
+                            }
+                        }
+                        return null;
+                    }
+                    
+                });
                 schema = factory.newSchema(schemaSources.toArray(
                     new Source[schemaSources.size()]));
                 if (schema != null) {
-                    synchronized (schemaMap) {
-                        schemaMap.put(serviceInfo, schema);
-                    }
+                    serviceInfo.setProperty(Schema.class.getName(), schema);
                     LOG.log(Level.FINE, "Obtained schema from ServiceInfo");
                 }
             } catch (SAXException ex) {
@@ -798,4 +825,97 @@ public final class EndpointReferenceUtils {
         }
         return ret;
     }   
+}
+
+class LSInputImpl implements LSInput {
+
+    protected String fPublicId;
+
+    protected String fSystemId;
+
+    protected String fBaseSystemId;
+
+    protected InputStream fByteStream;
+
+    protected Reader fCharStream;
+
+    protected String fData;
+
+    protected String fEncoding;
+
+    protected boolean fCertifiedText;
+
+    public LSInputImpl() {
+    }
+
+    public LSInputImpl(String publicId, String systemId, InputStream byteStream) {
+        fPublicId = publicId;
+        fSystemId = systemId;
+        fByteStream = byteStream;
+    }
+
+    public InputStream getByteStream() {
+        return fByteStream;
+    }
+
+    public void setByteStream(InputStream byteStream) {
+        fByteStream = byteStream;
+    }
+
+    public Reader getCharacterStream() {
+        return fCharStream;
+    }
+
+    public void setCharacterStream(Reader characterStream) {
+        fCharStream = characterStream;
+    }
+
+    public String getStringData() {
+        return fData;
+    }
+
+    public void setStringData(String stringData) {
+        fData = stringData;
+    }
+
+    public String getEncoding() {
+        return fEncoding;
+    }
+
+    public void setEncoding(String encoding) {
+        fEncoding = encoding;
+    }
+
+    public String getPublicId() {
+        return fPublicId;
+    }
+
+    public void setPublicId(String publicId) {
+        fPublicId = publicId;
+    }
+
+    public String getSystemId() {
+        return fSystemId;
+    }
+
+    public void setSystemId(String systemId) {
+        fSystemId = systemId;
+    }
+
+    public String getBaseURI() {
+        return fBaseSystemId;
+    }
+
+    public void setBaseURI(String baseURI) {
+        fBaseSystemId = baseURI;
+    }
+
+    public boolean getCertifiedText() {
+        return fCertifiedText;
+    }
+
+    public void setCertifiedText(boolean certifiedText) {
+        fCertifiedText = certifiedText;
+    }
+
 }
