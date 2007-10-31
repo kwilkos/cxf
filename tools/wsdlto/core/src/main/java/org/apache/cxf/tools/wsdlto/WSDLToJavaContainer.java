@@ -22,7 +22,6 @@ package org.apache.cxf.tools.wsdlto;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,8 +39,6 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
@@ -71,9 +68,6 @@ import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 
-
-
-
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
@@ -96,29 +90,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     public WSDLConstants.WSDLVersion getWSDLVersion() {
         String version = (String) context.get(ToolConstants.CFG_WSDL_VERSION);
         return WSDLConstants.getVersion(version);
-    }
-
-    public Bus getBus() {
-        Bus bus = BusFactory.getDefaultBus();
-
-        OASISCatalogManager catalogManager = bus.getExtension(OASISCatalogManager.class);
-        
-        String catalogLocation = getCatalogURL();
-        if (!StringUtils.isEmpty(catalogLocation)) {
-            try {
-                catalogManager.loadCatalog(new URI(catalogLocation).toURL());
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new ToolException(new Message("FOUND_NO_FRONTEND", LOG, catalogLocation));
-            }
-        }
-
-        return bus;
-    }
-
-    protected String getCatalogURL() {
-        String catalogLocation = (String) context.get(ToolConstants.CFG_CATALOG);
-        return URIParserUtil.getAbsoluteURI(catalogLocation);
     }
 
     @SuppressWarnings("unchecked")
@@ -154,10 +125,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
                     context.put(Definition.class, definition);
 
-                    // Revisit validator doesn't support catalog
-                    if (!context.optionSet(ToolConstants.CFG_CATALOG)) {
-                        builder.validate(definition);
-                    }
+                    builder.validate(definition);
 
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
                     serviceBuilder.setCatalogResolvedMap(builder.getCataLogResolvedMap());

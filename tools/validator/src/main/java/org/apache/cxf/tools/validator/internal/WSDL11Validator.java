@@ -41,6 +41,7 @@ import javax.wsdl.Definition;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -57,11 +58,15 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
     private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
 
     public WSDL11Validator(final Definition definition) {
-        super(definition);
+        this(definition, null);
     }
 
-    public WSDL11Validator(final Definition definition, ToolContext pe) {
-        super(definition, pe);
+    public WSDL11Validator(final Definition definition, final ToolContext pe) {
+        this(definition, pe, null);
+    }
+
+    public WSDL11Validator(final Definition definition, final ToolContext pe, final Bus b) {
+        super(definition, pe, b);
     }
 
     private Document getWSDLDoc(String wsdl) {
@@ -91,7 +96,7 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
         if (doc == null) {
             return true;
         }
-        WSDLRefValidator wsdlRefValidator = new WSDLRefValidator(wsdl, doc);
+        WSDLRefValidator wsdlRefValidator = new WSDLRefValidator(wsdl, doc, getBus());
         wsdlRefValidator.setSuppressWarnings(env.optionSet(ToolConstants.CFG_SUPPRESS_WARNINGS));
         Definition wsdlDef = wsdlRefValidator.getDefinition();        
         validators.add(wsdlRefValidator);

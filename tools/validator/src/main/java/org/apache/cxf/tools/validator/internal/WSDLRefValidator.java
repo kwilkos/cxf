@@ -45,6 +45,7 @@ import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -94,7 +95,15 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
     }
 
     public WSDLRefValidator(final String wsdl, final Document doc) {
+        this(wsdl, doc, null);
+    }
+
+    public WSDLRefValidator(final String wsdl, final Document doc, final Bus b) {
         WSDLDefinitionBuilder wsdlBuilder = new WSDLDefinitionBuilder();
+        if (b != null) {
+            wsdlBuilder.setBus(b);
+        }
+
         try {
             this.definition = wsdlBuilder.build(wsdl);
             if (wsdlBuilder.getImportedDefinitions().size() > 0) {
