@@ -38,7 +38,7 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
     private Stack<Element> stack = new Stack<Element>();
     private Document document;
     private Element currentNode;
-    private NamespaceContext context;
+    private NamespaceContext context = new W3CNamespaceContext();
     private Map properties = Collections.EMPTY_MAP;
 
     public W3CDOMStreamWriter() throws ParserConfigurationException {
@@ -59,10 +59,7 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
         this.document = e.getOwnerDocument();
         
         currentNode = e;
-
-        W3CNamespaceContext newContext = new W3CNamespaceContext();
-        newContext.setElement(currentNode);
-        this.context = newContext;
+        ((W3CNamespaceContext)context).setElement(e);
     }
 
     public void setProperties(Map properties) {
@@ -84,11 +81,10 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
         } else {
             document.appendChild(element);
         }
-
-        W3CNamespaceContext newContext = new W3CNamespaceContext();
-        newContext.setElement(element);
-        this.context = newContext;
-
+        if (!(context instanceof W3CNamespaceContext)) {
+            context = new W3CNamespaceContext();
+        }
+        ((W3CNamespaceContext)context).setElement(element);
         currentNode = element;
     }
 
