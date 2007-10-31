@@ -75,6 +75,10 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     public JaxWsServiceFactoryBean() {
         getIgnoredClasses().add(Service.class.getName());
+        
+        //the JAXWS-RI doesn't qualify the schemas for the wrapper types
+        //and thus won't work if we do.
+        setQualifyWrapperSchema(false);
     }
 
     public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
@@ -100,13 +104,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     protected SimpleMethodDispatcher getMethodDispatcher() {
         return methodDispatcher;
-    }
-
-    @Override
-    protected boolean qualifyWrapperSchema() {
-        //the JAXWS-RI doesn't qualify the schemas for the wrapper types
-        //and thus won't work if we do.
-        return false;
     }
 
     @Override
