@@ -101,6 +101,20 @@ public class BindingInfo extends AbstractDescriptionElement {
         
         operations.put(operation.getName(), operation);
     }
+    
+    /**
+     * Removes an operation from this service.
+     *
+     * @param operation the operation.
+     */
+    public void removeOperation(BindingOperationInfo operation) {
+        if (operation.getName() == null) {
+            throw new NullPointerException(
+                new Message("BINDING.OPERATION.NAME.NOT.NULL", LOG).toString());
+        } 
+        
+        operations.remove(operation.getName());
+    }
 
     /**
      * Returns the operation info with the given name, if found.
