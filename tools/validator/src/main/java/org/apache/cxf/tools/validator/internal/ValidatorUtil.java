@@ -22,12 +22,14 @@ package org.apache.cxf.tools.validator.internal;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import javax.wsdl.Definition;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,21 +39,31 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import org.xml.sax.SAXException;
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.wsdl.WSDLConstants;
-
+import org.apache.cxf.wsdl11.SchemaUtil;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public final class ValidatorUtil {
     private static final Logger LOG = LogUtils.getL7dLogger(ValidatorUtil.class);
 
     private ValidatorUtil() {
+    }
+
+
+    public static XmlSchemaCollection getSchema(final Definition def) {
+        ServiceInfo serviceInfo = new ServiceInfo();
+        new SchemaUtil(BusFactory.getDefaultBus(), 
+                       new HashMap<String, Element>()).getSchemas(def, 
+                                                                  serviceInfo);
+        return serviceInfo.getXmlSchemaCollection();
     }
 
     /**
@@ -86,14 +98,20 @@ public final class ValidatorUtil {
             String tns = schemaEl.getAttribute("targetNamespace");
             try {
                 schemaCol.read(schemaEl, tns);
-            } catch (java.lang.RuntimeException ex) {
+            } catch (RuntimeException ex) {
+                LOG.log(Level.WARNING, "SCHEMA_READ_FAIL", tns);
                 //
                 // Couldn't find schema... check if it's relative to wsdl.
                 // XXX - Using setBaseUri() on the XmlSchemaCollection,
                 // only seems to work for the first imported xsd... so pass
                 // in the baseURI here.
                 //
-                schemaCol.read(schemaEl, baseURI);
+                try {
+                    schemaCol.read(schemaEl, baseURI);
+                } catch (RuntimeException ex2) {
+                    LOG.log(Level.WARNING, "SCHEMA_READ_FAIL", baseURI);
+                    continue;
+                }
             }
         }
         schemaList.add(schemaCol);
@@ -143,7 +161,7 @@ public final class ValidatorUtil {
         String myBasePath = basePath;
         try {
             myBasePath = new URI(basePath.replaceAll(" ", "%20")).getPath();
-        } catch (java.net.URISyntaxException e1) {
+        } catch (URISyntaxException e1) {
             // This will be problematic...
         }
         for (int x = 0; x < nodes.getLength(); x++) {

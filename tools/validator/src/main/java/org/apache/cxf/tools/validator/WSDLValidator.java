@@ -57,7 +57,8 @@ public class WSDLValidator extends AbstractCXFToolContainer {
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
                 }
-
+                env.put(ToolConstants.CFG_VALIDATE_WSDL, Boolean.TRUE);
+                System.out.println("1########: " + env.optionSet(ToolConstants.CFG_VALIDATE_WSDL));
                 env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
               
