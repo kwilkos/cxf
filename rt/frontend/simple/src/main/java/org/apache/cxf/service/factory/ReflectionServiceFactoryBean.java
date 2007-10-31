@@ -83,6 +83,7 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaImport;
 import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
@@ -165,8 +166,73 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         getService().put(MethodDispatcher.class.getName(), getMethodDispatcher());
 
         createEndpoints();
+        
+        fillInSchemaCrossreferences();
 
         return getService();
+    }
+
+    private void fillInSchemaCrossreferences() {
+        Service service = getService();
+        for (ServiceInfo serviceInfo : service.getServiceInfos()) {
+            XmlSchemaCollection schemaCollection = serviceInfo.getXmlSchemaCollection();
+            
+            // First pass, fill in any types for which we have a name but no type.
+            for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
+                XmlSchemaObjectTable elementsTable = schemaInfo.getSchema().getElements();
+                Iterator elementsIterator = elementsTable.getNames();
+                while (elementsIterator.hasNext()) {
+                    QName elementName = (QName)elementsIterator.next();
+                    XmlSchemaElement element = schemaInfo.getSchema().getElementByName(elementName);
+                    if (element.getSchemaType() == null) {
+                        QName typeName = element.getSchemaTypeName();
+                        if (typeName != null) {
+                            XmlSchemaType type = schemaCollection.getTypeByQName(typeName);
+                            if (type == null) {
+                                Message message = new Message("REFERENCE_TO_UNDEFINED_TYPE", LOG, 
+                                                              element.getQName(),
+                                                              typeName,
+                                                              service.getName());
+                                LOG.severe(message.toString());
+                            } else {
+                                element.setSchemaType(type);
+                            }
+                        }
+                    }
+                }
+                
+            }
+            
+            // second pass. Fill in based on refs.
+            for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
+                XmlSchemaObjectTable elementsTable = schemaInfo.getSchema().getElements();
+                Iterator elementsIterator = elementsTable.getNames();
+                while (elementsIterator.hasNext()) {
+                    QName elementName = (QName)elementsIterator.next();
+                    XmlSchemaElement element = schemaInfo.getSchema().getElementByName(elementName);
+                    if (element.getSchemaType() == null) {
+                        QName refElementName = element.getRefName();
+                        if (refElementName != null) {
+                            XmlSchemaElement refElement = 
+                                schemaCollection.getElementByQName(refElementName);
+                            if (refElement == null) {
+                                Message message = new Message("REFERENCE_TO_UNDEFINED_ELEMENT",
+                                                              LOG,
+                                                              element.getQName(),
+                                                              refElementName,
+                                                              service.getName());
+                                LOG.severe(message.toString());
+                            } else {
+                                // it is convenient for other consumers if we put the type in place.
+                                // we trust that anything generating XSD will avoid something stupid like:
+                                // <element ref='x' type='y'/> as a result.
+                                element.setSchemaType(refElement.getSchemaType());
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     protected void createEndpoints() {
@@ -228,6 +294,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         
         ServiceInfo serviceInfo = new ServiceInfo();
+        XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
+        col.getExtReg().registerSerializer(MimeAttribute.class, new MimeSerializer());
+
         ServiceImpl service = new ServiceImpl(serviceInfo);
 
         setService(service);
@@ -808,12 +877,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
         SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
-        XmlSchemaCollection col = new XmlSchemaCollection();
+        XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
+
         XmlSchema schema = new XmlSchema(namespaceURI, col);
         if (qualified) {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
         }
-        serviceInfo.setXmlSchemaCollection(col);
         schemaInfo.setSchema(schema);
 
         Map<String, String> explicitNamespaceMappings = this.getDataBinding().getDeclaredNamespaceMappings();
