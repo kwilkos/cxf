@@ -22,16 +22,23 @@ package org.apache.cxf.tools.common.toolspec;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
+import org.apache.cxf.tools.util.URIParserUtil;
 
 public abstract class AbstractToolContainer implements ToolContainer {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractToolContainer.class);
@@ -174,5 +181,26 @@ public abstract class AbstractToolContainer implements ToolContainer {
             System.setErr(stdErrorStream);
         }
     }
+    
+    public Bus getBus() {
+        Bus bus = BusFactory.getDefaultBus();
 
+        OASISCatalogManager catalogManager = bus.getExtension(OASISCatalogManager.class);
+        
+        String catalogLocation = getCatalogURL();
+        if (!StringUtils.isEmpty(catalogLocation)) {
+            try {
+                catalogManager.loadCatalog(new URI(catalogLocation).toURL());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ToolException(new Message("FOUND_NO_FRONTEND", LOG, catalogLocation));
+            }
+        }
+
+        return bus;
+    }
+    protected String getCatalogURL() {
+        String catalogLocation = (String) context.get(ToolConstants.CFG_CATALOG);
+        return URIParserUtil.getAbsoluteURI(catalogLocation);
+    }    
 }
