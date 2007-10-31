@@ -40,6 +40,7 @@ public class ServiceInfo extends AbstractDescriptionElement {
     private XmlSchemaCollection xmlSchemaCollection;
 
     public ServiceInfo() {
+        xmlSchemaCollection = new XmlSchemaCollection();
     }
 
     public String getTargetNamespace() {
@@ -138,10 +139,6 @@ public class ServiceInfo extends AbstractDescriptionElement {
 
     public Collection<SchemaInfo> getSchemas() {
         return Collections.unmodifiableCollection(schemas);
-    }
-
-    public void setXmlSchemaCollection(XmlSchemaCollection col) {
-        this.xmlSchemaCollection = col;
     }
 
     public XmlSchemaCollection getXmlSchemaCollection() {

@@ -59,7 +59,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
-import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -312,17 +311,11 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
             types.add(t);
         }
         for (ServiceInfo si : s.getServiceInfos()) {
-            XmlSchemaCollection col = (XmlSchemaCollection)si
-                .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
-
-            if (col != null) {
+            XmlSchemaCollection col = si.getXmlSchemaCollection();
+            if (col.getXmlSchemas().length > 1) {
                 // someone has already filled in the types
                 continue;
             }
-    
-            col = new XmlSchemaCollection();
-            si.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
-            si.setXmlSchemaCollection(col);
         }
 
         for (Map.Entry<String, Set<Type>> entry : tns2Type.entrySet()) {
@@ -378,8 +371,7 @@ public class AegisDatabinding extends AbstractDataBinding implements DataBinding
                 org.w3c.dom.Document schema = new DOMOutputter().output(new Document(e));
 
                 for (ServiceInfo si : s.getServiceInfos()) {
-                    XmlSchemaCollection col = (XmlSchemaCollection)si
-                        .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+                    XmlSchemaCollection col = si.getXmlSchemaCollection();
                     col.setNamespaceContext(nsMap);
                     XmlSchema xmlSchema = addSchemaDocument(si, col, schema, entry.getKey());
                     // Work around bug in JDOM DOMOutputter which fails to correctly
