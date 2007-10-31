@@ -52,11 +52,11 @@ public class ServletController {
     private static final Logger LOG = LogUtils.getL7dLogger(ServletController.class);
 
     private ServletTransportFactory transport;
-    private CXFServlet cxfServlet;
+    private AbstractCXFServlet cxfServlet;
     private String lastBase = "";
     private boolean isHideServiceList;
  
-    public ServletController(ServletTransportFactory df, CXFServlet servlet) {
+    public ServletController(ServletTransportFactory df, AbstractCXFServlet servlet) {
         this.transport = df;
         this.cxfServlet = servlet;       
     }
