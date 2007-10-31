@@ -61,10 +61,9 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     
     public JaxWsServerFactoryBean() {
         this(new JaxWsServiceFactoryBean());
-        doInit = true;
     }
     public JaxWsServerFactoryBean(JaxWsServiceFactoryBean serviceFactory) {
-        setServiceFactory(serviceFactory);
+        super(serviceFactory);
         
         JaxWsSoapBindingConfiguration defConfig 
             = new JaxWsSoapBindingConfiguration(serviceFactory);
