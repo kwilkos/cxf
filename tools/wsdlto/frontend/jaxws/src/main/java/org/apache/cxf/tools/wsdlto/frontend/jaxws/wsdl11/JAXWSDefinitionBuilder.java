@@ -195,7 +195,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
 
     public boolean validate(final Definition def) throws ToolException {
-        return new WSDL11Validator(def, context).isValid();
+        return new WSDL11Validator(def, context, bus).isValid();
     }
     
     

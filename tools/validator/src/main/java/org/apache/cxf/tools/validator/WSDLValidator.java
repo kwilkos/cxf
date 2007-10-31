@@ -52,7 +52,7 @@ public class WSDLValidator extends AbstractCXFToolContainer {
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
-                ToolContext env = new ToolContext();
+                ToolContext env = getContext();
                 env.setParameters(getParametersMap(getArrayKeys()));
                 if (isVerboseOn()) {
                     env.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
@@ -61,7 +61,7 @@ public class WSDLValidator extends AbstractCXFToolContainer {
                 env.put(ToolConstants.CFG_CMD_ARG, getArgument());
 
               
-                WSDL11Validator wsdlValidator = new WSDL11Validator(null, env);
+                WSDL11Validator wsdlValidator = new WSDL11Validator(null, env, getBus());
                 if (wsdlValidator.isValid()) {
                     System.out.println("Passed Validation : Valid WSDL ");
                 }
