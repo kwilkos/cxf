@@ -32,7 +32,8 @@ import org.apache.ws.commons.schema.extensions.ExtensionDeserializer;
 
 
 /**
- * Workaround a bug in XmlSchema
+ * Workaround a bug in XmlSchema (WSCOMMONS-261). Remove this when there is a version of XmlSchema
+ * with the fix.
  * 
  * In XmlSchema, the default deserializer will only allow a single extension per element.  The 
  * last one wipes out the earlier recorded extensions.
