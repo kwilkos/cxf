@@ -19,6 +19,7 @@
 
 package org.apache.cxf.service.factory;
 
+import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -80,6 +81,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
+import org.apache.ws.commons.schema.ValidationEventHandler;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -909,6 +911,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }         
     }
 
+    
+    /**
+     * This is a really ugly trick to get around a bug or oversight in XmlSchema, which is that
+     * there is no way to programmatically construct an XmlSchema instance that ends up cataloged
+     * in a collection. If there is a fix to WSCOMMONS-272, this can go away.
+     * @param collection collection to contain new schema
+     * @return new schema
+     */
+    private XmlSchema newXmlSchemaInCollection(XmlSchemaCollection collection, String namespaceURI) {
+        StringBuffer tinyXmlSchemaDocument = new StringBuffer();
+        tinyXmlSchemaDocument.append("<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema' ");
+        tinyXmlSchemaDocument.append("targetNamespace='" + namespaceURI + "'/>");
+        StringReader reader = new StringReader(tinyXmlSchemaDocument.toString());
+        return collection.read(reader, new ValidationEventHandler() { });
+    }
+
     private SchemaInfo getOrCreateSchema(ServiceInfo serviceInfo,
                                          String namespaceURI, 
                                          boolean qualified) {
@@ -921,7 +939,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, namespaceURI);
         XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
 
-        XmlSchema schema = new XmlSchema(namespaceURI, col);
+        XmlSchema schema = newXmlSchemaInCollection(col, namespaceURI);
         if (qualified) {
             schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
         }

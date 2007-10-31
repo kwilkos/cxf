@@ -189,7 +189,7 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
         } else {
             resource = resolveResource(resourceName, clz);
             
-            LOG.log(Level.INFO, "RESOURCE_RESOLVE_FAILED", new Object[] {resourceName, clz});
+            LOG.log(Level.FINE, "RESOURCE_RESOLVE_FAILED", new Object[] {resourceName, clz});
         }
     }
 
