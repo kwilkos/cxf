@@ -20,7 +20,6 @@
 package org.apache.cxf.service.factory;
 
 import java.io.StringReader;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -297,9 +296,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         
         ServiceInfo serviceInfo = new ServiceInfo();
-        XmlSchemaCollection col = serviceInfo.getXmlSchemaCollection();
-        col.getExtReg().registerSerializer(MimeAttribute.class, new MimeSerializer());
-
         ServiceImpl service = new ServiceImpl(serviceInfo);
 
         setService(service);
