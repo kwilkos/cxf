@@ -153,12 +153,14 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     Definition definition = builder.getWSDLModel();
 
                     context.put(Definition.class, definition);
-                    if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+
+                    // Revisit validator doesn't support catalog
+                    if (!context.optionSet(ToolConstants.CFG_CATALOG)) {
                         builder.validate(definition);
                     }
 
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-                    serviceBuilder.setCatalogResolvedMap(builder.getCataLogResovedMap());
+                    serviceBuilder.setCatalogResolvedMap(builder.getCataLogResolvedMap());
                     String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
 
                     if (serviceName != null) {

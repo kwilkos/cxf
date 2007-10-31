@@ -44,5 +44,5 @@ public abstract class AbstractWSDLBuilder<T> implements WSDLBuilder<T> {
 
     public abstract T getWSDLModel();
     
-    public abstract Map<String, String> getCataLogResovedMap();
+    public abstract Map<String, String> getCataLogResolvedMap();
 }

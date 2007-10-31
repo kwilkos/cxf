@@ -72,7 +72,7 @@ public class Stax2DOM {
             if (wsdlURI.toString().startsWith("http")) {
                 return getDocument(wsdlURI.toURL());
             }
-            return getDocument(new File(wsdlURI));
+            return getDocument(wsdlURI.toURL());
         } catch (Exception e) {
             throw new ToolException(e);
         }
