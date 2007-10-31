@@ -124,6 +124,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Map<String, Object> properties;
     private QName endpointName;
     private boolean populateFromClass;
+    private boolean anonymousWrappers;
+    private boolean qualifiedSchemas = true;
 
 
     public ReflectionServiceFactoryBean() {
@@ -517,7 +519,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         SchemaInfo si = getOrCreateSchema(serviceInfo, 
                                           mpi.getElementQName().getNamespaceURI(),
-                                          qualifyWrapperSchema());
+                                          getQualifyWrapperSchema());
         XmlSchema schema = si.getSchema();
 
         XmlSchemaElement el = new XmlSchemaElement();
@@ -534,16 +536,35 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         el.setSchemaTypeName(tp.getQName());
     }
 
-
-    protected boolean qualifyWrapperSchema() {
-        return true;
+    public boolean getAnonymousWrapperTypes() {
+        return anonymousWrappers;
     }
+    public boolean isAnonymousWrapperTypes() {
+        return anonymousWrappers;
+    }
+    public void setAnonymousWrapperTypes(boolean b) {
+        anonymousWrappers = b;
+    }
+    
+    public boolean getQualifyWrapperSchema() {
+        return qualifiedSchemas;
+    }
+    public boolean isQualifyWrapperSchema() {
+        return qualifiedSchemas;
+    }
+    public void setQualifyWrapperSchema(boolean b) {
+        qualifiedSchemas = b;
+    }
+    
+    
 
+    
+    
     protected void createWrappedSchema(ServiceInfo serviceInfo, AbstractMessageContainer wrappedMessage,
                                        AbstractMessageContainer unwrappedMessage, QName wrapperBeanName) {
         SchemaInfo schemaInfo = getOrCreateSchema(serviceInfo,
                                                   wrapperBeanName.getNamespaceURI(),
-                                                  qualifyWrapperSchema());
+                                                  getQualifyWrapperSchema());
 
         createWrappedMessageSchema(serviceInfo, wrappedMessage, unwrappedMessage,
                                    schemaInfo.getSchema(), wrapperBeanName);
@@ -695,11 +716,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         wrappedMessage.getMessageParts().get(0).setXmlSchema(el);
 
         XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
-        ct.setName(wrapperName.getLocalPart());
-        el.setSchemaTypeName(wrapperName);
+        
+        if (!isAnonymousWrapperTypes()) {
+            ct.setName(wrapperName.getLocalPart());
+            el.setSchemaTypeName(wrapperName);
+            schema.addType(ct);
+            schema.getItems().add(ct);
+        }
         el.setSchemaType(ct);
-        schema.addType(ct);
-        schema.getItems().add(ct);
+
 
         XmlSchemaSequence seq = new XmlSchemaSequence();
         ct.setParticle(seq);
@@ -764,7 +789,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
                 SchemaInfo headerSchemaInfo = getOrCreateSchema(serviceInfo, 
                                                                 qn.getNamespaceURI(),
-                                                                qualifyWrapperSchema());
+                                                                getQualifyWrapperSchema());
                 if (!isExistSchemaElement(headerSchemaInfo.getSchema(), qn)) {
                     headerSchemaInfo.getSchema().getItems().add(el);
                 }

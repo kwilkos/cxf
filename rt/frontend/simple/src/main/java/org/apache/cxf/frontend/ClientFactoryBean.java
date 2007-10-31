@@ -35,9 +35,10 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
     private Client client;
     
     public ClientFactoryBean() {
-        super();
-        setServiceFactory(new ReflectionServiceFactoryBean());
-        
+        this(new ReflectionServiceFactoryBean());
+    }
+    public ClientFactoryBean(ReflectionServiceFactoryBean factory) { 
+        super(factory);
     }
 
     public Client create() {

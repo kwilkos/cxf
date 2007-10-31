@@ -21,9 +21,18 @@ package org.apache.cxf.frontend;
 import java.io.File;
 
 import org.apache.cxf.service.ServiceBuilder;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public abstract class AbstractServiceFactory extends AbstractEndpointFactory implements ServiceBuilder {
+    
+    protected AbstractServiceFactory() {
+        super();
+    }
+    protected AbstractServiceFactory(ReflectionServiceFactoryBean sbean) {
+        super(sbean);
+    }
+    
     public ServiceInfo createService() {
         try {
             return createEndpoint().getEndpointInfo().getService();
