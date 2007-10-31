@@ -438,6 +438,9 @@ public final class StaxUtils {
 
         if (ns == null || ns.length() == 0) {
             writer.writeStartElement(localName);
+            if (StringUtils.isEmpty(decUri)) {
+                declareNamespace = false;
+            }
         } else {
 //            System.out.println("Calling writeStartElement for local name : " 
 //            + localName + " URI: " + ns + " Prefix :" + prefix);

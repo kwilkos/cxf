@@ -32,6 +32,7 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.helpers.XMLUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -178,10 +179,28 @@ public class StaxUtilsTest extends Assert {
         String testString = "<ns1:a xmlns:ns1=\"http://www.apache.org/\"><s1 xmlns=\"\">"
             + "abc</s1><s2 xmlns=\"\">def</s2></ns1:a>";
         
-        StringReader reader = new StringReader(testString);
+        cycleString(testString);
+        
+        testString = "<a xmlns=\"http://www.apache.org/\"><s1 xmlns=\"\">"
+            + "abc</s1><s2 xmlns=\"\">def</s2></a>";
+        cycleString(testString);
+
+        testString = "<a xmlns=\"http://www.apache.org/\"><s1 xmlns=\"\">"
+            + "abc</s1><s2>def</s2></a>";
+        cycleString(testString);
+        
+        testString = "<ns1:a xmlns:ns1=\"http://www.apache.org/\"><s1>"
+            + "abc</s1><s2 xmlns=\"\">def</s2></ns1:a>";
+        
+        cycleString(testString);
+    }
+    
+    private void cycleString(String s) throws Exception {
+        StringReader reader = new StringReader(s);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         Document doc = dbf.newDocumentBuilder().parse(new InputSource(reader));
+        String orig = XMLUtils.toString(doc.getDocumentElement());
         
         StringWriter sw = new StringWriter();
         XMLStreamWriter swriter = StaxUtils.createXMLStreamWriter(sw);
@@ -191,8 +210,12 @@ public class StaxUtilsTest extends Assert {
         swriter.close();
         
         String output = sw.toString();
-        assertEquals(testString, output);
-
+        assertEquals(s, output);
+        
+        W3CDOMStreamWriter domwriter = new W3CDOMStreamWriter();
+        StaxUtils.writeDocument(doc, domwriter, false, true);
+        output = XMLUtils.toString(domwriter.getDocument().getDocumentElement());
+        assertEquals(orig, output);
     }
 
 }
