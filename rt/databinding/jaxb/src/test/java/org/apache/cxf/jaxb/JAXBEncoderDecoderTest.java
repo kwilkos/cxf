@@ -22,6 +22,7 @@ package org.apache.cxf.jaxb;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
@@ -46,6 +47,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxb_form.ObjectWithQualifiedElement;
 import org.apache.cxf.jaxb_misc.Base64WithDefaultValueType;
 import org.apache.cxf.jaxb_misc.ObjectFactory;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -87,7 +89,8 @@ public class JAXBEncoderDecoderTest extends Assert {
         context = JAXBContext.newInstance(new Class[] {
             GreetMe.class,
             GreetMeResponse.class,
-            StringStruct.class
+            StringStruct.class,
+            ObjectWithQualifiedElement.class
         });
         Method method = TestUtil.getMethod(Greeter.class, "greetMe");
         wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
@@ -151,6 +154,31 @@ public class JAXBEncoderDecoderTest extends Assert {
         } catch (Fault ex) {
             //expected - not a valid object
         }
+    }
+    
+    @Test
+    public void testMarshallWithFormQualifiedElement() throws Exception {
+        ObjectWithQualifiedElement testObject = new ObjectWithQualifiedElement();
+        testObject.setString1("twine");
+        testObject.setString2("cord");
+        
+        QName elName = new QName(wrapperAnnotation.targetNamespace(),
+                                 wrapperAnnotation.localName());
+        MessagePartInfo part = new MessagePartInfo(elName, null);
+        part.setElement(true);
+        part.setElementQName(elName);
+        
+        StringWriter stringWriter = new StringWriter();
+        XMLOutputFactory opFactory = XMLOutputFactory.newInstance();
+        opFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
+        XMLEventWriter writer = opFactory.createXMLEventWriter(stringWriter);
+        JAXBEncoderDecoder.marshall(context, null, testObject, part, writer);
+        writer.flush();
+        writer.close();
+        String xmlResult = stringWriter.toString();
+        // the following is a bit of a crock, but, to tell the truth, this test case most exists
+        // so that it could be examined inside the debugger to see how JAXB works.
+        assertTrue(xmlResult.contains("ns3:string2"));
     }
 
     @Test
