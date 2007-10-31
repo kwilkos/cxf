@@ -45,6 +45,10 @@ public class W3CNamespaceContext implements NamespaceContext {
     }
 
     private String getNamespaceURI(Element e, String name) {
+        if (e == null) {
+            return null;
+        }
+
         Attr attr = e.getAttributeNode(name);
         if (attr == null) {
             Node n = e.getParentNode();
