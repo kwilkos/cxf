@@ -85,6 +85,15 @@ public class InterfaceInfo extends AbstractDescriptionElement {
     void addOperation(OperationInfo operation) {
         operations.put(operation.getName(), operation);
     }
+    
+    /**
+     * Removes an operation from this service.
+     *
+     * @param operation the operation.
+     */
+    public void removeOperation(OperationInfo operation) {
+        operations.remove(operation.getName());
+    }    
 
     /**
      * Returns the operation info with the given name, if found.
