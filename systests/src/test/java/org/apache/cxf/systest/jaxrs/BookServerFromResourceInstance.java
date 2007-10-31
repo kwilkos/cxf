@@ -22,16 +22,14 @@ package org.apache.cxf.systest.jaxrs;
 
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
     
-public class BookServer extends AbstractBusTestServerBase {
+public class BookServerFromResourceInstance extends AbstractBusTestServerBase {
 
     protected void run() {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setResourceClasses(BookStore.class);
-        //default lifecycle is per-request, change it to singleton
-        sf.setResourceProvider(BookStore.class, new SingletonResourceProvider());
+        BookStore bs = new BookStore();
+        sf.setServiceBeans(bs);
         sf.setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
         sf.setAddress("http://localhost:9080/");
 

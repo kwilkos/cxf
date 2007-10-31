@@ -34,6 +34,7 @@ import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.Invoker;
@@ -61,7 +62,6 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     private boolean start = true;
     private JAXRSServiceFactoryBean serviceFactory;
     private List<Object> serviceBeans;
-
 
     public JAXRSServerFactoryBean() {
         this(new JAXRSServiceFactoryBean());
@@ -231,17 +231,30 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
     }
     
     /**
-     * Set the backing service bean. If this is set a BeanInvoker is created for
-     * the provided bean.
+     * Set the backing service bean. If this is set, JAX-RS runtimi will not be
+     * responsible for the lifecycle of resource classes.
      * 
      * @return
      */
     public void setServiceBeans(Object... beans) {
         this.serviceBeans = new ArrayList<Object>(Arrays.asList(beans));
+        Class[] classes = new Class[beans.length];
+        for (int i = 0; i < beans.length; i++) {
+            classes[i] = beans[i].getClass();
+        }
+        serviceFactory.setResourceClasses(classes);
     }
     
     public void setServiceBeans(List<Object> beans) {
         this.serviceBeans = beans;
+        List<Class> classes = new ArrayList<Class>();
+        for (Object bean : beans) {
+            classes.add(bean.getClass());
+        }
+        serviceFactory.setResourceClasses(classes);
     }
-
+    
+    public void setResourceProvider(Class c, ResourceProvider rp) {
+        serviceFactory.setResourceProvider(c, rp);
+    }
 }

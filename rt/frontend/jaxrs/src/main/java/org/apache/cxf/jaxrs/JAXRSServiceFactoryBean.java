@@ -22,6 +22,7 @@ package org.apache.cxf.jaxrs;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -29,6 +30,8 @@ import java.util.concurrent.Executor;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.UriTemplate;
 
+import org.apache.cxf.jaxrs.lifecycle.PerRequestResourceProvider;
+import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.jaxrs.model.MethodDispatcher;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -48,7 +51,8 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected List<ClassResourceInfo> classResourceInfos;
     protected List<Class> resourceClasses;
-
+    protected Map<Class, ResourceProvider> resourceProviders = new HashMap<Class, ResourceProvider>();
+    
     private Invoker invoker;
     private Executor executor;
     private Map<String, Object> properties;
@@ -105,7 +109,11 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     public void setResourceClasses(Class... classes) {
         this.resourceClasses = new ArrayList<Class>(Arrays.asList(classes));
     }
-
+    
+    public void setResourceProvider(Class c, ResourceProvider rp) {
+        resourceProviders.put(c, rp);
+    }
+    
     protected void initializeServiceModel() {
         classResourceInfos = new ArrayList<ClassResourceInfo>();
 
@@ -124,26 +132,38 @@ public class JAXRSServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected ClassResourceInfo createClassResourceInfo(final Class<?> c) {
-        final UriTemplate annotation = c.getAnnotation(UriTemplate.class);
-        if (annotation == null) {
+        UriTemplate uriTemplateAnnotation = c.getAnnotation(UriTemplate.class);
+        if (uriTemplateAnnotation == null) {
             return null;
         }
 
-        ClassResourceInfo resourceClass = getClassResourceInfo(c);
+        ClassResourceInfo classResourceInfo = getClassResourceInfo(c);
 
-        MethodDispatcher md = createOperation(c, resourceClass);
-        resourceClass.setMethodDispatcher(md);
+        MethodDispatcher md = createOperation(c, classResourceInfo);
+        classResourceInfo.setMethodDispatcher(md);
         
-        String annotationValue = annotation.value();
+        String annotationValue = uriTemplateAnnotation.value();
         if (!annotationValue.startsWith("/")) {
             annotationValue = "/" + annotationValue;
         }
-        String rightHandPattern = (resourceClass.hasSubResources())
+        String rightHandPattern = (classResourceInfo.hasSubResources())
             ? URITemplate.SUB_RESOURCE_REGEX_SUFFIX : URITemplate.NONE_SUB_RESOURCE_REGEX_SUFFIX;
         URITemplate t = new URITemplate(annotationValue, rightHandPattern);
-        resourceClass.setURITemplate(t);
+        classResourceInfo.setURITemplate(t);
         
-        return resourceClass;
+        //TODO: Using information from annotation to determine which lifecycle provider to use
+        ResourceProvider rp = resourceProviders.get(c);
+        if (rp != null) {
+            rp.setResourceClass(c);
+            classResourceInfo.setResourceProvider(rp);
+        } else {
+            //default lifecycle is per-request
+            rp = new PerRequestResourceProvider();
+            rp.setResourceClass(c);
+            classResourceInfo.setResourceProvider(rp);  
+        }
+        
+        return classResourceInfo;
     }
 
     protected ClassResourceInfo getClassResourceInfo(final Class<?> c) {

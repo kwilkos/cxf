@@ -36,7 +36,6 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.FaultOutInterceptor;
-import org.apache.cxf.jaxws.support.JaxWsServiceConfiguration;
 import org.apache.cxf.message.FaultMode;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
@@ -48,7 +47,7 @@ import org.apache.cxf.service.model.OperationInfo;
 public class WebFaultOutInterceptor extends FaultOutInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(WebFaultOutInterceptor.class);
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WebFaultOutInterceptor.class);
 
     public WebFaultOutInterceptor() {
         super();

@@ -19,12 +19,14 @@
 
 package org.apache.cxf.jaxrs.model;
 
+import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 
 public class ClassResourceInfo {
     private Class resourceClass;
     private URITemplate uriTemplate;
     private MethodDispatcher methodDispatcher;
     private boolean hasSubResources;
+    private ResourceProvider resourceProvider;
 
     public ClassResourceInfo(Class theResourceClass) {
         resourceClass = theResourceClass;
@@ -57,4 +59,13 @@ public class ClassResourceInfo {
     public void setHasSubResources(boolean flag) {
         hasSubResources = flag;
     }
+    
+
+    public ResourceProvider getResourceProvider() {
+        return resourceProvider;
+    }
+
+    public void setResourceProvider(ResourceProvider rp) {
+        resourceProvider = rp;
+    }    
 }

@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -34,7 +33,6 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
 

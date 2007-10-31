@@ -57,10 +57,6 @@ public class JAXRSInvoker extends AbstractInvoker {
         return invoke(exchange, resourceObject, m, params);
     }
 
-    
-    // REVISIT: Not sure how to deal with Resource class life cycle. The current
-    // spec suggests two models, per-request and singleton, and it is the
-    // reponsibility of JSR-311 runtime to create resource instances.
     public Object getServiceObject(Exchange exchange) {
         Object serviceObject = null;
         
@@ -77,11 +73,7 @@ public class JAXRSInvoker extends AbstractInvoker {
         }
         
         if (serviceObject == null) {
-            try {
-                serviceObject = classResourceInfo.getResourceClass().newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            serviceObject = classResourceInfo.getResourceProvider().getInstance();
         }
         
         return serviceObject;
