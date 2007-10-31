@@ -21,29 +21,20 @@ package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.util.Hashtable;
-import java.util.Map;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
-import org.apache.cxf.BusFactory;
+
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
-import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.transport.DestinationFactoryManager;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -57,82 +48,26 @@ import org.springframework.core.io.InputStreamResource;
  * to the {@link ServletController}.
  *
  */
-public class CXFServlet extends HttpServlet {
-    static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
-    static final Logger LOG = LogUtils.getL7dLogger(CXFServlet.class);
+public class CXFServlet extends AbstractCXFServlet {
     
-    private Bus bus;
-    private ServletTransportFactory servletTransportFactory;
-    private ServletController controller;
-    private Object childCtx;
-    private Object reader;
+    private GenericApplicationContext childCtx;
     
-   
-    public ServletController createServletController(ServletConfig servletConfig) {
-        String hideServiceList = servletConfig.getInitParameter("hide-service-list-page");
-        ServletController newController = new ServletController(servletTransportFactory, this);
-        if (hideServiceList != null) {
-            newController.setHideServiceList(Boolean.valueOf(hideServiceList));
-        }    
-        return newController;
-    }
-
-    public ServletController getController() {
-        return controller;
+    public static Logger getLogger() {
+        return LogUtils.getL7dLogger(CXFServlet.class);
     }
     
-    public Bus getBus() {
-        return bus;
-    }
-
-    public void init(ServletConfig servletConfig) throws ServletException {
-        super.init(servletConfig);
-
+    public void loadBus(ServletConfig servletConfig) throws ServletException {
+        String springCls = "org.springframework.context.ApplicationContext";
         try {
-            BusFactory.setThreadDefaultBus(null);
-    
-            String busid = servletConfig.getInitParameter("bus.id");
-            if (null != busid) {
-                WeakReference<Bus> ref = BUS_MAP.get(busid);
-                if (null != ref) {
-                    bus = ref.get();
-                    BusFactory.setThreadDefaultBus(bus);
-                }
-            }
-            
-            String springCls = "org.springframework.context.ApplicationContext";
-            try {
-                ClassLoaderUtils.loadClass(springCls, getClass());
-                loadSpringBus(servletConfig);
-            } catch (ClassNotFoundException e) {                
-                loadBusNoConfig(servletConfig);
-            }
-                
-                
-            if (null != busid) {
-                BUS_MAP.put(busid, new WeakReference<Bus>(bus));
-            }
-        } finally {
-            BusFactory.setThreadDefaultBus(null);
+            ClassLoaderUtils.loadClass(springCls, getClass());
+            loadSpringBus(servletConfig);
+        } catch (ClassNotFoundException e) {                
+            LOG.log(Level.SEVERE, "FAILED_TO_LOAD_SPRING_BUS", new Object[]{e});
+            new ServletException("Can't load bus with Spring context class", e);
         }
     }
     
-    private void loadBusNoConfig(ServletConfig servletConfig) throws ServletException {
-        
-        if (bus == null) {
-            LOG.info("LOAD_BUS_WITHOUT_APPLICATION_CONTEXT");
-            bus = BusFactory.newInstance().createBus();
-        }
-        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
-        resourceManager.addResourceResolver(new ServletContextResourceResolver(
-                                               servletConfig.getServletContext()));
-                        
-        replaceDestinationFactory();
-        // Set up the ServletController
-        controller = createServletController(servletConfig);
-        
-    }
-
+    
     private void loadSpringBus(ServletConfig servletConfig) throws ServletException {
         
         // try to pull an existing ApplicationContext out of the
@@ -203,90 +138,20 @@ public class CXFServlet extends HttpServlet {
             LOG.log(Level.INFO, "BUILD_ENDPOINTS_FROM_CONFIG_LOCATION", new Object[]{location});
             childCtx = new GenericApplicationContext(ctx);
             
-            reader = 
-                new XmlBeanDefinitionReader(
-                    (GenericApplicationContext)childCtx);
-            ((XmlBeanDefinitionReader)reader).setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
-            ((XmlBeanDefinitionReader)reader).loadBeanDefinitions(new InputStreamResource(is, location));
+            XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(childCtx);
+            reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD);
+            reader.loadBeanDefinitions(new InputStreamResource(is, location));
             
-            ((GenericApplicationContext)childCtx).refresh();
+            childCtx.refresh();
         } 
-    }
-
-    /**
-     * @return
-     */
-    protected DestinationFactory createServletTransportFactory() {
-        if (servletTransportFactory == null) {
-            servletTransportFactory = new ServletTransportFactory(bus);
-        }
-        return servletTransportFactory;
-    }
-
-    private void registerTransport(DestinationFactory factory, String namespace) {
-        bus.getExtension(DestinationFactoryManager.class).registerDestinationFactory(namespace, factory);
-    }
-
-    private void replaceDestinationFactory() throws ServletException {
-       
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class); 
-        try {
-            DestinationFactory df = dfm
-                .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
-            if (df instanceof ServletTransportFactory) {
-                servletTransportFactory = (ServletTransportFactory)df;
-                LOG.info("DESTIONFACTORY_ALREADY_REGISTERED");
-                return;
-            }
-        } catch (BusException e) {
-            // why are we throwing a busexception if the DF isn't found?
-        }
-
-        
-        DestinationFactory factory = createServletTransportFactory();
-
-        for (String s : factory.getTransportIds()) {
-            registerTransport(factory, s);
-        }
-        LOG.info("REPLACED_HTTP_DESTIONFACTORY");
     }
 
     public void destroy() {
         if (childCtx != null) {
-            ((GenericApplicationContext)childCtx).destroy();
+            childCtx.destroy();
         }
-        
-        String s = bus.getId();
-        BUS_MAP.remove(s);
-        bus.shutdown(true);
+        super.destroy();        
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        invoke(request, response);
-    }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        invoke(request, response);
-    }
-
-    @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        invoke(request, response);
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-        IOException {
-        invoke(request, response);
-    }
     
-    private  void invoke(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try {
-            BusFactory.setThreadDefaultBus(getBus());
-            controller.invoke(request, response);
-        } finally {
-            BusFactory.setThreadDefaultBus(null);
-        }
-    }
 }
