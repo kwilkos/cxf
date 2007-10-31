@@ -69,6 +69,9 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/test/resources/wsdl/jaxb/misc_test.xsd</xsd>
                                 </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/test/resources/wsdl/jaxb/form_test.xsd</xsd>
+                                </xsdOption>
                             </xsdOptions>
                         </configuration>
                         <goals>
