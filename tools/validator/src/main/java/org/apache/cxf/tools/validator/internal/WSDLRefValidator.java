@@ -74,6 +74,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
     private Set<QName> portTypeRefNames = new HashSet<QName>();
     private Set<QName> messageRefNames = new HashSet<QName>();
+    private Map<QName, Service> services = new HashMap<QName, Service>();
 
     private ValidationResult vResults = new ValidationResult();
 
@@ -96,7 +97,6 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         WSDLDefinitionBuilder wsdlBuilder = new WSDLDefinitionBuilder();
         try {
             this.definition = wsdlBuilder.build(wsdl);
-            
             if (wsdlBuilder.getImportedDefinitions().size() > 0) {
                 importedDefinitions = new ArrayList<Definition>();
                 importedDefinitions.addAll(wsdlBuilder.getImportedDefinitions());
@@ -183,6 +183,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
     public boolean isValid() {
         try {
+            loadServices();
 
             collectValidationPoints();
 
@@ -207,14 +208,21 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         return vResults.isSuccessful();
     }
 
-    private Map<QName, Service> getServices() {
-        Map<QName, Service> services = new HashMap<QName, Service>();
-        Iterator sNames = definition.getAllServices().keySet().iterator();
+    private void addServices(final Definition wsdlDef) {
+        Iterator sNames = wsdlDef.getServices().keySet().iterator();
         while (sNames.hasNext()) {
             QName sName = (QName) sNames.next();
             services.put(sName, definition.getService(sName));
         }
-        return services;
+    }
+
+    private void loadServices() {
+        addServices(this.definition);
+        if (importedDefinitions != null) {
+            for (Definition d : importedDefinitions) {
+                addServices(d);
+            }
+        }
     }
 
     private Map<QName, XNode> getBindings(Service service) {
@@ -333,7 +341,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
     @SuppressWarnings("unchecked")
     private void collectValidationPoints() {
-        if (getServices().size() == 0) {
+        if (services.size() == 0) {
             addWarning("WSDL document does not define any services");
             portTypeRefNames.addAll(this.definition.getAllPortTypes().keySet());
         } else {
@@ -346,7 +354,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
     private void collectValidationPointsForBindings() {
         Map<QName, XNode> vBindingNodes = new HashMap<QName, XNode>();
-        for (Service service : getServices().values()) {
+        for (Service service : services.values()) {
             vBindingNodes.putAll(getBindings(service));
         }
 
