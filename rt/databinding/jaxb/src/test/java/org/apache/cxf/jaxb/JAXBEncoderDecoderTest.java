@@ -47,7 +47,7 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxb_form.ObjectWithQualifiedElement;
+import org.apache.cxf.jaxb_form.ObjectWithQualifiedElementElement;
 import org.apache.cxf.jaxb_misc.Base64WithDefaultValueType;
 import org.apache.cxf.jaxb_misc.ObjectFactory;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -90,7 +90,7 @@ public class JAXBEncoderDecoderTest extends Assert {
             GreetMe.class,
             GreetMeResponse.class,
             StringStruct.class,
-            ObjectWithQualifiedElement.class
+            ObjectWithQualifiedElementElement.class
         });
         Method method = TestUtil.getMethod(Greeter.class, "greetMe");
         wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
@@ -158,7 +158,7 @@ public class JAXBEncoderDecoderTest extends Assert {
     
     @Test
     public void testMarshallWithFormQualifiedElement() throws Exception {
-        ObjectWithQualifiedElement testObject = new ObjectWithQualifiedElement();
+        ObjectWithQualifiedElementElement testObject = new ObjectWithQualifiedElementElement();
         testObject.setString1("twine");
         testObject.setString2("cord");
         
