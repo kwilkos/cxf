@@ -33,7 +33,7 @@ public class JaxWsClientFactoryBean extends ClientFactoryBean {
 
 
     public JaxWsClientFactoryBean() {
-        setServiceFactory(new JaxWsServiceFactoryBean());
+        super(new JaxWsServiceFactoryBean());
     }
     
     @Override

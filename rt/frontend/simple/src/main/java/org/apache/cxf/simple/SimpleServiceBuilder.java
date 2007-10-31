@@ -25,7 +25,6 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 public class SimpleServiceBuilder extends AbstractServiceFactory {
     
     public SimpleServiceBuilder() {
-        super();
-        setServiceFactory(new ReflectionServiceFactoryBean());
+        super(new ReflectionServiceFactoryBean());
     }
 }
