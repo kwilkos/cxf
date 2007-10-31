@@ -36,6 +36,7 @@ import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.UnsupportedSchemaConstruct;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaForm;
@@ -60,12 +61,16 @@ public class SchemaJavascriptBuilder {
     private static final String XSI_NS_ATTR = WSDLConstants.NP_XMLNS + ":" 
         + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NU_SCHEMA_XSI + "'";
     private static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
+    private XmlSchemaCollection xmlSchemaCollection;
     private SchemaInfo schemaInfo;
     private NameManager nameManager;
     private Map<String, String> fallbackNamespacePrefixMap;
     private int nsCounter;
     
-    public SchemaJavascriptBuilder(NameManager nameManager, SchemaInfo schemaInfo) {
+    public SchemaJavascriptBuilder(XmlSchemaCollection schemaCollection,
+                                   NameManager nameManager, 
+                                   SchemaInfo schemaInfo) {
+        this.xmlSchemaCollection = schemaCollection;
         this.nameManager = nameManager;
         this.schemaInfo = schemaInfo;
         fallbackNamespacePrefixMap = new HashMap<String, String>();
@@ -135,8 +140,19 @@ public class SchemaJavascriptBuilder {
      * @return
      */
     private String xmlElementString(XmlSchemaElement element, NamespacePrefixAccumulator accumulator) {
-        QName qname = element.getQName();
-        if (isElementNameQualified(element)) {
+        QName qname;
+        boolean forceQualification = false;
+        if (element.getRefName() != null) {
+            qname = element.getRefName();
+            forceQualification = !qname.getNamespaceURI().equals(schemaInfo.getNamespaceURI());
+        } else {
+            qname = element.getQName();
+        }
+        // some elements don't have qnames, only local names.
+        // one hopes that we aren't called upon to produce a qualified form for such an element, though
+        // perhaps we're supposed to pull the TNS out of a hat.
+        if (forceQualification || isElementNameQualified(element)) {
+            assert qname != null;
             String prefix = qname.getPrefix();
             if ("".equals(prefix)) { // this is not quite good enough.
                 prefix = getPrefix(qname.getNamespaceURI());
@@ -144,7 +160,7 @@ public class SchemaJavascriptBuilder {
             accumulator.collect(prefix, qname.getNamespaceURI());
             return prefix + ":" + qname.getLocalPart();
         } else {
-            return qname.getLocalPart();
+            return element.getName(); // use the non-qualified name.
         }
     }
     
@@ -196,20 +212,6 @@ public class SchemaJavascriptBuilder {
         return code.toString();
     }
     
-    /**
-     * If you ask an XmlSchemaElement for a type object, and the object is of simple type, 
-     * the answer appears to be, in some cases,
-     * null! The name, however, is OK. Since all we need is the name, this function 
-     * encapsulates the workaround. 
-     * @param element
-     * @return
-     */
-    private String getElementSimpleTypeName(XmlSchemaElement element) {
-        QName typeName = element.getSchemaTypeName();
-        assert WSDLConstants.NU_SCHEMA_XSD.equals(typeName.getNamespaceURI());
-        return typeName.getLocalPart();
-    }
-    
     public String complexTypeConstructorAndAccessors(XmlSchemaComplexType type) {
         StringBuffer code = new StringBuffer();
         StringBuffer accessors = new StringBuffer();
@@ -238,8 +240,8 @@ public class SchemaJavascriptBuilder {
             }
             
             XmlSchemaElement elChild = (XmlSchemaElement)thing;
-            XmlSchemaType elType = elChild.getSchemaType();
-            assert elType != null;
+            XmlSchemaType elType = getElementType(type, elChild);
+
             boolean nillable = elChild.isNillable();
             if (elChild.isAbstract()) { 
                 unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
@@ -274,7 +276,7 @@ public class SchemaJavascriptBuilder {
                 String defaultValueString = elChild.getDefaultValue();
                 if (defaultValueString == null) {
                     defaultValueString = 
-                        utils.getDefaultValueForSimpleType(getElementSimpleTypeName(elChild));
+                        utils.getDefaultValueForSimpleType(elType);
                 }
                 utils.appendLine(elementName + " = " + defaultValueString + ";");
             }
@@ -283,6 +285,22 @@ public class SchemaJavascriptBuilder {
         return code.toString() + "\n" + accessors.toString();
     }
     
+    /**
+     * Follow a chain of references from element to element until we can obtain a type.
+     * @param element
+     * @return
+     */
+    private XmlSchemaType getElementType(XmlSchemaComplexType containingType, XmlSchemaElement element) {
+        XmlSchemaElement originalElement = element;
+        while (element.getSchemaType() == null && element.getRefName() != null) {
+            element = xmlSchemaCollection.getElementByQName(element.getRefName());
+        }
+        if (element.getSchemaType() == null) {
+            unsupportedConstruct("ELEMENT_HAS_NO_TYPE", originalElement.getName(), containingType);
+        }
+        return element.getSchemaType();
+    }
+
     /**
      * Produce a serializer function for a type.
      * These functions emit the surrounding element XML if the caller supplies an XML element name.
@@ -351,7 +369,7 @@ public class SchemaJavascriptBuilder {
         // XML Schema, please meet Iterable (not).
         for (int i = 0; i < sequence.getItems().getCount(); i++) {
             XmlSchemaElement elChild = (XmlSchemaElement)sequence.getItems().getItem(i);
-            XmlSchemaType elType = elChild.getSchemaType();
+            XmlSchemaType elType = getElementType(type, elChild);
             boolean nillable = elChild.isNillable();
             if (elChild.isAbstract()) {
                 unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);
@@ -391,7 +409,7 @@ public class SchemaJavascriptBuilder {
             if (elType instanceof XmlSchemaComplexType) {
                 utils.appendExpression(elementName + ".serialize(cxfjsutils, " + elementXmlRef + ")");
             } else {
-                String typeName = getElementSimpleTypeName(elChild);
+                QName typeName = elType.getQName();
                 utils.appendString("<" + elementXmlRef + ">");
                 // warning: this assumes that ordinary Javascript serialization is all we need.
                 // except for &gt; ad all of that.

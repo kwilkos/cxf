@@ -182,7 +182,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         return getService();
     }
-
+    
+    /**
+     * Code elsewhere in this function will fill in the name of the type of an element but not the reference
+     * to the type. This function fills in the type references.
+     * 
+     * This does not set the type reference for elements that are declared as refs to other elements.
+     * It is a giant pain to find them, since they are not (generally) root elements and the code would
+     * have to traverse all the types to find all of them. Users should look them up through the collection,
+     * that's what it is for.
+     */
     private void fillInSchemaCrossreferences() {
         Service service = getService();
         for (ServiceInfo serviceInfo : service.getServiceInfos()) {
@@ -212,36 +221,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     }
                 }
                 
-            }
-            
-            // second pass. Fill in based on refs.
-            for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
-                XmlSchemaObjectTable elementsTable = schemaInfo.getSchema().getElements();
-                Iterator elementsIterator = elementsTable.getNames();
-                while (elementsIterator.hasNext()) {
-                    QName elementName = (QName)elementsIterator.next();
-                    XmlSchemaElement element = schemaInfo.getSchema().getElementByName(elementName);
-                    if (element.getSchemaType() == null) {
-                        QName refElementName = element.getRefName();
-                        if (refElementName != null) {
-                            XmlSchemaElement refElement = 
-                                schemaCollection.getElementByQName(refElementName);
-                            if (refElement == null) {
-                                Message message = new Message("REFERENCE_TO_UNDEFINED_ELEMENT",
-                                                              LOG,
-                                                              element.getQName(),
-                                                              refElementName,
-                                                              service.getName());
-                                LOG.severe(message.toString());
-                            } else {
-                                // it is convenient for other consumers if we put the type in place.
-                                // we trust that anything generating XSD will avoid something stupid like:
-                                // <element ref='x' type='y'/> as a result.
-                                element.setSchemaType(refElement.getSchemaType());
-                            }
-                        }
-                    }
-                }
             }
         }
     }

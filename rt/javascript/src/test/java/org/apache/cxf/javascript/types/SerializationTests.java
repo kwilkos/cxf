@@ -150,7 +150,7 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         nameManager = new BasicNameManager(serviceInfo);
         for (SchemaInfo schema : schemata) {
             SchemaJavascriptBuilder builder = 
-                new SchemaJavascriptBuilder(nameManager, schema);
+                new SchemaJavascriptBuilder(serviceInfo.getXmlSchemaCollection(), nameManager, schema);
             String allThatJavascript = builder.generateCodeForSchema(schema);
             assertNotNull(allThatJavascript);
             testUtilities.readStringIntoRhino(allThatJavascript, schema.toString() + ".js");

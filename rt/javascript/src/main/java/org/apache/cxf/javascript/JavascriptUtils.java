@@ -25,6 +25,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.xml.namespace.QName;
+
+import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.ws.commons.schema.XmlSchemaType;
+
 /**
  * 
  */
@@ -53,10 +58,8 @@ public class JavascriptUtils {
         prefixStack.push("    ");
     }
     
-    // the next two functions operate by name to get around XmlSchema quirk.
-    
-    public String getDefaultValueForSimpleType(String typeName) {
-        String val = defaultValueForSimpleType.get(typeName);
+    public String getDefaultValueForSimpleType(XmlSchemaType type) {
+        String val = defaultValueForSimpleType.get(type.getName());
         if (val == null) { // ints and such return the appropriate 0.
             return "''";
         } else {
@@ -64,8 +67,9 @@ public class JavascriptUtils {
         }
     }
     
-    public boolean isStringSimpleType(String typeName) {
-        return !nonStringSimpleTypes.contains(typeName);
+    public boolean isStringSimpleType(QName typeName) {
+        return !(WSDLConstants.NU_SCHEMA_XSD.equals(typeName.getNamespaceURI()) 
+                 && nonStringSimpleTypes.contains(typeName.getLocalPart()));
     }
     
     public void setXmlStringAccumulator(String variableName) {
