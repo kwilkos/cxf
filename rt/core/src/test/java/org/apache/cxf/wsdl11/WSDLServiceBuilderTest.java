@@ -363,8 +363,7 @@ public class WSDLServiceBuilderTest extends Assert {
 
     @Test
     public void testSchema() {
-        XmlSchemaCollection schemas = serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST,
-                XmlSchemaCollection.class);
+        XmlSchemaCollection schemas = serviceInfo.getXmlSchemaCollection();
         assertNotNull(schemas);
         assertEquals(serviceInfo.getSchemas().size(), 1);
         SchemaInfo schemaInfo = serviceInfo.getSchemas().iterator().next();

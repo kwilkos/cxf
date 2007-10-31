@@ -239,6 +239,7 @@ public class SchemaJavascriptBuilder {
             
             XmlSchemaElement elChild = (XmlSchemaElement)thing;
             XmlSchemaType elType = elChild.getSchemaType();
+            assert elType != null;
             boolean nillable = elChild.isNillable();
             if (elChild.isAbstract()) { 
                 unsupportedConstruct("ABSTRACT_ELEMENT", elChild.getName(), type);

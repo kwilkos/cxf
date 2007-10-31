@@ -187,10 +187,9 @@ public class WSDLServiceBuilder {
                 ServiceInfo service = new ServiceInfo();
                 service.setDescription(description);
                 service.setProperty(WSDL_DEFINITION, def);
-                XmlSchemaCollection schemas = getSchemas(def, service);
+                getSchemas(def, service);
 
                 service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
-                service.setProperty(WSDL_SCHEMA_LIST, schemas);
                 serviceList.add(service);
             }
         }
@@ -208,11 +207,9 @@ public class WSDLServiceBuilder {
         ServiceInfo service = new ServiceInfo();
         service.setDescription(description);
         service.setProperty(WSDL_DEFINITION, def);
-        XmlSchemaCollection schemas = getSchemas(def, service);
+        getSchemas(def, service);
 
         service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
-
-        service.setProperty(WSDL_SCHEMA_LIST, schemas);
 
         buildInterface(service, p);
 
@@ -249,9 +246,8 @@ public class WSDLServiceBuilder {
                 service.setProperty(WSDL_DEFINITION, def);
                 service.setProperty(WSDL_SERVICE, serv);
 
-                XmlSchemaCollection schemas = getSchemas(def, service);
+                getSchemas(def, service);
                 service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
-                service.setProperty(WSDL_SCHEMA_LIST, schemas);
                 service.setTargetNamespace(def.getTargetNamespace());
                 service.setName(serv.getQName());
                 copyExtensors(service, serv.getExtensibilityElements());
@@ -272,9 +268,8 @@ public class WSDLServiceBuilder {
         return new ArrayList<ServiceInfo>(services.values());
     }
 
-    private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {
-        XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-        serviceInfo.setXmlSchemaCollection(schemaCol);
+    private void getSchemas(Definition def, ServiceInfo serviceInfo) {
+        XmlSchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
         schemaCol.getExtReg().setDefaultExtensionDeserializer(
             new FixedExtensionDeserializer());
 
@@ -288,8 +283,6 @@ public class WSDLServiceBuilder {
             // added
             getSchemaList(def2);
         }
-
-        return schemaCol;
     }
 
     private void parseImports(Definition def, List<Definition> defList) {
@@ -641,8 +634,7 @@ public class WSDLServiceBuilder {
         if (!passedRule) {
             return;
         }
-        XmlSchemaCollection schemas = (XmlSchemaCollection)opInfo.getInterface().getService()
-            .getProperty(WSDL_SCHEMA_LIST);
+        XmlSchemaCollection schemas = opInfo.getInterface().getService().getXmlSchemaCollection();
         XmlSchemaElement inputEl = null;
         XmlSchemaElement outputEl = null;
 
@@ -790,8 +782,8 @@ public class WSDLServiceBuilder {
     }
 
     private void buildMessage(AbstractMessageContainer minfo, Message msg) {
-        XmlSchemaCollection schemas = (XmlSchemaCollection)minfo.getOperation().getInterface().getService()
-            .getProperty(WSDL_SCHEMA_LIST);
+        XmlSchemaCollection schemas = minfo.getOperation().getInterface().getService()
+            .getXmlSchemaCollection();
         List orderedParam = msg.getOrderedParts(null);
         for (Part part : cast(orderedParam, Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part

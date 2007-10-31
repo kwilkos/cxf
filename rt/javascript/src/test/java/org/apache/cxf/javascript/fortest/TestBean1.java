@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlType;
 public class TestBean1 {
     //CHECKSTYLE:OFF
     public String stringItem;
+    @XmlElement(namespace = "uri:org.apache.cxf.javascript.testns2")
     public int intItem;
     @XmlElement(defaultValue = "43")
     public long longItem;
