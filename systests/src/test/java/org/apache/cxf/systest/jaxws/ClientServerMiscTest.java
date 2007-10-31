@@ -198,6 +198,23 @@ public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
+    public void testMissingMethods() throws Exception {
+        QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                "DocLitWrappedCodeFirstServicePort");
+        QName servName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
+                "DocLitWrappedCodeFirstService");
+        
+        Service service = Service.create(new URL(ServerMisc.DOCLIT_CODEFIRST_URL + "?wsdl"),
+                      servName);
+        DocLitWrappedCodeFirstServiceMissingOps port = service.getPort(portName,
+                                  DocLitWrappedCodeFirstServiceMissingOps.class);
+
+        int[] ret = port.echoIntArray(new int[] {1, 2});
+        assertNotNull(ret);
+        //port.arrayOutput();
+    }
+    
+    @Test
     public void testStringListOutDocLitNoWsdl() throws Exception {
         QName portName = new QName("http://cxf.apache.org/systest/jaxws/DocLitWrappedCodeFirstService", 
                                    "DocLitWrappedCodeFirstServicePort");
