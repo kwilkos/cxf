@@ -345,6 +345,7 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/ordered_param_holder.wsdl</wsdl>
                                 </wsdlOption>
+
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_services.wsdl</wsdl>
                                 </wsdlOption>

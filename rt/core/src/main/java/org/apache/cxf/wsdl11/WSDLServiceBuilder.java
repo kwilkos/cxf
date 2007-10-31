@@ -43,26 +43,17 @@ import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
-import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
-import javax.wsdl.extensions.schema.Schema;
-import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
-import org.apache.cxf.catalog.CatalogXmlSchemaURIResolver;
-import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.common.util.FixedExtensionDeserializer;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -77,12 +68,10 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -269,20 +258,9 @@ public class WSDLServiceBuilder {
     }
 
     private void getSchemas(Definition def, ServiceInfo serviceInfo) {
-        XmlSchemaCollection schemaCol = serviceInfo.getXmlSchemaCollection();
-        schemaCol.getExtReg().setDefaultExtensionDeserializer(
-            new FixedExtensionDeserializer());
-
-        List<Definition> defList = new ArrayList<Definition>();
-        parseImports(def, defList);
-        extractSchema(def, schemaCol, serviceInfo);
-        // added
-        getSchemaList(def);
-        for (Definition def2 : defList) {
-            extractSchema(def2, schemaCol, serviceInfo);
-            // added
-            getSchemaList(def2);
-        }
+        SchemaUtil schemaUtil = new SchemaUtil(bus, this.schemaList);
+        schemaUtil.setCatalogResolvedMap(this.catalogResolvedMap);
+        schemaUtil.getSchemas(def, serviceInfo);
     }
 
     private void parseImports(Definition def, List<Definition> defList) {
@@ -298,118 +276,6 @@ public class WSDLServiceBuilder {
                 parseImports(impt.getDefinition(), defList);
             }
         }
-    }
-
-    private void extractSchema(Definition def, XmlSchemaCollection schemaCol, ServiceInfo serviceInfo) {
-        Types typesElement = def.getTypes();
-        if (typesElement != null) {
-            int schemaCount = 1;
-            for (Object obj : typesElement.getExtensibilityElements()) {
-                org.w3c.dom.Element schemaElem = null;
-                if (obj instanceof Schema) {
-                    Schema schema = (Schema)obj;
-                    schemaElem = schema.getElement();
-                } else if (obj instanceof UnknownExtensibilityElement) {
-                    org.w3c.dom.Element elem = ((UnknownExtensibilityElement)obj).getElement();
-                    if (elem.getLocalName().equals("schema")) {
-                        schemaElem = elem;
-                    }
-                }
-                if (schemaElem != null) {
-                    for (Object prefix : def.getNamespaces().keySet()) {
-                        String ns = (String)def.getNamespaces().get(prefix);
-                        if (!"".equals(prefix) && !schemaElem.hasAttribute("xmlns:" + prefix)) {
-                            schemaElem.setAttributeNS(javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                                                      "xmlns:" + prefix, ns);
-                        }
-                    }
-                    String systemId = def.getDocumentBaseURI() + "#types" + schemaCount;
-
-                    schemaCol.setBaseUri(def.getDocumentBaseURI());
-                    CatalogXmlSchemaURIResolver schemaResolver =
-                        new CatalogXmlSchemaURIResolver(OASISCatalogManager.getCatalogManager(bus));
-                    schemaCol.setSchemaResolver(schemaResolver);
-                    XmlSchema xmlSchema = schemaCol.read(schemaElem, systemId);
-
-                    SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, xmlSchema.getTargetNamespace());
-                    schemaInfo.setElement(schemaElem);
-                    schemaInfo.setSchema(xmlSchema);
-                    schemaInfo.setSystemId(systemId);
-                    serviceInfo.addSchema(schemaInfo);
-                    schemaCount++;
-                }
-            }
-        }
-    }
-
-    // Workaround for getting the elements
-    private void getSchemaList(Definition def) {
-        Types typesElement = def.getTypes();
-        if (typesElement != null) {
-            Iterator ite = typesElement.getExtensibilityElements().iterator();
-            while (ite.hasNext()) {
-                Object obj = ite.next();
-                if (obj instanceof Schema) {
-                    Schema schema = (Schema)obj;
-                    addSchema(schema.getDocumentBaseURI(), schema);
-                }
-            }
-        }
-    }
-
-    private void addSchema(String docBaseURI, Schema schema) {
-        //String docBaseURI = schema.getDocumentBaseURI();
-        Element schemaEle = schema.getElement();
-        if (schemaList.get(docBaseURI) == null) {
-            schemaList.put(docBaseURI, schemaEle);
-        } else if (schemaList.get(docBaseURI) != null && schemaList.containsValue(schemaEle)) {
-            // do nothing
-        } else {
-            String tns = schema.getDocumentBaseURI() + "#"
-                         + schema.getElement().getAttribute("targetNamespace");
-            if (schemaList.get(tns) == null) {
-                schemaList.put(tns, schema.getElement());
-            }
-        }
-
-        Map<String, List> imports = CastUtils.cast(schema.getImports());
-        if (imports != null && imports.size() > 0) {
-            Collection<String> importKeys = imports.keySet();
-            for (String importNamespace : importKeys) {
-
-                List<SchemaImport> schemaImports = CastUtils.cast(imports.get(importNamespace));
-                
-                for (SchemaImport schemaImport : schemaImports) {
-                    Schema tempImport = schemaImport.getReferencedSchema();                   
-                    String key = schemaImport.getSchemaLocationURI();
-                    if (importNamespace == null && tempImport != null) {
-                        importNamespace = tempImport.getDocumentBaseURI();
-                    }
-                    if ((catalogResolvedMap == null || !catalogResolvedMap.containsKey(key)) 
-                        && tempImport != null) {                 
-                        key = tempImport.getDocumentBaseURI();
-                    }
-                    if (tempImport != null
-                        && !isSchemaParsed(key, importNamespace)
-                        && !schemaList.containsValue(tempImport.getElement())) {
-                        addSchema(key, tempImport);
-                    }
-                }
-
-            }
-        }
-
-    }
-
-    private boolean isSchemaParsed(String baseUri, String ns) {
-        if (schemaList.get(baseUri) != null) {
-            Element ele = schemaList.get(baseUri);
-            String tns = ele.getAttribute("targetNamespace");
-            if (ns.equals(tns)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {

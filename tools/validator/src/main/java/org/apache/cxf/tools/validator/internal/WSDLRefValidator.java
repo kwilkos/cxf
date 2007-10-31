@@ -19,7 +19,6 @@
 
 package org.apache.cxf.tools.validator.internal;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,7 +80,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
     private Definition definition;
 
     private List<Definition> importedDefinitions;
-    private List<XmlSchemaCollection> schemas;
+    private List<XmlSchemaCollection> schemas = new ArrayList<XmlSchemaCollection>();
     private XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
 
     private boolean suppressWarnings;
@@ -97,7 +96,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         WSDLDefinitionBuilder wsdlBuilder = new WSDLDefinitionBuilder();
         try {
             this.definition = wsdlBuilder.build(wsdl);
-
+            
             if (wsdlBuilder.getImportedDefinitions().size() > 0) {
                 importedDefinitions = new ArrayList<Definition>();
                 importedDefinitions.addAll(wsdlBuilder.getImportedDefinitions());
@@ -110,10 +109,12 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         }
 
         try {
-            Document document = doc == null ? getWSDLDocument() : doc;
-            schemas = ValidatorUtil.getSchemaList(document, definition.getDocumentBaseURI());
-        } catch (IOException ex) {
-            throw new ToolException("Cannot get schema list " + definition.getDocumentBaseURI(), ex);
+            schemas.add(ValidatorUtil.getSchema(this.definition));
+            if (importedDefinitions != null) {
+                for (Definition d : importedDefinitions) {
+                    schemas.add(ValidatorUtil.getSchema(d));
+                }
+            }
         } catch (Exception ex) {
             throw new ToolException(ex);
         }
@@ -204,10 +205,6 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
             return false;
         }
         return vResults.isSuccessful();
-    }
-
-    public void setDefinition(final Definition def) {
-        this.definition = def;
     }
 
     private Map<QName, Service> getServices() {
@@ -373,11 +370,13 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
                 XNode vBopNode = getOperationXNode(vBindingNode, bop.getName());
                 vOpNode.setFailurePoint(vBopNode);
                 vNodes.add(vOpNode);
-                String inName = bop.getBindingInput().getName();
-                if (!StringUtils.isEmpty(inName)) {
-                    XNode vInputNode = getInputXNode(vOpNode, inName);
-                    vInputNode.setFailurePoint(getInputXNode(vBopNode, inName));
-                    vNodes.add(vInputNode);
+                if (bop.getBindingInput() != null) {
+                    String inName = bop.getBindingInput().getName();
+                    if (!StringUtils.isEmpty(inName)) {
+                        XNode vInputNode = getInputXNode(vOpNode, inName);
+                        vInputNode.setFailurePoint(getInputXNode(vBopNode, inName));
+                        vNodes.add(vInputNode);
+                    }
                 }
                 if (bop.getBindingOutput() != null) {
                     String outName = bop.getBindingOutput().getName();
@@ -397,9 +396,22 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         }
     }
 
+    private javax.wsdl.Message getMessage(QName msgName) {
+        javax.wsdl.Message message = this.definition.getMessage(msgName);
+        if (message == null) {
+            for (Definition d : importedDefinitions) {
+                message = d.getMessage(msgName);
+                if (message != null) {
+                    break;
+                }
+            }
+        }
+        return message;
+    }
+
     private void collectValidationPointsForMessages() {
         for (QName msgName : messageRefNames) {
-            javax.wsdl.Message message = this.definition.getMessage(msgName);
+            javax.wsdl.Message message = getMessage(msgName);
             for (Iterator iter = message.getParts().values().iterator(); iter.hasNext();) {
                 Part part = (Part) iter.next();
                 QName elementName = part.getElementName();
@@ -437,12 +449,35 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
         }
     }
 
+    private PortType getPortType(QName ptName) {
+        PortType portType = this.definition.getPortType(ptName);
+        if (portType == null) {
+            for (Definition d : importedDefinitions) {
+                portType = d.getPortType(ptName);
+                if (portType != null) {
+                    break;
+                }
+            }
+        }
+        return portType;
+    }
+
     private void collectValidationPointsForPortTypes() {
         for (QName ptName : portTypeRefNames) {
-            PortType portType = this.definition.getPortType(ptName);
+            PortType portType = getPortType(ptName);
+            if (portType == null) {
+                vResults.addError(new Message("NO_PORTTYPE", LOG, ptName));
+                continue;
+            }
+
             XNode vPortTypeNode = getXNode(portType);
             for (Operation operation : getOperations(portType).values()) {
                 XNode vOperationNode = getOperationXNode(vPortTypeNode, operation.getName());
+                if (operation.getInput() == null) {
+                    vResults.addError(new Message("WRONG_MEP", LOG, operation.getName(),
+                                                  portType.getQName()));
+                    continue;
+                }
                 javax.wsdl.Message inMsg = operation.getInput().getMessage();
                 if (inMsg == null) {
                     addWarning("Operation " + operation.getName() + " in PortType: "

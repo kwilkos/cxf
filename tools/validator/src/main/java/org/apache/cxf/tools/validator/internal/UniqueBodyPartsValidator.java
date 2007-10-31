@@ -35,7 +35,6 @@ public class UniqueBodyPartsValidator extends AbstractDefinitionValidator {
 
     public UniqueBodyPartsValidator(Definition def) {
         super(def);
-
     }
 
     public boolean isValid() {

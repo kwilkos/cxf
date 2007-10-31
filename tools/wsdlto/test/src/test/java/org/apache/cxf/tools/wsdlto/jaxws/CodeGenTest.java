@@ -970,8 +970,10 @@ public class CodeGenTest extends ProcessorTestBase {
             processor.setContext(env);
             processor.execute();
         } catch (Exception e) {
+            String expectedMsg = "Invalid WSDL, Operation notify in PortType " 
+                + "{http://services.medial.com.br/echo}EchoNotification not request-response or one-way";
             assertTrue("Invalid wsdl should be diagnosed", e.getMessage()
-                .indexOf("Invalid WSDL,wsdl:operation") > -1);
+                .indexOf(expectedMsg) > -1);
         }
     }
 
