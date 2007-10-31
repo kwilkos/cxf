@@ -25,18 +25,19 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.validator.AbstractValidator;
 
 public abstract class AbstractDefinitionValidator extends AbstractValidator {
-    protected Definition def;
+    protected final Definition def;
     protected ToolContext env;
 
     public AbstractDefinitionValidator() {
         super();
+        this.def = null;
     }
 
-    public AbstractDefinitionValidator(Definition definition) {
+    public AbstractDefinitionValidator(final Definition definition) {
         this.def = definition;
     }
 
-    public AbstractDefinitionValidator(Definition definition, ToolContext pEnv) {
+    public AbstractDefinitionValidator(final Definition definition, ToolContext pEnv) {
         this.def = definition;
         this.env = pEnv;
     }

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.tools.validator.internal;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class WSDLRefValidatorTest extends Assert {
                                   WSDLRefValidator.LOG,
                                   27,
                                   2,
-                                  new File(new java.net.URI(wsdl)).toString(),
+                                  new java.net.URI(wsdl).toURL(),
                                   text);
         assertEquals(msg.toString(), t);
     }
@@ -127,7 +126,7 @@ public class WSDLRefValidatorTest extends Assert {
                                   WSDLRefValidator.LOG,
                                   42,
                                   6,
-                                  new File(new java.net.URI(wsdl)).toString(),
+                                  new java.net.URI(wsdl).toURL(),
                                   text);
         assertEquals(msg.toString(), results.getErrors().pop());
     }
