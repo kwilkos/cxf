@@ -64,8 +64,7 @@ public class JsSimpleDomNode extends ScriptableObject {
     
     //CHECKSTYLE:OFF
     public String jsGet_localName() {
-        String localName = wrappedNode.getLocalName();
-        return localName;
+        return wrappedNode.getLocalName();       
     }
     
     public String jsGet_namespaceURI() {
