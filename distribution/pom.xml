@@ -83,13 +83,13 @@
             <artifactId>cxf-tools-wsdlto-frontend-jaxws</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-tools-java2ws</artifactId>
             <version>${pom.version}</version>
-        </dependency>        
-        
+        </dependency>
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-xjc-dv</artifactId>
@@ -177,7 +177,7 @@
             <artifactId>cxf-rt-databinding-aegis</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-addr</artifactId>
@@ -193,7 +193,7 @@
             <artifactId>cxf-rt-ws-policy</artifactId>
             <version>${pom.version}</version>
         </dependency>
-		    <dependency>
+        <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
             <version>${pom.version}</version>
@@ -240,9 +240,12 @@
             <version>${pom.version}</version>
         </dependency>
         <dependency>
-	    <groupId>commons-httpclient</groupId>
-	    <artifactId>commons-httpclient</artifactId>
-	    <version>3.1-rc1</version>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
     </dependencies>
 
@@ -396,7 +399,7 @@
     <scm>
         <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</connection>
         <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/distribution</developerConnection>
-      <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-distribution</url>
-  </scm>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/cxf-parent/cxf-distribution</url>
+    </scm>
 
 </project>

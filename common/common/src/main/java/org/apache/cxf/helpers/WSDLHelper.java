@@ -170,7 +170,7 @@ public class WSDLHelper {
             Binding binding = (Binding)ite.next();
             for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {
                 BindingOperation bindingOperation = (BindingOperation)ite2.next();
-                if (bindingOperation.getName().equals(bop)) {
+                if (bindingOperation.getName().equals(bop.getName())) {
                     return binding;
                 }
             }

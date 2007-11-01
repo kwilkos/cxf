@@ -248,9 +248,9 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                 BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
                 Binding binding = wsdlHelper.getBinding(bop, def);
                 String bindingStyle = binding != null ? SOAPBindingUtil.getBindingStyle(binding) : "";
-                String style = "".equals(SOAPBindingUtil.getSOAPOperationStyle(bop))
+                String style = StringUtils.isEmpty(SOAPBindingUtil.getSOAPOperationStyle(bop))
                     ? bindingStyle : SOAPBindingUtil.getSOAPOperationStyle(bop);
-                if ("DOCUMENT".equalsIgnoreCase(style) || "".equals(style)) {
+                if ("DOCUMENT".equalsIgnoreCase(style) || StringUtils.isEmpty(style)) {
                     boolean passed = checkR2201Input(operation, bop)
                         && checkR2201Output(operation, bop)
                         && checkR2716(bop);
@@ -258,6 +258,7 @@ public class WSIBPValidator extends AbstractDefinitionValidator {
                         return false;
                     }
                 } else {
+                    System.out.println("Style: " + style);
                     if (!checkR2717AndR2726(bop)) {
                         return false;
                     }
