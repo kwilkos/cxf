@@ -65,11 +65,12 @@ public class JAXRSServerFactoryBean extends AbstractEndpointFactory {
 
     public JAXRSServerFactoryBean() {
         this(new JAXRSServiceFactoryBean());
-        doInit = true;
     }
+
     public JAXRSServerFactoryBean(JAXRSServiceFactoryBean sf) {
         this.serviceFactory = sf;
         doInit = true;
+        setBindingId(JAXRSBindingFactory.JAXRS_BINDING_ID);
     }
     
     public Server create() {

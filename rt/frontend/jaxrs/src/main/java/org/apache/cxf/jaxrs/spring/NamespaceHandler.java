@@ -16,32 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.jaxrs.spring;
 
-package org.apache.cxf.systest.jaxrs;
+import org.apache.cxf.configuration.spring.StringBeanDefinitionParser;
+import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
-    
-public class BookServerFromResourceInstance extends AbstractBusTestServerBase {
-
-    protected void run() {
-        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        BookStore bs = new BookStore();
-        sf.setServiceBeans(bs);
-        sf.setAddress("http://localhost:9080/");
-
-        sf.create();        
-    }
-
-    public static void main(String[] args) {
-        try {
-            BookServer s = new BookServer();
-            s.start();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.exit(-1);
-        } finally {
-            System.out.println("done!");
-        }
+public class NamespaceHandler extends NamespaceHandlerSupport {
+    public void init() {
+        registerBeanDefinitionParser("server", new JAXRSServerFactoryBeanDefinitionParser());        
+        registerBeanDefinitionParser("schemaLocation", new StringBeanDefinitionParser());    
     }
 }
