@@ -50,7 +50,6 @@ import org.junit.Test;
 import org.mozilla.javascript.RhinoException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-@Ignore
 public class SerializationTest extends AbstractDependencyInjectionSpringContextTests {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
