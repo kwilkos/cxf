@@ -17,28 +17,50 @@
  * under the License.
  */
  
- // We use a pseudo-class for name scoping here.
+ 
+function cxf_apache_org_util_null_trace(message)
+{
+}
  
 function CxfApacheOrgUtil()
 {
 	this.ELEMENT_NODE = 1;
+	if ("function" == typeof(org_apache_cxf_trace)) {
+		this.trace = org_apache_cxf_trace.trace;
+	} else {
+		this.trace = cxf_apache_org_util_null_trace;
+    }		
 }
 
 // compensate for Microsoft's weakness here.
 function org_apache_cxf_getNodeLocalName(node)
 {
-    if(node.localName)
+    if("localName" in node) {
         return node.localName;
-    else
+    } else {
         return node.baseName;
+    }
 }
 
-CxfApacheOrgUtil.prototype.getNodeLocalName = org_apache_cxf_getNodeLocalName; 
+CxfApacheOrgUtil.prototype.getNodeLocalName = org_apache_cxf_getNodeLocalName;
 
+function org_apache_cxf_element_name_for_trace(node)
+{
+	if(node == null)
+		return "null";
+	else if(node == undefined)
+		return "undefined";
+	else {
+	    var n = '';
+	    if(node.namespaceURI != null && node.namespaceURI != '') {
+   			n = n + "{" + node.namespaceURI + "}";
+   		} 
+   		return n + this.getNodeLocalName(node);
+	}
+}
 
-//*************************************************
-//                     XML Utils
-//*************************************************
+CxfApacheOrgUtil.prototype.traceElementName = org_apache_cxf_element_name_for_trace; 
+
 function org_apache_cxf_escapeXmlEntities(val) {
     if(val == null)
         return "";
@@ -49,6 +71,8 @@ function org_apache_cxf_escapeXmlEntities(val) {
 CxfApacheOrgUtil.prototype.escapeXmlEntities = org_apache_cxf_escapeXmlEntities; 
     
 function org_apache_cxf_isElementNil(node) {
+    if(node == null)
+    	throw "null node passed to isElementNil";
     // we need to look for an attribute xsi:nil, where xsi is
     // http://www.w3.org/2001/XMLSchema-instance. we have the usual
     // problem here with namespace-awareness.
@@ -64,15 +88,23 @@ function org_apache_cxf_isElementNil(node) {
 CxfApacheOrgUtil.prototype.isElementNil = org_apache_cxf_isElementNil; 
 
 function org_apache_cxf_getFirstElementChild(node) {
+    if(node == undefined)
+       throw "undefined node to getFirstElementChild";
+
 	var n;
-	for(n = node.firstChild; n != null && n.nodeType !=  this.ELEMENT_NODE; n = n.nextSibling) {
+	for(n = node.firstChild; n != null && n.nodeType != this.ELEMENT_NODE; n = n.nextSibling) {
 	}
+		
 	return n;
 }
 
 CxfApacheOrgUtil.prototype.getFirstElementChild = org_apache_cxf_getFirstElementChild; 
 
 function org_apache_cxf_getNextElementSibling(node) {
+	if(node == undefined)
+		throw "undefined node to getNextElementSibling";
+	if(node == null)
+		throw "null node to getNextElementSibling";
 	var n;
 	for(n = node.nextSibling; n != null && n.nodeType != this.ELEMENT_NODE; n = n.nextSibling)
 		;
@@ -83,13 +115,16 @@ CxfApacheOrgUtil.prototype.getNextElementSibling = org_apache_cxf_getNextElement
 
 function org_apache_cxf_isNodeNamedNS(node, namespaceURI, localName)
 {
+    if(node == undefined)
+       throw "undefined node to isNodeNamedNS";
+
     if(namespaceURI == '' || namespaceURI == null) {
         if(node.namespaceURI == '' || node.namespaceURI == null) {
-            return localName == xml_getLocalName(node);
+            return localName == org_apache_cxf_getNodeLocalName(node);
         } else
             return false;
     } else {
-        return namespaceURI == node.namespaceURI && localName == xml_getLocalName(node);
+        return namespaceURI == node.namespaceURI && localName == org_apache_cxf_getNodeLocalName(node);
     }
 }
 

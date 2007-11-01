@@ -21,19 +21,24 @@ package org.apache.cxf.javascript.types;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptTestUtilities;
+import org.apache.cxf.javascript.JavascriptTestUtilities.JavaScriptAssertionFailed;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
@@ -47,6 +52,7 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 public class SerializationTests extends AbstractDependencyInjectionSpringContextTests {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
+    private XMLOutputFactory xmlOutputFactory;
     private Client client;
     private List<ServiceInfo> serviceInfos;
     private Collection<SchemaInfo> schemata;
@@ -57,6 +63,7 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         testUtilities = new JavascriptTestUtilities(getClass());
         testUtilities.addDefaultNamespaces();
         xmlInputFactory = XMLInputFactory.newInstance();
+        xmlOutputFactory = XMLOutputFactory.newInstance();
     }
 
     @Override
@@ -64,11 +71,36 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
     
+    @Test 
+    public void testDeserialization() throws Exception {
+        setupClientAndRhino("simple-dlwu-proxy-factory");
+        testUtilities.readResourceIntoRhino("/deserializationTests.js");
+        DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
+        assertNotNull(dataBinding);
+        try {
+            TestBean1 bean = new TestBean1();
+            bean.stringItem = "bean1>stringItem";
+            DataWriter<XMLStreamWriter> writer = dataBinding.createWriter(XMLStreamWriter.class);
+            StringWriter stringWriter = new StringWriter();
+            XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
+            writer.write(bean, xmlStreamWriter);
+            xmlStreamWriter.flush();
+            xmlStreamWriter.close();
+            testUtilities.rhinoCall("deserializeTestBean1_1", stringWriter.toString());
+        } catch (JavaScriptAssertionFailed assertion) {
+            fail(assertion.getMessage());
+        } catch (RhinoException angryRhino) {
+            String trace = angryRhino.getScriptStackTrace();
+            Assert.fail("Javascript error: " + angryRhino.toString() + " " + trace);
+        }
+
+    }
+    
     @Test
     public void testSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
         
-        testUtilities.readResourceIntoRhino("/serializationTest.js");
+        testUtilities.readResourceIntoRhino("/serializationTests.js");
         DataBinding dataBinding = clientProxyFactory.getServiceFactory().getDataBinding();
         assertNotNull(dataBinding);
         

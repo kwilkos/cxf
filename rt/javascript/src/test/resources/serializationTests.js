@@ -17,10 +17,15 @@
  * under the License.
  */
  
- var jsutils = new CxfApacheOrgUtil();
+var jsutils = new CxfApacheOrgUtil();
  
- function serializeTestBean1_1()
- {
+function assertionFailed(explanation)
+{
+ 	var assert = new Assert(explanation); // this will throw out in Java.
+}
+ 
+function serializeTestBean1_1()
+{
  	var bean1 = new org_apache_cxf_javascript_testns_testBean1();
  	bean1.setStringItem("bean1<stringItem");
  	bean1.setIntItem(64);

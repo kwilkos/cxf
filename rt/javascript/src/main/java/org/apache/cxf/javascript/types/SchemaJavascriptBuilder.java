@@ -44,6 +44,7 @@ import org.apache.ws.commons.schema.XmlSchemaObject;
 import org.apache.ws.commons.schema.XmlSchemaObjectTable;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
@@ -131,17 +132,16 @@ public class SchemaJavascriptBuilder {
     }
     
     /**
-     * This function obtains a name, perhaps namespace-qualified, for an element.
-     * It also maintains a Map that records all the prefixes used in the course
-     * of working on a single serializer function (and thus a single complex-type-element
-     * XML element) which is used for namespace prefix management.
+     * Return an empty string if this element should be unqualified in XML
+     * or the namespace URI if it should be qualified. 
      * @param element
-     * @param namespaceMap
      * @return
      */
-    private String xmlElementString(XmlSchemaElement element, NamespacePrefixAccumulator accumulator) {
+    private String getElementQualifier(XmlSchemaElement element) {
         QName qname;
         boolean forceQualification = false;
+        // JAXB ends up with no form='qualified', but we qualify anyway if the namespace don't
+        // match.
         if (element.getRefName() != null) {
             qname = element.getRefName();
             forceQualification = !qname.getNamespaceURI().equals(schemaInfo.getNamespaceURI());
@@ -152,15 +152,31 @@ public class SchemaJavascriptBuilder {
         // one hopes that we aren't called upon to produce a qualified form for such an element, though
         // perhaps we're supposed to pull the TNS out of a hat.
         if (forceQualification || isElementNameQualified(element)) {
-            assert qname != null;
-            String prefix = qname.getPrefix();
-            if ("".equals(prefix)) { // this is not quite good enough.
-                prefix = getPrefix(qname.getNamespaceURI());
-            }
-            accumulator.collect(prefix, qname.getNamespaceURI());
-            return prefix + ":" + qname.getLocalPart();
+            return qname.getNamespaceURI();
         } else {
+            return "";
+        }
+    }
+    
+    /**
+     * This function obtains a name, perhaps namespace-qualified, for an element.
+     * It also maintains a Map that records all the prefixes used in the course
+     * of working on a single serializer function (and thus a single complex-type-element
+     * XML element) which is used for namespace prefix management.
+     * @param element
+     * @param namespaceMap
+     * @return
+     */
+    private String xmlElementString(XmlSchemaElement element, NamespacePrefixAccumulator accumulator) {
+        String namespaceURI = getElementQualifier(element);
+        if ("".equals(namespaceURI)) {
             return element.getName(); // use the non-qualified name.
+        } else {
+            // What if there were a prefix in the element's qname? This is not apparently 
+            // something that happens in this environment.
+            String prefix = getPrefix(namespaceURI);
+            accumulator.collect(prefix, namespaceURI);
+            return prefix + ":" + element.getName();
         }
     }
     
@@ -203,6 +219,7 @@ public class SchemaJavascriptBuilder {
                     XmlSchemaComplexType complexType = (XmlSchemaComplexType)xmlSchemaObject;
                     code.append(complexTypeConstructorAndAccessors(complexType));
                     code.append(complexTypeSerializerFunction(complexType));
+                    code.append(domDeserializerFunction(complexType));
                 } catch (UnsupportedSchemaConstruct usc) {
                     continue; // it could be empty, but the style checker would complain.
                 }
@@ -435,5 +452,102 @@ public class SchemaJavascriptBuilder {
                 utils.endBlock();
             }
         }
+    }
+    /**
+     * Generate a JavaScript function that takes an element for a complex type and walks through
+     * its children using them to fill in the values for a JavaScript object.
+     * @param type schema type for the process
+     * @return the string contents of the JavaScript.
+     */
+    public String domDeserializerFunction(XmlSchemaComplexType type) {
+        StringBuffer code = new StringBuffer();
+        JavascriptUtils utils = new JavascriptUtils(code);
+        XmlSchemaParticle particle = type.getParticle();
+        XmlSchemaSequence sequence = null;
+        
+        if (particle == null) {
+            unsupportedConstruct("NULL_PARTICLE", type);
+        }
+        
+        try {
+            sequence = (XmlSchemaSequence) particle;
+        } catch (ClassCastException cce) {
+            unsupportedConstruct("NON_SEQUENCE_PARTICLE", type);
+        }
+        
+        String typeObjectName = nameManager.getJavascriptName(type);
+        code.append("function " + typeObjectName + "_deserialize (cxfjsutils, element) {\n");
+        // create the object we are deserializing into.
+        utils.appendLine("var newobject = new " + typeObjectName + "();");
+        
+        utils.appendLine("var curElement = cxfjsutils.getFirstElementChild(element);");
+        utils.appendLine("var item;");
+        
+        for (int i = 0; i < sequence.getItems().getCount(); i++) {
+            utils.appendLine("cxfjsutils.trace('curElement: ' + cxfjsutils.traceElementName(curElement));");
+            XmlSchemaObject thing = sequence.getItems().getItem(i);
+            if (!(thing instanceof XmlSchemaElement)) {
+                unsupportedConstruct("NON_ELEMENT_CHILD", thing.getClass().getSimpleName(), type);
+            }
+            
+            XmlSchemaElement elChild = (XmlSchemaElement)thing;
+            XmlSchemaType elType = getElementType(type, elChild);
+            boolean simple = elType instanceof XmlSchemaSimpleType;
+
+            String accessorName = "set" + StringUtils.capitalize(elChild.getName()); 
+            // For optional or an array, we need to check if the element is the 
+            // one we want.
+            
+            String elementName = elChild.getName();
+            utils.appendLine("cxfjsutils.trace('processing " + elementName + "');");
+            String elementNamespaceURI = getElementQualifier(elChild);
+            
+            String valueTarget = "item";
+
+            if (isParticleOptional(elChild) || isParticleArray(elChild)) {
+                utils.startIf("curElement != null && cxfjsutils.isNodeNamedNS(curElement, '" 
+                              + elementNamespaceURI 
+                              + "', '" 
+                              + elementName
+                              + "')");
+                if (isParticleArray(elChild)) {
+                    utils.appendLine("item = [];");
+                    utils.startDo();
+                    valueTarget = "arrayItem";
+                    utils.appendLine("var arrayItem;");
+                }
+            }
+                
+            utils.appendLine("var value = null;");
+            utils.startIf("!cxfjsutils.isElementNil(curElement)");
+            if (simple) {
+                utils.appendLine("value = cxfjsutils.getNodeText(curElement);");
+                utils.appendLine(valueTarget 
+                                 + " = " + utils.javascriptParseExpression(elType, "value") 
+                                 + ";");
+            } else {
+                String elTypeJsName = nameManager.getJavascriptName((XmlSchemaComplexType)elType);
+                utils.appendLine(valueTarget + " = " 
+                                 + elTypeJsName 
+                                 + "_deserialize(cxfjsutils, curElement);");
+            }
+             
+            utils.endBlock(); // the if for the nil.
+            if (isParticleArray(elChild)) {
+                utils.appendLine("item.push(arrayItem);");
+                utils.endBlock();
+                utils.appendLine("while(cfjsutils.isNodeNamedNS(curElement, '" 
+                                  + elementNamespaceURI + "', '" 
+                                  + elChild.getName() + "'));");
+            }
+            utils.appendLine("newobject." + accessorName + "(item);");
+            utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
+            if (isParticleOptional(elChild) || isParticleArray(elChild)) {
+                utils.endBlock();
+            }
+        }
+        utils.appendLine("return newobject;");
+        code.append("}\n");
+        return code.toString() + "\n";
     }
 }

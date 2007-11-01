@@ -20,11 +20,13 @@
 package org.apache.cxf.javascript.fortest;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * Bean with a selection of elements suitable for testing the JavaScript client.
  */
+@XmlRootElement
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class TestBean1 {
     //CHECKSTYLE:OFF
@@ -36,6 +38,8 @@ public class TestBean1 {
     public byte[] base64Item;
     @XmlElement(required = false)
     public int optionalIntItem;
+    @XmlElement(defaultValue = "trip", required = false, namespace = "uri:org.apache.cxf.javascript.testns2")
+    public String optionalStringItem;
     @XmlElement(required = false)
     public int[] optionalIntArrayItem;
     

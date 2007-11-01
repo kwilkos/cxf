@@ -28,6 +28,7 @@ import java.util.Stack;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.wsdl.WSDLConstants;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 /**
@@ -40,19 +41,34 @@ public class JavascriptUtils {
     private String xmlStringAccumulatorVariable;
     private Map<String, String> defaultValueForSimpleType;
     private Set<String> nonStringSimpleTypes;
+    private Set<String> intTypes;
+    private Set<String> floatTypes;
     
     public JavascriptUtils(StringBuffer code) {
         this.code = code;
         defaultValueForSimpleType = new HashMap<String, String>();
         defaultValueForSimpleType.put("int", "0");
+        defaultValueForSimpleType.put("unsignedInt", "0");
         defaultValueForSimpleType.put("long", "0");
+        defaultValueForSimpleType.put("unsignedLong", "0");
         defaultValueForSimpleType.put("float", "0.0");
         defaultValueForSimpleType.put("double", "0.0");
         nonStringSimpleTypes = new HashSet<String>();
         nonStringSimpleTypes.add("int");
         nonStringSimpleTypes.add("long");
+        nonStringSimpleTypes.add("unsignedInt");
+        nonStringSimpleTypes.add("unsignedLong");
         nonStringSimpleTypes.add("float");
         nonStringSimpleTypes.add("double");
+        
+        intTypes = new HashSet<String>();
+        intTypes.add("int");
+        intTypes.add("long");
+        intTypes.add("unsignedInt");
+        intTypes.add("unsignedLong");
+        floatTypes = new HashSet<String>();
+        floatTypes.add("float");
+        floatTypes.add("double");
         
         prefixStack = new Stack<String>();
         prefixStack.push("    ");
@@ -143,5 +159,29 @@ public class JavascriptUtils {
         code.append(prefix());
         code.append("for (" + start + ";" + test + ";" + increment + ") {" + NL);
         prefixStack.push(prefix() + " ");
+    }
+
+    public void startDo() {
+        code.append(prefix());
+        code.append("do  {" + NL);
+        prefixStack.push(prefix() + " ");
+    }
+    
+    // Given a js variable and a simple type object, correctly set the variables simple type 
+    public String javascriptParseExpression(XmlSchemaType type, String value) {
+        if (!(type instanceof XmlSchemaSimpleType)) {
+            return value;
+        }
+        assert type.getQName().getNamespaceURI().equals(WSDLConstants.NU_SCHEMA_XSD);
+        String name = type.getName();
+        if (intTypes.contains(name)) {
+            return "parseInt(" + value + ")";
+        } else if (floatTypes.contains(name)) {
+            return "parseFloat(" + value + ")";
+        } else if ("boolean".equals(name)) {
+            return "(" + value + " == true)";
+        } else {
+            return value;
+        }
     }
 }
