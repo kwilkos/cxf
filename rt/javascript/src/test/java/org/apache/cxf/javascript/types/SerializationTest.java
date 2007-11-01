@@ -51,6 +51,7 @@ import org.junit.Test;
 import org.mozilla.javascript.RhinoException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
+@Ignore
 public class SerializationTest extends AbstractDependencyInjectionSpringContextTests {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
@@ -73,7 +74,6 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
     
-    @Ignore
     @Test 
     public void testDeserialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
@@ -120,7 +120,6 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
         return stringWriter.toString();
     }
     
-    @Ignore
     @Test
     public void testSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
