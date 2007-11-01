@@ -303,6 +303,28 @@ public class SchemaJavascriptBuilder {
     }
     
     /**
+     * This copes with an observed phenomenon in the schema built by the ReflectionServiceFactoryBean. It 
+     * is creating element such that: (a) the type is not set. (b) the refName is set. 
+     * (c) the namespaceURI in the refName is set empty. This apparently indicates 
+     * 'same Schema' to everyone else, so thus function implements
+     * that convention here. It is unclear if that is a correct structure, 
+     * and it if changes, we can simplify or eliminate this function.
+     * @param name
+     * @param referencingURI
+     * @return
+     */
+    private XmlSchemaElement findElementByRefName(QName name, String referencingURI) {
+        String uri = name.getNamespaceURI();
+        if ("".equals(uri)) {
+            uri = referencingURI;
+        }
+        QName copyName = new QName(uri, name.getLocalPart());
+        XmlSchemaElement target = xmlSchemaCollection.getElementByQName(copyName);
+        assert target != null;
+        return target;
+    }
+    
+    /**
      * Follow a chain of references from element to element until we can obtain a type.
      * @param element
      * @return
@@ -310,7 +332,8 @@ public class SchemaJavascriptBuilder {
     private XmlSchemaType getElementType(XmlSchemaComplexType containingType, XmlSchemaElement element) {
         XmlSchemaElement originalElement = element;
         while (element.getSchemaType() == null && element.getRefName() != null) {
-            XmlSchemaElement nextElement = xmlSchemaCollection.getElementByQName(element.getRefName());
+            XmlSchemaElement nextElement = findElementByRefName(element.getRefName(), 
+                                                                containingType.getQName().getNamespaceURI());
             assert nextElement != null;
             element = nextElement;
         }
@@ -426,7 +449,17 @@ public class SchemaJavascriptBuilder {
             
             // now for the thing itself.
             if (elType instanceof XmlSchemaComplexType) {
-                utils.appendExpression(elementName + ".serialize(cxfjsutils, '" + elementXmlRef + "')");
+                if (elChild.getMinOccurs() != 0) { // required
+                    utils.startIf(elementName + " == null");
+                    utils.appendString("<" + elementXmlRef + " " + NIL_ATTRIBUTES + "/>");
+                    utils.appendElse();
+                    utils.appendExpression(elementName + ".serialize(cxfjsutils, '" + elementXmlRef + "')");
+                    utils.endBlock();
+                } else {
+                    utils.startIf(elementName + " != null");
+                    utils.appendExpression(elementName + ".serialize(cxfjsutils, '" + elementXmlRef + "')");
+                    utils.endBlock();
+                }
             } else {
                 QName typeName = elType.getQName();
                 utils.appendString("<" + elementXmlRef + ">");
