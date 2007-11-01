@@ -105,6 +105,7 @@ public class JavascriptTestUtilities extends TestUtilities {
     }
     
     public void readStringIntoRhino(String js, String sourceName) {
+        LOG.info(sourceName + ":\n" + js);
         rhinoContext.evaluateString(rhinoScope, js, sourceName, 1, null);
     }
     

@@ -310,7 +310,9 @@ public class SchemaJavascriptBuilder {
     private XmlSchemaType getElementType(XmlSchemaComplexType containingType, XmlSchemaElement element) {
         XmlSchemaElement originalElement = element;
         while (element.getSchemaType() == null && element.getRefName() != null) {
-            element = xmlSchemaCollection.getElementByQName(element.getRefName());
+            XmlSchemaElement nextElement = xmlSchemaCollection.getElementByQName(element.getRefName());
+            assert nextElement != null;
+            element = nextElement;
         }
         if (element.getSchemaType() == null) {
             unsupportedConstruct("ELEMENT_HAS_NO_TYPE", originalElement.getName(), containingType);
@@ -424,7 +426,7 @@ public class SchemaJavascriptBuilder {
             
             // now for the thing itself.
             if (elType instanceof XmlSchemaComplexType) {
-                utils.appendExpression(elementName + ".serialize(cxfjsutils, " + elementXmlRef + ")");
+                utils.appendExpression(elementName + ".serialize(cxfjsutils, '" + elementXmlRef + "')");
             } else {
                 QName typeName = elType.getQName();
                 utils.appendString("<" + elementXmlRef + ">");

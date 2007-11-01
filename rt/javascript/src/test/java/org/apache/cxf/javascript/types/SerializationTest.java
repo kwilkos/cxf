@@ -46,11 +46,12 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mozilla.javascript.RhinoException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-public class SerializationTests extends AbstractDependencyInjectionSpringContextTests {
+public class SerializationTest extends AbstractDependencyInjectionSpringContextTests {
     private JavascriptTestUtilities testUtilities;
     private XMLInputFactory xmlInputFactory;
     private XMLOutputFactory xmlOutputFactory;
@@ -60,7 +61,7 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
     private NameManager nameManager;
     private JaxWsProxyFactoryBean clientProxyFactory;
 
-    public SerializationTests() {
+    public SerializationTest() {
         testUtilities = new JavascriptTestUtilities(getClass());
         testUtilities.addDefaultNamespaces();
         xmlInputFactory = XMLInputFactory.newInstance();
@@ -72,6 +73,7 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         return new String[] {"classpath:serializationTestBeans.xml"};
     }
     
+    @Ignore
     @Test 
     public void testDeserialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");
@@ -118,6 +120,7 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         return stringWriter.toString();
     }
     
+    @Ignore
     @Test
     public void testSerialization() throws Exception {
         setupClientAndRhino("simple-dlwu-proxy-factory");

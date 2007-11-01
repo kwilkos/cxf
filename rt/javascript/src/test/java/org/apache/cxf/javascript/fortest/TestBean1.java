@@ -29,6 +29,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement
 @XmlType(namespace = "uri:org.apache.cxf.javascript.testns")
 public class TestBean1 {
+    
+    public TestBean1() {
+        beanTwoItem = new TestBean2("required=true");
+        beanTwoNotRequiredItem = null;
+    }
+    
     //CHECKSTYLE:OFF
     public String stringItem;
     @XmlElement(namespace = "uri:org.apache.cxf.javascript.testns2")
@@ -44,6 +50,9 @@ public class TestBean1 {
     public int[] optionalIntArrayItem;
     @XmlElement(defaultValue = "-1.0")
     public double doubleItem;
-    
+    @XmlElement(required = true)
+    public TestBean2 beanTwoItem;
+    @XmlElement(required = false)
+    public TestBean2 beanTwoNotRequiredItem;
     //CHECKSTYLE:ON
 }
