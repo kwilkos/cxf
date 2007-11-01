@@ -35,6 +35,51 @@ function deserializeTestBean1_1(xml)
 	var dom = parseXml(xml);
 	var bean = org_apache_cxf_javascript_testns_testBean1_deserialize(jsutils, dom);
 	if(bean.getStringItem() != "bean1>stringItem")
-		assertionFailed("deserializeTestBean1_1 stringItem " + bean.getStringItem()); 
+		assertionFailed("deserializeTestBean1_1 stringItem " + bean.getStringItem());
+	if(bean.getIntItem() != 0)
+		assertionFailed("deserializeTestBean1_1 intItem " + bean.getIntItem());
+	if(bean.getLongItem() != 0)
+		assertionFailed("deserializeTestBean1_1 longItem " + bean.getLongItem());
+	if(bean.getOptionalIntItem() != 0)
+		assertionFailed("deserializeTestBean1_1 optionalIntItem " + bean.getOptionalIntItem());
+	if(bean.getOptionalStringItem() != null)
+		assertionFailed("deserializeTestBean1_1 optionalStringItem " + bean.getOptionalStringItem());
+	if(bean.getOptionalIntArrayItem() == null)
+		assertionFailed("deserializeTestBean1_1 optionalIntArrayItem null");
+	if(bean.getOptionalIntArrayItem().length != 0)
+		assertionFailed("deserializeTestBean1_1 optionalIntArrayItem length != 0");
+	if(bean.getDoubleItem() != -1.0)
+		assertionFailed("deserializeTestBean1_1 doubleItem " + bean.getDoubleItem());
+}
+
+function deserializeTestBean1_2(xml)
+{
+	var dom = parseXml(xml);
+	var bean = org_apache_cxf_javascript_testns_testBean1_deserialize(jsutils, dom);
+	if(bean.getStringItem() != null)
+		assertionFailed("deserializeTestBean1_2 stringItem not null: " + bean.getStringItem());
+	if(bean.getIntItem() != 21)
+		assertionFailed("deserializeTestBean1_2 intItem " + bean.getIntItem());
+ 	if(bean.getLongItem() != 200000001)
+		assertionFailed("deserializeTestBean1_2 longItem " + bean.getLongItem());
+	if(bean.getOptionalIntItem() != 456123)
+		assertionFailed("deserializeTestBean1_2 optionalIntItem " + bean.getOptionalIntItem());
+	if(bean.getOptionalStringItem() != null)
+		assertionFailed("deserializeTestBean1_2 optionalStringItem " + bean.getOptionalStringItem());
+	if(bean.getOptionalIntArrayItem() == null)
+		assertionFailed("deserializeTestBean1_2 optionalIntArrayItem null");
+	if(bean.getOptionalIntArrayItem().length != 4)
+		assertionFailed("deserializeTestBean1_2 optionalIntArrayItem length != 4");
+	if(bean.getOptionalIntArrayItem()[0] != 3)
+		assertionFailed("deserializeTestBean1_2 optionalIntArrayItem[0] " + bean.getOptionalIntArrayItem()[0]);
+	if(bean.getOptionalIntArrayItem()[1] != 1)
+		assertionFailed("deserializeTestBean1_2 optionalIntArrayItem[1] " + bean.getOptionalIntArrayItem()[1]);
+	if(bean.getOptionalIntArrayItem()[2] != 4)
+		assertionFailed("deserializeTestBean1_2 optionalIntArrayItem[2] " + bean.getOptionalIntArrayItem()[2]);
+	if(bean.getOptionalIntArrayItem()[3] != 1)
+		assertionFailed("deserializeTestBean1_2 optionalIntArrayItem[3] " + bean.getOptionalIntArrayItem()[3]);
+	if(bean.getDoubleItem() != -1.0)
+		assertionFailed("deserializeTestBean1_2 doubleItem " + bean.getDoubleItem());
+		
 }
 

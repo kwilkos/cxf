@@ -535,13 +535,18 @@ public class SchemaJavascriptBuilder {
             utils.endBlock(); // the if for the nil.
             if (isParticleArray(elChild)) {
                 utils.appendLine("item.push(arrayItem);");
+                utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
                 utils.endBlock();
-                utils.appendLine("while(cfjsutils.isNodeNamedNS(curElement, '" 
+                utils.appendLine("  while(curElement != null && cxfjsutils.isNodeNamedNS(curElement, '" 
                                   + elementNamespaceURI + "', '" 
                                   + elChild.getName() + "'));");
             }
             utils.appendLine("newobject." + accessorName + "(item);");
-            utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
+            if (!isParticleArray(elChild)) {
+                utils.startIf("curElement != null");
+                utils.appendLine("curElement = cxfjsutils.getNextElementSibling(curElement);");
+                utils.endBlock();
+            }
             if (isParticleOptional(elChild) || isParticleArray(elChild)) {
                 utils.endBlock();
             }

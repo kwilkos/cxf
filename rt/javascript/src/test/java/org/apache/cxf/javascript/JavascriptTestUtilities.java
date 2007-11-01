@@ -51,6 +51,7 @@ public class JavascriptTestUtilities extends TestUtilities {
 
         public Assert() { }
         public void jsConstructor(String exp) {
+            LOG.severe("Assertion failed: " + exp);
             throw new JavaScriptAssertionFailed(exp);
         }
         @Override
@@ -71,7 +72,7 @@ public class JavascriptTestUtilities extends TestUtilities {
         
         //CHECKSTYLE:OFF
         public static void jsStaticFunction_trace(String message) {
-            LOG.info(message);
+            LOG.fine(message);
         }
         //CHECKSTYLE:ON
         

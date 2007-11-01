@@ -28,6 +28,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -80,13 +81,24 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
         try {
             TestBean1 bean = new TestBean1();
             bean.stringItem = "bean1>stringItem";
-            DataWriter<XMLStreamWriter> writer = dataBinding.createWriter(XMLStreamWriter.class);
-            StringWriter stringWriter = new StringWriter();
-            XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
-            writer.write(bean, xmlStreamWriter);
-            xmlStreamWriter.flush();
-            xmlStreamWriter.close();
-            testUtilities.rhinoCall("deserializeTestBean1_1", stringWriter.toString());
+            bean.doubleItem = -1.0;
+            String serialized = serializeObject(dataBinding, bean);
+            testUtilities.rhinoCall("deserializeTestBean1_1", serialized);
+            
+            bean = new TestBean1();
+            bean.stringItem = null;
+            bean.intItem = 21;
+            bean.longItem = 200000001;
+            bean.optionalIntItem = 456123;
+            bean.optionalIntArrayItem = new int[4];
+            bean.optionalIntArrayItem[0] = 3;
+            bean.optionalIntArrayItem[1] = 1;
+            bean.optionalIntArrayItem[2] = 4;
+            bean.optionalIntArrayItem[3] = 1;
+            bean.doubleItem = -1.0;
+            serialized = serializeObject(dataBinding, bean);
+            testUtilities.rhinoCall("deserializeTestBean1_2", serialized);
+
         } catch (JavaScriptAssertionFailed assertion) {
             fail(assertion.getMessage());
         } catch (RhinoException angryRhino) {
@@ -94,6 +106,16 @@ public class SerializationTests extends AbstractDependencyInjectionSpringContext
             Assert.fail("Javascript error: " + angryRhino.toString() + " " + trace);
         }
 
+    }
+
+    private String serializeObject(DataBinding dataBinding, TestBean1 bean) throws XMLStreamException {
+        DataWriter<XMLStreamWriter> writer = dataBinding.createWriter(XMLStreamWriter.class);
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter xmlStreamWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
+        writer.write(bean, xmlStreamWriter);
+        xmlStreamWriter.flush();
+        xmlStreamWriter.close();
+        return stringWriter.toString();
     }
     
     @Test

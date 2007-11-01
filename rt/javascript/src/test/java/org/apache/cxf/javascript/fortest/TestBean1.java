@@ -42,6 +42,8 @@ public class TestBean1 {
     public String optionalStringItem;
     @XmlElement(required = false)
     public int[] optionalIntArrayItem;
+    @XmlElement(defaultValue = "-1.0")
+    public double doubleItem;
     
     //CHECKSTYLE:ON
 }
