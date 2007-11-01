@@ -45,6 +45,7 @@ import org.apache.cxf.javascript.fortest.TestBean1;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mozilla.javascript.RhinoException;
@@ -70,6 +71,13 @@ public class SerializationTest extends AbstractDependencyInjectionSpringContextT
     @Override
     protected String[] getConfigLocations() {
         return new String[] {"classpath:serializationTestBeans.xml"};
+    }
+    
+    @Test 
+    public void testEndpointGetSchema() throws IOException {
+        setupClientAndRhino("simple-dlwu-proxy-factory");
+        ServiceInfo serviceInfo = serviceInfos.get(0);
+        EndpointReferenceUtils.getSchema(serviceInfo);
     }
     
     @Test 
