@@ -39,6 +39,8 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
@@ -57,6 +59,14 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
     }
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {
+        if (serviceName != null) {
+            serviceFactory.setServiceName(serviceName);
+        }
+        
+        if (endpointName != null) {
+            serviceFactory.setEndpointName(endpointName);    
+        }
+        
         Service service = serviceFactory.getService();
         
         if (service == null) {
@@ -147,6 +157,13 @@ public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointF
             
             if (df != null) {
                 transportId = df.getTransportIds().get(0);
+            } else {
+                //check conduits (the address could be supported on client only)
+                ConduitInitiatorManager cim = getBus().getExtension(ConduitInitiatorManager.class);
+                ConduitInitiator ci = cim.getConduitInitiatorForUri(getAddress());
+                if (ci != null) {
+                    transportId = ci.getTransportIds().get(0);
+                }    
             }
         }
         
