@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.endpoint.dynamic;
 
+import java.lang.reflect.Array;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
@@ -83,12 +84,24 @@ public class TypeClassInitializer extends ServiceModelVisitor {
             
         Class cls;
         
-        //JClass jclass;
         try {
-            if (!jType.isPrimitive()) {
-                cls = ClassLoaderUtils.loadClass(jType.fullName(), getClass());
-            } else {
-                cls = PrimitiveUtils.getClass(jType.fullName());
+            int arrayCount = 0;
+            JType rootType = jType;
+            while (rootType.isArray()) {
+                rootType = rootType.elementType();
+                arrayCount++;
+            }
+            cls = getClassByName(rootType);
+            // bmargulies cannot find a way to ask the JVM to do this without creating 
+            // an array object on the way.
+            if (arrayCount > 0) {
+                int[] dimensions = new int[arrayCount];
+                while (arrayCount > 0) {
+                    arrayCount--;
+                    dimensions[arrayCount] = 0;
+                }
+                Object emptyArray = Array.newInstance(cls, dimensions);
+                cls = emptyArray.getClass();
             }
         } catch (ClassNotFoundException e) {
             throw new ServiceConstructionException(e);
@@ -97,6 +110,17 @@ public class TypeClassInitializer extends ServiceModelVisitor {
         part.setTypeClass(cls);
         
         super.begin(part);
+    }
+
+    private Class getClassByName(JType jType) throws ClassNotFoundException {
+        Class cls;
+        
+        if (!jType.isPrimitive()) {
+            cls = ClassLoaderUtils.loadClass(jType.fullName(), getClass());
+        } else {
+            cls = PrimitiveUtils.getClass(jType.fullName());
+        }
+        return cls;
     }
 
 }
