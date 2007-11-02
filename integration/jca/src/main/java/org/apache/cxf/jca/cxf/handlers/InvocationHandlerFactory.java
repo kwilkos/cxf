@@ -20,6 +20,12 @@ package org.apache.cxf.jca.cxf.handlers;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import javax.security.auth.Subject;
@@ -33,7 +39,9 @@ import org.apache.cxf.jca.cxf.CXFManagedConnection;
 
 
 public class InvocationHandlerFactory {
-
+    
+    public static final String JCA_HANDLERS_RESOURCE = "META-INF/cxf-jca-handlers.properties";
+    
     private static final Logger LOG = LogUtils.getL7dLogger(InvocationHandlerFactory.class);
 
     final Class<?>[] handlerChainTypes;
@@ -99,19 +107,33 @@ public class InvocationHandlerFactory {
 
     private Class<?>[] getHandlerChainDefinition() throws IOException, ClassNotFoundException {
 
-        String[] classNames = {"org.apache.cxf.jca.cxf.handlers.ProxyInvocationHandler",
-                               "org.apache.cxf.jca.cxf.handlers.ObjectMethodInvocationHandler",
-                               //"org.apache.cxf.jca.cxf.handlers.SecurityInvocationHandler",
-                               //"org.apache.cxf.jca.cxf.handlers.TransactionHandler",
-                               "org.apache.cxf.jca.cxf.handlers.InvokingInvocationHandler"};
-
-        Class[] classes = new Class[classNames.length];
-
-        for (int i = 0; i < classNames.length; i++) {
-            LOG.fine("reading handler class: " + classNames[i]);
-            classes[i] = getClass().getClassLoader().loadClass(classNames[i]);
+        Map<Long, String> handlersMap = new TreeMap<Long, String>();
+        Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().
+                                                       getResources(JCA_HANDLERS_RESOURCE);
+        while (urls.hasMoreElements()) {
+            URL url = urls.nextElement();
+            loadProperties(handlersMap, url);            
         }
-        return classes;
+        
+        Class[] handlers = new Class[handlersMap.size()];
+        String[] handlerClasses = new String[handlersMap.size()];
+        handlersMap.values().toArray(handlerClasses);
+        for (int i = 0; i < handlerClasses.length; i++) {
+            LOG.fine("reading handler class: " + handlerClasses[i]);
+            handlers[i] = getClass().getClassLoader().loadClass(handlerClasses[i]);
+        }
+        return handlers;
+    }
+    
+    
+    private void loadProperties(Map<Long, String> handlersMap, URL url) throws IOException {
+        Properties p = new Properties();
+        p.load(url.openStream());       
+        Iterator<Object> keys = p.keySet().iterator();
+        while (keys.hasNext()) {
+            String key = (String)keys.next();
+            handlersMap.put(Long.valueOf(key), p.getProperty(key));
+        }
     }
 
 }
