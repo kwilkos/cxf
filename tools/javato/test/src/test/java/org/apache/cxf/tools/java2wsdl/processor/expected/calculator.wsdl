@@ -22,9 +22,7 @@
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://docwrapped.classnoanno.fortest.tools.cxf.apache.org/" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://docwrapped.classnoanno.fortest.tools.cxf.apache.org/">
 <xsd:element name="AddException" type="tns:AddException"/>
 <xsd:complexType name="AddException">
-<xsd:sequence>
-<xsd:element name="message" nillable="true" type="xsd:string"/>
-</xsd:sequence>
+<xsd:sequence/>
 </xsd:complexType>
 <xsd:element name="add" type="tns:add"/>
 <xsd:complexType name="add">
