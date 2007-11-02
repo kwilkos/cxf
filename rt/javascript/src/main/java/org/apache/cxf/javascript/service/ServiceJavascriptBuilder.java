@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.javascript.BasicNameManager;
 import org.apache.cxf.javascript.JavascriptUtils;
 import org.apache.cxf.javascript.NameManager;
 import org.apache.cxf.javascript.UnsupportedSchemaConstruct;
@@ -37,7 +38,6 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLConstants;
 
-@SuppressWarnings("unused")
 public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceJavascriptBuilder.class);
 
@@ -46,9 +46,13 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private SoapBindingInfo soapBindingInfo;
     private JavascriptUtils utils;
     private NameManager nameManager;
+    private StringBuffer code;
 
     public ServiceJavascriptBuilder(ServiceInfo serviceInfo) {
         super(serviceInfo);
+        code = new StringBuffer();
+        utils = new JavascriptUtils(code);
+        nameManager = new BasicNameManager(serviceInfo);
     }
 
     @Override
@@ -57,6 +61,9 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
 
     @Override
     public void begin(InterfaceInfo intf) {
+        utils.appendLine("function " 
+                         + nameManager.getJavascriptName(intf.getName())
+                         + " () {");
     }
 
     @Override
@@ -118,5 +125,37 @@ public class ServiceJavascriptBuilder extends ServiceModelVisitor {
     private void unsupportedConstruct(String messageKey, Object... args) {
         Message message = new Message(messageKey, LOG, args);
         throw new UnsupportedSchemaConstruct(message);
+    }
+
+    public boolean isRPC() {
+        return isRPC;
+    }
+
+    public void setRPC(boolean rpc) {
+        this.isRPC = rpc;
+    }
+
+    public boolean isWrapped() {
+        return isWrapped;
+    }
+
+    public void setWrapped(boolean wrapped) {
+        this.isWrapped = wrapped;
+    }
+
+    public JavascriptUtils getUtils() {
+        return utils;
+    }
+
+    public void setUtils(JavascriptUtils utils) {
+        this.utils = utils;
+    }
+
+    public NameManager getNameManager() {
+        return nameManager;
+    }
+
+    public void setNameManager(NameManager nameManager) {
+        this.nameManager = nameManager;
     }
 }
