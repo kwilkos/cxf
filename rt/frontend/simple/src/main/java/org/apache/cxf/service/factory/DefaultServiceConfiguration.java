@@ -33,6 +33,10 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
+    public DefaultServiceConfiguration() {
+        
+    }
+    
     @Override
     public QName getOperationName(InterfaceInfo service, Method method) {
         String ns = service.getName().getNamespaceURI();
@@ -147,8 +151,12 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public String getServiceNamespace() {
-        return ServiceUtils.makeNamespaceFromClassName(getServiceFactory().getServiceClass().getName(),
-                                                       "http");
+        String ret = super.getServiceNamespace();
+        if (ret == null) {
+            ret = ServiceUtils.makeNamespaceFromClassName(getServiceFactory().getServiceClass().getName(),
+                "http");
+        }
+        return ret;
     }
 
     @Override

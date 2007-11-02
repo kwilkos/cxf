@@ -77,6 +77,10 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public String getServiceNamespace() {
+        String ret = super.getServiceNamespace();
+        if (ret != null) {
+            return ret;
+        }
         QName service = implInfo.getServiceName();
         if (service == null) {
             return null;
