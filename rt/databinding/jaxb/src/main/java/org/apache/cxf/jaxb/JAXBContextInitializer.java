@@ -62,6 +62,11 @@ class JAXBContextInitializer extends ServiceModelVisitor {
             return;
         }
 
+        if (Exception.class.isAssignableFrom(clazz)) {
+            //exceptions are handled special, make sure we mark it
+            part.setProperty(JAXBDataBinding.class.getName() + ".CUSTOM_EXCEPTION",
+                             Boolean.TRUE);
+        }
         boolean isFromWrapper = part.getMessageInfo().getOperation().isUnwrapped();
         if (isFromWrapper
             && clazz.isArray()
@@ -144,9 +149,10 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         if (cls.isArray() && cls.getComponentType().isPrimitive()) {
             return;
         }
-        if (Exception.class.isAssignableFrom(cls)) {
-            for (Field f : cls.getDeclaredFields()) {
-                addClass(f.getType());
+        if (Throwable.class.isAssignableFrom(cls)) {
+            if (!Throwable.class.equals(cls)
+                && !Exception.class.equals(cls)) {
+                walkReferences(cls);
             }
             addClass(String.class);
         } else {
@@ -209,7 +215,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         }
 
         if (accessType != XmlAccessType.FIELD) {   // only look for methods if we are instructed to
-            Method methods[] = cls.getMethods(); 
+            Method methods[] = cls.getDeclaredMethods(); 
             for (Method m : methods) {
                 if (isMethodAccepted(m, accessType)) {
                     addType(m.getGenericReturnType());
@@ -224,9 +230,13 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     /**
      * Checks is the field is accepted as a JAXB property.
      */
-    private boolean isFieldAccepted(Field field, XmlAccessType accessType) {
+    static boolean isFieldAccepted(Field field, XmlAccessType accessType) {
         // We only accept non static fields which are not marked @XmlTransient
         if (Modifier.isStatic(field.getModifiers()) || field.isAnnotationPresent(XmlTransient.class)) {
+            return false;
+        }
+        if (accessType == XmlAccessType.PUBLIC_MEMBER 
+            && !Modifier.isPublic(field.getModifiers())) {
             return false;
         }
 
@@ -240,20 +250,35 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     /**
      * Checks is the method is accepted as a JAXB property getter.
      */
-    private boolean isMethodAccepted(Method method, XmlAccessType accessType) {
+    static boolean isMethodAccepted(Method method, XmlAccessType accessType) {
         // We only accept non static property getters which are not marked @XmlTransient
-        if (Modifier.isStatic(method.getModifiers()) || method.isAnnotationPresent(XmlTransient.class)) {
+        if (Modifier.isStatic(method.getModifiers()) 
+            || method.isAnnotationPresent(XmlTransient.class)
+            || !Modifier.isPublic(method.getModifiers())) {
             return false;
         }
 
         // must not have parameters and return type must not be void
-        if (method.getReturnType() == Void.class || method.getParameterTypes().length != 0) {
+        if (method.getReturnType() == Void.class 
+            || method.getParameterTypes().length != 0
+            || method.getDeclaringClass().equals(Throwable.class)) {
             return false;
         }
 
         boolean isPropGetter = method.getName().startsWith("get") || method.getName().startsWith("is");
 
         if (!isPropGetter) {
+            return false;
+        }
+        int beginIndex = 3;
+        if (method.getName().startsWith("is")) {
+            beginIndex = 2;
+        }
+        try {
+            method.getDeclaringClass().getMethod("set" + method.getName().substring(beginIndex),
+                                                 new Class[] {method.getReturnType()});
+        } catch (Exception e) {
+            //getter, but no setter
             return false;
         }
 
@@ -269,7 +294,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
      * @param annotations the array of annotations from the class member
      * @return true if JAXB annotations are present, false otherwise
      */
-    private boolean checkJaxbAnnotation(Annotation[] annotations) {
+    private static boolean checkJaxbAnnotation(Annotation[] annotations) {
         // must check if there are any jaxb annotations
         Package jaxbAnnotationsPackage = XmlElement.class.getPackage();
         for (Annotation annotation : annotations) {

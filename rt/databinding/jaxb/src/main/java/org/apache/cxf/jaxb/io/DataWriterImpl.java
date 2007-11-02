@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBContext;
 
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.JAXBDataBase;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -39,8 +40,17 @@ public class DataWriterImpl<T> extends JAXBDataBase implements DataWriter<T> {
     public void write(Object obj, MessagePartInfo part, T output) {
         if (obj != null
             || !(part.getXmlSchema() instanceof XmlSchemaElement)) {
-            JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
+            
+            if (obj instanceof Exception 
+                && part != null
+                && Boolean.TRUE.equals(part.getProperty(JAXBDataBinding.class.getName() 
+                                                        + ".CUSTOM_EXCEPTION"))) {
+                JAXBEncoderDecoder.marshallException(getJAXBContext(), getSchema(), (Exception)obj,
+                                                     part, output, getAttachmentMarshaller());                
+            } else {
+                JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
                                         getAttachmentMarshaller());
+            }
         } else if (obj == null && needToRender(obj, part)) {
             JAXBEncoderDecoder.marshallNullElement(getJAXBContext(), getSchema(), output, part);
         }

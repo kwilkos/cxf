@@ -319,9 +319,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (!isWrapped(m) && !isRPC(m) && opInfo.getOutput() != null) {
                 createBareMessage(serviceInfo, opInfo, true);
             }
-
+            
+            if (opInfo.hasFaults()) {
+                //check to make sure the faults are elements
+                for (FaultInfo fault : opInfo.getFaults()) {
+                    QName qn = (QName)fault.getProperty("elementName");
+                    MessagePartInfo part = fault.getMessagePart(0);
+                    if (!part.isElement()) {
+                        part.setElement(true);
+                        part.setElementQName(qn);
+                        checkForElement(serviceInfo, part);
+                    }
+                }
+            }
         }
     }
+
 
     protected void initializeServiceModel() {
         String wsdlurl = getWsdlURL();
@@ -549,18 +562,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                             mpi.setElementQName(qn);
 
                             checkForElement(serviceInfo, mpi);
-                        }
-                    }
-                }
-                if (op.hasFaults()) {
-                    //check to make sure the faults are elements
-                    for (FaultInfo fault : op.getFaults()) {
-                        QName qn = (QName)fault.getProperty("elementName");
-                        MessagePartInfo part = fault.getMessagePart(0);
-                        if (!part.isElement()) {
-                            part.setElement(true);
-                            part.setElementQName(qn);
-                            checkForElement(serviceInfo, part);
                         }
                     }
                 }
