@@ -31,7 +31,7 @@ import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 
-public class ClientFactoryBean extends AbstractEndpointFactory {
+public class ClientFactoryBean extends AbstractWSDLBasedEndpointFactory {
     private Client client;
     
     public ClientFactoryBean() {
