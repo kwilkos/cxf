@@ -19,9 +19,13 @@
 
 package org.apache.cxf.jaxb;
 
+
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -36,12 +40,15 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
@@ -55,6 +62,7 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
@@ -182,6 +190,138 @@ public final class JAXBEncoderDecoder {
             }                       
         }
     }
+    @SuppressWarnings("unchecked")
+    public static void marshallException(JAXBContext context, 
+                                Schema schema, 
+                                Exception elValue, 
+                                MessagePartInfo part,
+                                Object source, 
+                                AttachmentMarshaller am) {
+        XMLStreamWriter writer = getStreamWriter(source);
+        QName qn = part.getElementQName();
+        try {
+            writer.writeStartElement(qn.getNamespaceURI(), qn.getLocalPart());
+            Class<?> cls = part.getTypeClass();
+            XmlAccessorType accessorType = cls.getAnnotation(XmlAccessorType.class);
+            if (accessorType == null && cls.getPackage() != null) {
+                accessorType = cls.getPackage().getAnnotation(XmlAccessorType.class);
+            }
+            XmlAccessType accessType = accessorType != null 
+                ? accessorType.value() : XmlAccessType.PUBLIC_MEMBER;
+            String namespace = part.getElementQName().getNamespaceURI();
+            Marshaller u = createMarshaller(context, cls);
+            try {
+                // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to
+                // generate the xml declaration.
+                u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+                u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+            } catch (javax.xml.bind.PropertyException e) {
+                // intentionally empty.
+            }
+
+            
+            for (Field f : cls.getDeclaredFields()) {
+                if (JAXBContextInitializer.isFieldAccepted(f, accessType)) {
+                    QName fname = new QName(namespace, f.getName());
+                    f.setAccessible(true);
+                    writeObject(u, writer, new JAXBElement(fname, String.class, f.get(elValue)));
+                }
+            }
+            for (Method m : cls.getMethods()) {
+                if (JAXBContextInitializer.isMethodAccepted(m, accessType)) {
+                    int idx = m.getName().startsWith("get") ? 3 : 2;
+                    String name = m.getName().substring(idx);
+                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                    QName mname = new QName(namespace, name);
+                    writeObject(u, writer, new JAXBElement(mname, String.class, m.invoke(elValue)));
+                }
+            }
+            
+            writer.writeEndElement();
+            writer.flush();
+        } catch (Exception e) {
+            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE, e.getMessage()), e);
+        }
+    }
+    @SuppressWarnings("unchecked")
+    public static Exception unmarshallException(JAXBContext context, 
+                                    Schema schema, 
+                                    Object source,
+                                    MessagePartInfo part, 
+                                    AttachmentUnmarshaller au) {
+        XMLStreamReader reader;
+        if (source instanceof XMLStreamReader) {
+            reader = (XMLStreamReader)source;
+        } else if (source instanceof Element) {
+            reader = StaxUtils.createXMLStreamReader((Element)source);
+            try {
+                //advance into the node 
+                reader.nextTag();
+            } catch (XMLStreamException e) {
+                //ignore
+            }
+        } else {
+            throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
+        }
+        try {
+            QName qn = part.getElementQName();
+            if (!qn.equals(reader.getName())) {
+                throw new Fault(new Message("ELEMENT_NAME_MISMATCH", BUNDLE, qn, reader.getName()));
+            }
+            
+            Class<?> cls = part.getTypeClass();
+            Object obj = null;
+            try {
+                Constructor cons = cls.getConstructor();
+                obj = cons.newInstance();
+            } catch (NoSuchMethodException nse) {
+                Constructor cons = cls.getConstructor(new Class[] {String.class});
+                obj = cons.newInstance(new Object[1]);
+            }
+            
+            XmlAccessorType accessorType = cls.getAnnotation(XmlAccessorType.class);
+            if (accessorType == null && cls.getPackage() != null) {
+                accessorType = cls.getPackage().getAnnotation(XmlAccessorType.class);
+            }
+            XmlAccessType accessType = accessorType != null 
+                ? accessorType.value() : XmlAccessType.PUBLIC_MEMBER;
+            Unmarshaller u = createUnmarshaller(context, cls);
+            try {
+                // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to
+                // generate the xml declaration.
+                u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+                u.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
+            } catch (javax.xml.bind.PropertyException e) {
+                // intentionally empty.
+            }
+            reader.nextTag();
+            while (reader.getEventType() == XMLStreamReader.START_ELEMENT) {
+                QName q = reader.getName();
+                try {
+                    Field f = cls.getField(q.getLocalPart());
+                    if (JAXBContextInitializer.isFieldAccepted(f, accessType)) {
+                        f.setAccessible(true);
+                        f.set(obj, u.unmarshal(reader, f.getType()));
+                    }
+                } catch (NoSuchFieldException ex) {
+                    String s = Character.toUpperCase(q.getLocalPart().charAt(0)) 
+                        + q.getLocalPart().substring(1);
+                    Method m = null;
+                    try {
+                        m = cls.getMethod("get" + s);
+                    } catch (NoSuchMethodException mex) {
+                        m = cls.getMethod("is" + s);
+                    }
+                    Method m2 = cls.getMethod("set" + s, m.getReturnType());
+                    Object o = getElementValue(u.unmarshal(reader, m.getReturnType()));
+                    m2.invoke(obj, o);
+                }
+            }
+            return (Exception)obj;
+        } catch (Exception e) {
+            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE, e.getMessage()), e);
+        }
+    }
     
     private static void writeObject(Marshaller u, Object source, Object mObj) throws Fault, JAXBException { 
         if (source instanceof XMLStreamWriter) {
@@ -195,6 +335,16 @@ public final class JAXBEncoderDecoder {
         } else {
             throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
         }
+    }
+    private static XMLStreamWriter getStreamWriter(Object source) throws Fault { 
+        if (source instanceof XMLStreamWriter) {
+            return (XMLStreamWriter)source;
+        } else if (source instanceof OutputStream) {
+            return StaxUtils.createXMLStreamWriter((OutputStream)source);
+        } else if (source instanceof Node) {
+            return new W3CDOMStreamWriter((Element)source);
+        }
+        throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
     }
 
     public static void marshall(JAXBContext context, Schema schema, Object elValue, Object source) {
@@ -255,6 +405,14 @@ public final class JAXBEncoderDecoder {
                                     AttachmentUnmarshaller au, 
                                     boolean unwrap) {
         Class<?> clazz = part != null ? (Class) part.getTypeClass() : null;
+        if (clazz != null 
+            && Exception.class.isAssignableFrom(clazz)
+            && part != null
+            && Boolean.TRUE.equals(part.getProperty(JAXBDataBinding.class.getName() 
+                                                    + ".CUSTOM_EXCEPTION"))) {
+            return unmarshallException(context, schema, source, part, au);
+        }
+        
         QName elName = part != null ? part.getConcreteName() : null;
         if (clazz != null
             && clazz.isArray()

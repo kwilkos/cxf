@@ -40,7 +40,6 @@ import javax.xml.ws.WebFault;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.TwoStageMap;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.Endpoint;
@@ -78,8 +77,6 @@ public final class ContextUtils {
 
     public static final ObjectFactory WSA_OBJECT_FACTORY = new ObjectFactory();
 
-    private static final String WS_ADDRESSING_PACKAGE = 
-        PackageUtils.getPackageName(EndpointReferenceType.class);
     private static final EndpointReferenceType NONE_ENDPOINT_REFERENCE = 
         EndpointReferenceUtils.getEndpointReference(Names.WSA_NONE_ADDRESS);
     private static final String HTTP_URI_SCHEME = "http:";
@@ -598,7 +595,7 @@ public final class ContextUtils {
     public static JAXBContext getJAXBContext() throws JAXBException {
         synchronized (ContextUtils.class) {
             if (jaxbContext == null) {
-                jaxbContext = JAXBContext.newInstance(WS_ADDRESSING_PACKAGE);
+                jaxbContext = JAXBContext.newInstance(WSA_OBJECT_FACTORY.getClass());
             }
         }
         return jaxbContext;

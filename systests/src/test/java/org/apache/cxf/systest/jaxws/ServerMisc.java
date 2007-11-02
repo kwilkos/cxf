@@ -38,14 +38,14 @@ public class ServerMisc extends AbstractBusTestServerBase {
         "http://localhost:9003/DocLitBareCodeFirstService/";
     
     protected void run() {
+        Object implementor4 = new DocLitWrappedCodeFirstServiceImpl();
+        Endpoint.publish(DOCLIT_CODEFIRST_URL, implementor4);
+        
         Object implementor7 = new DocLitBareCodeFirstServiceImpl();
         Endpoint.publish(DOCLITBARE_CODEFIRST_URL, implementor7);
         
         Object implementor6 = new InterfaceInheritTestImpl();
         Endpoint.publish(DOCLIT_CODEFIRST_BASE_URL, implementor6);
-        
-        Object implementor4 = new DocLitWrappedCodeFirstServiceImpl();
-        Endpoint.publish(DOCLIT_CODEFIRST_URL, implementor4);
         
         Object implementor1 = new AnonymousComplexTypeImpl();
         String address = "http://localhost:9000/anonymous_complex_typeSOAP";
