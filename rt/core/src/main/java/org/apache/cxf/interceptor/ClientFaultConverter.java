@@ -99,6 +99,21 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
             }
         }
         if (faultWanted == null) {
+            //did not find it using the proper qualified names, we'll try again with just the localpart
+            for (FaultInfo faultInfo : boi.getOperationInfo().getFaults()) {
+                for (MessagePartInfo mpi : faultInfo.getMessageParts()) {
+                    if (qname.getLocalPart().equals(mpi.getConcreteName().getLocalPart())) {
+                        faultWanted = faultInfo;
+                        part = mpi;
+                        break;
+                    }
+                }
+                if (faultWanted != null) {
+                    break;
+                }
+            }
+        }
+        if (faultWanted == null) {
             return;
         }
         Service s = msg.getExchange().get(Service.class);
