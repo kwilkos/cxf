@@ -24,7 +24,8 @@ import org.apache.cxf.service.ServiceBuilder;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.ServiceInfo;
 
-public abstract class AbstractServiceFactory extends AbstractEndpointFactory implements ServiceBuilder {
+public abstract class AbstractServiceFactory extends AbstractWSDLBasedEndpointFactory 
+    implements ServiceBuilder {
     
     protected AbstractServiceFactory() {
         super();
