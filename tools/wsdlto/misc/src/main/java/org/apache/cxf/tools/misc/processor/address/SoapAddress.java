@@ -30,9 +30,9 @@ public class SoapAddress extends XmlAddress {
     public Map<String, String> getNamespaces(final ToolContext context) {
         Map<String, String> ns = new HashMap<String, String>();
         if (context.optionSet(ToolConstants.CFG_SOAP12)) {
-            ns.put(ToolConstants.CFG_SOAP12, WSDLConstants.SOAP12_NAMESPACE);
+            ns.put(ToolConstants.CFG_SOAP12, WSDLConstants.NS_SOAP12);
         } else {
-            ns.put("soap", WSDLConstants.SOAP11_NAMESPACE);
+            ns.put("soap", WSDLConstants.NS_SOAP11);
         }
         return ns;
     }

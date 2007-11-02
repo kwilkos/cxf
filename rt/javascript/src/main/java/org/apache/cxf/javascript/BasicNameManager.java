@@ -71,14 +71,17 @@ public class BasicNameManager implements NameManager {
     /** {@inheritDoc}*/
     public String getJavascriptName(XmlSchemaComplexType schemaType) {
         QName typeQName = schemaType.getQName();
-        String nsprefix = nsPrefixMap.get(typeQName.getNamespaceURI());
+        return getJavascriptName(typeQName);
+    }
+
+    public String getJavascriptName(QName qname) {
+        String nsprefix = nsPrefixMap.get(qname.getNamespaceURI());
         // nsprefix will be null if there is no prefix.
         if (nsprefix == null) {
-            nsprefix = defineFallbackPrefix(typeQName.getNamespaceURI());
+            nsprefix = defineFallbackPrefix(qname.getNamespaceURI());
         }
         return nsprefix 
                + "_"
-        //TODO: the local part of the name may be a problem for JavaScript.
-               + schemaType.getQName().getLocalPart();
+               + qname.getLocalPart();
     }
 }

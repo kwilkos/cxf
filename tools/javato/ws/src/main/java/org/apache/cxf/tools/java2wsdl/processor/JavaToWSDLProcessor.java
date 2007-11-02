@@ -223,16 +223,16 @@ public class JavaToWSDLProcessor implements Processor {
 
     protected String getTransportId() {
         if (isSOAP12()) {
-            return WSDLConstants.SOAP12_NAMESPACE;
+            return WSDLConstants.NS_SOAP12;
         }
-        return WSDLConstants.SOAP11_NAMESPACE;
+        return WSDLConstants.NS_SOAP11;
     }
 
     protected String getBindingId() {
         if (isSOAP12()) {
-            return WSDLConstants.SOAP12_NAMESPACE;
+            return WSDLConstants.NS_SOAP12;
         } else {
-            return WSDLConstants.SOAP11_NAMESPACE;
+            return WSDLConstants.NS_SOAP11;
         }
     }
 

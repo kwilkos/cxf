@@ -19,8 +19,11 @@
 
 package org.apache.cxf.javascript;
 
+import javax.xml.namespace.QName;
+
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 
 public interface NameManager {
     String getJavascriptName(XmlSchemaComplexType schemaType);
+    String getJavascriptName(QName qname);
 }

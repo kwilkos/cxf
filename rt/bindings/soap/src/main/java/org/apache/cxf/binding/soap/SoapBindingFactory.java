@@ -110,10 +110,10 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else {
             config = new SoapBindingConfiguration();
         }
-        if (WSDLConstants.SOAP12_NAMESPACE.equals(bindingid)
-            || WSDLConstants.SOAP12_HTTP_TRANSPORT.equals(bindingid)) {
+        if (WSDLConstants.NS_SOAP12.equals(bindingid)
+            || WSDLConstants.NS_SOAP12_HTTP_TRANSPORT.equals(bindingid)) {
             config.setVersion(Soap12.getInstance());
-            config.setTransportURI(WSDLConstants.SOAP12_HTTP_TRANSPORT);
+            config.setTransportURI(WSDLConstants.NS_SOAP12_HTTP_TRANSPORT);
         }
         SoapBindingInfo info = new SoapBindingInfo(si,
                                                    bindingid,

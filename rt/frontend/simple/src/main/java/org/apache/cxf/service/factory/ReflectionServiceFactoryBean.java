@@ -712,7 +712,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             } else {
                 el.setSchemaTypeName(mpi.getTypeQName());
                 String ns = mpi.getTypeQName().getNamespaceURI();
-                if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NU_SCHEMA_XSD)) {
+                if (!ns.equals(schema.getTargetNamespace()) && !ns.equals(WSDLConstants.NS_SCHEMA_XSD)) {
                     XmlSchemaImport is = new XmlSchemaImport();
                     is.setNamespace(ns);
                     if (!isExistImport(schema, ns)) {
@@ -934,8 +934,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             nsMap.add(mapping.getValue(), mapping.getKey());
         }
         
-        if (!explicitNamespaceMappings.containsKey(WSDLConstants.NU_SCHEMA_XSD)) {
-            nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+        if (!explicitNamespaceMappings.containsKey(WSDLConstants.NS_SCHEMA_XSD)) {
+            nsMap.add(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NS_SCHEMA_XSD);
         }
         if (!explicitNamespaceMappings.containsKey(serviceInfo.getTargetNamespace())) {
             nsMap.add(WSDLConstants.CONVENTIONAL_TNS_PREFIX, serviceInfo.getTargetNamespace());

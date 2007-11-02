@@ -26,54 +26,54 @@ import javax.xml.namespace.QName;
 public final class WSDLConstants {
 
     public static final String WSDL_PREFIX = "wsdl";
-    public static final String WSDL11_NAMESPACE = "http://schemas.xmlsoap.org/wsdl/";
+    public static final String NS_WSDL11 = "http://schemas.xmlsoap.org/wsdl/";
 
     public static final String NP_XMLNS = "xmlns";
-    public static final String NU_XMLNS = "http://www.w3.org/2000/xmlns/";
+    public static final String NS_XMLNS = "http://www.w3.org/2000/xmlns/";
 
     // XML Schema (CR) datatypes + structures
     public static final String NP_SCHEMA_XSD = "xsd";
-    public static final String NU_SCHEMA_XSD = "http://www.w3.org/2001/XMLSchema";
+    public static final String NS_SCHEMA_XSD = "http://www.w3.org/2001/XMLSchema";
 
-    public static final QName SCHEMA_QNAME = new QName(NU_SCHEMA_XSD, "schema");
+    public static final QName QNAME_SCHEMA = new QName(NS_SCHEMA_XSD, "schema");
 
     // XML Schema instance
     public static final String NP_SCHEMA_XSI = "xsi";
-    public static final String NU_SCHEMA_XSI = "http://www.w3.org/2001/XMLSchema-instance";
+    public static final String NS_SCHEMA_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     
     public static final String A_XSI_TYPE = "type";
     public static final String A_XSI_NIL = "nil";
     
     // XML Schema attribute names
-    public static final QName NA_XSI_TYPE = new QName(NP_SCHEMA_XSI, A_XSI_TYPE, NU_SCHEMA_XSI);
-    public static final QName NA_XSI_NIL = new QName(NP_SCHEMA_XSI, A_XSI_NIL, NU_SCHEMA_XSI);
+    public static final QName NA_XSI_TYPE = new QName(NP_SCHEMA_XSI, A_XSI_TYPE, NS_SCHEMA_XSI);
+    public static final QName NA_XSI_NIL = new QName(NP_SCHEMA_XSI, A_XSI_NIL, NS_SCHEMA_XSI);
 
 
 
-    public static final String SOAP11_NAMESPACE = "http://schemas.xmlsoap.org/wsdl/soap/";
-    public static final String SOAP12_NAMESPACE = "http://schemas.xmlsoap.org/wsdl/soap12/";
-    public static final String SOAP11_PREFIX = "soap";
-    public static final String SOAP12_PREFIX = "soap12";
+    public static final String NS_SOAP11 = "http://schemas.xmlsoap.org/wsdl/soap/";
+    public static final String NS_SOAP12 = "http://schemas.xmlsoap.org/wsdl/soap12/";
+    public static final String NP_SOAP11 = "soap";
+    public static final String NP_SOAP12 = "soap12";
     
     public static final Map<String, String> NS_PREFIX_PAIR = new HashMap<String, String>(2);
     static {
-        NS_PREFIX_PAIR.put(SOAP11_NAMESPACE, SOAP11_PREFIX);
-        NS_PREFIX_PAIR.put(SOAP12_NAMESPACE, SOAP12_PREFIX);
+        NS_PREFIX_PAIR.put(NS_SOAP11, NP_SOAP11);
+        NS_PREFIX_PAIR.put(NS_SOAP12, NP_SOAP12);
     }
 
-    public static final String NS_SOAP11_HTTP_BINDING = "http://schemas.xmlsoap.org/soap/http";
+    public static final String NS_SOAP11_HTTP_TRANSPORT = "http://schemas.xmlsoap.org/soap/http";
     
-    public static final QName NS_SOAP_BINDING = new QName(SOAP11_NAMESPACE, "binding");
-    public static final QName NS_SOAP_OPERATION = new QName(SOAP11_NAMESPACE, "operation");
-    public static final QName NS_SOAP_BODY = new QName(SOAP11_NAMESPACE, "body");
-    public static final QName NS_SOAP_FAULT = new QName(SOAP11_NAMESPACE, "fault");
-    public static final QName NS_SOAP_BINDING_ADDRESS = new QName(SOAP11_NAMESPACE, "address");
+    public static final QName QNAME_SOAP_BINDING = new QName(NS_SOAP11, "binding");
+    public static final QName QNAME_SOAP_OPERATION = new QName(NS_SOAP11, "operation");
+    public static final QName QNAME_SOAP_BODY = new QName(NS_SOAP11, "body");
+    public static final QName QNAME_SOAP_FAULT = new QName(NS_SOAP11, "fault");
+    public static final QName QNAME_SOAP_BINDING_ADDRESS = new QName(NS_SOAP11, "address");
 
 
-    public static final String SOAP12_HTTP_TRANSPORT = "http://www.w3.org/2003/05/soap/bindings/HTTP/";
+    public static final String NS_SOAP12_HTTP_TRANSPORT = "http://www.w3.org/2003/05/soap/bindings/HTTP/";
     
-    public static final QName NS_SOAP12_BINDING = new QName(SOAP12_NAMESPACE, "binding");
-    public static final QName NS_SOAP12_BINDING_ADDRESS = new QName(SOAP12_NAMESPACE, "address");
+    public static final QName QNAME_SOAP12_BINDING = new QName(NS_SOAP12, "binding");
+    public static final QName QNAME_SOAP12_BINDING_ADDRESS = new QName(NS_SOAP12, "address");
     
 
     public static final String DOCUMENT = "document";
@@ -85,22 +85,22 @@ public final class WSDLConstants {
     public static final String TNS_PREFIX = "tns";
 
     // WSDL 1.1 definitions
-    public static final QName QNAME_BINDING = new QName(WSDL11_NAMESPACE, "binding");
-    public static final QName QNAME_DEFINITIONS = new QName(WSDL11_NAMESPACE, "definitions");
-    public static final QName QNAME_DOCUMENTATION = new QName(WSDL11_NAMESPACE, "documentation");
-    public static final QName QNAME_IMPORT = new QName(WSDL11_NAMESPACE, "import");
-    public static final QName QNAME_MESSAGE = new QName(WSDL11_NAMESPACE, "message");
-    public static final QName QNAME_PART = new QName(WSDL11_NAMESPACE, "part");
-    public static final QName QNAME_OPERATION = new QName(WSDL11_NAMESPACE, "operation");
-    public static final QName QNAME_INPUT = new QName(WSDL11_NAMESPACE, "input");
-    public static final QName QNAME_OUTPUT = new QName(WSDL11_NAMESPACE, "output");
+    public static final QName QNAME_BINDING = new QName(NS_WSDL11, "binding");
+    public static final QName QNAME_DEFINITIONS = new QName(NS_WSDL11, "definitions");
+    public static final QName QNAME_DOCUMENTATION = new QName(NS_WSDL11, "documentation");
+    public static final QName QNAME_IMPORT = new QName(NS_WSDL11, "import");
+    public static final QName QNAME_MESSAGE = new QName(NS_WSDL11, "message");
+    public static final QName QNAME_PART = new QName(NS_WSDL11, "part");
+    public static final QName QNAME_OPERATION = new QName(NS_WSDL11, "operation");
+    public static final QName QNAME_INPUT = new QName(NS_WSDL11, "input");
+    public static final QName QNAME_OUTPUT = new QName(NS_WSDL11, "output");
 
-    public static final QName QNAME_PORT = new QName(WSDL11_NAMESPACE, "port");
-    public static final QName QNAME_ADDRESS = new QName(WSDL11_NAMESPACE, "address");
-    public static final QName QNAME_PORT_TYPE = new QName(WSDL11_NAMESPACE, "portType");
-    public static final QName QNAME_FAULT = new QName(WSDL11_NAMESPACE, "fault");
-    public static final QName QNAME_SERVICE = new QName(WSDL11_NAMESPACE, "service");
-    public static final QName QNAME_TYPES = new QName(WSDL11_NAMESPACE, "types");
+    public static final QName QNAME_PORT = new QName(NS_WSDL11, "port");
+    public static final QName QNAME_ADDRESS = new QName(NS_WSDL11, "address");
+    public static final QName QNAME_PORT_TYPE = new QName(NS_WSDL11, "portType");
+    public static final QName QNAME_FAULT = new QName(NS_WSDL11, "fault");
+    public static final QName QNAME_SERVICE = new QName(NS_WSDL11, "service");
+    public static final QName QNAME_TYPES = new QName(NS_WSDL11, "types");
 
     // WSDL Validation
     public static final String ATTR_PART_ELEMENT = "element";
@@ -115,9 +115,9 @@ public final class WSDLConstants {
     public static final int RPC_WRAPPED = 3;
     public static final int ERORR_STYLE_USE = -1;
 
-    public static final String XML_BINDING_NS = "http://cxf.apache.org/bindings/xformat";
-    public static final QName NS_XMLHTTP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/http/",
-                                                                     "address");
+    public static final String NS_BINDING_XML = "http://cxf.apache.org/bindings/xformat";
+    public static final QName QNAME_XMLHTTP_BINDING_ADDRESS = 
+        new QName("http://schemas.xmlsoap.org/wsdl/http/", "address");
     
     public static final String ATTR_TRANSPORT = "transport";
     public static final String ATTR_LOCATION = "location";

@@ -79,7 +79,7 @@ public class SoapBindingFactoryTest extends Assert {
 
         Bus bus = getMockBus();
 
-        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP11_NAMESPACE, bus);
+        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.NS_SOAP11, bus);
 
         bus.getExtension(BindingFactoryManager.class);
         expectLastCall().andReturn(bfm).anyTimes();
@@ -100,7 +100,7 @@ public class SoapBindingFactoryTest extends Assert {
 
         SoapBindingInfo sbi = (SoapBindingInfo)bi;
         assertEquals("document", sbi.getStyle());
-        assertTrue(WSDLConstants.NS_SOAP11_HTTP_BINDING.equalsIgnoreCase(sbi.getTransportURI()));
+        assertTrue(WSDLConstants.NS_SOAP11_HTTP_TRANSPORT.equalsIgnoreCase(sbi.getTransportURI()));
         assertTrue(sbi.getSoapVersion() instanceof Soap11);
 
         BindingOperationInfo boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap_http",
@@ -126,7 +126,7 @@ public class SoapBindingFactoryTest extends Assert {
 
         Bus bus = getMockBus();
 
-        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP12_NAMESPACE, bus);
+        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.NS_SOAP12, bus);
 
         expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
         
@@ -146,7 +146,7 @@ public class SoapBindingFactoryTest extends Assert {
 
         SoapBindingInfo sbi = (SoapBindingInfo)bi;
         assertEquals("document", sbi.getStyle());
-        assertTrue(WSDLConstants.SOAP12_HTTP_TRANSPORT.equalsIgnoreCase(sbi.getTransportURI()));
+        assertTrue(WSDLConstants.NS_SOAP12_HTTP_TRANSPORT.equalsIgnoreCase(sbi.getTransportURI()));
         assertTrue(sbi.getSoapVersion() instanceof Soap12);
 
         BindingOperationInfo boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap12_http",

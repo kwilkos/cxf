@@ -80,8 +80,8 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         try {
             wsdlFactory = WSDLFactory.newInstance();
             registry = wsdlFactory.newPopulatedExtensionRegistry();
-            QName header11 = new QName(WSDLConstants.SOAP11_NAMESPACE, "header");
-            QName header12 = new QName(WSDLConstants.SOAP12_NAMESPACE, "header");
+            QName header11 = new QName(WSDLConstants.NS_SOAP11, "header");
+            QName header12 = new QName(WSDLConstants.NS_SOAP12, "header");
             registry.registerDeserializer(MIMEPart.class,
                                           header11,
                                           new SOAPHeaderSerializer());

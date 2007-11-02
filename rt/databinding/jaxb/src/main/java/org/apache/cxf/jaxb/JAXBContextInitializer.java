@@ -228,7 +228,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     }
 
     /**
-     * Checks is the field is accepted as a JAXB property.
+     * Checks if the field is accepted as a JAXB property.
      */
     static boolean isFieldAccepted(Field field, XmlAccessType accessType) {
         // We only accept non static fields which are not marked @XmlTransient
@@ -248,7 +248,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
     }
 
     /**
-     * Checks is the method is accepted as a JAXB property getter.
+     * Checks if the method is accepted as a JAXB property getter.
      */
     static boolean isMethodAccepted(Method method, XmlAccessType accessType) {
         // We only accept non static property getters which are not marked @XmlTransient

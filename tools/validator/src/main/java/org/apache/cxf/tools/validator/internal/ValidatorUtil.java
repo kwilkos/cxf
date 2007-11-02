@@ -91,7 +91,7 @@ public final class ValidatorUtil {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         schemaCol.setBaseUri(baseURI);
         NodeList nodes = document.getElementsByTagNameNS(
-            WSDLConstants.NU_SCHEMA_XSD, "schema");
+            WSDLConstants.NS_SCHEMA_XSD, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {
             Node schemaNode = nodes.item(x);
             Element schemaEl = (Element) schemaNode;
@@ -153,7 +153,7 @@ public final class ValidatorUtil {
             throw new ToolException(e);
         }
         
-        NodeList nodes = document.getElementsByTagNameNS(WSDLConstants.WSDL11_NAMESPACE, "import");
+        NodeList nodes = document.getElementsByTagNameNS(WSDLConstants.NS_WSDL11, "import");
         //
         // Remove the scheme part of a URI - need to escape spaces in
         // case we are on Windows and have spaces in directory names.

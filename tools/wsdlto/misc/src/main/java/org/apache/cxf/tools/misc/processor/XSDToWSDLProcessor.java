@@ -127,7 +127,7 @@ public class XSDToWSDLProcessor implements Processor {
 
         this.wsdlDefinition.setTargetNamespace((String)env.get(ToolConstants.CFG_NAMESPACE));
         this.wsdlDefinition
-            .setQName(new QName(WSDLConstants.WSDL11_NAMESPACE, (String)env.get(ToolConstants.CFG_NAME)));
+            .setQName(new QName(WSDLConstants.NS_WSDL11, (String)env.get(ToolConstants.CFG_NAME)));
 
         Types types = this.wsdlDefinition.createTypes();
         ExtensibilityElement extElement;
@@ -136,7 +136,7 @@ public class XSDToWSDLProcessor implements Processor {
             registerJAXWSBinding(Definition.class);
             registerJAXWSBinding(Types.class);
             registerJAXWSBinding(Schema.class);
-            extElement = registry.createExtension(Types.class, WSDLConstants.SCHEMA_QNAME);
+            extElement = registry.createExtension(Types.class, WSDLConstants.QNAME_SCHEMA);
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SCHEMA_EXTENSION", LOG);
             throw new ToolException(msg, wse);

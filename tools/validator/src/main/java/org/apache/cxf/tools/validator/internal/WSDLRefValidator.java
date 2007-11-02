@@ -245,7 +245,7 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
             Port port = (Port)portIte.next();
             Binding binding = port.getBinding();
             bindings.put(binding.getQName(), getXNode(service, port));
-            if (WSDLConstants.WSDL11_NAMESPACE.equals(binding.getQName().getNamespaceURI())) {
+            if (WSDLConstants.NS_WSDL11.equals(binding.getQName().getNamespaceURI())) {
                 throw new ToolException("Binding "
                                         + binding.getQName().getLocalPart()
                                         + " namespace set improperly.");
@@ -536,14 +536,14 @@ public class WSDLRefValidator extends AbstractDefinitionValidator {
 
         boolean partvalid = false;
 
-        if (namespace.equals(WSDLConstants.NU_SCHEMA_XSD)) {
+        if (namespace.equals(WSDLConstants.NS_SCHEMA_XSD)) {
             if (isElement) {
                 XmlSchemaElement  schemaEle =
-                    schemaCollection.getElementByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));
+                    schemaCollection.getElementByQName(new QName(WSDLConstants.NS_SCHEMA_XSD, name));
                 partvalid = schemaEle != null ? true : false;
             } else {
                 XmlSchemaType schemaType =
-                    schemaCollection.getTypeByQName(new QName(WSDLConstants.NU_SCHEMA_XSD, name));
+                    schemaCollection.getTypeByQName(new QName(WSDLConstants.NS_SCHEMA_XSD, name));
                 partvalid = schemaType != null ? true : false;
             }
 

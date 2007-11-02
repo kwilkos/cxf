@@ -84,7 +84,7 @@ public class JavascriptUtils {
     }
     
     public boolean isStringSimpleType(QName typeName) {
-        return !(WSDLConstants.NU_SCHEMA_XSD.equals(typeName.getNamespaceURI()) 
+        return !(WSDLConstants.NS_SCHEMA_XSD.equals(typeName.getNamespaceURI()) 
                  && nonStringSimpleTypes.contains(typeName.getLocalPart()));
     }
     
@@ -172,7 +172,7 @@ public class JavascriptUtils {
         if (!(type instanceof XmlSchemaSimpleType)) {
             return value;
         }
-        assert type.getQName().getNamespaceURI().equals(WSDLConstants.NU_SCHEMA_XSD);
+        assert type.getQName().getNamespaceURI().equals(WSDLConstants.NS_SCHEMA_XSD);
         String name = type.getName();
         if (intTypes.contains(name)) {
             return "parseInt(" + value + ")";

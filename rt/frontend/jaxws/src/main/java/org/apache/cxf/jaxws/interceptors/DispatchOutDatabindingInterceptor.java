@@ -375,9 +375,9 @@ public class DispatchOutDatabindingInterceptor extends AbstractOutDatabindingInt
         }        
         msg.setProperty(SOAPMessage.WRITE_XML_DECLARATION, "true");
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(WSDLConstants.NP_SCHEMA_XSD,
-                                                                WSDLConstants.NU_SCHEMA_XSD);
+                                                                WSDLConstants.NS_SCHEMA_XSD);
         msg.getSOAPPart().getEnvelope().addNamespaceDeclaration(WSDLConstants.NP_SCHEMA_XSI,
-                                                                WSDLConstants.NU_SCHEMA_XSI);
+                                                                WSDLConstants.NS_SCHEMA_XSI);
         return msg;
     }
 

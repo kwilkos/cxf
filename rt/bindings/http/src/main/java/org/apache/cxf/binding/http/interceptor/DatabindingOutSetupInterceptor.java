@@ -62,7 +62,7 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
             XMLStreamWriter writer = new W3CDOMStreamWriter(document);
             try {
                 MapNamespaceContext nsMap = new MapNamespaceContext();
-                nsMap.addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD);
+                nsMap.addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NS_SCHEMA_XSD);
                 writer.setNamespaceContext(nsMap);
             } catch (XMLStreamException e) {
                 e.printStackTrace();

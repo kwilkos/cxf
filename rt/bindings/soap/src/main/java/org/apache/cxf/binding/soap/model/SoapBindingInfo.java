@@ -48,9 +48,9 @@ public class SoapBindingInfo extends BindingInfo {
     }
 
     private void resolveSoapVersion(String n) {
-        if (WSDLConstants.SOAP11_NAMESPACE.equalsIgnoreCase(n)) {
+        if (WSDLConstants.NS_SOAP11.equalsIgnoreCase(n)) {
             this.soapVersion = Soap11.getInstance();
-        } else if (WSDLConstants.SOAP12_NAMESPACE.equalsIgnoreCase(n)) {
+        } else if (WSDLConstants.NS_SOAP12.equalsIgnoreCase(n)) {
             this.soapVersion = Soap12.getInstance();
         } else {
             throw new RuntimeException("Unknow bindingId: " + n + ". Can not resolve the SOAP version");

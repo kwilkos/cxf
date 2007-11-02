@@ -204,7 +204,7 @@ public class ServiceWSDLBuilder {
         d.setExtensionRegistry(bus.getExtension(WSDLManager.class).getExtenstionRegistry());
         d.setQName(name);
         d.setTargetNamespace(targetNamespace);
-        addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NU_SCHEMA_XSD, d);
+        addNamespace(WSDLConstants.NP_SCHEMA_XSD, WSDLConstants.NS_SCHEMA_XSD, d);
         return d;
     }
 
@@ -243,18 +243,18 @@ public class ServiceWSDLBuilder {
         // we need an import for every namespace except the main one.
         String schemaNamespace = schemaInfo.getNamespaceURI();
         Map<String, String> queryPrefixMap = new HashMap<String, String>();
-        queryPrefixMap.put("xs", WSDLConstants.NU_SCHEMA_XSD);
+        queryPrefixMap.put("xs", WSDLConstants.NS_SCHEMA_XSD);
         XPathUtils xpu = new XPathUtils(queryPrefixMap);
         NamespacePrefixList schemaPrefixes = schemaInfo.getSchema().getNamespaceContext();
         for (String prefix : schemaPrefixes.getDeclaredPrefixes()) {
             String namespace = schemaPrefixes.getNamespaceURI(prefix);
             if (!namespace.equals(schemaNamespace) 
-                && !namespace.equals(WSDLConstants.NU_SCHEMA_XSD)
+                && !namespace.equals(WSDLConstants.NS_SCHEMA_XSD)
                 && !xpu.isExist("xs:import[@namespace='" + namespace + "']", 
                                  schemaElement, 
                                  XPathConstants.NODE)) {
                 Element importElement = XMLUtils.createElementNS(schemaElement.getOwnerDocument(), 
-                                                                 WSDLConstants.NU_SCHEMA_XSD,
+                                                                 WSDLConstants.NS_SCHEMA_XSD,
                                                                  "import");
                 importElement.setAttribute("namespace", namespace);
                 schemaElement.insertBefore(importElement, schemaElement.getFirstChild());
@@ -273,9 +273,9 @@ public class ServiceWSDLBuilder {
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("DOM configuration problem", e);
         }
-        Element nd = XMLUtils.createElementNS(doc, new QName(WSDLConstants.NU_SCHEMA_XSD,
+        Element nd = XMLUtils.createElementNS(doc, new QName(WSDLConstants.NS_SCHEMA_XSD,
                                                              "schema"));
-        nd.setAttribute("xmlns", WSDLConstants.NU_SCHEMA_XSD);
+        nd.setAttribute("xmlns", WSDLConstants.NS_SCHEMA_XSD);
         doc.appendChild(nd);
         
         for (SchemaInfo schemaInfo : schemas) {
@@ -283,14 +283,14 @@ public class ServiceWSDLBuilder {
             if (!useSchemaImports) {
                 SchemaImpl schemaImpl = new SchemaImpl();
                 schemaImpl.setRequired(true);
-                schemaImpl.setElementType(WSDLConstants.SCHEMA_QNAME);
+                schemaImpl.setElementType(WSDLConstants.QNAME_SCHEMA);
                 schemaImpl.setElement(schemaInfo.getElement());
                 types.addExtensibilityElement(schemaImpl);
             } else {
                 //imports
                 String name = baseFileName + "_schema" + (++xsdCount) + ".xsd";
                 Element imp = XMLUtils.createElementNS(doc, 
-                                                       new QName(WSDLConstants.NU_SCHEMA_XSD,
+                                                       new QName(WSDLConstants.NS_SCHEMA_XSD,
                                                                   "import"));
                 imp.setAttribute("schemaLocation", name);
                 imp.setAttribute("namespace", schemaInfo.getNamespaceURI());
@@ -304,7 +304,7 @@ public class ServiceWSDLBuilder {
         if (useSchemaImports) {
             SchemaImpl schemaImpl = new SchemaImpl();
             schemaImpl.setRequired(true);
-            schemaImpl.setElementType(WSDLConstants.SCHEMA_QNAME);
+            schemaImpl.setElementType(WSDLConstants.QNAME_SCHEMA);
             schemaImpl.setElement(nd);
             types.addExtensibilityElement(schemaImpl);
         }

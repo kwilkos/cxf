@@ -89,11 +89,11 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
             // set to the same value as the targetNamespace attribute.
             // The aegis databinding tests demonstrate this particularly.
             if (e.getPrefix() == null
-                && !WSDLConstants.NU_SCHEMA_XSD.equals(e.getAttributeNS(WSDLConstants.NU_XMLNS,
+                && !WSDLConstants.NS_SCHEMA_XSD.equals(e.getAttributeNS(WSDLConstants.NS_XMLNS,
                                                                         WSDLConstants.NP_XMLNS))) {
-                e.setAttributeNS(WSDLConstants.NU_XMLNS, 
+                e.setAttributeNS(WSDLConstants.NS_XMLNS, 
                                  WSDLConstants.NP_XMLNS, 
-                                 WSDLConstants.NU_SCHEMA_XSD);
+                                 WSDLConstants.NS_SCHEMA_XSD);
             }
             setElement(e);
         }

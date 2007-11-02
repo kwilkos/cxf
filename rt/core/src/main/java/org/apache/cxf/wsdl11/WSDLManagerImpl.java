@@ -78,7 +78,7 @@ public class WSDLManagerImpl implements WSDLManager {
             factory = WSDLFactory.newInstance();
             registry = factory.newPopulatedExtensionRegistry();
             registry.registerSerializer(Types.class, 
-                                        WSDLConstants.SCHEMA_QNAME,
+                                        WSDLConstants.QNAME_SCHEMA,
                                         new SchemaSerializer());
             QName header = new QName("http://schemas.xmlsoap.org/wsdl/soap/", 
                                      "header");

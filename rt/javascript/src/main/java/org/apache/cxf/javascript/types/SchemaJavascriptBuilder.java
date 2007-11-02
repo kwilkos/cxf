@@ -60,7 +60,7 @@ public class SchemaJavascriptBuilder {
     private static final XmlSchemaForm UNQUALIFIED = new XmlSchemaForm(XmlSchemaForm.UNQUALIFIED);
     
     private static final String XSI_NS_ATTR = WSDLConstants.NP_XMLNS + ":" 
-        + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NU_SCHEMA_XSI + "'";
+        + WSDLConstants.NP_SCHEMA_XSI + "='" + WSDLConstants.NS_SCHEMA_XSI + "'";
     private static final String NIL_ATTRIBUTES = XSI_NS_ATTR + " xsi:nil='true'";
     private XmlSchemaCollection xmlSchemaCollection;
     private SchemaInfo schemaInfo;
