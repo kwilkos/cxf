@@ -44,7 +44,7 @@ public class TestBean1 {
     public byte[] base64Item;
     @XmlElement(required = false)
     public int optionalIntItem;
-    @XmlElement(defaultValue = "trip", required = false, namespace = "uri:org.apache.cxf.javascript.testns2")
+    @XmlElement(required = false, namespace = "uri:org.apache.cxf.javascript.testns2")
     public String optionalStringItem;
     @XmlElement(required = false)
     public int[] optionalIntArrayItem;

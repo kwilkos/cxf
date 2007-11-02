@@ -476,7 +476,6 @@ public final class EndpointReferenceUtils {
                                     LoadingByteArrayOutputStream out = new LoadingByteArrayOutputStream();
                                     sch.write(out);
                                     ins = out.createInputStream();
-                                    System.out.println(out.toString());
                                 }
                                 impl.setByteStream(ins);
                                 return impl;
