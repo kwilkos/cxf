@@ -56,7 +56,15 @@ public abstract class AbstractCXFServlet extends HttpServlet {
         ServletController newController = new ServletController(servletTransportFactory, this);
         if (hideServiceList != null) {
             newController.setHideServiceList(Boolean.valueOf(hideServiceList));
-        }    
+        }
+        String disableAddressUpdates = servletConfig.getInitParameter("disable-address-updates");
+        if (disableAddressUpdates != null) {
+            newController.setDisableAddressUpdates(Boolean.valueOf(disableAddressUpdates));
+        }
+        String forcedBaseAddress = servletConfig.getInitParameter("base-address");
+        if (forcedBaseAddress != null) {
+            newController.setForcedBaseAddress(forcedBaseAddress);
+        }
         return newController;
     }
     
