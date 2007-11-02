@@ -55,6 +55,8 @@ public class ServletController {
     private AbstractCXFServlet cxfServlet;
     private String lastBase = "";
     private boolean isHideServiceList;
+    private boolean disableAddressUpdates;
+    private String forcedBaseAddress;
  
     public ServletController(ServletTransportFactory df, AbstractCXFServlet servlet) {
         this.transport = df;
@@ -64,9 +66,18 @@ public class ServletController {
     public void setHideServiceList(boolean generate) {
         isHideServiceList = generate;
     }
+    public void setDisableAddressUpdates(boolean noupdates) {
+        disableAddressUpdates = noupdates;
+    }
+    public void setForcedBaseAddress(String s) {
+        forcedBaseAddress = s;
+    }
     
     private synchronized void updateDests(HttpServletRequest request) {
-        String base = getBaseURL(request);
+        if (disableAddressUpdates) {
+            return;
+        }
+        String base = forcedBaseAddress == null ? getBaseURL(request) : forcedBaseAddress;
                 
         if (base.equals(lastBase)) {
             return;
