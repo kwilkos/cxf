@@ -90,7 +90,8 @@ public class InvocationHandlerFactoryTest extends HandlerTestBase {
 
         Class[] types = {ProxyInvocationHandler.class, 
                          ObjectMethodInvocationHandler.class,
-                         InvokingInvocationHandler.class};
+                         InvokingInvocationHandler.class,
+                         SecurityTestHandler.class};
 
         for (int i = 0; i < types.length; i++) {
             assertTrue("handler chain must contain type: " + types[i], allHandlerTypes.contains(types[i]));
