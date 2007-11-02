@@ -18,30 +18,20 @@
  */
 package org.apache.cxf.frontend;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.binding.BindingConfiguration;
-import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingConfiguration;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.databinding.DataBinding;
-import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.endpoint.AbstractEndpointFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
-import org.apache.cxf.feature.AbstractFeature;
-import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.AnnotationInterceptors;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -54,38 +44,21 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
-public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorProvider {
-    private static final Logger LOG = LogUtils.getL7dLogger(AbstractEndpointFactory.class);
+public abstract class AbstractWSDLBasedEndpointFactory extends AbstractEndpointFactory {
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractWSDLBasedEndpointFactory.class);
 
-    private Bus bus;
-    private String address;
-    private String transportId;
-    private String bindingId;
     private Class serviceClass;
-    private DataBinding dataBinding;
-    private BindingFactory bindingFactory;
-    private DestinationFactory destinationFactory;
     private ReflectionServiceFactoryBean serviceFactory;
-    private QName endpointName;
-    private QName serviceName;
-    private Map<String, Object> properties;
-    private List<AbstractFeature> features;
-    private BindingConfiguration bindingConfig;
-    private EndpointReferenceType endpointReference;
-    private ConduitSelector conduitSelector;
     
-    protected AbstractEndpointFactory() {
+    protected AbstractWSDLBasedEndpointFactory(ReflectionServiceFactoryBean sbean) {
+        serviceFactory = sbean;
     }
-    
-    protected AbstractEndpointFactory(ReflectionServiceFactoryBean bean) {
-        serviceFactory = bean;
+    protected AbstractWSDLBasedEndpointFactory() {
     }
     
     protected Endpoint createEndpoint() throws BusException, EndpointException {
-        
         if (serviceName != null) {
             serviceFactory.setServiceName(serviceName);
         }
@@ -100,7 +73,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
             initializeServiceFactory();
             service = serviceFactory.create();
         }
-        
         
         if (endpointName == null) {
             endpointName = serviceFactory.getEndpointName();
@@ -182,6 +154,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
                 DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
                 df = dfm.getDestinationFactoryForUri(getAddress());
             }
+            
             if (df != null) {
                 transportId = df.getTransportIds().get(0);
             } else {
@@ -190,7 +163,7 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
                 ConduitInitiator ci = cim.getConduitInitiatorForUri(getAddress());
                 if (ci != null) {
                     transportId = ci.getTransportIds().get(0);
-                }
+                }    
             }
         }
         
@@ -325,46 +298,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         }
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Bus getBus() {
-        if (bus == null) {
-            bus = BusFactory.getThreadDefaultBus();
-        }
-        return bus;
-    }
-
-    public void setBus(Bus bus) {
-        this.bus = bus;
-    }
-
-    public String getTransportId() {
-        return transportId;
-    }
-
-    public void setTransportId(String transportId) {
-        this.transportId = transportId;
-    }
-    public void setBindingId(String bind) {
-        bindingId = bind;
-    }
-    public String getBindingId() {
-        return bindingId;
-    }
-
-    public void setBindingConfig(BindingConfiguration obj) {
-        bindingConfig = obj;
-    }
-    public BindingConfiguration getBindingConfig() {
-        return bindingConfig;
-    }
-    
     public Class getServiceClass() {
         return serviceClass;
     }
@@ -373,16 +306,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         this.serviceClass = serviceClass;
     }
 
-    public DestinationFactory getDestinationFactory() {
-        return destinationFactory;
-    }
-
-
-    public void setDestinationFactory(DestinationFactory destinationFactory) {
-        this.destinationFactory = destinationFactory;
-    }
-
-
     public ReflectionServiceFactoryBean getServiceFactory() {
         return serviceFactory;
     }
@@ -390,45 +313,6 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
 
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         this.serviceFactory = serviceFactory;
-    }
-    
-    public void setServiceName(QName name) {
-        serviceName = name;
-    }
-    
-    public QName getServiceName() {
-        return serviceName;
-    }
-
-    public QName getEndpointName() {
-        return endpointName;
-    }
-    
-    public void setEndpointName(QName endpointName) {
-        this.endpointName = endpointName;
-    }
-
-    public void setEndpointReference(EndpointReferenceType epr) {
-        endpointReference = epr;
-    }
-    
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
-    }
-
-    public List<AbstractFeature> getFeatures() {
-        if (features == null) {
-            features = new ArrayList<AbstractFeature>();
-        }
-        return features;
-    }
-
-    public void setFeatures(List<AbstractFeature> features) {
-        this.features = features;
     }
 
     public String getWsdlURL() {
@@ -439,25 +323,5 @@ public abstract class AbstractEndpointFactory extends AbstractBasicInterceptorPr
         getServiceFactory().setWsdlURL(wsdlURL);
     }
 
-    public BindingFactory getBindingFactory() {
-        return bindingFactory;
-    }
-    
-    public ConduitSelector getConduitSelector() {
-        return conduitSelector;
-    }
-
-    public void setConduitSelector(ConduitSelector selector) {
-        conduitSelector = selector;
-    }
-
-    public DataBinding getDataBinding() {
-        return dataBinding;
-    }
-
-    public void setDataBinding(DataBinding dataBinding) {
-        this.dataBinding = dataBinding;
-    }
-
-    
+   
 }
