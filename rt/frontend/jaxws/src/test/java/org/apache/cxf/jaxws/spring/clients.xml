@@ -66,6 +66,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
   <jaxws:client id="wsdlLocation" 
     serviceClass="org.apache.hello_world_soap_http.Greeter"
     serviceName="s:SOAPService"
+    endpointName="s:SoapPort"
     xmlns:s="http://apache.org/hello_world_soap_http"
     address="http://localhost:8080/simpleWithAddress"
     wsdlLocation="wsdl/hello_world.wsdl"/>
