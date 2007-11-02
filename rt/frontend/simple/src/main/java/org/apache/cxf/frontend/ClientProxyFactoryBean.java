@@ -220,6 +220,7 @@ public class ClientProxyFactoryBean extends AbstractBasicInterceptorProvider {
 
     public void setBus(Bus bus) {
         this.bus = bus;
+        clientFactoryBean.setBus(bus);
     }
 
     public Map<String, Object> getProperties() {
