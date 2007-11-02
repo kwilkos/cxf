@@ -27,6 +27,8 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
 public abstract class AbstractServiceConfiguration {
+    protected String serviceNamespace;
+    
     private ReflectionServiceFactoryBean serviceFactory;
     
     public ReflectionServiceFactoryBean getServiceFactory() {
@@ -46,7 +48,10 @@ public abstract class AbstractServiceConfiguration {
     }
     
     public String getServiceNamespace() {
-        return null;
+        return serviceNamespace;
+    }
+    public void setServiceNamespace(String s) {
+        serviceNamespace = s;
     }
     
     public Boolean isOperation(final Method method) {
