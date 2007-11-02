@@ -19,6 +19,7 @@
 package org.apache.cxf.interceptor;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -153,6 +154,16 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
                 LogUtils.log(LOG, Level.INFO, "EXCEPTION_WHILE_CREATING_EXCEPTION", e1, e1.getMessage());
             }
         } else if (e != null) {
+            if (fault.getMessage() != null) {
+                Field f;
+                try {
+                    f = Throwable.class.getDeclaredField("detailMessage");
+                    f.setAccessible(true);
+                    f.set(e, fault.getMessage());
+                } catch (Exception e1) {
+                    //ignore
+                }
+            }
             msg.setContent(Exception.class, e);
         }
         
