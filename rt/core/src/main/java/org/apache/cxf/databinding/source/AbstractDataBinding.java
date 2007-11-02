@@ -63,7 +63,7 @@ public class AbstractDataBinding {
             if (n instanceof Element) {
                 Element e = (Element) n;
                 if (e.getLocalName().equals("import")) {
-                    d.getDocumentElement().removeChild(e);
+                    e.removeAttribute("schemaLocation");
                 }
             }
         }
