@@ -25,8 +25,12 @@ public class AegisServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public String getServiceNamespace() {
-        return NamespaceHelper.makeNamespaceFromClassName(getServiceFactory().getServiceClass().getName(),
+        String ret = super.getServiceNamespace();
+        if (ret == null) {
+            ret = NamespaceHelper.makeNamespaceFromClassName(getServiceFactory().getServiceClass().getName(),
                                                           "http");
+        }
+        return ret;
     }
 
 }
