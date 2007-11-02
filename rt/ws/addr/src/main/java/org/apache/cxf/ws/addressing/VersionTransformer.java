@@ -30,7 +30,6 @@ import javax.xml.namespace.QName;
 // importation convention: if the same class name is used for 
 // 2005/08 and 2004/08, then the former version is imported
 // and the latter is fully qualified when used
-import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.ws.addressing.v200408.AttributedQName;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.ObjectFactory;
@@ -322,8 +321,6 @@ public class VersionTransformer {
             WSA_NAMESPACE_NAME + "/role/none";
         public static final ObjectFactory WSA_OBJECT_FACTORY = 
             new ObjectFactory();
-        public static final String WS_ADDRESSING_PACKAGE =
-            PackageUtils.getPackageName(AttributedURI.class);
         public static final Class<org.apache.cxf.ws.addressing.v200408.EndpointReferenceType>
         EPR_TYPE = 
             org.apache.cxf.ws.addressing.v200408.EndpointReferenceType.class;
@@ -343,7 +340,7 @@ public class VersionTransformer {
             synchronized (Names200408.class) {
                 if (jaxbContext == null) {
                     jaxbContext = 
-                        JAXBContext.newInstance(WS_ADDRESSING_PACKAGE);
+                        JAXBContext.newInstance(org.apache.cxf.ws.addressing.v200408.ObjectFactory.class);
                 }
             }
             return jaxbContext;
