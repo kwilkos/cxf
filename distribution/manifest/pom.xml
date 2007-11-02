@@ -230,9 +230,8 @@
             <artifactId>asm</artifactId>
         </dependency>
         <dependency>
-	    <groupId>commons-httpclient</groupId>
-	    <artifactId>commons-httpclient</artifactId>
-	    <version>3.1-rc1</version>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
         </dependency>        
     </dependencies>
 

@@ -20,14 +20,12 @@
 package org.apache.cxf.systest.jaxrs;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.cxf.helpers.IOUtils;
@@ -59,49 +57,6 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
     }
     
     @Test
-    public void testAddBookHTTPURL() throws Exception {        
-        String endpointAddress =
-            "http://localhost:9080/bookstore/books";
-
-        URL url = new URL(endpointAddress);   
-        HttpURLConnection httpUrlConnection = (HttpURLConnection)url.openConnection();  
-             
-        httpUrlConnection.setUseCaches(false);   
-        httpUrlConnection.setDefaultUseCaches(false);   
-        httpUrlConnection.setDoOutput(true);   
-        httpUrlConnection.setDoInput(true);   
-        httpUrlConnection.setRequestMethod("POST");   
-        httpUrlConnection.setRequestProperty("Accept",   "text/html");   
-        httpUrlConnection.setRequestProperty("Content-type",   "text/html");   
-        httpUrlConnection.setRequestProperty("Connection",   "close");   
-        //httpurlconnection.setRequestProperty("Content-Length",   String.valueOf(is.available()));   
-
-        OutputStream outputstream = httpUrlConnection.getOutputStream();
-        String inputFile = getClass().getResource("resources/add_book.txt").getFile();         
-         
-        byte[] tmp = new byte[4096];
-        int i = 0;
-        InputStream instream = new FileInputStream(inputFile);
-        try {
-            while ((i = instream.read(tmp)) >= 0) {
-                outputstream.write(tmp, 0, i);
-            }
-        } finally {
-            instream.close();
-        }
-
-        outputstream.flush();
-
-        int responseCode = httpUrlConnection.getResponseCode();   
-        assertEquals(200, responseCode);
-        
-        InputStream expected = getClass().getResourceAsStream("resources/expected_add_book.txt"); 
-        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(httpUrlConnection
-            .getInputStream()));  
-        httpUrlConnection.disconnect();        
-    }  
-    
-/*    @Test
     public void testAddBook() throws Exception {
         String endpointAddress =
             "http://localhost:9080/bookstore/books";
@@ -127,7 +82,7 @@ public class JAXRSClientServerBookTest extends AbstractBusClientServerTestBase {
             // Release current connection to the connection pool once you are done
             post.releaseConnection();
         }               
-    }*/  
+    }  
     
     @Test
     public void testUpdateBook() throws Exception {

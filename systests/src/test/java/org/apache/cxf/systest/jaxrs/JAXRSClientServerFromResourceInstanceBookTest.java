@@ -19,7 +19,10 @@
 
 package org.apache.cxf.systest.jaxrs;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.cxf.helpers.IOUtils;
@@ -49,7 +52,50 @@ public class JAXRSClientServerFromResourceInstanceBookTest extends AbstractBusCl
 
         assertEquals(getStringFromInputStream(expected), getStringFromInputStream(in)); 
     }
+    
+    @Test
+    public void testAddBookHTTPURL() throws Exception {        
+        String endpointAddress =
+            "http://localhost:9080/bookstore/books";
 
+        URL url = new URL(endpointAddress);   
+        HttpURLConnection httpUrlConnection = (HttpURLConnection)url.openConnection();  
+             
+        httpUrlConnection.setUseCaches(false);   
+        httpUrlConnection.setDefaultUseCaches(false);   
+        httpUrlConnection.setDoOutput(true);   
+        httpUrlConnection.setDoInput(true);   
+        httpUrlConnection.setRequestMethod("POST");   
+        httpUrlConnection.setRequestProperty("Accept",   "text/html");   
+        httpUrlConnection.setRequestProperty("Content-type",   "text/html");   
+        httpUrlConnection.setRequestProperty("Connection",   "close");   
+        //httpurlconnection.setRequestProperty("Content-Length",   String.valueOf(is.available()));   
+
+        OutputStream outputstream = httpUrlConnection.getOutputStream();
+        String inputFile = getClass().getResource("resources/add_book.txt").getFile();         
+         
+        byte[] tmp = new byte[4096];
+        int i = 0;
+        InputStream is = new FileInputStream(inputFile);
+        try {
+            while ((i = is.read(tmp)) >= 0) {
+                outputstream.write(tmp, 0, i);
+            }
+        } finally {
+            is.close();
+        }
+
+        outputstream.flush();
+
+        int responseCode = httpUrlConnection.getResponseCode();   
+        assertEquals(200, responseCode);
+        
+        InputStream expected = getClass().getResourceAsStream("resources/expected_add_book.txt"); 
+        assertEquals(getStringFromInputStream(expected), getStringFromInputStream(httpUrlConnection
+            .getInputStream()));  
+        httpUrlConnection.disconnect();        
+    } 
+    
     private String getStringFromInputStream(InputStream in) throws Exception {        
         CachedOutputStream bos = new CachedOutputStream();
         IOUtils.copy(in, bos);
