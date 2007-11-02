@@ -35,6 +35,10 @@
       <param-name>config-location</param-name>
       <param-value>org/apache/cxf/systest/servlet/cxf-servlet.xml</param-value>
     </init-param>
+    <init-param> 
+      <param-name>base-address</param-name> 
+      <param-value>http://localhost/somewhere</param-value> 
+    </init-param> 
   </servlet>
 
   <servlet-mapping>
