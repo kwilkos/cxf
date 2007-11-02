@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.jca.cxf.handlers;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,9 +27,15 @@ import javax.security.auth.Subject;
 
 
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
+import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
+import org.junit.Before;
 import org.junit.Test;
 
 public class InvocationHandlerFactoryTest extends HandlerTestBase {
+    
+    private CXFInvocationHandler handler;
+    
+    private Subject testSubject;
     
     public InvocationHandlerFactoryTest() {
         super();
@@ -38,18 +45,21 @@ public class InvocationHandlerFactoryTest extends HandlerTestBase {
         super(name);
     }
     
+    @Before
+    public void setUp() {
+        super.setUp();
+        testSubject = new Subject();
+        try {
+            InvocationHandlerFactory factory = new InvocationHandlerFactory(mockBus, mci);
+            handler = factory.createHandlers(target, testSubject);
+        } catch (ResourceAdapterInternalException e) {
+            fail();
+        }
+    }
+    
     @Test
-    public void testCreateHandlerChain() 
-        throws ResourceAdapterInternalException {
-
-        Subject testSubject = new Subject();
-
-        InvocationHandlerFactory factory = 
-            new InvocationHandlerFactory(
-                 mockBus,
-                 mci);
-
-        CXFInvocationHandler handler = factory.createHandlers(target, testSubject);
+    public void testCreateHandlerChain() throws ResourceAdapterInternalException {
+      
         CXFInvocationHandler first = handler;
         CXFInvocationHandler last = null;
 
@@ -72,7 +82,7 @@ public class InvocationHandlerFactoryTest extends HandlerTestBase {
         }
         assertNotNull(last);
 
-        assertEquals("must create correct number of handlers", 3, count);
+        assertEquals("must create correct number of handlers", count, 4);
 
         assertTrue("first handler must a ProxyInvocationHandler", first instanceof ProxyInvocationHandler);
         assertTrue("last handler must be an InvokingInvocationHandler",
@@ -87,7 +97,25 @@ public class InvocationHandlerFactoryTest extends HandlerTestBase {
         }
     }
 
+    @Test
+    public void testOrderedHandlerChain() throws Exception {
+        assertEquals(ProxyInvocationHandler.class, handler.getClass());
+        assertEquals(ObjectMethodInvocationHandler.class, handler.getNext().getClass());
+        assertEquals(SecurityTestHandler.class, handler.getNext().getNext().getClass());
+    }
     
+    
+    public static class SecurityTestHandler extends CXFInvocationHandlerBase {
 
+        public SecurityTestHandler(CXFInvocationHandlerData data) {
+            super(data);
+        }
+
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            
+            return invokeNext(proxy, method, args);
+        }
+        
+    }
     
 }
