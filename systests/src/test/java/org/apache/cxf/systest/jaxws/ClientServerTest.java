@@ -19,8 +19,6 @@
 
 package org.apache.cxf.systest.jaxws;
 
-
-
 import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -52,7 +50,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 //import org.apache.cxf.Bus;
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
@@ -102,6 +102,18 @@ public class ClientServerTest extends AbstractBusClientServerTestBase {
         assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
+    public void testBase64() throws URISyntaxException  {
+        URL wsdl = getClass().getResource("/wsdl/dynamic_client_base64.wsdl");
+        assertNotNull(wsdl);
+        String wsdlUrl = null;
+        wsdlUrl = wsdl.toURI().toString();
+        CXFBusFactory busFactory = new CXFBusFactory(); 
+        Bus bus = busFactory.createBus();
+        DynamicClientFactory dynamicClientFactory = DynamicClientFactory.newInstance(bus);
+        Client client = dynamicClientFactory.createClient(wsdlUrl);
+        assertNotNull(client);
+    }
         
     @Test
     public void testBasicConnection() throws Exception {
